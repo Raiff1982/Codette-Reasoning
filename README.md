@@ -19,6 +19,8 @@ license: cc-by-4.0
 
 # Codette: A Sovereign Modular Cognitive Architecture for Ethical Multi-Agent AI
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18913936.svg)](https://doi.org/10.5281/zenodo.18913936)
+
 **Jonathan Harrison**
 Raiff's Bits LLC, Bridge City, Texas, USA
 ORCID: [0009-0003-7005-8187](https://orcid.org/0009-0003-7005-8187)
@@ -119,6 +121,7 @@ This work builds on 11 prior Zenodo publications with permanent DOI identifiers,
 - [AEGIS-Nexus](https://doi.org/10.5281/zenodo.16644058)
 - [Codette: Ethical Multi-Agent AI](https://doi.org/10.5281/zenodo.16894230)
 - [Recursive AI with Codette](https://doi.org/10.5281/zenodo.18167802)
+- **[This Paper — Full Preprint](https://doi.org/10.5281/zenodo.18913936)** ← You are here
 
 ## Citation
 
@@ -127,6 +130,7 @@ This work builds on 11 prior Zenodo publications with permanent DOI identifiers,
   title={Codette: A Sovereign Modular Cognitive Architecture for Ethical Multi-Agent AI},
   author={Harrison, Jonathan},
   year={2026},
+  doi={10.5281/zenodo.18913936},
   publisher={Raiff's Bits LLC},
   url={https://huggingface.co/Raiff1982/codette-paper}
 }
