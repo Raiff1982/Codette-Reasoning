@@ -1,0 +1,81 @@
+{
+  "tests_run": 5,
+  "total_time_ms": 17.146587371826172,
+  "tests": {
+    "framework_init_ms": 0.0,
+    "semantic_tension_ms": 16.599655151367188,
+    "specialization_ms": 0.5469322204589844,
+    "coherence_ms": 0.0,
+    "state_distance_ms": 0.0
+  },
+  "results": {
+    "semantic_tensions": [
+      {
+        "claim_a": "Newton's laws are fundamental.",
+        "claim_b": "Quantum mechanics reveals indeterminacy.",
+        "semantic_tension": 0.497,
+        "polarity": "framework"
+      },
+      {
+        "claim_a": "The universe is deterministic.",
+        "claim_b": "Quantum effects introduce randomness.",
+        "semantic_tension": 0.495,
+        "polarity": "framework"
+      },
+      {
+        "claim_a": "Consciousness is an illusion.",
+        "claim_b": "Consciousness is fundamental to reality.",
+        "semantic_tension": 0.503,
+        "polarity": "framework"
+      },
+      {
+        "claim_a": "AI will surpass human intelligence.",
+        "claim_b": "AI and humans will collaborate.",
+        "semantic_tension": 0.491,
+        "polarity": "framework"
+      },
+      {
+        "claim_a": "Ethics are absolute.",
+        "claim_b": "Ethics are relative and contextual.",
+        "semantic_tension": 0.502,
+        "polarity": "framework"
+      }
+    ],
+    "coherence": [
+      {
+        "name": "Healthy",
+        "gamma": 0.675,
+        "health": "healthy",
+        "diversity": 0.75,
+        "tension_health": 0.65
+      },
+      {
+        "name": "Collapsing",
+        "gamma": 0.113,
+        "health": "collapsing",
+        "diversity": 0.1,
+        "tension_health": 0.2
+      },
+      {
+        "name": "Groupthinking",
+        "gamma": 0.962,
+        "health": "groupthinking",
+        "diversity": 0.95,
+        "tension_health": 0.95
+      },
+      {
+        "name": "Balanced",
+        "gamma": 0.6,
+        "health": "healthy",
+        "diversity": 0.6,
+        "tension_health": 0.6
+      }
+    ],
+    "state_distances": {
+      "A-B": 0.7211102843284607,
+      "A-C": 1.532970905303955,
+      "B-C": 1.1618949174880981
+    },
+    "note": "Specialization scores stored as string due to nested dict structure"
+  }
+}

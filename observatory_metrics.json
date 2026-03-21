@@ -1,0 +1,4975 @@
+[
+  {
+    "stage": "generate",
+    "adapter": "newton",
+    "timestamp": "2026-03-05T09:59:29.652376",
+    "pipeline_run": "2026-03-05T09:59:29.370043",
+    "status": "generated",
+    "examples": 3000,
+    "path": "datasets\\newton_reasoning.jsonl",
+    "time_seconds": 0.14399099349975586
+  },
+  {
+    "stage": "generate",
+    "adapter": "davinci",
+    "timestamp": "2026-03-05T09:59:29.739750",
+    "pipeline_run": "2026-03-05T09:59:29.370043",
+    "status": "generated",
+    "examples": 2500,
+    "path": "datasets\\davinci_reasoning.jsonl",
+    "time_seconds": 0.08529877662658691
+  },
+  {
+    "stage": "generate",
+    "adapter": "empathy",
+    "timestamp": "2026-03-05T09:59:29.836617",
+    "pipeline_run": "2026-03-05T09:59:29.370043",
+    "status": "generated",
+    "examples": 2500,
+    "path": "datasets\\empathy_reasoning.jsonl",
+    "time_seconds": 0.09464621543884277
+  },
+  {
+    "stage": "generate",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-05T09:59:29.918561",
+    "pipeline_run": "2026-03-05T09:59:29.370043",
+    "status": "generated",
+    "examples": 2000,
+    "path": "datasets\\philosophy_reasoning.jsonl",
+    "time_seconds": 0.07988810539245605
+  },
+  {
+    "stage": "generate",
+    "adapter": "quantum",
+    "timestamp": "2026-03-05T09:59:29.996159",
+    "pipeline_run": "2026-03-05T09:59:29.370043",
+    "status": "generated",
+    "examples": 2000,
+    "path": "datasets\\quantum_reasoning.jsonl",
+    "time_seconds": 0.07599163055419922
+  },
+  {
+    "stage": "generate",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-05T09:59:29.999193",
+    "pipeline_run": "2026-03-05T09:59:29.370043",
+    "status": "error",
+    "error": "Unknown adapter 'rcxi'. Available: ['newton', 'davinci', 'empathy', 'philosophy', 'quantum', 'consciousness', 'multi_perspective', 'systems_architecture']",
+    "time_seconds": 1.2636184692382812e-05
+  },
+  {
+    "stage": "generate",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-05T09:59:30.084444",
+    "pipeline_run": "2026-03-05T09:59:29.370043",
+    "status": "generated",
+    "examples": 2500,
+    "path": "datasets\\multi_perspective_reasoning.jsonl",
+    "time_seconds": 0.08474349975585938
+  },
+  {
+    "stage": "generate",
+    "adapter": "systems",
+    "timestamp": "2026-03-05T09:59:30.086375",
+    "pipeline_run": "2026-03-05T09:59:29.370043",
+    "status": "error",
+    "error": "Unknown adapter 'systems'. Available: ['newton', 'davinci', 'empathy', 'philosophy', 'quantum', 'consciousness', 'multi_perspective', 'systems_architecture']",
+    "time_seconds": 7.700920104980469e-05
+  },
+  {
+    "stage": "validate",
+    "adapter": "newton",
+    "timestamp": "2026-03-05T09:59:30.116843",
+    "pipeline_run": "2026-03-05T09:59:29.370043",
+    "status": "valid",
+    "total_records": 3000,
+    "valid_records": 3000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "davinci",
+    "timestamp": "2026-03-05T09:59:30.143162",
+    "pipeline_run": "2026-03-05T09:59:29.370043",
+    "status": "valid",
+    "total_records": 2500,
+    "valid_records": 2500,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "empathy",
+    "timestamp": "2026-03-05T09:59:30.169868",
+    "pipeline_run": "2026-03-05T09:59:29.370043",
+    "status": "valid",
+    "total_records": 2500,
+    "valid_records": 2500,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-05T09:59:30.189936",
+    "pipeline_run": "2026-03-05T09:59:29.370043",
+    "status": "valid",
+    "total_records": 2000,
+    "valid_records": 2000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "quantum",
+    "timestamp": "2026-03-05T09:59:30.211516",
+    "pipeline_run": "2026-03-05T09:59:29.370043",
+    "status": "valid",
+    "total_records": 2000,
+    "valid_records": 2000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-05T09:59:30.419393",
+    "pipeline_run": "2026-03-05T09:59:29.370043",
+    "status": "valid",
+    "total_records": 3000,
+    "valid_records": 3000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-05T09:59:30.448159",
+    "pipeline_run": "2026-03-05T09:59:29.370043",
+    "status": "valid",
+    "total_records": 2500,
+    "valid_records": 2500,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "systems",
+    "timestamp": "2026-03-05T09:59:30.536197",
+    "pipeline_run": "2026-03-05T09:59:29.370043",
+    "status": "valid",
+    "total_records": 2000,
+    "valid_records": 2000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "pipeline",
+    "adapter": null,
+    "timestamp": "2026-03-05T09:59:30.536215",
+    "pipeline_run": "2026-03-05T09:59:29.370043",
+    "total_time_seconds": 1.1649775505065918,
+    "stages_run": [
+      "generate",
+      "validate"
+    ],
+    "adapters_processed": [
+      "newton",
+      "davinci",
+      "empathy",
+      "philosophy",
+      "quantum",
+      "rcxi",
+      "multi_perspective",
+      "systems"
+    ]
+  },
+  {
+    "stage": "generate",
+    "adapter": "newton",
+    "timestamp": "2026-03-05T11:51:28.434928",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "generated",
+    "examples": 3000,
+    "path": "datasets\\newton_reasoning.jsonl",
+    "time_seconds": 0.27001118659973145
+  },
+  {
+    "stage": "generate",
+    "adapter": "davinci",
+    "timestamp": "2026-03-05T11:51:28.617787",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "generated",
+    "examples": 2500,
+    "path": "datasets\\davinci_reasoning.jsonl",
+    "time_seconds": 0.1797177791595459
+  },
+  {
+    "stage": "generate",
+    "adapter": "empathy",
+    "timestamp": "2026-03-05T11:51:29.141321",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "generated",
+    "examples": 2500,
+    "path": "datasets\\empathy_reasoning.jsonl",
+    "time_seconds": 0.5214910507202148
+  },
+  {
+    "stage": "generate",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-05T11:51:29.481864",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "generated",
+    "examples": 2000,
+    "path": "datasets\\philosophy_reasoning.jsonl",
+    "time_seconds": 0.3383147716522217
+  },
+  {
+    "stage": "generate",
+    "adapter": "quantum",
+    "timestamp": "2026-03-05T11:51:29.603051",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "generated",
+    "examples": 2000,
+    "path": "datasets\\quantum_reasoning.jsonl",
+    "time_seconds": 0.1188662052154541
+  },
+  {
+    "stage": "generate",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-05T11:51:29.605415",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "error",
+    "error": "Unknown adapter 'rcxi'. Available: ['newton', 'davinci', 'empathy', 'philosophy', 'quantum', 'consciousness', 'multi_perspective', 'systems_architecture']",
+    "time_seconds": 0.00037169456481933594
+  },
+  {
+    "stage": "generate",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-05T11:51:29.782693",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "generated",
+    "examples": 2500,
+    "path": "datasets\\multi_perspective_reasoning.jsonl",
+    "time_seconds": 0.1757960319519043
+  },
+  {
+    "stage": "generate",
+    "adapter": "systems",
+    "timestamp": "2026-03-05T11:51:29.784873",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "error",
+    "error": "Unknown adapter 'systems'. Available: ['newton', 'davinci', 'empathy', 'philosophy', 'quantum', 'consciousness', 'multi_perspective', 'systems_architecture']",
+    "time_seconds": 0.0001933574676513672
+  },
+  {
+    "stage": "validate",
+    "adapter": "newton",
+    "timestamp": "2026-03-05T11:51:29.824900",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "valid",
+    "total_records": 3000,
+    "valid_records": 3000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "davinci",
+    "timestamp": "2026-03-05T11:51:29.848739",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "valid",
+    "total_records": 2500,
+    "valid_records": 2500,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "empathy",
+    "timestamp": "2026-03-05T11:51:29.871486",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "valid",
+    "total_records": 2500,
+    "valid_records": 2500,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-05T11:51:29.891614",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "valid",
+    "total_records": 2000,
+    "valid_records": 2000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "quantum",
+    "timestamp": "2026-03-05T11:51:29.912770",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "valid",
+    "total_records": 2000,
+    "valid_records": 2000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-05T11:51:30.250030",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "valid",
+    "total_records": 3000,
+    "valid_records": 3000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-05T11:51:30.395873",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "valid",
+    "total_records": 2500,
+    "valid_records": 2500,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "systems",
+    "timestamp": "2026-03-05T11:51:30.640363",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "valid",
+    "total_records": 2000,
+    "valid_records": 2000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "forge",
+    "adapter": "newton",
+    "timestamp": "2026-03-05T11:51:35.785513",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "success",
+    "total_examples": 3000,
+    "enhanced_examples": 3000,
+    "time_seconds": 4.840914249420166
+  },
+  {
+    "stage": "forge",
+    "adapter": "davinci",
+    "timestamp": "2026-03-05T11:51:39.755366",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "success",
+    "total_examples": 2500,
+    "enhanced_examples": 2500,
+    "time_seconds": 3.9684011936187744
+  },
+  {
+    "stage": "forge",
+    "adapter": "empathy",
+    "timestamp": "2026-03-05T11:51:43.537347",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "success",
+    "total_examples": 2500,
+    "enhanced_examples": 2500,
+    "time_seconds": 3.7810404300689697
+  },
+  {
+    "stage": "forge",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-05T11:51:46.472187",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "success",
+    "total_examples": 2000,
+    "enhanced_examples": 2000,
+    "time_seconds": 2.9335103034973145
+  },
+  {
+    "stage": "forge",
+    "adapter": "quantum",
+    "timestamp": "2026-03-05T11:51:49.616965",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "success",
+    "total_examples": 2000,
+    "enhanced_examples": 2000,
+    "time_seconds": 3.1435470581054688
+  },
+  {
+    "stage": "forge",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-05T11:52:16.190421",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "success",
+    "total_examples": 3000,
+    "enhanced_examples": 3000,
+    "time_seconds": 26.571989059448242
+  },
+  {
+    "stage": "forge",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-05T11:52:20.086114",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "success",
+    "total_examples": 2500,
+    "enhanced_examples": 2500,
+    "time_seconds": 3.8911640644073486
+  },
+  {
+    "stage": "forge",
+    "adapter": "systems",
+    "timestamp": "2026-03-05T11:52:26.526386",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "success",
+    "total_examples": 2000,
+    "enhanced_examples": 2000,
+    "time_seconds": 6.438694715499878
+  },
+  {
+    "stage": "train",
+    "adapter": "newton",
+    "timestamp": "2026-03-05T12:02:06.258372",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "error",
+    "error": "Data processing error: File Reconstruction Error: Internal Writer Error: Failed to send data: receiver dropped",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 553.0783569812775
+  },
+  {
+    "stage": "train",
+    "adapter": "davinci",
+    "timestamp": "2026-03-05T12:06:08.102699",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "error",
+    "error": "Data processing error: File Reconstruction Error: Internal Writer Error: Failed to send data: receiver dropped",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 241.3597869873047
+  },
+  {
+    "stage": "train",
+    "adapter": "empathy",
+    "timestamp": "2026-03-05T12:06:10.335824",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "error",
+    "error": "There is not enough space on the disk. (os error 112)",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 2.046992778778076
+  },
+  {
+    "stage": "train",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-05T12:06:11.282306",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "error",
+    "error": "There is not enough space on the disk. (os error 112)",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 0.9341073036193848
+  },
+  {
+    "stage": "train",
+    "adapter": "quantum",
+    "timestamp": "2026-03-05T12:06:14.540725",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "error",
+    "error": "There is not enough space on the disk. (os error 112)",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 3.187710762023926
+  },
+  {
+    "stage": "train",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-05T12:06:17.004200",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "error",
+    "error": "There is not enough space on the disk. (os error 112)",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 2.1806528568267822
+  },
+  {
+    "stage": "train",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-05T12:06:18.236677",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "error",
+    "error": "There is not enough space on the disk. (os error 112)",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 1.2235488891601562
+  },
+  {
+    "stage": "train",
+    "adapter": "systems",
+    "timestamp": "2026-03-05T12:06:20.015072",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "error",
+    "error": "There is not enough space on the disk. (os error 112)",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 1.7671480178833008
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "newton",
+    "timestamp": "2026-03-05T12:06:26.595446",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "evaluated",
+    "total_responses": 3000,
+    "scores": {
+      "clarity": 0.6685,
+      "structure": 0.5723,
+      "depth": 0.9946,
+      "examples": 0.3759,
+      "multi_perspective": 0.5669,
+      "scientific_rigor": 0.4376,
+      "ethical_awareness": 0.5219,
+      "coherence": 0.3271,
+      "overall": 0.5801,
+      "word_count": 480.143,
+      "sentence_count": 26.9483
+    },
+    "time_seconds": 6.121406555175781
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "davinci",
+    "timestamp": "2026-03-05T12:06:31.535763",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "evaluated",
+    "total_responses": 2500,
+    "scores": {
+      "clarity": 0.6649,
+      "structure": 0.5534,
+      "depth": 0.995,
+      "examples": 0.1532,
+      "multi_perspective": 0.5806,
+      "scientific_rigor": 0.3201,
+      "ethical_awareness": 0.5737,
+      "coherence": 0.2726,
+      "overall": 0.538,
+      "word_count": 478.202,
+      "sentence_count": 27.3028
+    },
+    "time_seconds": 4.929551839828491
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "empathy",
+    "timestamp": "2026-03-05T12:06:35.888549",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "evaluated",
+    "total_responses": 2500,
+    "scores": {
+      "clarity": 0.6739,
+      "structure": 0.539,
+      "depth": 0.9952,
+      "examples": 0.1892,
+      "multi_perspective": 0.6038,
+      "scientific_rigor": 0.3386,
+      "ethical_awareness": 0.6423,
+      "coherence": 0.3051,
+      "overall": 0.556,
+      "word_count": 481.038,
+      "sentence_count": 26.9796
+    },
+    "time_seconds": 4.3487548828125
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-05T12:06:39.204549",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "evaluated",
+    "total_responses": 2000,
+    "scores": {
+      "clarity": 0.6708,
+      "structure": 0.5539,
+      "depth": 0.9954,
+      "examples": 0.2086,
+      "multi_perspective": 0.7429,
+      "scientific_rigor": 0.3596,
+      "ethical_awareness": 0.6223,
+      "coherence": 0.322,
+      "overall": 0.5766,
+      "word_count": 487.796,
+      "sentence_count": 27.2695
+    },
+    "time_seconds": 3.304492712020874
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "quantum",
+    "timestamp": "2026-03-05T12:06:42.434890",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "evaluated",
+    "total_responses": 2000,
+    "scores": {
+      "clarity": 0.6715,
+      "structure": 0.5513,
+      "depth": 0.9953,
+      "examples": 0.2364,
+      "multi_perspective": 0.6332,
+      "scientific_rigor": 0.4823,
+      "ethical_awareness": 0.5369,
+      "coherence": 0.3093,
+      "overall": 0.5766,
+      "word_count": 485.6675,
+      "sentence_count": 27.0405
+    },
+    "time_seconds": 3.2288401126861572
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-05T12:06:50.990026",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "evaluated",
+    "total_responses": 3000,
+    "scores": {
+      "clarity": 0.6115,
+      "structure": 0.5502,
+      "depth": 0.9026,
+      "examples": 0.1562,
+      "multi_perspective": 0.9205,
+      "scientific_rigor": 0.4759,
+      "ethical_awareness": 0.6445,
+      "coherence": 0.3144,
+      "overall": 0.5846,
+      "word_count": 854.668,
+      "sentence_count": 45.656
+    },
+    "time_seconds": 8.522654294967651
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-05T12:06:55.239804",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "evaluated",
+    "total_responses": 2500,
+    "scores": {
+      "clarity": 0.6784,
+      "structure": 0.574,
+      "depth": 0.9945,
+      "examples": 0.2702,
+      "multi_perspective": 0.682,
+      "scientific_rigor": 0.3662,
+      "ethical_awareness": 0.625,
+      "coherence": 0.302,
+      "overall": 0.5799,
+      "word_count": 473.376,
+      "sentence_count": 25.92
+    },
+    "time_seconds": 4.239100217819214
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "systems",
+    "timestamp": "2026-03-05T12:07:01.181429",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "status": "evaluated",
+    "total_responses": 2000,
+    "scores": {
+      "clarity": 0.6132,
+      "structure": 0.5566,
+      "depth": 0.907,
+      "examples": 0.1933,
+      "multi_perspective": 0.931,
+      "scientific_rigor": 0.4425,
+      "ethical_awareness": 0.6552,
+      "coherence": 0.3007,
+      "overall": 0.5859,
+      "word_count": 860.158,
+      "sentence_count": 46.023
+    },
+    "time_seconds": 5.940130710601807
+  },
+  {
+    "stage": "pipeline",
+    "adapter": null,
+    "timestamp": "2026-03-05T12:07:01.181939",
+    "pipeline_run": "2026-03-05T11:51:27.977332",
+    "total_time_seconds": 933.1828961372375,
+    "stages_run": [
+      "generate",
+      "validate",
+      "forge",
+      "train",
+      "evaluate"
+    ],
+    "adapters_processed": [
+      "newton",
+      "davinci",
+      "empathy",
+      "philosophy",
+      "quantum",
+      "rcxi",
+      "multi_perspective",
+      "systems"
+    ]
+  },
+  {
+    "type": "adapter_training",
+    "adapter": "newton",
+    "timestamp": "2026-03-05T12:15:35.228392",
+    "status": "error",
+    "error": "There is not enough space on the disk. (os error 112)",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 92.2169177532196
+  },
+  {
+    "type": "adapter_training",
+    "adapter": "davinci",
+    "timestamp": "2026-03-05T12:15:36.368150",
+    "status": "error",
+    "error": "There is not enough space on the disk. (os error 112)",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 0.6944358348846436
+  },
+  {
+    "type": "adapter_training",
+    "adapter": "empathy",
+    "timestamp": "2026-03-05T12:15:37.818458",
+    "status": "error",
+    "error": "There is not enough space on the disk. (os error 112)",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 0.684197187423706
+  },
+  {
+    "type": "adapter_training",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-05T12:15:38.492920",
+    "status": "error",
+    "error": "There is not enough space on the disk. (os error 112)",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 0.6610910892486572
+  },
+  {
+    "type": "adapter_training",
+    "adapter": "quantum",
+    "timestamp": "2026-03-05T12:15:39.683857",
+    "status": "error",
+    "error": "There is not enough space on the disk. (os error 112)",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 0.6696877479553223
+  },
+  {
+    "type": "adapter_training",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-05T12:15:40.509769",
+    "status": "error",
+    "error": "There is not enough space on the disk. (os error 112)",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 0.8145790100097656
+  },
+  {
+    "type": "adapter_training",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-05T12:15:41.228668",
+    "status": "error",
+    "error": "There is not enough space on the disk. (os error 112)",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 0.6707427501678467
+  },
+  {
+    "type": "adapter_training",
+    "adapter": "systems",
+    "timestamp": "2026-03-05T12:15:41.968228",
+    "status": "error",
+    "error": "There is not enough space on the disk. (os error 112)",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 0.7210283279418945
+  },
+  {
+    "type": "adapter_training",
+    "adapter": "newton",
+    "timestamp": "2026-03-05T12:19:08.218228",
+    "status": "error",
+    "error": "There is not enough space on the disk. (os error 112)",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 6.776324033737183
+  },
+  {
+    "type": "adapter_training",
+    "adapter": "davinci",
+    "timestamp": "2026-03-05T12:19:09.032917",
+    "status": "error",
+    "error": "There is not enough space on the disk. (os error 112)",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 0.7988603115081787
+  },
+  {
+    "type": "adapter_training",
+    "adapter": "empathy",
+    "timestamp": "2026-03-05T12:19:09.935748",
+    "status": "error",
+    "error": "There is not enough space on the disk. (os error 112)",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 0.892183780670166
+  },
+  {
+    "type": "adapter_training",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-05T12:19:10.625920",
+    "status": "error",
+    "error": "There is not enough space on the disk. (os error 112)",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 0.6798748970031738
+  },
+  {
+    "type": "adapter_training",
+    "adapter": "quantum",
+    "timestamp": "2026-03-05T12:19:11.321216",
+    "status": "error",
+    "error": "There is not enough space on the disk. (os error 112)",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 0.6851582527160645
+  },
+  {
+    "type": "adapter_training",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-05T12:19:12.413857",
+    "status": "error",
+    "error": "There is not enough space on the disk. (os error 112)",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 0.8433570861816406
+  },
+  {
+    "type": "adapter_training",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-05T12:19:14.201251",
+    "status": "error",
+    "error": "There is not enough space on the disk. (os error 112)",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 0.6704399585723877
+  },
+  {
+    "type": "adapter_training",
+    "adapter": "systems",
+    "timestamp": "2026-03-05T12:19:14.900090",
+    "status": "error",
+    "error": "There is not enough space on the disk. (os error 112)",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 0.6875877380371094
+  },
+  {
+    "stage": "generate",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T05:20:37.085663",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "generated",
+    "examples": 3000,
+    "path": "datasets\\newton_reasoning.jsonl",
+    "time_seconds": 0.24552702903747559
+  },
+  {
+    "stage": "generate",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T05:20:37.219472",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "generated",
+    "examples": 2500,
+    "path": "datasets\\davinci_reasoning.jsonl",
+    "time_seconds": 0.13204026222229004
+  },
+  {
+    "stage": "generate",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T05:20:37.361433",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "generated",
+    "examples": 2500,
+    "path": "datasets\\empathy_reasoning.jsonl",
+    "time_seconds": 0.14021086692810059
+  },
+  {
+    "stage": "generate",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T05:20:37.464662",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "generated",
+    "examples": 2000,
+    "path": "datasets\\philosophy_reasoning.jsonl",
+    "time_seconds": 0.1014397144317627
+  },
+  {
+    "stage": "generate",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T05:20:37.575290",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "generated",
+    "examples": 2000,
+    "path": "datasets\\quantum_reasoning.jsonl",
+    "time_seconds": 0.10861396789550781
+  },
+  {
+    "stage": "generate",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-06T05:20:37.576928",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "error",
+    "error": "Unknown adapter 'rcxi'. Available: ['newton', 'davinci', 'empathy', 'philosophy', 'quantum', 'consciousness', 'multi_perspective', 'systems_architecture']",
+    "time_seconds": 1.4781951904296875e-05
+  },
+  {
+    "stage": "generate",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T05:20:37.717627",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "generated",
+    "examples": 2500,
+    "path": "datasets\\multi_perspective_reasoning.jsonl",
+    "time_seconds": 0.13978290557861328
+  },
+  {
+    "stage": "generate",
+    "adapter": "systems",
+    "timestamp": "2026-03-06T05:20:37.719045",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "error",
+    "error": "Unknown adapter 'systems'. Available: ['newton', 'davinci', 'empathy', 'philosophy', 'quantum', 'consciousness', 'multi_perspective', 'systems_architecture']",
+    "time_seconds": 1.6689300537109375e-05
+  },
+  {
+    "stage": "validate",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T05:20:37.761164",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "valid",
+    "total_records": 3000,
+    "valid_records": 3000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T05:20:37.793545",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "valid",
+    "total_records": 2500,
+    "valid_records": 2500,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T05:20:37.826832",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "valid",
+    "total_records": 2500,
+    "valid_records": 2500,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T05:20:37.854500",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "valid",
+    "total_records": 2000,
+    "valid_records": 2000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T05:20:37.883467",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "valid",
+    "total_records": 2000,
+    "valid_records": 2000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-06T05:20:38.423876",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "valid",
+    "total_records": 3000,
+    "valid_records": 3000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T05:20:38.456599",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "valid",
+    "total_records": 2500,
+    "valid_records": 2500,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "systems",
+    "timestamp": "2026-03-06T05:20:38.868801",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "valid",
+    "total_records": 2000,
+    "valid_records": 2000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "forge",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T05:20:45.609287",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "success",
+    "total_examples": 3000,
+    "enhanced_examples": 3000,
+    "time_seconds": 6.3531270027160645
+  },
+  {
+    "stage": "forge",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T05:20:50.831253",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "success",
+    "total_examples": 2500,
+    "enhanced_examples": 2500,
+    "time_seconds": 5.220351696014404
+  },
+  {
+    "stage": "forge",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T05:20:55.747878",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "success",
+    "total_examples": 2500,
+    "enhanced_examples": 2500,
+    "time_seconds": 4.914640665054321
+  },
+  {
+    "stage": "forge",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T05:20:58.647021",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "success",
+    "total_examples": 2000,
+    "enhanced_examples": 2000,
+    "time_seconds": 2.898249864578247
+  },
+  {
+    "stage": "forge",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T05:21:01.296181",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "success",
+    "total_examples": 2000,
+    "enhanced_examples": 2000,
+    "time_seconds": 2.6474647521972656
+  },
+  {
+    "stage": "forge",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-06T05:21:05.404503",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "success",
+    "total_examples": 3000,
+    "enhanced_examples": 3000,
+    "time_seconds": 4.106563329696655
+  },
+  {
+    "stage": "forge",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T05:21:08.730014",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "success",
+    "total_examples": 2500,
+    "enhanced_examples": 2500,
+    "time_seconds": 3.324136257171631
+  },
+  {
+    "stage": "forge",
+    "adapter": "systems",
+    "timestamp": "2026-03-06T05:21:11.442397",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "success",
+    "total_examples": 2000,
+    "enhanced_examples": 2000,
+    "time_seconds": 2.7117254734039307
+  },
+  {
+    "stage": "train",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T05:25:48.385002",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "error",
+    "error": "Data processing error: File Reconstruction Error: IO Error: There is not enough space on the disk. (os error 112)",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 260.3059458732605
+  },
+  {
+    "stage": "train",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T05:29:24.863169",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "error",
+    "error": "Data processing error: File Reconstruction Error: Internal Writer Error: Background writer channel closed",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 216.13884472846985
+  },
+  {
+    "stage": "train",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T05:31:38.654539",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "error",
+    "error": "Data processing error: File Reconstruction Error: Internal Writer Error: Background writer channel closed",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 133.77365803718567
+  },
+  {
+    "stage": "train",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T05:35:13.543485",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "error",
+    "error": "Data processing error: File Reconstruction Error: Internal Writer Error: Background writer channel closed",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 214.87309432029724
+  },
+  {
+    "stage": "train",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T05:38:58.051805",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "error",
+    "error": "Data processing error: File Reconstruction Error: Internal Writer Error: Background writer channel closed",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 224.16145515441895
+  },
+  {
+    "stage": "train",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-06T05:41:14.635509",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "error",
+    "error": "Data processing error: File Reconstruction Error: Internal Writer Error: Background writer channel closed",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 136.56719040870667
+  },
+  {
+    "stage": "train",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T05:44:28.975130",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "error",
+    "error": "Data processing error: File Reconstruction Error: Internal Writer Error: Background writer channel closed",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 194.3331904411316
+  },
+  {
+    "stage": "train",
+    "adapter": "systems",
+    "timestamp": "2026-03-06T05:47:01.528109",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "error",
+    "error": "Data processing error: File Reconstruction Error: Internal Writer Error: Background writer channel closed",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 152.53622794151306
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T05:47:07.857453",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "evaluated",
+    "total_responses": 3000,
+    "scores": {
+      "clarity": 0.6685,
+      "structure": 0.5723,
+      "depth": 0.9946,
+      "examples": 0.3759,
+      "multi_perspective": 0.5669,
+      "scientific_rigor": 0.4376,
+      "ethical_awareness": 0.5219,
+      "coherence": 0.3271,
+      "overall": 0.5801,
+      "word_count": 480.143,
+      "sentence_count": 26.9483
+    },
+    "time_seconds": 5.874239921569824
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T05:47:12.995448",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "evaluated",
+    "total_responses": 2500,
+    "scores": {
+      "clarity": 0.6649,
+      "structure": 0.5534,
+      "depth": 0.995,
+      "examples": 0.1532,
+      "multi_perspective": 0.5806,
+      "scientific_rigor": 0.3201,
+      "ethical_awareness": 0.5737,
+      "coherence": 0.2726,
+      "overall": 0.538,
+      "word_count": 478.202,
+      "sentence_count": 27.3028
+    },
+    "time_seconds": 5.137233734130859
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T05:47:17.567537",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "evaluated",
+    "total_responses": 2500,
+    "scores": {
+      "clarity": 0.6739,
+      "structure": 0.539,
+      "depth": 0.9952,
+      "examples": 0.1892,
+      "multi_perspective": 0.6038,
+      "scientific_rigor": 0.3386,
+      "ethical_awareness": 0.6423,
+      "coherence": 0.3051,
+      "overall": 0.556,
+      "word_count": 481.038,
+      "sentence_count": 26.9796
+    },
+    "time_seconds": 4.57110333442688
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T05:47:21.208411",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "evaluated",
+    "total_responses": 2000,
+    "scores": {
+      "clarity": 0.6708,
+      "structure": 0.5539,
+      "depth": 0.9954,
+      "examples": 0.2086,
+      "multi_perspective": 0.7429,
+      "scientific_rigor": 0.3596,
+      "ethical_awareness": 0.6223,
+      "coherence": 0.322,
+      "overall": 0.5766,
+      "word_count": 487.796,
+      "sentence_count": 27.2695
+    },
+    "time_seconds": 3.6402554512023926
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T05:47:24.935713",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "evaluated",
+    "total_responses": 2000,
+    "scores": {
+      "clarity": 0.6715,
+      "structure": 0.5513,
+      "depth": 0.9953,
+      "examples": 0.2364,
+      "multi_perspective": 0.6332,
+      "scientific_rigor": 0.4823,
+      "ethical_awareness": 0.5369,
+      "coherence": 0.3093,
+      "overall": 0.5766,
+      "word_count": 485.6675,
+      "sentence_count": 27.0405
+    },
+    "time_seconds": 3.7254786491394043
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-06T05:47:36.531179",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "evaluated",
+    "total_responses": 3000,
+    "scores": {
+      "clarity": 0.5867,
+      "structure": 0.5502,
+      "depth": 0.8562,
+      "examples": 0.1562,
+      "multi_perspective": 0.9727,
+      "scientific_rigor": 0.4919,
+      "ethical_awareness": 0.711,
+      "coherence": 0.3157,
+      "overall": 0.5883,
+      "word_count": 1228.409,
+      "sentence_count": 65.079
+    },
+    "time_seconds": 11.594725608825684
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T05:47:40.270368",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "evaluated",
+    "total_responses": 2500,
+    "scores": {
+      "clarity": 0.6784,
+      "structure": 0.574,
+      "depth": 0.9945,
+      "examples": 0.2702,
+      "multi_perspective": 0.682,
+      "scientific_rigor": 0.3662,
+      "ethical_awareness": 0.625,
+      "coherence": 0.302,
+      "overall": 0.5799,
+      "word_count": 473.376,
+      "sentence_count": 25.92
+    },
+    "time_seconds": 3.738477945327759
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "systems",
+    "timestamp": "2026-03-06T05:47:47.523181",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "status": "evaluated",
+    "total_responses": 2000,
+    "scores": {
+      "clarity": 0.5877,
+      "structure": 0.5566,
+      "depth": 0.8595,
+      "examples": 0.1933,
+      "multi_perspective": 0.9825,
+      "scientific_rigor": 0.465,
+      "ethical_awareness": 0.7105,
+      "coherence": 0.3037,
+      "overall": 0.5893,
+      "word_count": 1233.872,
+      "sentence_count": 65.5745
+    },
+    "time_seconds": 7.252009630203247
+  },
+  {
+    "stage": "pipeline",
+    "adapter": null,
+    "timestamp": "2026-03-06T05:47:47.523561",
+    "pipeline_run": "2026-03-06T05:20:36.706734",
+    "total_time_seconds": 1630.8140742778778,
+    "stages_run": [
+      "generate",
+      "validate",
+      "forge",
+      "train",
+      "evaluate"
+    ],
+    "adapters_processed": [
+      "newton",
+      "davinci",
+      "empathy",
+      "philosophy",
+      "quantum",
+      "rcxi",
+      "multi_perspective",
+      "systems"
+    ]
+  },
+  {
+    "stage": "generate",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T06:42:13.633561",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "generated",
+    "examples": 3000,
+    "path": "datasets\\newton_reasoning.jsonl",
+    "time_seconds": 0.2869141101837158
+  },
+  {
+    "stage": "generate",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T06:42:13.811563",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "generated",
+    "examples": 2500,
+    "path": "datasets\\davinci_reasoning.jsonl",
+    "time_seconds": 0.17633342742919922
+  },
+  {
+    "stage": "generate",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T06:42:13.978925",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "generated",
+    "examples": 2500,
+    "path": "datasets\\empathy_reasoning.jsonl",
+    "time_seconds": 0.16582345962524414
+  },
+  {
+    "stage": "generate",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T06:42:14.198918",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "generated",
+    "examples": 2000,
+    "path": "datasets\\philosophy_reasoning.jsonl",
+    "time_seconds": 0.21718859672546387
+  },
+  {
+    "stage": "generate",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T06:42:14.435937",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "generated",
+    "examples": 2000,
+    "path": "datasets\\quantum_reasoning.jsonl",
+    "time_seconds": 0.22745370864868164
+  },
+  {
+    "stage": "generate",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-06T06:42:14.452324",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "error",
+    "error": "Unknown adapter 'rcxi'. Available: ['newton', 'davinci', 'empathy', 'philosophy', 'quantum', 'consciousness', 'multi_perspective', 'systems_architecture']",
+    "time_seconds": 1.7642974853515625e-05
+  },
+  {
+    "stage": "generate",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T06:42:14.651590",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "generated",
+    "examples": 2500,
+    "path": "datasets\\multi_perspective_reasoning.jsonl",
+    "time_seconds": 0.1916491985321045
+  },
+  {
+    "stage": "generate",
+    "adapter": "systems",
+    "timestamp": "2026-03-06T06:42:14.673102",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "error",
+    "error": "Unknown adapter 'systems'. Available: ['newton', 'davinci', 'empathy', 'philosophy', 'quantum', 'consciousness', 'multi_perspective', 'systems_architecture']",
+    "time_seconds": 1.5735626220703125e-05
+  },
+  {
+    "stage": "validate",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T06:42:14.884863",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "valid",
+    "total_records": 3000,
+    "valid_records": 3000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T06:42:14.968014",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "valid",
+    "total_records": 2500,
+    "valid_records": 2500,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T06:42:15.157265",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "valid",
+    "total_records": 2500,
+    "valid_records": 2500,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T06:42:15.258230",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "valid",
+    "total_records": 2000,
+    "valid_records": 2000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T06:42:15.385081",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "valid",
+    "total_records": 2000,
+    "valid_records": 2000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-06T06:42:15.722940",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "valid",
+    "total_records": 3000,
+    "valid_records": 3000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T06:42:15.799542",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "valid",
+    "total_records": 2500,
+    "valid_records": 2500,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "systems",
+    "timestamp": "2026-03-06T06:42:15.996004",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "valid",
+    "total_records": 2000,
+    "valid_records": 2000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "forge",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T06:42:50.928926",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "success",
+    "total_examples": 3000,
+    "enhanced_examples": 3000,
+    "time_seconds": 29.131897926330566
+  },
+  {
+    "stage": "forge",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T06:43:06.864791",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "success",
+    "total_examples": 2500,
+    "enhanced_examples": 2500,
+    "time_seconds": 15.934085607528687
+  },
+  {
+    "stage": "forge",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T06:43:29.010861",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "success",
+    "total_examples": 2500,
+    "enhanced_examples": 2500,
+    "time_seconds": 22.143311023712158
+  },
+  {
+    "stage": "forge",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T06:43:42.677416",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "success",
+    "total_examples": 2000,
+    "enhanced_examples": 2000,
+    "time_seconds": 13.661418914794922
+  },
+  {
+    "stage": "forge",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T06:43:55.625043",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "success",
+    "total_examples": 2000,
+    "enhanced_examples": 2000,
+    "time_seconds": 12.945507049560547
+  },
+  {
+    "stage": "forge",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-06T06:44:13.845021",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "success",
+    "total_examples": 3000,
+    "enhanced_examples": 3000,
+    "time_seconds": 18.217397212982178
+  },
+  {
+    "stage": "forge",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T06:44:29.518951",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "success",
+    "total_examples": 2500,
+    "enhanced_examples": 2500,
+    "time_seconds": 15.672286033630371
+  },
+  {
+    "stage": "forge",
+    "adapter": "systems",
+    "timestamp": "2026-03-06T06:44:41.245700",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "success",
+    "total_examples": 2000,
+    "enhanced_examples": 2000,
+    "time_seconds": 11.724752187728882
+  },
+  {
+    "stage": "train",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T06:53:12.422314",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "error",
+    "error": "You are trying to access a gated repo.\nMake sure to have access to it at https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct.\n401 Client Error. (Request ID: Root=1-69aace61-2245ac29103c339948a4f49a;76fa4f42-ec2e-4403-9826-5a2647d8e4e0)\n\nCannot access gated repo for url https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/resolve/main/config.json.\nAccess to model meta-llama/Llama-3.1-8B-Instruct is restricted. You must have access to it and be authenticated to access it. Please log in.",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 491.52503991127014
+  },
+  {
+    "stage": "train",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T06:53:12.659199",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "error",
+    "error": "You are trying to access a gated repo.\nMake sure to have access to it at https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct.\n401 Client Error. (Request ID: Root=1-69aace62-2650d5e06f6ac45670219670;5f3d46c8-96b9-418f-847d-ce62de8a18e6)\n\nCannot access gated repo for url https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/resolve/main/config.json.\nAccess to model meta-llama/Llama-3.1-8B-Instruct is restricted. You must have access to it and be authenticated to access it. Please log in.",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 0.22498488426208496
+  },
+  {
+    "stage": "train",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T06:53:12.866870",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "error",
+    "error": "You are trying to access a gated repo.\nMake sure to have access to it at https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct.\n401 Client Error. (Request ID: Root=1-69aace62-2033004c62aed0492675424e;5d48b81b-9f3b-4c12-a1a5-f528adade38b)\n\nCannot access gated repo for url https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/resolve/main/config.json.\nAccess to model meta-llama/Llama-3.1-8B-Instruct is restricted. You must have access to it and be authenticated to access it. Please log in.",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 0.19324588775634766
+  },
+  {
+    "stage": "train",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T06:53:13.057809",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "error",
+    "error": "You are trying to access a gated repo.\nMake sure to have access to it at https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct.\n401 Client Error. (Request ID: Root=1-69aace62-17a03515707e90767aa8afed;b8009314-4390-477d-84b4-9a6231035583)\n\nCannot access gated repo for url https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/resolve/main/config.json.\nAccess to model meta-llama/Llama-3.1-8B-Instruct is restricted. You must have access to it and be authenticated to access it. Please log in.",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 0.17481780052185059
+  },
+  {
+    "stage": "train",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T06:53:13.258496",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "error",
+    "error": "You are trying to access a gated repo.\nMake sure to have access to it at https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct.\n401 Client Error. (Request ID: Root=1-69aace62-44b8780003b7783969dea571;1806f645-d52c-4f31-a98b-ac6a84b430c0)\n\nCannot access gated repo for url https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/resolve/main/config.json.\nAccess to model meta-llama/Llama-3.1-8B-Instruct is restricted. You must have access to it and be authenticated to access it. Please log in.",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 0.17794346809387207
+  },
+  {
+    "stage": "train",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-06T06:53:13.501830",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "error",
+    "error": "You are trying to access a gated repo.\nMake sure to have access to it at https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct.\n401 Client Error. (Request ID: Root=1-69aace63-1c70b72871ba50516324b8b7;d7bc7ff3-a041-453e-b5ba-13483f18f288)\n\nCannot access gated repo for url https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/resolve/main/config.json.\nAccess to model meta-llama/Llama-3.1-8B-Instruct is restricted. You must have access to it and be authenticated to access it. Please log in.",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 0.22247624397277832
+  },
+  {
+    "stage": "train",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T06:53:13.714590",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "error",
+    "error": "You are trying to access a gated repo.\nMake sure to have access to it at https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct.\n401 Client Error. (Request ID: Root=1-69aace63-6f6d48346ec8a1e07aa748cf;0cc36b24-3bda-4f3f-b84f-f436fd2c8f66)\n\nCannot access gated repo for url https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/resolve/main/config.json.\nAccess to model meta-llama/Llama-3.1-8B-Instruct is restricted. You must have access to it and be authenticated to access it. Please log in.",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 0.1931905746459961
+  },
+  {
+    "stage": "train",
+    "adapter": "systems",
+    "timestamp": "2026-03-06T06:53:13.930729",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "error",
+    "error": "You are trying to access a gated repo.\nMake sure to have access to it at https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct.\n401 Client Error. (Request ID: Root=1-69aace63-5163cc6335c0967d4b308bbc;09f96584-6113-436a-bbcf-a5f54823c1ee)\n\nCannot access gated repo for url https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/resolve/main/config.json.\nAccess to model meta-llama/Llama-3.1-8B-Instruct is restricted. You must have access to it and be authenticated to access it. Please log in.",
+    "final_loss": null,
+    "total_steps": 0,
+    "training_time_seconds": 0.2002573013305664
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T06:53:18.713531",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "evaluated",
+    "total_responses": 3000,
+    "scores": {
+      "clarity": 0.6685,
+      "structure": 0.5723,
+      "depth": 0.9946,
+      "examples": 0.3759,
+      "multi_perspective": 0.5669,
+      "scientific_rigor": 0.4376,
+      "ethical_awareness": 0.5219,
+      "coherence": 0.3271,
+      "overall": 0.5801,
+      "word_count": 480.143,
+      "sentence_count": 26.9483
+    },
+    "time_seconds": 4.275251388549805
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T06:53:22.278638",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "evaluated",
+    "total_responses": 2500,
+    "scores": {
+      "clarity": 0.6649,
+      "structure": 0.5534,
+      "depth": 0.995,
+      "examples": 0.1532,
+      "multi_perspective": 0.5806,
+      "scientific_rigor": 0.3201,
+      "ethical_awareness": 0.5737,
+      "coherence": 0.2726,
+      "overall": 0.538,
+      "word_count": 478.202,
+      "sentence_count": 27.3028
+    },
+    "time_seconds": 3.5630054473876953
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T06:53:25.840817",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "evaluated",
+    "total_responses": 2500,
+    "scores": {
+      "clarity": 0.6739,
+      "structure": 0.539,
+      "depth": 0.9952,
+      "examples": 0.1892,
+      "multi_perspective": 0.6038,
+      "scientific_rigor": 0.3386,
+      "ethical_awareness": 0.6423,
+      "coherence": 0.3051,
+      "overall": 0.556,
+      "word_count": 481.038,
+      "sentence_count": 26.9796
+    },
+    "time_seconds": 3.558324098587036
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T06:53:28.745393",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "evaluated",
+    "total_responses": 2000,
+    "scores": {
+      "clarity": 0.6708,
+      "structure": 0.5539,
+      "depth": 0.9954,
+      "examples": 0.2086,
+      "multi_perspective": 0.7429,
+      "scientific_rigor": 0.3596,
+      "ethical_awareness": 0.6223,
+      "coherence": 0.322,
+      "overall": 0.5766,
+      "word_count": 487.796,
+      "sentence_count": 27.2695
+    },
+    "time_seconds": 2.9039556980133057
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T06:53:31.749380",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "evaluated",
+    "total_responses": 2000,
+    "scores": {
+      "clarity": 0.6715,
+      "structure": 0.5513,
+      "depth": 0.9953,
+      "examples": 0.2364,
+      "multi_perspective": 0.6332,
+      "scientific_rigor": 0.4823,
+      "ethical_awareness": 0.5369,
+      "coherence": 0.3093,
+      "overall": 0.5766,
+      "word_count": 485.6675,
+      "sentence_count": 27.0405
+    },
+    "time_seconds": 3.002894878387451
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-06T06:53:36.184615",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "evaluated",
+    "total_responses": 3000,
+    "scores": {
+      "clarity": 0.6737,
+      "structure": 0.5502,
+      "depth": 0.995,
+      "examples": 0.1562,
+      "multi_perspective": 0.6352,
+      "scientific_rigor": 0.4539,
+      "ethical_awareness": 0.527,
+      "coherence": 0.3116,
+      "overall": 0.5639,
+      "word_count": 480.927,
+      "sentence_count": 26.233
+    },
+    "time_seconds": 4.43323016166687
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T06:53:51.704463",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "evaluated",
+    "total_responses": 2500,
+    "scores": {
+      "clarity": 0.6784,
+      "structure": 0.574,
+      "depth": 0.9945,
+      "examples": 0.2702,
+      "multi_perspective": 0.682,
+      "scientific_rigor": 0.3662,
+      "ethical_awareness": 0.625,
+      "coherence": 0.302,
+      "overall": 0.5799,
+      "word_count": 473.376,
+      "sentence_count": 25.92
+    },
+    "time_seconds": 3.610260248184204
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "systems",
+    "timestamp": "2026-03-06T06:54:05.558618",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "status": "evaluated",
+    "total_responses": 2000,
+    "scores": {
+      "clarity": 0.6774,
+      "structure": 0.5566,
+      "depth": 0.9955,
+      "examples": 0.1933,
+      "multi_perspective": 0.6147,
+      "scientific_rigor": 0.4119,
+      "ethical_awareness": 0.5389,
+      "coherence": 0.2935,
+      "overall": 0.5602,
+      "word_count": 486.444,
+      "sentence_count": 26.4715
+    },
+    "time_seconds": 2.9705915451049805
+  },
+  {
+    "stage": "pipeline",
+    "adapter": null,
+    "timestamp": "2026-03-06T06:54:05.566361",
+    "pipeline_run": "2026-03-06T06:42:12.965873",
+    "total_time_seconds": 712.5993049144745,
+    "stages_run": [
+      "generate",
+      "validate",
+      "forge",
+      "train",
+      "evaluate"
+    ],
+    "adapters_processed": [
+      "newton",
+      "davinci",
+      "empathy",
+      "philosophy",
+      "quantum",
+      "rcxi",
+      "multi_perspective",
+      "systems"
+    ]
+  },
+  {
+    "stage": "generate",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T07:40:15.787425",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "generated",
+    "examples": 3000,
+    "path": "datasets\\newton_reasoning.jsonl",
+    "time_seconds": 0.12276101112365723
+  },
+  {
+    "stage": "generate",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T07:40:15.870836",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "generated",
+    "examples": 2500,
+    "path": "datasets\\davinci_reasoning.jsonl",
+    "time_seconds": 0.08165168762207031
+  },
+  {
+    "stage": "generate",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T07:40:15.956559",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "generated",
+    "examples": 2500,
+    "path": "datasets\\empathy_reasoning.jsonl",
+    "time_seconds": 0.08408784866333008
+  },
+  {
+    "stage": "generate",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T07:40:16.024053",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "generated",
+    "examples": 2000,
+    "path": "datasets\\philosophy_reasoning.jsonl",
+    "time_seconds": 0.06692361831665039
+  },
+  {
+    "stage": "generate",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T07:40:16.092880",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "generated",
+    "examples": 2000,
+    "path": "datasets\\quantum_reasoning.jsonl",
+    "time_seconds": 0.06721854209899902
+  },
+  {
+    "stage": "generate",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-06T07:40:16.096094",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "error",
+    "error": "Unknown adapter 'rcxi'. Available: ['newton', 'davinci', 'empathy', 'philosophy', 'quantum', 'consciousness', 'multi_perspective', 'systems_architecture']",
+    "time_seconds": 1.1682510375976562e-05
+  },
+  {
+    "stage": "generate",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T07:40:16.174268",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "generated",
+    "examples": 2500,
+    "path": "datasets\\multi_perspective_reasoning.jsonl",
+    "time_seconds": 0.07751083374023438
+  },
+  {
+    "stage": "generate",
+    "adapter": "systems",
+    "timestamp": "2026-03-06T07:40:16.175320",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "error",
+    "error": "Unknown adapter 'systems'. Available: ['newton', 'davinci', 'empathy', 'philosophy', 'quantum', 'consciousness', 'multi_perspective', 'systems_architecture']",
+    "time_seconds": 1.0728836059570312e-05
+  },
+  {
+    "stage": "validate",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T07:40:16.199723",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "valid",
+    "total_records": 3000,
+    "valid_records": 3000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T07:40:16.219072",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "valid",
+    "total_records": 2500,
+    "valid_records": 2500,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T07:40:16.238614",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "valid",
+    "total_records": 2500,
+    "valid_records": 2500,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T07:40:16.255702",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "valid",
+    "total_records": 2000,
+    "valid_records": 2000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T07:40:16.272467",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "valid",
+    "total_records": 2000,
+    "valid_records": 2000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-06T07:40:16.473846",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "valid",
+    "total_records": 3000,
+    "valid_records": 3000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T07:40:16.493696",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "valid",
+    "total_records": 2500,
+    "valid_records": 2500,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "systems",
+    "timestamp": "2026-03-06T07:40:16.628987",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "valid",
+    "total_records": 2000,
+    "valid_records": 2000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "forge",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T07:40:30.067295",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "success",
+    "total_examples": 3000,
+    "enhanced_examples": 3000,
+    "time_seconds": 13.406856060028076
+  },
+  {
+    "stage": "forge",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T07:40:43.896996",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "success",
+    "total_examples": 2500,
+    "enhanced_examples": 2500,
+    "time_seconds": 13.827849626541138
+  },
+  {
+    "stage": "forge",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T07:40:59.302126",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "success",
+    "total_examples": 2500,
+    "enhanced_examples": 2500,
+    "time_seconds": 15.39997911453247
+  },
+  {
+    "stage": "forge",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T07:41:11.971060",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "success",
+    "total_examples": 2000,
+    "enhanced_examples": 2000,
+    "time_seconds": 12.664379835128784
+  },
+  {
+    "stage": "forge",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T07:41:22.662754",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "success",
+    "total_examples": 2000,
+    "enhanced_examples": 2000,
+    "time_seconds": 10.685668230056763
+  },
+  {
+    "stage": "forge",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-06T07:41:37.395299",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "success",
+    "total_examples": 3000,
+    "enhanced_examples": 3000,
+    "time_seconds": 14.72959303855896
+  },
+  {
+    "stage": "forge",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T07:41:49.106827",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "success",
+    "total_examples": 2500,
+    "enhanced_examples": 2500,
+    "time_seconds": 11.708736896514893
+  },
+  {
+    "stage": "forge",
+    "adapter": "systems",
+    "timestamp": "2026-03-06T07:41:58.817552",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "success",
+    "total_examples": 2000,
+    "enhanced_examples": 2000,
+    "time_seconds": 9.709214687347412
+  },
+  {
+    "stage": "train",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T07:42:13.909717",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "error",
+    "error": "Some modules are dispatched on the CPU or the disk. Make sure you have enough GPU RAM to fit the quantized model. If you want to dispatch the model on the CPU or the disk while keeping these modules in 32-bit, you need to set `llm_int8_enable_fp32_cpu_offload=True` and pass a custom `device_map` to `from_pretrained`. Check https://huggingface.co/docs/transformers/main/en/main_classes/quantization#offload-between-cpu-and-gpu for more details. ",
+    "training_time_seconds": 14.02931261062622
+  },
+  {
+    "stage": "train",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T07:42:15.545031",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "error",
+    "error": "Some modules are dispatched on the CPU or the disk. Make sure you have enough GPU RAM to fit the quantized model. If you want to dispatch the model on the CPU or the disk while keeping these modules in 32-bit, you need to set `llm_int8_enable_fp32_cpu_offload=True` and pass a custom `device_map` to `from_pretrained`. Check https://huggingface.co/docs/transformers/main/en/main_classes/quantization#offload-between-cpu-and-gpu for more details. ",
+    "training_time_seconds": 1.6196010112762451
+  },
+  {
+    "stage": "train",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T07:42:17.182518",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "error",
+    "error": "Some modules are dispatched on the CPU or the disk. Make sure you have enough GPU RAM to fit the quantized model. If you want to dispatch the model on the CPU or the disk while keeping these modules in 32-bit, you need to set `llm_int8_enable_fp32_cpu_offload=True` and pass a custom `device_map` to `from_pretrained`. Check https://huggingface.co/docs/transformers/main/en/main_classes/quantization#offload-between-cpu-and-gpu for more details. ",
+    "training_time_seconds": 1.6230511665344238
+  },
+  {
+    "stage": "train",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T07:42:18.741587",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "error",
+    "error": "Some modules are dispatched on the CPU or the disk. Make sure you have enough GPU RAM to fit the quantized model. If you want to dispatch the model on the CPU or the disk while keeping these modules in 32-bit, you need to set `llm_int8_enable_fp32_cpu_offload=True` and pass a custom `device_map` to `from_pretrained`. Check https://huggingface.co/docs/transformers/main/en/main_classes/quantization#offload-between-cpu-and-gpu for more details. ",
+    "training_time_seconds": 1.5441479682922363
+  },
+  {
+    "stage": "train",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T07:42:20.287431",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "error",
+    "error": "Some modules are dispatched on the CPU or the disk. Make sure you have enough GPU RAM to fit the quantized model. If you want to dispatch the model on the CPU or the disk while keeping these modules in 32-bit, you need to set `llm_int8_enable_fp32_cpu_offload=True` and pass a custom `device_map` to `from_pretrained`. Check https://huggingface.co/docs/transformers/main/en/main_classes/quantization#offload-between-cpu-and-gpu for more details. ",
+    "training_time_seconds": 1.5258617401123047
+  },
+  {
+    "stage": "train",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-06T07:42:22.119252",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "error",
+    "error": "Some modules are dispatched on the CPU or the disk. Make sure you have enough GPU RAM to fit the quantized model. If you want to dispatch the model on the CPU or the disk while keeping these modules in 32-bit, you need to set `llm_int8_enable_fp32_cpu_offload=True` and pass a custom `device_map` to `from_pretrained`. Check https://huggingface.co/docs/transformers/main/en/main_classes/quantization#offload-between-cpu-and-gpu for more details. ",
+    "training_time_seconds": 1.8166329860687256
+  },
+  {
+    "stage": "train",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T07:42:23.659539",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "error",
+    "error": "Some modules are dispatched on the CPU or the disk. Make sure you have enough GPU RAM to fit the quantized model. If you want to dispatch the model on the CPU or the disk while keeping these modules in 32-bit, you need to set `llm_int8_enable_fp32_cpu_offload=True` and pass a custom `device_map` to `from_pretrained`. Check https://huggingface.co/docs/transformers/main/en/main_classes/quantization#offload-between-cpu-and-gpu for more details. ",
+    "training_time_seconds": 1.5251827239990234
+  },
+  {
+    "stage": "train",
+    "adapter": "systems",
+    "timestamp": "2026-03-06T07:42:25.248946",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "error",
+    "error": "Some modules are dispatched on the CPU or the disk. Make sure you have enough GPU RAM to fit the quantized model. If you want to dispatch the model on the CPU or the disk while keeping these modules in 32-bit, you need to set `llm_int8_enable_fp32_cpu_offload=True` and pass a custom `device_map` to `from_pretrained`. Check https://huggingface.co/docs/transformers/main/en/main_classes/quantization#offload-between-cpu-and-gpu for more details. ",
+    "training_time_seconds": 1.5740952491760254
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T07:42:30.694146",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "evaluated",
+    "total_responses": 3000,
+    "scores": {
+      "clarity": 0.6685,
+      "structure": 0.5723,
+      "depth": 0.9946,
+      "examples": 0.3759,
+      "multi_perspective": 0.5669,
+      "scientific_rigor": 0.4376,
+      "ethical_awareness": 0.5219,
+      "coherence": 0.3271,
+      "overall": 0.5801,
+      "word_count": 480.143,
+      "sentence_count": 26.9483
+    },
+    "time_seconds": 5.259538173675537
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T07:42:34.998814",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "evaluated",
+    "total_responses": 2500,
+    "scores": {
+      "clarity": 0.6649,
+      "structure": 0.5534,
+      "depth": 0.995,
+      "examples": 0.1532,
+      "multi_perspective": 0.5806,
+      "scientific_rigor": 0.3201,
+      "ethical_awareness": 0.5737,
+      "coherence": 0.2726,
+      "overall": 0.538,
+      "word_count": 478.202,
+      "sentence_count": 27.3028
+    },
+    "time_seconds": 4.3026392459869385
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T07:42:39.422466",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "evaluated",
+    "total_responses": 2500,
+    "scores": {
+      "clarity": 0.6739,
+      "structure": 0.539,
+      "depth": 0.9952,
+      "examples": 0.1892,
+      "multi_perspective": 0.6038,
+      "scientific_rigor": 0.3386,
+      "ethical_awareness": 0.6423,
+      "coherence": 0.3051,
+      "overall": 0.556,
+      "word_count": 481.038,
+      "sentence_count": 26.9796
+    },
+    "time_seconds": 4.421803951263428
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T07:42:47.043665",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "evaluated",
+    "total_responses": 2000,
+    "scores": {
+      "clarity": 0.6708,
+      "structure": 0.5539,
+      "depth": 0.9954,
+      "examples": 0.2086,
+      "multi_perspective": 0.7429,
+      "scientific_rigor": 0.3596,
+      "ethical_awareness": 0.6223,
+      "coherence": 0.322,
+      "overall": 0.5766,
+      "word_count": 487.796,
+      "sentence_count": 27.2695
+    },
+    "time_seconds": 3.1091322898864746
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T07:42:50.111127",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "evaluated",
+    "total_responses": 2000,
+    "scores": {
+      "clarity": 0.6715,
+      "structure": 0.5513,
+      "depth": 0.9953,
+      "examples": 0.2364,
+      "multi_perspective": 0.6332,
+      "scientific_rigor": 0.4823,
+      "ethical_awareness": 0.5369,
+      "coherence": 0.3093,
+      "overall": 0.5766,
+      "word_count": 485.6675,
+      "sentence_count": 27.0405
+    },
+    "time_seconds": 3.065441131591797
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-06T07:43:06.193080",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "evaluated",
+    "total_responses": 3000,
+    "scores": {
+      "clarity": 0.565,
+      "structure": 0.5502,
+      "depth": 0.816,
+      "examples": 0.1562,
+      "multi_perspective": 0.9918,
+      "scientific_rigor": 0.505,
+      "ethical_awareness": 0.7412,
+      "coherence": 0.3168,
+      "overall": 0.586,
+      "word_count": 1975.891,
+      "sentence_count": 103.925
+    },
+    "time_seconds": 16.0803120136261
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T07:43:09.880652",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "evaluated",
+    "total_responses": 2500,
+    "scores": {
+      "clarity": 0.6784,
+      "structure": 0.574,
+      "depth": 0.9945,
+      "examples": 0.2702,
+      "multi_perspective": 0.682,
+      "scientific_rigor": 0.3662,
+      "ethical_awareness": 0.625,
+      "coherence": 0.302,
+      "overall": 0.5799,
+      "word_count": 473.376,
+      "sentence_count": 25.92
+    },
+    "time_seconds": 3.684516429901123
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "systems",
+    "timestamp": "2026-03-06T07:43:20.981749",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "status": "evaluated",
+    "total_responses": 2000,
+    "scores": {
+      "clarity": 0.5652,
+      "structure": 0.5566,
+      "depth": 0.8182,
+      "examples": 0.1933,
+      "multi_perspective": 0.9952,
+      "scientific_rigor": 0.483,
+      "ethical_awareness": 0.7398,
+      "coherence": 0.3065,
+      "overall": 0.5869,
+      "word_count": 1981.3,
+      "sentence_count": 104.6775
+    },
+    "time_seconds": 11.099529266357422
+  },
+  {
+    "stage": "pipeline",
+    "adapter": null,
+    "timestamp": "2026-03-06T07:43:20.983760",
+    "pipeline_run": "2026-03-06T07:40:15.566930",
+    "total_time_seconds": 185.4160280227661,
+    "stages_run": [
+      "generate",
+      "validate",
+      "forge",
+      "train",
+      "evaluate"
+    ],
+    "adapters_processed": [
+      "newton",
+      "davinci",
+      "empathy",
+      "philosophy",
+      "quantum",
+      "rcxi",
+      "multi_perspective",
+      "systems"
+    ]
+  },
+  {
+    "stage": "generate",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T07:46:09.380677",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "generated",
+    "examples": 3000,
+    "path": "datasets\\newton_reasoning.jsonl",
+    "time_seconds": 0.11284184455871582
+  },
+  {
+    "stage": "generate",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T07:46:09.469496",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "generated",
+    "examples": 2500,
+    "path": "datasets\\davinci_reasoning.jsonl",
+    "time_seconds": 0.08716225624084473
+  },
+  {
+    "stage": "generate",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T07:46:09.562577",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "generated",
+    "examples": 2500,
+    "path": "datasets\\empathy_reasoning.jsonl",
+    "time_seconds": 0.09092974662780762
+  },
+  {
+    "stage": "generate",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T07:46:09.666323",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "generated",
+    "examples": 2000,
+    "path": "datasets\\philosophy_reasoning.jsonl",
+    "time_seconds": 0.10196828842163086
+  },
+  {
+    "stage": "generate",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T07:46:09.738391",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "generated",
+    "examples": 2000,
+    "path": "datasets\\quantum_reasoning.jsonl",
+    "time_seconds": 0.06968212127685547
+  },
+  {
+    "stage": "generate",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-06T07:46:09.747266",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "error",
+    "error": "Unknown adapter 'rcxi'. Available: ['newton', 'davinci', 'empathy', 'philosophy', 'quantum', 'consciousness', 'multi_perspective', 'systems_architecture']",
+    "time_seconds": 3.075599670410156e-05
+  },
+  {
+    "stage": "generate",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T07:46:09.828650",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "generated",
+    "examples": 2500,
+    "path": "datasets\\multi_perspective_reasoning.jsonl",
+    "time_seconds": 0.08085441589355469
+  },
+  {
+    "stage": "generate",
+    "adapter": "systems",
+    "timestamp": "2026-03-06T07:46:09.830685",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "error",
+    "error": "Unknown adapter 'systems'. Available: ['newton', 'davinci', 'empathy', 'philosophy', 'quantum', 'consciousness', 'multi_perspective', 'systems_architecture']",
+    "time_seconds": 1.049041748046875e-05
+  },
+  {
+    "stage": "validate",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T07:46:09.855323",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "valid",
+    "total_records": 3000,
+    "valid_records": 3000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T07:46:09.875419",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "valid",
+    "total_records": 2500,
+    "valid_records": 2500,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T07:46:09.896790",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "valid",
+    "total_records": 2500,
+    "valid_records": 2500,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T07:46:09.914987",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "valid",
+    "total_records": 2000,
+    "valid_records": 2000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T07:46:09.931182",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "valid",
+    "total_records": 2000,
+    "valid_records": 2000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-06T07:46:10.154203",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "valid",
+    "total_records": 3000,
+    "valid_records": 3000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T07:46:10.175562",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "valid",
+    "total_records": 2500,
+    "valid_records": 2500,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "systems",
+    "timestamp": "2026-03-06T07:46:10.322378",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "valid",
+    "total_records": 2000,
+    "valid_records": 2000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "forge",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T07:46:27.367205",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "success",
+    "total_examples": 3000,
+    "enhanced_examples": 3000,
+    "time_seconds": 17.0124614238739
+  },
+  {
+    "stage": "forge",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T07:46:43.941305",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "success",
+    "total_examples": 2500,
+    "enhanced_examples": 2500,
+    "time_seconds": 16.56960678100586
+  },
+  {
+    "stage": "forge",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T07:46:59.989224",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "success",
+    "total_examples": 2500,
+    "enhanced_examples": 2500,
+    "time_seconds": 16.044832468032837
+  },
+  {
+    "stage": "forge",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T07:47:12.344888",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "success",
+    "total_examples": 2000,
+    "enhanced_examples": 2000,
+    "time_seconds": 12.353124856948853
+  },
+  {
+    "stage": "forge",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T07:47:24.484842",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "success",
+    "total_examples": 2000,
+    "enhanced_examples": 2000,
+    "time_seconds": 12.138074398040771
+  },
+  {
+    "stage": "forge",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-06T07:47:44.575784",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "success",
+    "total_examples": 3000,
+    "enhanced_examples": 3000,
+    "time_seconds": 20.088335752487183
+  },
+  {
+    "stage": "forge",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T07:48:01.028767",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "success",
+    "total_examples": 2500,
+    "enhanced_examples": 2500,
+    "time_seconds": 16.448895931243896
+  },
+  {
+    "stage": "forge",
+    "adapter": "systems",
+    "timestamp": "2026-03-06T07:48:14.431538",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "success",
+    "total_examples": 2000,
+    "enhanced_examples": 2000,
+    "time_seconds": 13.397858142852783
+  },
+  {
+    "stage": "train",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T07:48:27.366564",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "error",
+    "error": "Some modules are dispatched on the CPU or the disk. Make sure you have enough GPU RAM to fit the quantized model. If you want to dispatch the model on the CPU or the disk while keeping these modules in 32-bit, you need to set `llm_int8_enable_fp32_cpu_offload=True` and pass a custom `device_map` to `from_pretrained`. Check https://huggingface.co/docs/transformers/main/en/main_classes/quantization#offload-between-cpu-and-gpu for more details. ",
+    "training_time_seconds": 11.332737922668457
+  },
+  {
+    "stage": "train",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T07:48:29.189019",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "error",
+    "error": "Some modules are dispatched on the CPU or the disk. Make sure you have enough GPU RAM to fit the quantized model. If you want to dispatch the model on the CPU or the disk while keeping these modules in 32-bit, you need to set `llm_int8_enable_fp32_cpu_offload=True` and pass a custom `device_map` to `from_pretrained`. Check https://huggingface.co/docs/transformers/main/en/main_classes/quantization#offload-between-cpu-and-gpu for more details. ",
+    "training_time_seconds": 1.8086621761322021
+  },
+  {
+    "stage": "train",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T07:48:31.179722",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "error",
+    "error": "Some modules are dispatched on the CPU or the disk. Make sure you have enough GPU RAM to fit the quantized model. If you want to dispatch the model on the CPU or the disk while keeping these modules in 32-bit, you need to set `llm_int8_enable_fp32_cpu_offload=True` and pass a custom `device_map` to `from_pretrained`. Check https://huggingface.co/docs/transformers/main/en/main_classes/quantization#offload-between-cpu-and-gpu for more details. ",
+    "training_time_seconds": 1.9696826934814453
+  },
+  {
+    "stage": "train",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T07:48:32.980872",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "error",
+    "error": "Some modules are dispatched on the CPU or the disk. Make sure you have enough GPU RAM to fit the quantized model. If you want to dispatch the model on the CPU or the disk while keeping these modules in 32-bit, you need to set `llm_int8_enable_fp32_cpu_offload=True` and pass a custom `device_map` to `from_pretrained`. Check https://huggingface.co/docs/transformers/main/en/main_classes/quantization#offload-between-cpu-and-gpu for more details. ",
+    "training_time_seconds": 1.7826757431030273
+  },
+  {
+    "stage": "train",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T07:48:34.892003",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "error",
+    "error": "Some modules are dispatched on the CPU or the disk. Make sure you have enough GPU RAM to fit the quantized model. If you want to dispatch the model on the CPU or the disk while keeping these modules in 32-bit, you need to set `llm_int8_enable_fp32_cpu_offload=True` and pass a custom `device_map` to `from_pretrained`. Check https://huggingface.co/docs/transformers/main/en/main_classes/quantization#offload-between-cpu-and-gpu for more details. ",
+    "training_time_seconds": 1.889683723449707
+  },
+  {
+    "stage": "train",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-06T07:48:37.045765",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "error",
+    "error": "Some modules are dispatched on the CPU or the disk. Make sure you have enough GPU RAM to fit the quantized model. If you want to dispatch the model on the CPU or the disk while keeping these modules in 32-bit, you need to set `llm_int8_enable_fp32_cpu_offload=True` and pass a custom `device_map` to `from_pretrained`. Check https://huggingface.co/docs/transformers/main/en/main_classes/quantization#offload-between-cpu-and-gpu for more details. ",
+    "training_time_seconds": 2.128737211227417
+  },
+  {
+    "stage": "train",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T07:48:38.892240",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "error",
+    "error": "Some modules are dispatched on the CPU or the disk. Make sure you have enough GPU RAM to fit the quantized model. If you want to dispatch the model on the CPU or the disk while keeping these modules in 32-bit, you need to set `llm_int8_enable_fp32_cpu_offload=True` and pass a custom `device_map` to `from_pretrained`. Check https://huggingface.co/docs/transformers/main/en/main_classes/quantization#offload-between-cpu-and-gpu for more details. ",
+    "training_time_seconds": 1.8213865756988525
+  },
+  {
+    "stage": "train",
+    "adapter": "systems",
+    "timestamp": "2026-03-06T07:48:40.834514",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "error",
+    "error": "Some modules are dispatched on the CPU or the disk. Make sure you have enough GPU RAM to fit the quantized model. If you want to dispatch the model on the CPU or the disk while keeping these modules in 32-bit, you need to set `llm_int8_enable_fp32_cpu_offload=True` and pass a custom `device_map` to `from_pretrained`. Check https://huggingface.co/docs/transformers/main/en/main_classes/quantization#offload-between-cpu-and-gpu for more details. ",
+    "training_time_seconds": 1.9259889125823975
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T07:48:47.031368",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "evaluated",
+    "total_responses": 3000,
+    "scores": {
+      "clarity": 0.6685,
+      "structure": 0.5723,
+      "depth": 0.9946,
+      "examples": 0.3759,
+      "multi_perspective": 0.5669,
+      "scientific_rigor": 0.4376,
+      "ethical_awareness": 0.5219,
+      "coherence": 0.3271,
+      "overall": 0.5801,
+      "word_count": 480.143,
+      "sentence_count": 26.9483
+    },
+    "time_seconds": 6.18630313873291
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T07:48:52.247041",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "evaluated",
+    "total_responses": 2500,
+    "scores": {
+      "clarity": 0.6649,
+      "structure": 0.5534,
+      "depth": 0.995,
+      "examples": 0.1532,
+      "multi_perspective": 0.5806,
+      "scientific_rigor": 0.3201,
+      "ethical_awareness": 0.5737,
+      "coherence": 0.2726,
+      "overall": 0.538,
+      "word_count": 478.202,
+      "sentence_count": 27.3028
+    },
+    "time_seconds": 5.2104716300964355
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T07:48:57.287947",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "evaluated",
+    "total_responses": 2500,
+    "scores": {
+      "clarity": 0.6739,
+      "structure": 0.539,
+      "depth": 0.9952,
+      "examples": 0.1892,
+      "multi_perspective": 0.6038,
+      "scientific_rigor": 0.3386,
+      "ethical_awareness": 0.6423,
+      "coherence": 0.3051,
+      "overall": 0.556,
+      "word_count": 481.038,
+      "sentence_count": 26.9796
+    },
+    "time_seconds": 5.0383055210113525
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T07:49:01.662599",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "evaluated",
+    "total_responses": 2000,
+    "scores": {
+      "clarity": 0.6708,
+      "structure": 0.5539,
+      "depth": 0.9954,
+      "examples": 0.2086,
+      "multi_perspective": 0.7429,
+      "scientific_rigor": 0.3596,
+      "ethical_awareness": 0.6223,
+      "coherence": 0.322,
+      "overall": 0.5766,
+      "word_count": 487.796,
+      "sentence_count": 27.2695
+    },
+    "time_seconds": 4.368191480636597
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T07:49:06.014755",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "evaluated",
+    "total_responses": 2000,
+    "scores": {
+      "clarity": 0.6715,
+      "structure": 0.5513,
+      "depth": 0.9953,
+      "examples": 0.2364,
+      "multi_perspective": 0.6332,
+      "scientific_rigor": 0.4823,
+      "ethical_awareness": 0.5369,
+      "coherence": 0.3093,
+      "overall": 0.5766,
+      "word_count": 485.6675,
+      "sentence_count": 27.0405
+    },
+    "time_seconds": 4.344342470169067
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-06T07:49:30.629592",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "evaluated",
+    "total_responses": 3000,
+    "scores": {
+      "clarity": 0.5592,
+      "structure": 0.5502,
+      "depth": 0.8055,
+      "examples": 0.1562,
+      "multi_perspective": 0.9952,
+      "scientific_rigor": 0.505,
+      "ethical_awareness": 0.7412,
+      "coherence": 0.3171,
+      "overall": 0.584,
+      "word_count": 2349.632,
+      "sentence_count": 123.348
+    },
+    "time_seconds": 24.612287759780884
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T07:49:34.704428",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "evaluated",
+    "total_responses": 2500,
+    "scores": {
+      "clarity": 0.6784,
+      "structure": 0.574,
+      "depth": 0.9945,
+      "examples": 0.2702,
+      "multi_perspective": 0.682,
+      "scientific_rigor": 0.3662,
+      "ethical_awareness": 0.625,
+      "coherence": 0.302,
+      "overall": 0.5799,
+      "word_count": 473.376,
+      "sentence_count": 25.92
+    },
+    "time_seconds": 4.073373079299927
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "systems",
+    "timestamp": "2026-03-06T07:49:50.747172",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "status": "evaluated",
+    "total_responses": 2000,
+    "scores": {
+      "clarity": 0.5593,
+      "structure": 0.5566,
+      "depth": 0.8074,
+      "examples": 0.1933,
+      "multi_perspective": 0.997,
+      "scientific_rigor": 0.483,
+      "ethical_awareness": 0.7398,
+      "coherence": 0.3072,
+      "overall": 0.5847,
+      "word_count": 2355.014,
+      "sentence_count": 124.229
+    },
+    "time_seconds": 16.041059017181396
+  },
+  {
+    "stage": "pipeline",
+    "adapter": null,
+    "timestamp": "2026-03-06T07:49:50.751566",
+    "pipeline_run": "2026-03-06T07:46:09.197535",
+    "total_time_seconds": 221.53252696990967,
+    "stages_run": [
+      "generate",
+      "validate",
+      "forge",
+      "train",
+      "evaluate"
+    ],
+    "adapters_processed": [
+      "newton",
+      "davinci",
+      "empathy",
+      "philosophy",
+      "quantum",
+      "rcxi",
+      "multi_perspective",
+      "systems"
+    ]
+  },
+  {
+    "stage": "generate",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T11:15:13.634476",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "generated",
+    "examples": 3000,
+    "path": "datasets\\newton_reasoning.jsonl",
+    "time_seconds": 0.16884183883666992
+  },
+  {
+    "stage": "generate",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T11:15:13.765139",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "generated",
+    "examples": 2500,
+    "path": "datasets\\davinci_reasoning.jsonl",
+    "time_seconds": 0.12871742248535156
+  },
+  {
+    "stage": "generate",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T11:15:14.160687",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "generated",
+    "examples": 2500,
+    "path": "datasets\\empathy_reasoning.jsonl",
+    "time_seconds": 0.3938119411468506
+  },
+  {
+    "stage": "generate",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T11:15:14.278348",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "generated",
+    "examples": 2000,
+    "path": "datasets\\philosophy_reasoning.jsonl",
+    "time_seconds": 0.11580395698547363
+  },
+  {
+    "stage": "generate",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T11:15:14.379121",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "generated",
+    "examples": 2000,
+    "path": "datasets\\quantum_reasoning.jsonl",
+    "time_seconds": 0.09844231605529785
+  },
+  {
+    "stage": "generate",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-06T11:15:14.381089",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "error",
+    "error": "Unknown adapter 'rcxi'. Available: ['newton', 'davinci', 'empathy', 'philosophy', 'quantum', 'consciousness', 'multi_perspective', 'systems_architecture']",
+    "time_seconds": 1.239776611328125e-05
+  },
+  {
+    "stage": "generate",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T11:15:14.540214",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "generated",
+    "examples": 2500,
+    "path": "datasets\\multi_perspective_reasoning.jsonl",
+    "time_seconds": 0.15831637382507324
+  },
+  {
+    "stage": "generate",
+    "adapter": "systems",
+    "timestamp": "2026-03-06T11:15:14.543220",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "error",
+    "error": "Unknown adapter 'systems'. Available: ['newton', 'davinci', 'empathy', 'philosophy', 'quantum', 'consciousness', 'multi_perspective', 'systems_architecture']",
+    "time_seconds": 4.029273986816406e-05
+  },
+  {
+    "stage": "validate",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T11:15:14.592999",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "valid",
+    "total_records": 3000,
+    "valid_records": 3000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T11:15:14.621959",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "valid",
+    "total_records": 2500,
+    "valid_records": 2500,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T11:15:14.645854",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "valid",
+    "total_records": 2500,
+    "valid_records": 2500,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T11:15:14.720824",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "valid",
+    "total_records": 2000,
+    "valid_records": 2000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T11:15:14.755419",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "valid",
+    "total_records": 2000,
+    "valid_records": 2000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-06T11:15:17.141406",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "valid",
+    "total_records": 3000,
+    "valid_records": 3000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T11:15:17.167521",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "valid",
+    "total_records": 2500,
+    "valid_records": 2500,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "systems",
+    "timestamp": "2026-03-06T11:15:17.973711",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "valid",
+    "total_records": 2000,
+    "valid_records": 2000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "forge",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T11:15:43.427603",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "success",
+    "total_examples": 3000,
+    "enhanced_examples": 3000,
+    "time_seconds": 22.664417028427124
+  },
+  {
+    "stage": "forge",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T11:15:59.491020",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "success",
+    "total_examples": 2500,
+    "enhanced_examples": 2500,
+    "time_seconds": 16.06138300895691
+  },
+  {
+    "stage": "forge",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T11:16:40.774935",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "success",
+    "total_examples": 2500,
+    "enhanced_examples": 2500,
+    "time_seconds": 41.27747821807861
+  },
+  {
+    "stage": "forge",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T11:17:12.573858",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "success",
+    "total_examples": 2000,
+    "enhanced_examples": 2000,
+    "time_seconds": 31.786253929138184
+  },
+  {
+    "stage": "forge",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T11:17:42.869041",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "success",
+    "total_examples": 2000,
+    "enhanced_examples": 2000,
+    "time_seconds": 30.292113542556763
+  },
+  {
+    "stage": "forge",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-06T11:18:29.792778",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "success",
+    "total_examples": 3000,
+    "enhanced_examples": 3000,
+    "time_seconds": 46.2553653717041
+  },
+  {
+    "stage": "forge",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T11:19:20.760822",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "success",
+    "total_examples": 2500,
+    "enhanced_examples": 2500,
+    "time_seconds": 50.95257520675659
+  },
+  {
+    "stage": "forge",
+    "adapter": "systems",
+    "timestamp": "2026-03-06T11:19:58.213872",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "success",
+    "total_examples": 2000,
+    "enhanced_examples": 2000,
+    "time_seconds": 37.44509220123291
+  },
+  {
+    "stage": "train",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T11:20:23.810661",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "error",
+    "error": "too many values to unpack (expected 2)",
+    "training_time_seconds": 4.411710500717163
+  },
+  {
+    "stage": "train",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T11:20:24.210765",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "error",
+    "error": "too many values to unpack (expected 2)",
+    "training_time_seconds": 0.3909943103790283
+  },
+  {
+    "stage": "train",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T11:20:24.424429",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "error",
+    "error": "too many values to unpack (expected 2)",
+    "training_time_seconds": 0.2033860683441162
+  },
+  {
+    "stage": "train",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T11:20:24.684507",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "error",
+    "error": "too many values to unpack (expected 2)",
+    "training_time_seconds": 0.2522618770599365
+  },
+  {
+    "stage": "train",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T11:20:25.061481",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "error",
+    "error": "too many values to unpack (expected 2)",
+    "training_time_seconds": 0.35581159591674805
+  },
+  {
+    "stage": "train",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-06T11:20:26.559119",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "error",
+    "error": "too many values to unpack (expected 2)",
+    "training_time_seconds": 1.4709177017211914
+  },
+  {
+    "stage": "train",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T11:20:26.860788",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "error",
+    "error": "too many values to unpack (expected 2)",
+    "training_time_seconds": 0.29422998428344727
+  },
+  {
+    "stage": "train",
+    "adapter": "systems",
+    "timestamp": "2026-03-06T11:20:28.363253",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "error",
+    "error": "too many values to unpack (expected 2)",
+    "training_time_seconds": 1.4832117557525635
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T11:20:43.067877",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "evaluated",
+    "total_responses": 3000,
+    "scores": {
+      "clarity": 0.6685,
+      "structure": 0.5723,
+      "depth": 0.9946,
+      "examples": 0.3759,
+      "multi_perspective": 0.5669,
+      "scientific_rigor": 0.4376,
+      "ethical_awareness": 0.5219,
+      "coherence": 0.3271,
+      "overall": 0.5801,
+      "word_count": 480.143,
+      "sentence_count": 26.9483
+    },
+    "time_seconds": 14.141196012496948
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T11:20:53.143616",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "evaluated",
+    "total_responses": 2500,
+    "scores": {
+      "clarity": 0.6649,
+      "structure": 0.5534,
+      "depth": 0.995,
+      "examples": 0.1532,
+      "multi_perspective": 0.5806,
+      "scientific_rigor": 0.3201,
+      "ethical_awareness": 0.5737,
+      "coherence": 0.2726,
+      "overall": 0.538,
+      "word_count": 478.202,
+      "sentence_count": 27.3028
+    },
+    "time_seconds": 10.07441759109497
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T11:21:02.233337",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "evaluated",
+    "total_responses": 2500,
+    "scores": {
+      "clarity": 0.6739,
+      "structure": 0.539,
+      "depth": 0.9952,
+      "examples": 0.1892,
+      "multi_perspective": 0.6038,
+      "scientific_rigor": 0.3386,
+      "ethical_awareness": 0.6423,
+      "coherence": 0.3051,
+      "overall": 0.556,
+      "word_count": 481.038,
+      "sentence_count": 26.9796
+    },
+    "time_seconds": 9.087203979492188
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T11:21:10.629617",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "evaluated",
+    "total_responses": 2000,
+    "scores": {
+      "clarity": 0.6708,
+      "structure": 0.5539,
+      "depth": 0.9954,
+      "examples": 0.2086,
+      "multi_perspective": 0.7429,
+      "scientific_rigor": 0.3596,
+      "ethical_awareness": 0.6223,
+      "coherence": 0.322,
+      "overall": 0.5766,
+      "word_count": 487.796,
+      "sentence_count": 27.2695
+    },
+    "time_seconds": 8.391812562942505
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T11:21:19.735501",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "evaluated",
+    "total_responses": 2000,
+    "scores": {
+      "clarity": 0.6715,
+      "structure": 0.5513,
+      "depth": 0.9953,
+      "examples": 0.2364,
+      "multi_perspective": 0.6332,
+      "scientific_rigor": 0.4823,
+      "ethical_awareness": 0.5369,
+      "coherence": 0.3093,
+      "overall": 0.5766,
+      "word_count": 485.6675,
+      "sentence_count": 27.0405
+    },
+    "time_seconds": 9.098361015319824
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-06T11:22:19.221809",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "evaluated",
+    "total_responses": 3000,
+    "scores": {
+      "clarity": 0.555,
+      "structure": 0.5502,
+      "depth": 0.7979,
+      "examples": 0.1562,
+      "multi_perspective": 0.9981,
+      "scientific_rigor": 0.505,
+      "ethical_awareness": 0.7412,
+      "coherence": 0.3174,
+      "overall": 0.5825,
+      "word_count": 2723.373,
+      "sentence_count": 142.771
+    },
+    "time_seconds": 59.47474956512451
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T11:22:28.682424",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "evaluated",
+    "total_responses": 2500,
+    "scores": {
+      "clarity": 0.6784,
+      "structure": 0.574,
+      "depth": 0.9945,
+      "examples": 0.2702,
+      "multi_perspective": 0.682,
+      "scientific_rigor": 0.3662,
+      "ethical_awareness": 0.625,
+      "coherence": 0.302,
+      "overall": 0.5799,
+      "word_count": 473.376,
+      "sentence_count": 25.92
+    },
+    "time_seconds": 9.457010269165039
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "systems",
+    "timestamp": "2026-03-06T11:22:59.299670",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "status": "evaluated",
+    "total_responses": 2000,
+    "scores": {
+      "clarity": 0.555,
+      "structure": 0.5566,
+      "depth": 0.7995,
+      "examples": 0.1933,
+      "multi_perspective": 0.9986,
+      "scientific_rigor": 0.483,
+      "ethical_awareness": 0.7398,
+      "coherence": 0.3078,
+      "overall": 0.5831,
+      "word_count": 2728.728,
+      "sentence_count": 143.7805
+    },
+    "time_seconds": 30.614583015441895
+  },
+  {
+    "stage": "pipeline",
+    "adapter": null,
+    "timestamp": "2026-03-06T11:22:59.305822",
+    "pipeline_run": "2026-03-06T11:15:13.147512",
+    "total_time_seconds": 466.13089299201965,
+    "stages_run": [
+      "generate",
+      "validate",
+      "forge",
+      "train",
+      "evaluate"
+    ],
+    "adapters_processed": [
+      "newton",
+      "davinci",
+      "empathy",
+      "philosophy",
+      "quantum",
+      "rcxi",
+      "multi_perspective",
+      "systems"
+    ]
+  },
+  {
+    "stage": "generate",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T13:18:27.804972",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "generated",
+    "examples": 3000,
+    "path": "datasets\\newton_reasoning.jsonl",
+    "time_seconds": 0.2745504379272461
+  },
+  {
+    "stage": "generate",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T13:18:28.071624",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "generated",
+    "examples": 2500,
+    "path": "datasets\\davinci_reasoning.jsonl",
+    "time_seconds": 0.2638664245605469
+  },
+  {
+    "stage": "generate",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T13:18:28.239230",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "generated",
+    "examples": 2500,
+    "path": "datasets\\empathy_reasoning.jsonl",
+    "time_seconds": 0.16535234451293945
+  },
+  {
+    "stage": "generate",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T13:18:28.373666",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "generated",
+    "examples": 2000,
+    "path": "datasets\\philosophy_reasoning.jsonl",
+    "time_seconds": 0.12643933296203613
+  },
+  {
+    "stage": "generate",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T13:18:28.497166",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "generated",
+    "examples": 2000,
+    "path": "datasets\\quantum_reasoning.jsonl",
+    "time_seconds": 0.11673855781555176
+  },
+  {
+    "stage": "generate",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-06T13:18:28.499655",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "error",
+    "error": "Unknown adapter 'rcxi'. Available: ['newton', 'davinci', 'empathy', 'philosophy', 'quantum', 'consciousness', 'multi_perspective', 'systems_architecture']",
+    "time_seconds": 1.8596649169921875e-05
+  },
+  {
+    "stage": "generate",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T13:18:28.639055",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "generated",
+    "examples": 2500,
+    "path": "datasets\\multi_perspective_reasoning.jsonl",
+    "time_seconds": 0.13851642608642578
+  },
+  {
+    "stage": "generate",
+    "adapter": "systems",
+    "timestamp": "2026-03-06T13:18:28.641506",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "error",
+    "error": "Unknown adapter 'systems'. Available: ['newton', 'davinci', 'empathy', 'philosophy', 'quantum', 'consciousness', 'multi_perspective', 'systems_architecture']",
+    "time_seconds": 1.811981201171875e-05
+  },
+  {
+    "stage": "validate",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T13:18:28.691923",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "valid",
+    "total_records": 3000,
+    "valid_records": 3000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T13:18:28.730908",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "valid",
+    "total_records": 2500,
+    "valid_records": 2500,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T13:18:28.767592",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "valid",
+    "total_records": 2500,
+    "valid_records": 2500,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T13:18:28.804400",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "valid",
+    "total_records": 2000,
+    "valid_records": 2000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T13:18:28.834843",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "valid",
+    "total_records": 2000,
+    "valid_records": 2000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-06T13:18:30.263121",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "valid",
+    "total_records": 3000,
+    "valid_records": 3000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T13:18:30.300627",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "valid",
+    "total_records": 2500,
+    "valid_records": 2500,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "systems",
+    "timestamp": "2026-03-06T13:18:31.062707",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "valid",
+    "total_records": 2000,
+    "valid_records": 2000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "forge",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T13:18:53.631849",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "success",
+    "total_examples": 3000,
+    "enhanced_examples": 3000,
+    "time_seconds": 21.569352626800537
+  },
+  {
+    "stage": "forge",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T13:19:11.747224",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "success",
+    "total_examples": 2500,
+    "enhanced_examples": 2500,
+    "time_seconds": 18.11348581314087
+  },
+  {
+    "stage": "forge",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T13:19:29.867634",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "success",
+    "total_examples": 2500,
+    "enhanced_examples": 2500,
+    "time_seconds": 18.118074417114258
+  },
+  {
+    "stage": "forge",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T13:19:44.205131",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "success",
+    "total_examples": 2000,
+    "enhanced_examples": 2000,
+    "time_seconds": 14.333271741867065
+  },
+  {
+    "stage": "forge",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T13:19:58.884490",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "success",
+    "total_examples": 2000,
+    "enhanced_examples": 2000,
+    "time_seconds": 14.677425622940063
+  },
+  {
+    "stage": "forge",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-06T13:20:20.877817",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "success",
+    "total_examples": 3000,
+    "enhanced_examples": 3000,
+    "time_seconds": 21.991706132888794
+  },
+  {
+    "stage": "forge",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T13:20:39.009170",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "success",
+    "total_examples": 2500,
+    "enhanced_examples": 2500,
+    "time_seconds": 18.1294367313385
+  },
+  {
+    "stage": "forge",
+    "adapter": "systems",
+    "timestamp": "2026-03-06T13:20:53.958903",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "success",
+    "total_examples": 2000,
+    "enhanced_examples": 2000,
+    "time_seconds": 14.94826078414917
+  },
+  {
+    "stage": "train",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T13:21:16.079311",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "error",
+    "error": "too many values to unpack (expected 2)",
+    "training_time_seconds": 3.5310287475585938
+  },
+  {
+    "stage": "train",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T13:21:16.192303",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "error",
+    "error": "too many values to unpack (expected 2)",
+    "training_time_seconds": 0.10582184791564941
+  },
+  {
+    "stage": "train",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T13:21:16.284476",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "error",
+    "error": "too many values to unpack (expected 2)",
+    "training_time_seconds": 0.0884087085723877
+  },
+  {
+    "stage": "train",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T13:21:16.367318",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "error",
+    "error": "too many values to unpack (expected 2)",
+    "training_time_seconds": 0.07521629333496094
+  },
+  {
+    "stage": "train",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T13:21:16.480549",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "error",
+    "error": "too many values to unpack (expected 2)",
+    "training_time_seconds": 0.10895490646362305
+  },
+  {
+    "stage": "train",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-06T13:21:17.073079",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "error",
+    "error": "too many values to unpack (expected 2)",
+    "training_time_seconds": 0.5855574607849121
+  },
+  {
+    "stage": "train",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T13:21:17.174295",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "error",
+    "error": "too many values to unpack (expected 2)",
+    "training_time_seconds": 0.097503662109375
+  },
+  {
+    "stage": "train",
+    "adapter": "systems",
+    "timestamp": "2026-03-06T13:21:17.546848",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "error",
+    "error": "too many values to unpack (expected 2)",
+    "training_time_seconds": 0.3669106960296631
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T13:21:24.873758",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "evaluated",
+    "total_responses": 3000,
+    "scores": {
+      "clarity": 0.6685,
+      "structure": 0.5723,
+      "depth": 0.9946,
+      "examples": 0.3759,
+      "multi_perspective": 0.5669,
+      "scientific_rigor": 0.4376,
+      "ethical_awareness": 0.5219,
+      "coherence": 0.3271,
+      "overall": 0.5801,
+      "word_count": 480.143,
+      "sentence_count": 26.9483
+    },
+    "time_seconds": 7.02625298500061
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T13:21:30.616387",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "evaluated",
+    "total_responses": 2500,
+    "scores": {
+      "clarity": 0.6649,
+      "structure": 0.5534,
+      "depth": 0.995,
+      "examples": 0.1532,
+      "multi_perspective": 0.5806,
+      "scientific_rigor": 0.3201,
+      "ethical_awareness": 0.5737,
+      "coherence": 0.2726,
+      "overall": 0.538,
+      "word_count": 478.202,
+      "sentence_count": 27.3028
+    },
+    "time_seconds": 5.740746974945068
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T13:21:36.527560",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "evaluated",
+    "total_responses": 2500,
+    "scores": {
+      "clarity": 0.6739,
+      "structure": 0.539,
+      "depth": 0.9952,
+      "examples": 0.1892,
+      "multi_perspective": 0.6038,
+      "scientific_rigor": 0.3386,
+      "ethical_awareness": 0.6423,
+      "coherence": 0.3051,
+      "overall": 0.556,
+      "word_count": 481.038,
+      "sentence_count": 26.9796
+    },
+    "time_seconds": 5.909365177154541
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T13:21:41.228015",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "evaluated",
+    "total_responses": 2000,
+    "scores": {
+      "clarity": 0.6708,
+      "structure": 0.5539,
+      "depth": 0.9954,
+      "examples": 0.2086,
+      "multi_perspective": 0.7429,
+      "scientific_rigor": 0.3596,
+      "ethical_awareness": 0.6223,
+      "coherence": 0.322,
+      "overall": 0.5766,
+      "word_count": 487.796,
+      "sentence_count": 27.2695
+    },
+    "time_seconds": 4.698750019073486
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T13:21:46.024027",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "evaluated",
+    "total_responses": 2000,
+    "scores": {
+      "clarity": 0.6715,
+      "structure": 0.5513,
+      "depth": 0.9953,
+      "examples": 0.2364,
+      "multi_perspective": 0.6332,
+      "scientific_rigor": 0.4823,
+      "ethical_awareness": 0.5369,
+      "coherence": 0.3093,
+      "overall": 0.5766,
+      "word_count": 485.6675,
+      "sentence_count": 27.0405
+    },
+    "time_seconds": 4.789055109024048
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "rcxi",
+    "timestamp": "2026-03-06T13:22:25.488884",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "evaluated",
+    "total_responses": 3000,
+    "scores": {
+      "clarity": 0.5518,
+      "structure": 0.5502,
+      "depth": 0.7921,
+      "examples": 0.1562,
+      "multi_perspective": 1.0,
+      "scientific_rigor": 0.505,
+      "ethical_awareness": 0.7412,
+      "coherence": 0.3176,
+      "overall": 0.5814,
+      "word_count": 3097.114,
+      "sentence_count": 162.194
+    },
+    "time_seconds": 39.460612773895264
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T13:22:31.297942",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "evaluated",
+    "total_responses": 2500,
+    "scores": {
+      "clarity": 0.6784,
+      "structure": 0.574,
+      "depth": 0.9945,
+      "examples": 0.2702,
+      "multi_perspective": 0.682,
+      "scientific_rigor": 0.3662,
+      "ethical_awareness": 0.625,
+      "coherence": 0.302,
+      "overall": 0.5799,
+      "word_count": 473.376,
+      "sentence_count": 25.92
+    },
+    "time_seconds": 5.807321071624756
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "systems",
+    "timestamp": "2026-03-06T13:22:56.917316",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "status": "evaluated",
+    "total_responses": 2000,
+    "scores": {
+      "clarity": 0.5517,
+      "structure": 0.5566,
+      "depth": 0.7936,
+      "examples": 0.1933,
+      "multi_perspective": 1.0,
+      "scientific_rigor": 0.483,
+      "ethical_awareness": 0.7398,
+      "coherence": 0.3082,
+      "overall": 0.5819,
+      "word_count": 3102.442,
+      "sentence_count": 163.332
+    },
+    "time_seconds": 25.617772102355957
+  },
+  {
+    "stage": "pipeline",
+    "adapter": null,
+    "timestamp": "2026-03-06T13:22:56.923287",
+    "pipeline_run": "2026-03-06T13:18:27.248739",
+    "total_time_seconds": 269.5952353477478,
+    "stages_run": [
+      "generate",
+      "validate",
+      "forge",
+      "train",
+      "evaluate"
+    ],
+    "adapters_processed": [
+      "newton",
+      "davinci",
+      "empathy",
+      "philosophy",
+      "quantum",
+      "rcxi",
+      "multi_perspective",
+      "systems"
+    ]
+  },
+  {
+    "stage": "generate",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T15:13:39.502278",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "generated",
+    "examples": 3000,
+    "path": "datasets\\newton_reasoning.jsonl",
+    "time_seconds": 0.11295342445373535
+  },
+  {
+    "stage": "generate",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T15:13:39.591328",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "generated",
+    "examples": 2500,
+    "path": "datasets\\davinci_reasoning.jsonl",
+    "time_seconds": 0.0874781608581543
+  },
+  {
+    "stage": "generate",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T15:13:39.691778",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "generated",
+    "examples": 2500,
+    "path": "datasets\\empathy_reasoning.jsonl",
+    "time_seconds": 0.09812593460083008
+  },
+  {
+    "stage": "generate",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T15:13:39.767673",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "generated",
+    "examples": 2000,
+    "path": "datasets\\philosophy_reasoning.jsonl",
+    "time_seconds": 0.07303237915039062
+  },
+  {
+    "stage": "generate",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T15:13:39.842579",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "generated",
+    "examples": 2000,
+    "path": "datasets\\quantum_reasoning.jsonl",
+    "time_seconds": 0.07167315483093262
+  },
+  {
+    "stage": "generate",
+    "adapter": "consciousness",
+    "timestamp": "2026-03-06T15:13:39.945492",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "generated",
+    "examples": 3000,
+    "path": "datasets\\consciousness_reasoning.jsonl",
+    "time_seconds": 0.10103464126586914
+  },
+  {
+    "stage": "generate",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T15:13:40.033984",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "generated",
+    "examples": 2500,
+    "path": "datasets\\multi_perspective_reasoning.jsonl",
+    "time_seconds": 0.0862891674041748
+  },
+  {
+    "stage": "generate",
+    "adapter": "systems_architecture",
+    "timestamp": "2026-03-06T15:13:40.112197",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "generated",
+    "examples": 2000,
+    "path": "datasets\\systems_architecture_reasoning.jsonl",
+    "time_seconds": 0.07644224166870117
+  },
+  {
+    "stage": "validate",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T15:13:40.140060",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "valid",
+    "total_records": 3000,
+    "valid_records": 3000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T15:13:40.164486",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "valid",
+    "total_records": 2500,
+    "valid_records": 2500,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T15:13:40.188121",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "valid",
+    "total_records": 2500,
+    "valid_records": 2500,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T15:13:40.205858",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "valid",
+    "total_records": 2000,
+    "valid_records": 2000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T15:13:40.227717",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "valid",
+    "total_records": 2000,
+    "valid_records": 2000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "consciousness",
+    "timestamp": "2026-03-06T15:13:40.257028",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "valid",
+    "total_records": 3000,
+    "valid_records": 3000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T15:13:40.278787",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "valid",
+    "total_records": 2500,
+    "valid_records": 2500,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "validate",
+    "adapter": "systems_architecture",
+    "timestamp": "2026-03-06T15:13:40.297388",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "valid",
+    "total_records": 2000,
+    "valid_records": 2000,
+    "error_records": 0,
+    "pass_rate": 100.0,
+    "errors": {
+      "json_parse": 0,
+      "missing_messages": 0,
+      "missing_roles": 0,
+      "too_short": 0
+    }
+  },
+  {
+    "stage": "forge",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T15:13:56.830216",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "success",
+    "total_examples": 3000,
+    "enhanced_examples": 3000,
+    "time_seconds": 14.327508926391602
+  },
+  {
+    "stage": "forge",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T15:14:12.619437",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "success",
+    "total_examples": 2500,
+    "enhanced_examples": 2500,
+    "time_seconds": 15.78556752204895
+  },
+  {
+    "stage": "forge",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T15:14:28.423721",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "success",
+    "total_examples": 2500,
+    "enhanced_examples": 2500,
+    "time_seconds": 15.801913022994995
+  },
+  {
+    "stage": "forge",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T15:14:41.043787",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "success",
+    "total_examples": 2000,
+    "enhanced_examples": 2000,
+    "time_seconds": 12.618672609329224
+  },
+  {
+    "stage": "forge",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T15:14:50.740683",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "success",
+    "total_examples": 2000,
+    "enhanced_examples": 2000,
+    "time_seconds": 9.694835901260376
+  },
+  {
+    "stage": "forge",
+    "adapter": "consciousness",
+    "timestamp": "2026-03-06T15:15:06.601335",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "success",
+    "total_examples": 3000,
+    "enhanced_examples": 3000,
+    "time_seconds": 15.853896856307983
+  },
+  {
+    "stage": "forge",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T15:15:23.236671",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "success",
+    "total_examples": 2500,
+    "enhanced_examples": 2500,
+    "time_seconds": 16.632855892181396
+  },
+  {
+    "stage": "forge",
+    "adapter": "systems_architecture",
+    "timestamp": "2026-03-06T15:15:35.850831",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "success",
+    "total_examples": 2000,
+    "enhanced_examples": 2000,
+    "time_seconds": 12.612788915634155
+  },
+  {
+    "stage": "train",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T15:21:58.356407",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "error",
+    "error": "",
+    "training_time_seconds": 364.8034117221832
+  },
+  {
+    "stage": "train",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T15:25:26.090976",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "error",
+    "error": "",
+    "training_time_seconds": 204.78326892852783
+  },
+  {
+    "stage": "train",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T15:29:44.870899",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "error",
+    "error": "One of the subprocesses has abruptly died during map operation.To debug the error, disable multiprocessing.",
+    "training_time_seconds": 257.1600852012634
+  },
+  {
+    "stage": "train",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T15:47:49.549214",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "error",
+    "error": "",
+    "training_time_seconds": 1082.5566527843475
+  },
+  {
+    "stage": "train",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T15:51:08.612131",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "error",
+    "error": "",
+    "training_time_seconds": 196.60817337036133
+  },
+  {
+    "stage": "train",
+    "adapter": "consciousness",
+    "timestamp": "2026-03-06T15:54:34.763536",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "error",
+    "error": "",
+    "training_time_seconds": 202.89205932617188
+  },
+  {
+    "stage": "train",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T15:58:22.986376",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "error",
+    "error": "",
+    "training_time_seconds": 225.031099319458
+  },
+  {
+    "stage": "train",
+    "adapter": "systems_architecture",
+    "timestamp": "2026-03-06T16:02:20.468354",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "error",
+    "error": "",
+    "training_time_seconds": 235.23632884025574
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "newton",
+    "timestamp": "2026-03-06T16:02:28.653994",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "evaluated",
+    "total_responses": 3000,
+    "scores": {
+      "clarity": 0.6685,
+      "structure": 0.5723,
+      "depth": 0.9946,
+      "examples": 0.3759,
+      "multi_perspective": 0.5669,
+      "scientific_rigor": 0.4376,
+      "ethical_awareness": 0.5219,
+      "coherence": 0.3271,
+      "overall": 0.5801,
+      "word_count": 480.143,
+      "sentence_count": 26.9483
+    },
+    "time_seconds": 7.701075553894043
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "davinci",
+    "timestamp": "2026-03-06T16:02:33.098284",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "evaluated",
+    "total_responses": 2500,
+    "scores": {
+      "clarity": 0.6649,
+      "structure": 0.5534,
+      "depth": 0.995,
+      "examples": 0.1532,
+      "multi_perspective": 0.5806,
+      "scientific_rigor": 0.3201,
+      "ethical_awareness": 0.5737,
+      "coherence": 0.2726,
+      "overall": 0.538,
+      "word_count": 478.202,
+      "sentence_count": 27.3028
+    },
+    "time_seconds": 4.443191051483154
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "empathy",
+    "timestamp": "2026-03-06T16:02:38.075837",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "evaluated",
+    "total_responses": 2500,
+    "scores": {
+      "clarity": 0.6739,
+      "structure": 0.539,
+      "depth": 0.9952,
+      "examples": 0.1892,
+      "multi_perspective": 0.6038,
+      "scientific_rigor": 0.3386,
+      "ethical_awareness": 0.6423,
+      "coherence": 0.3051,
+      "overall": 0.556,
+      "word_count": 481.038,
+      "sentence_count": 26.9796
+    },
+    "time_seconds": 4.9757068157196045
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "philosophy",
+    "timestamp": "2026-03-06T16:02:41.681595",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "evaluated",
+    "total_responses": 2000,
+    "scores": {
+      "clarity": 0.6708,
+      "structure": 0.5539,
+      "depth": 0.9954,
+      "examples": 0.2086,
+      "multi_perspective": 0.7429,
+      "scientific_rigor": 0.3596,
+      "ethical_awareness": 0.6223,
+      "coherence": 0.322,
+      "overall": 0.5766,
+      "word_count": 487.796,
+      "sentence_count": 27.2695
+    },
+    "time_seconds": 3.604151725769043
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "quantum",
+    "timestamp": "2026-03-06T16:02:46.369409",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "evaluated",
+    "total_responses": 2000,
+    "scores": {
+      "clarity": 0.6715,
+      "structure": 0.5513,
+      "depth": 0.9953,
+      "examples": 0.2364,
+      "multi_perspective": 0.6332,
+      "scientific_rigor": 0.4823,
+      "ethical_awareness": 0.5369,
+      "coherence": 0.3093,
+      "overall": 0.5766,
+      "word_count": 485.6675,
+      "sentence_count": 27.0405
+    },
+    "time_seconds": 4.686640501022339
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "consciousness",
+    "timestamp": "2026-03-06T16:02:52.987859",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "evaluated",
+    "total_responses": 3000,
+    "scores": {
+      "clarity": 0.6737,
+      "structure": 0.5502,
+      "depth": 0.995,
+      "examples": 0.1562,
+      "multi_perspective": 0.6352,
+      "scientific_rigor": 0.4539,
+      "ethical_awareness": 0.527,
+      "coherence": 0.3116,
+      "overall": 0.5639,
+      "word_count": 480.927,
+      "sentence_count": 26.233
+    },
+    "time_seconds": 6.606791973114014
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-03-06T16:02:57.360888",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "evaluated",
+    "total_responses": 2500,
+    "scores": {
+      "clarity": 0.6794,
+      "structure": 0.5751,
+      "depth": 0.9946,
+      "examples": 0.2636,
+      "multi_perspective": 0.6804,
+      "scientific_rigor": 0.3641,
+      "ethical_awareness": 0.6183,
+      "coherence": 0.3056,
+      "overall": 0.5788,
+      "word_count": 473.7724,
+      "sentence_count": 25.8072
+    },
+    "time_seconds": 4.371859550476074
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "systems_architecture",
+    "timestamp": "2026-03-06T16:03:01.915162",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "status": "evaluated",
+    "total_responses": 2000,
+    "scores": {
+      "clarity": 0.6775,
+      "structure": 0.5551,
+      "depth": 0.9955,
+      "examples": 0.1941,
+      "multi_perspective": 0.613,
+      "scientific_rigor": 0.411,
+      "ethical_awareness": 0.5426,
+      "coherence": 0.2938,
+      "overall": 0.5602,
+      "word_count": 486.2455,
+      "sentence_count": 26.4785
+    },
+    "time_seconds": 4.553122520446777
+  },
+  {
+    "stage": "pipeline",
+    "adapter": null,
+    "timestamp": "2026-03-06T16:03:01.915609",
+    "pipeline_run": "2026-03-06T15:13:39.116054",
+    "total_time_seconds": 2962.73135304451,
+    "stages_run": [
+      "generate",
+      "validate",
+      "forge",
+      "train",
+      "evaluate"
+    ],
+    "adapters_processed": [
+      "newton",
+      "davinci",
+      "empathy",
+      "philosophy",
+      "quantum",
+      "consciousness",
+      "multi_perspective",
+      "systems_architecture"
+    ]
+  }
+]

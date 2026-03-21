@@ -1,0 +1,184 @@
+{
+  "timestamp": 1774055916.062495,
+  "results": {
+    "Phase_6_Only": {
+      "overall_accuracy": 0.42857142857142855,
+      "accuracy_by_category": {
+        "factual_easy": 0.5,
+        "factual_medium": 0.0,
+        "conceptual_medium": 0.5,
+        "reasoning_medium": 1.0,
+        "tricky_medium": 1.0,
+        "nuanced_hard": 0.0,
+        "meta_loop_prone": 0.0
+      },
+      "accuracy_by_difficulty": {
+        "1": 0.5,
+        "2": 0.625,
+        "3": 0.0
+      },
+      "avg_latency_ms": 0.1,
+      "total_tests": 14,
+      "correct_count": 6,
+      "category_stats": {
+        "factual_easy": {
+          "accuracy": 0.5,
+          "count": 2,
+          "avg_latency_ms": 0.1
+        },
+        "factual_medium": {
+          "accuracy": 0.0,
+          "count": 2,
+          "avg_latency_ms": 0.1
+        },
+        "conceptual_medium": {
+          "accuracy": 0.5,
+          "count": 2,
+          "avg_latency_ms": 0.1
+        },
+        "reasoning_medium": {
+          "accuracy": 1.0,
+          "count": 2,
+          "avg_latency_ms": 0.1
+        },
+        "tricky_medium": {
+          "accuracy": 1.0,
+          "count": 2,
+          "avg_latency_ms": 0.1
+        },
+        "nuanced_hard": {
+          "accuracy": 0.0,
+          "count": 2,
+          "avg_latency_ms": 0.1
+        },
+        "meta_loop_prone": {
+          "accuracy": 0.0,
+          "count": 2,
+          "avg_latency_ms": 0.1
+        }
+      }
+    },
+    "Phase_6_Plus_13": {
+      "overall_accuracy": 0.5714285714285714,
+      "accuracy_by_category": {
+        "factual_easy": 0.5,
+        "factual_medium": 0.5,
+        "conceptual_medium": 1.0,
+        "reasoning_medium": 1.0,
+        "tricky_medium": 0.5,
+        "nuanced_hard": 0.0,
+        "meta_loop_prone": 0.5
+      },
+      "accuracy_by_difficulty": {
+        "1": 0.5,
+        "2": 0.75,
+        "3": 0.25
+      },
+      "avg_latency_ms": 0.1,
+      "total_tests": 14,
+      "correct_count": 8,
+      "category_stats": {
+        "factual_easy": {
+          "accuracy": 0.5,
+          "count": 2,
+          "avg_latency_ms": 0.1
+        },
+        "factual_medium": {
+          "accuracy": 0.5,
+          "count": 2,
+          "avg_latency_ms": 0.1
+        },
+        "conceptual_medium": {
+          "accuracy": 1.0,
+          "count": 2,
+          "avg_latency_ms": 0.1
+        },
+        "reasoning_medium": {
+          "accuracy": 1.0,
+          "count": 2,
+          "avg_latency_ms": 0.1
+        },
+        "tricky_medium": {
+          "accuracy": 0.5,
+          "count": 2,
+          "avg_latency_ms": 0.1
+        },
+        "nuanced_hard": {
+          "accuracy": 0.0,
+          "count": 2,
+          "avg_latency_ms": 0.1
+        },
+        "meta_loop_prone": {
+          "accuracy": 0.5,
+          "count": 2,
+          "avg_latency_ms": 0.1
+        }
+      }
+    },
+    "Phase_6_Plus_13_Plus_14": {
+      "overall_accuracy": 0.7857142857142857,
+      "accuracy_by_category": {
+        "factual_easy": 1.0,
+        "factual_medium": 0.5,
+        "conceptual_medium": 1.0,
+        "reasoning_medium": 0.5,
+        "tricky_medium": 1.0,
+        "nuanced_hard": 1.0,
+        "meta_loop_prone": 0.5
+      },
+      "accuracy_by_difficulty": {
+        "1": 1.0,
+        "2": 0.75,
+        "3": 0.75
+      },
+      "avg_latency_ms": 0.1,
+      "total_tests": 14,
+      "correct_count": 11,
+      "category_stats": {
+        "factual_easy": {
+          "accuracy": 1.0,
+          "count": 2,
+          "avg_latency_ms": 0.1
+        },
+        "factual_medium": {
+          "accuracy": 0.5,
+          "count": 2,
+          "avg_latency_ms": 0.1
+        },
+        "conceptual_medium": {
+          "accuracy": 1.0,
+          "count": 2,
+          "avg_latency_ms": 0.1
+        },
+        "reasoning_medium": {
+          "accuracy": 0.5,
+          "count": 2,
+          "avg_latency_ms": 0.1
+        },
+        "tricky_medium": {
+          "accuracy": 1.0,
+          "count": 2,
+          "avg_latency_ms": 0.1
+        },
+        "nuanced_hard": {
+          "accuracy": 1.0,
+          "count": 2,
+          "avg_latency_ms": 0.1
+        },
+        "meta_loop_prone": {
+          "accuracy": 0.5,
+          "count": 2,
+          "avg_latency_ms": 0.1
+        }
+      }
+    }
+  },
+  "summary": {
+    "phase6_accuracy": 0.42857142857142855,
+    "phase6_13_accuracy": 0.5714285714285714,
+    "phase6_13_14_accuracy": 0.7857142857142857,
+    "improvement_13_pct": 33.33333333333333,
+    "improvement_14_pct": 37.50000000000001,
+    "total_improvement_pct": 227.38095238095238
+  }
+}

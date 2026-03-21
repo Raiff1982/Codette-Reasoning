@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codette</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Loading Screen -->
+<div class="loading-screen" id="loading-screen">
+    <div class="loading-title">Codette</div>
+    <div class="loading-status" id="loading-status">Initializing...</div>
+    <div class="loading-bar"><div class="loading-bar-fill"></div></div>
+</div>
+
+<!-- Main App -->
+<div class="app">
+    <!-- Main Chat Panel -->
+    <div class="main-panel">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <span class="logo" id="logo">Codette</span>
+                <div class="adapter-dots" id="adapter-dots"></div>
+            </div>
+            <div class="header-right">
+                <button class="header-btn" id="btn-new-chat" title="New conversation">+ New</button>
+                <button class="header-btn" id="btn-export" title="Export session">Export</button>
+                <button class="header-btn" id="btn-import" title="Import session">Import</button>
+                <input type="file" id="import-file" accept=".json" style="display:none">
+                <button class="header-btn" id="btn-toggle-panel" title="Toggle side panel">Cocoon</button>
+            </div>
+        </div>
+
+        <!-- Chat Messages -->
+        <div class="chat-area" id="chat-area">
+            <div class="welcome" id="welcome">
+                <h2>What would you like to explore?</h2>
+                <p>Codette v2.0 with Phase 6: Multi-perspective reasoning with controlled debate, semantic tension analysis, and adaptive stability.</p>
+                <div style="font-size:0.9em; color:#666; margin-bottom:16px; padding:10px; background:#f5f5f5; border-radius:4px;">
+                    <strong>What's New:</strong> Domain-aware agent routing • Semantic conflict detection • Real-time coherence monitoring • Experience-weighted reasoning
+                </div>
+                <div class="welcome-grid">
+                    <div class="welcome-card" onclick="askQuestion('What is the speed of light and why does it matter?')">
+                        <div class="welcome-card-title" style="color:var(--newton)">Physics</div>
+                        <div class="welcome-card-desc">What is the speed of light and why does it matter?</div>
+                    </div>
+                    <div class="welcome-card" onclick="askQuestion('How should we balance accuracy and explainability in AI systems?')">
+                        <div class="welcome-card-title" style="color:var(--philosophy)">Ethics</div>
+                        <div class="welcome-card-desc">How should we balance accuracy and explainability in AI systems?</div>
+                    </div>
+                    <div class="welcome-card" onclick="askQuestion('What are the hallmarks of a truly creative solution?')">
+                        <div class="welcome-card-title" style="color:var(--davinci)">Creativity</div>
+                        <div class="welcome-card-desc">What are the hallmarks of a truly creative solution?</div>
+                    </div>
+                    <div class="welcome-card" onclick="askQuestion('What would it mean for a machine to genuinely understand?')">
+                        <div class="welcome-card-title" style="color:var(--consciousness)">Consciousness</div>
+                        <div class="welcome-card-desc">What would it mean for a machine to genuinely understand?</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls Row -->
+        <div class="controls">
+            <div class="control-group">
+                <label>Adapter:</label>
+                <select id="adapter-select">
+                    <option value="auto">Auto</option>
+                    <option value="newton">Newton</option>
+                    <option value="davinci">DaVinci</option>
+                    <option value="empathy">Empathy</option>
+                    <option value="philosophy">Philosophy</option>
+                    <option value="quantum">Quantum</option>
+                    <option value="consciousness">Consciousness</option>
+                    <option value="multi_perspective">Multi-Perspective</option>
+                    <option value="systems_architecture">Systems</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Perspectives:</label>
+                <input type="range" id="max-adapters" min="1" max="3" value="2" style="width:60px">
+                <span id="max-adapters-value">2</span>
+            </div>
+            <div class="control-group" style="margin-left:auto">
+                <label>
+                    <input type="checkbox" id="tts-toggle"> Voice
+                </label>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-area">
+            <div class="input-row">
+                <button class="mic-btn" id="mic-btn" title="Voice input">&#127908;</button>
+                <div class="input-wrapper">
+                    <textarea id="chat-input" placeholder="Ask Codette something..." rows="1"></textarea>
+                </div>
+                <button class="send-btn" id="send-btn" title="Send">&#9654;</button>
+            </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-indicator">
+                <span class="status-dot" id="status-dot"></span>
+                <span id="status-text">Initializing...</span>
+            </div>
+            <div id="status-right"></div>
+        </div>
+    </div>
+
+    <!-- Side Panel (Cocoon Dashboard) -->
+    <div class="side-panel" id="side-panel">
+        <!-- Spiderweb Visualization -->
+        <div class="side-section">
+            <div class="side-section-title">Agent Network</div>
+            <canvas id="spiderweb-canvas"></canvas>
+        </div>
+
+        <!-- Metrics -->
+        <div class="side-section">
+            <div class="side-section-title">Cocoon Metrics</div>
+            <div class="metric-row">
+                <span class="metric-label">&#915; Phase Coherence</span>
+                <span class="metric-value" id="metric-coherence">0.00</span>
+            </div>
+            <div class="metric-bar">
+                <div class="metric-bar-fill" id="bar-coherence"
+                     style="width:0%;background:var(--philosophy)"></div>
+            </div>
+            <div class="metric-row" style="margin-top:10px">
+                <span class="metric-label">&#958; Epistemic Tension</span>
+                <span class="metric-value" id="metric-tension">0.00</span>
+            </div>
+            <div class="metric-bar">
+                <div class="metric-bar-fill" id="bar-tension"
+                     style="width:0%;background:var(--quantum)"></div>
+            </div>
+            <div class="metric-row" style="margin-top:10px">
+                <span class="metric-label">&#951; Ethical Alignment</span>
+                <span class="metric-value" id="metric-eta">--</span>
+            </div>
+        </div>
+
+        <!-- Perspective Coverage -->
+        <div class="side-section">
+            <div class="side-section-title">Perspective Coverage</div>
+            <div class="coverage-dots" id="coverage-dots"></div>
+        </div>
+
+        <!-- Cocoon Status -->
+        <div class="side-section">
+            <div class="side-section-title">Cocoon Status</div>
+            <div class="metric-row">
+                <span class="metric-label">&#128274; Encryption</span>
+                <span class="metric-value" id="cocoon-encryption">--</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">&#128376; Attractors</span>
+                <span class="metric-value" id="cocoon-attractors">0</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">&#128200; Glyphs</span>
+                <span class="metric-value" id="cocoon-glyphs">0</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">&#128190; Sessions</span>
+                <span class="metric-value" id="cocoon-sessions">0</span>
+            </div>
+        </div>
+
+        <!-- AEGIS Ethical Alignment -->
+        <div class="side-section" id="section-aegis" style="display:none">
+            <div class="side-section-title">AEGIS Ethics</div>
+            <div class="metric-row">
+                <span class="metric-label">&#951; Alignment</span>
+                <span class="metric-value" id="aegis-eta">--</span>
+            </div>
+            <div class="metric-bar">
+                <div class="metric-bar-fill" id="bar-aegis-eta"
+                     style="width:0%;background:var(--philosophy)"></div>
+            </div>
+            <div class="metric-row" style="margin-top:8px">
+                <span class="metric-label">Trend</span>
+                <span class="metric-value" id="aegis-trend">--</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Evaluations</span>
+                <span class="metric-value" id="aegis-evals">0</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Vetoes</span>
+                <span class="metric-value" id="aegis-vetoes">0</span>
+            </div>
+        </div>
+
+        <!-- Nexus Signal Intelligence -->
+        <div class="side-section" id="section-nexus" style="display:none">
+            <div class="side-section-title">Nexus Signals</div>
+            <div class="metric-row">
+                <span class="metric-label">Processed</span>
+                <span class="metric-value" id="nexus-processed">0</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Interventions</span>
+                <span class="metric-value" id="nexus-interventions">0</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Rate</span>
+                <span class="metric-value" id="nexus-rate">0%</span>
+            </div>
+            <div class="nexus-risk-dots" id="nexus-risks"></div>
+        </div>
+
+        <!-- Resonant Continuity -->
+        <div class="side-section" id="section-resonance" style="display:none">
+            <div class="side-section-title">Resonance &#936;<sub>r</sub></div>
+            <div class="metric-row">
+                <span class="metric-label">&#936;<sub>r</sub> Wavefunction</span>
+                <span class="metric-value" id="resonance-psi">--</span>
+            </div>
+            <div class="metric-bar">
+                <div class="metric-bar-fill" id="bar-resonance-psi"
+                     style="width:0%;background:var(--empathy)"></div>
+            </div>
+            <div class="metric-row" style="margin-top:8px">
+                <span class="metric-label">Quality</span>
+                <span class="metric-value" id="resonance-quality">--</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Convergence</span>
+                <span class="metric-value" id="resonance-convergence">--</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Stability</span>
+                <span class="metric-value" id="resonance-stability">--</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label" id="resonance-peak-label">Peak</span>
+                <span class="metric-value" id="resonance-peak">--</span>
+            </div>
+        </div>
+
+        <!-- Living Memory -->
+        <div class="side-section" id="section-memory" style="display:none">
+            <div class="side-section-title">Living Memory</div>
+            <div class="metric-row">
+                <span class="metric-label">Cocoons</span>
+                <span class="metric-value" id="memory-count">0</span>
+            </div>
+            <div class="memory-emotions" id="memory-emotions"></div>
+        </div>
+
+        <!-- Guardian -->
+        <div class="side-section" id="section-guardian" style="display:none">
+            <div class="side-section-title">Guardian</div>
+            <div class="metric-row">
+                <span class="metric-label">Ethics Score</span>
+                <span class="metric-value" id="guardian-ethics">--</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Trust Interactions</span>
+                <span class="metric-value" id="guardian-trust">0</span>
+            </div>
+        </div>
+
+        <!-- Recent Sessions -->
+        <div class="side-section" style="flex:1;overflow-y:auto">
+            <div class="side-section-title">Recent Sessions</div>
+            <div id="session-list"></div>
+        </div>
+    </div>
+</div>
+
+<script src="spiderweb.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

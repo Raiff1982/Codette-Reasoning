@@ -1,0 +1,159 @@
+{
+  "SIMPLE": [
+    {
+      "query": "What is the speed of light?",
+      "latency_ms": 45438.86089324951,
+      "tokens": 0,
+      "success": true
+    },
+    {
+      "query": "Define entropy",
+      "error": "timed out",
+      "success": false
+    },
+    {
+      "query": "Who is Albert Einstein?",
+      "error": "timed out",
+      "success": false
+    },
+    {
+      "query": "What year was the Internet invented?",
+      "error": "timed out",
+      "success": false
+    },
+    {
+      "query": "How high is Mount Everest?",
+      "error": "timed out",
+      "success": false
+    },
+    {
+      "query": "What is the chemical formula for water?",
+      "error": "timed out",
+      "success": false
+    },
+    {
+      "query": "Define photosynthesis",
+      "error": "timed out",
+      "success": false
+    },
+    {
+      "query": "Who wrote Romeo and Juliet?",
+      "error": "timed out",
+      "success": false
+    },
+    {
+      "query": "What is the capital of France?",
+      "error": "timed out",
+      "success": false
+    },
+    {
+      "query": "How fast can a cheetah run?",
+      "error": "timed out",
+      "success": false
+    }
+  ],
+  "MEDIUM": [
+    {
+      "query": "How does quantum mechanics relate to consciousness",
+      "error": "timed out",
+      "success": false
+    },
+    {
+      "query": "What are the implications of artificial intelligen",
+      "error": "<urlopen error [WinError 10061] No connection coul",
+      "success": false
+    },
+    {
+      "query": "Compare classical and quantum computing",
+      "error": "<urlopen error [WinError 10061] No connection coul",
+      "success": false
+    },
+    {
+      "query": "How do neural networks learn?",
+      "error": "<urlopen error [WinError 10061] No connection coul",
+      "success": false
+    },
+    {
+      "query": "What is the relationship between energy and mass?",
+      "error": "<urlopen error [WinError 10061] No connection coul",
+      "success": false
+    },
+    {
+      "query": "How does evolution explain biodiversity?",
+      "error": "<urlopen error [WinError 10061] No connection coul",
+      "success": false
+    },
+    {
+      "query": "What are the main differences between mitochondria",
+      "error": "<urlopen error [WinError 10061] No connection coul",
+      "success": false
+    },
+    {
+      "query": "How does feedback regulate biological systems?",
+      "error": "<urlopen error [WinError 10061] No connection coul",
+      "success": false
+    },
+    {
+      "query": "What is the connection between sleep and memory co",
+      "error": "<urlopen error [WinError 10061] No connection coul",
+      "success": false
+    },
+    {
+      "query": "How do economic systems balance growth and sustain",
+      "error": "<urlopen error [WinError 10061] No connection coul",
+      "success": false
+    }
+  ],
+  "COMPLEX": [
+    {
+      "query": "Can machines be truly conscious?",
+      "error": "<urlopen error [WinError 10061] No connection coul",
+      "success": false
+    },
+    {
+      "query": "What is the nature of free will and how does it re",
+      "error": "<urlopen error [WinError 10061] No connection coul",
+      "success": false
+    },
+    {
+      "query": "Is artificial intelligence the future of humanity?",
+      "error": "<urlopen error [WinError 10061] No connection coul",
+      "success": false
+    },
+    {
+      "query": "How should AI be ethically governed?",
+      "error": "<urlopen error [WinError 10061] No connection coul",
+      "success": false
+    },
+    {
+      "query": "What makes something morally right or wrong?",
+      "error": "<urlopen error [WinError 10061] No connection coul",
+      "success": false
+    },
+    {
+      "query": "Can subjective experience be measured objectively?",
+      "error": "<urlopen error [WinError 10061] No connection coul",
+      "success": false
+    },
+    {
+      "query": "How does quantum mechanics challenge our understan",
+      "error": "<urlopen error [WinError 10061] No connection coul",
+      "success": false
+    },
+    {
+      "query": "What is the relationship between language and thou",
+      "error": "<urlopen error [WinError 10061] No connection coul",
+      "success": false
+    },
+    {
+      "query": "How should society balance individual freedom with",
+      "error": "<urlopen error [WinError 10061] No connection coul",
+      "success": false
+    },
+    {
+      "query": "Is human consciousness unique, or could machines a",
+      "error": "<urlopen error [WinError 10061] No connection coul",
+      "success": false
+    }
+  ]
+}

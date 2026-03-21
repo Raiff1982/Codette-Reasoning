@@ -1,0 +1,70 @@
+{
+  "physics": [
+    "Explain Newton's third law with real-world examples and common misconceptions.",
+    "How does the conservation of energy apply in a roller coaster system? Explain with detail.",
+    "What is the difference between mass and weight, and why does this distinction matter in space travel?",
+    "Describe how electromagnetic induction works and its role in modern power generation.",
+    "Explain the concept of entropy and why it makes perpetual motion machines impossible.",
+    "How do gravitational waves form and what do they tell us about the universe?",
+    "Why does time dilation occur near massive objects according to general relativity?"
+  ],
+  "quantum": [
+    "What is quantum superposition and how does measurement affect it?",
+    "Explain the double-slit experiment and why it challenges classical physics.",
+    "What is quantum entanglement and why did Einstein call it 'spooky action at a distance'?",
+    "How does the Heisenberg uncertainty principle limit what we can know about particles?",
+    "Explain the concept of wave-particle duality with concrete examples.",
+    "What is quantum tunneling and how is it applied in modern technology?"
+  ],
+  "ethics": [
+    "What ethical risks exist in deploying autonomous AI systems for military decisions?",
+    "How should AI systems handle bias in training data, and whose responsibility is it to fix?",
+    "What are the ethical implications of using AI for predictive policing?",
+    "Discuss the tension between AI-driven efficiency and human employment rights.",
+    "What ethical framework should guide the development of general artificial intelligence?",
+    "How should consent and privacy be managed when AI analyses personal health data?",
+    "What moral obligations do AI developers have toward vulnerable populations?"
+  ],
+  "philosophy": [
+    "What is the relationship between knowledge and belief in epistemology?",
+    "Explain the problem of free will versus determinism and the main philosophical positions.",
+    "What is the Chinese Room argument and what does it say about machine understanding?",
+    "How does the ship of Theseus problem relate to questions of personal identity?",
+    "Discuss Plato's allegory of the cave and its relevance to modern information bubbles.",
+    "What is the hard problem of consciousness and why is it considered unsolved?"
+  ],
+  "creativity": [
+    "How would you design a bridge inspired by biological structures found in nature?",
+    "Propose an innovative approach to teaching mathematics using virtual reality.",
+    "Design a thought experiment that illustrates the concept of emergence in complex systems.",
+    "How could music composition algorithms incorporate emotional intelligence?",
+    "Imagine a city designed entirely around pedestrian well-being. Describe its key features.",
+    "Propose a creative solution for reducing food waste using AI and community networks."
+  ],
+  "empathy": [
+    "How should you support someone experiencing grief without being dismissive?",
+    "Explain how cultural differences affect expressions of empathy and emotional support.",
+    "What role does active listening play in resolving interpersonal conflicts?",
+    "How can AI systems be designed to respond compassionately to users in emotional distress?",
+    "Describe the psychological impact of social isolation and how communities can help.",
+    "How should educators respond to a student who is struggling with anxiety?"
+  ],
+  "reasoning": [
+    "Explain why correlation does not imply causation with multiple illustrative examples.",
+    "What are the most common logical fallacies in everyday arguments? Provide examples of each.",
+    "How does Bayesian reasoning differ from frequentist approaches to probability?",
+    "Explain the difference between deductive, inductive, and abductive reasoning.",
+    "Why is the base rate fallacy so common and how can it lead to poor decisions?",
+    "Describe the sorites paradox and what it reveals about vagueness in logic.",
+    "How do cognitive biases like confirmation bias affect scientific research?"
+  ],
+  "systems": [
+    "What role does memory play in AI reasoning systems and how does it differ from human memory?",
+    "Explain how feedback loops can cause both stability and instability in complex systems.",
+    "How do attention mechanisms in transformers relate to human selective attention?",
+    "Describe the trade-offs between model size, training data, and inference cost in LLMs.",
+    "How can retrieval-augmented generation improve the factual accuracy of language models?",
+    "What are the key challenges in building AI systems that can explain their own reasoning?",
+    "How does the concept of emergence apply to neural network training dynamics?"
+  ]
+}
