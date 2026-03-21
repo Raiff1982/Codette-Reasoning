@@ -1,0 +1,56 @@
+# Model Weights (Too Large for Git)
+*.gguf
+*.bin
+*.safetensors
+*.pt
+*.pth
+*.model
+
+# HuggingFace Cache
+models/.cache/
+.cache/
+/huggingface_cache/
+
+# Python Bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Environment
+.env
+.env.local
+.venv/
+venv/
+env/
+
+# Logs
+*.log
+/reasoning_forge/.logs/
+/inference/.logs/
+*.tmp
+
+# pytest Cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS
+Thumbs.db
+.AppleDouble
+
+# Temporary Files
+*.bak
+*.backup
+*_backup
