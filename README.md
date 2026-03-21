@@ -52,21 +52,31 @@ Created by **Jonathan Harrison** (Raiff1982) | Sovereign Innovation License
 
 ## ⚡ Quick Start (5 Minutes)
 
-### 1. Install Dependencies
+### 1. Clone & Install Dependencies
 ```bash
+git clone https://github.com/Raiff1982/Codette-Reasoning.git
+cd Codette-Reasoning
 pip install -r requirements.txt
 ```
 
-### 2. Verify Models Present
+### 2. Download Models from HuggingFace (First Time Only)
+**All models available here**: https://huggingface.co/Raiff1982
+
 ```bash
-ls -lh models/base/
-# Should show 3 GGUF files (9.2 GB total)
+# Quick download using huggingface-cli
+huggingface-cli download Raiff1982/Meta-Llama-3.1-8B-Instruct-Q4 \
+  --local-dir models/base/
+
+huggingface-cli download Raiff1982/Codette-Adapters \
+  --local-dir adapters/
 ```
+
+See `MODEL_DOWNLOAD.md` for detailed instructions and alternatives.
 
 ### 3. Run Tests
 ```bash
 python -m pytest test_tier2_integration.py -v
-# Expected: 18 passed in < 10 seconds
+# Expected: 18 passed
 ```
 
 ### 4. Start Server

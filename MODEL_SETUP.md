@@ -1,8 +1,10 @@
 # Codette Model Setup & Configuration
 
-## Available Base Models
+## Model Downloads
 
-This repository includes 3 production-ready GGUF models (quantized for efficiency):
+**All models are hosted on HuggingFace**: https://huggingface.co/Raiff1982
+
+See `MODEL_DOWNLOAD.md` for download instructions and alternatives.
 
 ### Model Options
 
