@@ -14,6 +14,7 @@ Usage:
 The bridge falls back to lightweight orchestrator if Phase 6 disabled or heavy.
 """
 
+import re
 import sys
 import time
 from pathlib import Path
@@ -75,8 +76,14 @@ class CodetteForgeBridge:
         if self.verbose:
             print("[PHASE6] Initializing ForgeEngine...")
 
-        self.forge = ForgeEngine()
+        self.forge = ForgeEngine(orchestrator=self.orchestrator)
         self.classifier = QueryClassifier()
+
+        # Wire cocoon memories into orchestrator so they enrich LLM prompts
+        if hasattr(self.forge, 'memory_kernel') and self.forge.memory_kernel:
+            self.orchestrator.set_memory_kernel(self.forge.memory_kernel)
+            if self.verbose:
+                print(f"[PHASE6] Memory kernel wired to orchestrator ({len(self.forge.memory_kernel)} cocoon memories)")
 
         if self.verbose:
             print(f"[PHASE6] ForgeEngine ready with {len(self.forge.analysis_agents)} agents")
@@ -102,6 +109,21 @@ class CodetteForgeBridge:
             }
         """
         start_time = time.time()
+
+        # Ethical query validation (from original framework)
+        if self.forge and hasattr(self.forge, 'ethical_governance') and self.forge.ethical_governance:
+            try:
+                qv = self.forge.ethical_governance.validate_query(query)
+                if not qv["valid"]:
+                    return {
+                        "response": "I can't help with that request. " + "; ".join(qv.get("suggestions", [])),
+                        "adapter": "ethical_block",
+                        "tokens": 0,
+                        "phase6_used": True,
+                        "reasoning": "Blocked by EthicalAIGovernance",
+                    }
+            except Exception:
+                pass  # Non-critical, continue
 
         # If adapter forced or Phase 6 disabled, use orchestrator directly
         if adapter or not self.use_phase6:
@@ -133,124 +155,133 @@ class CodetteForgeBridge:
             return result
 
     def _generate_with_phase6(self, query: str, max_adapters: int) -> Dict:
-        """Generate using ForgeEngine with Phase 6 capabilities and Phase 7 routing.
+        """Generate using orchestrator LLM with Phase 6/7 routing and classification.
 
-        Phase 7 Executive Controller routes the query to optimal component combination:
-        - SIMPLE queries skip debate, go straight to orchestrator
-        - MEDIUM queries use 1-round debate with selective components
-        - COMPLEX queries use full 3-round debate with all Phase 1-6 components
+        All complexity levels use the orchestrator for actual LLM inference.
+        Phase 6 adds query classification and domain routing.
+        Phase 7 adds executive routing metadata.
         """
         start_time = time.time()
 
         # 1. Classify query complexity (Phase 6)
         complexity = self.classifier.classify(query)
         if self.verbose:
-            print(f"[PHASE6] Query complexity: {complexity}")
+            print(f"[PHASE6] Query complexity: {complexity}", flush=True)
 
         # 2. Route with Phase 7 Executive Controller
         route_decision = None
         if self.use_phase7 and self.executive_controller:
             route_decision = self.executive_controller.route_query(query, complexity)
             if self.verbose:
-                print(f"[PHASE7] Route: {','.join([k for k, v in route_decision.component_activation.items() if v])}")
-                print(f"[PHASE7] Reasoning: {route_decision.reasoning}")
+                print(f"[PHASE7] Route: {','.join([k for k, v in route_decision.component_activation.items() if v])}", flush=True)
 
-        # 3. For SIMPLE queries, skip ForgeEngine and go direct to orchestrator
-        if complexity == QueryComplexity.SIMPLE:
-            if self.verbose:
-                print("[PHASE7] SIMPLE query - using direct orchestrator routing")
-
-            # Get direct answer from orchestrator
-            result = self.orchestrator.route_and_generate(
-                query,
-                max_adapters=1,
-                strategy="keyword",
-                force_adapter=None,
-            )
-
-            elapsed = time.time() - start_time
-
-            # Add Phase 7 routing metadata
-            if route_decision:
-                metadata = ExecutiveController.create_route_metadata(
-                    route_decision,
-                    actual_latency_ms=elapsed * 1000,
-                    actual_conflicts=0,
-                    gamma=0.95  # High confidence for direct answer
-                )
-                result.update(metadata)
-                result["phase7_routing"]['reasoning'] = "SIMPLE factual query - orchestrator direct inference"
-
-            result["phase6_used"] = True
-            result["phase7_used"] = True
-            return result
-
-        # 4. For MEDIUM/COMPLEX queries, use ForgeEngine with appropriate depth
-
-        # Domain classification
+        # 3. Domain classification for adapter routing
         domain = self._classify_domain(query)
-        agent_selection = self.classifier.select_agents(complexity, domain)
 
-        if self.verbose:
-            print(f"[PHASE6] Domain: {domain}, Selected agents: {agent_selection}")
-
-        # Run ForgeEngine with debate depth determined by complexity
-        debate_rounds = 3 if complexity == QueryComplexity.COMPLEX else 1
-
-        if self.verbose:
-            print(f"[PHASE7] Running debate with {debate_rounds} round(s)")
-
-        forge_result = self.forge.forge_with_debate(query, debate_rounds=debate_rounds)
-
-        # 5. Extract synthesis and metrics
-        synthesis = ""
-        if "messages" in forge_result and len(forge_result["messages"]) >= 3:
-            synthesis = forge_result["messages"][2].get("content", "")
-
-        metadata = forge_result.get("metadata", {})
-        conflicts = metadata.get("conflicts", [])
-
-        # Estimate conflicts prevented based on routing
+        # 4. Determine adapter count based on complexity
         if complexity == QueryComplexity.SIMPLE:
-            base_conflicts_estimate = 71
+            effective_max_adapters = 1
         elif complexity == QueryComplexity.MEDIUM:
-            base_conflicts_estimate = 23
+            effective_max_adapters = min(max_adapters, 2)
         else:
-            base_conflicts_estimate = 12
-
-        conflicts_prevented = max(0, base_conflicts_estimate - len(conflicts))
+            effective_max_adapters = max_adapters
 
         if self.verbose:
-            print(f"[PHASE6] Conflicts: {len(conflicts)}, Prevented: {conflicts_prevented}")
+            print(f"[PHASE6] Domain: {domain}, max_adapters: {effective_max_adapters}", flush=True)
+
+        # 5. Generate via orchestrator (actual LLM inference)
+        result = self.orchestrator.route_and_generate(
+            query,
+            max_adapters=effective_max_adapters,
+            strategy="keyword",
+            force_adapter=None,
+        )
 
         elapsed = time.time() - start_time
 
-        result = {
-            "response": synthesis,
-            "adapter": "phase6_forge",
-            "phase6_used": True,
-            "phase7_used": self.use_phase7 and self.executive_controller is not None,
-            "complexity": str(complexity),
-            "domain": domain,
-            "conflicts_detected": len(conflicts),
-            "conflicts_prevented": conflicts_prevented,
-            "gamma": metadata.get("gamma", 0.5),
-            "time": elapsed,
-            "tokens": metadata.get("total_tokens", 0),
-            "reasoning": f"Phase 6: {complexity.name} complexity with {domain} domain routing",
-        }
+        # 6. Add Phase 6/7 metadata
+        result["phase6_used"] = True
+        result["phase7_used"] = self.use_phase7 and self.executive_controller is not None
+        result["complexity"] = str(complexity)
+        result["domain"] = domain
 
-        # Add Phase 7 routing metadata for transparency
         if route_decision:
-            route_metadata = ExecutiveController.create_route_metadata(
-                route_decision,
-                actual_latency_ms=elapsed * 1000,
-                actual_conflicts=len(conflicts),
-                gamma=metadata.get("gamma", 0.5)
-            )
-            result.update(route_metadata)
+            try:
+                route_metadata = ExecutiveController.create_route_metadata(
+                    route_decision,
+                    actual_latency_ms=elapsed * 1000,
+                    actual_conflicts=0,
+                    gamma=0.95
+                )
+                result.update(route_metadata)
+            except Exception as e:
+                if self.verbose:
+                    print(f"[PHASE7] Metadata error: {e}", flush=True)
+
+        result["reasoning"] = f"Phase 6: {complexity.name} complexity, {domain} domain"
+
+        # Store reasoning exchange in CognitionCocooner (from original framework)
+        response_text = result.get("response", "")
+        if response_text and self.forge and hasattr(self.forge, 'cocooner') and self.forge.cocooner:
+            try:
+                self.forge.cocooner.wrap_reasoning(
+                    query=query,
+                    response=response_text,
+                    adapter=str(result.get("adapter", "unknown")),
+                    metadata={"complexity": str(complexity), "domain": domain}
+                )
+            except Exception:
+                pass  # Non-critical
+
+        # 8. Apply directness discipline — trim filler, enforce intent anchoring
+        response_text = result.get("response", "")
+        if response_text:
+            result["response"] = self._apply_directness(response_text, query)
+
+        if self.verbose:
+            resp_len = len(result.get("response", ""))
+            print(f"[PHASE6] Done: {resp_len} chars, {result.get('tokens', 0)} tokens", flush=True)
 
         return result
+
+    def _apply_directness(self, response: str, query: str) -> str:
+        """Self-critique loop: trim filler, cut abstraction padding, anchor to user intent.
+
+        Rules:
+        1. Strip preamble phrases ("That's a great question!", "Let me explain...", etc.)
+        2. Remove trailing abstraction filler ("In conclusion", "Overall", vague wrap-ups)
+        3. Collapse excessive whitespace
+        """
+        # Strip common LLM preamble patterns
+        preamble_patterns = [
+            r"^(?:That(?:'s| is) (?:a |an )?(?:great|good|interesting|excellent|fantastic|wonderful|fascinating) question[.!]?\s*)",
+            r"^(?:What a (?:great|good|interesting|excellent|fascinating) question[.!]?\s*)",
+            r"^(?:I(?:'d| would) (?:be happy|love) to (?:help|explain|answer)[.!]?\s*)",
+            r"^(?:Let me (?:explain|break (?:this|that) down|think about (?:this|that))[.!]?\s*)",
+            r"^(?:Great question[.!]?\s*)",
+            r"^(?:Thank you for (?:asking|your question)[.!]?\s*)",
+            r"^(?:Absolutely[.!]?\s*)",
+            r"^(?:Of course[.!]?\s*)",
+            r"^(?:Sure(?:thing)?[.!]?\s*)",
+        ]
+        for pat in preamble_patterns:
+            response = re.sub(pat, "", response, count=1, flags=re.IGNORECASE)
+
+        # Strip trailing abstraction filler (vague concluding paragraphs)
+        trailing_patterns = [
+            r"\n\n(?:In (?:conclusion|summary|the end),?\s+.{0,200})$",
+            r"\n\n(?:Overall,?\s+.{0,150})$",
+            r"\n\n(?:(?:I )?hope (?:this|that) helps[.!]?\s*)$",
+            r"\n\n(?:Let me know if (?:you (?:have|need|want)|there(?:'s| is)) .{0,100})$",
+            r"\n\n(?:Feel free to .{0,100})$",
+        ]
+        for pat in trailing_patterns:
+            response = re.sub(pat, "", response, count=1, flags=re.IGNORECASE)
+
+        # Collapse excessive whitespace (more than 2 newlines)
+        response = re.sub(r'\n{3,}', '\n\n', response)
+
+        return response.strip()
 
     def _classify_domain(self, query: str) -> str:
         """Classify query domain (physics, ethics, consciousness, creativity, systems)."""

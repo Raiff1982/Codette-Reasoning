@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774120523_9955",
+  "timestamp": 1774120523.9076438,
+  "wrapped": {
+    "query": "ok you didnt like that?",
+    "response": "When we talk about Codette and Jonathan, several insights emerge.\n\nThe key takeaway is that understanding this topic requires careful analysis of its core principles.",
+    "adapter": "empathy",
+    "timestamp": 1774120523.9076438,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

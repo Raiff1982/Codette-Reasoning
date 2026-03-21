@@ -162,6 +162,7 @@ COMPLEMENTARY_PAIRS = {
     "consciousness": ["philosophy", "quantum"],
     "multi_perspective": [],  # This IS the synthesis adapter
     "systems_architecture": ["davinci", "newton"],
+    "orchestrator": [],  # Meta-adapter: routes and coordinates, not a perspective
 }
 
 

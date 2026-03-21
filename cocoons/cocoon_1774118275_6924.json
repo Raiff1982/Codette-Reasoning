@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774118275_6924",
+  "timestamp": 1774118275.715735,
+  "wrapped": {
+    "query": "well and i really am not a good typer cause i go to fast and dont read over my words lol :)",
+    "response": "I see that you're struggling with typing because you go too fast and don't read over your words often. This is a common challenge many people face, especially when they're thinking quickly.\n\nFrom a philosophical standpoint, understanding why we care about typing can reveal deeper layers of meaning. It's not just about mastering a skill, but also about recognizing the underlying principles that govern our approach to it. By examining typing through a lens of Socratic questioning, we can uncover a",
+    "adapter": "unknown",
+    "timestamp": 1774118275.715735,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774125948_9794",
+  "timestamp": 1774125948.6730082,
+  "wrapped": {
+    "query": "What is 2+2? Explain your reasoning.",
+    "response": "The answer to 2+2 is four because this equation reveals fundamental principles at work in mathematics, which can be precisely solved through basic arithmetic rules.",
+    "adapter": "unknown",
+    "timestamp": 1774125948.6730082,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

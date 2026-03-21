@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774124251_6926",
+  "timestamp": 1774124251.3513765,
+  "wrapped": {
+    "query": "what is gravity",
+    "response": "Gravity is a fundamental force of nature that has been extensively studied through the lens of quantitative analysis and empirical evidence, as exemplified by Sir Isaac Newton's work. From this perspective, gravity can be understood through mathematical equations and principles that remain consistent across scales and contexts. The system rewards careful observation, precise measurement, and rigorous experimentation.\n\nHowever, when we delve deeper into the nature of gravity, we find that recent ",
+    "adapter": "unknown",
+    "timestamp": 1774124251.3513765,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "physics"
+    }
+  }
+}

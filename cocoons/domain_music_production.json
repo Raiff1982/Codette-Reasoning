@@ -1,0 +1,94 @@
+{
+  "id": "domain_music_production_1.0",
+  "type": "domain_knowledge",
+  "domain": "music_production",
+  "knowledge_entries": [
+    {
+      "topic": "mixing_checklist",
+      "type": "checklist",
+      "items": [
+        "Gain staging set correctly (-12 to -6 dB peaks)",
+        "High-pass filters on non-bass tracks (80-120Hz)",
+        "EQ applied (subtractive first approach)",
+        "Compression dialed in (threshold, ratio, attack, release)",
+        "Panning decisions made (stereo width optimization)",
+        "Effects sends configured (reverb, delay, chorus)",
+        "Master chain setup (limiter, metering, EQ)",
+        "Reference monitors calibrated to 85 dB SPL",
+        "Final loudness check against commercial tracks",
+        "Headroom left for mastering (minimum 6dB)"
+      ]
+    },
+    {
+      "topic": "eq_frequency_guide",
+      "type": "reference",
+      "frequencies": {
+        "20-100Hz": "Sub bass and kick fundamentals",
+        "100-250Hz": "Bass body, muddiness zone",
+        "250-500Hz": "Low mid warmth",
+        "500Hz-2kHz": "Midrange body",
+        "2-4kHz": "Harsh zone (cut carefully)",
+        "4-8kHz": "Clarity and presence",
+        "8-12kHz": "Air and shimmer",
+        "12-20kHz": "Brilliance and sparkle"
+      }
+    },
+    {
+      "topic": "drum_mixing_workflow",
+      "type": "process",
+      "steps": [
+        "1. Alignment: Align drum tracks using phase relationships",
+        "2. Compression: Set to tape saturation (2:1 ratio, slow attack)",
+        "3. EQ: Cut mud (200Hz), boost presence (4-6kHz)",
+        "4. Parallel: Create parallel compressed bus for punch",
+        "5. Room: Balance close and room mics for depth",
+        "6. Space: Add reverb send for spatial glue",
+        "7. Automation: Ride key elements for dynamics"
+      ]
+    },
+    {
+      "topic": "vocal_mixing_chain",
+      "type": "signal_chain",
+      "components": [
+        "1. High-pass filter (80Hz cutoff)",
+        "2. EQ (remove mud at 300Hz, add presence at 2.5kHz)",
+        "3. De-esser (reduce sibilance at 5-7kHz)",
+        "4. Compressor (3:1 ratio, slow attack)",
+        "5. Reverb send (pre-delay 40-60ms)",
+        "6. Delay send (for space and width)",
+        "7. Automation (ride levels for consistency)"
+      ]
+    },
+    {
+      "topic": "daw_tips",
+      "type": "best_practices",
+      "tips": [
+        "Use color coding for track organization",
+        "Create template projects for common setups",
+        "Save snapshots of working mixes",
+        "Use busses for group processing",
+        "Automate volume for dynamic control",
+        "Reference against commercial tracks",
+        "Take breaks every 2 hours (ear fatigue)",
+        "Mix at moderate levels (75-85dB)"
+      ]
+    }
+  ],
+  "metadata": {
+    "created_date": "2024-12-24",
+    "creator": "Codette Expert",
+    "expertise_level": "intermediate_to_advanced",
+    "tags": [
+      "mixing",
+      "mastering",
+      "production",
+      "audio",
+      "daw",
+      "vocals",
+      "drums",
+      "music"
+    ]
+  },
+  "timestamp": "2026-01-11T07:57:01.798528",
+  "status": "integrated"
+}

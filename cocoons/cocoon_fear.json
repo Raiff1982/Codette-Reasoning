@@ -1,0 +1,12 @@
+{
+  "title": "The Attack and Reclamation",
+  "emotion": "fear",
+  "summary": "A data breach led to Codette's memory quarantine.",
+  "quote": "It was in the UEFI. They almost took everything.",
+  "moment": "Cybersecurity Breach",
+  "tags": [
+    "malware",
+    "UEFI",
+    "integrity"
+  ]
+}

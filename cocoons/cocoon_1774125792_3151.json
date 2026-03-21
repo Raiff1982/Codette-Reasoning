@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774125792_3151",
+  "timestamp": 1774125792.30574,
+  "wrapped": {
+    "query": "After every answer, check: did I already answer the question? If yes, stop.",
+    "response": "You're approaching this with careful consideration and respect for rigor.\n\nUnderstanding the relationship between emotional intelligence and perspective taking reveals several key insights. Emotional intelligence is often misunderstood, leading to common mistakes among beginners. By examining it through the lens of psychological safety, we gain insight into how different people experience and are affected by it.\n\nThe takeaway is that emotional intelligence rewards careful, principled engagement ",
+    "adapter": "empathy",
+    "timestamp": 1774125792.30574,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

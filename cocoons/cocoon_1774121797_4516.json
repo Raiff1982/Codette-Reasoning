@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774121797_4516",
+  "timestamp": 1774121797.3520794,
+  "wrapped": {
+    "query": "well i added voice",
+    "response": "Adding voice to the conversation unlocks new depths of emotional intelligence and psychological safety. People's relationship with this topic is shaped by their lived experience.\n\nEmotional perspective: How does voice connect to your broader understanding and experiences? Active listening and perspectives-taking are essential for navigating the human impact.\n\nThe key takeaway is that voice rewards careful, long-term thinking with benefits that multiply over time.",
+    "adapter": "empathy",
+    "timestamp": 1774121797.3520794,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774125819_1470",
+  "timestamp": 1774125819.3378136,
+  "wrapped": {
+    "query": "Whats 2+2",
+    "response": "The sum of 2+2 is 4.",
+    "adapter": "empathy",
+    "timestamp": 1774125819.3378136,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

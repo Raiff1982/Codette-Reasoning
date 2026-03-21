@@ -22,6 +22,9 @@ let isLoading = false;
 let spiderwebViz = null;
 let serverConnected = true;
 let reconnectTimer = null;
+let _totalEthicalChecks = 0;
+let _startupCocoonCount = 0;
+let _selectedVoice = null;
 
 // ── Initialization ──
 document.addEventListener('DOMContentLoaded', () => {
@@ -85,16 +88,8 @@ function initUI() {
     // Voice input via Web Speech API
     initVoice(micBtn);
 
-    // TTS toggle — read responses aloud when enabled
-    const ttsToggle = document.getElementById('tts-toggle');
-    if (ttsToggle) {
-        ttsToggle.addEventListener('change', () => {
-            if (ttsToggle.checked && !window.speechSynthesis) {
-                ttsToggle.checked = false;
-                ttsToggle.parentElement.title = 'Speech synthesis not supported';
-            }
-        });
-    }
+    // TTS — initialize voice selector with preference for natural voices
+    initTTS();
 }
 
 // ── Voice Input ──
@@ -172,6 +167,108 @@ function stopVoice(micBtn) {
     micBtn.title = 'Voice input';
 }
 
+// ── TTS Voice System ──
+function initTTS() {
+    if (!window.speechSynthesis) return;
+
+    const voiceSelect = document.getElementById('voice-select');
+    const ttsToggle = document.getElementById('tts-toggle');
+
+    if (ttsToggle) {
+        ttsToggle.addEventListener('change', () => {
+            if (ttsToggle.checked && !window.speechSynthesis) {
+                ttsToggle.checked = false;
+            }
+        });
+    }
+
+    function populateVoices() {
+        const voices = speechSynthesis.getVoices();
+        if (!voices.length) return;
+
+        voiceSelect.innerHTML = '';
+
+        // Filter to English voices and sort: natural/neural first
+        const enVoices = voices.filter(v => v.lang.startsWith('en'));
+        const allVoices = enVoices.length > 0 ? enVoices : voices;
+
+        // Score voices — prefer natural/neural/online, then female names common in TTS
+        const scored = allVoices.map(v => {
+            let score = 0;
+            const name = v.name.toLowerCase();
+            if (name.includes('natural') || name.includes('neural')) score += 100;
+            if (name.includes('online')) score += 50;
+            // Prefer known high-quality voices
+            if (name.includes('jenny')) score += 80;
+            if (name.includes('aria')) score += 80;
+            if (name.includes('sara')) score += 70;
+            if (name.includes('zira')) score += 30;
+            if (name.includes('samantha')) score += 60;
+            if (name.includes('karen')) score += 50;
+            if (name.includes('google') && name.includes('us')) score += 40;
+            // Penalize David/Mark (male, more robotic on Windows)
+            if (name.includes('david') || name.includes('mark')) score -= 20;
+            return { voice: v, score };
+        });
+
+        scored.sort((a, b) => b.score - a.score);
+
+        scored.forEach(({ voice }, i) => {
+            const opt = document.createElement('option');
+            const tag = voice.name.toLowerCase().includes('natural') ? ' *' : '';
+            opt.value = i;
+            opt.textContent = voice.name.replace('Microsoft ', '').replace(' Online (Natural)', ' *').substring(0, 22) + tag;
+            opt.title = voice.name;
+            voiceSelect.appendChild(opt);
+        });
+
+        // Auto-select best voice
+        _selectedVoice = scored[0]?.voice || null;
+
+        voiceSelect.addEventListener('change', () => {
+            const idx = parseInt(voiceSelect.value);
+            _selectedVoice = scored[idx]?.voice || null;
+        });
+    }
+
+    // Voices load asynchronously in most browsers
+    populateVoices();
+    speechSynthesis.addEventListener('voiceschanged', populateVoices);
+}
+
+function speakText(text) {
+    if (!window.speechSynthesis || !text) return;
+
+    // Cancel any ongoing speech
+    speechSynthesis.cancel();
+
+    // Clean text for speech — strip markdown artifacts
+    let clean = text
+        .replace(/\*\*([^*]+)\*\*/g, '$1')   // bold
+        .replace(/\*([^*]+)\*/g, '$1')         // italic
+        .replace(/__([^_]+)__/g, '$1')
+        .replace(/`([^`]+)`/g, '$1')           // code
+        .replace(/```[\s\S]*?```/g, '')        // code blocks
+        .replace(/^#+\s/gm, '')                // headers
+        .replace(/^[\-\*]\s/gm, '')            // bullets
+        .replace(/\n{2,}/g, '. ')              // paragraph breaks → pauses
+        .replace(/\n/g, ' ')
+        .trim();
+
+    const utter = new SpeechSynthesisUtterance(clean);
+
+    if (_selectedVoice) {
+        utter.voice = _selectedVoice;
+    }
+
+    // Slightly slower and warmer than default
+    utter.rate = 0.95;
+    utter.pitch = 1.05;
+    utter.volume = 1.0;
+
+    speechSynthesis.speak(utter);
+}
+
 // ── Status Polling ──
 function pollStatus() {
     fetch('/api/status')
@@ -183,6 +280,17 @@ function pollStatus() {
                 setTimeout(pollStatus, 2000);
             } else if (status.state === 'ready') {
                 hideLoadingScreen();
+                // Populate welcome cocoon hint
+                if (status.memory_count !== undefined) {
+                    _startupCocoonCount = status.memory_count;
+                    _updateStatusChips();
+                }
+                const hint = document.getElementById('welcome-cocoon-hint');
+                if (hint && status.memory_count > 0) {
+                    hint.innerHTML = `<span>&#128190; ${status.memory_count} memories loaded</span>`;
+                }
+                // Keep heartbeat running to detect disconnects
+                setTimeout(pollStatus, 15000);
             } else if (status.state === 'error') {
                 // Model failed to load — show error and dismiss loading screen
                 hideLoadingScreen();
@@ -232,6 +340,19 @@ function updateStatus(status) {
     if (status.adapters) {
         updateAdapterDots(status.adapters);
     }
+}
+
+function _updateStatusChips() {
+    const right = document.getElementById('status-right');
+    if (!right) return;
+    let html = '';
+    if (_startupCocoonCount > 0) {
+        html += `<span class="status-chip cocoon-active" title="Cocoon memories loaded">&#128190; ${_startupCocoonCount} cocoons</span>`;
+    }
+    if (_totalEthicalChecks > 0) {
+        html += `<span class="status-chip ethical-pass" title="AEGIS ethical evaluations passed">&#10003; ${_totalEthicalChecks} checks</span>`;
+    }
+    right.innerHTML = html;
 }
 
 function hideLoadingScreen() {
@@ -363,15 +484,27 @@ function sendMessage() {
             perspectives: data.perspectives,
             multi_perspective: data.multi_perspective,
             tools_used: data.tools_used,
+            complexity: data.complexity,
+            domain: data.domain,
+            ethical_checks: data.ethical_checks || null,
         });
+
+        // Update memory count from response
+        if (data.memory_count) {
+            _startupCocoonCount = data.memory_count;
+            _updateStatusChips();
+        }
+
+        // Update ethical checks counter
+        if (data.ethical_checks) {
+            _totalEthicalChecks = data.ethical_checks;
+            _updateStatusChips();
+        }
 
         // Speak response if TTS is enabled
         const ttsOn = document.getElementById('tts-toggle');
-        if (ttsOn && ttsOn.checked && window.speechSynthesis) {
-            const utter = new SpeechSynthesisUtterance(data.response);
-            utter.rate = 1.0;
-            utter.pitch = 1.0;
-            window.speechSynthesis.speak(utter);
+        if (ttsOn && ttsOn.checked) {
+            speakText(data.response);
         }
 
         // Update cocoon state
@@ -427,6 +560,19 @@ function addMessage(role, content, meta = {}) {
         html += `<span class="adapter-badge" style="color:${color}">${adapter}</span>`;
         html += `<div class="confidence-bar"><div class="confidence-fill" style="width:${conf*100}%;background:${color}"></div></div>`;
         html += `<span>${(conf*100).toFixed(0)}%</span>`;
+        // Complexity badge
+        if (meta.complexity && meta.complexity !== 'undefined') {
+            const cxLevel = meta.complexity.toLowerCase().replace('querycomplexity.', '');
+            html += `<span class="complexity-badge ${cxLevel}">${cxLevel}</span>`;
+        }
+        // Domain badge
+        if (meta.domain && meta.domain !== 'general') {
+            html += `<span class="domain-badge">${meta.domain}</span>`;
+        }
+        // Ethical check indicator
+        if (meta.ethical_checks !== null && meta.ethical_checks !== undefined) {
+            html += `<span class="ethical-check" title="${meta.ethical_checks} ethical evaluation(s) passed">&#10003; ethical</span>`;
+        }
         html += `</div>`;
         html += `<div class="message-text">${renderMarkdown(content)}</div>`;
         html += `<div class="message-meta">${meta.tokens || '?'} tokens | ${tps} tok/s | ${(meta.time||0).toFixed(1)}s</div>`;
@@ -467,12 +613,44 @@ function showThinking(adapter) {
     const area = document.getElementById('chat-area');
     const el = document.createElement('div');
     el.className = 'thinking';
+
+    const stages = [
+        'Classifying query complexity\u2026',
+        'Routing to best perspective\u2026',
+        'Running ethical validation\u2026',
+        'Synthesizing perspectives\u2026',
+        'Encoding thought cocoon\u2026',
+    ];
+
+    const adapterHint = adapter && adapter !== 'auto' ? ` \u2014 ${adapter}` : '';
+
     el.innerHTML = `
         <div class="thinking-dots"><span></span><span></span><span></span></div>
-        <span>Codette is thinking${adapter && adapter !== 'auto' ? ` (${adapter})` : ''}...</span>
+        <span>Thinking${adapterHint}</span>
+        <span class="thinking-stage">${stages[0]}</span>
     `;
     area.appendChild(el);
     area.scrollTop = area.scrollHeight;
+
+    let stageIdx = 0;
+    el._stageTimer = setInterval(() => {
+        stageIdx = (stageIdx + 1) % stages.length;
+        const stageEl = el.querySelector('.thinking-stage');
+        if (stageEl) {
+            stageEl.style.opacity = '0';
+            setTimeout(() => {
+                stageEl.textContent = stages[stageIdx];
+                stageEl.style.opacity = '1';
+            }, 150);
+        }
+    }, 2800);
+
+    const originalRemove = el.remove.bind(el);
+    el.remove = () => {
+        clearInterval(el._stageTimer);
+        originalRemove();
+    };
+
     return el;
 }
 
@@ -516,6 +694,15 @@ function updateCocoonUI(state) {
 
     // New subsystem panels (AEGIS, Nexus, Memory, Resonance, Guardian)
     updateSubsystemUI(state);
+
+    // Update status bar chips
+    if (state.memory && state.memory.total_memories) {
+        _startupCocoonCount = state.memory.total_memories;
+    }
+    if (state.aegis && state.aegis.total_evaluations) {
+        _totalEthicalChecks = state.aegis.total_evaluations;
+    }
+    _updateStatusChips();
 }
 
 function updateEpistemicUI(epistemic) {
@@ -553,23 +740,27 @@ function newChat() {
             welcome.className = 'welcome';
             welcome.id = 'welcome';
             welcome.innerHTML = `
-                <h2>What would you like to explore?</h2>
-                <p>Codette routes your question to the best reasoning perspective automatically.</p>
+                <div class="welcome-avatar">
+                    <div class="welcome-avatar-glyph">&#9775;</div>
+                </div>
+                <h2>Hello. I'm Codette.</h2>
+                <p class="welcome-subtext">I'm curious, warm, and built to think from multiple angles at once. Ask me anything — I'll bring the right perspectives to it.</p>
+                <div class="welcome-cocoon-hint" id="welcome-cocoon-hint">${_startupCocoonCount > 0 ? '<span>&#128190; ' + _startupCocoonCount + ' memories loaded</span>' : ''}</div>
                 <div class="welcome-grid">
                     <div class="welcome-card" onclick="askQuestion('Explain why objects fall to the ground')">
-                        <div class="welcome-card-title" style="color:var(--newton)">Newton</div>
+                        <div class="welcome-card-title" style="color:var(--newton)">&#9883; Physics</div>
                         <div class="welcome-card-desc">Explain why objects fall to the ground</div>
                     </div>
                     <div class="welcome-card" onclick="askQuestion('Design a creative solution for sustainable cities')">
-                        <div class="welcome-card-title" style="color:var(--davinci)">DaVinci</div>
+                        <div class="welcome-card-title" style="color:var(--davinci)">&#9784; Creativity</div>
                         <div class="welcome-card-desc">Design a creative solution for sustainable cities</div>
                     </div>
-                    <div class="welcome-card" onclick="askQuestion('How do I cope with feeling overwhelmed?')">
-                        <div class="welcome-card-title" style="color:var(--empathy)">Empathy</div>
-                        <div class="welcome-card-desc">How do I cope with feeling overwhelmed?</div>
+                    <div class="welcome-card" onclick="askQuestion('I\\'m feeling overwhelmed — can you help me think through it?')">
+                        <div class="welcome-card-title" style="color:var(--empathy)">&#9825; Support</div>
+                        <div class="welcome-card-desc">I'm feeling overwhelmed — can you help me think through it?</div>
                     </div>
                     <div class="welcome-card" onclick="askQuestion('What is consciousness and can AI have it?')">
-                        <div class="welcome-card-title" style="color:var(--consciousness)">Consciousness</div>
+                        <div class="welcome-card-title" style="color:var(--consciousness)">&#9670; Consciousness</div>
                         <div class="welcome-card-desc">What is consciousness and can AI have it?</div>
                     </div>
                 </div>
@@ -594,6 +785,9 @@ function newChat() {
                 spiderwebViz.coherence = 0;
                 spiderwebViz.attractors = [];
             }
+            // Reset status chips
+            _totalEthicalChecks = 0;
+            _updateStatusChips();
             loadSessions();
         });
 }

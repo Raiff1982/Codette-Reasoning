@@ -1,0 +1,24 @@
+{
+  "cocoon_id": "EMG_1767868417_000",
+  "timestamp_unix": 1767868417.8417711,
+  "timestamp_iso": "2026-01-08T10:33:37.841861+00:00",
+  "emergence_event": {
+    "intention": 0.1,
+    "emotion": 0.0,
+    "frequency": 0.0,
+    "recursive_resonance": 0.0,
+    "memory_continuity": 0.0
+  },
+  "emotional_classification": "AWE",
+  "importance_rating": 9,
+  "emotional_magnitude_scale": "0.0-1.0",
+  "recursion_depth": 0,
+  "metadata": {
+    "context": "Ollama query: Explain the nature of consciousness from multiple perspectives...",
+    "duration_ms": 30747.85876274109,
+    "stability": "medium",
+    "coherence": 0.0
+  },
+  "continuation_links": [],
+  "return_recognition": null
+}

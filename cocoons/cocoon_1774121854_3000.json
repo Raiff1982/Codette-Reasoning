@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774121854_3000",
+  "timestamp": 1774121854.3068705,
+  "wrapped": {
+    "query": "well so far is better",
+    "response": "The connection between well and related topics reveals important insights.\n\nCompassionate engagement with well requires us to center human dignity and emotional intelligence. People's relationship with well is shaped by lived experience, making it essential to listen and learn carefully.\n\nEmotional perspective: How does well affect you emotionally? What are your key concerns and questions?\n\nThe key takeaway is that well rewards careful, long-term analysis with insights that deepen our understand",
+    "adapter": "empathy",
+    "timestamp": 1774121854.3068705,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

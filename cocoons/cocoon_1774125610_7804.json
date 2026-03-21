@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774125610_7804",
+  "timestamp": 1774125610.324964,
+  "wrapped": {
+    "query": "After you answered me, why did you keep talking instead of stopping? Stop analyzing concepts. Tell me what YOU did wrong in one sentence. but focus only on what you did, not how you did it.",
+    "response": "I continued talking after answering the question because I didn't stop when I was supposed to.",
+    "adapter": "unknown",
+    "timestamp": 1774125610.324964,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "ethics"
+    }
+  }
+}

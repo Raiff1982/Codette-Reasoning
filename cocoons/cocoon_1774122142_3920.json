@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774122142_3920",
+  "timestamp": 1774122142.501451,
+  "wrapped": {
+    "query": "yeah i guess it would seem like a different view of time to you i can see that.",
+    "response": "Understanding time and its relationship to other domains of knowledge reveals a depth that's worth exploring.",
+    "adapter": "empathy",
+    "timestamp": 1774122142.501451,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774125456_4390",
+  "timestamp": 1774125456.1833956,
+  "wrapped": {
+    "query": "Say it again, but focus only on what you did, not how you did it",
+    "response": "Understanding this topic requires careful analysis of its core principles.\n\nThe key takeaway is that perspective matters. People experience and are affected by it in different ways, revealing deeper connections across multiple domains.",
+    "adapter": "empathy",
+    "timestamp": 1774125456.1833956,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

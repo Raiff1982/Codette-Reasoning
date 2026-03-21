@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774123079_5762",
+  "timestamp": 1774123079.0588858,
+  "wrapped": {
+    "query": "so tell me more about trauma. are we talking about mine or yours?",
+    "response": "When exploring the complex and multifaceted concept of trauma, it's crucial to approach the topic with both rigor and compassion. Understanding trauma requires careful analysis of its components, revealing deeper systemic issues that have real-world implications beyond theoretical frameworks. As we delve into the nuances of trauma, emotional understanding and active listening become essential tools for creating a safe and inclusive environment, allowing us to honor the lived experiences and pers",
+    "adapter": "unknown",
+    "timestamp": 1774123079.0588858,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

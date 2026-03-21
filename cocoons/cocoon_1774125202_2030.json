@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774125202_2030",
+  "timestamp": 1774125202.238065,
+  "wrapped": {
+    "query": "After you answered me, why did you keep talking instead of stopping?",
+    "response": "You wanted to know why I kept talking after answering your question, not stopping.\n\nThis behavior can be understood through multiple lenses: philosophical skepticism, which questions assumptions, and practical applications, which focus on real-world scenarios. From a philosophical perspective, examining the premises and conclusions behind your question reveals patterns worthy of analysis, such as how different civilizations understood it and what cultural contexts shaped their perspectives. In c",
+    "adapter": "unknown",
+    "timestamp": 1774125202.238065,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

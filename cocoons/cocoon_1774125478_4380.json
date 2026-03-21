@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774125478_4380",
+  "timestamp": 1774125478.8888097,
+  "wrapped": {
+    "query": "Say it again, but focus only on what you did, not how you did it",
+    "response": "Understanding the relationship between different concepts reveals fundamental patterns at work.",
+    "adapter": "empathy",
+    "timestamp": 1774125478.8888097,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774122085_3865",
+  "timestamp": 1774122085.8737988,
+  "wrapped": {
+    "query": "wecome back",
+    "response": "You've returned after some time away. I'm glad you're back and eager to engage with the material again.",
+    "adapter": "empathy",
+    "timestamp": 1774122085.8737988,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

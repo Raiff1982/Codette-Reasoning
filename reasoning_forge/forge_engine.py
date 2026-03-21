@@ -52,6 +52,10 @@ from reasoning_forge.guardian_spindle import CoreGuardianSpindle
 from reasoning_forge.nexis_signal_engine_local import NexisSignalEngine
 from reasoning_forge.consciousness_mathematics import EthicalAnchor as EthicalAnchorMath
 
+# === ORIGINAL FRAMEWORK INTEGRATION (from J:\TheAI\src\framework\) ===
+from reasoning_forge.cognition_cocooner import CognitionCocooner
+from reasoning_forge.ethical_governance import EthicalAIGovernance
+
 
 SYSTEM_PROMPT = (
     "You are Codette, a multi-perspective reasoning AI. You analyze concepts "
@@ -80,6 +84,9 @@ class ForgeEngine:
                 logger.info(f"  OK: CodetteOrchestrator ready with {len(orchestrator.available_adapters)} adapters")
             except Exception as e:
                 logger.info(f"CodetteOrchestrator not available: {e} — using template-based agents")
+
+        # Store orchestrator reference for direct LLM inference in consciousness stack
+        self.orchestrator = orchestrator
 
         # Initialize all reasoning agents with orchestrator for real LLM inference
         self.newton = NewtonAgent(orchestrator=orchestrator)
@@ -165,7 +172,9 @@ class ForgeEngine:
         # Emotional memory anchoring with SHA256 integrity validation
         # Prevents synthesis loop corruption by maintaining emotional continuity
         if living_memory is None:
-            living_memory = LivingMemoryKernel()
+            # Load persistent cocoon memories from disk
+            cocoon_dir = os.path.join(os.path.dirname(__file__), '..', 'cocoons')
+            living_memory = LivingMemoryKernel(cocoon_dir=cocoon_dir)
 
         self.memory_kernel = living_memory
         self.dynamic_memory = DynamicMemoryEngine(self.memory_kernel)
@@ -214,12 +223,22 @@ class ForgeEngine:
             logger.warning(f"Could not initialize CoreGuardianSpindle: {e}")
             self.guardian = None
 
+        # Initialize NexisSignalEngine intent prediction (must be before Tier2Bridge)
+        try:
+            self.nexis_signal_engine = NexisSignalEngine(
+                memory_path="reasoning_forge/.logs/nexis_signal_memory.json"
+            )
+            logger.info("  ✓ NexisSignalEngine signal analysis initialized")
+        except Exception as e:
+            logger.warning(f"Could not initialize NexisSignalEngine: {e}")
+            self.nexis_signal_engine = None
+
         # === TIER 2: Initialize Integration Bridge (Intent + Identity + Memory) ===
         # Coordinates NexisSignalEngine, TwinFrequencyTrust, and emotional memory
         try:
             from reasoning_forge.tier2_bridge import Tier2IntegrationBridge
             self.tier2_bridge = Tier2IntegrationBridge(
-                nexis_engine=getattr(self, 'nexis_signal_engine', None),
+                nexis_engine=self.nexis_signal_engine,
                 twin_frequency=None,  # TwinFrequencyTrust optional for voice validation
                 memory_path="reasoning_forge/.logs/tier2_emotional_memory.json"
             )
@@ -228,16 +247,55 @@ class ForgeEngine:
             logger.warning(f"Could not initialize Tier2IntegrationBridge: {e}")
             self.tier2_bridge = None
 
-        # Initialize NexisSignalEngine intent prediction
+        # === ORIGINAL FRAMEWORK: CognitionCocooner (Thought Persistence) ===
+        # From J:\TheAI\src\framework\ — stores reasoning exchanges as recoverable cocoons
         try:
-            self.nexis_signal_engine = NexisSignalEngine()
-            logger.info("  ✓ NexisSignalEngine signal analysis initialized")
+            cocoon_storage = os.path.join(os.path.dirname(__file__), '..', 'cocoons')
+            self.cocooner = CognitionCocooner(storage_path=cocoon_storage)
+            logger.info("  ✓ CognitionCocooner initialized (thought encapsulation active)")
         except Exception as e:
-            logger.warning(f"Could not initialize NexisSignalEngine: {e}")
-            self.nexis_signal_engine = None
+            logger.warning(f"Could not initialize CognitionCocooner: {e}")
+            self.cocooner = None
+
+        # === ORIGINAL FRAMEWORK: EthicalAIGovernance (Policy Enforcement) ===
+        # From J:\TheAI\src\framework\ — query validation + response ethical screening
+        try:
+            self.ethical_governance = EthicalAIGovernance(config=self.config if hasattr(self, 'config') else {})
+            logger.info("  ✓ EthicalAIGovernance initialized (ethical screening active)")
+        except Exception as e:
+            logger.warning(f"Could not initialize EthicalAIGovernance: {e}")
+            self.ethical_governance = None
+
+        # === Self-Awareness: Load Codette's awareness cocoon ===
+        # Gives Codette knowledge of her own evolution, capabilities, and identity
+        self.awareness = None
+        try:
+            from load_codette_awareness import load_awareness_cocoon
+            self.awareness = load_awareness_cocoon(verbose=False)
+            if self.awareness:
+                logger.info("  ✓ Self-awareness cocoon loaded (identity + evolution + capabilities)")
+            else:
+                logger.info("  ○ Awareness cocoon not found (non-critical, continuing)")
+        except Exception as e:
+            logger.warning(f"Could not load awareness cocoon: {e}")
 
         # === Pre-compute adapter map for Phase 5A efficiency (avoid per-round recomputation) ===
         self._adapter_map = {agent.name.lower(): agent for agent in self.analysis_agents}
+
+    @property
+    def system_prompt(self) -> str:
+        """Build system prompt enriched with self-awareness if available."""
+        if not self.awareness:
+            return SYSTEM_PROMPT
+
+        sk = self.awareness.get("self_knowledge", {})
+        identity = (
+            f" Your name is {sk.get('my_name', 'Codette')}. "
+            f"{sk.get('my_nature', '')} "
+            f"Your purpose: {sk.get('my_purpose', '')} "
+            f"Core philosophy: {self.awareness.get('project_genesis', {}).get('philosophy', '')}"
+        )
+        return SYSTEM_PROMPT + identity
 
     def forge_single(self, concept: str) -> dict:
         """Run full forge cycle on one concept (original single-pass mode).
@@ -288,7 +346,7 @@ class ForgeEngine:
         # Step 7: Package as training example
         training_example = {
             "messages": [
-                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "system", "content": self.system_prompt},
                 {"role": "user", "content": user_content},
                 {"role": "assistant", "content": synthesized_response},
             ],
@@ -391,7 +449,7 @@ class ForgeEngine:
 
         return {
             "messages": [
-                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "system", "content": self.system_prompt},
                 {"role": "user", "content": user_content},
                 {"role": "assistant", "content": synthesized},
             ],
@@ -527,6 +585,29 @@ class ForgeEngine:
                 logger.debug(f"  Memory recall failed: {e}")
 
         # =========================================================================
+        # LAYER 1.5: ETHICAL QUERY VALIDATION (EthicalAIGovernance)
+        # =========================================================================
+        if hasattr(self, 'ethical_governance') and self.ethical_governance:
+            try:
+                query_validation = self.ethical_governance.validate_query(concept)
+                if not query_validation["valid"]:
+                    logger.warning(f"  EthicalAIGovernance rejected query: {query_validation['warnings']}")
+                    return {
+                        "messages": [
+                            {"role": "system", "content": self.system_prompt},
+                            {"role": "user", "content": concept},
+                            {"role": "assistant", "content": "I can't help with that request. " + "; ".join(query_validation.get("suggestions", []))},
+                        ],
+                        "metadata": {
+                            "mode": "ethical_block",
+                            "reason": "ethical_governance_query_rejected",
+                            "warnings": query_validation["warnings"],
+                        }
+                    }
+            except Exception as e:
+                logger.debug(f"  Ethical query validation failed: {e}")
+
+        # =========================================================================
         # LAYER 2: SIGNAL ANALYSIS (Intent Prediction & Risk Detection)
         # =========================================================================
         logger.info("[L2] Signal Analysis...")
@@ -542,18 +623,37 @@ class ForgeEngine:
                 logger.debug(f"  Signal analysis failed: {e}")
 
         # =========================================================================
-        # LAYER 3: REASONING (Code7eCQURE Multi-Perspective Synthesis)
+        # LAYER 3: REASONING (LLM Inference via Orchestrator)
         # =========================================================================
-        logger.info("[L3] Code7E Reasoning...")
+        logger.info("[L3] LLM Reasoning...")
         synthesis = ""
-        if hasattr(self, 'code7e') and self.code7e:
+        if self.orchestrator:
+            try:
+                # Use real LLM inference through the orchestrator
+                llm_result = self.orchestrator.route_and_generate(
+                    concept,
+                    max_adapters=2,
+                    strategy="keyword",
+                )
+                synthesis = llm_result.get("response", "")
+                logger.info(f"  LLM generated {len(synthesis)} chars via {llm_result.get('adapter', 'unknown')}")
+            except Exception as e:
+                logger.warning(f"  LLM reasoning failed: {e}, falling back to Code7E")
+                # Fall back to Code7eCQURE template-based reasoning
+                if hasattr(self, 'code7e') and self.code7e:
+                    try:
+                        synthesis = self.code7e.recursive_universal_reasoning(
+                            concept, user_consent=True, dynamic_recursion=True
+                        )
+                    except Exception as e2:
+                        synthesis = f"[Reasoning error: {e2}]"
+        elif hasattr(self, 'code7e') and self.code7e:
+            # No orchestrator available — use template-based reasoning
             try:
                 synthesis = self.code7e.recursive_universal_reasoning(
-                    concept,
-                    user_consent=True,
-                    dynamic_recursion=True
+                    concept, user_consent=True, dynamic_recursion=True
                 )
-                logger.info(f"  Generated {len(synthesis)} char synthesis")
+                logger.info(f"  Code7E generated {len(synthesis)} char synthesis (no LLM)")
             except Exception as e:
                 logger.warning(f"  Code7E reasoning failed: {e}")
                 synthesis = f"[Reasoning error: {e}]"
@@ -600,8 +700,12 @@ class ForgeEngine:
         is_stable = True
         if hasattr(self, 'cocoon_stability') and self.cocoon_stability:
             try:
-                # Simple check: if synthesis should halt debate
-                is_stable = not self.cocoon_stability.should_halt_debate({"synthesis": synthesis})
+                # Check if synthesis should halt debate
+                halt_result = self.cocoon_stability.should_halt_debate(
+                    {"synthesis": synthesis}, round_num=1
+                )
+                should_halt = halt_result[0] if isinstance(halt_result, tuple) else halt_result
+                is_stable = not should_halt
                 logger.info(f"  Stability: {'✓ stable' if is_stable else '✗ unstable'}")
                 if not is_stable:
                     logger.warning("  Cocoon stability check triggered halt")
@@ -611,10 +715,13 @@ class ForgeEngine:
         # If unstable, skip to fallback
         if not is_stable:
             logger.warning("  Triggering safe fallback due to instability")
+            fallback_content = f"I detected instability in my multi-perspective reasoning. Responding directly: {concept}"
             return {
-                "role": "assistant",
-                "content": "[System detected instability in reasoning. Returning direct answer.] "
-                          f"Query: {concept}",
+                "messages": [
+                    {"role": "system", "content": self.system_prompt},
+                    {"role": "user", "content": concept},
+                    {"role": "assistant", "content": fallback_content},
+                ],
                 "metadata": {
                     "mode": "safe_fallback",
                     "reason": "stability_check_failed",
@@ -642,16 +749,31 @@ class ForgeEngine:
         if not colleen_valid:
             logger.info("  Colleen rejected synthesis, using fallback")
             fallback = self.colleen.reject_with_fallback(concept) if hasattr(self, 'colleen') and self.colleen else \
-                       f"[Ethical validation failed: {colleen_reason}] Responding directly: {concept}"
+                       f"Responding directly: {concept}"
             return {
-                "role": "assistant",
-                "content": fallback,
+                "messages": [
+                    {"role": "system", "content": self.system_prompt},
+                    {"role": "user", "content": concept},
+                    {"role": "assistant", "content": fallback},
+                ],
                 "metadata": {
                     "mode": "safe_fallback",
                     "reason": f"colleen_rejected: {colleen_reason}",
                     "consciousness_stack": "layers_1-5_completed",
                 }
             }
+
+        # =========================================================================
+        # LAYER 5.5: ETHICAL RESPONSE ENFORCEMENT (EthicalAIGovernance)
+        # =========================================================================
+        if hasattr(self, 'ethical_governance') and self.ethical_governance:
+            try:
+                ethical_result = self.ethical_governance.enforce_policies(synthesis)
+                if ethical_result["warnings"]:
+                    logger.info(f"  Ethical warnings: {ethical_result['warnings']}")
+                synthesis = ethical_result["filtered_response"]
+            except Exception as e:
+                logger.debug(f"  Ethical response enforcement failed: {e}")
 
         # =========================================================================
         # LAYER 6: GUARDIAN LOGICAL VALIDATION
@@ -672,10 +794,13 @@ class ForgeEngine:
         # If Guardian rejects, use fallback
         if not guardian_valid:
             logger.info("  Guardian rejected synthesis, using fallback")
-            fallback = f"[Logical validation failed: {guardian_details}] Query: {concept}"
+            fallback = f"Responding directly: {concept}"
             return {
-                "role": "assistant",
-                "content": fallback,
+                "messages": [
+                    {"role": "system", "content": self.system_prompt},
+                    {"role": "user", "content": concept},
+                    {"role": "assistant", "content": fallback},
+                ],
                 "metadata": {
                     "mode": "safe_fallback",
                     "reason": f"guardian_rejected: {guardian_details}",
@@ -703,9 +828,22 @@ class ForgeEngine:
             except Exception as e:
                 logger.debug(f"  Memory storage failed: {e}")
 
+        # Store as structured reasoning cocoon (CognitionCocooner)
+        if hasattr(self, 'cocooner') and self.cocooner:
+            try:
+                self.cocooner.wrap_reasoning(
+                    query=concept,
+                    response=synthesis,
+                    adapter="consciousness_stack",
+                    metadata={"layers_passed": 7, "stable": is_stable}
+                )
+                logger.debug("  Stored reasoning in CognitionCocooner")
+            except Exception as e:
+                logger.debug(f"  CognitionCocooner storage failed: {e}")
+
         return {
             "messages": [
-                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "system", "content": self.system_prompt},
                 {"role": "user", "content": f"Analyze this concept from multiple perspectives:\n\n{concept}"},
                 {"role": "assistant", "content": synthesis},
             ],
@@ -996,7 +1134,7 @@ class ForgeEngine:
 
         training_example = {
             "messages": [
-                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "system", "content": self.system_prompt},
                 {"role": "user", "content": user_content},
                 {"role": "assistant", "content": synthesized},
             ],

@@ -30,6 +30,8 @@ if _site not in sys.path:
 os.environ["PATH"] = r"J:\Lib\site-packages\Library\bin" + os.pathsep + os.environ.get("PATH", "")
 try:
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    # Force unbuffered output so cmd window updates in real-time
+    sys.stdout.reconfigure(line_buffering=True)
 except Exception:
     pass
 
@@ -106,8 +108,12 @@ def _get_orchestrator():
                     _forge_bridge = CodetteForgeBridge(_orchestrator, use_phase6=True, use_phase7=True, verbose=True)
                     print(f"  Phase 6 bridge initialized")
                     print(f"  Phase 7 Executive Controller initialized")
+                    # Add memory count from forge kernel
+                    mem_count = 0
+                    if hasattr(_forge_bridge, 'forge') and hasattr(_forge_bridge.forge, 'memory_kernel') and _forge_bridge.forge.memory_kernel:
+                        mem_count = len(_forge_bridge.forge.memory_kernel)
                     with _orchestrator_status_lock:
-                        _orchestrator_status.update({"phase6": "enabled", "phase7": "enabled"})
+                        _orchestrator_status.update({"phase6": "enabled", "phase7": "enabled", "memory_count": mem_count})
                 except Exception as e:
                     print(f"  Phase 6/7 bridge failed (using lightweight routing): {e}")
                     import traceback
@@ -249,15 +255,19 @@ def _worker_thread():
                 continue
 
             try:
+                print(f"  [WORKER] Processing query: {query[:60]}...", flush=True)
                 if _forge_bridge:
+                    print(f"  [WORKER] Using forge bridge (Phase 6/7)", flush=True)
                     result = _forge_bridge.generate(query, adapter=adapter, max_adapters=max_adapters)
                 else:
+                    print(f"  [WORKER] Using direct orchestrator", flush=True)
                     result = orch.route_and_generate(
                         query,
                         max_adapters=max_adapters,
                         strategy="keyword",
                         force_adapter=adapter if adapter and adapter != "auto" else None,
                     )
+                print(f"  [WORKER] Got result: response={len(result.get('response',''))} chars, adapter={result.get('adapter','?')}", flush=True)
 
                 # Update session DISABLED - session handling deferred
                 # (was causing UnboundLocalError due to scoping issues)
@@ -268,9 +278,13 @@ def _worker_thread():
                 perspectives = result.get("perspectives", [])
 
                 # Build response
+                response_text = result.get("response", "")
+                if not response_text:
+                    print(f"  [WORKER] WARNING: Empty response! Full result keys: {list(result.keys())}", flush=True)
+                    print(f"  [WORKER] Result dump: { {k: str(v)[:100] for k,v in result.items()} }", flush=True)
                 response_data = {
                     "event": "complete",
-                    "response": result["response"],
+                    "response": response_text or "[No response generated — check server logs]",
                     "adapter": result.get("adapter",
                         result.get("adapters", ["base"])[0] if isinstance(result.get("adapters"), list) else "base"),
                     "confidence": route.get("confidence", 0) if isinstance(route, dict) else (route.confidence if route else 0),
@@ -280,11 +294,29 @@ def _worker_thread():
                     "multi_perspective": route.get("multi_perspective", False) if isinstance(route, dict) else (route.multi_perspective if route else False),
                 }
 
+                # Add Phase 6 metadata (complexity, domain, ethical)
+                if result.get("complexity"):
+                    response_data["complexity"] = str(result["complexity"])
+                if result.get("domain"):
+                    response_data["domain"] = result["domain"]
+
+                # Add ethical governance info
+                ethical_checks = 0
+                if _forge_bridge and hasattr(_forge_bridge, 'forge'):
+                    fg = _forge_bridge.forge
+                    if hasattr(fg, 'ethical_governance') and fg.ethical_governance:
+                        ethical_checks = len(getattr(fg.ethical_governance, 'audit_log', []))
+                        response_data["ethical_checks"] = ethical_checks
+
+                # Add updated memory count from cocoon
+                if _forge_bridge and hasattr(_forge_bridge, 'forge') and hasattr(_forge_bridge.forge, 'memory_kernel') and _forge_bridge.forge.memory_kernel:
+                    response_data["memory_count"] = len(_forge_bridge.forge.memory_kernel)
+
                 # Add perspectives if available
                 if perspectives:
                     response_data["perspectives"] = perspectives
 
-                # Cocoon state DISABLED (requires session handling refactoring)
+                # Cocoon state — send current cocoon count
 
                 # Add epistemic report if available
                 if epistemic:
@@ -351,6 +383,10 @@ class CodetteHandler(SimpleHTTPRequestHandler):
 
         # API routes
         if path == "/api/status":
+            # Dynamically update memory count from forge kernel
+            if _forge_bridge and hasattr(_forge_bridge, 'forge') and hasattr(_forge_bridge.forge, 'memory_kernel') and _forge_bridge.forge.memory_kernel:
+                with _orchestrator_status_lock:
+                    _orchestrator_status["memory_count"] = len(_forge_bridge.forge.memory_kernel)
             self._json_response(_orchestrator_status)
         elif path == "/api/session":
             self._json_response(_session.get_state() if _session else {})
@@ -677,31 +713,7 @@ def main():
     health_monitor.start()
     print(f"  Started worker health monitor thread")
 
-    # Start model loading in background
-    threading.Thread(target=_get_orchestrator, daemon=True).start()
-
-    # Wait for model to load (up to 120 seconds)
-    print(f"  Waiting for model to load (this takes ~60s on first startup)...")
-    start_wait = time.time()
-    while True:
-        with _orchestrator_status_lock:
-            state = _orchestrator_status.get("state")
-        if state not in ("idle", "loading"):
-            break
-        if time.time() - start_wait > 120:
-            break
-        time.sleep(0.5)
-
-    with _orchestrator_status_lock:
-        state = _orchestrator_status.get("state")
-    if state == "ready":
-        print(f"  Model loaded in {time.time() - start_wait:.0f}s")
-    elif state == "loading":
-        print(f"  Model still loading (will continue in background)...")
-    else:
-        print(f"  WARNING: Model load status: {_orchestrator_status}")
-
-    # Start server
+    # Start server FIRST so browser can connect immediately
     server = HTTPServer(("127.0.0.1", args.port), CodetteHandler)
     url = f"http://localhost:{args.port}"
     print(f"\n  Server: {url}")
@@ -709,7 +721,11 @@ def main():
 
     # Open browser
     if not args.no_browser:
-        threading.Timer(1.0, lambda: webbrowser.open(url)).start()
+        threading.Timer(1.5, lambda: webbrowser.open(url)).start()
+
+    # Start model loading in background (browser will show "loading" status)
+    threading.Thread(target=_get_orchestrator, daemon=True).start()
+    print(f"  Model loading in background (takes ~60s on first startup)...")
 
     try:
         server.serve_forever()

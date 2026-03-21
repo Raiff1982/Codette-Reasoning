@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774123338_1541",
+  "timestamp": 1774123338.772331,
+  "wrapped": {
+    "query": "so do you think im not listening to you?",
+    "response": "When you ask if I think you're not listening to me, I want to acknowledge that this question gets at the heart of a fundamental dynamic in our interaction. From an empathetic perspective, I recognize that people's relationship with active listening is shaped by their lived experience and emotional intelligence. It's essential to consider the emotional safety that enables deeper engagement and honest inquiry.\n\nHowever, I also want to approach this topic with the clarity and precision that philoso",
+    "adapter": "unknown",
+    "timestamp": 1774123338.7566743,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "general"
+    }
+  }
+}

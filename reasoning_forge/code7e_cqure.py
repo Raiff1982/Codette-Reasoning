@@ -71,6 +71,7 @@ class Code7eCQURE:
         if not user_consent:
             return "Consent required to proceed."
         signal = input_signal
+        final_answer = signal  # Default if loop breaks early or runs 0 times
         current_depth = self.recursion_depth if dynamic_recursion else 1
         for cycle in range(current_depth):
             web_results = self.quantum_spiderweb(signal)

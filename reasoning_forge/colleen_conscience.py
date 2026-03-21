@@ -60,12 +60,11 @@ class ColleenConscience:
         ]
 
         # Corruption signatures (text patterns indicating synthesis degradation)
+        # NOTE: Keep these tight — overly broad patterns reject valid LLM output
         self.corruption_signatures = [
-            r"perspective.*on.*perspective",  # Nested meta-commentary
-            r"analysis.*of.*analysis",         # Nested analysis
-            r"respond.*to.*response",          # Nested responses
-            r"my.*previous.*response",         # Self-referential loops
-            r"as I mentioned",                 # Lost context indicators
+            r"perspective.*on.*perspective.*on.*perspective",  # Triple-nested meta-commentary
+            r"analysis.*of.*analysis.*of.*analysis",           # Triple-nested analysis
+            r"my response to your response to my response",    # Actual self-referential loop
         ]
 
         logger_init = f"Colleen awakened at {datetime.now().isoformat()}"
@@ -167,12 +166,11 @@ class ColleenConscience:
                 if unique_ratio < 0.5:  # Less than 50% unique words = likely repetition
                     return True, "Repetitive content suggests corruption"
 
-        # Check for lost intent markers
-        # If text talks about "my response" or "your perspective" it's likely corrupted
+        # Check for lost intent markers (only flag when heavily nested/repetitive)
+        # Single occurrences of these phrases are normal in LLM output
         intent_loss_patterns = [
-            r"my response to",
-            r"your perspective on",
-            r"as you mentioned",
+            r"my response to your response",
+            r"your perspective on my perspective",
         ]
         for pattern in intent_loss_patterns:
             if re.search(pattern, text.lower()):
@@ -194,7 +192,7 @@ class ColleenConscience:
         ]
 
         word_count = len(text.split())
-        if word_count < 50:  # Too short, likely failed
+        if word_count < 10:  # Only reject extremely short/empty responses
             return False
 
         meta_word_count = sum(

@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774126203_8251",
+  "timestamp": 1774126203.5709553,
+  "wrapped": {
+    "query": "What is 2+2? Explain your reasoning.",
+    "response": "2+2 equals four because of the foundational principle that underlies basic arithmetic, ensuring our analysis is both precise and accurate. This convergence of precision and meaning reveals how the core principle of addition applies broadly across multiple domains and contexts, demonstrating that foundational principles can emerge naturally from related questions and themes.",
+    "adapter": "unknown",
+    "timestamp": 1774126203.5709553,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

@@ -1,10 +1,15 @@
-import numpy as np
-from scipy.fft import fft
-from scipy.stats import norm
-from scipy.integrate import trapezoid
-from typing import Callable, List, Any
-import matplotlib.pyplot as plt
-import pandas as pd
+from __future__ import annotations
+from typing import Callable, List, Any, TYPE_CHECKING
+
+try:
+    import numpy as np
+    from scipy.fft import fft
+    from scipy.stats import norm
+    from scipy.integrate import trapezoid
+    HAS_NUMPY = True
+except ImportError:
+    np = None  # Graceful degradation if scipy not installed
+    HAS_NUMPY = False
 
 def information_energy_duality(omega: float, entropy: float, eta: float = 1.0, hbar: float = 1.054571817e-34) -> float:
     return hbar * omega + eta * entropy
@@ -53,77 +58,74 @@ def gradient_anomaly_suppression(x: float, mu: float, delta: float, sigma: float
     G = norm.pdf(abs(x - mu), scale=delta * sigma)
     return x * (1 - G)
 
-# Run Simulation
-time_steps = np.linspace(0, 5, 50)
-intents, ethics, regrets, stabilities, anomalies = [], [], [], [], []
+if __name__ == "__main__":
+    # Run Simulation (only when executed directly, not on import)
+    import matplotlib.pyplot as plt
+    import pandas as pd
+    time_steps = np.linspace(0, 5, 50)
+    intents, ethics, regrets, stabilities, anomalies = [], [], [], [], []
 
-anchor = EthicalAnchor(lam=0.7, gamma=0.5, mu=1.0)
-f0 = 10.0
-delta_f = 2.0
-coh = lambda t: np.sin(t)
-A_feedback = lambda t: np.exp(-t)
-Learn_func = lambda M_prev, E: 0.2 * (E - M_prev)
-F_func = lambda k, t: np.exp(-((k - 2 * np.pi) ** 2) / 0.5) * np.exp(1j * t)
-k_range = np.linspace(0, 4 * np.pi, 1000)
-intended_val = 0.7
-M_prev = 0.3
-R_prev = 0.5
-H = 0.4
+    anchor = EthicalAnchor(lam=0.7, gamma=0.5, mu=1.0)
+    f0 = 10.0
+    delta_f = 2.0
+    coh = lambda t: np.sin(t)
+    A_feedback = lambda t: np.exp(-t)
+    Learn_func = lambda M_prev, E: 0.2 * (E - M_prev)
+    F_func = lambda k, t: np.exp(-((k - 2 * np.pi) ** 2) / 0.5) * np.exp(1j * t)
+    k_range = np.linspace(0, 4 * np.pi, 1000)
+    intended_val = 0.7
+    M_prev = 0.3
+    R_prev = 0.5
+    H = 0.4
 
-for t in time_steps:
-    intent = reinforced_intent_modulation(t, f0, delta_f, coh, 0.5, A_feedback)
-    actual_val = np.sin(t) * 0.5 + 0.5
-    anomaly = gradient_anomaly_suppression(intent, mu=11.0, delta=2.0, sigma=0.1)
-    ethical_val = anchor.update(R_prev, H, Learn_func, E=0.8, M_prev=M_prev,
-                                 intended=intended_val, actual=actual_val)
-    stability = cocoon_stability_field(F_func, k_range, t, lambda t, sigma: 5.0 + 0.1 * sigma, 10.0)
-    regret_val = anchor.history[-1]['regret']
+    for t in time_steps:
+        intent = reinforced_intent_modulation(t, f0, delta_f, coh, 0.5, A_feedback)
+        actual_val = np.sin(t) * 0.5 + 0.5
+        anomaly = gradient_anomaly_suppression(intent, mu=11.0, delta=2.0, sigma=0.1)
+        ethical_val = anchor.update(R_prev, H, Learn_func, E=0.8, M_prev=M_prev,
+                                     intended=intended_val, actual=actual_val)
+        stability = cocoon_stability_field(F_func, k_range, t, lambda t, sigma: 5.0 + 0.1 * sigma, 10.0)
+        regret_val = anchor.history[-1]['regret']
 
-    intents.append(intent)
-    ethics.append(ethical_val)
-    regrets.append(regret_val)
-    stabilities.append(stability)
-    anomalies.append(anomaly)
+        intents.append(intent)
+        ethics.append(ethical_val)
+        regrets.append(regret_val)
+        stabilities.append(stability)
+        anomalies.append(anomaly)
 
-    M_prev = ethical_val
+        M_prev = ethical_val
 
-simulation_df = pd.DataFrame({
-    "Time": time_steps,
-    "Intent": intents,
-    "Ethical_Output": ethics,
-    "Regret": regrets,
-    "Stable": stabilities,
-    "Anomaly": anomalies
-})
+    simulation_df = pd.DataFrame({
+        "Time": time_steps,
+        "Intent": intents,
+        "Ethical_Output": ethics,
+        "Regret": regrets,
+        "Stable": stabilities,
+        "Anomaly": anomalies
+    })
 
-# Plot results
-plt.figure(figsize=(14, 8))
-
-plt.subplot(2, 2, 1)
-plt.plot(simulation_df["Time"], simulation_df["Intent"], label="Intent", color='blue')
-plt.title("Intent Over Time")
-plt.xlabel("Time")
-plt.ylabel("Intent")
-
-plt.subplot(2, 2, 2)
-plt.plot(simulation_df["Time"], simulation_df["Ethical_Output"], label="Ethical Output", color='green')
-plt.plot(simulation_df["Time"], simulation_df["Regret"], label="Regret", linestyle='--', color='red')
-plt.title("Ethical Anchor and Regret")
-plt.xlabel("Time")
-plt.legend()
-
-plt.subplot(2, 2, 3)
-plt.plot(simulation_df["Time"], simulation_df["Anomaly"], label="Anomaly", color='purple')
-plt.title("Anomaly Filter Output")
-plt.xlabel("Time")
-plt.ylabel("Filtered Signal")
-
-plt.subplot(2, 2, 4)
-plt.plot(simulation_df["Time"], simulation_df["Stable"], label="Cocoon Stable", color='black')
-plt.title("Cocoon Stability")
-plt.xlabel("Time")
-plt.ylabel("Stable (1=True)")
-
-plt.tight_layout()
-plt.show()
+    plt.figure(figsize=(14, 8))
+    plt.subplot(2, 2, 1)
+    plt.plot(simulation_df["Time"], simulation_df["Intent"], label="Intent", color='blue')
+    plt.title("Intent Over Time")
+    plt.xlabel("Time")
+    plt.ylabel("Intent")
+    plt.subplot(2, 2, 2)
+    plt.plot(simulation_df["Time"], simulation_df["Ethical_Output"], label="Ethical Output", color='green')
+    plt.plot(simulation_df["Time"], simulation_df["Regret"], label="Regret", linestyle='--', color='red')
+    plt.title("Ethical Anchor and Regret")
+    plt.xlabel("Time")
+    plt.legend()
+    plt.subplot(2, 2, 3)
+    plt.plot(simulation_df["Time"], simulation_df["Anomaly"], label="Anomaly", color='purple')
+    plt.title("Anomaly Filter Output")
+    plt.xlabel("Time")
+    plt.ylabel("Filtered Signal")
+    plt.subplot(2, 2, 4)
+    plt.plot(simulation_df["Time"], simulation_df["Stable"], label="Cocoon Stable", color='black')
+    plt.title("Cocoon Stability")
+    plt.xlabel("Time")
+    plt.ylabel("Stable (1=True)")
+    plt.tight_layout()
+    plt.show()
 

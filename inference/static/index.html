@@ -37,26 +37,27 @@
         <!-- Chat Messages -->
         <div class="chat-area" id="chat-area">
             <div class="welcome" id="welcome">
-                <h2>What would you like to explore?</h2>
-                <p>Codette v2.0 with Phase 6: Multi-perspective reasoning with controlled debate, semantic tension analysis, and adaptive stability.</p>
-                <div style="font-size:0.9em; color:#666; margin-bottom:16px; padding:10px; background:#f5f5f5; border-radius:4px;">
-                    <strong>What's New:</strong> Domain-aware agent routing • Semantic conflict detection • Real-time coherence monitoring • Experience-weighted reasoning
+                <div class="welcome-avatar">
+                    <div class="welcome-avatar-glyph">&#9775;</div>
                 </div>
+                <h2>Hello. I'm Codette.</h2>
+                <p class="welcome-subtext">I'm curious, warm, and built to think from multiple angles at once. Ask me anything — I'll bring the right perspectives to it.</p>
+                <div class="welcome-cocoon-hint" id="welcome-cocoon-hint"></div>
                 <div class="welcome-grid">
                     <div class="welcome-card" onclick="askQuestion('What is the speed of light and why does it matter?')">
-                        <div class="welcome-card-title" style="color:var(--newton)">Physics</div>
+                        <div class="welcome-card-title" style="color:var(--newton)">&#9883; Physics</div>
                         <div class="welcome-card-desc">What is the speed of light and why does it matter?</div>
                     </div>
                     <div class="welcome-card" onclick="askQuestion('How should we balance accuracy and explainability in AI systems?')">
-                        <div class="welcome-card-title" style="color:var(--philosophy)">Ethics</div>
+                        <div class="welcome-card-title" style="color:var(--philosophy)">&#9784; Ethics</div>
                         <div class="welcome-card-desc">How should we balance accuracy and explainability in AI systems?</div>
                     </div>
-                    <div class="welcome-card" onclick="askQuestion('What are the hallmarks of a truly creative solution?')">
-                        <div class="welcome-card-title" style="color:var(--davinci)">Creativity</div>
-                        <div class="welcome-card-desc">What are the hallmarks of a truly creative solution?</div>
+                    <div class="welcome-card" onclick="askQuestion('I&#39;m feeling overwhelmed — can you help me think through it?')">
+                        <div class="welcome-card-title" style="color:var(--empathy)">&#9825; Support</div>
+                        <div class="welcome-card-desc">I'm feeling overwhelmed — can you help me think through it?</div>
                     </div>
                     <div class="welcome-card" onclick="askQuestion('What would it mean for a machine to genuinely understand?')">
-                        <div class="welcome-card-title" style="color:var(--consciousness)">Consciousness</div>
+                        <div class="welcome-card-title" style="color:var(--consciousness)">&#9670; Consciousness</div>
                         <div class="welcome-card-desc">What would it mean for a machine to genuinely understand?</div>
                     </div>
                 </div>
@@ -88,6 +89,7 @@
                 <label>
                     <input type="checkbox" id="tts-toggle"> Voice
                 </label>
+                <select id="voice-select" style="max-width:140px" title="Choose voice"></select>
             </div>
         </div>
 

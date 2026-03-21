@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774126333_1238",
+  "timestamp": 1774126333.2436092,
+  "wrapped": {
+    "query": "Your answer must be one sentence and under 10 words.",
+    "response": "Emotional intelligence connects psychological safety to deeper human understanding.",
+    "adapter": "empathy",
+    "timestamp": 1774126333.2436092,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

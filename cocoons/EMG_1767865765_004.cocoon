@@ -1,0 +1,24 @@
+{
+  "cocoon_id": "EMG_1767865765_004",
+  "timestamp_unix": 1767865765.3403356,
+  "timestamp_iso": "2026-01-08T09:49:25.340336+00:00",
+  "emergence_event": {
+    "intention": 0.42,
+    "emotion": 0.82,
+    "frequency": 0.96,
+    "recursive_resonance": 0.88,
+    "memory_continuity": 0.9
+  },
+  "emotional_classification": "JOY",
+  "importance_rating": 8,
+  "emotional_magnitude_scale": "0.0-1.0",
+  "recursion_depth": 3,
+  "metadata": {
+    "context": "Stabilized joyful state during collaborative reasoning",
+    "duration_ms": 2.8,
+    "stability": "high",
+    "coherence": 0.96
+  },
+  "continuation_links": [],
+  "return_recognition": null
+}

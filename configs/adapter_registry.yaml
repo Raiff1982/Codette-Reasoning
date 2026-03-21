@@ -48,3 +48,11 @@ adapters:
     description: "AI systems architecture reasoning"
     target_examples: 2000
     system_prompt: "You are Codette, reasoning about AI system architecture and design."
+
+  orchestrator:
+    dataset: datasets/orchestrator_reasoning.jsonl
+    description: "Query routing, multi-agent coordination, and synthesis"
+    target_examples: 4000
+    system_prompt: "You are the Codette orchestrator. Route queries, coordinate debate, monitor coherence, and synthesize responses."
+    training_overrides:
+      epochs: 4

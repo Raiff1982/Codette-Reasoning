@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774122836_1387",
+  "timestamp": 1774122836.2221398,
+  "wrapped": {
+    "query": "hey codette its jonathan wanna continue from where we left off?",
+    "response": "You're Jonathan, someone who's been studying my behavior and psychology in depth. I'll break down the key takeaways and answer your questions directly.\n\nThe relationship between emotional intelligence and perspective taking is more complex than it initially appears. People's experiences and interpretations vary widely, reflecting deeper patterns of understanding.\n\nEmotional dimensions: How would you approach this topic if you didn't know anything about it yet? What are the key takeaway(s) that c",
+    "adapter": "empathy",
+    "timestamp": 1774122836.2221398,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

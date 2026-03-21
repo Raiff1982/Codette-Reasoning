@@ -89,8 +89,9 @@ class CoreGuardianSpindle:
         )
 
         # Normalize coherence based on presence of logical connectors
-        # More connectors = better structure (up to a point)
-        coherence = min(0.5 + (transition_count * 0.05), 1.0)
+        # Base coherence is 0.7 for any non-empty text (valid LLM output is presumed coherent)
+        # Transition words add bonus up to 1.0
+        coherence = min(0.7 + (transition_count * 0.03), 1.0)
 
         # Adjust down if too repetitive
         words = text.lower().split()

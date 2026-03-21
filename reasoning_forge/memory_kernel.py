@@ -85,8 +85,56 @@ class LivingMemoryKernel:
     and emotional context shapes recall patterns.
     """
 
-    def __init__(self):
+    def __init__(self, cocoon_dir: Optional[str] = None):
         self.memories: List[MemoryCocoon] = []
+        if cocoon_dir:
+            self._load_cocoons_from_disk(cocoon_dir)
+
+    def _load_cocoons_from_disk(self, cocoon_dir: str) -> None:
+        """Load cocoon files (.json and .cocoon) from disk into memory."""
+        cocoon_path = Path(cocoon_dir)
+        if not cocoon_path.exists():
+            logger.warning(f"Cocoon directory not found: {cocoon_dir}")
+            return
+
+        loaded = 0
+
+        # Load JSON cocoons (cocoon_joy.json, cocoon_fear.json, etc.)
+        for f in cocoon_path.glob("cocoon_*.json"):
+            try:
+                with open(f, "r", encoding="utf-8") as fh:
+                    data = json.load(fh)
+                cocoon = MemoryCocoon(
+                    title=data.get("title", f.stem),
+                    content=data.get("summary", data.get("quote", "")),
+                    emotional_tag=data.get("emotion", "neutral"),
+                    importance=8,  # Foundational memories are important
+                )
+                self.store(cocoon)
+                loaded += 1
+            except Exception as e:
+                logger.debug(f"Could not load {f.name}: {e}")
+
+        # Load .cocoon binary/JSON files (EMG_*.cocoon)
+        for f in cocoon_path.glob("*.cocoon"):
+            try:
+                with open(f, "r", encoding="utf-8") as fh:
+                    data = json.load(fh)
+                meta = data.get("metadata", {})
+                cocoon = MemoryCocoon(
+                    title=meta.get("context", data.get("cocoon_id", f.stem))[:100],
+                    content=meta.get("context", ""),
+                    emotional_tag=data.get("emotional_classification", "neutral").lower(),
+                    importance=data.get("importance_rating", 7),
+                    timestamp=data.get("timestamp_unix"),
+                )
+                self.store(cocoon)
+                loaded += 1
+            except Exception as e:
+                logger.debug(f"Could not load {f.name}: {e}")
+
+        if loaded > 0:
+            logger.info(f"  ✓ Loaded {loaded} cocoon memories from {cocoon_dir}")
 
     def store(self, cocoon: MemoryCocoon) -> None:
         """Store memory cocoon if not already present (by anchor)."""

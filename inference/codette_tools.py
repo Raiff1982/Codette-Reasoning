@@ -32,7 +32,7 @@ from typing import Dict, List, Optional, Tuple, Any
 
 # Directories Codette is allowed to read from
 ALLOWED_ROOTS = [
-    Path(r"J:\codette-training-lab"),
+    Path(r"J:\codette-clean"),
     Path(r"C:\Users\Jonathan\Documents"),
 ]
 

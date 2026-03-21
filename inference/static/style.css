@@ -857,3 +857,145 @@ body {
     }
     .welcome-grid { grid-template-columns: 1fr; }
 }
+
+/* ── Welcome Screen v2 ── */
+.welcome-avatar {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.welcome-avatar-glyph {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(59,130,246,0.15));
+    border: 1px solid rgba(168,85,247,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: var(--empathy);
+    box-shadow: 0 0 24px rgba(168,85,247,0.15);
+    animation: avatarPulse 4s ease-in-out infinite;
+}
+
+@keyframes avatarPulse {
+    0%, 100% { box-shadow: 0 0 24px rgba(168,85,247,0.15); }
+    50% { box-shadow: 0 0 36px rgba(168,85,247,0.3); }
+}
+
+.welcome-subtext {
+    color: var(--text-secondary);
+    font-size: 15px;
+    line-height: 1.7;
+    margin-bottom: 12px;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.welcome-cocoon-hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    min-height: 18px;
+}
+
+.welcome-cocoon-hint span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 10px;
+    background: rgba(249,115,22,0.08);
+    border: 1px solid rgba(249,115,22,0.2);
+    color: var(--multi_perspective);
+}
+
+/* ── Complexity + Domain Badges ── */
+.complexity-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 7px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.complexity-badge.simple {
+    background: rgba(16,185,129,0.12);
+    color: var(--philosophy);
+    border: 1px solid rgba(16,185,129,0.25);
+}
+
+.complexity-badge.medium {
+    background: rgba(245,158,11,0.12);
+    color: var(--davinci);
+    border: 1px solid rgba(245,158,11,0.25);
+}
+
+.complexity-badge.complex {
+    background: rgba(239,68,68,0.12);
+    color: var(--quantum);
+    border: 1px solid rgba(239,68,68,0.25);
+}
+
+.domain-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 7px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 600;
+    background: rgba(148,163,184,0.08);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+}
+
+/* ── Ethical Check Indicator ── */
+.ethical-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 10px;
+    color: var(--philosophy);
+    opacity: 0.7;
+}
+
+/* ── Thinking Indicator v2 ── */
+.thinking-stage {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-left: 4px;
+    transition: opacity 0.3s;
+}
+
+/* ── Status Bar Chips ── */
+.status-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-left: 6px;
+}
+
+.status-chip.ethical-pass {
+    color: var(--philosophy);
+    border-color: rgba(16,185,129,0.25);
+    background: rgba(16,185,129,0.06);
+}
+
+.status-chip.cocoon-active {
+    color: var(--multi_perspective);
+    border-color: rgba(249,115,22,0.25);
+    background: rgba(249,115,22,0.06);
+}

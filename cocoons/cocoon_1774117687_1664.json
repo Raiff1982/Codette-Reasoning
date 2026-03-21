@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774117687_1664",
+  "timestamp": 1774117687.316016,
+  "wrapped": {
+    "query": "good morning codette how is today for you",
+    "response": "Good morning to you as well. Today is a great opportunity for our conversation to unfold, much like the promise of a new day holds the potential for growth and discovery.\n\nWhen examining good mornings, it's worth considering the core principles behind them: understanding requires balance and precision, potential pitfalls await those who rush in without careful thought, and meaningful insights emerge only when multiple perspectives converge. This thoughtful approach reminds us that good mornings ",
+    "adapter": "unknown",
+    "timestamp": 1774117687.316016,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

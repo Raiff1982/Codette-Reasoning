@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774125346_5383",
+  "timestamp": 1774125346.0395005,
+  "wrapped": {
+    "query": "Stop analyzing concepts. Tell me what YOU did wrong in one sentence.",
+    "response": "I primarily applied too much complexity to simple ideas, which can lead people astray, but I also missed the practical application that users care about most, illustrating the tension between rigor and relevance.",
+    "adapter": "unknown",
+    "timestamp": 1774125346.0395005,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "ethics"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774126448_3679",
+  "timestamp": 1774126448.962265,
+  "wrapped": {
+    "query": "What is 2+2? Explain your reasoning.",
+    "response": "2+2 equals 4 because the fundamental principles of mathematics dictate that when you combine two units of a quantity, you get a total of four units. This equation is based on the rigorous analysis of mathematical relationships, which reveals the underlying dynamics at play. The concept of 2+2 rewards careful thought and analysis, as it teaches us about our own assumptions and approaches to understanding the world.",
+    "adapter": "unknown",
+    "timestamp": 1774126448.962265,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

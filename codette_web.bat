@@ -55,7 +55,7 @@ REM     - Experience-weighted adapter selection (Phase 2: MemoryWeighting)
 REM     - Living memory with cocoon storage
 REM     - AEGIS ethical governance + Nexus signal intelligence
 REM
-REM Model: Llama 3.1 8B quantized with LoRA adapters (8 domain-specific)
+REM Model: Llama 3.1 8B quantized with LoRA adapters (9 domain-specific + orchestrator)
 REM Memory: Cocoon-backed (persistent, encrypted session state)
 REM Foundation: ENABLED (Memory kernel + stability field fully integrated)
 REM Phase 6: ENABLED (ForgeEngine integration with restored systems)
@@ -81,7 +81,7 @@ echo   - Phase 6: ForgeEngine (semantic tension, specialization)
 echo   - Phases 1-5: Core reasoning infrastructure
 echo.
 echo   Initializing:
-echo     * CodetteOrchestrator with 8 domain LoRA adapters
+echo     * CodetteOrchestrator with 9 domain LoRA adapters (+ orchestrator)
 echo     * ForgeEngine with Query Classifier PLUS RESTORED SYSTEMS
 echo     * Memory Kernel with emotional continuity engine
 echo     * Cocoon Stability Field with collapse detection
@@ -90,11 +90,25 @@ echo.
 echo   Testing locally at: http://localhost:7860
 echo.
 echo   Expected improvement:
-echo     - Correctness: 0.24 ----RESTORED---^> 0.55+
-echo     - Meta-loops: 90% ----PREVENTED---^> ^<10%
-echo     - Token efficiency: 50% waste ----ELIMINATED---^> 80% useful
+echo     - Correctness: 0.24 --- RESTORED --- 0.55+
+echo     - Meta-loops: 90%% --- PREVENTED --- under 10%%
+echo     - Token efficiency: 50%% waste --- ELIMINATED --- 80%% useful
 echo.
 echo ============================================================
 echo.
 
-start "Codette v2.0 - Foundation Restored" python -B "J:\codette-training-lab\inference\codette_server.py"
+cd /d "J:\codette-clean"
+set PYTHONNOUSERSITE=1
+set PATH=J:\;J:\Lib\site-packages\Library\bin;%PATH%
+
+echo   Starting server...
+echo.
+J:\python.exe -u -B "J:\codette-clean\inference\codette_server.py"
+echo.
+if errorlevel 1 (
+    echo ERROR: Server exited with an error. See above for details.
+) else (
+    echo Server stopped.
+)
+echo.
+pause
