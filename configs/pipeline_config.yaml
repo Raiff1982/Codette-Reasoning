@@ -1,0 +1,25 @@
+pipeline:
+  seed: 42
+  dataset_output_dir: ./datasets
+  adapter_output_dir: ./adapters
+  logs_dir: ./logs
+
+generation:
+  include_counterexamples: true
+  counterexample_ratio: 0.12
+  min_response_words: 50
+  max_response_words: 300
+
+validation:
+  min_tokens: 40
+  max_duplicate_similarity: 0.85
+  required_roles: ["system", "user", "assistant"]
+
+forge:
+  agents: ["newton", "quantum", "ethics", "philosophy", "davinci", "empathy"]
+  enable_critic: true
+  enable_synthesis: true
+
+evaluation:
+  benchmark_prompts: evaluation/prompts/reasoning_tests.json
+  counterexample_prompts: evaluation/prompts/counterexample_tests.json

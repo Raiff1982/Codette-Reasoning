@@ -1,0 +1,171 @@
+# ================================================================
+# Phase 5 Configuration — AdapterRouter Integration & Fine-tuning
+# ================================================================
+#
+# Centralizes all Phase 5 parameters for:
+# - Reinforcement learning coefficients (boost/penalize amounts)
+# - Router memory integration settings
+# - Gamma stabilization thresholds
+# - Monitoring and observability
+#
+# Usage:
+#   import yaml
+#   with open('configs/phase5_config.yaml', 'r') as f:
+#       config = yaml.safe_load(f)
+#   reinforcement_cfg = ReinforcementConfig.from_dict(config['reinforcement'])
+#
+
+# ================================================================
+# REINFORCEMENT LEARNING (Phase 4)
+# ================================================================
+# Controls how adapter weights are updated based on debate outcomes
+reinforcement:
+  # Boost amount when conflict resolution succeeds (resolution_rate > 40%)
+  boost_successful: 0.08
+
+  # Penalize amount when conflict gets worse (resolution_type == "worsened")
+  penalize_failed: 0.08
+
+  # Partial reward for soft progress (resolution_type == "soft_consensus")
+  reward_soft_consensus: 0.03
+
+  # Advanced: Dynamic tuning (reserved for A/B testing)
+  enable_dynamic_tuning: false
+  tuning_interval_queries: 100
+
+# ================================================================
+# ADAPTER ROUTER INTEGRATION (Phase 5)
+# ================================================================
+# Controls how memory-weighting integrates with routing decisions
+adapter_router:
+  # Enable memory-aware routing (use learned adapter weights)
+  enable_memory_weighting: true
+
+  # Confidence modulation strategy
+  # - "soft": ±50% confidence boost/penalty (keeps keyword routing primary)
+  # - "hard": Full weight-based selection (memory-first routing)
+  memory_boost_strategy: "soft"
+
+  # Range of confidence modulation [low, high]
+  # soft boost adjusts confidence by ±50% = [0.5, 1.5] multiplier
+  confidence_modulation_range: [0.5, 1.5]
+
+  # Cold-start default weight for adapters with no history
+  cold_start_default_weight: 1.0
+
+  # Minimum confidences before memory boost applies
+  min_confidence_to_boost: 0.2
+
+# ================================================================
+# COHERENCE FIELD GAMMA (Phase 5A)
+# ================================================================
+# System health monitoring and stabilization
+gamma_stabilization:
+  # Enable Γ (Gamma) health monitoring
+  enable_gamma_field: true
+
+  # Health score thresholds
+  stable_zone: [0.4, 0.8]           # γ ∈ [0.4, 0.8] = healthy
+  collapse_threshold: 0.4           # γ < 0.4 = instability
+  groupthink_threshold: 0.8         # γ > 0.8 = groupthink risk
+
+  # Target epistemic tension zone (productive conflict)
+  target_tension_range: [0.1, 0.4]
+
+  # Health metric weights (sum to 1.0)
+  # How Γ is computed from component signals
+  weights:
+    diversity: 0.25                 # Perspectives diversity contribution
+    tension: 0.25                   # Productive conflict contribution
+    distribution: 0.25              # Adapter weight spreading
+    resolution: 0.25                # Conflict resolution progress
+
+  # Intervention strategies
+  interventions:
+    # When system collapses (γ < 0.4): inject unused perspective
+    collapse_response: "diversity_injection"
+
+    # When system groupthinks (γ > 0.8): force debate pair
+    groupthink_response: "conflict_injection"
+
+# ================================================================
+# MONITORING & OBSERVABILITY
+# ================================================================
+# Expose metrics for real-time monitoring and debugging
+monitoring:
+  # Enable routing metrics tracking
+  enable_routing_metrics: true
+
+  # Log routing decisions to console/file
+  log_routing_decisions: true
+
+  # Include memory context in logs (weight explanations)
+  log_memory_context: true
+
+  # Export frequency for aggregated metrics
+  metrics_export_interval_seconds: 300
+
+  # Keep rolling window of recent routes (for /recent endpoint)
+  recent_routes_window: 20
+
+  # Log interventions (both Phase 4C runaway and Phase 5A gamma)
+  log_interventions: true
+
+  # Verbose output levels
+  verbose: false
+  debug_gamma: false
+
+# ================================================================
+# MEMORY INTEGRATION
+# ================================================================
+# Controls how LivingMemory integrates with adapter selection
+memory:
+  # Recompute adapter weights every N hours
+  update_interval_hours: 1.0
+
+  # Minimum memories before weighting an adapter
+  min_examples_to_weight: 3
+
+  # Recency decay half-life (older memories fade out)
+  recency_half_life_days: 7
+
+  # Edge case: disable weight clamping (for research)
+  enable_weight_bounds: true
+  weight_min: 0.0
+  weight_max: 2.0
+
+# ================================================================
+# EDGE CASES & FALLBACKS
+# ================================================================
+edge_cases:
+  # Cold start: no memory history yet
+  cold_start_mode: "default"        # "default" | "keyword_only" | "random"
+
+  # Adapter not found: fallback strategy
+  missing_adapter_fallback: "multi_perspective"
+
+  # Memory load fails: continue without memory?
+  continue_without_memory: true
+
+  # Router crashes: fallback to base model
+  router_failure_fallback: null
+
+  # Gamma monitoring fails
+  skip_gamma_on_error: true
+
+# ================================================================
+# DEVELOPMENT & TESTING
+# ================================================================
+development:
+  # Enable in-memory metrics tracking (slower, for testing)
+  track_all_routes: false
+
+  # Replay mode: load previous routing decisions
+  replay_routing: false
+  replay_file: null
+
+  # Dry-run: log but don't execute interventions
+  dry_run_gamma: false
+
+  # Unit testing: use dummy memory
+  testing_mode: false

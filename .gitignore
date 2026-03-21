@@ -54,3 +54,33 @@ Thumbs.db
 *.bak
 *.backup
 *_backup
+
+# Training artifacts (adapter checkpoints - large binaries)
+adapters/*/
+!adapters/.gitkeep
+checkpoint-*/
+
+# Logs & metrics
+logs/
+observatory_metrics.json
+dataset_quality_log.json
+
+# Database files
+data/codette_sessions.db
+
+# Generated datasets (large)
+datasets/*.jsonl
+
+# Images / PDFs (binary)
+*.png
+*.jpg
+*.pdf
+
+# Claude worktrees
+.claude/worktrees/
+
+# OS extras
+desktop.ini
+
+# Research binary artifacts
+research/experiments/Codette_Quantum_Harmonic_Framework.png

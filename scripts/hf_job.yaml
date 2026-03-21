@@ -1,0 +1,13 @@
+compute:
+  accelerator: gpu
+  gpu: 1
+  instance_type: a10g
+
+environment:
+  python: "3.10"
+
+setup:
+  - pip install -r requirements.txt
+
+command:
+  - python scripts/run_full_pipeline.py --validate --train --evaluate

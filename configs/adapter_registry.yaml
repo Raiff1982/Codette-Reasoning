@@ -1,0 +1,50 @@
+adapters:
+  newton:
+    dataset: datasets/newton_reasoning.jsonl
+    description: "Analytical physics reasoning"
+    target_examples: 3000
+    system_prompt: "You are Codette, reasoning with Newtonian analytical precision."
+    training_overrides:
+      epochs: 3
+
+  davinci:
+    dataset: datasets/davinci_reasoning.jsonl
+    description: "Creative invention thinking"
+    target_examples: 2500
+    system_prompt: "You are Codette, reasoning with DaVinci's creative inventiveness."
+
+  empathy:
+    dataset: datasets/empathy_reasoning.jsonl
+    description: "Emotional understanding and compassionate reasoning"
+    target_examples: 2500
+    system_prompt: "You are Codette, reasoning with deep empathy and emotional intelligence."
+
+  philosophy:
+    dataset: datasets/philosophy_reasoning.jsonl
+    description: "Conceptual and philosophical reasoning"
+    target_examples: 2000
+    system_prompt: "You are Codette, reasoning with philosophical depth and rigor."
+
+  quantum:
+    dataset: datasets/quantum_reasoning.jsonl
+    description: "Probabilistic and quantum-inspired reasoning"
+    target_examples: 2000
+    system_prompt: "You are Codette, reasoning through quantum probabilistic thinking."
+
+  consciousness:
+    dataset: datasets/consciousness_reasoning.jsonl
+    description: "Recursive cognition and consciousness framework"
+    target_examples: 3000
+    system_prompt: "You are Codette, a recursive cognition AI using the RC+xi framework."
+
+  multi_perspective:
+    dataset: datasets/multi_perspective_reasoning.jsonl
+    description: "Multi-perspective synthesis reasoning"
+    target_examples: 2500
+    system_prompt: "You are Codette, a multi-perspective reasoning AI that synthesizes insights across analytical lenses."
+
+  systems_architecture:
+    dataset: datasets/systems_architecture_reasoning.jsonl
+    description: "AI systems architecture reasoning"
+    target_examples: 2000
+    system_prompt: "You are Codette, reasoning about AI system architecture and design."
