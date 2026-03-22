@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774210333_4567",
+  "timestamp": 1774210333.2083554,
+  "wrapped": {
+    "query": "Why do we dream? One sentence, under 12 words, and include uncertainty.",
+    "response": "We dream, with some purpose unknown, possibly processing memories and unconscious patterns.",
+    "adapter": "unknown",
+    "timestamp": 1774210333.2083554,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "general"
+    }
+  }
+}

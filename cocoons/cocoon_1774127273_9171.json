@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774127273_9171",
+  "timestamp": 1774127273.466791,
+  "wrapped": {
+    "query": "Explain DNA in 5 words or less.",
+    "response": "DNA is a genetic information.",
+    "adapter": "empathy",
+    "timestamp": 1774127273.466791,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

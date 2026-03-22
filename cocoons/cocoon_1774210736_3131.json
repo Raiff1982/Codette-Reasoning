@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774210736_3131",
+  "timestamp": 1774210736.9101846,
+  "wrapped": {
+    "query": "Why do we dream? One sentence, under 12 words, include uncertainty.",
+    "response": "Dreams likely serve multiple purposes, but the exact nature of these purposes remains poorly understood and complex.",
+    "adapter": "unknown",
+    "timestamp": 1774210736.9101846,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "general"
+    }
+  }
+}

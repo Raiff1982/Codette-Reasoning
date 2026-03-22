@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774127183_2241",
+  "timestamp": 1774127183.1092644,
+  "wrapped": {
+    "query": "What is gravity? Be brief.",
+    "response": "Gravity is a fundamental force that governs the behavior of mass and energy on a macro scale, as described by Newton, while its underlying nature is rooted in quantum possibility, governed by Einstein's theory of general relativity, which attracts objects with mass towards each other.",
+    "adapter": "unknown",
+    "timestamp": 1774127183.1092644,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "physics"
+    }
+  }
+}

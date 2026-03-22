@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774210407_9990",
+  "timestamp": 1774210407.8310575,
+  "wrapped": {
+    "query": "What is 2+2? Explain your reasoning in one sentence under 10 words.",
+    "response": "2+2 equals four because basic arithmetic follows predictable patterns that reveal a truth that's clearly and simply four.",
+    "adapter": "unknown",
+    "timestamp": 1774210407.8310575,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

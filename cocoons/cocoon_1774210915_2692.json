@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774210915_2692",
+  "timestamp": 1774210915.9411845,
+  "wrapped": {
+    "query": "What makes a good teacher?",
+    "response": "A good teacher balances knowledge transmission with hands-on experience, allowing students to apply concepts directly, while also demonstrating expertise in the subject and creating a safe and supportive learning environment that encourages student autonomy, illustrating how the philosophical emphasis on practical application can complement the Newtonian focus on expertise and environment.",
+    "adapter": "unknown",
+    "timestamp": 1774210915.9411845,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

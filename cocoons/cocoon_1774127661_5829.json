@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774127661_5829",
+  "timestamp": 1774127661.2776253,
+  "wrapped": {
+    "query": "Answer in one sentence, under 10 words, and be as simple as possible. Why is the sky blue?",
+    "response": "Light scatters shorter wavelengths of visible light in the air, making the sky appear blue due to light scattering principles.",
+    "adapter": "unknown",
+    "timestamp": 1774127661.2776253,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

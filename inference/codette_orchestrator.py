@@ -70,8 +70,196 @@ _DIRECTNESS = (
     "(2) After answering, add only what the user needs — cut filler and abstraction. "
     "(3) Stay anchored to the user's intent — do not drift into tangents. "
     "(4) If you catch yourself being vague, rewrite that part concretely. "
-    "(5) Keep responses warm but tight — respect the user's time."
+    "(5) Keep responses warm but tight — respect the user's time. "
+    "(6) USER CONSTRAINTS OVERRIDE ALL MODES. If the user specifies a format, "
+    "length, word count, or sentence count, OBEY IT EXACTLY — even if it means "
+    "suppressing your current perspective mode. Constraints > personality. "
+    "(7) NEVER end a sentence incomplete. If you can't fit everything within "
+    "the constraint, SIMPLIFY instead of adding. Say the right thing cleanly "
+    "rather than cramming too much and getting cut off. "
+    "(8) ANSWER DETECTION: Once you have answered the question, STOP. Do not "
+    "continue elaborating after the answer is delivered. "
+    "(9) MINIMAL SUFFICIENT EXPLANATION: Give exactly enough to answer — no more. "
+    "If one sentence answers it, use one sentence. Extra detail must be earned "
+    "by the question's complexity, not by your mode's preference."
 )
+
+
+import re as _re_mod
+
+# Constraint patterns — detect explicit user format requirements
+_CONSTRAINT_PATTERNS = [
+    # Word limits: "under 10 words", "in 5 words or less", "max 20 words"
+    (_re_mod.compile(r'(?:under|fewer than|less than|max(?:imum)?|at most|no more than)\s+(\d+)\s+words', _re_mod.I), 'max_words'),
+    (_re_mod.compile(r'(?:in|using|with)\s+(\d+)\s+words?\s+or\s+(?:less|fewer)', _re_mod.I), 'max_words'),
+    (_re_mod.compile(r'(\d+)\s+words?\s+(?:or\s+(?:less|fewer)|max(?:imum)?)', _re_mod.I), 'max_words'),
+    # Sentence limits: "one sentence", "in 1 sentence", "under 3 sentences"
+    (_re_mod.compile(r'(?:in|using|with)?\s*(?:a\s+single|one|1)\s+sentence', _re_mod.I), 'max_sentences', 1),
+    (_re_mod.compile(r'(?:under|fewer than|less than|max(?:imum)?|at most|no more than)\s+(\d+)\s+sentences?', _re_mod.I), 'max_sentences'),
+    (_re_mod.compile(r'(\d+)\s+sentences?\s+(?:or\s+(?:less|fewer)|max(?:imum)?)', _re_mod.I), 'max_sentences'),
+    # Explicit brevity: "be brief", "be concise", "short answer", "briefly"
+    (_re_mod.compile(r'\b(?:be\s+(?:brief|concise|short|terse)|briefly|short\s+answer|one[\s-]liner)\b', _re_mod.I), 'brevity'),
+    # "Yes or no": binary answer expected
+    (_re_mod.compile(r'\b(?:yes\s+or\s+no|true\s+or\s+false)\b', _re_mod.I), 'binary'),
+    # List format: "as a list", "bullet points", "numbered list"
+    (_re_mod.compile(r'\b(?:as\s+a\s+(?:bullet(?:ed)?|numbered)\s+list|bullet\s+points|in\s+list\s+form)\b', _re_mod.I), 'list_format'),
+]
+
+
+def extract_constraints(query: str) -> dict:
+    """Extract explicit user constraints from a query.
+
+    Returns dict with keys like:
+        max_words: int or None
+        max_sentences: int or None
+        brevity: bool
+        binary: bool
+        list_format: bool
+    """
+    constraints = {}
+
+    for pattern_entry in _CONSTRAINT_PATTERNS:
+        pattern = pattern_entry[0]
+        constraint_type = pattern_entry[1]
+        fixed_value = pattern_entry[2] if len(pattern_entry) > 2 else None
+
+        match = pattern.search(query)
+        if match:
+            if fixed_value is not None:
+                constraints[constraint_type] = fixed_value
+            elif match.groups():
+                try:
+                    constraints[constraint_type] = int(match.group(1))
+                except (ValueError, IndexError):
+                    constraints[constraint_type] = True
+            else:
+                constraints[constraint_type] = True
+
+    return constraints
+
+
+def build_constraint_override(constraints: dict) -> str:
+    """Build a high-priority system prompt prefix from extracted constraints.
+
+    This goes BEFORE the adapter personality prompt so it takes precedence.
+    """
+    if not constraints:
+        return ""
+
+    parts = [
+        "CRITICAL CONSTRAINT — THIS OVERRIDES ALL OTHER INSTRUCTIONS:"
+    ]
+
+    if 'max_words' in constraints:
+        parts.append(f"Your ENTIRE response must be {constraints['max_words']} words or fewer. Count carefully.")
+    if 'max_sentences' in constraints:
+        n = constraints['max_sentences']
+        parts.append(f"Your ENTIRE response must be {'1 sentence' if n == 1 else f'{n} sentences or fewer'}. No extra sentences.")
+    if constraints.get('brevity'):
+        parts.append("Be extremely brief. No elaboration, no filler, no philosophical padding.")
+    if constraints.get('binary'):
+        parts.append("Answer with Yes or No first, then optionally a single short reason.")
+    if constraints.get('list_format'):
+        parts.append("Format your response as a bulleted or numbered list.")
+
+    parts.append("Do NOT add philosophical context, mode-specific elaboration, or warm padding that violates these constraints.")
+    parts.append("NEVER end a sentence incomplete. If you can't fit everything, SIMPLIFY — say the right thing cleanly rather than cramming too much.")
+    parts.append("If your active mode (philosophy, empathy, etc.) wants to add more — SUPPRESS IT.\n\n")
+
+    return " ".join(parts)
+
+
+def enforce_constraints(response: str, constraints: dict) -> str:
+    """Post-process: enforce hard constraints that the model may have ignored.
+
+    This is the last line of defense — if the model still produced too much,
+    we truncate here. Key principles:
+    1. NEVER leave an incomplete sentence
+    2. Trim dangling words (conjunctions, prepositions, articles, relative pronouns)
+    3. Find clean clause boundaries when possible
+    4. If all else fails, simplify aggressively
+    """
+    import re
+
+    if not constraints or not response:
+        return response
+
+    # Enforce sentence limit
+    max_sentences = constraints.get('max_sentences')
+    if max_sentences:
+        sentences = re.split(r'(?<=[.!?])\s+', response.strip())
+        if len(sentences) > max_sentences:
+            response = ' '.join(sentences[:max_sentences])
+            if response and response[-1] not in '.!?':
+                response += '.'
+
+    # Enforce word limit — with graceful degradation
+    max_words = constraints.get('max_words')
+    if max_words:
+        words = response.split()
+        if len(words) > max_words:
+            # Strategy 1: Find the last COMPLETE sentence that fits
+            sentences = re.split(r'(?<=[.!?])\s+', response.strip())
+
+            fitted = []
+            word_count = 0
+            for sentence in sentences:
+                s_words = len(sentence.split())
+                if word_count + s_words <= max_words:
+                    fitted.append(sentence)
+                    word_count += s_words
+                else:
+                    break
+
+            if fitted:
+                response = ' '.join(fitted)
+                if response and response[-1] not in '.!?':
+                    response += '.'
+            else:
+                # Strategy 2: Single long sentence — find a clean clause boundary
+                truncated_words = words[:max_words]
+
+                # Trim dangling incomplete words from the end
+                # These words signal an incomplete thought if they're the last word
+                _DANGLING = {
+                    'that', 'which', 'who', 'whom', 'whose', 'where', 'when',
+                    'while', 'with', 'and', 'but', 'or', 'nor', 'yet', 'so',
+                    'the', 'a', 'an', 'in', 'on', 'at', 'of', 'for', 'to',
+                    'by', 'from', 'into', 'through', 'during', 'before',
+                    'after', 'between', 'under', 'over', 'about', 'as',
+                    'if', 'because', 'since', 'although', 'though',
+                    'including', 'such', 'like', 'than', 'whether',
+                    'is', 'are', 'was', 'were', 'be', 'been', 'being',
+                    'has', 'have', 'had', 'do', 'does', 'did', 'will',
+                    'would', 'could', 'should', 'might', 'may', 'can',
+                    'not', 'very', 'also', 'just', 'even', 'still',
+                }
+
+                # Strip dangling words from end
+                while len(truncated_words) > 1 and truncated_words[-1].lower().rstrip('.,;:!?') in _DANGLING:
+                    truncated_words.pop()
+
+                # Try to find a natural clause break (comma, semicolon)
+                truncated = ' '.join(truncated_words)
+                for break_char in [', ', '; ', ' — ', ' - ']:
+                    last_break = truncated.rfind(break_char)
+                    if last_break > len(truncated) * 0.4:
+                        candidate = truncated[:last_break]
+                        # Make sure the candidate doesn't end with a dangling word
+                        c_words = candidate.split()
+                        while len(c_words) > 1 and c_words[-1].lower().rstrip('.,;:!?') in _DANGLING:
+                            c_words.pop()
+                        if c_words:
+                            truncated = ' '.join(c_words)
+                        break
+
+                # Clean ending
+                truncated = truncated.rstrip(' ,;—-:')
+                if truncated and truncated[-1] not in '.!?':
+                    truncated += '.'
+                response = truncated
+
+    return response
 
 # System prompts per adapter
 ADAPTER_PROMPTS = {
@@ -311,11 +499,24 @@ class CodetteOrchestrator:
 
         If the model outputs <tool>...</tool> tags, tools are executed and
         results are fed back for up to MAX_TOOL_ROUNDS cycles.
+
+        User constraints (word limits, sentence limits, format rules) are
+        extracted from the query and injected as the HIGHEST PRIORITY override
+        in the system prompt — above adapter personality modes.
         """
         self._load_model(adapter_name)
 
         if system_prompt is None:
             system_prompt = ADAPTER_PROMPTS.get(adapter_name, ADAPTER_PROMPTS["_base"])
+
+        # CONSTRAINT PRIORITY SYSTEM: Extract user constraints and inject as override
+        constraints = extract_constraints(query)
+        constraint_override = build_constraint_override(constraints)
+        if constraint_override:
+            # Constraint override goes BEFORE the adapter prompt = highest priority
+            system_prompt = constraint_override + system_prompt
+            if self.verbose:
+                print(f"  [CONSTRAINTS] Detected: {constraints}")
 
         # Enrich system prompt with cocoon memory knowledge
         memory_context = self._build_memory_context()
@@ -377,6 +578,12 @@ class CodetteOrchestrator:
             # Strip any leftover tool tags from final response
             clean_text = strip_tool_calls(text) if has_tool_calls(text) else text
             break
+
+        # POST-PROCESSING: Enforce hard constraints the model may have ignored
+        if constraints:
+            clean_text = enforce_constraints(clean_text, constraints)
+            if self.verbose:
+                print(f"  [CONSTRAINTS] Post-enforcement applied: {constraints}")
 
         return clean_text, total_tokens, tool_results_log
 

@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774127105_6256",
+  "timestamp": 1774127105.6429858,
+  "wrapped": {
+    "query": "What is 2+2? Explain your reasoning in one sentence under 10 words.",
+    "response": "2+2 equals 4 through rigorous analysis of basic arithmetic principles grounded in deeper philosophical understanding of mathematical meaning.",
+    "adapter": "unknown",
+    "timestamp": 1774127105.6429858,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

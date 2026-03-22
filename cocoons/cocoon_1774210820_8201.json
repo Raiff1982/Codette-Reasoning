@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774210820_8201",
+  "timestamp": 1774210820.4887228,
+  "wrapped": {
+    "query": "Is free will real? Yes or no.",
+    "response": "No.",
+    "adapter": "unknown",
+    "timestamp": 1774210820.4887228,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "systems"
+    }
+  }
+}
