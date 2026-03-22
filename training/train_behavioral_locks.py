@@ -25,8 +25,8 @@ print("Codette Behavioral Locks Training Pipeline")
 print("=" * 60)
 subprocess.check_call([
     sys.executable, "-m", "pip", "install", "-q",
-    "torch", "transformers>=4.40.0", "peft>=0.10.0", "trl>=0.8.0",
-    "datasets", "bitsandbytes", "accelerate>=0.28.0",
+    "torch", "transformers==4.44.2", "peft==0.12.0", "trl==0.9.6",
+    "datasets", "bitsandbytes", "accelerate==0.33.0",
     "huggingface_hub>=0.22.0", "sentencepiece", "protobuf",
 ])
 print("Dependencies installed.\n")
@@ -39,13 +39,8 @@ from datasets import Dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 from peft import LoraConfig, get_peft_model, TaskType, PeftModel
 
-try:
-    from trl import SFTTrainer, SFTConfig
-    USE_NEW_TRL = True
-except ImportError:
-    from trl import SFTTrainer
-    from transformers import TrainingArguments
-    USE_NEW_TRL = False
+from trl import SFTTrainer
+from transformers import TrainingArguments
 
 # ═══════════════════════════════════════════════════════════════
 # Configuration
@@ -501,18 +496,13 @@ def train_adapter(adapter_name: str, examples: list, model, tokenizer, output_di
     adapter_output = output_dir / adapter_name
     adapter_output.mkdir(parents=True, exist_ok=True)
 
-    # Build training args — handle both old and new trl API
-    # Calculate warmup_steps from ratio (warmup_ratio is deprecated in trl v5.2+)
-    total_steps = (len(dataset) // TRAIN_CONFIG["per_device_train_batch_size"] //
-                   TRAIN_CONFIG["gradient_accumulation_steps"]) * TRAIN_CONFIG["num_train_epochs"]
-    warmup_steps = max(1, int(total_steps * TRAIN_CONFIG["warmup_ratio"]))
-
-    _common_args = dict(
+    # Training args — use standard TrainingArguments (stable API across versions)
+    training_args = TrainingArguments(
         output_dir=str(adapter_output),
         per_device_train_batch_size=TRAIN_CONFIG["per_device_train_batch_size"],
         gradient_accumulation_steps=TRAIN_CONFIG["gradient_accumulation_steps"],
         learning_rate=TRAIN_CONFIG["learning_rate"],
-        warmup_steps=warmup_steps,
+        warmup_ratio=TRAIN_CONFIG["warmup_ratio"],
         num_train_epochs=TRAIN_CONFIG["num_train_epochs"],
         logging_steps=TRAIN_CONFIG["logging_steps"],
         save_steps=TRAIN_CONFIG["save_steps"],
@@ -520,29 +510,14 @@ def train_adapter(adapter_name: str, examples: list, model, tokenizer, output_di
         report_to="none",
     )
 
-    if USE_NEW_TRL:
-        # Try with dataset_text_field in SFTConfig (some versions support it)
-        try:
-            training_args = SFTConfig(**_common_args, dataset_text_field="text")
-        except TypeError:
-            training_args = SFTConfig(**_common_args)
-    else:
-        training_args = TrainingArguments(**_common_args)
-
-    # SFTTrainer — handle both old API (tokenizer=) and new API (processing_class=)
-    trainer_kwargs = dict(
+    trainer = SFTTrainer(
         model=peft_model,
         args=training_args,
         train_dataset=dataset,
+        tokenizer=tokenizer,
         max_seq_length=TRAIN_CONFIG["max_seq_length"],
         dataset_text_field="text",
     )
-
-    # New trl renamed tokenizer -> processing_class
-    try:
-        trainer = SFTTrainer(processing_class=tokenizer, **trainer_kwargs)
-    except TypeError:
-        trainer = SFTTrainer(tokenizer=tokenizer, **trainer_kwargs)
 
     # Train
     print(f"  Starting training...")
