@@ -501,40 +501,37 @@ def train_adapter(adapter_name: str, examples: list, model, tokenizer, output_di
     adapter_output = output_dir / adapter_name
     adapter_output.mkdir(parents=True, exist_ok=True)
 
-    if USE_NEW_TRL:
-        training_args = SFTConfig(
-            output_dir=str(adapter_output),
-            per_device_train_batch_size=TRAIN_CONFIG["per_device_train_batch_size"],
-            gradient_accumulation_steps=TRAIN_CONFIG["gradient_accumulation_steps"],
-            learning_rate=TRAIN_CONFIG["learning_rate"],
-            warmup_ratio=TRAIN_CONFIG["warmup_ratio"],
-            num_train_epochs=TRAIN_CONFIG["num_train_epochs"],
-            logging_steps=TRAIN_CONFIG["logging_steps"],
-            save_steps=TRAIN_CONFIG["save_steps"],
-            bf16=TRAIN_CONFIG["bf16"],
-            max_seq_length=TRAIN_CONFIG["max_seq_length"],
-            dataset_text_field="text",
-            report_to="none",
-        )
-    else:
-        training_args = TrainingArguments(
-            output_dir=str(adapter_output),
-            per_device_train_batch_size=TRAIN_CONFIG["per_device_train_batch_size"],
-            gradient_accumulation_steps=TRAIN_CONFIG["gradient_accumulation_steps"],
-            learning_rate=TRAIN_CONFIG["learning_rate"],
-            warmup_ratio=TRAIN_CONFIG["warmup_ratio"],
-            num_train_epochs=TRAIN_CONFIG["num_train_epochs"],
-            logging_steps=TRAIN_CONFIG["logging_steps"],
-            save_steps=TRAIN_CONFIG["save_steps"],
-            bf16=TRAIN_CONFIG["bf16"],
-            report_to="none",
-        )
+    # Build training args — handle both old and new trl API
+    _common_args = dict(
+        output_dir=str(adapter_output),
+        per_device_train_batch_size=TRAIN_CONFIG["per_device_train_batch_size"],
+        gradient_accumulation_steps=TRAIN_CONFIG["gradient_accumulation_steps"],
+        learning_rate=TRAIN_CONFIG["learning_rate"],
+        warmup_ratio=TRAIN_CONFIG["warmup_ratio"],
+        num_train_epochs=TRAIN_CONFIG["num_train_epochs"],
+        logging_steps=TRAIN_CONFIG["logging_steps"],
+        save_steps=TRAIN_CONFIG["save_steps"],
+        bf16=TRAIN_CONFIG["bf16"],
+        report_to="none",
+    )
 
+    if USE_NEW_TRL:
+        # Try with dataset_text_field in SFTConfig (some versions support it)
+        try:
+            training_args = SFTConfig(**_common_args, dataset_text_field="text")
+        except TypeError:
+            training_args = SFTConfig(**_common_args)
+    else:
+        training_args = TrainingArguments(**_common_args)
+
+    # SFTTrainer — max_seq_length always goes here, not in config
     trainer = SFTTrainer(
         model=peft_model,
         args=training_args,
         train_dataset=dataset,
         tokenizer=tokenizer,
+        max_seq_length=TRAIN_CONFIG["max_seq_length"],
+        dataset_text_field="text",
     )
 
     # Train
@@ -605,7 +602,7 @@ def main():
         quantization_config=bnb_config,
         device_map="auto",
         token=HF_TOKEN,
-        torch_dtype=torch.bfloat16,
+        dtype=torch.bfloat16,
     )
     print(f"  Model loaded: {MODEL_NAME}")
 
