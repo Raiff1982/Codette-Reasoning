@@ -280,6 +280,17 @@ function pollStatus() {
                 setTimeout(pollStatus, 2000);
             } else if (status.state === 'ready') {
                 hideLoadingScreen();
+                // Fetch initial session state to populate cocoon metrics panel
+                fetch('/api/session')
+                    .then(r => r.json())
+                    .then(sessionState => {
+                        if (sessionState && Object.keys(sessionState).length > 0) {
+                            updateCocoonUI(sessionState);
+                        }
+                    })
+                    .catch(() => {});
+                // Load session list for sidebar
+                loadSessions();
                 // Populate welcome cocoon hint
                 if (status.memory_count !== undefined) {
                     _startupCocoonCount = status.memory_count;

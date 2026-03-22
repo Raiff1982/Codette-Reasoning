@@ -87,6 +87,24 @@ _DIRECTNESS = (
 
 import re as _re_mod
 
+# Self-correction engine (autonomous constraint compliance)
+try:
+    from self_correction import (
+        detect_violations, build_correction_prompt,
+        BehaviorMemory, detect_chaos_level, build_chaos_mitigation,
+    )
+    SELF_CORRECTION_AVAILABLE = True
+except ImportError:
+    SELF_CORRECTION_AVAILABLE = False
+
+# Global behavior memory (persistent across requests, loaded once)
+_behavior_memory = None
+def _get_behavior_memory():
+    global _behavior_memory
+    if _behavior_memory is None and SELF_CORRECTION_AVAILABLE:
+        _behavior_memory = BehaviorMemory()
+    return _behavior_memory
+
 # Constraint patterns — detect explicit user format requirements
 _CONSTRAINT_PATTERNS = [
     # Word limits: "under 10 words", "in 5 words or less", "max 20 words"
@@ -184,6 +202,26 @@ def enforce_constraints(response: str, constraints: dict) -> str:
     if not constraints or not response:
         return response
 
+    # Enforce binary constraint — strip everything after the Yes/No + optional short reason
+    if constraints.get('binary'):
+        words = response.split()
+        if words:
+            first = words[0].lower().rstrip('.,;:!?')
+            if first in ('yes', 'no', 'true', 'false'):
+                # Keep only the first sentence (the answer) + optionally a second short one
+                sentences = re.split(r'(?<=[.!?])\s+', response.strip())
+                sentences = [s for s in sentences if s.strip()]
+                if len(sentences) == 1:
+                    response = sentences[0]
+                elif len(sentences) >= 2:
+                    # Keep second sentence only if it's short (under 12 words)
+                    if len(sentences[1].split()) <= 12:
+                        response = sentences[0] + ' ' + sentences[1]
+                    else:
+                        response = sentences[0]
+                if response and response[-1] not in '.!?':
+                    response += '.'
+
     # Enforce sentence limit
     max_sentences = constraints.get('max_sentences')
     if max_sentences:
@@ -258,6 +296,23 @@ def enforce_constraints(response: str, constraints: dict) -> str:
                 if truncated and truncated[-1] not in '.!?':
                     truncated += '.'
                 response = truncated
+
+    # Enforce brevity — soft cap at 40 words, find last complete sentence
+    if constraints.get('brevity') and len(response.split()) > 40:
+        sentences = re.split(r'(?<=[.!?])\s+', response.strip())
+        fitted = []
+        wc = 0
+        for s in sentences:
+            sw = len(s.split())
+            if wc + sw <= 40:
+                fitted.append(s)
+                wc += sw
+            else:
+                break
+        if fitted:
+            response = ' '.join(fitted)
+            if response and response[-1] not in '.!?':
+                response += '.'
 
     return response
 
@@ -495,10 +550,16 @@ class CodetteOrchestrator:
 
     def generate(self, query: str, adapter_name=None, system_prompt=None,
                  enable_tools=True):
-        """Generate a response using a specific adapter, with optional tool use.
+        """Generate a response with autonomous self-correction.
 
-        If the model outputs <tool>...</tool> tags, tools are executed and
-        results are fed back for up to MAX_TOOL_ROUNDS cycles.
+        Pipeline:
+        1. Extract constraints from query
+        2. Detect chaos level (competing pressures)
+        3. Build system prompt: chaos mitigation + constraint override + adapter + behavior lessons + memory
+        4. Generate response
+        5. Self-correction loop: detect violations → re-generate with correction prompt (max 1 retry)
+        6. Post-process: enforce hard constraints as final safety net
+        7. Record behavior (success/violation) for persistent learning
 
         User constraints (word limits, sentence limits, format rules) are
         extracted from the query and injected as the HIGHEST PRIORITY override
@@ -512,11 +573,35 @@ class CodetteOrchestrator:
         # CONSTRAINT PRIORITY SYSTEM: Extract user constraints and inject as override
         constraints = extract_constraints(query)
         constraint_override = build_constraint_override(constraints)
+
+        # CHAOS DETECTION: Detect competing pressures and apply mitigation
+        chaos_mitigation = ""
+        chaos_level = 0
+        if constraints and SELF_CORRECTION_AVAILABLE:
+            chaos_level, pressures = detect_chaos_level(query, constraints, adapter_name or "base")
+            chaos_mitigation = build_chaos_mitigation(chaos_level, pressures)
+            if self.verbose and chaos_level >= 2:
+                print(f"  [CHAOS] Level {chaos_level}: {pressures}")
+
+        # Build system prompt with priority layering:
+        # [chaos mitigation] + [constraint override] + [adapter personality] + [behavior lessons] + [memory]
+        if chaos_mitigation:
+            system_prompt = chaos_mitigation + system_prompt
         if constraint_override:
-            # Constraint override goes BEFORE the adapter prompt = highest priority
             system_prompt = constraint_override + system_prompt
             if self.verbose:
                 print(f"  [CONSTRAINTS] Detected: {constraints}")
+
+        # PERSISTENT BEHAVIOR MEMORY: Inject lessons from past mistakes
+        behavior_mem = _get_behavior_memory()
+        if behavior_mem:
+            lessons_prompt = behavior_mem.get_lessons_for_prompt(max_lessons=3)
+            if lessons_prompt:
+                system_prompt = system_prompt + lessons_prompt
+                if self.verbose:
+                    stats = behavior_mem.get_stats()
+                    print(f"  [BEHAVIOR] {stats['total_lessons']} lessons loaded "
+                          f"({stats['compliance_rate']:.0%} compliance)")
 
         # Enrich system prompt with cocoon memory knowledge
         memory_context = self._build_memory_context()
@@ -579,11 +664,71 @@ class CodetteOrchestrator:
             clean_text = strip_tool_calls(text) if has_tool_calls(text) else text
             break
 
-        # POST-PROCESSING: Enforce hard constraints the model may have ignored
+        # SELF-CORRECTION LOOP: Detect violations and re-generate if needed (max 1 retry)
+        self_corrected = False
+        if constraints and SELF_CORRECTION_AVAILABLE:
+            violations = detect_violations(clean_text, constraints)
+            if violations:
+                if self.verbose:
+                    print(f"  [SELF-CORRECT] Violations detected: {violations}")
+                    print(f"  [SELF-CORRECT] Re-generating with correction prompt...")
+
+                # Build correction prompt and re-generate
+                correction = build_correction_prompt(clean_text, violations, constraints, query)
+                messages.append({"role": "assistant", "content": clean_text})
+                messages.append({"role": "user", "content": correction})
+
+                retry_result = self._llm.create_chat_completion(
+                    messages=messages,
+                    **GEN_KWARGS,
+                )
+                retry_text = retry_result["choices"][0]["message"]["content"].strip()
+                total_tokens += retry_result["usage"]["completion_tokens"]
+
+                # Check if retry is better
+                retry_violations = detect_violations(retry_text, constraints)
+                if len(retry_violations) < len(violations):
+                    clean_text = retry_text
+                    self_corrected = True
+                    if self.verbose:
+                        remaining = retry_violations if retry_violations else "none"
+                        print(f"  [SELF-CORRECT] Retry improved: {remaining}")
+                elif not retry_violations:
+                    clean_text = retry_text
+                    self_corrected = True
+                    if self.verbose:
+                        print(f"  [SELF-CORRECT] Retry passed all constraints")
+                else:
+                    if self.verbose:
+                        print(f"  [SELF-CORRECT] Retry didn't improve, using post-processor")
+
+        # POST-PROCESSING: Enforce hard constraints as final safety net
         if constraints:
             clean_text = enforce_constraints(clean_text, constraints)
             if self.verbose:
                 print(f"  [CONSTRAINTS] Post-enforcement applied: {constraints}")
+
+        # BEHAVIOR MEMORY: Record outcome for persistent learning
+        if constraints and behavior_mem:
+            try:
+                final_violations = detect_violations(clean_text, constraints) if SELF_CORRECTION_AVAILABLE else []
+                if final_violations:
+                    behavior_mem.record_violation(
+                        query=query,
+                        constraints=constraints,
+                        violations=final_violations,
+                        adapter=adapter_name or "base",
+                        response_preview=clean_text,
+                    )
+                else:
+                    behavior_mem.record_success(
+                        query=query,
+                        constraints=constraints,
+                        adapter=adapter_name or "base",
+                        word_count=len(clean_text.split()),
+                    )
+            except Exception:
+                pass  # Non-critical
 
         return clean_text, total_tokens, tool_results_log
 

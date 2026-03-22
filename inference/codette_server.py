@@ -269,9 +269,45 @@ def _worker_thread():
                     )
                 print(f"  [WORKER] Got result: response={len(result.get('response',''))} chars, adapter={result.get('adapter','?')}", flush=True)
 
-                # Update session DISABLED - session handling deferred
-                # (was causing UnboundLocalError due to scoping issues)
+                # Update session with response data (drives cocoon metrics UI)
                 epistemic = None
+                with _session_lock:
+                    session = _session  # grab reference under lock
+                if session:
+                    try:
+                        # Add user message + assistant response to session history
+                        session.add_message("user", query)
+                        session.add_message("assistant", result.get("response", ""), metadata={
+                            "adapter": result.get("adapter", "base"),
+                            "tokens": result.get("tokens", 0),
+                        })
+
+                        # Update cocoon state (spiderweb, coherence, attractors, glyphs, etc.)
+                        adapter_name = result.get("adapter", "base")
+                        if isinstance(adapter_name, list):
+                            adapter_name = adapter_name[0] if adapter_name else "base"
+                        route_obj = result.get("route")
+                        perspectives_dict = result.get("perspectives")
+                        session.update_after_response(
+                            route_obj, adapter_name, perspectives=perspectives_dict
+                        )
+
+                        # Get epistemic report from session metrics
+                        if session.coherence_history or session.tension_history:
+                            epistemic = {
+                                "ensemble_coherence": session.coherence_history[-1] if session.coherence_history else 0,
+                                "tension_magnitude": session.tension_history[-1] if session.tension_history else 0,
+                            }
+                            # Add ethical alignment from AEGIS if available
+                            if hasattr(session, 'aegis') and session.aegis:
+                                try:
+                                    aegis_state = session.aegis.get_state() if hasattr(session.aegis, 'get_state') else {}
+                                    if aegis_state.get('eta') is not None:
+                                        epistemic["ethical_alignment"] = aegis_state['eta']
+                                except Exception:
+                                    pass
+                    except Exception as e:
+                        print(f"  [WORKER] Session update failed (non-critical): {e}", flush=True)
 
                 # Extract route info from result (if available from ForgeEngine)
                 route = result.get("route")
@@ -316,7 +352,15 @@ def _worker_thread():
                 if perspectives:
                     response_data["perspectives"] = perspectives
 
-                # Cocoon state — send current cocoon count
+                # Cocoon state — send full session state for UI metrics panel
+                with _session_lock:
+                    session = _session
+                if session:
+                    try:
+                        session_state = session.get_state()
+                        response_data["cocoon"] = session_state
+                    except Exception as e:
+                        print(f"  [WORKER] Session state serialization failed: {e}", flush=True)
 
                 # Add epistemic report if available
                 if epistemic:

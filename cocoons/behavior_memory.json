@@ -1,0 +1,171 @@
+{
+  "lessons": [
+    {
+      "type": "success",
+      "timestamp": 1774212087.9009078,
+      "adapter": "empathy",
+      "constraints": {
+        "max_words": 10,
+        "max_sentences": 1
+      },
+      "word_count": 3,
+      "query_preview": "What is 2+2? One sentence under 10 words."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774212126.3250704,
+      "adapter": "quantum",
+      "constraints": {
+        "max_words": 12,
+        "max_sentences": 1
+      },
+      "word_count": 10,
+      "query_preview": "Why do we dream? One sentence, under 12 words, include uncertainty."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774212139.8523374,
+      "adapter": "newton",
+      "constraints": {
+        "max_words": 12,
+        "max_sentences": 1
+      },
+      "word_count": 9,
+      "query_preview": "Why do we dream? One sentence, under 12 words, include uncertainty."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774212210.9116578,
+      "adapter": "philosophy",
+      "constraints": {
+        "binary": true
+      },
+      "word_count": 30,
+      "query_preview": "Is consciousness real? Yes or no."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774212222.1050556,
+      "adapter": "consciousness",
+      "constraints": {
+        "binary": true
+      },
+      "word_count": 4,
+      "query_preview": "Is consciousness real? Yes or no."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774212269.0725973,
+      "adapter": "quantum",
+      "constraints": {
+        "max_words": 5
+      },
+      "word_count": 5,
+      "query_preview": "Explain quantum entanglement in 5 words or less."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774212282.3197405,
+      "adapter": "newton",
+      "constraints": {
+        "max_words": 5
+      },
+      "word_count": 5,
+      "query_preview": "Explain quantum entanglement in 5 words or less."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774212644.589494,
+      "adapter": "empathy",
+      "constraints": {
+        "max_words": 10,
+        "max_sentences": 1
+      },
+      "word_count": 3,
+      "query_preview": "What is 2+2? One sentence under 10 words."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774212667.692114,
+      "adapter": "quantum",
+      "constraints": {
+        "max_words": 12,
+        "max_sentences": 1
+      },
+      "word_count": 10,
+      "query_preview": "Why do we dream? One sentence, under 12 words, include uncertainty."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774212684.675397,
+      "adapter": "newton",
+      "constraints": {
+        "max_words": 12,
+        "max_sentences": 1
+      },
+      "word_count": 9,
+      "query_preview": "Why do we dream? One sentence, under 12 words, include uncertainty."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774212754.7520614,
+      "adapter": "philosophy",
+      "constraints": {
+        "binary": true
+      },
+      "word_count": 9,
+      "query_preview": "Is consciousness real? Yes or no."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774212768.5285013,
+      "adapter": "consciousness",
+      "constraints": {
+        "binary": true
+      },
+      "word_count": 4,
+      "query_preview": "Is consciousness real? Yes or no."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774212820.2115438,
+      "adapter": "quantum",
+      "constraints": {
+        "max_words": 5
+      },
+      "word_count": 5,
+      "query_preview": "Explain quantum entanglement in 5 words or less."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774212835.4124458,
+      "adapter": "newton",
+      "constraints": {
+        "max_words": 5
+      },
+      "word_count": 5,
+      "query_preview": "Explain quantum entanglement in 5 words or less."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774212879.1398919,
+      "adapter": "newton",
+      "constraints": {
+        "brevity": true
+      },
+      "word_count": 18,
+      "query_preview": "What is gravity? Be brief."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774212913.6853874,
+      "adapter": "quantum",
+      "constraints": {
+        "brevity": true
+      },
+      "word_count": 13,
+      "query_preview": "What is gravity? Be brief."
+    }
+  ],
+  "updated_at": 1774212913.6853874
+}
