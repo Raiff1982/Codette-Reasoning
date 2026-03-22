@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774212161_9925",
+  "timestamp": 1774212161.1523201,
+  "wrapped": {
+    "query": "Why do we dream? One sentence, under 12 words, include uncertainty.",
+    "response": "Dreams' purpose remains unclear, suggesting an intricate complexity, and the function and origins of dreams remain poorly understood, pointing to a multifaceted nature.",
+    "adapter": "unknown",
+    "timestamp": 1774212161.1523201,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "general"
+    }
+  }
+}

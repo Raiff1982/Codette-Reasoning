@@ -87,6 +87,126 @@ def detect_violations(response: str, constraints: dict) -> List[str]:
     return violations
 
 
+def universal_self_check(response: str) -> Tuple[str, List[str]]:
+    """PERMANENT LOCK enforcement — runs on EVERY response, not just constrained ones.
+
+    Enforces Lock 1 (Answer→Stop), Lock 3 (self-check), Lock 4 (no incomplete outputs).
+    Returns (cleaned_response, issues_found).
+    """
+    issues = []
+    if not response:
+        return response, issues
+
+    cleaned = response.rstrip()
+
+    # LOCK 3: Self-check — detect echo-back failures (model repeating the question)
+    echo_patterns = [
+        r'^You (?:received|asked|said|mentioned|wrote)(?:\s+this)?\s*(?:question|query)?[:\s]',
+        r'^The (?:question|query) (?:is|was)[:\s]',
+        r'^(?:Your|The) question[:\s]',
+        r'^(?:Here is|I received|Let me|I will)\s+(?:the|your|this)\s+(?:question|query)',
+    ]
+    is_echo = False
+    for ep in echo_patterns:
+        if re.match(ep, cleaned, re.I):
+            is_echo = True
+            # Strip the echo line and return whatever follows
+            lines = cleaned.split('\n')
+            non_echo = [l for l in lines if not re.match(ep, l.strip(), re.I)]
+            # Also strip lines that are just the quoted question
+            non_echo = [l for l in non_echo if l.strip() and not l.strip().startswith('"')]
+            if non_echo:
+                cleaned = '\n'.join(non_echo).strip()
+                issues.append("LOCK3_FIX: Removed question echo-back")
+            else:
+                # Nothing left after echo removal — model completely failed
+                # Return empty so the caller knows to use fallback
+                cleaned = ""
+                issues.append("LOCK3_FAIL: Model echoed question without answering")
+            break
+
+    # LOCK 4: No incomplete outputs — fix missing punctuation
+    if cleaned and cleaned[-1] not in '.!?"\')\u2019':
+        words = cleaned.split()
+        _DANGLING = {
+            'that', 'which', 'who', 'with', 'and', 'but', 'or', 'the', 'a', 'an',
+            'in', 'on', 'of', 'for', 'to', 'by', 'from', 'as', 'if', 'because',
+            'including', 'is', 'are', 'was', 'were', 'has', 'have', 'had',
+            'not', 'very', 'also', 'just', 'even', 'still', 'such', 'like',
+        }
+        # Strip dangling words from end
+        while len(words) > 1 and words[-1].lower().rstrip('.,;:!?') in _DANGLING:
+            words.pop()
+            issues.append("LOCK4_FIX: Removed dangling word from end")
+        cleaned = ' '.join(words)
+        cleaned = cleaned.rstrip(' ,;:—-')
+        if cleaned and cleaned[-1] not in '.!?"\')\u2019':
+            cleaned += '.'
+            issues.append("LOCK4_FIX: Added missing end punctuation")
+
+    # LOCK 1: Answer→Stop — detect and trim post-answer drift
+    sentences = re.split(r'(?<=[.!?])\s+', cleaned.strip())
+    sentences = [s for s in sentences if s.strip()]
+
+    if len(sentences) > 2:
+        # Check for drift indicators in later sentences (from 2nd sentence onward)
+        drift_phrases = [
+            r"^(?:furthermore|moreover|additionally|in addition|it(?:'|\u2019)s worth noting)",
+            r'^(?:this (?:is|means|suggests|implies|shows|demonstrates|highlights|reveals))',
+            r'^(?:one (?:could|might|may) (?:argue|say|suggest))',
+            r'^(?:from (?:a|an|the) \w+ perspective)',
+            r'^(?:in (?:other words|essence|summary|fact))',
+            r'^(?:by (?:acknowledging|understanding|exploring|examining|considering))',
+            r'^(?:understanding \w+ requires)',
+            r'^(?:it is (?:important|worth|essential|notable|key) to (?:note|understand|recognize|remember))',
+        ]
+        drift_pattern = re.compile('|'.join(drift_phrases), re.I)
+
+        cut_at = None
+        for i in range(2, len(sentences)):  # Check from 3rd sentence onward
+            if drift_pattern.match(sentences[i]):
+                cut_at = i
+                break
+
+        if cut_at is not None:
+            cleaned = ' '.join(sentences[:cut_at])
+            if cleaned and cleaned[-1] not in '.!?':
+                cleaned += '.'
+            issues.append(f"LOCK1_TRIM: Removed {len(sentences) - cut_at} drift sentence(s)")
+
+    # LOCK 1 softcap: Unconstrained responses shouldn't over-talk
+    # If more than 60 words with no explicit constraints, trim to last complete
+    # sentence within ~60 words. This enforces "Answer → Stop" as DEFAULT behavior.
+    words = cleaned.split()
+    if len(words) > 60:
+        sentences = re.split(r'(?<=[.!?])\s+', cleaned.strip())
+        sentences = [s for s in sentences if s.strip()]
+        fitted = []
+        wc = 0
+        for s in sentences:
+            sw = len(s.split())
+            if wc + sw <= 60:
+                fitted.append(s)
+                wc += sw
+            else:
+                # Allow one more sentence if we're close and it's short
+                if wc >= 30 and sw <= 15:
+                    fitted.append(s)
+                break
+        if fitted and len(fitted) < len(sentences):
+            cleaned = ' '.join(fitted)
+            if cleaned and cleaned[-1] not in '.!?':
+                cleaned += '.'
+            issues.append(f"LOCK1_SOFTCAP: Trimmed from {len(words)} to {len(cleaned.split())} words")
+
+    # LOCK 4 final check: Ensure the final output is complete
+    if cleaned and cleaned[-1] not in '.!?"\')\u2019':
+        cleaned += '.'
+        issues.append("LOCK4_FIX: Final punctuation check")
+
+    return cleaned, issues
+
+
 def build_correction_prompt(original_response: str, violations: List[str],
                             constraints: dict, query: str) -> str:
     """Build a correction prompt that tells the model exactly what it did wrong.

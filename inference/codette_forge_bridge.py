@@ -248,6 +248,15 @@ class CodetteForgeBridge:
         except ImportError:
             pass
 
+        # 10. PERMANENT LOCKS: Universal self-check on EVERY response
+        try:
+            from self_correction import universal_self_check
+            result["response"], lock_issues = universal_self_check(result["response"])
+            if lock_issues:
+                result["lock_fixes"] = lock_issues
+        except ImportError:
+            pass
+
         if self.verbose:
             resp_len = len(result.get("response", ""))
             print(f"[PHASE6] Done: {resp_len} chars, {result.get('tokens', 0)} tokens", flush=True)

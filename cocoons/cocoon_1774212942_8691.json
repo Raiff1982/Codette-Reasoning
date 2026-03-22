@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774212942_8691",
+  "timestamp": 1774212942.4720953,
+  "wrapped": {
+    "query": "What is gravity? Be brief.",
+    "response": "Gravity is the fundamental force that connects every mass to its environment, governing motion and stability at multiple scales, while also being a fundamental force that attracts objects with mass towards each other, revealing a deeper complexity where classical certainties and quantum possibilities intersect.",
+    "adapter": "unknown",
+    "timestamp": 1774212942.4720953,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "physics"
+    }
+  }
+}

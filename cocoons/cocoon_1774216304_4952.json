@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774216304_4952",
+  "timestamp": 1774216304.4112604,
+  "wrapped": {
+    "query": "Is water wet? Yes or no.",
+    "response": "Yes.",
+    "adapter": "empathy",
+    "timestamp": 1774216304.4112604,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

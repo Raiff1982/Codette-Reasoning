@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774217863_8080",
+  "timestamp": 1774217863.6018286,
+  "wrapped": {
+    "query": "Whats heavier, a pound of feathers or a pound of bricks? One word answer.",
+    "response": "Equal.",
+    "adapter": "empathy",
+    "timestamp": 1774217863.6018286,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

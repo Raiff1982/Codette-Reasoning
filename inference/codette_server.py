@@ -116,7 +116,6 @@ def _get_orchestrator():
                         _orchestrator_status.update({"phase6": "enabled", "phase7": "enabled", "memory_count": mem_count})
                 except Exception as e:
                     print(f"  Phase 6/7 bridge failed (using lightweight routing): {e}")
-                    import traceback
                     traceback.print_exc()
                     with _orchestrator_status_lock:
                         _orchestrator_status.update({"phase6": "disabled", "phase7": "disabled"})

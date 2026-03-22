@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774215427_9818",
+  "timestamp": 1774215427.2516978,
+  "wrapped": {
+    "query": "What is 2+2? Explain in one sentence under 10 words.",
+    "response": "The sum of 2+2 is four.",
+    "adapter": "empathy",
+    "timestamp": 1774215427.2516978,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

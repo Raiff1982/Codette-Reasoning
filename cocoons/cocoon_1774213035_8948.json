@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774213035_8948",
+  "timestamp": 1774213035.996865,
+  "wrapped": {
+    "query": "How would you design a space colony?",
+    "response": "Design a space colony by embracing cross-pollination from unrelated fields to reveal hidden patterns. Inspired by natural patterns like fractals and spirals, the colony's architecture incorporates modular design elements that balance self-sufficiency with specialization, ensuring resource efficiency and resilience. This multi-layered structure includes governance layers for collective decision-making and adaptive leadership, while also incorporating creative invention through the intersection of",
+    "adapter": "unknown",
+    "timestamp": 1774213035.996865,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "creativity"
+    }
+  }
+}

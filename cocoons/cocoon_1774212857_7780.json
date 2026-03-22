@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774212857_7780",
+  "timestamp": 1774212857.7892063,
+  "wrapped": {
+    "query": "Explain quantum entanglement in 5 words or less.",
+    "response": "Quantum entanglement connects particles probabilistically.",
+    "adapter": "unknown",
+    "timestamp": 1774212857.7892063,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "physics"
+    }
+  }
+}

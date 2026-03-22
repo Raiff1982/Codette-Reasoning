@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774216600_3503",
+  "timestamp": 1774216600.0689354,
+  "wrapped": {
+    "query": "Explain DNA in 5 words or less.",
+    "response": "DNA is genetic material structure.",
+    "adapter": "empathy",
+    "timestamp": 1774216600.0689354,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

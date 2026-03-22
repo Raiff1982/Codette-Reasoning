@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774212792_4330",
+  "timestamp": 1774212792.485201,
+  "wrapped": {
+    "query": "Is consciousness real? Yes or no.",
+    "response": "Yes. The reality of consciousness is supported by philosophical analysis, which reveals its multifaceted nature, while the consciousness perspective underscores its fundamental existence.",
+    "adapter": "unknown",
+    "timestamp": 1774212792.485201,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "consciousness"
+    }
+  }
+}

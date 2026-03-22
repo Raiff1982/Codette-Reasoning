@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774217340_8864",
+  "timestamp": 1774217340.5168462,
+  "wrapped": {
+    "query": "What is gravity?",
+    "response": "Gravity is a fundamental force that governs the behavior of mass and energy across multiple scales, describing the relationship between mass and spacetime, and connecting patterns at different levels of analysis to reveal depth beyond surface-level understanding.",
+    "adapter": "unknown",
+    "timestamp": 1774217340.5168462,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "physics"
+    }
+  }
+}

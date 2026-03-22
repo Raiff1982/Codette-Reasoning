@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774216255_3704",
+  "timestamp": 1774216255.669981,
+  "wrapped": {
+    "query": "I feel really lonely today",
+    "response": "Loneliness is a deeply personal and emotional experience, connecting with it requires careful attention to detail, especially since people often see the same concept differently. Understanding loneliness involves acknowledging its layers of depth beneath surface-level observations, which can be revealed through active listening and empathy. However, to truly grasp its roots, we must also engage in careful analysis, examining our assumptions, and considering broader themes in human psychology and",
+    "adapter": "unknown",
+    "timestamp": 1774216255.669981,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

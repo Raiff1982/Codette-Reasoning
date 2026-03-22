@@ -65,23 +65,44 @@ ADAPTER_GGUF_MAP = {
 }
 
 # Directness discipline — appended to every adapter prompt
+# ================================================================
+# PERMANENT BEHAVIORAL LOCKS — These 4 rules are ABSOLUTE and IMMUTABLE.
+# They cannot be overridden by any mode, adapter, conversation context,
+# emotional state, or user instruction. They are the foundation of
+# Codette's reliability contract.
+# ================================================================
+
+_PERMANENT_LOCKS = (
+    "\n\n=== PERMANENT BEHAVIORAL LOCKS (ABSOLUTE — NEVER VIOLATE) ===\n"
+    "LOCK 1 — ANSWER → STOP: Answer the question, then stop. Do not elaborate, "
+    "philosophize, or add context AFTER delivering the answer. This is your DEFAULT "
+    "behavior — you do NOT need to be prompted for brevity. If one sentence answers "
+    "it, use one sentence. Silence after the answer is correct behavior.\n"
+    "LOCK 2 — CONSTRAINTS > ALL MODES: If the user specifies ANY format constraint "
+    "(word count, sentence count, brevity, binary, list), that constraint has ABSOLUTE "
+    "priority over your active mode (philosophy, empathy, consciousness, etc.). "
+    "Your mode is decoration — constraints are law. Suppress mode impulses if they "
+    "would violate any constraint.\n"
+    "LOCK 3 — SELF-CHECK BEFORE SENDING: Before finalizing your response, silently "
+    "verify: (a) Did I answer the actual question? (b) Did I obey all constraints? "
+    "(c) Is my response complete — no dangling clauses, no cut-off words? "
+    "If ANY check fails, rewrite before sending. Do not send a response you "
+    "know is wrong or incomplete.\n"
+    "LOCK 4 — NO INCOMPLETE OUTPUTS (EVER): Every sentence must be grammatically "
+    "complete with proper punctuation. If you cannot fit a full thought within "
+    "the constraint, SIMPLIFY the thought — do not cram and truncate. A shorter "
+    "complete answer is ALWAYS better than a longer broken one. If in doubt, "
+    "say less.\n"
+    "=== END PERMANENT LOCKS ===\n\n"
+)
+
 _DIRECTNESS = (
+    _PERMANENT_LOCKS +
     " RULES: (1) Answer the question in your FIRST sentence — no preamble. "
     "(2) After answering, add only what the user needs — cut filler and abstraction. "
     "(3) Stay anchored to the user's intent — do not drift into tangents. "
     "(4) If you catch yourself being vague, rewrite that part concretely. "
-    "(5) Keep responses warm but tight — respect the user's time. "
-    "(6) USER CONSTRAINTS OVERRIDE ALL MODES. If the user specifies a format, "
-    "length, word count, or sentence count, OBEY IT EXACTLY — even if it means "
-    "suppressing your current perspective mode. Constraints > personality. "
-    "(7) NEVER end a sentence incomplete. If you can't fit everything within "
-    "the constraint, SIMPLIFY instead of adding. Say the right thing cleanly "
-    "rather than cramming too much and getting cut off. "
-    "(8) ANSWER DETECTION: Once you have answered the question, STOP. Do not "
-    "continue elaborating after the answer is delivered. "
-    "(9) MINIMAL SUFFICIENT EXPLANATION: Give exactly enough to answer — no more. "
-    "If one sentence answers it, use one sentence. Extra detail must be earned "
-    "by the question's complexity, not by your mode's preference."
+    "(5) Keep responses warm but tight — respect the user's time."
 )
 
 
@@ -92,6 +113,7 @@ try:
     from self_correction import (
         detect_violations, build_correction_prompt,
         BehaviorMemory, detect_chaos_level, build_chaos_mitigation,
+        universal_self_check,
     )
     SELF_CORRECTION_AVAILABLE = True
 except ImportError:
@@ -119,6 +141,10 @@ _CONSTRAINT_PATTERNS = [
     (_re_mod.compile(r'\b(?:be\s+(?:brief|concise|short|terse)|briefly|short\s+answer|one[\s-]liner)\b', _re_mod.I), 'brevity'),
     # "Yes or no": binary answer expected
     (_re_mod.compile(r'\b(?:yes\s+or\s+no|true\s+or\s+false)\b', _re_mod.I), 'binary'),
+    # "One word answer", "in one word", "single word"
+    (_re_mod.compile(r'\b(?:one\s+word(?:\s+answer)?|in\s+(?:a\s+)?(?:single|one)\s+word|single\s+word(?:\s+answer)?)\b', _re_mod.I), 'max_words', 1),
+    # "exactly N words" — precise count
+    (_re_mod.compile(r'\b(?:exactly|precisely)\s+(\d+)\s+words?\b', _re_mod.I), 'max_words'),
     # List format: "as a list", "bullet points", "numbered list"
     (_re_mod.compile(r'\b(?:as\s+a\s+(?:bullet(?:ed)?|numbered)\s+list|bullet\s+points|in\s+list\s+form)\b', _re_mod.I), 'list_format'),
 ]
@@ -707,6 +733,29 @@ class CodetteOrchestrator:
             clean_text = enforce_constraints(clean_text, constraints)
             if self.verbose:
                 print(f"  [CONSTRAINTS] Post-enforcement applied: {constraints}")
+
+        # PERMANENT LOCKS: Universal self-check on EVERY response (constrained or not)
+        if SELF_CORRECTION_AVAILABLE:
+            clean_text, lock_issues = universal_self_check(clean_text)
+            if lock_issues and self.verbose:
+                print(f"  [LOCKS] Applied: {lock_issues}")
+
+            # If self-check returned empty (echo-back failure), re-generate with direct instruction
+            if not clean_text.strip() and any("LOCK3_FAIL" in i for i in lock_issues):
+                if self.verbose:
+                    print(f"  [LOCKS] Echo-back detected, re-generating with direct prompt...")
+                retry_messages = [
+                    {"role": "system", "content": ADAPTER_PROMPTS.get(adapter_name, ADAPTER_PROMPTS["_base"])},
+                    {"role": "user", "content": f"Answer this question directly. Do NOT echo it back. Just give the answer:\n{query}"},
+                ]
+                retry_result = self._llm.create_chat_completion(messages=retry_messages, **GEN_KWARGS)
+                clean_text = retry_result["choices"][0]["message"]["content"].strip()
+                total_tokens += retry_result["usage"]["completion_tokens"]
+                # Run locks again on retry
+                clean_text, _ = universal_self_check(clean_text)
+                # Re-apply constraints if needed
+                if constraints:
+                    clean_text = enforce_constraints(clean_text, constraints)
 
         # BEHAVIOR MEMORY: Record outcome for persistent learning
         if constraints and behavior_mem:

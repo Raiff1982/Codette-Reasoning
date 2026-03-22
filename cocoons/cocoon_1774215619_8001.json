@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774215619_8001",
+  "timestamp": 1774215619.3216019,
+  "wrapped": {
+    "query": "What is the meaning of life? Be brief.",
+    "response": "The meaning of life lies in its intricate balance of opposing forces, where precision and meaning converge to reveal fundamental patterns worth examining.",
+    "adapter": "unknown",
+    "timestamp": 1774215619.3216019,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "general"
+    }
+  }
+}

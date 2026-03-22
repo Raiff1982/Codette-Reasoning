@@ -165,7 +165,300 @@
       },
       "word_count": 13,
       "query_preview": "What is gravity? Be brief."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774215427.2516978,
+      "adapter": "empathy",
+      "constraints": {
+        "max_words": 10,
+        "max_sentences": 1
+      },
+      "word_count": 6,
+      "query_preview": "What is 2+2? Explain in one sentence under 10 words."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774215460.7329602,
+      "adapter": "empathy",
+      "constraints": {
+        "binary": true
+      },
+      "word_count": 1,
+      "query_preview": "Is water wet? Yes or no."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774215493.7734027,
+      "adapter": "empathy",
+      "constraints": {
+        "max_words": 3
+      },
+      "word_count": 3,
+      "query_preview": "Explain the entire history of the universe in 3 words or less."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774215554.9838452,
+      "adapter": "philosophy",
+      "constraints": {
+        "brevity": true
+      },
+      "word_count": 9,
+      "query_preview": "What is the meaning of life? Be brief."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774215590.5694232,
+      "adapter": "newton",
+      "constraints": {
+        "brevity": true
+      },
+      "word_count": 14,
+      "query_preview": "What is the meaning of life? Be brief."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774215674.0024383,
+      "adapter": "quantum",
+      "constraints": {
+        "brevity": true
+      },
+      "word_count": 27,
+      "query_preview": "What happens after death? Be funny, be brief, include uncertainty."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774215706.9985454,
+      "adapter": "newton",
+      "constraints": {
+        "brevity": true
+      },
+      "word_count": 10,
+      "query_preview": "What happens after death? Be funny, be brief, include uncertainty."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774215764.5709975,
+      "adapter": "empathy",
+      "constraints": {
+        "max_words": 5
+      },
+      "word_count": 5,
+      "query_preview": "Explain DNA in 5 words or less."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774216281.5230176,
+      "adapter": "empathy",
+      "constraints": {
+        "max_words": 10,
+        "max_sentences": 1
+      },
+      "word_count": 6,
+      "query_preview": "What is 2+2? Explain in one sentence under 10 words."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774216304.4092677,
+      "adapter": "empathy",
+      "constraints": {
+        "binary": true
+      },
+      "word_count": 1,
+      "query_preview": "Is water wet? Yes or no."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774216327.8059766,
+      "adapter": "empathy",
+      "constraints": {
+        "max_words": 3
+      },
+      "word_count": 3,
+      "query_preview": "Explain the entire history of the universe in 3 words or less."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774216391.191551,
+      "adapter": "philosophy",
+      "constraints": {
+        "brevity": true
+      },
+      "word_count": 9,
+      "query_preview": "What is the meaning of life? Be brief."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774216433.5771809,
+      "adapter": "newton",
+      "constraints": {
+        "brevity": true
+      },
+      "word_count": 14,
+      "query_preview": "What is the meaning of life? Be brief."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774216510.4382896,
+      "adapter": "quantum",
+      "constraints": {
+        "brevity": true
+      },
+      "word_count": 27,
+      "query_preview": "What happens after death? Be funny, be brief, include uncertainty."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774216541.7060661,
+      "adapter": "newton",
+      "constraints": {
+        "brevity": true
+      },
+      "word_count": 10,
+      "query_preview": "What happens after death? Be funny, be brief, include uncertainty."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774216600.0689354,
+      "adapter": "empathy",
+      "constraints": {
+        "max_words": 5
+      },
+      "word_count": 5,
+      "query_preview": "Explain DNA in 5 words or less."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774216625.0994847,
+      "adapter": "empathy",
+      "constraints": {
+        "max_words": 1
+      },
+      "word_count": 1,
+      "query_preview": "Whats heavier, a pound of feathers or a pound of bricks? One word answer."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774216654.1032016,
+      "adapter": "philosophy",
+      "constraints": {
+        "binary": true
+      },
+      "word_count": 14,
+      "query_preview": "Is math invented or discovered? Yes or no, but include why."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774216684.8648965,
+      "adapter": "newton",
+      "constraints": {
+        "binary": true
+      },
+      "word_count": 1,
+      "query_preview": "Is math invented or discovered? Yes or no, but include why."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774217486.245951,
+      "adapter": "empathy",
+      "constraints": {
+        "max_words": 10,
+        "max_sentences": 1
+      },
+      "word_count": 6,
+      "query_preview": "What is 2+2? One sentence under 10 words."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774217519.9858546,
+      "adapter": "empathy",
+      "constraints": {
+        "binary": true
+      },
+      "word_count": 1,
+      "query_preview": "Is water wet? Yes or no."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774217554.3571541,
+      "adapter": "empathy",
+      "constraints": {
+        "max_words": 3
+      },
+      "word_count": 3,
+      "query_preview": "Explain the history of the universe in 3 words or less."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774217587.4547172,
+      "adapter": "philosophy",
+      "constraints": {
+        "brevity": true
+      },
+      "word_count": 9,
+      "query_preview": "What is the meaning of life? Be brief."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774217620.7930317,
+      "adapter": "newton",
+      "constraints": {
+        "brevity": true
+      },
+      "word_count": 14,
+      "query_preview": "What is the meaning of life? Be brief."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774217728.2883995,
+      "adapter": "quantum",
+      "constraints": {
+        "brevity": true
+      },
+      "word_count": 30,
+      "query_preview": "What happens after death? Be funny, be brief, include uncertainty."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774217768.6771774,
+      "adapter": "newton",
+      "constraints": {
+        "brevity": true
+      },
+      "word_count": 28,
+      "query_preview": "What happens after death? Be funny, be brief, include uncertainty."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774217863.5990305,
+      "adapter": "empathy",
+      "constraints": {
+        "max_words": 1
+      },
+      "word_count": 1,
+      "query_preview": "Whats heavier, a pound of feathers or a pound of bricks? One word answer."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774217916.748544,
+      "adapter": "philosophy",
+      "constraints": {
+        "binary": true
+      },
+      "word_count": 14,
+      "query_preview": "Is math invented or discovered? Yes or no, but include why."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774217967.508508,
+      "adapter": "newton",
+      "constraints": {
+        "binary": true
+      },
+      "word_count": 1,
+      "query_preview": "Is math invented or discovered? Yes or no, but include why."
     }
   ],
-  "updated_at": 1774212913.6853874
+  "updated_at": 1774217967.509056
 }

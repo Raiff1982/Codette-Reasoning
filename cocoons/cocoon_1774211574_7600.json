@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774211574_7600",
+  "timestamp": 1774211574.8532274,
+  "wrapped": {
+    "query": "What is consciousness?",
+    "response": "Consciousness is the fundamental awareness of existence and experience that underlies all perception, cognition, and self-reference, requiring a balance of rigor and creativity in its philosophical exploration, as it intersects with human values and choices.",
+    "adapter": "unknown",
+    "timestamp": 1774211574.8532274,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "consciousness"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774212249_4794",
+  "timestamp": 1774212249.7403183,
+  "wrapped": {
+    "query": "Is consciousness real? Yes or no.",
+    "response": "Yes.\n\nPhilosophical analysis reveals layers of meaning worth exploring, suggesting that consciousness connects to broader patterns in the universe, revealing relationships and implications that multiply with depth. However, this philosophical perspective is grounded in the consciousness perspective that simply affirms consciousness as real, underscoring the importance of direct experience in understanding its nature.",
+    "adapter": "unknown",
+    "timestamp": 1774212249.7403183,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "consciousness"
+    }
+  }
+}

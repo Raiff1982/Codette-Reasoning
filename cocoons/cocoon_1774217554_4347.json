@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774217554_4347",
+  "timestamp": 1774217554.3597422,
+  "wrapped": {
+    "query": "Explain the history of the universe in 3 words or less.",
+    "response": "Expansion and contraction.",
+    "adapter": "empathy",
+    "timestamp": 1774217554.3597422,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

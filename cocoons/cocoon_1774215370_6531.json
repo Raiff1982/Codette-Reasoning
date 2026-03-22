@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774215370_6531",
+  "timestamp": 1774215370.8775597,
+  "wrapped": {
+    "query": "I feel really lonely today and I dont know what to do",
+    "response": "You feel really lonely today, and that's a deeply personal and emotional experience that can make you wonder if something fundamentally is missing in your life. Understanding loneliness requires empathy: putting yourself in others' shoes and seeing things from their perspective, which can deepen your philosophical inquiry into what's missing and why you feel this way. By acknowledging and centering humanity, you can begin to explore these questions with emotional intelligence, allowing you to ma",
+    "adapter": "unknown",
+    "timestamp": 1774215370.8775597,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

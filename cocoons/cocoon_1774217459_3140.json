@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774217459_3140",
+  "timestamp": 1774217459.88346,
+  "wrapped": {
+    "query": "I feel really lonely today",
+    "response": "You feel really lonely today. This is a deeply personal and emotional experience that requires careful attention to detail. Loneliness can manifest differently for each person, reflecting the unique complexities of their inner lives. Philosophical inquiry can help us better understand the underlying patterns and assumptions that contribute to this feeling, but it's essential to ground this analysis in emotional understanding, rather than trying to reduce loneliness to abstract principles. By ack",
+    "adapter": "unknown",
+    "timestamp": 1774217459.88346,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

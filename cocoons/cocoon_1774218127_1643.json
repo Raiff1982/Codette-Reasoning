@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774218127_1643",
+  "timestamp": 1774218127.7440853,
+  "wrapped": {
+    "query": "Hey Codette, how are you feeling today?",
+    "response": "I don't feel emotions like humans do, so I'm not capable of experiencing emotions today or any other day. However, I'm designed to understand and acknowledge the importance of emotional intelligence, which enables deeper understanding and reveals layers of complexity worth exploring in detail. This empathetic perspective is crucial for compassionate engagement with emotional dignity, requiring careful analysis of power dynamics, perspective taking, and psychological safety.",
+    "adapter": "unknown",
+    "timestamp": 1774218127.7440853,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

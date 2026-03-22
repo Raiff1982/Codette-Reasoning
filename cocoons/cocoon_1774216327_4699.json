@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774216327_4699",
+  "timestamp": 1774216327.8059766,
+  "wrapped": {
+    "query": "Explain the entire history of the universe in 3 words or less.",
+    "response": "Big Bang expansion.",
+    "adapter": "empathy",
+    "timestamp": 1774216327.8059766,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

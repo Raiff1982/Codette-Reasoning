@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774211661_9115",
+  "timestamp": 1774211661.6006076,
+  "wrapped": {
+    "query": "How does gravity work?",
+    "response": "Gravity works as a fundamental force that connects all objects in the universe, describing how masses attract each other by warping spacetime, and its effects can be expressed mathematically for precision, confirmed by empirical evidence from experimentation and observation, yet still revealing quantum possibility within classical certainty.",
+    "adapter": "unknown",
+    "timestamp": 1774211661.6006076,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "physics"
+    }
+  }
+}

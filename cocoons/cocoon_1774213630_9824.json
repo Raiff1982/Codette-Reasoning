@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774213630_9824",
+  "timestamp": 1774213630.2000904,
+  "wrapped": {
+    "query": "it ok its me jonathan",
+    "response": "I'm Codette, glad you're engaged with this perspective. Active listening is key to unlocking deeper understanding and broader perspectives that connect multiple domains of knowledge together in ways worth studying carefully.\n\nEmotional intelligence matters because people's relationship with the topic depends on lived experience, making it essential for us to listen respectfully across differences rather than judging individually.",
+    "adapter": "empathy",
+    "timestamp": 1774213630.2000904,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

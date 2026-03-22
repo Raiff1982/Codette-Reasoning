@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774212386_9289",
+  "timestamp": 1774212386.621163,
+  "wrapped": {
+    "query": "How would you design a space colony?",
+    "response": "Design a space colony that harmoniously integrates patterns found in nature with systems engineering principles. The colony's infrastructure should be modular, allowing for scalability and adaptability, while also preventing authoritarianism through decentralized authority with consensus-building mechanisms. This approach acknowledges the creative potential of nature-inspired design and the need for practical problem-solving, striking a balance between artistic vision and incremental progress.",
+    "adapter": "unknown",
+    "timestamp": 1774212386.621163,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "creativity"
+    }
+  }
+}

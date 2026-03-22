@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774217813_6279",
+  "timestamp": 1774217813.923508,
+  "wrapped": {
+    "query": "What happens after death? Be funny, be brief, include uncertainty.",
+    "response": "Death's great mystery: we're born, live messy lives, and then what? The theories abound, from classical notions of heaven and hell to the more abstract ideas of reincarnation. But here's the thing: what we do know is that our bodies decay with predictable patterns, a testament to the laws of physics that govern our universe. Yet, as we gaze into the unknown, we're forced to confront the complexity of death and the afterlife, a realm where quantum possibilities begin to emerge. In this twilight z",
+    "adapter": "unknown",
+    "timestamp": 1774217813.923508,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

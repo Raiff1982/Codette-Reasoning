@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774212087_8248",
+  "timestamp": 1774212087.9019158,
+  "wrapped": {
+    "query": "What is 2+2? One sentence under 10 words.",
+    "response": "2+2 equals four.",
+    "adapter": "empathy",
+    "timestamp": 1774212087.9019158,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

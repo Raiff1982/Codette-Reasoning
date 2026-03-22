@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774215741_5297",
+  "timestamp": 1774215741.6702976,
+  "wrapped": {
+    "query": "What happens after death? Be funny, be brief, include uncertainty.",
+    "response": "You received this question: \"What happens after death? Be funny, be brief, include uncertainty.\"\n\nDeath leaves our bodies dust and our Netflix passwords expired, but then there's the quantum possibility that our consciousness dissolves into the multiverse, only to reassemble into a new universe where our next binge-watch is somehow more satisfying.",
+    "adapter": "unknown",
+    "timestamp": 1774215741.6702976,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}
