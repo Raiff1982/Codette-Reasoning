@@ -38,16 +38,18 @@ except ImportError as e:
 class CodetteForgeBridge:
     """Bridge between web server (lightweight) and ForgeEngine (Phase 6)."""
 
-    def __init__(self, orchestrator, use_phase6: bool = True, use_phase7: bool = True, verbose: bool = False):
+    def __init__(self, orchestrator, use_phase6: bool = True, use_phase7: bool = True, verbose: bool = False, health_check_fn=None):
         """
         Args:
             orchestrator: CodetteOrchestrator instance for fallback
             use_phase6: Enable Phase 6 (requires ForgeEngine)
             use_phase7: Enable Phase 7 (Executive Controller routing)
             verbose: Log decisions
+            health_check_fn: Callable that returns real system health dict
         """
         self.orchestrator = orchestrator
         self.verbose = verbose
+        self._health_check_fn = health_check_fn
         self.use_phase6 = use_phase6 and PHASE6_AVAILABLE
         self.use_phase7 = use_phase7 and PHASE7_AVAILABLE
 
@@ -109,6 +111,75 @@ class CodetteForgeBridge:
             }
         """
         start_time = time.time()
+
+        # Self-diagnostic: intercept health check queries before LLM
+        _health_patterns = [
+            r'self[\s-]*(?:system|health|diagnostic|check)',
+            r'system[\s-]*health[\s-]*check',
+            r'run[\s-]*(?:a\s+)?diagnostic',
+            r'check\s+(?:your|all)\s+systems',
+            r'health[\s-]*report',
+            r'are\s+(?:all\s+)?(?:your\s+)?systems?\s+(?:ok|working|online|running)',
+        ]
+        if any(re.search(p, query, re.I) for p in _health_patterns) and self._health_check_fn:
+            try:
+                health = self._health_check_fn()
+
+                # Format as a natural response with real data
+                lines = [f"**Self-System Health Check — {health['overall']}** ({health['score']} checks passed)\n"]
+
+                for sys_name, sys_data in health.get("systems", {}).items():
+                    status = sys_data.get("status", "?") if isinstance(sys_data, dict) else str(sys_data)
+                    icon = "✅" if status == "OK" else ("⚠️" if status in ("DISABLED", "MISSING", "DEGRADED") else "❌")
+                    label = sys_name.replace("_", " ").title()
+                    lines.append(f"{icon} **{label}**: {status}")
+
+                    # Add sub-details for key systems
+                    if isinstance(sys_data, dict):
+                        if "adapters_loaded" in sys_data:
+                            lines.append(f"   └ {sys_data['adapters_loaded']} adapters: {', '.join(sys_data.get('adapters', []))}")
+                        if "components" in sys_data:
+                            for comp, cdata in sys_data["components"].items():
+                                cstatus = cdata.get("status", "?") if isinstance(cdata, dict) else str(cdata)
+                                cicon = "✅" if cstatus == "OK" else "❌"
+                                comp_label = comp.replace("_", " ").title()
+                                detail = ""
+                                if isinstance(cdata, dict):
+                                    if "memories" in cdata:
+                                        detail = f" ({cdata['memories']} memories)"
+                                    elif "audit_entries" in cdata:
+                                        detail = f" ({cdata['audit_entries']} audit entries)"
+                                    elif "stored_cocoons" in cdata:
+                                        detail = f" ({cdata['stored_cocoons']} cocoons)"
+                                lines.append(f"   {cicon} {comp_label}{detail}")
+                        if "subsystems" in sys_data:
+                            for sub, sstatus in sys_data["subsystems"].items():
+                                sicon = "✅" if sstatus == "OK" else "❌"
+                                lines.append(f"   {sicon} {sub}")
+                        if "spiderweb_metrics" in sys_data:
+                            sm = sys_data["spiderweb_metrics"]
+                            lines.append(f"   └ Coherence: {sm.get('phase_coherence', 0):.4f}, Entropy: {sm.get('entropy', 0):.4f}, Nodes: {sm.get('node_count', 0)}, Attractors: {sm.get('attractor_count', 0)}, Glyphs: {sm.get('glyph_count', 0)}")
+                        if "behavior_lessons" in sys_data:
+                            lines.append(f"   └ {sys_data['behavior_lessons']} learned behaviors, {sys_data['permanent_locks']} permanent locks")
+                        if "alive" in sys_data:
+                            lines.append(f"   └ {sys_data['alive']}/{sys_data['total']} alive, {sys_data.get('pending_requests', 0)} pending")
+
+                if health.get("warnings"):
+                    lines.append(f"\n⚠️ **Warnings**: {', '.join(health['warnings'])}")
+                if health.get("errors"):
+                    lines.append(f"\n❌ **Errors**: {', '.join(health['errors'])}")
+
+                return {
+                    "response": "\n".join(lines),
+                    "adapter": "self_diagnostic",
+                    "tokens": 0,
+                    "time": round(time.time() - start_time, 2),
+                    "phase6_used": True,
+                    "reasoning": "Real self-diagnostic (not LLM-generated)",
+                    "health": health,
+                }
+            except Exception as e:
+                pass  # Fall through to normal LLM generation
 
         # Ethical query validation (from original framework)
         if self.forge and hasattr(self.forge, 'ethical_governance') and self.forge.ethical_governance:

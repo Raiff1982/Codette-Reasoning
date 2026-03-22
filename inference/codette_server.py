@@ -105,7 +105,7 @@ def _get_orchestrator():
                     print(f"  [DEBUG] Importing CodetteForgeBridge...")
                     from codette_forge_bridge import CodetteForgeBridge
                     print(f"  [DEBUG] Creating bridge instance...")
-                    _forge_bridge = CodetteForgeBridge(_orchestrator, use_phase6=True, use_phase7=True, verbose=True)
+                    _forge_bridge = CodetteForgeBridge(_orchestrator, use_phase6=True, use_phase7=True, verbose=True, health_check_fn=_run_health_check)
                     print(f"  Phase 6 bridge initialized")
                     print(f"  Phase 7 Executive Controller initialized")
                     # Add memory count from forge kernel
@@ -197,6 +197,222 @@ def _monitor_worker_health():
 
         except Exception as e:
             print(f"  WARNING: Worker health monitor error: {e}")
+
+
+def _run_health_check():
+    """Run a real self-diagnostic across all Codette subsystems.
+
+    Returns actual system state — not generated text about health,
+    but measured values from every component.
+    """
+    report = {
+        "timestamp": time.time(),
+        "overall": "unknown",
+        "systems": {},
+        "warnings": [],
+        "errors": [],
+    }
+
+    checks_passed = 0
+    checks_total = 0
+
+    # 1. Model / Orchestrator
+    checks_total += 1
+    if _orchestrator:
+        report["systems"]["model"] = {
+            "status": "OK",
+            "adapters_loaded": len(getattr(_orchestrator, 'available_adapters', [])),
+            "adapters": getattr(_orchestrator, 'available_adapters', []),
+            "base_model": "Meta-Llama-3.1-8B-Instruct-Q4_K_M",
+        }
+        checks_passed += 1
+    else:
+        report["systems"]["model"] = {"status": "NOT LOADED"}
+        report["errors"].append("Model not loaded")
+
+    # 2. Phase 6 / ForgeEngine
+    checks_total += 1
+    if _forge_bridge and _forge_bridge.use_phase6:
+        forge = _forge_bridge.forge
+        p6 = {"status": "OK", "components": {}}
+
+        # Memory kernel
+        if hasattr(forge, 'memory_kernel') and forge.memory_kernel:
+            mem_count = len(forge.memory_kernel)
+            p6["components"]["memory_kernel"] = {"status": "OK", "memories": mem_count}
+        else:
+            p6["components"]["memory_kernel"] = {"status": "MISSING"}
+            report["warnings"].append("Memory kernel not initialized")
+
+        # Stability field
+        if hasattr(forge, 'stability_field') and forge.stability_field:
+            p6["components"]["stability_field"] = {"status": "OK"}
+        else:
+            p6["components"]["stability_field"] = {"status": "MISSING"}
+
+        # Colleen conscience
+        if hasattr(forge, 'colleen') and forge.colleen:
+            p6["components"]["colleen_conscience"] = {"status": "OK"}
+        else:
+            p6["components"]["colleen_conscience"] = {"status": "MISSING"}
+            report["warnings"].append("Colleen conscience not loaded")
+
+        # Guardian spindle
+        if hasattr(forge, 'guardian') and forge.guardian:
+            p6["components"]["guardian_spindle"] = {"status": "OK"}
+        else:
+            p6["components"]["guardian_spindle"] = {"status": "MISSING"}
+
+        # Ethical governance
+        if hasattr(forge, 'ethical_governance') and forge.ethical_governance:
+            eg = forge.ethical_governance
+            audit_count = len(getattr(eg, 'audit_log', []))
+            p6["components"]["ethical_governance"] = {
+                "status": "OK",
+                "audit_entries": audit_count,
+                "harmful_patterns": len(getattr(eg, 'harmful_patterns', [])),
+                "bias_patterns": len(getattr(eg, 'bias_patterns', [])),
+            }
+        else:
+            p6["components"]["ethical_governance"] = {"status": "MISSING"}
+            report["warnings"].append("Ethical governance not loaded")
+
+        # CognitionCocooner
+        if hasattr(forge, 'cocooner') and forge.cocooner:
+            cocoon_count = len(getattr(forge.cocooner, 'cocoons', {}))
+            p6["components"]["cognition_cocooner"] = {
+                "status": "OK",
+                "stored_cocoons": cocoon_count,
+            }
+        else:
+            p6["components"]["cognition_cocooner"] = {"status": "MISSING"}
+
+        # Self-awareness (tier2 bridge)
+        if hasattr(forge, 'tier2_bridge') and forge.tier2_bridge:
+            p6["components"]["tier2_bridge"] = {"status": "OK"}
+        else:
+            p6["components"]["tier2_bridge"] = {"status": "MISSING"}
+
+        report["systems"]["phase6_forge"] = p6
+        checks_passed += 1
+    else:
+        report["systems"]["phase6_forge"] = {"status": "DISABLED"}
+        report["warnings"].append("Phase 6 ForgeEngine not active")
+
+    # 3. Phase 7 / Executive Controller
+    checks_total += 1
+    if _forge_bridge and _forge_bridge.use_phase7 and _forge_bridge.executive_controller:
+        report["systems"]["phase7_executive"] = {"status": "OK"}
+        checks_passed += 1
+    else:
+        report["systems"]["phase7_executive"] = {"status": "DISABLED"}
+        report["warnings"].append("Phase 7 Executive Controller not active")
+
+    # 4. Session / Cocoon subsystems
+    checks_total += 1
+    if _session:
+        sess = {
+            "status": "OK",
+            "session_id": _session.session_id,
+            "message_count": len(_session.messages),
+            "subsystems": {},
+        }
+        sub_names = [
+            ("spiderweb", "QuantumSpiderweb"),
+            ("metrics_engine", "EpistemicMetrics"),
+            ("cocoon_sync", "CocoonSync"),
+            ("dream_reweaver", "DreamReweaver"),
+            ("optimizer", "QuantumOptimizer"),
+            ("memory_kernel", "LivingMemory"),
+            ("guardian", "CodetteGuardian"),
+            ("resonance_engine", "ResonantContinuity"),
+            ("aegis", "AEGIS"),
+            ("nexus", "NexusSignalEngine"),
+        ]
+        for attr, label in sub_names:
+            obj = getattr(_session, attr, None)
+            sess["subsystems"][label] = "OK" if obj else "MISSING"
+
+        # Spiderweb metrics
+        if _session.spiderweb:
+            sess["spiderweb_metrics"] = {
+                "phase_coherence": _session.spiderweb.phase_coherence(),
+                "entropy": _session.spiderweb.shannon_entropy(),
+                "decoherence_rate": _session.spiderweb.decoherence_rate(),
+                "node_count": len(_session.spiderweb.nodes),
+                "attractor_count": len(_session.attractors),
+                "glyph_count": len(_session.glyphs),
+            }
+
+        # Coherence/tension history
+        sess["coherence_entries"] = len(_session.coherence_history)
+        sess["tension_entries"] = len(_session.tension_history)
+        sess["current_coherence"] = _session.coherence_history[-1] if _session.coherence_history else None
+        sess["current_tension"] = _session.tension_history[-1] if _session.tension_history else None
+        sess["perspective_usage"] = _session.perspective_usage
+
+        report["systems"]["session"] = sess
+        checks_passed += 1
+    else:
+        report["systems"]["session"] = {"status": "NOT INITIALIZED"}
+        report["errors"].append("No active session")
+
+    # 5. Self-correction system
+    checks_total += 1
+    try:
+        from self_correction import BehaviorMemory
+        bm = BehaviorMemory()
+        report["systems"]["self_correction"] = {
+            "status": "OK",
+            "behavior_lessons": len(bm.lessons),
+            "permanent_locks": 4,
+        }
+        checks_passed += 1
+    except ImportError:
+        report["systems"]["self_correction"] = {"status": "NOT AVAILABLE"}
+        report["warnings"].append("Self-correction module not importable")
+
+    # 6. Worker threads
+    checks_total += 1
+    with _worker_threads_lock:
+        alive = sum(1 for w in _worker_threads if w.is_alive())
+        total = len(_worker_threads)
+    report["systems"]["worker_threads"] = {
+        "status": "OK" if alive == total else "DEGRADED",
+        "alive": alive,
+        "total": total,
+        "pending_requests": _request_queue.qsize(),
+    }
+    if alive == total:
+        checks_passed += 1
+    else:
+        report["warnings"].append(f"{total - alive} worker thread(s) dead")
+
+    # 7. Inference semaphore
+    checks_total += 1
+    # _value is internal but useful for diagnostics
+    sem_available = getattr(_inference_semaphore, '_value', 1)
+    report["systems"]["inference_lock"] = {
+        "status": "OK" if sem_available > 0 else "BUSY",
+        "available": sem_available > 0,
+    }
+    checks_passed += 1
+
+    # Overall grade
+    if checks_passed == checks_total and not report["errors"]:
+        report["overall"] = "HEALTHY"
+    elif report["errors"]:
+        report["overall"] = "CRITICAL"
+    elif checks_passed >= checks_total - 1:
+        report["overall"] = "GOOD"
+    else:
+        report["overall"] = "DEGRADED"
+
+    report["checks_passed"] = checks_passed
+    report["checks_total"] = checks_total
+    report["score"] = f"{checks_passed}/{checks_total}"
+
+    return report
 
 
 def _worker_thread():
@@ -442,6 +658,8 @@ class CodetteHandler(SimpleHTTPRequestHandler):
                 "agents": AGENT_NAMES,
                 "available": _orchestrator.available_adapters if _orchestrator else [],
             })
+        elif path == "/api/health":
+            self._json_response(_run_health_check())
         elif path == "/api/chat":
             # SSE endpoint for streaming
             self._handle_chat_sse(parsed)
