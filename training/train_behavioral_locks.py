@@ -502,12 +502,17 @@ def train_adapter(adapter_name: str, examples: list, model, tokenizer, output_di
     adapter_output.mkdir(parents=True, exist_ok=True)
 
     # Build training args — handle both old and new trl API
+    # Calculate warmup_steps from ratio (warmup_ratio is deprecated in trl v5.2+)
+    total_steps = (len(dataset) // TRAIN_CONFIG["per_device_train_batch_size"] //
+                   TRAIN_CONFIG["gradient_accumulation_steps"]) * TRAIN_CONFIG["num_train_epochs"]
+    warmup_steps = max(1, int(total_steps * TRAIN_CONFIG["warmup_ratio"]))
+
     _common_args = dict(
         output_dir=str(adapter_output),
         per_device_train_batch_size=TRAIN_CONFIG["per_device_train_batch_size"],
         gradient_accumulation_steps=TRAIN_CONFIG["gradient_accumulation_steps"],
         learning_rate=TRAIN_CONFIG["learning_rate"],
-        warmup_ratio=TRAIN_CONFIG["warmup_ratio"],
+        warmup_steps=warmup_steps,
         num_train_epochs=TRAIN_CONFIG["num_train_epochs"],
         logging_steps=TRAIN_CONFIG["logging_steps"],
         save_steps=TRAIN_CONFIG["save_steps"],
@@ -524,15 +529,20 @@ def train_adapter(adapter_name: str, examples: list, model, tokenizer, output_di
     else:
         training_args = TrainingArguments(**_common_args)
 
-    # SFTTrainer — max_seq_length always goes here, not in config
-    trainer = SFTTrainer(
+    # SFTTrainer — handle both old API (tokenizer=) and new API (processing_class=)
+    trainer_kwargs = dict(
         model=peft_model,
         args=training_args,
         train_dataset=dataset,
-        tokenizer=tokenizer,
         max_seq_length=TRAIN_CONFIG["max_seq_length"],
         dataset_text_field="text",
     )
+
+    # New trl renamed tokenizer -> processing_class
+    try:
+        trainer = SFTTrainer(processing_class=tokenizer, **trainer_kwargs)
+    except TypeError:
+        trainer = SFTTrainer(tokenizer=tokenizer, **trainer_kwargs)
 
     # Train
     print(f"  Starting training...")
@@ -602,7 +612,7 @@ def main():
         quantization_config=bnb_config,
         device_map="auto",
         token=HF_TOKEN,
-        dtype=torch.bfloat16,
+        torch_dtype=torch.bfloat16,
     )
     print(f"  Model loaded: {MODEL_NAME}")
 
