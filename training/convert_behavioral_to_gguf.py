@@ -41,8 +41,18 @@ def main():
 
     from huggingface_hub import snapshot_download, HfApi
 
+    # Download base model (needed for conversion reference)
+    print("\n[2/5] Downloading base model for conversion reference...")
+    base_model_dir = snapshot_download(
+        BASE_MODEL,
+        local_dir="base_model",
+        token=HF_TOKEN,
+        ignore_patterns=["*.bin", "original/**"],
+    )
+    print(f"  Base model at: {base_model_dir}")
+
     # Download behavioral adapters
-    print("\n[2/4] Downloading behavioral adapters...")
+    print("\n[3/5] Downloading behavioral adapters...")
     adapter_dir = snapshot_download(
         REPO_ID,
         local_dir="adapters_download",
@@ -52,7 +62,7 @@ def main():
     print(f"  Downloaded to: {adapter_dir}")
 
     # Convert each adapter
-    print("\n[3/4] Converting to GGUF...")
+    print("\n[4/5] Converting to GGUF...")
     os.makedirs("gguf_output", exist_ok=True)
     converted = []
 
@@ -75,7 +85,7 @@ def main():
                 [
                     sys.executable, convert_script,
                     "--outfile", out_file,
-                    "--base", BASE_MODEL,
+                    "--base", base_model_dir,
                     src,
                 ],
                 capture_output=True, text=True, timeout=300,
@@ -93,7 +103,7 @@ def main():
             print(f"    ✗ {name} error: {e}")
 
     # Upload GGUF files
-    print(f"\n[4/4] Uploading {len(converted)} GGUF adapters...")
+    print(f"\n[5/5] Uploading {len(converted)} GGUF adapters...")
     if converted:
         api = HfApi(token=HF_TOKEN)
         for name, path in converted:
