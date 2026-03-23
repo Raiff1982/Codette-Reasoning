@@ -638,15 +638,83 @@ async def chat(request: Request):
                 stream=True,
             )
 
+            # ── Layer 3.5: Real-time Hallucination Guard ──
+            # Scan incoming chunks for hallucination signals (invented facts, ungrounded claims)
+            hallucination_detect_buffer = ""
+            hallucination_warnings = []
+
+            def check_hallucination_signals(accumulated_text: str) -> tuple:
+                """Scan for hallucination red flags. Returns (has_issues, warnings)."""
+                warnings = []
+
+                # Red flag 1: Artist death claims without verification
+                if re.search(r'(passed away|died|deceased).*?(19|20)\d{2}', accumulated_text, re.IGNORECASE):
+                    for artist in ["laney wilson", "megan moroney", "tyler childers"]:
+                        if artist in accumulated_text.lower():
+                            warnings.append(f"Unverified artist claim: {artist}")
+
+                # Red flag 2: Invented plugin names (check last mentions)
+                if re.search(r'\b([A-Z][a-zA-Z0-9\s\-]+)\s+(plugin|VST|effect)\b', accumulated_text):
+                    last_plugin = re.findall(r'\b([A-Z][a-zA-Z0-9\s\-]+)\s+(plugin|VST)', accumulated_text)
+                    if last_plugin:
+                        plugin_name = last_plugin[-1][0].lower()
+                        real_plugins = {
+                            "fabfilter", "waves", "izotope", "soundtoys", "valhalla",
+                            "xfer", "native instruments", "spectrasonics", "u-he",
+                            "arturia", "slate digital", "universal audio", "plugin alliance"
+                        }
+                        if not any(real in plugin_name for real in real_plugins):
+                            warnings.append(f"Unknown plugin mentioned: {last_plugin[-1][0]}")
+
+                # Red flag 3: Genre misclassification for known artists
+                genre_mismatches = [
+                    ("laney wilson", "indie-rock"),
+                    ("megan moroney", "indie-rock"),
+                ]
+                for artist, wrong_genre in genre_mismatches:
+                    if artist in accumulated_text.lower() and wrong_genre in accumulated_text.lower():
+                        warnings.append(f"Genre mismatch: {artist} is not {wrong_genre}")
+
+                return len(warnings) > 0, warnings
+
             for chunk in stream:
                 if chunk.choices and chunk.choices[0].delta.content:
                     token = chunk.choices[0].delta.content
                     full_response += token
+                    hallucination_detect_buffer += token
+
+                    # Check for hallucination signals every ~50 chars to avoid lag
+                    if len(hallucination_detect_buffer) > 50:
+                        has_issues, warnings = check_hallucination_signals(full_response)
+                        if warnings and warnings not in hallucination_warnings:
+                            hallucination_warnings.extend(warnings)
+                        hallucination_detect_buffer = ""
+
                     yield json.dumps({
                         "message": {"role": "assistant", "content": token},
                         "done": False,
                     }) + "\n"
                     await asyncio.sleep(0)
+
+            # ── Post-generation hallucination check ──
+            # If critical hallucinations detected, append self-correction
+            final_issues, final_warnings = check_hallucination_signals(full_response)
+            if final_warnings and classification.get("has_artist_query"):
+                # Artist query with unverified claims detected
+                correction = (
+                    "\n\n---\n"
+                    "[Self-correction: I notice I made some unverified claims above. "
+                    "Rather than continuing to potentially hallucinate, I want to be honest: "
+                    "I don't have reliable biographical information about this artist. "
+                    "For accurate details, please check Wikipedia, Spotify, or their official website. "
+                    "I'm happy to help with production techniques, music theory, or creating inspired work instead.]\n"
+                )
+                full_response += correction
+                yield json.dumps({
+                    "message": {"role": "assistant", "content": correction},
+                    "done": False,
+                    "metadata": {"hallucination_detected": True, "issues": final_warnings},
+                }) + "\n"
 
             # ── Layer 5.5: Post-generation ethical check ──
             # (lightweight — check for obviously problematic output patterns)

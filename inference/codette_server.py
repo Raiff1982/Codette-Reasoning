@@ -882,7 +882,39 @@ def _worker_thread():
                     )
                 print(f"  [WORKER] Got result: response={len(result.get('response',''))} chars, adapter={result.get('adapter','?')}", flush=True)
 
-                # ── Behavior Governor Post-Validation ──
+                # ── Post-generation Hallucination Check ──
+                response_text = result.get("response", "")
+                hallucination_alerts = []
+
+                # Check for artist/discography hallucinations
+                artist_patterns = [
+                    (r'(passed away|died|deceased).*?(19|20)\d{2}', "unverified artist death claim"),
+                    (r'(the album|released).*?["\'](\w+[\w\s]*?)["\'].*?(19|20)\d{2}', "unverified album/date claim"),
+                ]
+                for pattern, alert_type in artist_patterns:
+                    if re.search(pattern, response_text, re.IGNORECASE):
+                        for artist in ["laney wilson", "megan moroney", "tyler childers"]:
+                            if artist in response_text.lower():
+                                hallucination_alerts.append(f"[HALLUCINATION] {alert_type} for {artist}")
+                                break
+
+                # If hallucinations detected, add self-correction
+                if hallucination_alerts and is_artist_query:
+                    correction = (
+                        "\n\n---\n"
+                        "[Self-Correction]\n"
+                        "I just realized I made some unverified claims above. Rather than guess, "
+                        "I should be honest: I don't have reliable biographical details about this artist. "
+                        "For accurate information, check Wikipedia, Spotify, or their official website. "
+                        "I'm better at helping with production techniques, music theory, and sound design.\n"
+                    )
+                    result["response"] = response_text + correction
+                    result["hallucination_detected"] = True
+                    result["hallucination_alerts"] = hallucination_alerts
+                    for alert in hallucination_alerts:
+                        print(f"  {alert}", flush=True)
+                else:
+                    result["hallucination_detected"] = False
                 if _behavior_governor and governor_decision:
                     try:
                         validation = _behavior_governor.post_validate(
