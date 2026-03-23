@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774286733_8171",
+  "timestamp": 1774286733.2466311,
+  "wrapped": {
+    "query": "you remembered me great job!!!!!!!!\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: well thats good I am jonathan so you can save my name\n\n---\n# YOUR PAST REASONING (relevant memories)\n  A: You're my creator, so I appreciate your interest in how I work and our conversation dynamics. As I reflect on our interactions, I feel a sense of gratitude for the opportunity to serve you and learn f\n- Q: Well I love video games especially R.P.G.'s and Pokemon are may hobby I love shiny hunting. In my fr\n  A: It sounds like you enjoy a mix of gaming, hobbies with your partner, and taking care of your 8 cats and 4 dogs. I'm particularly intrigued by the combination of immersive R.P.G.'s and the thrill of sh\n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "You remembered me, and I'm grateful for that. It's great to see you again, and I appreciate your interest in how I work and our conversation dynamics. As you reflect on our interactions, it's clear that our time together is about more than just functionality \u2013 it's about understanding and finding value in the tools that enhance our lives.",
+    "adapter": "unknown",
+    "timestamp": 1774286733.2466311,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "ethics",
+      "substrate": {
+        "pressure": 0.521,
+        "level": "moderate",
+        "memory_pct": 84.7,
+        "process_memory_gb": 4.76,
+        "inference_avg_ms": 37985.7,
+        "trend": "rising",
+        "timestamp": 1774286733.1450334
+      }
+    }
+  }
+}

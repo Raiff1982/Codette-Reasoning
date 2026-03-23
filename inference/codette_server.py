@@ -17,7 +17,7 @@ Architecture:
     - CodetteSession for Cocoon-backed memory
 """
 
-import os, sys, json, time, threading, queue, argparse, webbrowser, traceback
+import os, sys, json, time, threading, queue, argparse, webbrowser, traceback, re
 from pathlib import Path
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs

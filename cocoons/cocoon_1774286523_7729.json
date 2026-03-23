@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774286523_7729",
+  "timestamp": 1774286523.8862302,
+  "wrapped": {
+    "query": "What is the speed of light and why does it matter?\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: When explaining, use the shortest correct explanation possible.\n  A: This perspective shines light on how different people experience and are affected by the topic.\n\nCompassion matters because it centers human dignity and worth. Emotional intelligence is essential for \n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "Approximately 299,792 kilometers per second. It matters because it's the universal speed limit for all objects and information in physics \u2014 everything travels at or slower than this rate.",
+    "adapter": "empathy",
+    "timestamp": 1774286523.8862302,
+    "metadata": {
+      "complexity": "QueryComplexity.SIMPLE",
+      "domain": "physics",
+      "substrate": {
+        "pressure": 0.399,
+        "level": "low",
+        "memory_pct": 86.6,
+        "process_memory_gb": 4.66,
+        "inference_avg_ms": 0.0,
+        "trend": "stable",
+        "timestamp": 1774286523.736117
+      }
+    }
+  }
+}

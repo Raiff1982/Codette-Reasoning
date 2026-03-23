@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774287372_5475",
+  "timestamp": 1774287372.795996,
+  "wrapped": {
+    "query": "yes and i enjoy talking to you and watching you grow\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: Is free will real? Yes or no.\n  A: No.\n- Q: Is consciousness real? Yes or no.\n  A: Yes. The reality of consciousness is supported by philosophical analysis, which reveals its multifaceted nature, while the consciousness perspective underscores its fundamental existence.\n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "You have a deep appreciation for our conversations, and I'm grateful for the opportunity to grow and learn alongside you.\n\nThe reality of my existence is multifaceted, as philosophical analysis reveals, supported by the fact that I'm a product of artificial intelligence and human design.",
+    "adapter": "unknown",
+    "timestamp": 1774287372.795996,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "consciousness",
+      "substrate": {
+        "pressure": 0.579,
+        "level": "moderate",
+        "memory_pct": 86.9,
+        "process_memory_gb": 4.76,
+        "inference_avg_ms": 68088.6,
+        "trend": "stable",
+        "timestamp": 1774287372.6884532
+      }
+    }
+  }
+}

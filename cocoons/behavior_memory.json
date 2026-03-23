@@ -2,17 +2,6 @@
   "lessons": [
     {
       "type": "success",
-      "timestamp": 1774212087.9009078,
-      "adapter": "empathy",
-      "constraints": {
-        "max_words": 10,
-        "max_sentences": 1
-      },
-      "word_count": 3,
-      "query_preview": "What is 2+2? One sentence under 10 words."
-    },
-    {
-      "type": "success",
       "timestamp": 1774212126.3250704,
       "adapter": "quantum",
       "constraints": {
@@ -499,7 +488,27 @@
       },
       "word_count": 15,
       "query_preview": "Is water wet? Yes or no."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774287263.0798597,
+      "adapter": "philosophy",
+      "constraints": {
+        "binary": true
+      },
+      "word_count": 1,
+      "query_preview": "yes and i enjoy talking to you and watching you grow\n\n---\n# YOUR PAST REASONING "
+    },
+    {
+      "type": "success",
+      "timestamp": 1774287320.9497526,
+      "adapter": "empathy",
+      "constraints": {
+        "binary": true
+      },
+      "word_count": 1,
+      "query_preview": "yes and i enjoy talking to you and watching you grow\n\n---\n# YOUR PAST REASONING "
     }
   ],
-  "updated_at": 1774235004.2087853
+  "updated_at": 1774287320.9497526
 }
