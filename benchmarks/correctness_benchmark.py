@@ -12,9 +12,9 @@ Tests against ground truth with diverse query types and scoring metrics.
 import sys
 import json
 import time
+from pathlib import Path
 from typing import Dict, List, Tuple, Any
-sys.path.insert(0, 'reasoning_forge')
-sys.path.insert(0, 'evaluation')
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 print("[SETUP] Loading test framework...")
 

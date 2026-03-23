@@ -11,22 +11,22 @@ Tests for:
 import unittest
 import numpy as np
 import sys
+from pathlib import Path
 from typing import List, Dict
 
 # Add path for direct imports
-sys.path.insert(0, 'reasoning_forge')
-sys.path.insert(0, 'evaluation')
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 # Import Phase 6 components directly (avoid forge_engine initialization)
-from framework_definitions import (
+from reasoning_forge.framework_definitions import (
     StateVector,
     TensionDefinition,
     CoherenceMetrics,
     ConflictPrediction,
     SpecializationScore,
 )
-from semantic_tension import SemanticTensionEngine
-from specialization_tracker import SpecializationTracker
+from reasoning_forge.semantic_tension import SemanticTensionEngine
+from reasoning_forge.specialization_tracker import SpecializationTracker
 
 
 class TestFrameworkDefinitions(unittest.TestCase):

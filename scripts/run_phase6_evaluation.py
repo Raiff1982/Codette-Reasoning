@@ -13,11 +13,12 @@ This isolates the value of individual Phase 6 components.
 
 import sys
 import json
+from pathlib import Path
 from datetime import datetime
 import time
 
 # Add repo to path
-sys.path.insert(0, '/j/codette-training-lab')
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from reasoning_forge.forge_engine import ForgeEngine
 from evaluation.test_suite_evaluation import EvaluationHarness, EvaluationAnalyzer, EVALUATION_TEST_SUITE

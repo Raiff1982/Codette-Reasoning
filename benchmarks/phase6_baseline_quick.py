@@ -12,8 +12,8 @@ Tests core improvement metrics:
 import sys
 import json
 import time
-sys.path.insert(0, 'reasoning_forge')
-sys.path.insert(0, 'evaluation')
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from framework_definitions import StateVector, CoherenceMetrics, TensionDefinition
 from semantic_tension import SemanticTensionEngine

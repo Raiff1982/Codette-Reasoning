@@ -10,9 +10,9 @@ Tests Phase 6 components in isolation and combination.
 """
 
 import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import time
-sys.path.insert(0, 'reasoning_forge')
-sys.path.insert(0, 'evaluation')
 
 from typing import Dict, Any
 
