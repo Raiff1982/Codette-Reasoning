@@ -110,19 +110,16 @@ def universal_self_check(response: str) -> Tuple[str, List[str]]:
     for ep in echo_patterns:
         if re.match(ep, cleaned, re.I):
             is_echo = True
-            # Strip the echo line and return whatever follows
+            # Strip ONLY the first echo line, keep everything after
             lines = cleaned.split('\n')
-            non_echo = [l for l in lines if not re.match(ep, l.strip(), re.I)]
-            # Also strip lines that are just the quoted question
-            non_echo = [l for l in non_echo if l.strip() and not l.strip().startswith('"')]
+            non_echo = [l for l in lines[1:] if l.strip()]  # Skip first line only
             if non_echo:
                 cleaned = '\n'.join(non_echo).strip()
                 issues.append("LOCK3_FIX: Removed question echo-back")
             else:
-                # Nothing left after echo removal — model completely failed
-                # Return empty so the caller knows to use fallback
-                cleaned = ""
-                issues.append("LOCK3_FAIL: Model echoed question without answering")
+                # Nothing left after echo removal — keep original rather than empty
+                # An imperfect response is better than no response
+                issues.append("LOCK3_WARN: Echo detected but kept response (no content after removal)")
             break
 
     # LOCK 4: No incomplete outputs — fix missing punctuation

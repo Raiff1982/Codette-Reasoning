@@ -323,6 +323,19 @@ class CodetteForgeBridge:
 
         result["reasoning"] = f"Phase 6: {complexity.name} complexity, {domain} domain"
 
+        # EMPTY RESPONSE FALLBACK: If synthesis returned nothing, use best perspective
+        if not result.get("response", "").strip() and result.get("perspectives"):
+            perspectives = result["perspectives"]
+            if isinstance(perspectives, dict) and perspectives:
+                # Pick the longest perspective as fallback
+                best = max(perspectives.values(), key=lambda v: len(str(v)))
+                result["response"] = str(best)
+                result["reasoning"] += " | fallback: used best perspective (synthesis was empty)"
+                print(f"  [FALLBACK] Synthesis empty — using best perspective ({len(result['response'])} chars)", flush=True)
+            elif isinstance(perspectives, str) and perspectives.strip():
+                result["response"] = perspectives
+                result["reasoning"] += " | fallback: used raw perspectives"
+
         # Store reasoning exchange in CognitionCocooner (from original framework)
         # Now enriched with substrate state — every cocoon knows the conditions
         # under which it was created (pressure, memory, trend)

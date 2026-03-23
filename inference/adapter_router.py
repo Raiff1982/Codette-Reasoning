@@ -289,17 +289,34 @@ class AdapterRouter:
                 scores[adapter] = score
 
         if not scores:
-            # No domain keywords matched — use base model (no adapter).
-            # Prefer empathy for conversational tone, else first available.
-            if "empathy" in self.available:
+            # No domain keywords matched — pick default based on query tone
+            # Instead of always empathy, detect if query is personal/emotional vs analytical
+            _personal_signals = [
+                'you', 'your', 'yourself', 'how are', 'how do you', 'tell me about you',
+                'feel', 'feeling', 'think about', 'opinion', 'what do you',
+                'hi', 'hello', 'hey', 'thanks', 'thank you', 'please',
+            ]
+            _analytical_signals = [
+                'how does', 'what is', 'why does', 'explain', 'describe',
+                'compare', 'difference', 'define', 'mean', 'work',
+                'logically', 'technically', 'specifically',
+            ]
+            personal_score = sum(1 for s in _personal_signals if s in query_lower)
+            analytical_score = sum(1 for s in _analytical_signals if s in query_lower)
+
+            if personal_score > analytical_score and "empathy" in self.available:
                 default = "empathy"
-                reason = "No domain keywords matched — using empathy for conversational response"
-            elif "multi_perspective" in self.available:
+                reason = "No domain keywords — personal/conversational tone detected"
+            elif analytical_score > personal_score and "multi_perspective" in self.available:
                 default = "multi_perspective"
-                reason = "No domain keywords matched — using multi-perspective"
+                reason = "No domain keywords — analytical tone detected, using multi-perspective"
+            elif "empathy" in self.available:
+                default = "empathy"
+                reason = "No domain keywords — defaulting to empathy"
             else:
-                default = None  # Base model, no adapter
+                default = None
                 reason = "No domain keywords matched — using base model"
+
             return RouteResult(
                 primary=default,
                 confidence=0.3,
