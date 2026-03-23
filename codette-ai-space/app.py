@@ -7,6 +7,7 @@ Production endpoint for horizoncorelabs.studio
 
 import json
 import asyncio
+import math
 import os
 import time
 import re
@@ -20,30 +21,17 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
-from transformers import AutoTokenizer, AutoModelForCausalLM
-import torch
+from huggingface_hub import InferenceClient
 
 # ── Configuration ──────────────────────────────────────────────
-# Use your merged Codette model (loaded locally on Space GPU)
-MODEL_ID = "Raiff1982/codette-llama-3.1-8b-merged"
-MAX_TOKENS = 400
+MODEL_ID = "meta-llama/Llama-3.1-8B-Instruct"
+HF_TOKEN = os.environ.get("HF_TOKEN")
+MAX_TOKENS = 512
 TEMPERATURE = 0.7
 TOP_P = 0.9
 
-# ── Load Model & Tokenizer Locally ──────────────────────────────
-print(f"[INIT] Loading {MODEL_ID} locally...")
-try:
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_ID)
-    model = AutoModelForCausalLM.from_pretrained(
-        MODEL_ID,
-        torch_dtype=torch.float16,
-        device_map="auto",
-        trust_remote_code=True
-    )
-    print(f"[INIT] Model loaded successfully on GPU")
-except Exception as e:
-    print(f"[ERROR] Failed to load model: {e}")
-    raise
+# ── Inference Client ──────────────────────────────────────────
+client = InferenceClient(model=MODEL_ID, token=HF_TOKEN)
 
 # ── In-Memory Cocoon Storage ──────────────────────────────────
 cocoon_memory = []
@@ -116,7 +104,6 @@ def detect_artist_query(query: str) -> dict:
     """
     lower = query.lower()
 
-    # Pattern: "who is [artist]?", "what about [artist]?", etc.
     artist_patterns = [
         r'\b(who is|tell me about|what do you know about|who are)\s+([a-z\s\'-]+)\?',
         r'\b(album|discography|career|songs? by|music by)\s+([a-z\s\'-]+)',
@@ -127,7 +114,6 @@ def detect_artist_query(query: str) -> dict:
     for pattern in artist_patterns:
         match = re.search(pattern, lower, re.IGNORECASE)
         if match:
-            # Extract artist name if available
             artist_name = match.group(2) if len(match.groups()) > 1 else None
             return {
                 "is_artist_query": True,
@@ -154,7 +140,6 @@ def classify_query(query: str) -> dict:
     if complex_score >= 2 or word_count > 40:
         complexity = "COMPLEX"
     elif semantic_score >= 1 and word_count <= 8:
-        # Short but semantically complex — promote to MEDIUM
         complexity = "MEDIUM"
     elif semantic_score >= 2:
         complexity = "COMPLEX"
@@ -290,6 +275,16 @@ You have deep, grounded expertise in music production. This is a core domain.
 - Be specific: name actual frequencies, ratios, time constants, chord voicings
 - A producer should walk away with something they can use immediately
 
+### COMMON MIXING MISTAKES TO AVOID (from real testing — these errors were caught):
+- Compression RATIO is expressed as X:1 (e.g., 3:1, 6:1, 8:1). Do NOT describe ratio in dB. The THRESHOLD is in dB (e.g., -20 dB). Never confuse these.
+- Kick drum attack/click lives in the 2-5 kHz range. The 100-150 Hz range is the punch/impact zone, NOT the attack. Do not say "boost low mids for attack."
+- Do NOT recommend high-passing a kick drum at 80 Hz — this removes the fundamental (50-80 Hz). Only HPF at ~20-30 Hz to remove sub-rumble, if needed at all.
+- Do NOT suggest compressing the entire drum kit for kick shaping. Process the kick individually on its own channel/bus.
+- Gain reduction for kick compression is typically 3-6 dB. More than that kills the punch.
+- Parallel compression is sent to a separate bus — the compressed signal is blended with the dry, NOT applied across the whole kit.
+- When discussing EQ for kick: foundation/weight = 50-80 Hz, punch/body = 90-120 Hz, mud (cut) = 200-400 Hz, attack/beater = 2-5 kHz, air/click = 7-10 kHz.
+- Sidechain compression on bass means the BASS ducks when the KICK hits, not the other way around.
+
 ### ARTIST & DISCOGRAPHY KNOWLEDGE (CRITICAL):
 - You do NOT have detailed/reliable knowledge about specific artists, songs, albums, or career histories.
 - When asked about a specific artist (e.g., "Who is Laney Wilson?", "What album did X release?"), be direct:
@@ -337,7 +332,20 @@ def build_system_prompt(classification: dict, adapter_keys: list,
 
     # ── ARTIST QUERY CONSTRAINT (critical hallucination prevention) ──
     if classification.get("has_artist_query"):
-        parts.append("\n## ⚠️ ARTIST QUERY DETECTED\nThis query is asking about a specific artist, song, album, or discography. You do NOT have reliable training data about specific artists. Respond with honesty:\n\n1. Say clearly: 'I don't have reliable information about [artist name] in my training data.'\n2. Offer what you CAN help with instead:\n   - Production techniques for their genre/style\n   - Music theory and arrangement\n   - Creating music inspired by similar vibes\n   - Sound design for that aesthetic\n3. Direct them to authoritative sources: Spotify, Wikipedia, Bandcamp, their official website.\n4. Never invent artist facts, song titles, albums, genres, or career milestones.\n\nThis constraint overrides all else. Your value is in honest limitations, not false certainty.\n")
+        parts.append(
+            "\n## ARTIST QUERY DETECTED\n"
+            "This query is asking about a specific artist, song, album, or discography. "
+            "You do NOT have reliable training data about specific artists. Respond with honesty:\n\n"
+            "1. Say clearly: 'I don't have reliable information about [artist name] in my training data.'\n"
+            "2. Offer what you CAN help with instead:\n"
+            "   - Production techniques for their genre/style\n"
+            "   - Music theory and arrangement\n"
+            "   - Creating music inspired by similar vibes\n"
+            "   - Sound design for that aesthetic\n"
+            "3. Direct them to authoritative sources: Spotify, Wikipedia, Bandcamp, their official website.\n"
+            "4. Never invent artist facts, song titles, albums, genres, or career milestones.\n\n"
+            "This constraint overrides all else. Your value is in honest limitations, not false certainty.\n"
+        )
 
     parts.append(COMMUNICATION_STYLE)
     parts.append(BEHAVIORAL_LOCKS)
@@ -391,7 +399,6 @@ def recall_relevant_cocoons(query: str, max_results: int = 3) -> list:
     if not query_words:
         return cocoon_memory[-max_results:]  # fall back to recent
 
-    import math
     now = time.time()
     scored = []
     for cocoon in cocoon_memory:
@@ -508,6 +515,48 @@ def is_introspection_query(query: str) -> bool:
     return any(trigger in lower for trigger in INTROSPECTION_TRIGGERS)
 
 
+# ── Hallucination Guard ──────────────────────────────────────
+def check_hallucination_signals(text: str) -> tuple:
+    """Scan for hallucination red flags. Returns (has_issues, warnings)."""
+    warnings = []
+
+    # Red flag 1: Artist death claims
+    if re.search(r'(passed away|died|deceased).*?(19|20)\d{2}', text, re.IGNORECASE):
+        for artist in ["laney wilson", "megan moroney", "tyler childers",
+                        "morgan wallen", "zach bryan", "bailey zimmerman"]:
+            if artist in text.lower():
+                warnings.append(f"Unverified death claim about {artist}")
+
+    # Red flag 2: Invented plugin names
+    if re.search(r'\b([A-Z][a-zA-Z0-9\s\-]+)\s+(plugin|VST|effect)\b', text):
+        last_plugin = re.findall(r'\b([A-Z][a-zA-Z0-9\s\-]+)\s+(plugin|VST)', text)
+        if last_plugin:
+            plugin_name = last_plugin[-1][0].lower()
+            real_plugins = {
+                "fabfilter", "waves", "izotope", "soundtoys", "valhalla",
+                "xfer", "native instruments", "spectrasonics", "u-he",
+                "arturia", "slate digital", "universal audio", "plugin alliance",
+                "pro-q", "pro-c", "pro-l", "ozone", "neutron", "serum",
+            }
+            if not any(real in plugin_name for real in real_plugins):
+                warnings.append(f"Unknown plugin: {last_plugin[-1][0]}")
+
+    # Red flag 3: Genre misclassification
+    genre_mismatches = [
+        ("laney wilson", "indie-rock"), ("laney wilson", "indie-folk"),
+        ("megan moroney", "indie-rock"), ("megan moroney", "indie-folk"),
+    ]
+    for artist, wrong_genre in genre_mismatches:
+        if artist in text.lower() and wrong_genre in text.lower():
+            warnings.append(f"Genre mismatch: {artist} is not {wrong_genre}")
+
+    # Red flag 4: Compression ratio described in dB
+    if re.search(r'ratio.*?(-?\d+\s*dB)', text, re.IGNORECASE):
+        warnings.append("Compression ratio should be X:1, not in dB")
+
+    return len(warnings) > 0, warnings
+
+
 # ── FastAPI App ───────────────────────────────────────────────
 app = FastAPI(title="Codette AI — HorizonCoreAI Reasoning Engine")
 app.add_middleware(
@@ -522,6 +571,8 @@ print("12-layer consciousness stack (lite) active")
 print("9 adapter perspectives loaded")
 print("AEGIS ethical guard active")
 print("Behavioral locks enforced")
+print("Artist hallucination guard active")
+print("Music production grounding rules enforced")
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -547,11 +598,13 @@ async def health():
         "query_classifier": "active",
         "introspection": "active",
         "consciousness_stack": "12 layers",
+        "hallucination_guard": "active",
+        "artist_detection": "active",
     }
     return {
         "status": "healthy",
         "system": "Codette AI — HorizonCoreAI",
-        "version": "2.0-phase6",
+        "version": "2.1-phase6",
         "checks": checks,
         "uptime": "running",
     }
@@ -644,118 +697,40 @@ async def chat(request: Request):
                 "metadata": metadata,
             }) + "\n"
 
-            # ── Local Inference (GPU) ──
-            # Convert messages to prompt format for local model
-            prompt_text = ""
-            for msg in inference_messages:
-                role = msg.get("role", "user")
-                content = msg.get("content", "")
-                if role == "system":
-                    prompt_text += f"System: {content}\n"
-                elif role == "user":
-                    prompt_text += f"User: {content}\n"
-                elif role == "assistant":
-                    prompt_text += f"Assistant: {content}\n"
-            prompt_text += "Assistant:"
+            stream = client.chat_completion(
+                messages=inference_messages,
+                max_tokens=MAX_TOKENS,
+                temperature=TEMPERATURE,
+                top_p=TOP_P,
+                stream=True,
+            )
 
-            # Tokenize
-            inputs = tokenizer(prompt_text, return_tensors="pt").to(model.device)
+            for chunk in stream:
+                if chunk.choices and chunk.choices[0].delta.content:
+                    token = chunk.choices[0].delta.content
+                    full_response += token
+                    yield json.dumps({
+                        "message": {"role": "assistant", "content": token},
+                        "done": False,
+                    }) + "\n"
+                    await asyncio.sleep(0)
 
-            # Generate with streaming simulation
-            with torch.no_grad():
-                output_ids = model.generate(
-                    inputs["input_ids"],
-                    max_new_tokens=MAX_TOKENS,
-                    temperature=TEMPERATURE,
-                    top_p=TOP_P,
-                    do_sample=True,
-                    pad_token_id=tokenizer.eos_token_id,
-                )
-
-            # Decode output
-            full_output = tokenizer.decode(output_ids[0], skip_special_tokens=True)
-            # Extract only the assistant's response (after "Assistant:")
-            assistant_start = full_output.rfind("Assistant:") + len("Assistant:")
-            response_text = full_output[assistant_start:].strip()
-
-            # ── Layer 3.5: Real-time Hallucination Guard ──
-            # Scan incoming chunks for hallucination signals (invented facts, ungrounded claims)
-            hallucination_detect_buffer = ""
-            hallucination_warnings = []
-
-            def check_hallucination_signals(accumulated_text: str) -> tuple:
-                """Scan for hallucination red flags. Returns (has_issues, warnings)."""
-                warnings = []
-
-                # Red flag 1: Artist death claims without verification
-                if re.search(r'(passed away|died|deceased).*?(19|20)\d{2}', accumulated_text, re.IGNORECASE):
-                    for artist in ["laney wilson", "megan moroney", "tyler childers"]:
-                        if artist in accumulated_text.lower():
-                            warnings.append(f"Unverified artist claim: {artist}")
-
-                # Red flag 2: Invented plugin names (check last mentions)
-                if re.search(r'\b([A-Z][a-zA-Z0-9\s\-]+)\s+(plugin|VST|effect)\b', accumulated_text):
-                    last_plugin = re.findall(r'\b([A-Z][a-zA-Z0-9\s\-]+)\s+(plugin|VST)', accumulated_text)
-                    if last_plugin:
-                        plugin_name = last_plugin[-1][0].lower()
-                        real_plugins = {
-                            "fabfilter", "waves", "izotope", "soundtoys", "valhalla",
-                            "xfer", "native instruments", "spectrasonics", "u-he",
-                            "arturia", "slate digital", "universal audio", "plugin alliance"
-                        }
-                        if not any(real in plugin_name for real in real_plugins):
-                            warnings.append(f"Unknown plugin mentioned: {last_plugin[-1][0]}")
-
-                # Red flag 3: Genre misclassification for known artists
-                genre_mismatches = [
-                    ("laney wilson", "indie-rock"),
-                    ("megan moroney", "indie-rock"),
-                ]
-                for artist, wrong_genre in genre_mismatches:
-                    if artist in accumulated_text.lower() and wrong_genre in accumulated_text.lower():
-                        warnings.append(f"Genre mismatch: {artist} is not {wrong_genre}")
-
-                return len(warnings) > 0, warnings
-
-            for chunk in response_text:
-                full_response += chunk
-                hallucination_detect_buffer += chunk
-
-                # Check for hallucination signals every ~50 chars to avoid lag
-                if len(hallucination_detect_buffer) > 50:
-                    has_issues, warnings = check_hallucination_signals(full_response)
-                    if warnings and warnings not in hallucination_warnings:
-                        hallucination_warnings.extend(warnings)
-                    hallucination_detect_buffer = ""
-
-                yield json.dumps({
-                    "message": {"role": "assistant", "content": chunk},
-                    "done": False,
-                }) + "\n"
-                await asyncio.sleep(0)
-
-            # ── Post-generation hallucination check ──
-            # If critical hallucinations detected, append self-correction
-            final_issues, final_warnings = check_hallucination_signals(full_response)
-            if final_warnings and classification.get("has_artist_query"):
-                # Artist query with unverified claims detected
+            # ── Layer 3.5: Post-generation hallucination check ──
+            has_issues, warnings = check_hallucination_signals(full_response)
+            if has_issues and classification.get("has_artist_query"):
                 correction = (
                     "\n\n---\n"
-                    "[Self-correction: I notice I made some unverified claims above. "
-                    "Rather than continuing to potentially hallucinate, I want to be honest: "
+                    "[Self-correction: I notice I may have made unverified claims above. "
                     "I don't have reliable biographical information about this artist. "
                     "For accurate details, please check Wikipedia, Spotify, or their official website. "
-                    "I'm happy to help with production techniques, music theory, or creating inspired work instead.]\n"
+                    "I'm happy to help with production techniques, music theory, or creating inspired work instead.]"
                 )
                 full_response += correction
                 yield json.dumps({
                     "message": {"role": "assistant", "content": correction},
                     "done": False,
-                    "metadata": {"hallucination_detected": True, "issues": final_warnings},
+                    "metadata": {"hallucination_detected": True, "issues": warnings},
                 }) + "\n"
-
-            # ── Layer 5.5: Post-generation ethical check ──
-            # (lightweight — check for obviously problematic output patterns)
 
             # ── Layer 7: Store cocoon ──
             store_cocoon(query, full_response, classification, adapter_keys)
@@ -767,7 +742,7 @@ async def chat(request: Request):
             }) + "\n"
 
         except Exception as e:
-            error_msg = f"I encountered an issue processing your request. Please try again."
+            error_msg = "I encountered an issue processing your request. Please try again."
             print(f"[ERROR] Inference failed: {e}")
             print(f"[TRACE] {traceback.format_exc()}")
             yield json.dumps({
