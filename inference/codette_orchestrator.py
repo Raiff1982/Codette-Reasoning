@@ -50,19 +50,21 @@ MAX_TOOL_ROUNDS = 3  # Max tool call → result → generate cycles
 BASE_GGUF = r"J:\codette-clean\models\base\Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf"
 
 ADAPTER_DIR = Path(r"J:\codette-clean\models\adapters")
+BEHAVIORAL_DIR = Path(r"J:\codette-clean\behavioral-lora-f16-gguf")
 
-# Map adapter names to GGUF LoRA files (Phase 6+ retrained adapters)
-ADAPTER_GGUF_MAP = {
-    "newton": ADAPTER_DIR / "newton-lora-f16.gguf",
-    "davinci": ADAPTER_DIR / "davinci-lora-f16.gguf",
-    "empathy": ADAPTER_DIR / "empathy-lora-f16.gguf",
-    "philosophy": ADAPTER_DIR / "philosophy-lora-f16.gguf",
-    "quantum": ADAPTER_DIR / "quantum-lora-f16.gguf",
-    "consciousness": ADAPTER_DIR / "consciousness-lora-f16.gguf",
-    "multi_perspective": ADAPTER_DIR / "multi_perspective-lora-f16.gguf",
-    "systems_architecture": ADAPTER_DIR / "systems_architecture-lora-f16.gguf",
-    "orchestrator": ADAPTER_DIR / "orchestrator-lora-f16.gguf",
-}
+# Map adapter names to GGUF LoRA files
+# Behavioral adapters (trained with 4 permanent locks) take priority over originals
+ADAPTER_GGUF_MAP = {}
+for _name in ["newton", "davinci", "empathy", "philosophy", "quantum",
+              "consciousness", "multi_perspective", "systems_architecture", "orchestrator"]:
+    _behavioral = BEHAVIORAL_DIR / f"{_name}-behavioral-lora-f16.gguf"
+    _original = ADAPTER_DIR / f"{_name}-lora-f16.gguf"
+    if _behavioral.exists():
+        ADAPTER_GGUF_MAP[_name] = _behavioral
+    elif _original.exists():
+        ADAPTER_GGUF_MAP[_name] = _original
+    else:
+        ADAPTER_GGUF_MAP[_name] = _original  # will warn at load time
 
 # Directness discipline — appended to every adapter prompt
 # ================================================================
@@ -510,21 +512,26 @@ class CodetteOrchestrator:
         self._ctx_ptr = self._llm._ctx.ctx
 
         # Pre-load all adapter handles
+        behavioral_count = 0
         for name in self.available_adapters:
             path = str(ADAPTER_GGUF_MAP[name])
+            is_behavioral = "behavioral" in path
             t = time.time()
             handle = llama_cpp.llama_adapter_lora_init(
                 self._model_ptr, path.encode("utf-8")
             )
             if handle:
                 self._adapter_handles[name] = handle
-                if self.verbose:
-                    print(f"    {name} handle loaded ({time.time()-t:.2f}s)")
+                tag = "BEHAVIORAL" if is_behavioral else "original"
+                if is_behavioral:
+                    behavioral_count += 1
+                print(f"    {name} [{tag}] loaded ({time.time()-t:.2f}s)")
             else:
                 print(f"    WARNING: failed to load {name} adapter handle")
 
         print(f"  {len(self._adapter_handles)}/{len(self.available_adapters)} "
-              f"adapter handles ready for hot-swap")
+              f"adapter handles ready ({behavioral_count} behavioral, "
+              f"{len(self._adapter_handles) - behavioral_count} original)")
 
     def _load_model(self, adapter_name=None):
         """Switch to a specific adapter using instant hot-swap.
