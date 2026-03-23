@@ -245,8 +245,10 @@ def _run_health_check():
             report["warnings"].append("Memory kernel not initialized")
 
         # Stability field
-        if hasattr(forge, 'stability_field') and forge.stability_field:
-            p6["components"]["stability_field"] = {"status": "OK"}
+        # Check both possible attribute names
+        stability = getattr(forge, 'cocoon_stability', None) or getattr(forge, 'stability_field', None)
+        if stability:
+            p6["components"]["stability_field"] = {"status": "OK", "type": type(stability).__name__}
         else:
             p6["components"]["stability_field"] = {"status": "MISSING"}
 
@@ -267,11 +269,12 @@ def _run_health_check():
         if hasattr(forge, 'ethical_governance') and forge.ethical_governance:
             eg = forge.ethical_governance
             audit_count = len(getattr(eg, 'audit_log', []))
+            queries_blocked = sum(1 for entry in getattr(eg, 'audit_log', []) if entry.get('action') == 'blocked')
             p6["components"]["ethical_governance"] = {
                 "status": "OK",
                 "audit_entries": audit_count,
-                "harmful_patterns": len(getattr(eg, 'harmful_patterns', [])),
-                "bias_patterns": len(getattr(eg, 'bias_patterns', [])),
+                "queries_blocked": queries_blocked,
+                "detection_rules": len(getattr(eg, 'harmful_patterns', [])) + len(getattr(eg, 'bias_patterns', [])),
             }
         else:
             p6["components"]["ethical_governance"] = {"status": "MISSING"}
