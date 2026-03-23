@@ -11,6 +11,7 @@ import os
 import time
 import re
 import hashlib
+import traceback
 from datetime import datetime
 from typing import Optional
 from collections import defaultdict
@@ -23,13 +24,21 @@ from huggingface_hub import InferenceClient
 
 # ── Configuration ──────────────────────────────────────────────
 MODEL_ID = "meta-llama/Llama-3.1-8B-Instruct"
-HF_TOKEN = os.environ.get("HF_TOKEN")
-MAX_TOKENS = 512
+# On HF Spaces, HF_TOKEN is auto-provided by the environment
+HF_TOKEN = os.environ.get("HF_TOKEN", None)
+MAX_TOKENS = 400
 TEMPERATURE = 0.7
 TOP_P = 0.9
 
 # ── Inference Client ──────────────────────────────────────────
-client = InferenceClient(model=MODEL_ID, token=HF_TOKEN)
+# Use HF Inference API without token for on-Space deployment
+# Or with token for more stability
+try:
+    client = InferenceClient(model=MODEL_ID, token=HF_TOKEN)
+    print(f"[INIT] Inference client initialized (token={'provided' if HF_TOKEN else 'not provided'})")
+except Exception as e:
+    print(f"[WARN] Client init failed: {e}")
+    client = InferenceClient(model=MODEL_ID)
 
 # ── In-Memory Cocoon Storage ──────────────────────────────────
 cocoon_memory = []
@@ -730,7 +739,8 @@ async def chat(request: Request):
 
         except Exception as e:
             error_msg = f"I encountered an issue processing your request. Please try again."
-            print(f"Inference error: {e}")
+            print(f"[ERROR] Inference failed: {e}")
+            print(f"[TRACE] {traceback.format_exc()}")
             yield json.dumps({
                 "message": {"role": "assistant", "content": error_msg},
                 "done": True,
