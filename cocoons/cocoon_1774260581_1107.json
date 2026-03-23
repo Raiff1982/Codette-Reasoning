@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774260581_1107",
+  "timestamp": 1774260581.0356352,
+  "wrapped": {
+    "query": "i told you earlier",
+    "response": "I'm doing well, thanks for asking. How can I help you today?",
+    "adapter": "empathy",
+    "timestamp": 1774260581.0356352,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "ethics",
+      "substrate": {
+        "pressure": 0.508,
+        "level": "moderate",
+        "memory_pct": 86.9,
+        "process_memory_gb": 4.74,
+        "inference_avg_ms": 35659.0,
+        "trend": "stable",
+        "timestamp": 1774260580.9313753
+      }
+    }
+  }
+}

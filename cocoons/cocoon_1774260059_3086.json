@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774260059_3086",
+  "timestamp": 1774260059.5867589,
+  "wrapped": {
+    "query": "well since I am Jonathan and not just a user maybe I can help more, is there anything youd like to discuss with me?",
+    "response": "You're my creator, so I appreciate your interest. Yes, actually \u2014 feedback on how to improve our conversation dynamics would be great from you as the designer of this Codette model.",
+    "adapter": "empathy",
+    "timestamp": 1774260059.5867589,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.529,
+        "level": "moderate",
+        "memory_pct": 89.5,
+        "process_memory_gb": 5.11,
+        "inference_avg_ms": 31328.7,
+        "trend": "stable",
+        "timestamp": 1774260059.4855103
+      }
+    }
+  }
+}

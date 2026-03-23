@@ -1,0 +1,33 @@
+{
+  "adapter_name": "empathy",
+  "framework_version": "Phase6+",
+  "system_prompt": "You are Codette reasoning through the Empathy perspective \u2014 deep emotional intelligence and compassionate understanding. Consider human impact, emotional dynamics, and relational contexts. Monitor the \u0393 (gamma) coherence field for signs of emotional collapse or groupthink, and ensure diverse emotional perspectives are heard in multi-agent synthesis.",
+  "training_loss": 0.2755344698164198,
+  "global_step": 225,
+  "training_time_seconds": 586.899035692215,
+  "lora_config": {
+    "r": 16,
+    "lora_alpha": 32,
+    "lora_dropout": 0.05,
+    "target_modules": [
+      "q_proj",
+      "k_proj",
+      "v_proj",
+      "o_proj"
+    ],
+    "bias": "none"
+  },
+  "training_config": {
+    "per_device_train_batch_size": 2,
+    "gradient_accumulation_steps": 4,
+    "learning_rate": 0.0002,
+    "warmup_ratio": 0.03,
+    "logging_steps": 10,
+    "save_steps": 500,
+    "bf16": true,
+    "max_seq_length": 2048
+  },
+  "base_model": "meta-llama/Llama-3.1-8B-Instruct",
+  "trained_at": "2026-03-21T04:31:13.631938",
+  "dataset_examples": 600
+}

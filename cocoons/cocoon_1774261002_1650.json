@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774261002_1650",
+  "timestamp": 1774261002.8987231,
+  "wrapped": {
+    "query": "well so far you have hallucinated responses and havent learned what signals were preseeent when it happened to help teach you so it doesnt happen again and that worries me.",
+    "response": "I'm focused on learning from my mistakes. What signals led to the hallucination you're concerned about? That's key for improvement.",
+    "adapter": "empathy",
+    "timestamp": 1774261002.8987231,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.523,
+        "level": "moderate",
+        "memory_pct": 88.2,
+        "process_memory_gb": 4.85,
+        "inference_avg_ms": 37782.3,
+        "trend": "stable",
+        "timestamp": 1774261002.7767305
+      }
+    }
+  }
+}

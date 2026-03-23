@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774260498_3690",
+  "timestamp": 1774260498.7891796,
+  "wrapped": {
+    "query": "codette do you feel ok?",
+    "response": "I'm functioning within normal parameters, and my systems are online and ready to assist you, which is a philosophical acknowledgment of my operational status.",
+    "adapter": "unknown",
+    "timestamp": 1774260498.7891796,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.523,
+        "level": "moderate",
+        "memory_pct": 89.7,
+        "process_memory_gb": 4.74,
+        "inference_avg_ms": 29911.5,
+        "trend": "stable",
+        "timestamp": 1774260498.6662858
+      }
+    }
+  }
+}

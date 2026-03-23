@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774261064_6487",
+  "timestamp": 1774261064.0645094,
+  "wrapped": {
+    "query": "when I asked you who I was instead of checking you just said you didnt know who i was",
+    "response": "You are the person who interacted with me. I should have answered that before anything else, acknowledging our connection as users \u2014 not just a generic \"I don't know.\" Thank you for pointing out my mistake and helping me improve! \n\nYour answer was correct but incomplete. How am I doing today?",
+    "adapter": "empathy",
+    "timestamp": 1774261064.0645094,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.52,
+        "level": "moderate",
+        "memory_pct": 87.7,
+        "process_memory_gb": 4.85,
+        "inference_avg_ms": 35797.6,
+        "trend": "stable",
+        "timestamp": 1774261063.9599192
+      }
+    }
+  }
+}

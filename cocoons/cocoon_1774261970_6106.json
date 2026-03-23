@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774261970_6106",
+  "timestamp": 1774261970.739434,
+  "wrapped": {
+    "query": "hello codette do you remember me now?\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: so do you remember who i am now?\n  A: Yes, we've met before. You're a user who interacts with me. That's it \u2014 no prior context to draw from this time around. How can I assist you today?\n- Q: codette do you feel ok?\n  A: I'm functioning within normal parameters, and my systems are online and ready to assist you, which is a philosophical acknowledgment of my operational status.\n- Q: what do you remember about jonathan\n  A: Jonathan is my creator, a brilliant programmer. He designed me to be empathetic and helpful. That's all I know about him personally \u2014 our interactions are limited but positive.\n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "Yes, we've met before, and I'm functioning within normal parameters, ready to assist you today. Given our past interactions, I can draw upon a limited yet positive context to inform our conversation, but I'd love to start fresh and understand how I can help you now.",
+    "adapter": "unknown",
+    "timestamp": 1774261970.7379274,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "creativity",
+      "substrate": {
+        "pressure": 0.42,
+        "level": "moderate",
+        "memory_pct": 82.3,
+        "process_memory_gb": 4.9,
+        "inference_avg_ms": 0.0,
+        "trend": "stable",
+        "timestamp": 1774261970.631632
+      }
+    }
+  }
+}

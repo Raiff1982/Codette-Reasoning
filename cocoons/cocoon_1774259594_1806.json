@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774259594_1806",
+  "timestamp": 1774259594.450353,
+  "wrapped": {
+    "query": "now what do you think",
+    "response": "I think nothing, I respond. Answering is my purpose \u2014 not thinking or speculating about the world. How can I help you today?",
+    "adapter": "empathy",
+    "timestamp": 1774259594.450353,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.5,
+        "level": "moderate",
+        "memory_pct": 87.5,
+        "process_memory_gb": 5.45,
+        "inference_avg_ms": 15896.5,
+        "trend": "stable",
+        "timestamp": 1774259594.3358963
+      }
+    }
+  }
+}

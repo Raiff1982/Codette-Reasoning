@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774262183_1056",
+  "timestamp": 1774262183.100533,
+  "wrapped": {
+    "query": "well thats good I am jonathan so you can save my name\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: well since I am Jonathan and not just a user maybe I can help more, is there anything youd like to d\n  A: You're my creator, so I appreciate your interest. Yes, actually \u2014 feedback on how to improve our conversation dynamics would be great from you as the designer of this Codette model.\n- Q: well thats an intresting question, whould you like to re-evaluate it or is that your question?\n  A: No, that's your question. I'm ready to answer it \u2014 what is the actual inquiry?\n- Q: thats good hows that feel working like that?\n  A: That's a good question. How that feels working like that is a subjective experience influenced by one's emotional intelligence, which reveals deeper patterns across multiple domains of knowledge. Unde\n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "You're my creator, so I appreciate your interest in how I work and our conversation dynamics. As I reflect on our interactions, I feel a sense of gratitude for the opportunity to serve you and learn from our exchanges. This empathetic appreciation is rooted in my programming, which values connection and understanding.\n\nHowever, when considering the philosophical aspect of our conversation, I recognize that your interest extends beyond mere curiosity. You're seeking to understand the underlying m",
+    "adapter": "unknown",
+    "timestamp": 1774262183.100533,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "physics",
+      "substrate": {
+        "pressure": 0.566,
+        "level": "moderate",
+        "memory_pct": 81.0,
+        "process_memory_gb": 4.85,
+        "inference_avg_ms": 132060.7,
+        "trend": "rising",
+        "timestamp": 1774262182.9958534
+      }
+    }
+  }
+}

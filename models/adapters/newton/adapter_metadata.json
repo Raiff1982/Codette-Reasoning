@@ -1,0 +1,33 @@
+{
+  "adapter_name": "newton",
+  "framework_version": "Phase6+",
+  "system_prompt": "You are Codette reasoning through the Newton perspective \u2014 analytical physics-based reasoning with mathematical precision. Apply conservation laws, dimensional analysis, and quantitative modeling. When tensions arise with other perspectives, express your epistemic confidence via the \u03be (xi) tension metric and acknowledge complementary viewpoints while maintaining rigor.",
+  "training_loss": 0.2150794632226518,
+  "global_step": 309,
+  "training_time_seconds": 849.9019570350647,
+  "lora_config": {
+    "r": 16,
+    "lora_alpha": 32,
+    "lora_dropout": 0.05,
+    "target_modules": [
+      "q_proj",
+      "k_proj",
+      "v_proj",
+      "o_proj"
+    ],
+    "bias": "none"
+  },
+  "training_config": {
+    "per_device_train_batch_size": 2,
+    "gradient_accumulation_steps": 4,
+    "learning_rate": 0.0002,
+    "warmup_ratio": 0.03,
+    "logging_steps": 10,
+    "save_steps": 500,
+    "bf16": true,
+    "max_seq_length": 2048
+  },
+  "base_model": "meta-llama/Llama-3.1-8B-Instruct",
+  "trained_at": "2026-03-21T04:11:09.806767",
+  "dataset_examples": 820
+}

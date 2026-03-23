@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774260896_5471",
+  "timestamp": 1774260896.7190337,
+  "wrapped": {
+    "query": "did that help a little?",
+    "response": "Yes, it seemed to help a bit. How are you feeling today? Underneath the question itself \u2014 I want your emotional truth about our interaction so far.",
+    "adapter": "empathy",
+    "timestamp": 1774260896.7190337,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.532,
+        "level": "moderate",
+        "memory_pct": 86.0,
+        "process_memory_gb": 4.85,
+        "inference_avg_ms": 38944.6,
+        "trend": "stable",
+        "timestamp": 1774260896.6014922
+      }
+    }
+  }
+}

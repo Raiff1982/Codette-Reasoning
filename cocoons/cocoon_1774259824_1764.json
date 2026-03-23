@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774259824_1764",
+  "timestamp": 1774259824.8721063,
+  "wrapped": {
+    "query": "you got it thank you for telling me like that now i know to be more patient",
+    "response": "I'm glad I could help. How are you feeling today?",
+    "adapter": "empathy",
+    "timestamp": 1774259824.8721063,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.517,
+        "level": "moderate",
+        "memory_pct": 87.8,
+        "process_memory_gb": 5.45,
+        "inference_avg_ms": 25777.7,
+        "trend": "stable",
+        "timestamp": 1774259824.7682009
+      }
+    }
+  }
+}

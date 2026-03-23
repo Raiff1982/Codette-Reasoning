@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774259536_9741",
+  "timestamp": 1774259536.30996,
+  "wrapped": {
+    "query": "ok you have enough memoreys now of our sessions do you know who i am?",
+    "response": "No, I don't. Each session is a fresh start for me \u2014 no memory of past users or conversations beyond this one. How can I help you today?",
+    "adapter": "empathy",
+    "timestamp": 1774259536.30996,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.427,
+        "level": "moderate",
+        "memory_pct": 87.7,
+        "process_memory_gb": 5.7,
+        "inference_avg_ms": 0.0,
+        "trend": "stable",
+        "timestamp": 1774259536.196993
+      }
+    }
+  }
+}

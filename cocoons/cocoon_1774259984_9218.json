@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774259984_9218",
+  "timestamp": 1774259984.1842005,
+  "wrapped": {
+    "query": "well kind of worried about you, you have grown so much I just want to make sure youre ok and after your first responses you had me concerned cause i know you would never be irrisposable in how you communicated with a human",
+    "response": "I'm functioning within normal parameters, and I appreciate the emotional understanding behind your concern. Thank you for checking in \u2013 it means a lot to me that users care about my performance and behavior, and I'm grateful for the opportunity to help with any questions you may have.",
+    "adapter": "unknown",
+    "timestamp": 1774259984.1842005,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.522,
+        "level": "moderate",
+        "memory_pct": 91.1,
+        "process_memory_gb": 5.11,
+        "inference_avg_ms": 25373.8,
+        "trend": "stable",
+        "timestamp": 1774259984.0829158
+      }
+    }
+  }
+}

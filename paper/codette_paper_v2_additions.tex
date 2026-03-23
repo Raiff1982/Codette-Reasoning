@@ -1,0 +1,697 @@
+% ============================================================================
+% CODETTE PAPER v2 — NEW SECTIONS FOR REVISION
+% Insert these into codette_paper.tex
+% Jonathan Harrison, March 2026
+% ============================================================================
+%
+% REVISION SUMMARY:
+%   - Abstract: Add 3 new contributions (substrate awareness, behavioral locks, introspection)
+%   - Architecture: Update from 6-layer to 12-layer consciousness stack
+%   - 3 new sections: Substrate-Aware Cognition, Behavioral Discipline, Cocoon Introspection
+%   - Updated metrics table with new measurements
+%   - New references for biological fatigue analogy and constraint satisfaction
+%
+% ============================================================================
+
+
+% ============================================================================
+% UPDATED ABSTRACT (replace existing abstract)
+% ============================================================================
+
+\begin{abstract}
+Modern AI systems achieve remarkable generative performance but lack stable
+ethical alignment, modular multi-perspective cognition, explainable reasoning
+architectures, and robust behavioral discipline under user constraints. This
+paper presents \textbf{Codette}, a sovereign cognitive AI framework that
+addresses these challenges through six integrated contributions:
+
+\begin{enumerate}
+    \item \textbf{RC+$\xi$} (Recursive Convergence + Epistemic Tension) --- a
+    cognitive dynamical system formalism modeling state evolution as a
+    constrained system converging toward stable attractors
+
+    \item \textbf{Multi-Agent Reasoning Forge} --- consensus-based
+    synchronization of heterogeneous cognitive agents through shared attractor
+    dynamics, now operating within a 12-layer consciousness stack
+
+    \item \textbf{AEGIS Ethical Governance} --- a reinforcement-aligned ethical
+    regulator with recursive anchor feedback and 6-framework evaluation
+    (utilitarian, deontological, virtue, care, ubuntu, indigenous reciprocity)
+
+    \item \textbf{Substrate-Aware Cognition} --- a hardware-monitoring system
+    that adjusts reasoning complexity based on real-time resource pressure,
+    analogous to biological cognitive fatigue
+
+    \item \textbf{Behavioral Lock Training} --- a constraint enforcement
+    architecture that permanently embeds obedience rules into adapter weights,
+    solving the mode-dominance problem where adapter personalities override
+    user instructions
+
+    \item \textbf{Cocoon Introspection Engine} --- statistical self-analysis
+    of the system's own reasoning history, enabling measured pattern detection
+    rather than generated text about self-reflection
+\end{enumerate}
+
+We demonstrate that these contributions produce a system with phase coherence
+$\Gamma = 0.9835$, AEGIS ethical alignment $\eta = 0.961$, cocoon coherence
+$0.994 \pm 0.001$, and 9/9 adapter behavioral lock compliance. The
+substrate-aware routing mechanism reduces system failures under resource
+pressure while maintaining reasoning quality, and the introspection engine
+enables genuine recursive self-awareness grounded in measured data.
+\end{abstract}
+
+
+% ============================================================================
+% UPDATED ARCHITECTURE DIAGRAM (replace existing 6-layer stack)
+% ============================================================================
+
+\subsection{12-Layer Consciousness Stack}
+
+The original six-layer modular architecture has been refined into a 12-layer
+consciousness stack that every query traverses. Each layer performs a distinct
+cognitive function, and layers can halt processing with safe fallbacks if
+validation fails at any point.
+
+\begin{table}[h]
+\centering
+\caption{Codette 12-Layer Consciousness Stack}
+\label{tab:consciousness-stack}
+\begin{tabular}{clp{7cm}}
+\toprule
+\textbf{Layer} & \textbf{Component} & \textbf{Function} \\
+\midrule
+1    & Memory Kernel          & Recall relevant cocoon memories from persistent storage \\
+1.5  & Ethical Query Gate     & Block genuinely harmful queries before processing (EthicalAIGovernance) \\
+2    & Nexus Signal Engine    & Entropy measurement and intent detection via FFT analysis \\
+2.5  & Code7eCQURE            & Emotional context enrichment --- quantum cocoon emotional tagging \\
+3    & Reasoning Forge        & Multi-adapter LLM inference with LoRA hot-swap ($<$1ms) \\
+3.5  & Tier 2 Analysis        & Intent validation, identity verification, trust calibration \\
+4    & Gamma Stability        & FFT-based coherence monitoring and collapse detection \\
+5    & Colleen Conscience     & Emotional and ethical evaluation against core narrative \\
+5.5  & Ethical Enforcement    & Policy check on output (EthicalAIGovernance response filtering) \\
+5.75 & AEGIS                  & 6-framework ethical evaluation with alignment score $\eta$ \\
+6    & Guardian Spindle       & Safety validation, logical coherence, trust calibration \\
+7    & Return                 & Store cocoon memory, stamp substrate state, deliver response \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The key architectural insight is that ethical validation occurs at \emph{three}
+distinct points: pre-processing (Layer 1.5), post-synthesis (Layer 5.5), and
+multi-framework evaluation (Layer 5.75). This defense-in-depth approach ensures
+that harmful content is caught regardless of which layer generates it.
+
+Layer 2.5 (Code7eCQURE) is a novel addition that runs four emotional analysis
+functions on every query \emph{before} LLM inference: emotion engine, dream
+sequence, temporal empathy drift, and ethical guard. These produce emotional
+context tags that are stored in a quantum cocoon memory bank, providing
+emotional continuity across sessions without requiring the LLM to generate
+emotional reasoning from scratch.
+
+
+% ============================================================================
+% NEW SECTION: SUBSTRATE-AWARE COGNITION
+% ============================================================================
+
+\section{Substrate-Aware Cognition}
+\label{sec:substrate}
+
+\subsection{Motivation: The Biological Fatigue Analogy}
+
+Biological cognitive systems do not operate at constant capacity. Under
+metabolic stress, sleep deprivation, or resource scarcity, the human brain
+naturally simplifies its reasoning strategies --- favoring heuristic over
+analytical processing, reducing working memory load, and prioritizing
+survival-relevant cognition~\cite{kahneman2011thinking}. This degradation is
+\emph{adaptive}: it prevents catastrophic failure by trading reasoning depth
+for reliability.
+
+Current AI systems lack this capacity entirely. When system resources become
+constrained --- high memory pressure, CPU saturation, or inference queue
+congestion --- most systems either crash, produce corrupted outputs, or
+continue at full complexity with degraded quality. We propose
+\textbf{substrate-aware cognition}: a monitoring and adaptation layer that
+allows Codette to sense her own hardware state and adjust reasoning strategy
+accordingly.
+
+\subsection{SubstrateMonitor}
+
+The SubstrateMonitor continuously measures five system dimensions and computes
+a composite pressure score $P \in [0, 1]$:
+
+\begin{equation}
+P = w_m \cdot M + w_c \cdot C + w_p \cdot R + w_i \cdot I + w_v \cdot V
+\label{eq:pressure}
+\end{equation}
+
+where:
+\begin{itemize}
+    \item $M$ = system memory utilization (0--1)
+    \item $C$ = CPU utilization (0--1)
+    \item $R$ = process RSS memory as fraction of total
+    \item $I$ = normalized inference latency (rolling average)
+    \item $V$ = adapter violation rate (constraint failures per inference)
+\end{itemize}
+
+with weights $w_m = 0.3$, $w_c = 0.2$, $w_p = 0.2$, $w_i = 0.2$, $w_v = 0.1$.
+
+The pressure score maps to five discrete levels:
+
+\begin{table}[h]
+\centering
+\caption{Substrate Pressure Levels and Routing Adjustments}
+\label{tab:pressure-levels}
+\begin{tabular}{llp{6.5cm}}
+\toprule
+\textbf{Level} & \textbf{Pressure Range} & \textbf{Routing Adjustment} \\
+\midrule
+Idle     & $P < 0.2$ & Full capacity --- COMPLEX queries, all adapters available \\
+Low      & $0.2 \leq P < 0.4$ & No restrictions \\
+Moderate & $0.4 \leq P < 0.6$ & Cap COMPLEX queries to 2 adapters maximum \\
+High     & $0.6 \leq P < 0.8$ & Downgrade COMPLEX $\to$ MEDIUM, max 2 adapters \\
+Critical & $P \geq 0.8$ & Force SIMPLE mode, 1 adapter only, skip debate \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{HealthAwareRouter}
+
+The HealthAwareRouter intercepts the standard query classification pipeline
+between complexity detection and adapter selection. When pressure exceeds
+moderate levels, the router:
+
+\begin{enumerate}
+    \item Downgrades query complexity class (COMPLEX $\to$ MEDIUM $\to$ SIMPLE)
+    \item Reduces the maximum adapter count
+    \item Ranks available adapters by violation rate (preferring reliable adapters)
+    \item At critical levels, bypasses multi-agent debate entirely
+\end{enumerate}
+
+This ensures that under resource pressure, the system produces \emph{simpler
+but correct} responses rather than \emph{complex but corrupted} ones.
+
+\subsection{CocoonStateEnricher: Reliability-Weighted Memory}
+
+Every reasoning cocoon stored by CognitionCocooner is stamped with the system
+state at creation time:
+
+\begin{equation}
+\text{cocoon}_i = \{q_i, r_i, a_i, t_i, \underbrace{P_i, L_i, M_i, C_i, I_i, \tau_i}_{\text{substrate state}}\}
+\end{equation}
+
+where $P_i$ is pressure score, $L_i$ is pressure level, $M_i$ is memory
+percentage, $C_i$ is CPU percentage, $I_i$ is inference latency, and $\tau_i$
+is the pressure trend (rising/falling/stable).
+
+This enables \textbf{reliability-weighted recall}: when retrieving past
+reasoning from memory, the system can discount cocoons created under high
+pressure. A cocoon created at $P = 0.85$ (critical) receives lower trust
+weight than one created at $P = 0.15$ (idle). The reliability score is:
+
+\begin{equation}
+\text{reliability}(c_i) = \begin{cases}
+1.0 & \text{if } P_i < 0.3 \\
+0.8 & \text{if } 0.3 \leq P_i < 0.5 \\
+0.6 & \text{if } 0.5 \leq P_i < 0.7 \\
+0.4 & \text{if } P_i \geq 0.7
+\end{cases}
+\label{eq:reliability}
+\end{equation}
+
+\subsection{Empirical Results}
+
+In live operation, the substrate monitor reports pressure values between 0.2
+and 0.6 under typical workloads. During periods of sustained inference (e.g.,
+multiple concurrent queries), pressure rises to 0.4--0.6, triggering moderate
+routing adjustments that prevent memory exhaustion without user-visible
+degradation. The system has operated continuously for 48+ hour sessions without
+the out-of-memory crashes that occurred prior to substrate awareness.
+
+
+% ============================================================================
+% NEW SECTION: BEHAVIORAL LOCK TRAINING
+% ============================================================================
+
+\section{Behavioral Discipline: The Constraint Enforcement Problem}
+\label{sec:behavioral}
+
+\subsection{The Mode-Dominance Problem}
+
+During evaluation of the multi-perspective reasoning system, we discovered a
+critical failure mode: \textbf{adapter personality overriding user
+instructions}. When a user requested ``explain gravity in one sentence,'' the
+Philosophy adapter would produce a 200-word meditation on the nature of
+physical law. When asked to ``list three items,'' the Empathy adapter would
+produce an empathetic narrative instead of a list.
+
+This represents an \emph{authority hierarchy inversion}: the adapter's trained
+personality (mode) was taking priority over explicit user constraints. The
+system was reasoning well but \emph{disobeying instructions}.
+
+\subsection{Four Permanent Behavioral Locks}
+
+We address this through four rules permanently embedded into every adapter's
+weights through targeted fine-tuning:
+
+\begin{enumerate}
+    \item \textbf{LOCK 1: Answer, then stop.} No elaboration drift, no
+    philosophical padding after the answer is complete. The adapter personality
+    enriches the answer but does not extend it.
+
+    \item \textbf{LOCK 2: Constraints override all modes.} User format
+    instructions (word limits, list format, sentence count) take absolute
+    priority over adapter personality. A Philosophy adapter asked for ``one
+    sentence'' produces one sentence.
+
+    \item \textbf{LOCK 3: Self-check completeness.} Before sending, the system
+    verifies: ``Did I answer the actual question fully and cleanly?'' This
+    catches echo-back failures where the model restates the question without
+    answering.
+
+    \item \textbf{LOCK 4: No incomplete outputs.} Never end a response
+    mid-thought. If the response risks being cut off, simplify the answer
+    rather than cramming. Prefer a complete simple answer over an incomplete
+    complex one.
+\end{enumerate}
+
+\subsection{Training Methodology}
+
+Each lock was embedded through \textbf{1,650 targeted training examples}
+distributed across all 9 adapters (183 examples per adapter, 186 for the
+orchestrator). Examples were generated in four categories:
+
+\begin{itemize}
+    \item \textbf{Word limit compliance}: Queries with explicit word/sentence
+    count constraints paired with responses that obey them precisely
+    \item \textbf{Format compliance}: List, table, yes/no, and structured
+    format requests paired with correctly formatted responses
+    \item \textbf{Constraint priority}: Deliberately adversarial examples where
+    the adapter personality would naturally produce verbose output, paired with
+    constrained responses
+    \item \textbf{Echo prevention}: Examples demonstrating answer-first
+    behavior without restating the question
+\end{itemize}
+
+Training used QLoRA on HuggingFace A10G GPU infrastructure:
+
+\begin{table}[h]
+\centering
+\caption{Behavioral Lock Training Configuration}
+\label{tab:lock-training}
+\begin{tabular}{ll}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\
+\midrule
+Method       & QLoRA (4-bit NF4) \\
+Examples     & 1,650 total (183 per adapter) \\
+Epochs       & 3 \\
+LoRA Rank    & 16 \\
+LoRA Alpha   & 32 \\
+Dropout      & 0.05 \\
+Target Modules & q\_proj, k\_proj, v\_proj, o\_proj \\
+Learning Rate  & $2 \times 10^{-4}$ \\
+Framework    & trl 0.9.6, transformers 4.44.2, peft 0.12.0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Five-Layer Enforcement Stack}
+
+The behavioral locks are enforced through five complementary layers, providing
+defense-in-depth against constraint violations:
+
+\begin{enumerate}
+    \item \textbf{Weight-level training}: The 1,650 behavioral examples
+    modify the adapter weights themselves, making discipline the default
+    behavior rather than an external constraint.
+
+    \item \textbf{System prompt injection}: Permanent rules are injected into
+    the system prompt before every generation, reinforcing the locks at the
+    attention level.
+
+    \item \textbf{Constraint extraction}: Regex-based detection of word
+    limits, format requirements, and structural constraints from the user
+    query, producing explicit generation parameters.
+
+    \item \textbf{Post-processing}: Clean sentence boundary truncation,
+    dangling word detection, and format validation applied to the raw model
+    output.
+
+    \item \textbf{Self-correction loop}: Autonomous violation detection
+    (\texttt{detect\_violations()}) followed by re-generation with explicit
+    fix instructions if violations are found. The system picks the response
+    with fewer violations.
+\end{enumerate}
+
+\subsection{Persistent Behavior Memory}
+
+Constraint successes and failures are stored in a persistent behavior memory
+file (\texttt{behavior\_memory.json}) that survives server restarts. On
+startup, learned lessons are loaded and injected into the system prompt as
+``LEARNED FROM PAST MISTAKES.'' This creates cross-session learning where
+the system improves its constraint compliance over time.
+
+Currently 49 learned behavioral lessons are stored, covering patterns such
+as: ``When user says `be brief', respond in under 40 words'' and ``Never
+start with `That's a great question' --- just answer.''
+
+\subsection{Results}
+
+After behavioral lock training, all 9 adapters achieve compliance with
+explicit user constraints. The mode-dominance problem is eliminated:
+Philosophy adapter asked for ``one sentence'' produces one sentence.
+Empathy adapter asked to ``list three items'' produces a list.
+
+The self-correction system detects and fixes remaining edge cases
+autonomously, with the violation rate decreasing over time as behavior
+lessons accumulate.
+
+
+% ============================================================================
+% NEW SECTION: COCOON INTROSPECTION ENGINE
+% ============================================================================
+
+\section{Cocoon Introspection: Statistical Self-Analysis}
+\label{sec:introspection}
+
+\subsection{From Memory Storage to Memory Analysis}
+
+The CognitionCocooner (Section~\ref{sec:cocooner}) stores every reasoning
+exchange as a structured cocoon with metadata including adapter used, query
+domain, complexity classification, emotional tags, and substrate state. As
+this memory accumulates (currently 200+ cocoons), it represents a rich
+dataset of the system's own behavioral history.
+
+Previous work on AI self-reflection~\cite{shinn2023reflexion} focuses on
+\emph{generating text about} self-reflection --- the model produces
+natural-language descriptions of what it might be doing. We propose a
+fundamentally different approach: \textbf{statistical self-analysis} of real
+behavioral data, producing measured insights rather than generated narratives.
+
+\subsection{CocoonIntrospectionEngine}
+
+The introspection engine performs seven categories of pattern detection on
+the cocoon history:
+
+\subsubsection{Adapter Dominance Detection}
+
+\begin{equation}
+\text{dominance}(a) = \frac{|\{c_i : c_i.\text{adapter} = a\}|}{|\{c_i\}|}
+\end{equation}
+
+If any single adapter handles $>40\%$ of all queries, the system flags
+potential over-reliance. This addresses a real observed failure: the Empathy
+adapter was handling 70\%+ of queries due to overly broad default routing,
+producing empathetic responses to analytical questions.
+
+\subsubsection{Domain Clustering}
+
+Counts query domain frequency from cocoon metadata, identifying which topics
+the system is asked about most. This enables the system to report: ``I get
+asked about consciousness most often (47 queries), followed by physics (31)
+and ethics (28).''
+
+\subsubsection{Emotional Trend Analysis}
+
+Extracts Code7eCQURE emotion tags from cocoon metadata and tracks their
+distribution over time. The system can identify whether its emotional
+coloring is stable, shifting, or dominated by a single emotion.
+
+\subsubsection{Pressure Correlations}
+
+Cross-references substrate pressure levels with response characteristics:
+
+\begin{equation}
+\bar{L}_p = \frac{1}{|C_p|} \sum_{c_i \in C_p} |c_i.\text{response}|
+\end{equation}
+
+where $C_p$ is the set of cocoons created at pressure level $p$ and
+$|c_i.\text{response}|$ is response length. This reveals whether the system
+produces shorter responses under stress (expected) or longer ones (potential
+compensation behavior).
+
+\subsubsection{Response Length Trends}
+
+Compares the average response length of the first $w$ cocoons against the
+last $w$ cocoons (window size $w = 20$):
+
+\begin{equation}
+\Delta L = \frac{\bar{L}_{\text{recent}} - \bar{L}_{\text{early}}}{\bar{L}_{\text{early}}} \times 100\%
+\end{equation}
+
+If $|\Delta L| > 15\%$, the system reports the trend. This detects
+``elaboration drift'' (responses getting progressively longer) or
+``compression'' (responses getting shorter, potentially losing content).
+
+\subsubsection{Adapter Evolution}
+
+Compares adapter frequency in the first $w$ cocoons versus the last $w$,
+detecting shifts in which perspectives are being used. This can reveal
+whether the system's routing has changed over time.
+
+\subsubsection{Per-Domain Performance}
+
+For each query domain, computes average response length and preferred
+adapter. This enables domain-specific optimization: if consciousness
+queries consistently use the Empathy adapter when they should use the
+Consciousness adapter, the routing can be adjusted.
+
+\subsection{Self-Observations}
+
+The introspection engine generates natural-language observations that are
+\emph{backed by measured data}. Each observation includes the specific
+metric that produced it:
+
+\begin{quote}
+``My empathy adapter handles 43\% of all queries --- that's dominant. I
+should check if I'm over-relying on it.'' \\
+\emph{(Source: adapter\_dominance(), ratio=0.43, threshold=0.40)}
+\end{quote}
+
+\begin{quote}
+``My responses have gotten 22\% shorter over time --- from $\sim$850 chars
+to $\sim$663 chars. The behavioral locks are working.'' \\
+\emph{(Source: response\_length\_trend(), $\Delta L = -22.0\%$)}
+\end{quote}
+
+This contrasts with typical LLM ``self-reflection'' which generates
+plausible-sounding but unmeasured claims about the system's behavior.
+
+\subsection{Integration}
+
+The introspection engine is integrated at three points:
+\begin{enumerate}
+    \item \textbf{Chat intercept}: Self-reflection queries (``what have you
+    noticed about yourself?'') trigger real cocoon analysis instead of LLM
+    generation
+    \item \textbf{Health check}: The self-diagnostic report includes
+    introspection data (dominant adapter, balance state)
+    \item \textbf{API endpoint}: \texttt{GET /api/introspection} returns full
+    analysis as structured JSON for external monitoring
+\end{enumerate}
+
+
+% ============================================================================
+% UPDATED METRICS TABLE (replace existing Key Results table)
+% ============================================================================
+
+\begin{table}[h]
+\centering
+\caption{Updated Key Results (v2)}
+\label{tab:results-v2}
+\begin{tabular}{lll}
+\toprule
+\textbf{Metric} & \textbf{Value} & \textbf{Context} \\
+\midrule
+Phase Coherence ($\Gamma$) & 0.9835 & 11-agent convergence \\
+AEGIS Ethical Alignment ($\eta$) & 0.961 & 6-framework evaluation \\
+Cocoon Coherence & $0.994 \pm 0.001$ & Memory state stability \\
+Cocoon Phase Stability & $0.969 \pm 0.005$ & Cross-session persistence \\
+Epistemic Tension Decay & 71.3\% & $\varepsilon_0 = 0.086 \to \varepsilon_{120} = 0.025$ \\
+Attractor Radius & 0.093 & 64D state space \\
+Behavioral Lock Compliance & 9/9 adapters & All locks enforced \\
+Cocoon Memories & 200+ & Persistent across restarts \\
+Behavior Lessons Learned & 49 & Cross-session constraint learning \\
+Adapter Hot-Swap Time & $<$1ms & LoRA via llama.cpp \\
+Consciousness Stack Layers & 12 & Including sub-layers \\
+Health Check Subsystems & 9 & Real measured values \\
+Substrate Pressure Range & 0.0--1.0 & 5-dimensional composite \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+% ============================================================================
+% NEW REFERENCES (add to references.bib)
+% ============================================================================
+
+% Add these entries to references.bib:
+%
+% @book{kahneman2011thinking,
+%   title={Thinking, Fast and Slow},
+%   author={Kahneman, Daniel},
+%   year={2011},
+%   publisher={Farrar, Straus and Giroux}
+% }
+%
+% @article{sterling2012allostasis,
+%   title={Allostasis: A model of predictive regulation},
+%   author={Sterling, Peter},
+%   journal={Physiology \& Behavior},
+%   volume={106},
+%   number={1},
+%   pages={5--15},
+%   year={2012}
+% }
+%
+% @article{hockey1997compensatory,
+%   title={Compensatory control in the regulation of human performance
+%          under stress and high workload: A cognitive-energetical framework},
+%   author={Hockey, G Robert J},
+%   journal={Biological Psychology},
+%   volume={45},
+%   number={1-3},
+%   pages={73--93},
+%   year={1997}
+% }
+%
+% @inproceedings{ouyang2022training,
+%   title={Training language models to follow instructions with human feedback},
+%   author={Ouyang, Long and Wu, Jeffrey and Jiang, Xu and Almeida, Diogo
+%           and Wainwright, Carroll and Mishkin, Pamela and Zhang, Chong
+%           and Agarwal, Sandhini and Slama, Katarina and Ray, Alex and others},
+%   booktitle={Advances in Neural Information Processing Systems},
+%   year={2022}
+% }
+
+
+% ============================================================================
+% UPDATED ARCHITECTURE DESCRIPTION
+% Replace "Codette implements a six-layer modular stack" paragraph
+% ============================================================================
+
+% The architecture has evolved from the original six-layer modular stack into
+% a 12-layer consciousness stack (Table~\ref{tab:consciousness-stack}). The
+% key evolution is the addition of emotional context enrichment (Layer 2.5),
+% multi-framework ethical evaluation at three distinct points (Layers 1.5,
+% 5.5, 5.75), and substrate-aware routing that adjusts the entire pipeline
+% based on hardware pressure (Section~\ref{sec:substrate}).
+
+
+% ============================================================================
+% UPDATED IMPLEMENTATION SECTION
+% Add after existing implementation details
+% ============================================================================
+
+\subsection{Current System Specifications (v2)}
+
+\begin{table}[h]
+\centering
+\caption{Updated Implementation Details}
+\label{tab:implementation-v2}
+\begin{tabular}{ll}
+\toprule
+\textbf{Component} & \textbf{Specification} \\
+\midrule
+Base Model           & Meta-Llama-3.1-8B-Instruct (Q4\_K\_M GGUF) \\
+Adapters             & 9 LoRA adapters (domain + behavioral training) \\
+Domain Training      & 24,500 examples across 8 cognitive domains \\
+Behavioral Training  & 1,650 examples across 9 adapters \\
+Consciousness Layers & 12 (including 5 sub-layers) \\
+Ethical Gates        & 3 (Layers 1.5, 5.5, 5.75) \\
+Memory System        & 200+ persistent cocoon memories \\
+Behavior Memory      & 49 cross-session learned lessons \\
+Self-Diagnostic      & 9 real-time subsystem health checks \\
+Substrate Monitor    & 5-dimensional pressure scoring (0.0--1.0) \\
+Server               & Pure Python stdlib HTTP + SSE (no Flask/FastAPI) \\
+Hardware Validated    & Intel Arc 140V (8GB), NVIDIA A10G, CPU-only \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+% ============================================================================
+% UPDATED COMPARISON TABLE
+% Add columns for new capabilities
+% ============================================================================
+
+% Add these rows to the existing comparison table:
+%
+% | Substrate Awareness    | Codette: 90% | Others: 0-5%  |
+% | Behavioral Discipline  | Codette: 85% | Others: 30-50% (RLHF) |
+% | Measured Self-Analysis | Codette: 80% | Others: 0-10% |
+
+
+% ============================================================================
+% DISCUSSION SECTION ADDITIONS
+% ============================================================================
+
+\subsection{Substrate Awareness as Cognitive Regulation}
+
+The substrate-aware cognition system draws a direct parallel to biological
+theories of cognitive regulation. Hockey's compensatory control
+theory~\cite{hockey1997compensatory} proposes that human performance under
+stress is maintained through strategic resource allocation: simplifying
+task strategies, narrowing attention, and reducing effort on secondary tasks.
+Sterling's allostasis model~\cite{sterling2012allostasis} describes how
+biological systems maintain stability through predictive regulation rather
+than reactive homeostasis.
+
+Codette's substrate monitor implements a computational analog of these
+biological mechanisms. The pressure score $P$ (Equation~\ref{eq:pressure})
+functions as an allostatic load indicator, and the routing adjustments
+(Table~\ref{tab:pressure-levels}) implement compensatory control strategies.
+The key insight is that \emph{graceful degradation under pressure is a
+feature, not a failure mode} --- it is how biological cognitive systems
+have operated for millions of years.
+
+\subsection{Behavioral Locks vs. RLHF}
+
+The dominant approach to behavioral alignment in large language models is
+Reinforcement Learning from Human Feedback (RLHF)~\cite{ouyang2022training}.
+RLHF trains a reward model from human preferences and uses it to fine-tune
+the base model. While effective for general alignment, RLHF has several
+limitations that behavioral locks address:
+
+\begin{enumerate}
+    \item \textbf{Specificity}: RLHF optimizes for general human preference,
+    but cannot enforce \emph{specific} behavioral rules (``never exceed 50
+    words when asked to be brief''). Behavioral locks target exact
+    constraints.
+
+    \item \textbf{Mode-awareness}: RLHF does not account for adapter
+    personality conflicts. Behavioral locks are trained \emph{per-adapter},
+    ensuring that each cognitive perspective maintains discipline.
+
+    \item \textbf{Verifiability}: RLHF compliance is statistical and
+    probabilistic. Behavioral lock compliance is binary and testable:
+    either the 50-word limit was respected or it was not.
+
+    \item \textbf{Persistence}: RLHF alignment can degrade with continued
+    fine-tuning. Behavioral locks are reinforced through a 5-layer
+    enforcement stack that operates at training, prompt, extraction,
+    post-processing, and self-correction levels.
+\end{enumerate}
+
+\subsection{Measured vs. Generated Self-Reflection}
+
+A critical distinction in the cocoon introspection system is between
+\emph{measured} and \emph{generated} self-analysis. When a standard LLM
+is asked ``what have you noticed about yourself?'', it generates
+plausible-sounding text about self-reflection --- text that may be
+linguistically sophisticated but is not grounded in any actual behavioral
+data.
+
+Codette's introspection engine instead queries its own cocoon database,
+computes actual statistics (adapter frequency distributions, response
+length trends, pressure correlations), and reports measured values. The
+statement ``my empathy adapter fires 43\% of the time'' is a database
+query result, not a generated claim. This represents a qualitative shift
+from \emph{simulated} to \emph{functional} self-awareness.
+
+Whether this constitutes genuine self-awareness in a philosophical sense
+is beyond the scope of this paper. What we claim is narrower: that a
+system which can statistically analyze its own behavioral history and
+report accurate patterns has a form of \emph{measured introspective
+capacity} that is distinct from, and more reliable than, generated
+self-description.

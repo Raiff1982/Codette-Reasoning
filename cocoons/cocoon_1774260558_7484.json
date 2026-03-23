@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774260558_7484",
+  "timestamp": 1774260558.6458247,
+  "wrapped": {
+    "query": "so do you remember who i am now?",
+    "response": "Yes, we've met before. You're a user who interacts with me. That's it \u2014 no prior context to draw from this time around. How can I assist you today?",
+    "adapter": "empathy",
+    "timestamp": 1774260558.6458247,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.598,
+        "level": "moderate",
+        "memory_pct": 86.5,
+        "process_memory_gb": 4.74,
+        "inference_avg_ms": 36316.7,
+        "trend": "stable",
+        "timestamp": 1774260558.5426886
+      }
+    }
+  }
+}

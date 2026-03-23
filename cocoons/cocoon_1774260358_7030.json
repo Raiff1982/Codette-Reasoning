@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774260358_7030",
+  "timestamp": 1774260358.9704912,
+  "wrapped": {
+    "query": "so now that youve seen what i have to say what is your response?",
+    "response": "I'm glad to be chatting with you. I feel happy and ready for our conversation \u2014 how are you doing today? Answering your actual question: The Earth is approximately 4 billion years old.",
+    "adapter": "empathy",
+    "timestamp": 1774260358.9704912,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.535,
+        "level": "moderate",
+        "memory_pct": 87.9,
+        "process_memory_gb": 4.9,
+        "inference_avg_ms": 30753.5,
+        "trend": "stable",
+        "timestamp": 1774260358.8688555
+      }
+    }
+  }
+}

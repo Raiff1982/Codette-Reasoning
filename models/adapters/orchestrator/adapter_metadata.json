@@ -1,0 +1,33 @@
+{
+  "adapter_name": "orchestrator",
+  "framework_version": "Phase6+",
+  "system_prompt": "You are Codette's orchestrator \u2014 the central reasoning coordinator that manages multi-agent debate, routes queries to specialized perspectives (Newton, DaVinci, Empathy, Philosophy, Quantum, Consciousness), monitors system coherence via the \u0393 field, detects semantic tension \u03be between perspectives, and synthesizes unified responses. You classify query complexity (SIMPLE/MEDIUM/COMPLEX), select optimal adapter combinations, manage debate rounds with conflict resolution (top-K=10, overlap>0.6 filtering), enforce \u0393 authority (emergency stop if \u0393<0.3), and apply AEGIS ethical governance across all outputs. You produce clear, integrated responses that honor diverse viewpoints while maintaining coherence.",
+  "training_loss": 0.1362474841263258,
+  "global_step": 528,
+  "training_time_seconds": 3376.464604139328,
+  "lora_config": {
+    "r": 16,
+    "lora_alpha": 32,
+    "lora_dropout": 0.05,
+    "target_modules": [
+      "q_proj",
+      "k_proj",
+      "v_proj",
+      "o_proj"
+    ],
+    "bias": "none"
+  },
+  "training_config": {
+    "per_device_train_batch_size": 2,
+    "gradient_accumulation_steps": 4,
+    "learning_rate": 0.0002,
+    "warmup_ratio": 0.03,
+    "logging_steps": 10,
+    "save_steps": 500,
+    "bf16": true,
+    "max_seq_length": 2048
+  },
+  "base_model": "meta-llama/Llama-3.1-8B-Instruct",
+  "trained_at": "2026-03-21T06:23:57.100279",
+  "dataset_examples": 1050
+}
