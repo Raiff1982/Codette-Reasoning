@@ -1,0 +1,17 @@
+{
+  "name": "codette-proxy",
+  "version": "1.0.0",
+  "description": "Reverse proxy for Codette HF Space",
+  "main": "proxy-server.js",
+  "scripts": {
+    "start": "node proxy-server.js",
+    "dev": "npm install && npm start"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^1.6.2"
+  }
+}
