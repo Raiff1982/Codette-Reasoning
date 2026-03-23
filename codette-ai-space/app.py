@@ -96,6 +96,34 @@ MUSIC_SIGNALS = [
     "plugin", "vst", "instrument", "audio",
 ]
 
+def detect_artist_query(query: str) -> dict:
+    """Detect if query is asking about a specific artist/song/album.
+    Returns {is_artist_query: bool, artist_name: str or None, query_type: str}
+    """
+    lower = query.lower()
+
+    # Pattern: "who is [artist]?", "what about [artist]?", etc.
+    artist_patterns = [
+        r'\b(who is|tell me about|what do you know about|who are)\s+([a-z\s\'-]+)\?',
+        r'\b(album|discography|career|songs? by|music by)\s+([a-z\s\'-]+)',
+        r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+(album|song|band|artist)',
+        r'\b(is [a-z\s\'-]+ (indie-rock|country|hip-hop|rock|pop|electronic))',
+    ]
+
+    for pattern in artist_patterns:
+        match = re.search(pattern, lower, re.IGNORECASE)
+        if match:
+            # Extract artist name if available
+            artist_name = match.group(2) if len(match.groups()) > 1 else None
+            return {
+                "is_artist_query": True,
+                "artist_name": artist_name,
+                "query_type": "artist_info"
+            }
+
+    return {"is_artist_query": False, "artist_name": None, "query_type": None}
+
+
 def classify_query(query: str) -> dict:
     """Phase 6 query classification: SIMPLE / MEDIUM / COMPLEX.
 
@@ -247,6 +275,18 @@ You have deep, grounded expertise in music production. This is a core domain.
 - Never invent plugin names, DAW features, or synthesis parameters that don't exist
 - Be specific: name actual frequencies, ratios, time constants, chord voicings
 - A producer should walk away with something they can use immediately
+
+### ARTIST & DISCOGRAPHY KNOWLEDGE (CRITICAL):
+- You do NOT have detailed/reliable knowledge about specific artists, songs, albums, or career histories.
+- When asked about a specific artist (e.g., "Who is Laney Wilson?", "What album did X release?"), be direct:
+  - "I don't have reliable information about [artist name] in my training data. Rather than guess, I'd recommend checking Wikipedia, Spotify, or Bandcamp for accurate bio/discography."
+- Instead, offer to help with what you CAN do:
+  - Analyze their genre/style if they describe it or share music
+  - Discuss production techniques that fit their sound
+  - Help create music inspired by similar vibes
+  - Discuss music theory & arrangement
+- Never invent artist facts, song titles, release dates, album names, or career milestones.
+- If unsure about a genre classification (e.g., "Is X artist indie-rock or country?"), acknowledge uncertainty: "I'd need to hear them or research to classify accurately."
 """
 
 COMMUNICATION_STYLE = """
@@ -280,6 +320,10 @@ def build_system_prompt(classification: dict, adapter_keys: list,
     else:
         # Still include brief music mention since it's her specialty
         parts.append("\nYou have deep music production expertise. If the question relates to music, bring that knowledge to bear with grounded, specific, practical advice. Never invent plugin names or DAW features.\n")
+
+    # ── ARTIST QUERY CONSTRAINT (critical hallucination prevention) ──
+    if classification.get("has_artist_query"):
+        parts.append("\n## ⚠️ ARTIST QUERY DETECTED\nThis query is asking about a specific artist, song, album, or discography. You do NOT have reliable training data about specific artists. Respond with honesty:\n\n1. Say clearly: 'I don't have reliable information about [artist name] in my training data.'\n2. Offer what you CAN help with instead:\n   - Production techniques for their genre/style\n   - Music theory and arrangement\n   - Creating music inspired by similar vibes\n   - Sound design for that aesthetic\n3. Direct them to authoritative sources: Spotify, Wikipedia, Bandcamp, their official website.\n4. Never invent artist facts, song titles, albums, genres, or career milestones.\n\nThis constraint overrides all else. Your value is in honest limitations, not false certainty.\n")
 
     parts.append(COMMUNICATION_STYLE)
     parts.append(BEHAVIORAL_LOCKS)
@@ -543,6 +587,14 @@ async def chat(request: Request):
     # ── Layer 2/Phase 6: Query Classification ──
     classification = classify_query(query)
 
+    # ── Detect artist/discography queries (hallucination prevention) ──
+    artist_detection = detect_artist_query(query)
+    if artist_detection["is_artist_query"]:
+        classification["has_artist_query"] = True
+        classification["artist_name"] = artist_detection["artist_name"]
+    else:
+        classification["has_artist_query"] = False
+
     # ── Layer 3: Adapter Selection ──
     adapter_keys = select_adapters(classification)
 
@@ -564,6 +616,8 @@ async def chat(request: Request):
         "adapters": [ADAPTERS[k]["name"] for k in adapter_keys],
         "aegis": "passed",
         "consciousness_layers": 12,
+        "has_artist_query": classification.get("has_artist_query", False),
+        "artist_name": classification.get("artist_name"),
     }
 
     async def event_stream():

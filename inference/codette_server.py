@@ -699,11 +699,57 @@ def _worker_thread():
                     pass
                 continue
 
+            # ── ARTIST QUERY INTERCEPT (hallucination prevention) ──
+            # Detect if user is asking about specific artists/songs/albums
+            # Route to uncertainty guidance instead of risking hallucination
+            _artist_patterns = [
+                r'\b(who is|tell me about|what do you know about|who are)\s+([a-z\s\'-]+)\?',
+                r'\b(album|discography|career|songs? by|music by)\s+([a-z\s\'-]+)',
+                r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+(album|song|band|artist)',
+                r'\b(is [a-z\s\'-]+ (indie-rock|country|hip-hop|rock|pop|electronic))',
+            ]
+            is_artist_query = any(re.search(pattern, query_lower, re.IGNORECASE) for pattern in _artist_patterns)
+
+            if is_artist_query:
+                print(f"  [WORKER] Intercepted artist query — routing to uncertainty response", flush=True)
+                artist_response = (
+                    "I don't have reliable information about specific artists in my training data. Rather than guess or hallucinate details, I'd recommend checking:\n\n"
+                    "- **Spotify** — artist bio, discography, listening stats\n"
+                    "- **Wikipedia** — career history, notable works\n"
+                    "- **Bandcamp** — independent artists, recent releases\n"
+                    "- **Official websites** — accurate info straight from the source\n\n"
+                    "**What I CAN help with instead:**\n"
+                    "- Music production techniques for their genre/style\n"
+                    "- Music theory and arrangement analysis\n"
+                    "- Creating music inspired by similar vibes\n"
+                    "- Sound design for that aesthetic\n\n"
+                    "If you describe their music or share a link, I can help you create inspired work or understand the production choices."
+                )
+                try:
+                    response_q.put({"event": "thinking", "adapter": "uncertainty_aware"})
+                except (queue.Full, RuntimeError):
+                    pass
+                try:
+                    response_q.put({
+                        "event": "complete",
+                        "response": artist_response,
+                        "adapter": "uncertainty_aware",
+                        "confidence": 1.0,
+                        "reasoning": "Honest uncertainty > hallucination. User can verify via authoritative sources.",
+                        "tokens": 0,
+                        "time": 0.01,
+                        "complexity": "SIMPLE",
+                        "domain": "music",
+                        "ethical_checks": 1,
+                    })
+                except (queue.Full, RuntimeError):
+                    pass
+                continue
+
             # Send "thinking" event
             try:
                 response_q.put({"event": "thinking", "adapter": adapter or "auto"})
-            except (queue.Full, RuntimeError) as e:
-                print(f"  ERROR: Failed to queue thinking event: {e}")
+            except (queue.Full, RuntimeError):
                 continue
 
             # Route and generate — limit to 1 concurrent inference to avoid memory exhaustion
