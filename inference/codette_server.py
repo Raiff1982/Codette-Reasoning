@@ -311,48 +311,58 @@ def _run_health_check():
     # 4. Session / Cocoon subsystems
     checks_total += 1
     if _session:
-        sess = {
-            "status": "OK",
-            "session_id": _session.session_id,
-            "message_count": len(_session.messages),
-            "subsystems": {},
-        }
-        sub_names = [
-            ("spiderweb", "QuantumSpiderweb"),
-            ("metrics_engine", "EpistemicMetrics"),
-            ("cocoon_sync", "CocoonSync"),
-            ("dream_reweaver", "DreamReweaver"),
-            ("optimizer", "QuantumOptimizer"),
-            ("memory_kernel", "LivingMemory"),
-            ("guardian", "CodetteGuardian"),
-            ("resonance_engine", "ResonantContinuity"),
-            ("aegis", "AEGIS"),
-            ("nexus", "NexusSignalEngine"),
-        ]
-        for attr, label in sub_names:
-            obj = getattr(_session, attr, None)
-            sess["subsystems"][label] = "OK" if obj else "MISSING"
-
-        # Spiderweb metrics
-        if _session.spiderweb:
-            sess["spiderweb_metrics"] = {
-                "phase_coherence": _session.spiderweb.phase_coherence(),
-                "entropy": _session.spiderweb.shannon_entropy(),
-                "decoherence_rate": _session.spiderweb.decoherence_rate(),
-                "node_count": len(_session.spiderweb.nodes),
-                "attractor_count": len(_session.attractors),
-                "glyph_count": len(_session.glyphs),
+        try:
+            sess = {
+                "status": "OK",
+                "session_id": getattr(_session, 'session_id', 'unknown'),
+                "message_count": len(getattr(_session, 'messages', [])),
+                "subsystems": {},
             }
+            sub_names = [
+                ("spiderweb", "QuantumSpiderweb"),
+                ("metrics_engine", "EpistemicMetrics"),
+                ("cocoon_sync", "CocoonSync"),
+                ("dream_reweaver", "DreamReweaver"),
+                ("optimizer", "QuantumOptimizer"),
+                ("memory_kernel", "LivingMemory"),
+                ("guardian", "CodetteGuardian"),
+                ("resonance_engine", "ResonantContinuity"),
+                ("aegis", "AEGIS"),
+                ("nexus", "NexusSignalEngine"),
+            ]
+            for attr, label in sub_names:
+                obj = getattr(_session, attr, None)
+                sess["subsystems"][label] = "OK" if obj else "MISSING"
 
-        # Coherence/tension history
-        sess["coherence_entries"] = len(_session.coherence_history)
-        sess["tension_entries"] = len(_session.tension_history)
-        sess["current_coherence"] = _session.coherence_history[-1] if _session.coherence_history else None
-        sess["current_tension"] = _session.tension_history[-1] if _session.tension_history else None
-        sess["perspective_usage"] = _session.perspective_usage
+            # Spiderweb metrics (safely)
+            sw = getattr(_session, 'spiderweb', None)
+            if sw:
+                try:
+                    sess["spiderweb_metrics"] = {
+                        "phase_coherence": sw.phase_coherence() if hasattr(sw, 'phase_coherence') else 0,
+                        "entropy": sw.shannon_entropy() if hasattr(sw, 'shannon_entropy') else 0,
+                        "decoherence_rate": sw.decoherence_rate() if hasattr(sw, 'decoherence_rate') else 0,
+                        "node_count": len(getattr(sw, 'nodes', [])),
+                        "attractor_count": len(getattr(_session, 'attractors', [])),
+                        "glyph_count": len(getattr(_session, 'glyphs', [])),
+                    }
+                except Exception:
+                    sess["spiderweb_metrics"] = {"error": "failed to read"}
 
-        report["systems"]["session"] = sess
-        checks_passed += 1
+            # Coherence/tension history (safely)
+            ch = getattr(_session, 'coherence_history', [])
+            th = getattr(_session, 'tension_history', [])
+            sess["coherence_entries"] = len(ch)
+            sess["tension_entries"] = len(th)
+            sess["current_coherence"] = ch[-1] if ch else None
+            sess["current_tension"] = th[-1] if th else None
+            sess["perspective_usage"] = dict(getattr(_session, 'perspective_usage', {}))
+
+            report["systems"]["session"] = sess
+            checks_passed += 1
+        except Exception as e:
+            report["systems"]["session"] = {"status": "ERROR", "detail": str(e)}
+            report["warnings"].append(f"Session check failed: {e}")
     else:
         report["systems"]["session"] = {"status": "NOT INITIALIZED"}
         report["errors"].append("No active session")
@@ -360,11 +370,11 @@ def _run_health_check():
     # 5. Self-correction system
     checks_total += 1
     try:
-        from self_correction import BehaviorMemory
+        from self_correction import BehaviorMemory  # noqa
         bm = BehaviorMemory()
         report["systems"]["self_correction"] = {
             "status": "OK",
-            "behavior_lessons": len(bm.lessons),
+            "behavior_lessons": len(getattr(bm, 'lessons', [])),
             "permanent_locks": 4,
         }
         checks_passed += 1
@@ -451,6 +461,100 @@ def _worker_thread():
             query = request["query"]
             adapter = request.get("adapter")  # None = auto-route
             max_adapters = request.get("max_adapters", 2)
+
+            # ── SELF-DIAGNOSTIC INTERCEPT ──
+            # When user asks for a health/system check, run the REAL diagnostic
+            # instead of letting the model generate text about it
+            _health_triggers = [
+                "health check", "system health", "self diagnostic", "self-diagnostic",
+                "systems check", "system check", "self check", "self-check",
+                "run diagnostic", "diagnostics", "check yourself", "check your systems",
+                "how are your systems", "are you healthy", "status check",
+                "self systems health", "system status",
+            ]
+            query_lower = query.lower().strip()
+            if any(trigger in query_lower for trigger in _health_triggers):
+                print(f"  [WORKER] Intercepted health check query — running real diagnostic", flush=True)
+
+                # Must send thinking event first (POST handler expects it)
+                try:
+                    response_q.put({"event": "thinking", "adapter": "self_diagnostic"})
+                except (queue.Full, RuntimeError):
+                    pass
+
+                try:
+                    health = _run_health_check()
+                except Exception as e:
+                    health = {"overall": "ERROR", "score": "0/0", "systems": {}, "warnings": [], "errors": [str(e)]}
+
+                # Format the real data into a readable response
+                lines = []
+                lines.append(f"**Self-Diagnostic Report** — Overall: **{health['overall']}** ({health['score']} checks passed)\n")
+
+                for sys_name, sys_data in health.get("systems", {}).items():
+                    status = sys_data.get("status", "?")
+                    icon = "+" if status in ("OK", "HEALTHY") else ("-" if status == "MISSING" else "!")
+                    nice_name = sys_name.replace("_", " ").title()
+                    lines.append(f"[{icon}] **{nice_name}**: {status}")
+
+                    # Show key details per subsystem
+                    if sys_name == "model":
+                        lines.append(f"    Adapters loaded: {sys_data.get('adapters_loaded', '?')}")
+                    elif sys_name == "phase6_forge":
+                        for comp_name, comp_data in sys_data.get("components", {}).items():
+                            comp_status = comp_data if isinstance(comp_data, str) else comp_data.get("status", "?")
+                            comp_nice = comp_name.replace("_", " ").title()
+                            detail_parts = []
+                            if isinstance(comp_data, dict):
+                                for k, v in comp_data.items():
+                                    if k != "status":
+                                        detail_parts.append(f"{k}={v}")
+                            detail = f" ({', '.join(detail_parts)})" if detail_parts else ""
+                            lines.append(f"    {comp_nice}: {comp_status}{detail}")
+                    elif sys_name == "session":
+                        lines.append(f"    Messages: {sys_data.get('message_count', 0)}")
+                        lines.append(f"    Coherence entries: {sys_data.get('coherence_entries', 0)}")
+                        lines.append(f"    Tension entries: {sys_data.get('tension_entries', 0)}")
+                        if "spiderweb_metrics" in sys_data:
+                            sw = sys_data["spiderweb_metrics"]
+                            lines.append(f"    Spiderweb: coherence={sw.get('phase_coherence', 0):.4f}, entropy={sw.get('entropy', 0):.4f}, nodes={sw.get('node_count', 0)}, attractors={sw.get('attractor_count', 0)}")
+                        if sys_data.get("perspective_usage"):
+                            usage = sys_data["perspective_usage"]
+                            lines.append(f"    Perspective usage: {dict(usage)}")
+                        for sub_name, sub_status in sys_data.get("subsystems", {}).items():
+                            sub_icon = "+" if sub_status == "OK" else "-"
+                            lines.append(f"    [{sub_icon}] {sub_name}: {sub_status}")
+                    elif sys_name == "self_correction":
+                        lines.append(f"    Behavior lessons: {sys_data.get('behavior_lessons', 0)}")
+                        lines.append(f"    Permanent locks: {sys_data.get('permanent_locks', 0)}")
+                    elif sys_name == "worker_threads":
+                        lines.append(f"    Alive: {sys_data.get('alive', 0)}/{sys_data.get('total', 0)}")
+                        lines.append(f"    Pending requests: {sys_data.get('pending_requests', 0)}")
+
+                if health.get("warnings"):
+                    lines.append(f"\nWarnings: {', '.join(health['warnings'])}")
+                if health.get("errors"):
+                    lines.append(f"\nErrors: {', '.join(health['errors'])}")
+
+                diag_response = "\n".join(lines)
+
+                try:
+                    response_q.put({
+                        "event": "complete",
+                        "response": diag_response,
+                        "adapter": "self_diagnostic",
+                        "confidence": 1.0,
+                        "reasoning": "Real self-diagnostic — not generated text",
+                        "tokens": 0,
+                        "time": 0.01,
+                        "complexity": "SYSTEM",
+                        "domain": "self_diagnostic",
+                        "ethical_checks": 0,
+                        "memory_count": health.get("systems", {}).get("phase6_forge", {}).get("components", {}).get("cognition_cocooner", {}).get("stored_cocoons", 0),
+                    })
+                except (queue.Full, RuntimeError):
+                    pass
+                continue
 
             # Send "thinking" event
             try:
@@ -659,7 +763,10 @@ class CodetteHandler(SimpleHTTPRequestHandler):
                 "available": _orchestrator.available_adapters if _orchestrator else [],
             })
         elif path == "/api/health":
-            self._json_response(_run_health_check())
+            try:
+                self._json_response(_run_health_check())
+            except Exception as e:
+                self._json_response({"overall": "ERROR", "detail": str(e)})
         elif path == "/api/chat":
             # SSE endpoint for streaming
             self._handle_chat_sse(parsed)
