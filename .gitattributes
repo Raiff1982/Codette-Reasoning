@@ -34,3 +34,4 @@ saved_model/**/* filter=lfs diff=lfs merge=lfs -text
 *.zst filter=lfs diff=lfs merge=lfs -text
 *tfevents* filter=lfs diff=lfs merge=lfs -text
 codette_paper.pdf filter=lfs diff=lfs merge=lfs -text
+codette_paper1.pdf filter=lfs diff=lfs merge=lfs -text
