@@ -337,7 +337,7 @@
 
 <script>
 (() => {
-  const API_BASE = "https://huggingface.co/spaces/Raiff1982/codette-ai";
+  const HF_SPACE_URL = "https://huggingface.co/spaces/Raiff1982/codette-ai";
   const log      = document.getElementById("hc-log");
   const input    = document.getElementById("hc-input");
   const sendBtn  = document.getElementById("hc-send");
@@ -419,7 +419,7 @@
     input.disabled = true;
 
     try {
-      const resp = await fetch(`${API_BASE}/api/chat`, {
+      const resp = await fetch(`${HF_SPACE_URL}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages })
@@ -475,8 +475,9 @@
 
     } catch (err) {
       bubble.classList.remove("hc-cursor");
-      bubble.textContent = err.message.includes("fetch")
-        ? "Cannot reach Codette. The Space may be waking up \u2014 try again in 30s."
+      const isCORSError = err.message.includes("CORS") || err.message.includes("fetch");
+      bubble.textContent = isCORSError
+        ? "⚠️ CORS blocked. Use the iframe embed instead:\n<iframe src=\"https://huggingface.co/spaces/Raiff1982/codette-ai\" ...>"
         : `Error: ${err.message}`;
     } finally {
       sendBtn.disabled = false;
