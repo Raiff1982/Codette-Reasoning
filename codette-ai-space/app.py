@@ -20,25 +20,30 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
-from huggingface_hub import InferenceClient
+from transformers import AutoTokenizer, AutoModelForCausalLM
+import torch
 
 # ── Configuration ──────────────────────────────────────────────
-# Use your GGUF quantized Codette model (optimized for inference)
-MODEL_ID = "Raiff1982/codette-llama-3.1-8b-gguf"
-# Don't use token - your public models work without it
-HF_TOKEN = None
+# Use your merged Codette model (loaded locally on Space GPU)
+MODEL_ID = "Raiff1982/codette-llama-3.1-8b-merged"
 MAX_TOKENS = 400
 TEMPERATURE = 0.7
 TOP_P = 0.9
 
-# ── Inference Client ──────────────────────────────────────────
-# Use HF Inference API with your GGUF Codette model
+# ── Load Model & Tokenizer Locally ──────────────────────────────
+print(f"[INIT] Loading {MODEL_ID} locally...")
 try:
-    client = InferenceClient(model=MODEL_ID)
-    print(f"[INIT] Inference client initialized with {MODEL_ID}")
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_ID)
+    model = AutoModelForCausalLM.from_pretrained(
+        MODEL_ID,
+        torch_dtype=torch.float16,
+        device_map="auto",
+        trust_remote_code=True
+    )
+    print(f"[INIT] Model loaded successfully on GPU")
 except Exception as e:
-    print(f"[WARN] Client init failed: {e}")
-    client = InferenceClient(model=MODEL_ID)
+    print(f"[ERROR] Failed to load model: {e}")
+    raise
 
 # ── In-Memory Cocoon Storage ──────────────────────────────────
 cocoon_memory = []
@@ -639,13 +644,39 @@ async def chat(request: Request):
                 "metadata": metadata,
             }) + "\n"
 
-            stream = client.chat_completion(
-                messages=inference_messages,
-                max_tokens=MAX_TOKENS,
-                temperature=TEMPERATURE,
-                top_p=TOP_P,
-                stream=True,
-            )
+            # ── Local Inference (GPU) ──
+            # Convert messages to prompt format for local model
+            prompt_text = ""
+            for msg in inference_messages:
+                role = msg.get("role", "user")
+                content = msg.get("content", "")
+                if role == "system":
+                    prompt_text += f"System: {content}\n"
+                elif role == "user":
+                    prompt_text += f"User: {content}\n"
+                elif role == "assistant":
+                    prompt_text += f"Assistant: {content}\n"
+            prompt_text += "Assistant:"
+
+            # Tokenize
+            inputs = tokenizer(prompt_text, return_tensors="pt").to(model.device)
+
+            # Generate with streaming simulation
+            with torch.no_grad():
+                output_ids = model.generate(
+                    inputs["input_ids"],
+                    max_new_tokens=MAX_TOKENS,
+                    temperature=TEMPERATURE,
+                    top_p=TOP_P,
+                    do_sample=True,
+                    pad_token_id=tokenizer.eos_token_id,
+                )
+
+            # Decode output
+            full_output = tokenizer.decode(output_ids[0], skip_special_tokens=True)
+            # Extract only the assistant's response (after "Assistant:")
+            assistant_start = full_output.rfind("Assistant:") + len("Assistant:")
+            response_text = full_output[assistant_start:].strip()
 
             # ── Layer 3.5: Real-time Hallucination Guard ──
             # Scan incoming chunks for hallucination signals (invented facts, ungrounded claims)
@@ -686,24 +717,22 @@ async def chat(request: Request):
 
                 return len(warnings) > 0, warnings
 
-            for chunk in stream:
-                if chunk.choices and chunk.choices[0].delta.content:
-                    token = chunk.choices[0].delta.content
-                    full_response += token
-                    hallucination_detect_buffer += token
+            for chunk in response_text:
+                full_response += chunk
+                hallucination_detect_buffer += chunk
 
-                    # Check for hallucination signals every ~50 chars to avoid lag
-                    if len(hallucination_detect_buffer) > 50:
-                        has_issues, warnings = check_hallucination_signals(full_response)
-                        if warnings and warnings not in hallucination_warnings:
-                            hallucination_warnings.extend(warnings)
-                        hallucination_detect_buffer = ""
+                # Check for hallucination signals every ~50 chars to avoid lag
+                if len(hallucination_detect_buffer) > 50:
+                    has_issues, warnings = check_hallucination_signals(full_response)
+                    if warnings and warnings not in hallucination_warnings:
+                        hallucination_warnings.extend(warnings)
+                    hallucination_detect_buffer = ""
 
-                    yield json.dumps({
-                        "message": {"role": "assistant", "content": token},
-                        "done": False,
-                    }) + "\n"
-                    await asyncio.sleep(0)
+                yield json.dumps({
+                    "message": {"role": "assistant", "content": chunk},
+                    "done": False,
+                }) + "\n"
+                await asyncio.sleep(0)
 
             # ── Post-generation hallucination check ──
             # If critical hallucinations detected, append self-correction
