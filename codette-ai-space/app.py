@@ -23,19 +23,19 @@ from fastapi.staticfiles import StaticFiles
 from huggingface_hub import InferenceClient
 
 # ── Configuration ──────────────────────────────────────────────
-MODEL_ID = "meta-llama/Llama-3.1-8B-Instruct"
-# On HF Spaces, HF_TOKEN is auto-provided by the environment
-HF_TOKEN = os.environ.get("HF_TOKEN", None)
+# Use your custom trained Codette model (merged Llama 3.1 8B)
+MODEL_ID = "Raiff1982/codette-llama-3.1-8b-merged"
+# Don't use token - your public models work without it
+HF_TOKEN = None
 MAX_TOKENS = 400
 TEMPERATURE = 0.7
 TOP_P = 0.9
 
 # ── Inference Client ──────────────────────────────────────────
-# Use HF Inference API without token for on-Space deployment
-# Or with token for more stability
+# Use HF Inference API with your custom Codette model
 try:
-    client = InferenceClient(model=MODEL_ID, token=HF_TOKEN)
-    print(f"[INIT] Inference client initialized (token={'provided' if HF_TOKEN else 'not provided'})")
+    client = InferenceClient(model=MODEL_ID)
+    print(f"[INIT] Inference client initialized with {MODEL_ID}")
 except Exception as e:
     print(f"[WARN] Client init failed: {e}")
     client = InferenceClient(model=MODEL_ID)
