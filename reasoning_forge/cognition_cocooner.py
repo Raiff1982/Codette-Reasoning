@@ -198,3 +198,76 @@ class CognitionCocooner:
                 continue
 
         return reasoning_cocoons
+
+    def recall_relevant(self, query: str, max_results: int = 3,
+                        min_overlap: int = 2) -> List[Dict]:
+        """
+        Recall reasoning cocoons relevant to a query using keyword overlap.
+
+        Uses simple but effective keyword matching — counts how many significant
+        words from the query appear in each stored cocoon's query/response.
+        Returns top matches sorted by relevance.
+
+        Args:
+            query: Current user query to match against
+            max_results: Maximum cocoons to return
+            min_overlap: Minimum keyword overlap to qualify
+
+        Returns:
+            List of relevant reasoning cocoons with relevance scores
+        """
+        # Extract significant words from query (skip short/common words)
+        stop_words = {
+            "the", "a", "an", "is", "are", "was", "were", "be", "been",
+            "being", "have", "has", "had", "do", "does", "did", "will",
+            "would", "could", "should", "may", "might", "shall", "can",
+            "to", "of", "in", "for", "on", "with", "at", "by", "from",
+            "as", "into", "through", "during", "before", "after", "above",
+            "below", "between", "out", "off", "over", "under", "again",
+            "further", "then", "once", "here", "there", "when", "where",
+            "why", "how", "all", "each", "every", "both", "few", "more",
+            "most", "other", "some", "such", "no", "nor", "not", "only",
+            "own", "same", "so", "than", "too", "very", "just", "don",
+            "now", "it", "its", "this", "that", "these", "those", "i",
+            "me", "my", "we", "our", "you", "your", "he", "she", "they",
+            "what", "which", "who", "whom", "and", "but", "or", "if",
+            "about", "up", "down", "also", "really", "tell", "know",
+        }
+        query_words = set(
+            w.lower().strip(".,!?;:\"'()[]{}") for w in query.split()
+            if len(w) > 2 and w.lower() not in stop_words
+        )
+
+        if not query_words:
+            return self.get_recent_reasoning(limit=max_results)
+
+        scored = []
+        for file in sorted(self.storage_path.glob("cocoon_*.json"),
+                          key=lambda f: f.stat().st_mtime, reverse=True)[:200]:
+            try:
+                with open(file, "r") as f:
+                    cocoon = json.load(f)
+                if cocoon.get("type") != "reasoning":
+                    continue
+
+                wrapped = cocoon.get("wrapped", {})
+                cocoon_text = (
+                    str(wrapped.get("query", "")) + " " +
+                    str(wrapped.get("response", ""))
+                ).lower()
+
+                # Count keyword overlap
+                overlap = sum(1 for w in query_words if w in cocoon_text)
+                if overlap >= min_overlap:
+                    scored.append((overlap, wrapped))
+            except Exception:
+                continue
+
+        # Sort by relevance (most overlap first)
+        scored.sort(key=lambda x: x[0], reverse=True)
+
+        if not scored:
+            # No relevant matches — fall back to recent
+            return self.get_recent_reasoning(limit=max_results)
+
+        return [item[1] for item in scored[:max_results]]

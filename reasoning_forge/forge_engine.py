@@ -579,6 +579,7 @@ class ForgeEngine:
         self,
         concept: str,
         debate_rounds: int = 2,
+        memory_budget: int = 3,
     ) -> dict:
         """
         NEW: Consciousness-stack integrated reasoning.
@@ -685,14 +686,75 @@ class ForgeEngine:
 
         # =========================================================================
         # LAYER 3: REASONING (LLM Inference via Orchestrator)
+        #   Now with MEMORY INJECTION — prior insights and relevant cocoons
+        #   are woven into the prompt so Codette actually *uses* her memories.
         # =========================================================================
         logger.info("[L3] LLM Reasoning...")
+
+        # ── Build memory-enriched query ──
+        memory_context_parts = []
+
+        # Inject prior insights from LivingMemoryKernel (high-importance memories)
+        if prior_insights:
+            insight_lines = []
+            for mem in prior_insights[:memory_budget]:  # Capped by governor's memory_budget
+                title = getattr(mem, 'title', str(mem)[:60])
+                content = getattr(mem, 'content', '')
+                emotion = getattr(mem, 'emotional_tag', 'neutral')
+                if content:
+                    insight_lines.append(f"- [{emotion}] {title}: {content[:150]}")
+                else:
+                    insight_lines.append(f"- [{emotion}] {title}")
+            if insight_lines:
+                memory_context_parts.append(
+                    "## Your Prior Insights (from memory kernel)\n" +
+                    "\n".join(insight_lines)
+                )
+                logger.info(f"  Injected {len(insight_lines)} prior insights into prompt")
+
+        # Inject relevant reasoning cocoons (past Q&A exchanges)
+        if hasattr(self, 'cocooner') and self.cocooner:
+            try:
+                relevant = self.cocooner.recall_relevant(concept, max_results=memory_budget)
+                if relevant:
+                    cocoon_lines = []
+                    for cocoon in relevant:
+                        q = cocoon.get("query", "")[:100]
+                        r = cocoon.get("response", "")[:200]
+                        adapter = cocoon.get("adapter", "unknown")
+                        if q and r:
+                            cocoon_lines.append(
+                                f"- Q: {q}\n  A ({adapter}): {r}"
+                            )
+                    if cocoon_lines:
+                        memory_context_parts.append(
+                            "## Your Past Reasoning (relevant cocoons)\n" +
+                            "You previously responded to similar questions:\n" +
+                            "\n".join(cocoon_lines)
+                        )
+                        logger.info(f"  Injected {len(cocoon_lines)} relevant cocoons into prompt")
+            except Exception as e:
+                logger.debug(f"  Cocoon recall failed: {e}")
+
+        # Build the enriched query
+        if memory_context_parts:
+            enriched_concept = (
+                concept + "\n\n---\n"
+                "# MEMORY CONTEXT (your own past reasoning — use this to stay consistent)\n" +
+                "\n\n".join(memory_context_parts) +
+                "\n---\n\n"
+                "Use your memory context above to inform your response. "
+                "Stay consistent with your past insights. If relevant, build on what you've already reasoned about."
+            )
+        else:
+            enriched_concept = concept
+
         synthesis = ""
         if self.orchestrator:
             try:
                 # Use real LLM inference through the orchestrator
                 llm_result = self.orchestrator.route_and_generate(
-                    concept,
+                    enriched_concept,
                     max_adapters=2,
                     strategy="keyword",
                 )

@@ -61,6 +61,33 @@ _session: CodetteSession = None
 _session_store: SessionStore = None
 _session_lock = threading.Lock()
 
+# Identity persistence (Challenge 3: user recognition & relationship continuity)
+_identity_anchor = None
+try:
+    from identity_anchor import IdentityAnchor
+    _identity_anchor = IdentityAnchor()
+    print(f"  Identity anchor loaded ({len(_identity_anchor.identities)} known identities)")
+except Exception as e:
+    print(f"  Identity anchor unavailable: {e}")
+
+# Behavior Governor (Executive Controller v2)
+_behavior_governor = None
+try:
+    from reasoning_forge.behavior_governor import BehaviorGovernor
+    _behavior_governor = BehaviorGovernor(identity_anchor=_identity_anchor)
+    print("  Behavior Governor loaded (identity + memory + cognitive load governance)")
+except Exception as e:
+    print(f"  Behavior Governor unavailable: {e}")
+
+# Unified Memory (SQLite + FTS5 — replaces CognitionCocooner for recall)
+_unified_memory = None
+try:
+    from reasoning_forge.unified_memory import UnifiedMemory
+    _unified_memory = UnifiedMemory()
+    print(f"  Unified Memory loaded ({_unified_memory._total_stored} cocoons, FTS5 active)")
+except Exception as e:
+    print(f"  Unified Memory unavailable (falling back to CognitionCocooner): {e}")
+
 # Request queue for thread-safe model access
 _request_queue = queue.Queue()
 _response_queues = {}  # request_id -> queue.Queue
@@ -88,7 +115,12 @@ def _get_orchestrator():
 
         try:
             from codette_orchestrator import CodetteOrchestrator
-            _orchestrator = CodetteOrchestrator(verbose=True)
+            # Challenge 2 fix: use 32768 context (model trained on 131072,
+            # 32k is a safe balance of capability vs VRAM on consumer GPU)
+            _orchestrator = CodetteOrchestrator(
+                verbose=True,
+                n_ctx=32768,
+            )
 
             with _orchestrator_status_lock:
                 _orchestrator_status.update({
@@ -505,6 +537,7 @@ def _worker_thread():
                 continue
 
             query = request["query"]
+            query_lower = query.lower().strip()
             adapter = request.get("adapter")  # None = auto-route
             max_adapters = request.get("max_adapters", 2)
 
@@ -568,7 +601,6 @@ def _worker_thread():
                 "how are your systems", "are you healthy", "status check",
                 "self systems health", "system status",
             ]
-            query_lower = query.lower().strip()
             if any(trigger in query_lower for trigger in _health_triggers):
                 print(f"  [WORKER] Intercepted health check query — running real diagnostic", flush=True)
 
@@ -686,18 +718,137 @@ def _worker_thread():
 
             try:
                 print(f"  [WORKER] Processing query: {query[:60]}...", flush=True)
+
+                # ── Identity Recognition ──
+                # Recognize WHO is talking and inject relationship context
+                identity_context = ""
+                recognized_user = None
+                if _identity_anchor:
+                    try:
+                        recognized_user = _identity_anchor.recognize(query)
+                        if recognized_user:
+                            identity_context = _identity_anchor.get_identity_context(recognized_user)
+                            # NOTE: identity info is NEVER logged or returned in API responses
+                            print(f"  [WORKER] Identity: recognized (context injected)", flush=True)
+                    except Exception as e:
+                        print(f"  [WORKER] Identity recognition skipped: {e}", flush=True)
+
+                # ── Behavior Governor Pre-Evaluation ──
+                # Determines memory budget, identity budget, response length
+                governor_decision = None
+                identity_confidence = 0.0
+                if recognized_user and _identity_anchor and recognized_user in _identity_anchor.identities:
+                    identity_confidence = _identity_anchor.identities[recognized_user].recognition_confidence
+                substrate_pressure = 0.0
+                try:
+                    from inference.substrate_awareness import SubstrateMonitor
+                    sm = SubstrateMonitor()
+                    substrate_pressure = sm.get_pressure()
+                except Exception:
+                    pass
+
+                if _behavior_governor:
+                    try:
+                        # Classify query for governor (lightweight)
+                        from codette_forge_bridge import QueryClassifier, QueryComplexity
+                        qc = QueryClassifier()
+                        complexity = qc.classify(query)
+                        classification = {
+                            "complexity": complexity.name if hasattr(complexity, 'name') else str(complexity),
+                            "domain": "general",
+                        }
+                        governor_decision = _behavior_governor.pre_evaluate(
+                            query, classification,
+                            identity_confidence=identity_confidence,
+                            substrate_pressure=substrate_pressure,
+                        )
+                        print(f"  [GOVERNOR] {governor_decision.reasoning}", flush=True)
+
+                        # Apply governor's identity budget
+                        if governor_decision.identity_budget == "none":
+                            identity_context = ""  # Governor says no identity
+                    except Exception as e:
+                        print(f"  [GOVERNOR] Pre-eval skipped: {e}", flush=True)
+
+                # ── Memory Enrichment ──
+                # Recall relevant cocoons — budget controlled by governor
+                memory_budget = 3
+                if governor_decision:
+                    memory_budget = governor_decision.memory_budget
+                enriched_query = query
+                try:
+                    # Use UnifiedMemory (SQLite + FTS5) when available,
+                    # fall back to CognitionCocooner (JSON scan)
+                    relevant_cocoons = []
+                    if _unified_memory:
+                        relevant_cocoons = _unified_memory.recall_relevant(query, max_results=memory_budget)
+                        recall_source = "unified_memory"
+                    else:
+                        from reasoning_forge.cognition_cocooner import CognitionCocooner
+                        cocooner = CognitionCocooner(storage_path="cocoons")
+                        relevant_cocoons = cocooner.recall_relevant(query, max_results=memory_budget)
+                        recall_source = "cocooner"
+
+                    if relevant_cocoons:
+                        memory_lines = []
+                        for cocoon in relevant_cocoons:
+                            q = cocoon.get("query", "")[:100]
+                            r = cocoon.get("response", "")[:200]
+                            if q and r:
+                                memory_lines.append(f"- Q: {q}\n  A: {r}")
+                        if memory_lines:
+                            enriched_query = (
+                                query + "\n\n---\n"
+                                "# YOUR PAST REASONING (relevant memories)\n"
+                                "You previously responded to similar questions:\n" +
+                                "\n".join(memory_lines) +
+                                "\n---\n"
+                                "Use these memories for consistency. Build on past insights when relevant."
+                            )
+                            print(f"  [WORKER] Injected {len(memory_lines)} memories ({recall_source})", flush=True)
+                except Exception as e:
+                    print(f"  [WORKER] Memory recall skipped: {e}", flush=True)
+
+                # ── Identity Context Injection ──
+                # Append identity context AFTER memory context
+                # This goes into the prompt so Codette knows WHO she's talking to
+                # Privacy: identity_context is NEVER returned in API responses
+                if identity_context:
+                    enriched_query = (
+                        enriched_query + "\n\n---\n" + identity_context + "\n---"
+                    )
+
                 if _forge_bridge:
                     print(f"  [WORKER] Using forge bridge (Phase 6/7)", flush=True)
-                    result = _forge_bridge.generate(query, adapter=adapter, max_adapters=max_adapters)
+                    gov_mem_budget = governor_decision.memory_budget if governor_decision else 3
+                    gov_max_tokens = governor_decision.max_response_tokens if governor_decision else 512
+                    result = _forge_bridge.generate(
+                        enriched_query, adapter=adapter, max_adapters=max_adapters,
+                        memory_budget=gov_mem_budget, max_response_tokens=gov_max_tokens,
+                    )
                 else:
                     print(f"  [WORKER] Using direct orchestrator", flush=True)
                     result = orch.route_and_generate(
-                        query,
+                        enriched_query,
                         max_adapters=max_adapters,
                         strategy="keyword",
                         force_adapter=adapter if adapter and adapter != "auto" else None,
                     )
                 print(f"  [WORKER] Got result: response={len(result.get('response',''))} chars, adapter={result.get('adapter','?')}", flush=True)
+
+                # ── Behavior Governor Post-Validation ──
+                if _behavior_governor and governor_decision:
+                    try:
+                        validation = _behavior_governor.post_validate(
+                            query, result.get("response", ""), governor_decision
+                        )
+                        if validation.get("warnings"):
+                            for w in validation["warnings"]:
+                                print(f"  [GOVERNOR] {w}", flush=True)
+                        if "identity_leak" in validation.get("corrections", []):
+                            print(f"  [GOVERNOR] Identity leak detected in response", flush=True)
+                    except Exception:
+                        pass
 
                 # Update session with response data (drives cocoon metrics UI)
                 epistemic = None
@@ -738,6 +889,40 @@ def _worker_thread():
                                     pass
                     except Exception as e:
                         print(f"  [WORKER] Session update failed (non-critical): {e}", flush=True)
+
+                # ── Store in Unified Memory ──
+                # Every response goes to SQLite for future FTS5 recall
+                if _unified_memory:
+                    try:
+                        adapter_for_store = result.get("adapter", "base")
+                        if isinstance(adapter_for_store, list):
+                            adapter_for_store = adapter_for_store[0] if adapter_for_store else "base"
+                        _unified_memory.store(
+                            query=query,
+                            response=result.get("response", ""),
+                            adapter=adapter_for_store,
+                            domain=result.get("domain", "general"),
+                            complexity=result.get("complexity", "MEDIUM"),
+                        )
+                    except Exception:
+                        pass
+
+                # ── Identity Update (post-interaction) ──
+                # Update relationship state — trust grows, topics tracked
+                # Privacy: only internal state updated, nothing exposed
+                if _identity_anchor and recognized_user:
+                    try:
+                        adapter_name_for_id = result.get("adapter", "base")
+                        if isinstance(adapter_name_for_id, list):
+                            adapter_name_for_id = adapter_name_for_id[0] if adapter_name_for_id else "base"
+                        _identity_anchor.update_after_interaction(
+                            user_id=recognized_user,
+                            query=query,
+                            response=result.get("response", ""),
+                            adapter=adapter_name_for_id,
+                        )
+                    except Exception:
+                        pass  # Non-critical, never fail on identity
 
                 # Extract route info from result (if available from ForgeEngine)
                 route = result.get("route")
@@ -880,11 +1065,36 @@ class CodetteHandler(SimpleHTTPRequestHandler):
                 self._json_response({"overall": "ERROR", "detail": str(e)})
         elif path == "/api/introspection":
             try:
-                from cocoon_introspection import CocoonIntrospectionEngine
-                engine = CocoonIntrospectionEngine()
-                self._json_response(engine.full_introspection())
+                # Use unified memory if available, fall back to legacy
+                if _unified_memory:
+                    self._json_response(_unified_memory.full_introspection())
+                else:
+                    from cocoon_introspection import CocoonIntrospectionEngine
+                    engine = CocoonIntrospectionEngine()
+                    self._json_response(engine.full_introspection())
             except Exception as e:
                 self._json_response({"error": str(e)})
+        elif path == "/api/governor":
+            # Confidence dashboard — governor state, identity confidence, memory stats
+            # NOTE: identity details are NEVER exposed (privacy)
+            dashboard = {"governor": None, "memory": None, "identity_summary": None}
+            if _behavior_governor:
+                dashboard["governor"] = _behavior_governor.get_state()
+            if _unified_memory:
+                dashboard["memory"] = _unified_memory.get_stats()
+            if _identity_anchor:
+                # Safe summary: only counts and trust levels, no PII
+                dashboard["identity_summary"] = {
+                    "known_identities": len(_identity_anchor.identities),
+                    "current_user_recognized": _identity_anchor.current_user is not None,
+                    # Confidence level only (not who)
+                    "current_confidence": (
+                        _identity_anchor.identities[_identity_anchor.current_user].recognition_confidence
+                        if _identity_anchor.current_user and _identity_anchor.current_user in _identity_anchor.identities
+                        else 0.0
+                    ),
+                }
+            self._json_response(dashboard)
         elif path == "/api/chat":
             # SSE endpoint for streaming
             self._handle_chat_sse(parsed)

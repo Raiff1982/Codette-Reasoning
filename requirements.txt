@@ -10,3 +10,4 @@ tqdm>=4.65.0
 gradio>=3.50.0
 requests>=2.31.0
 python-dotenv>=1.0.0
+cryptography>=42.0.0

@@ -81,6 +81,26 @@ class QueryClassifier:
         r"can .* (be|become) (measured|quantified|understood)",  # Epistemology: "Can experience be measured?"
     ]
 
+    # Semantic complexity signals — short queries that are actually complex
+    # despite low word count. These override the word-count heuristic.
+    SEMANTIC_COMPLEX_PATTERNS = [
+        r"fix\s+\w+\s*(leak|bug|crash|error|issue|problem|race|deadlock|overflow)",
+        r"debug\s+\w+",
+        r"(refactor|redesign|rearchitect)\s+",
+        r"(optimize|performance)\s+\w+",
+        r"(migrate|upgrade)\s+\w+",
+        r"why\s+(is|does|did|doesn't|won't|can't)\s+",
+        r"how\s+to\s+(prevent|avoid|handle|recover)\s+",
+        r"trade.?offs?\s+(between|of|in)",
+        r"(compare|contrast|difference)\s+",
+        r"what\s+causes?\s+",
+        r"(root\s+cause|underlying|fundamental)\s+",
+        r"(security|vulnerability|exploit)\s+",
+        r"(scale|scaling|scalability)\s+",
+        r"(concurrent|parallel|async|thread)\s+",
+        r"(architect|design\s+pattern|anti.?pattern)\s+",
+    ]
+
     def classify(self, query: str) -> QueryComplexity:
         """Classify query complexity.
 
@@ -89,6 +109,10 @@ class QueryClassifier:
 
         Returns:
             QueryComplexity level (SIMPLE, MEDIUM, or COMPLEX)
+
+        Includes semantic complexity override: short queries with complex
+        intent (e.g., "fix memory leak?") are promoted to MEDIUM or COMPLEX
+        despite low word count.
         """
         query_lower = query.lower().strip()
 
@@ -109,8 +133,20 @@ class QueryClassifier:
         if self._has_subjective(query_lower):
             return QueryComplexity.COMPLEX
 
+        # Semantic complexity override: short queries with complex signals
+        # A 3-word query like "fix memory leak" needs MEDIUM, not SIMPLE
+        if self._has_semantic_complexity(query_lower):
+            word_count = len(query_lower.split())
+            if word_count <= 5:
+                return QueryComplexity.MEDIUM
+            return QueryComplexity.COMPLEX
+
         # MEDIUM: Everything else
         return QueryComplexity.MEDIUM
+
+    def _has_semantic_complexity(self, query: str) -> bool:
+        """Check if a short query carries complex semantic intent."""
+        return any(re.search(p, query) for p in self.SEMANTIC_COMPLEX_PATTERNS)
 
     def _is_factual(self, query: str) -> bool:
         """Check if query is direct factual question."""

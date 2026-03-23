@@ -112,13 +112,16 @@ class CodetteForgeBridge:
             print(f"[PHASE6] ForgeEngine ready with {len(self.forge.analysis_agents)} agents")
 
     def generate(self, query: str, adapter: Optional[str] = None,
-                 max_adapters: int = 2) -> Dict:
+                 max_adapters: int = 2, memory_budget: int = 3,
+                 max_response_tokens: int = 512) -> Dict:
         """Generate response with optional Phase 6 routing.
 
         Args:
             query: User query
             adapter: Force specific adapter (bypasses routing)
             max_adapters: Max adapters for multi-perspective
+            memory_budget: Max cocoons for forge memory injection (from BehaviorGovernor)
+            max_response_tokens: Response length budget (from BehaviorGovernor)
 
         Returns:
             {
@@ -227,6 +230,10 @@ class CodetteForgeBridge:
             )
             result["phase6_used"] = False
             return result
+
+        # Store governor budgets for forge access
+        self._memory_budget = memory_budget
+        self._max_response_tokens = max_response_tokens
 
         # Try Phase 6 route first
         try:

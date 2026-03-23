@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Codette — HorizonCoreAI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0b0c10;
+      --surface:   #13141a;
+      --surface2:  #191b24;
+      --border:    #1f2130;
+      --accent:    #c8f078;
+      --accent2:   #78d4f0;
+      --accent-dim:#3a4a20;
+      --text:      #e8eaf0;
+      --muted:     #5a5f78;
+      --user-bg:   #1a1f35;
+      --bot-bg:    #111318;
+      --danger:    #f07878;
+      --radius:    14px;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-sans: 'Inter', system-ui, sans-serif;
+    }
+
+    html { height: 100%; background: var(--bg); }
+    body {
+      min-height: 100%;
+      background: var(--bg);
+      font-family: var(--font-sans);
+      padding: 40px 20px;
+    }
+
+    /* Widget Shell */
+    #hc-chat {
+      width: 100%;
+      max-width: 740px;
+      margin: 0 auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow:
+        0 0 0 1px #ffffff08 inset,
+        0 32px 80px #00000060;
+    }
+
+    /* Header */
+    #hc-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg, #0f1118 0%, #141825 100%);
+    }
+
+    .hc-avatar {
+      width: 42px; height: 42px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+
+    .hc-title { font-weight: 700; color: var(--text); font-size: 17px; letter-spacing: 0.01em; }
+    .hc-subtitle {
+      font-family: var(--font-mono); font-size: 10px; color: var(--accent);
+      letter-spacing: 0.08em; text-transform: uppercase; margin-top: 3px;
+    }
+
+    .hc-status {
+      margin-left: auto; display: flex; gap: 8px; align-items: center;
+    }
+    .hc-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: var(--border);
+    }
+    .hc-dot.on {
+      background: var(--accent);
+      box-shadow: 0 0 6px var(--accent);
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    /* Metadata Bar */
+    #hc-meta {
+      display: none;
+      gap: 8px;
+      padding: 10px 24px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    #hc-meta.visible { display: flex; }
+
+    .meta-badge {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .meta-badge.complexity { color: var(--accent2); border-color: #1a3040; }
+    .meta-badge.domain { color: var(--accent); border-color: var(--accent-dim); }
+    .meta-badge.adapter { color: #b8a0f0; border-color: #2a2040; }
+    .meta-badge.aegis { color: #78f0a0; border-color: #1a3a28; }
+    .meta-badge.blocked { color: var(--danger); border-color: #3a1a1a; }
+
+    /* Chat Log */
+    #hc-log {
+      min-height: 360px;
+      max-height: 480px;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .hc-row { display: flex; flex-direction: column; }
+    .hc-row.user { align-items: flex-end; }
+    .hc-row.bot  { align-items: flex-start; }
+
+    .hc-label {
+      font-family: var(--font-mono);
+      font-size: 10px; font-weight: 500;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 6px; padding: 0 4px;
+    }
+
+    .hc-bubble {
+      max-width: 85%;
+      padding: 14px 18px;
+      border-radius: var(--radius);
+      font-size: 15px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      border: 1px solid var(--border);
+      letter-spacing: 0.01em;
+      word-wrap: break-word;
+    }
+
+    .hc-row.user .hc-bubble {
+      background: var(--user-bg);
+      color: var(--text);
+      border-color: #2a3050;
+      border-bottom-right-radius: 4px;
+    }
+
+    .hc-row.bot .hc-bubble {
+      background: var(--bot-bg);
+      color: var(--text);
+      border-color: var(--border);
+      border-bottom-left-radius: 4px;
+    }
+
+    .hc-cursor::after {
+      content: '\25CB';
+      color: var(--accent);
+      animation: blink .7s step-end infinite;
+      margin-left: 2px;
+    }
+    @keyframes blink { 50%{opacity:0} }
+
+    /* Welcome Message */
+    .hc-welcome {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+    .hc-welcome h3 {
+      color: var(--text);
+      font-size: 18px;
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+    .hc-welcome .tagline {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-top: 16px;
+    }
+
+    /* Suggestion chips */
+    .hc-suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 16px;
+    }
+    .hc-chip {
+      font-family: var(--font-sans);
+      font-size: 12px;
+      padding: 7px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+    }
+    .hc-chip:hover {
+      border-color: var(--accent);
+      background: var(--surface2);
+    }
+
+    /* Input Bar */
+    #hc-bar {
+      display: flex;
+      gap: 10px;
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    #hc-input {
+      flex: 1;
+      padding: 12px 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 15px;
+      line-height: 1.5;
+      outline: none;
+      transition: border-color .2s;
+    }
+    #hc-input::placeholder { color: var(--muted); }
+    #hc-input:focus { border-color: #2e3555; }
+
+    #hc-send {
+      padding: 12px 22px;
+      background: var(--accent);
+      color: #0b0c10;
+      border: none;
+      border-radius: 10px;
+      font-family: var(--font-sans);
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: opacity .15s, transform .1s;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+    #hc-send:hover  { opacity: .88; }
+    #hc-send:active { transform: scale(.97); }
+    #hc-send:disabled { opacity: .35; cursor: not-allowed; }
+
+    /* Footer */
+    #hc-footer {
+      padding: 10px 24px 14px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      text-align: center;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #hc-cocoon-count { color: var(--accent); }
+
+    @media (max-width: 480px) {
+      body { padding: 16px 8px; }
+      .hc-bubble { max-width: 92%; font-size: 14px; }
+      #hc-log { max-height: 400px; padding: 16px; }
+      .hc-suggestions { gap: 6px; }
+      .hc-chip { font-size: 11px; padding: 5px 10px; }
+      #hc-footer { flex-direction: column; gap: 4px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="hc-chat">
+  <div id="hc-header">
+    <div class="hc-avatar">C</div>
+    <div>
+      <div class="hc-title">Codette</div>
+      <div class="hc-subtitle">HorizonCoreAI Reasoning Engine</div>
+    </div>
+    <div class="hc-status">
+      <div class="hc-dot on" style="animation-delay:0s"></div>
+      <div class="hc-dot on" style="animation-delay:.3s"></div>
+      <div class="hc-dot on" style="animation-delay:.6s"></div>
+    </div>
+  </div>
+
+  <div id="hc-meta"></div>
+
+  <div id="hc-log">
+    <div class="hc-welcome">
+      <h3>Welcome to Codette</h3>
+      <p>Multi-perspective reasoning engine with deep music production expertise.<br>
+      I reason through 9 specialized cognitive lenses before synthesizing a response.</p>
+      <div class="tagline">The objective is not automation. It is augmentation.</div>
+      <div class="hc-suggestions">
+        <div class="hc-chip" data-q="How do I get my low end to hit harder without muddying the mix?">Low end mixing</div>
+        <div class="hc-chip" data-q="Explain the difference between modal interchange and borrowed chords">Music theory</div>
+        <div class="hc-chip" data-q="What makes a good drop in EDM from a sound design perspective?">Sound design</div>
+        <div class="hc-chip" data-q="I'm stuck creatively and can't finish any tracks. How do I break through?">Creative blocks</div>
+        <div class="hc-chip" data-q="What is consciousness from multiple perspectives?">Multi-perspective</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="hc-bar">
+    <input id="hc-input" type="text" placeholder="Ask about music production, mixing, theory, or anything..." autocomplete="off" />
+    <button id="hc-send">Send</button>
+  </div>
+
+  <div id="hc-footer">
+    <span>CODETTE v2.0 PHASE 6 &middot; LLAMA 3.1 8B &middot; 12-LAYER STACK</span>
+    <span id="hc-cocoon-count">0 cocoons</span>
+  </div>
+</div>
+
+<script>
+(() => {
+  const API_BASE = window.location.origin;
+  const log      = document.getElementById("hc-log");
+  const input    = document.getElementById("hc-input");
+  const sendBtn  = document.getElementById("hc-send");
+  const metaBar  = document.getElementById("hc-meta");
+  const cocoonEl = document.getElementById("hc-cocoon-count");
+
+  const messages = [];
+  let cocoonCount = 0;
+  let welcomeVisible = true;
+
+  // ── Suggestion chips ──
+  document.querySelectorAll(".hc-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      input.value = chip.dataset.q;
+      streamReply();
+    });
+  });
+
+  // ── Metadata display ──
+  function showMetadata(meta) {
+    if (!meta || !meta.complexity) return;
+    metaBar.innerHTML = "";
+    metaBar.classList.add("visible");
+
+    const badges = [
+      { text: meta.complexity, cls: "complexity" },
+      { text: meta.domain, cls: "domain" },
+      { text: `AEGIS: ${meta.aegis || "passed"}`, cls: meta.aegis === "blocked" ? "blocked" : "aegis" },
+    ];
+    if (meta.adapters) {
+      meta.adapters.forEach(a => badges.push({ text: a, cls: "adapter" }));
+    }
+    badges.forEach(b => {
+      const el = document.createElement("span");
+      el.className = `meta-badge ${b.cls}`;
+      el.textContent = b.text;
+      metaBar.appendChild(el);
+    });
+  }
+
+  // ── Bubble creation ──
+  function addBubble(role, text = "") {
+    if (welcomeVisible) {
+      const welcome = log.querySelector(".hc-welcome");
+      if (welcome) welcome.remove();
+      welcomeVisible = false;
+    }
+
+    const row = document.createElement("div");
+    row.className = `hc-row ${role === "user" ? "user" : "bot"}`;
+
+    const label = document.createElement("div");
+    label.className = "hc-label";
+    label.textContent = role === "user" ? "You" : "Codette";
+
+    const bubble = document.createElement("div");
+    bubble.className = "hc-bubble";
+    if (role === "assistant" && !text) bubble.classList.add("hc-cursor");
+    bubble.textContent = text;
+
+    row.appendChild(label);
+    row.appendChild(bubble);
+    log.appendChild(row);
+    log.scrollTop = log.scrollHeight;
+    return bubble;
+  }
+
+  // ── Streaming chat ──
+  async function streamReply() {
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = "";
+
+    messages.push({ role: "user", content: text });
+    addBubble("user", text);
+    const bubble = addBubble("assistant", "");
+
+    sendBtn.disabled = true;
+    input.disabled = true;
+
+    try {
+      const resp = await fetch(`${API_BASE}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages })
+      });
+
+      if (!resp.ok) {
+        bubble.textContent = `Error ${resp.status}`;
+        bubble.classList.remove("hc-cursor");
+        return;
+      }
+
+      const reader  = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let full = "", buffer = "";
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop();
+
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          try {
+            const chunk = JSON.parse(line);
+
+            // Handle metadata
+            if (chunk.metadata) {
+              showMetadata(chunk.metadata);
+            }
+
+            const token = chunk?.message?.content ?? "";
+            if (token) {
+              full += token;
+              bubble.textContent = full;
+              bubble.classList.add("hc-cursor");
+              log.scrollTop = log.scrollHeight;
+            }
+
+            if (chunk.done) {
+              messages.push({ role: "assistant", content: full });
+              bubble.classList.remove("hc-cursor");
+              cocoonCount++;
+              cocoonEl.textContent = `${cocoonCount} cocoon${cocoonCount !== 1 ? "s" : ""}`;
+            }
+          } catch { /* skip malformed */ }
+        }
+      }
+
+      bubble.classList.remove("hc-cursor");
+      if (!full) bubble.textContent = "(no response)";
+
+    } catch (err) {
+      bubble.classList.remove("hc-cursor");
+      bubble.textContent = err.message.includes("fetch")
+        ? "Cannot reach Codette. The Space may be waking up \u2014 try again in 30s."
+        : `Error: ${err.message}`;
+    } finally {
+      sendBtn.disabled = false;
+      input.disabled = false;
+      input.focus();
+    }
+  }
+
+  sendBtn.addEventListener("click", streamReply);
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.shiftKey) streamReply();
+  });
+})();
+</script>
+
+</body>
+</html>

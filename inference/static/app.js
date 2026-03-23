@@ -1073,3 +1073,68 @@ function renderMarkdown(text) {
 
     return html;
 }
+
+// ── Governor & Memory Dashboard ──────────────────────────────
+// Polls /api/governor every 10s and updates the side panel
+function pollGovernorDashboard() {
+    fetch('/api/governor')
+        .then(r => r.json())
+        .then(data => {
+            // Governor state
+            if (data.governor) {
+                const g = data.governor;
+                const el = (id) => document.getElementById(id);
+                if (el('gov-answer-rate')) {
+                    el('gov-answer-rate').textContent = (g.answer_detection_rate * 100).toFixed(0) + '%';
+                }
+                if (el('gov-evals')) {
+                    el('gov-evals').textContent = g.total_evaluations;
+                }
+                if (el('gov-load')) {
+                    const recent = g.recent_complexities || [];
+                    const last = recent.length > 0 ? recent[recent.length - 1] : '--';
+                    el('gov-load').textContent = last;
+                    if (g.consecutive_complex >= 3) {
+                        el('gov-load').style.color = 'var(--quantum)';
+                    } else {
+                        el('gov-load').style.color = '';
+                    }
+                }
+            }
+
+            // Memory stats
+            if (data.memory) {
+                const m = data.memory;
+                const el = (id) => document.getElementById(id);
+                if (el('gov-memory-count')) {
+                    el('gov-memory-count').textContent = m.total_cocoons;
+                }
+                if (el('gov-cache-rate')) {
+                    el('gov-cache-rate').textContent = (m.cache_hit_rate * 100).toFixed(0) + '%';
+                }
+            }
+
+            // Identity confidence (no PII — just the number)
+            if (data.identity_summary) {
+                const i = data.identity_summary;
+                const el = (id) => document.getElementById(id);
+                if (el('gov-identity-conf')) {
+                    const conf = i.current_confidence;
+                    el('gov-identity-conf').textContent = conf > 0 ? (conf * 100).toFixed(0) + '%' : '--';
+                    // Update bar
+                    const bar = el('bar-identity-conf');
+                    if (bar) {
+                        bar.style.width = (conf * 100) + '%';
+                        bar.style.background = conf >= 0.8 ? 'var(--philosophy)' :
+                                              conf >= 0.4 ? 'var(--davinci)' : 'var(--quantum)';
+                    }
+                }
+            }
+        })
+        .catch(() => {}); // Silent fail — dashboard is non-critical
+
+    setTimeout(pollGovernorDashboard, 10000); // Every 10s
+}
+
+// Start dashboard polling after 5s (let model load first)
+setTimeout(pollGovernorDashboard, 5000);
