@@ -623,6 +623,38 @@ class ForgeEngine:
                 logger.debug(f"  Signal analysis failed: {e}")
 
         # =========================================================================
+        # LAYER 2.5: CODE7E EMOTIONAL CONTEXT ENRICHMENT
+        # =========================================================================
+        # Run Code7eCQURE's emotion engine + temporal empathy as context
+        # enrichment BEFORE LLM inference — this stamps the quantum cocoon
+        # and provides emotional framing without replacing the LLM response
+        code7e_context = None
+        if hasattr(self, 'code7e') and self.code7e:
+            try:
+                # Run emotional analysis pipeline (fast, no LLM needed)
+                emotion_tag = self.code7e.emotion_engine(concept)
+                dream_tag = self.code7e.dream_sequence(concept)
+                empathy_tag = self.code7e.temporal_empathy_drift(concept)
+                ethical_tag = self.code7e.ethical_guard(concept)
+
+                code7e_context = {
+                    "emotion": emotion_tag,
+                    "dream": dream_tag,
+                    "empathy": empathy_tag,
+                    "ethical": ethical_tag,
+                }
+
+                # Save to quantum cocoon memory (always, not just on fallback)
+                key = self.code7e.hash_input(concept)
+                cocoon_entry = f"{emotion_tag}: {empathy_tag}: {dream_tag}: {ethical_tag}: {concept}"
+                self.code7e.memory_bank[key] = cocoon_entry
+                self.code7e.save_quantum_memory()
+
+                logger.info(f"  [Code7E] Emotional context: {emotion_tag[:60]}")
+            except Exception as e:
+                logger.debug(f"  Code7E context enrichment failed: {e}")
+
+        # =========================================================================
         # LAYER 3: REASONING (LLM Inference via Orchestrator)
         # =========================================================================
         logger.info("[L3] LLM Reasoning...")
@@ -831,11 +863,14 @@ class ForgeEngine:
         # Store as structured reasoning cocoon (CognitionCocooner)
         if hasattr(self, 'cocooner') and self.cocooner:
             try:
+                cocoon_meta = {"layers_passed": 7, "stable": is_stable}
+                if code7e_context:
+                    cocoon_meta["code7e"] = code7e_context
                 self.cocooner.wrap_reasoning(
                     query=concept,
                     response=synthesis,
                     adapter="consciousness_stack",
-                    metadata={"layers_passed": 7, "stable": is_stable}
+                    metadata=cocoon_meta
                 )
                 logger.debug("  Stored reasoning in CognitionCocooner")
             except Exception as e:
