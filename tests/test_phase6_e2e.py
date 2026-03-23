@@ -11,6 +11,10 @@ Tests all Phase 6 components working together:
 Run with: pytest test_phase6_e2e.py -v
 """
 
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 import pytest
 import json
 import numpy as np

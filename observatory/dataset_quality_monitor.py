@@ -19,7 +19,7 @@ if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
 
-_DEFAULT_QUALITY_FILE = Path(__file__).resolve().parent.parent / "dataset_quality_log.json"
+_DEFAULT_QUALITY_FILE = Path(__file__).resolve().parent.parent / "data" / "results" / "dataset_quality_log.json"
 
 
 class DatasetQualityMonitor:

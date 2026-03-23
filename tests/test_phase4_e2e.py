@@ -3,6 +3,9 @@
 Phase 4 Test: Self-Correcting Feedback Loops
 Validates adaptive conflict strength, dynamic rerouting, and memory reinforcement.
 """
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from reasoning_forge.forge_engine import ForgeEngine
 from reasoning_forge.living_memory import LivingMemoryKernel

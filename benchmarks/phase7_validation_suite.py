@@ -15,7 +15,7 @@ import sys
 from pathlib import Path
 from datetime import datetime
 
-sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from reasoning_forge.query_classifier import QueryClassifier, QueryComplexity
 from reasoning_forge.executive_controller import ExecutiveController

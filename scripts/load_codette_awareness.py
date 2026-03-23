@@ -26,8 +26,8 @@ def load_awareness_cocoon(verbose=True):
     - The entire project journey
     """
 
-    # Resolve relative to this file's directory (project root)
-    project_root = Path(__file__).parent
+    # Resolve relative to this file's directory (scripts/) up to project root
+    project_root = Path(__file__).resolve().parent.parent
     cocoon_path = project_root / "cocoons" / "codette_project_awareness.json"
 
     if not cocoon_path.exists():

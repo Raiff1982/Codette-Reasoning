@@ -3,6 +3,9 @@
 Phase 1 End-to-End Test
 Quick validate that forge_with_debate produces conflict detection metrics
 """
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from reasoning_forge.forge_engine import ForgeEngine
 from evaluation.conflict_tests import ConflictTestRunner, CONFLICT_PROMPTS

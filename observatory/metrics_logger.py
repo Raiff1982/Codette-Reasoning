@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 
-_DEFAULT_LOG_FILE = Path(__file__).resolve().parent.parent / "observatory_metrics.json"
+_DEFAULT_LOG_FILE = Path(__file__).resolve().parent.parent / "data" / "results" / "observatory_metrics.json"
 
 
 class MetricsLogger:

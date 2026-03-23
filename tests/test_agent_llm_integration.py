@@ -5,8 +5,8 @@ import sys
 from pathlib import Path
 
 # Setup paths
-sys.path.insert(0, str(Path(__file__).parent / 'reasoning_forge'))
-sys.path.insert(0, str(Path(__file__).parent / 'inference'))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'reasoning_forge'))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'inference'))
 
 print("=" * 80)
 print("AGENT LLM INTEGRATION TEST")

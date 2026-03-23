@@ -216,7 +216,9 @@
       "Bash(J:/python.exe -c \":*)",
       "Bash(J:/python.exe -c \"import sys; print\\(sys.path\\)\")",
       "Bash(\"C:/Users/Jonathan/AppData/Local/Programs/Python/Python312/python.exe\" -c \"from huggingface_hub import HfApi; print\\(''''OK''''\\)\")",
-      "Bash(\"C:/Users/Jonathan/AppData/Local/Programs/Python/Python312/python.exe\" -c \":*)"
+      "Bash(\"C:/Users/Jonathan/AppData/Local/Programs/Python/Python312/python.exe\" -c \":*)",
+      "Bash(mv Codette.pdf paper/)",
+      "Bash(mv \"HorizonCoreAI _ Enhance Creativity Now – Discover HorizonCoreAI — HorizonToneCoreTechnologies.pdf\" docs/references/)"
     ]
   }
 }

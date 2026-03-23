@@ -16,7 +16,7 @@ import os
 from pathlib import Path
 
 # Add parent directory to path
-sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from reasoning_forge.memory_weighting import MemoryWeighting, ReinforcementConfig
 from reasoning_forge.coherence_field import CoherenceFieldGamma, GammaHealthMetrics, InterventionType

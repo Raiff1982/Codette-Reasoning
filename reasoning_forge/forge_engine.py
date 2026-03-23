@@ -18,6 +18,7 @@ import os
 import sys
 import random
 import logging
+from pathlib import Path
 from typing import TextIO, List, Optional
 
 logging.basicConfig(level=logging.INFO)
@@ -299,6 +300,7 @@ class ForgeEngine:
         # Gives Codette knowledge of her own evolution, capabilities, and identity
         self.awareness = None
         try:
+            sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
             from load_codette_awareness import load_awareness_cocoon
             self.awareness = load_awareness_cocoon(verbose=False)
             if self.awareness:

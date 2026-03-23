@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 """Quick test of query classifier to verify SIMPLE/MEDIUM/COMPLEX routing."""
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from reasoning_forge.query_classifier import QueryClassifier, QueryComplexity
 

@@ -3,6 +3,9 @@
 Phase 2 End-to-End Test: Memory-Weighted Adapter Selection
 Quick validate that memory-weighted routing works correctly.
 """
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from reasoning_forge.forge_engine import ForgeEngine
 from reasoning_forge.living_memory import LivingMemoryKernel
