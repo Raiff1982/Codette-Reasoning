@@ -440,6 +440,41 @@ class CodetteOrchestrator:
         Returns:
             (response, tokens_used, metadata_dict)
         """
+        import re
+
+        # ── ARTIST QUERY DETECTION (hallucination prevention) ──
+        # Detect if user is asking about specific artists/songs/albums and route to honesty
+        query_lower = query.lower()
+        artist_patterns = [
+            r'\b(who is|tell me about|what do you know about|who are)\s+([a-z\s\'-]+)\?',
+            r'\b(album|discography|career|songs? by|music by)\s+([a-z\s\'-]+)',
+            r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+(album|song|band|artist)',
+            r'\b(is [a-z\s\'-]+ (indie-rock|country|hip-hop|rock|pop|electronic))',
+        ]
+        is_artist_query = any(re.search(pattern, query_lower, re.IGNORECASE) for pattern in artist_patterns)
+
+        if is_artist_query:
+            # Route artist queries to honesty instead of hallucination
+            artist_response = (
+                "I don't have reliable information about specific artists in my training data. "
+                "Rather than guess or hallucinate details, I'd recommend checking authoritative sources like Spotify, Wikipedia, or Bandcamp.\n\n"
+                "**What I CAN help with instead:**\n"
+                "- Music production techniques for their genre/style\n"
+                "- Music theory and arrangement analysis\n"
+                "- Creating music inspired by similar vibes\n"
+                "- Sound design for that aesthetic\n\n"
+                "If you describe their music or share what you're hearing, I can help you create inspired work or understand the production choices."
+            )
+            metadata = {
+                "adapter": "uncertainty_aware",
+                "strategy": "artist_honesty",
+                "is_artist_query": True,
+                "tokens": 0,
+                "confidence": 1.0,
+                "reasoning": "Honest uncertainty prevents hallucination. User can verify via authoritative sources.",
+            }
+            return artist_response, 0, metadata
+
         if force_adapter:
             # Use specific adapter
             response, tokens, tools = self.generate(
