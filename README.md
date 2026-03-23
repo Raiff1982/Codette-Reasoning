@@ -57,6 +57,11 @@ Created by **Jonathan Harrison** (Raiff1982)
 | **EthicalAIGovernance** | 3-layer ethical stack: query validation + response enforcement + audit logging |
 | **Self-Correction Loop** | Detects constraint violations in her own output and rewrites before sending |
 | **Behavioral Training** | All 9 LoRA adapters trained with 1,650 behavioral examples to lock in discipline |
+| **Substrate-Aware Cognition** | Monitors RAM, CPU, inference latency — adjusts reasoning under pressure |
+| **Cocoon Introspection** | Statistical self-analysis of her own reasoning history — real patterns, not generated text |
+| **AEGIS Ethics** | 6-framework ethical evaluation (utilitarian, deontological, virtue, care, ubuntu, indigenous) |
+| **Code7eCQURE** | Quantum emotional context enrichment on every query (Layer 2.5) |
+| **Real Self-Diagnostic** | Health checks return measured values from 9 subsystems, not LLM-generated guesses |
 | **Phase 6/7 Routing** | Query complexity classification, domain detection, executive control |
 
 ---
@@ -113,21 +118,27 @@ curl -X POST http://localhost:7860/api/chat \
 ```
 codette-clean/
 |-- inference/                    # Server & UI
-|   |-- codette_server.py         # Flask server with /api/chat, /api/status
+|   |-- codette_server.py         # Stdlib HTTP server with SSE streaming
 |   |-- codette_orchestrator.py   # LoRA hot-swap engine (9 adapters, <1ms switch)
 |   |-- codette_forge_bridge.py   # Phase 6/7 routing + constraint enforcement
 |   |-- self_correction.py        # Autonomous violation detection & rewrite
+|   |-- substrate_awareness.py    # Hardware-aware cognition (pressure monitoring)
+|   |-- cocoon_introspection.py   # Self-analysis of reasoning history patterns
+|   |-- adapter_router.py         # Keyword/LLM/hybrid query routing
 |   +-- static/                   # Web UI (index.html, app.js, style.css)
 |
 |-- reasoning_forge/              # Consciousness & reasoning pipeline
 |   |-- forge_engine.py           # 7-layer consciousness stack
 |   |-- cognition_cocooner.py     # Persistent reasoning memory (cocoons)
 |   |-- ethical_governance.py     # 3-layer ethical validation
+|   |-- aegis.py                  # 6-framework ethical evaluation (AEGIS)
+|   |-- code7e_cqure.py           # Quantum emotional reasoning engine
 |   |-- colleen_conscience.py     # Conscience layer (Layer 5)
 |   |-- guardian_spindle.py       # Guardian protection (Layer 6)
 |   |-- memory_kernel.py          # Living memory system
 |   |-- quantum_spiderweb.py      # 5D belief propagation
 |   |-- query_classifier.py       # SIMPLE/MEDIUM/COMPLEX routing
+|   |-- routing_metrics.py        # Adapter selection observability
 |   +-- semantic_tension.py       # Embedding-based conflict measurement
 |
 |-- cocoons/                      # Persistent reasoning memories
@@ -194,15 +205,18 @@ Each adapter is a LoRA fine-tune of Llama 3.1 8B, hot-swappable in <1ms via llam
 ```
 Query In
     |
-[Layer 1]  Memory Kernel -- recall relevant cocoon memories
-[Layer 1.5] Ethical Query Gate -- block harmful queries before processing
-[Layer 2]  Nexus Signal Engine -- entropy + intent detection
-[Layer 3]  Reasoning Forge -- multi-adapter debate & synthesis
-[Layer 4]  Gamma Stability -- coherence monitoring
-[Layer 5]  Colleen Conscience -- emotional + ethical evaluation
-[Layer 5.5] Ethical Response Enforcement -- policy check on output
-[Layer 6]  Guardian Spindle -- safety + trust calibration
-[Layer 7]  Return -- store cocoon memory + deliver response
+[Layer 1]    Memory Kernel -- recall relevant cocoon memories
+[Layer 1.5]  Ethical Query Gate -- block harmful queries (EthicalAIGovernance)
+[Layer 2]    Nexus Signal Engine -- entropy + intent detection
+[Layer 2.5]  Code7eCQURE -- emotional context enrichment (quantum cocoon)
+[Layer 3]    Reasoning Forge -- multi-adapter LLM inference
+[Layer 3.5]  Tier 2 Analysis -- intent + identity + trust validation
+[Layer 4]    Gamma Stability -- FFT-based coherence monitoring
+[Layer 5]    Colleen Conscience -- emotional + ethical evaluation
+[Layer 5.5]  Ethical Response Enforcement -- policy check on output
+[Layer 5.75] AEGIS -- 6-framework ethical evaluation (eta alignment)
+[Layer 6]    Guardian Spindle -- safety + trust calibration
+[Layer 7]    Return -- store cocoon memory + deliver response
     |
 Response Out
 ```
@@ -226,6 +240,38 @@ Every reasoning exchange is wrapped in a "cocoon" and stored:
 ```
 
 Cocoons persist across server restarts and inform future responses. Current count: **150+ memories**.
+
+---
+
+## Substrate-Aware Cognition
+
+Codette monitors her own hardware state and adjusts reasoning based on resource pressure -- like biological fatigue:
+
+| Pressure Level | Effect |
+|----------------|--------|
+| **Idle/Low** | Full capacity -- COMPLEX queries, all adapters available |
+| **Moderate** | Cap COMPLEX queries to 2 adapters |
+| **High** | Downgrade COMPLEX to MEDIUM, max 2 adapters |
+| **Critical** | Force SIMPLE mode, 1 adapter only, skip debate |
+
+Every cocoon memory is stamped with system state at creation time. Future sessions can weight cocoons by reliability -- stressed cocoons get less trust.
+
+---
+
+## Cocoon Introspection
+
+When asked "what have you noticed about yourself?", Codette runs **real statistical analysis** of her own reasoning history:
+
+- **Adapter dominance** -- is one adapter handling >40% of all queries?
+- **Domain clusters** -- what topics does she get asked about most?
+- **Emotional trends** -- what Code7E emotional patterns appear?
+- **Pressure correlations** -- how do responses change under system stress?
+- **Response length trends** -- are responses getting shorter or longer over time?
+- **Adapter evolution** -- has her adapter usage shifted?
+
+This is measured data from real cocoons, not generated text about self-reflection.
+
+API access: `GET /api/introspection` returns full analysis as JSON.
 
 ---
 
@@ -345,8 +391,10 @@ Deliberately calibrated to avoid false positives -- discussions about sensitive 
 | Cocoon Coherence | 0.994 |
 | Memory Phase Stability | 0.969 |
 | Behavioral Lock Compliance | 9/9 adapters trained |
-| Cocoon Memories | 150+ and growing |
+| Cocoon Memories | 200+ and growing |
 | Adapter Hot-Swap Time | <1ms |
+| Consciousness Stack Layers | 12 (including sub-layers) |
+| Health Check Subsystems | 9 real-time checks |
 
 ---
 
