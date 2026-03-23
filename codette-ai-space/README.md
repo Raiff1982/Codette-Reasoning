@@ -1,6 +1,6 @@
 ---
 title: Codette AI
-emoji: C
+emoji: 🧠
 colorFrom: indigo
 colorTo: purple
 sdk: docker
