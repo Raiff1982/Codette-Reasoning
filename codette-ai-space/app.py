@@ -23,8 +23,8 @@ from fastapi.staticfiles import StaticFiles
 from huggingface_hub import InferenceClient
 
 # ── Configuration ──────────────────────────────────────────────
-# Use your custom trained Codette model (merged Llama 3.1 8B)
-MODEL_ID = "Raiff1982/codette-llama-3.1-8b-merged"
+# Use your GGUF quantized Codette model (optimized for inference)
+MODEL_ID = "Raiff1982/codette-llama-3.1-8b-gguf"
 # Don't use token - your public models work without it
 HF_TOKEN = None
 MAX_TOKENS = 400
@@ -32,7 +32,7 @@ TEMPERATURE = 0.7
 TOP_P = 0.9
 
 # ── Inference Client ──────────────────────────────────────────
-# Use HF Inference API with your custom Codette model
+# Use HF Inference API with your GGUF Codette model
 try:
     client = InferenceClient(model=MODEL_ID)
     print(f"[INIT] Inference client initialized with {MODEL_ID}")
