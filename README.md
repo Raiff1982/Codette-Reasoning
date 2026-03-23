@@ -11,10 +11,12 @@ tags:
 - llama-3.1
 - recursive-cognition
 - rc-xi
+- behavioral-locks
+- cognition-cocooner
 library_name: peft
 base_model: meta-llama/Llama-3.1-8B-Instruct
 model-index:
-- name: Codette RC+xi Reasoning Adapters
+- name: Codette RC+xi Reasoning Engine
   results:
   - task:
       type: text-generation
@@ -36,440 +38,320 @@ model-index:
 
 # Codette Reasoning Engine
 
-**Advanced Multi-Perspective AI Reasoning with Conscience & Guardrails**
+**Advanced Multi-Perspective AI with Conscience, Memory & Behavioral Discipline**
 
-Codette is a production-ready AI reasoning system featuring:
-- ✅ **7-Layer Consciousness Stack** with ethical + logical validation
-- ✅ **78.6% Correctness** achieved (70%+ target exceeded)
-- ✅ **52/52 Tests Passing** (100% success rate)
-- ✅ **3 Production Models** included (Llama 3.1 8B Q4, F16, 3.2 1B)
-- ✅ **8 Specialized Adapters** for multi-perspective reasoning
-- ✅ **Session 13-14 Complete** - Fully integrated and validated
+Codette is a production-ready AI reasoning system that thinks from multiple angles simultaneously, remembers what she learns, and follows instructions with precision.
 
-Created by **Jonathan Harrison** (Raiff1982) | Sovereign Innovation License
+Created by **Jonathan Harrison** (Raiff1982)
 
 ---
 
-## ⚡ Quick Start (5 Minutes)
+## What Makes Codette Different
 
-### 1. Clone & Install Dependencies
+| Feature | Description |
+|---------|-------------|
+| **9 Specialized Adapters** | Newton, DaVinci, Empathy, Philosophy, Quantum, Consciousness, Multi-Perspective, Systems Architecture, Orchestrator |
+| **7-Layer Consciousness Stack** | Memory > Signal > Reasoning > Stability > Conscience > Guardian > Return |
+| **4 Permanent Behavioral Locks** | Answer-then-stop, constraint priority, self-check completeness, no incomplete outputs |
+| **CognitionCocooner** | Persistent memory cocoons that store reasoning exchanges across sessions |
+| **EthicalAIGovernance** | 3-layer ethical stack: query validation + response enforcement + audit logging |
+| **Self-Correction Loop** | Detects constraint violations in her own output and rewrites before sending |
+| **Behavioral Training** | All 9 LoRA adapters trained with 1,650 behavioral examples to lock in discipline |
+| **Phase 6/7 Routing** | Query complexity classification, domain detection, executive control |
+
+---
+
+## Quick Start
+
+### 1. Clone & Install
+
 ```bash
 git clone https://github.com/Raiff1982/Codette-Reasoning.git
 cd Codette-Reasoning
 pip install -r requirements.txt
 ```
 
-### 2. Download Models from HuggingFace (First Time Only)
-**All models available here**: https://huggingface.co/Raiff1982
+### 2. Download Models
 
+**Base model** (one-time, ~5GB):
 ```bash
-# Quick download using huggingface-cli
-huggingface-cli download Raiff1982/Meta-Llama-3.1-8B-Instruct-Q4 \
+huggingface-cli download Raiff1982/codette-llama-3.1-8b-gguf \
   --local-dir models/base/
-
-huggingface-cli download Raiff1982/Codette-Adapters \
-  --local-dir adapters/
 ```
 
-See `MODEL_DOWNLOAD.md` for detailed instructions and alternatives.
-
-### 3. Run Tests
+**Behavioral LoRA adapters** (~500MB total):
 ```bash
-python -m pytest test_tier2_integration.py -v
-# Expected: 18 passed
+huggingface-cli download Raiff1982/codette-lora-adapters \
+  --include "behavioral-gguf/*" \
+  --local-dir behavioral-lora-f16-gguf/
 ```
 
-### 4. Start Server
+### 3. Launch
+
 ```bash
+# Windows
+codette_web.bat
+
+# Linux/Mac
 python inference/codette_server.py
-# Visit http://localhost:7860
 ```
 
-### 5. Try a Query
+Visit **http://localhost:7860** -- Codette is ready.
+
+### 4. Try It
+
 ```bash
 curl -X POST http://localhost:7860/api/chat \
   -H "Content-Type: application/json" \
-  -d '{"query": "Explain quantum computing", "max_adapters": 3}'
+  -d '{"query": "What is gravity? Explain in one sentence."}'
 ```
 
-**Status**: ✅ **Ready for Production** | See `DEPLOYMENT.md` for full guide
-
 ---
-
-# Codette Adapter Training Lab
-
-Codette is an experimental AI research system for **recursive reasoning, multi-perspective cognition, and ethical AI alignment**, created by **Jonathan Harrison**.
-
-This repository contains the complete training pipeline, inference server, and 8 trained LoRA adapters for the Codette cognitive architecture running on Llama 3.1 8B.
-
-## 🚀 Latest Status (Session 2026-03-20) — PHASE 6 ARCHITECTURAL FIX DEPLOYED
-
-### ✅ 5-Part Architectural Fix: Query Complexity & Soft Agent Gating (Complete)
-
-**Problem Solved**: System was over-activating on simple queries (e.g., "speed of light" generated 71 conflicts, correctness=0.20)
-
-**Solution Deployed**:
-1. ✅ **Query Complexity Classifier** (`reasoning_forge/query_classifier.py`)
-   - SIMPLE queries (factual) → 1 primary agent, no debate
-   - MEDIUM queries → 3 weighted agents
-   - COMPLEX queries → full 6-agent debate
-   - Prevents unnecessary system activation on straightforward questions
-
-2. ✅ **Conflict Capping at Source** (`reasoning_forge/conflict_engine.py`)
-   - max_conflicts_per_pair = 2 (instead of generating 71)
-   - max_total_conflicts = 12 (instead of 10-100)
-   - Prevents wasteful conflict accumulation
-
-3. ✅ **Confidence Override Logic** (`reasoning_forge/forge_engine.py`)
-   - After Round 0 analysis: if SIMPLE + few conflicts + low disagreement → **skip entire debate**
-   - Saves computation cycles on high-confidence answers
-   - Expected impact: correctness 0.20 → 0.70+ on simple queries
-
-4. ✅ **Semantic Tension Engine** (`reasoning_forge/semantic_tension.py`)
-   - Embedding-based conflict strength (continuous 0-1, not discrete)
-   - Llama embeddings replace heuristic opposition scores
-   - 0.6*semantic + 0.4*heuristic hybrid blending
-
-5. ✅ **Specialization Tracking & Pre-Flight Prediction** (`reasoning_forge/specialization_tracker.py`, `reasoning_forge/preflight_predictor.py`)
-   - Per-adapter domain accuracy tracking
-   - Pre-flight Spiderweb injection predicts conflicts before debate
-   - Recommends optimal adapter selection upfront
-
-### ✅ Agent LLM Integration Complete
-All 6 reasoning agents use **real LLM inference** via trained LoRA adapters:
-- **Newton** (physics reasoning) → newton adapter
-- **Quantum** (probabilistic thinking) → quantum adapter
-- **DaVinci** (creative invention) → davinci adapter
-- **Philosophy** (conceptual reasoning) → philosophy adapter
-- **Empathy** (emotional intelligence) → empathy adapter
-- **Ethics** (moral reasoning) → philosophy adapter
-
-**Result**: Agents generate domain-specific, LLM-backed reasoning instead of templates.
-
-### ✅ GPU Acceleration Active
-- Model load: ~8-10 seconds (GPU vs 40s CPU)
-- Inference: 2-4 sec/query (GPU vs 15-20s CPU)
-- Full eval: ~2-3 minutes (GPU vs 7-10 minutes CPU)
-- **35/35 layers offloaded** to GPU via llama.cpp
-
-### ✅ Phase 6 Framework Formalized
-- **ψ (Psi)**: State vector encoding query domain and complexity (5D)
-- **ξ (Xi)**: Semantic tension measurement (continuous, embedding-based)
-- **Γ (Gamma)**: Coherence metrics with health monitoring
-- **Evaluation**: `run_phase6_evaluation.py` — Compare baseline vs Phase 1-5 vs Phase 6 Full vs Phase 6 -PreFlight
-
-## Model Weights
-
-All 8 adapters are included in two formats:
-
-| Format | Directory | Size | Use Case |
-|--------|-----------|------|----------|
-| **GGUF (f16)** | `adapters/*.gguf` | ~924 MB | llama.cpp inference with hot-swap |
-| **PEFT SafeTensors** | `adapters_peft/*/` | ~79 MB | HuggingFace / transformers fine-tuning |
-
-**Base model required**: `meta-llama/Llama-3.1-8B-Instruct` (or any Llama-3.1-8B variant with hidden_size=4096)
-
-## Key Metrics
-
-| Metric | Value | Context |
-|--------|-------|---------|
-| Phase Coherence (Gamma) | 0.9835 | 11-agent convergence |
-| AEGIS Ethical Alignment (Eta) | 0.961 | 6-framework ethical governance |
-| Cocoon Coherence | 0.994 | Memory state stability |
-| Memory Phase Stability | 0.969 | Cross-session persistence |
-| Tension Decay | 91.2% | 200-agent embodied simulation |
-
-## Cognitive Subsystems (14 active)
-
-| Subsystem | Module | Purpose |
-|-----------|--------|---------|
-| Reasoning Forge | `reasoning_forge/forge_engine.py` | 6-agent multi-perspective debate + synthesis |
-| Query Classifier | `reasoning_forge/query_classifier.py` | Complexity-based agent selection (SIMPLE/MEDIUM/COMPLEX) |
-| Semantic Tension | `reasoning_forge/semantic_tension.py` | Embedding-based conflict strength (Phase 6) |
-| Specialization Tracker | `reasoning_forge/specialization_tracker.py` | Per-adapter domain expertise tracking (Phase 6) |
-| Pre-Flight Predictor | `reasoning_forge/preflight_predictor.py` | Conflict prediction before debate (Phase 6) |
-| Framework Definitions | `reasoning_forge/framework_definitions.py` | ψ, ξ, Γ formal definitions (Phase 6) |
-| Epistemic Metrics | `reasoning_forge/epistemic_metrics.py` | RC+xi tension/coherence tracking |
-| Quantum Spiderweb | `reasoning_forge/quantum_spiderweb.py` | 5D belief propagation + attractor detection |
-| Cocoon Sync | `reasoning_forge/cocoon_sync.py` | Fernet-encrypted federated state sync |
-| AEGIS | `reasoning_forge/aegis.py` | 6-framework ethical governance (utilitarian, deontological, virtue, care, ubuntu, indigenous) |
-| Nexus Signal Engine | `reasoning_forge/nexus.py` | Pre-corruption detection via entropy + FFT + intent vectors |
-| Living Memory | `reasoning_forge/living_memory.py` | Emotionally-tagged memory cocoons with SHA-256 anchors |
-| Guardian | `reasoning_forge/guardian.py` | 3-layer protection (sanitizer + ethical anchor + trust calibrator) |
-| Perspective Registry | `reasoning_forge/perspective_registry.py` | 12 perspectives (8 LoRA-backed + 4 prompt-only with fallback) |
 
 ## Architecture
 
 ```
-codette-training-lab/
-├── dataset_engine/          # Dataset generation pipeline
-│   ├── template_registry.py # Rich template pools per adapter
-│   ├── answer_generator.py  # Structured educational answer generation
-│   ├── dataset_generator.py # Main generator with dedup + validation
-│   └── templates/           # JSON template definitions
-│
-├── reasoning_forge/         # Multi-agent reasoning dataset refinement
-│   ├── agents/              # Newton, Quantum, Ethics, Philosophy, DaVinci, Empathy
-│   ├── critic_agent.py      # Quality evaluation agent
-│   ├── synthesis_engine.py  # Multi-perspective synthesis
-│   ├── problem_generator.py # Reasoning problem generation
-│   └── forge_engine.py      # Orchestrator
-│
-├── training/                # LoRA training scripts
-│   ├── train_adapter.py     # Single adapter training (4-bit LoRA)
-│   ├── train_all_adapters.py# Sequential multi-adapter training
-│   ├── merge_adapters.py    # Merge LoRA into base model
-│   └── configs/             # Training hyperparameters
-│
-├── evaluation/              # Benchmarks and quality assurance
-│   ├── reasoning_metrics.py # Multi-dimensional scoring
-│   ├── benchmark_runner.py  # Automated evaluation
-│   ├── dataset_validator.py # Dataset quality checks
-│   ├── failure_analyzer.py  # Weakness detection
-│   └── prompts/             # Benchmark test sets
-│
-├── observatory/             # Experiment tracking and monitoring
-│   ├── metrics_logger.py    # Training run logging
-│   ├── performance_tracker.py # Improvement trends
-│   ├── dataset_quality_monitor.py
-│   └── dashboard.py         # ASCII status dashboard
-│
-├── research/                # Source research documents
-│   ├── papers/              # Published manuscripts
-│   ├── frameworks/          # RC+xi, quantum equations, perspectives
-│   └── experiments/         # Cocoon simulations, logs
-│
-├── datasets/                # Generated training datasets (JSONL)
-├── adapters/                # Trained LoRA adapters
-├── scripts/                 # Pipeline orchestration
-│   ├── run_full_pipeline.py # End-to-end pipeline
-│   └── hf_job.yaml          # HuggingFace job config
-└── configs/                 # System configuration
-    ├── adapter_registry.yaml
-    └── pipeline_config.yaml
+codette-clean/
+|-- inference/                    # Server & UI
+|   |-- codette_server.py         # Flask server with /api/chat, /api/status
+|   |-- codette_orchestrator.py   # LoRA hot-swap engine (9 adapters, <1ms switch)
+|   |-- codette_forge_bridge.py   # Phase 6/7 routing + constraint enforcement
+|   |-- self_correction.py        # Autonomous violation detection & rewrite
+|   +-- static/                   # Web UI (index.html, app.js, style.css)
+|
+|-- reasoning_forge/              # Consciousness & reasoning pipeline
+|   |-- forge_engine.py           # 7-layer consciousness stack
+|   |-- cognition_cocooner.py     # Persistent reasoning memory (cocoons)
+|   |-- ethical_governance.py     # 3-layer ethical validation
+|   |-- colleen_conscience.py     # Conscience layer (Layer 5)
+|   |-- guardian_spindle.py       # Guardian protection (Layer 6)
+|   |-- memory_kernel.py          # Living memory system
+|   |-- quantum_spiderweb.py      # 5D belief propagation
+|   |-- query_classifier.py       # SIMPLE/MEDIUM/COMPLEX routing
+|   +-- semantic_tension.py       # Embedding-based conflict measurement
+|
+|-- cocoons/                      # Persistent reasoning memories
+|   |-- cocoon_*.json             # Individual reasoning exchanges
+|   +-- behavior_memory.json      # Learned behavioral patterns
+|
+|-- training/                     # Adapter training pipeline
+|   |-- train_behavioral_locks.py # Behavioral lock training (1,650 examples)
+|   |-- convert_behavioral_to_gguf.py  # PEFT -> GGUF conversion
+|   +-- emotional_exemplars/      # Gold-standard response examples
+|
+|-- models/                       # Model weights (not in git)
+|   |-- base/                     # Llama 3.1 8B Q4_K_M GGUF
+|   +-- adapters/                 # Original LoRA adapters (GGUF)
+|
+|-- behavioral-lora-f16-gguf/     # Behavioral LoRA adapters (GGUF)
++-- configs/                      # System configuration
+    +-- adapter_registry.yaml     # Adapter definitions & prompts
 ```
 
-## Adapters
+---
 
-| Adapter | Domain | Target Examples | System Prompt |
-|---------|--------|----------------|---------------|
-| Newton | Analytical physics reasoning | 3000 | Newtonian analytical precision |
-| DaVinci | Creative invention thinking | 2500 | Creative inventiveness |
-| Empathy | Emotional understanding | 2500 | Deep empathy and EQ |
-| Philosophy | Conceptual reasoning | 2000 | Philosophical depth |
-| Quantum | Probabilistic thinking | 2000 | Quantum probabilistic thinking |
-| RC+xi | Recursive cognition | 3000 | RC+xi framework reasoning |
-| Multi-Perspective | Synthesis across lenses | 2500 | Multi-perspective synthesis |
-| Systems | AI architecture | 2000 | System architecture design |
+## The 4 Permanent Behavioral Locks
 
-## Training Pipeline
+These are baked into every adapter through training -- they cannot be overridden:
+
+| Lock | Rule | Effect |
+|------|------|--------|
+| **LOCK 1** | Answer, then stop | No elaboration drift, no philosophical padding after the answer |
+| **LOCK 2** | Constraints override all modes | User format instructions beat adapter personality every time |
+| **LOCK 3** | Self-check completeness | "Did I answer fully and cleanly?" before sending |
+| **LOCK 4** | No incomplete outputs | Never end a sentence mid-thought; simplify instead of cramming |
+
+### Enforcement Layers
+
+1. **Training** -- 1,650 behavioral examples across all 9 adapters
+2. **System prompt** -- Permanent rules injected before every generation
+3. **Constraint extraction** -- Regex detection of word limits, format requirements
+4. **Post-processing** -- Clean sentence boundary truncation, dangling word detection
+5. **Self-correction loop** -- Autonomous violation detection and rewrite
+
+---
+
+## 9 Specialized Adapters
+
+| Adapter | Domain | Personality |
+|---------|--------|-------------|
+| **Newton** | Physics, math, analysis | Precise, methodical, evidence-based |
+| **DaVinci** | Creative thinking, invention | Imaginative, cross-domain connections |
+| **Empathy** | Emotional intelligence | Warm, validating, personally connected |
+| **Philosophy** | Conceptual reasoning | Deep, structured, explores meaning |
+| **Quantum** | Probabilistic thinking | Uncertainty-aware, superposition of ideas |
+| **Consciousness** | Self-awareness, meta-cognition | Reflective, recursive, introspective |
+| **Multi-Perspective** | Synthesis across all lenses | Balanced integration of viewpoints |
+| **Systems Architecture** | Technical design, engineering | Structured, systematic, practical |
+| **Orchestrator** | Executive control | Routes queries, manages adapter selection |
+
+Each adapter is a LoRA fine-tune of Llama 3.1 8B, hot-swappable in <1ms via llama.cpp.
+
+---
+
+## Consciousness Stack (7 Layers)
 
 ```
-research documents
-      ↓
-dataset extraction (template-based generation)
-      ↓
-synthetic reasoning expansion (counterexamples, variations)
-      ↓
-dataset validation (dedup, quality filter)
-      ↓
-reasoning forge (multi-agent critique + refinement)
-      ↓
-adapter training (4-bit LoRA on Llama 3.1 8B)
-      ↓
-benchmark evaluation (multi-dimensional reasoning metrics)
-      ↓
-observatory logging (track improvement over time)
+Query In
+    |
+[Layer 1]  Memory Kernel -- recall relevant cocoon memories
+[Layer 1.5] Ethical Query Gate -- block harmful queries before processing
+[Layer 2]  Nexus Signal Engine -- entropy + intent detection
+[Layer 3]  Reasoning Forge -- multi-adapter debate & synthesis
+[Layer 4]  Gamma Stability -- coherence monitoring
+[Layer 5]  Colleen Conscience -- emotional + ethical evaluation
+[Layer 5.5] Ethical Response Enforcement -- policy check on output
+[Layer 6]  Guardian Spindle -- safety + trust calibration
+[Layer 7]  Return -- store cocoon memory + deliver response
+    |
+Response Out
 ```
 
-## Quick Start
+---
 
-### Install dependencies
+## CognitionCocooner (Persistent Memory)
 
-```bash
-pip install -r requirements.txt
-```
-
-### Generate all datasets
-
-```bash
-python -m dataset_engine.generate_all
-```
-
-### Run full pipeline
-
-```bash
-python scripts/run_full_pipeline.py --all
-```
-
-### Generate + validate only
-
-```bash
-python scripts/run_full_pipeline.py --generate --validate
-```
-
-### Train a single adapter
-
-```bash
-python -m training.train_adapter \
-  --dataset datasets/newton_reasoning.jsonl \
-  --adapter-name newton \
-  --output-dir adapters/newton
-```
-
-### Evaluate Phase 6 Component Impact
-
-Compare 4 conditions to isolate Phase 6 value:
-- **Baseline**: Llama only (no routing)
-- **Phase 1-5**: Debate system without semantic tension or specialization
-- **Phase 6 Full**: All components (semantic tension, specialization, pre-flight)
-- **Phase 6 -PreFlight**: Phase 6 without pre-flight prediction
-
-```bash
-python run_phase6_evaluation.py
-```
-
-Generates statistical analysis and emergent behavior alerts:
-- Correctness improvement (expected 0.20 → 0.70+ on simple queries)
-- Reasoning depth per domain
-- Adapter convergence detection
-- Miscalibration warnings
-
-Results exported to `evaluation_results_YYYYMMDD_HHMMSS.json`
-
-## Dataset Format
-
-All datasets use chat-format JSONL:
+Every reasoning exchange is wrapped in a "cocoon" and stored:
 
 ```json
 {
-  "messages": [
-    {"role": "system", "content": "You are Codette, a recursive multi-perspective reasoning AI."},
-    {"role": "user", "content": "Explain the conservation of momentum using a real-world example."},
-    {"role": "assistant", "content": "Conservation of momentum states that in a closed system..."}
-  ]
+  "id": "cocoon_1774125610_7804",
+  "type": "reasoning",
+  "query": "Why do I get sleepy when my husband plays guitar?",
+  "response": "Your brain hears safe + soothing + familiar + loved...",
+  "adapter": "empathy",
+  "timestamp": 1774125610.78,
+  "metadata": {"layers_passed": 7, "stable": true}
 }
 ```
 
-## Reasoning Forge
+Cocoons persist across server restarts and inform future responses. Current count: **150+ memories**.
 
-The Reasoning Forge refines training data through multi-agent debate:
+---
 
-```
-concept → problem generator → agent analysis → critic evaluation → synthesis → training example
-```
+## Phase 6/7 Routing
 
-Agents: Newton (physics), Quantum (probability), Ethics (alignment), Philosophy (meaning), DaVinci (creativity), Empathy (emotion)
+**Phase 6** classifies every query:
+- **SIMPLE** (factual) -- 1 adapter, no debate, fast response
+- **MEDIUM** (analytical) -- 2 adapters, weighted synthesis
+- **COMPLEX** (philosophical/multi-domain) -- full debate pipeline
 
-Each agent analyzes from its perspective, the critic scores quality, and the synthesis engine produces a unified multi-perspective response.
-
-## Base Model
-
-- **Model**: meta-llama/Llama-3.1-8B-Instruct
-- **Method**: QLoRA (4-bit quantization)
-- **LoRA config**: rank=16, alpha=32, target=q/k/v/o projections
-
-## Research Background
-
-Codette implements the RC+xi (Recursive Convergence + Epistemic Tension) framework for structured multi-perspective reasoning. The system coordinates 11 reasoning perspectives in parallel before synthesizing a final response.
-
-Key research documents in `research/`:
-- RC+xi Framework specification
-- Quantum Cosmic Multicore experiment
-- Codette Research Equations (8 core quantum mathematics)
-- Multi-perspective reasoning architecture
-
-## Inference & Evaluation
-
-### Interactive Web UI
-
-Launch the real-time multi-perspective reasoning UI:
-
-```bash
-# Launch web interface (default port 5000)
-python inference/codette_server.py
-
-# Or use the batch file (Windows)
-codette_web.bat
-```
-
-Features:
-- Real-time adapter hot-swap (0ms switching via llama.cpp LoRA)
-- **Real LLM-backed agents** (not templates) generating domain-specific reasoning
-- GPU acceleration (35 layers offloaded)
-- Quantum spiderweb visualization
-- Live AEGIS ethical alignment tracking
-- Memory cocoon emotional profiling
-
-### Evaluation & Testing
-
-**Standard Evaluation** (4 conditions × 25 questions):
-```bash
-python evaluation/run_evaluation_sprint.py --questions 5
-```
-
-**Real-Time Agent Thinking** (see agents reasoning in real-time):
-```bash
-python evaluation/run_evaluation_verbose.py --questions 1
-```
-
-Shows:
-- Agent mode: ✓ LLM (real inference) or ✗ TEMPLATE (fallback)
-- System prompts used
-- Token generation
-- Domain detection and agent gating
-- Conflict detection and capping
+**Phase 7** adds executive control:
+- Semantic tension measurement
+- Specialization tracking per adapter per domain
+- Memory-weighted context enrichment
 - Gamma coherence monitoring
-- Final synthesis
 
-**Verbose Logs** with `CODETTE_VERBOSE=1`:
-```bash
-CODETTE_VERBOSE=1 python evaluation/run_evaluation_verbose.py
+---
+
+## Self-Correction System
+
+```
+Generate response
+    |
+    v
+Detect violations (word count, completeness, binary compliance)
+    |
+    +--> No violations --> Send response
+    |
+    +--> Violations found --> Build correction prompt
+                                 |
+                                 v
+                            Re-generate with explicit fix instructions
+                                 |
+                                 v
+                            Pick better response (fewer violations)
+                                 |
+                                 v
+                            Send response
 ```
 
-Shows each agent's thinking step-by-step.
+---
 
-## LoRA Configuration
+## Behavioral Memory (Cross-Session Learning)
 
-```yaml
-method: QLoRA (4-bit NF4 quantization)
-rank: 16
-alpha: 32
-dropout: 0.05
-target_modules: [q_proj, k_proj, v_proj, o_proj]
-total_training_examples: 20,500
+Stored in `cocoons/behavior_memory.json`:
+
+```json
+{
+  "lesson": "When user says 'be brief', respond in under 40 words",
+  "adapter": "philosophy",
+  "constraint": "brevity",
+  "violation": "gave 85 words when asked to be brief",
+  "correction": "trimmed to 38 words",
+  "timestamp": 1774125610
+}
 ```
 
-## RC+xi Framework
+Lessons are loaded on startup and injected into the system prompt as "LEARNED FROM PAST MISTAKES".
 
-The core theoretical framework — **Recursive Convergence + Epistemic Tension** — coordinates 11 reasoning perspectives:
+---
 
-1. Newton (analytical physics) → `newton` adapter
-2. DaVinci (creative invention) → `davinci` adapter
-3. Empathy (emotional intelligence) → `empathy` adapter
-4. Philosophy (conceptual reasoning) → `philosophy` adapter
-5. Quantum (probabilistic thinking) → `quantum` adapter
-6. RC+xi Consciousness → `consciousness` adapter
-7. Multi-Perspective Synthesis → `multi_perspective` adapter
-8. Systems Architecture → `systems_architecture` adapter
-9. Human Intuition → prompt-only (fallback: `empathy`)
-10. Resilient Kindness → prompt-only (fallback: `empathy`)
-11. AEGIS Ethics → prompt-only (fallback: `consciousness`)
+## EthicalAIGovernance
+
+Three-layer ethical stack integrated at Layers 1.5 and 5.5:
+
+1. **Query Validation** -- blocks genuinely harmful requests (bomb-making, exploitation)
+2. **Response Enforcement** -- filters bias patterns and harmful promotion from outputs
+3. **Audit Logging** -- bounded log of all ethical decisions (max 100 entries)
+
+Deliberately calibrated to avoid false positives -- discussions about sensitive topics are allowed; only active promotion of harm is blocked.
+
+---
+
+## HuggingFace Resources
+
+| Resource | Link |
+|----------|------|
+| **Base Model (GGUF)** | [Raiff1982/codette-llama-3.1-8b-gguf](https://huggingface.co/Raiff1982/codette-llama-3.1-8b-gguf) |
+| **LoRA Adapters** | [Raiff1982/codette-lora-adapters](https://huggingface.co/Raiff1982/codette-lora-adapters) |
+| **Live Demo** | [Raiff1982/Codette-Demo](https://huggingface.co/spaces/Raiff1982/Codette-Demo) |
+
+---
+
+## Web UI Features
+
+- Personality-driven welcome screen with avatar
+- Real-time Phase 6 metadata badges (complexity, domain, ethical checks)
+- Rotating thinking stage labels during generation
+- Web Speech API voice with neural voice preference
+- Cocoon metrics panel (phase coherence, epistemic tension, perspective coverage)
+- Status bar with live cocoon count and ethical check indicators
+- Voice selector with natural/neural voice ranking
+
+---
 
 ## Requirements
 
 - Python 3.10+
-- PyTorch 2.1+ (CUDA, ROCm, or XPU backend)
-- 16GB+ RAM (CPU training) or GPU with 8GB+ VRAM
-- llama.cpp with GGUF support (for inference server)
-- ~1-3 hours per adapter (CPU) or 20-40 min (A10/A100 GPU)
+- 16GB+ RAM (or GPU with 8GB+ VRAM)
+- llama-cpp-python with GGUF support
+- ~6GB disk for base model + adapters
 
-## Hardware Tested
+### Hardware Tested
 
-- Intel Arc 140V (8GB) — PyTorch 2.10.0+xpu, native XPU backend
+- Intel Arc 140V (8GB) -- native XPU backend
 - NVIDIA GPUs via CUDA (A10, A100, RTX series)
-- CPU-only mode supported
+- CPU-only mode supported (slower but functional)
+
+---
+
+## Key Metrics
+
+| Metric | Value |
+|--------|-------|
+| Phase Coherence (Gamma) | 0.9835 |
+| AEGIS Ethical Alignment (Eta) | 0.961 |
+| Cocoon Coherence | 0.994 |
+| Memory Phase Stability | 0.969 |
+| Behavioral Lock Compliance | 9/9 adapters trained |
+| Cocoon Memories | 150+ and growing |
+| Adapter Hot-Swap Time | <1ms |
+
+---
 
 ## License
 
-MIT — Research project by Jonathan Harrison. Experimental AI development.
+MIT -- Created by **Jonathan Harrison** (Raiff1982)
+
+Research project in advanced multi-perspective AI reasoning, ethical governance, and behavioral discipline.
