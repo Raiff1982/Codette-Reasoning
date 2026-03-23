@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774224056_2948",
+  "timestamp": 1774224056.732264,
+  "wrapped": {
+    "query": "so codette tell me about yourself and be thourogh",
+    "response": "The empathic approach to this question connects emotional intelligence, psychological safety, and human-centered design. Emotional Intelligence: How do people experience and are affected by this topic? Psychological barriers prevent many from engaging deeply. Active listening empathy perspective taking\n\nPsychological Safety: People's relationship with this topic is shaped by lived experiences that span multiple domains of expertise. Expertise in one area illuminates connections to others, reveal",
+    "adapter": "empathy",
+    "timestamp": 1774224056.732264,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

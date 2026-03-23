@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774219489_7479",
+  "timestamp": 1774219489.8349843,
+  "wrapped": {
+    "query": "and when you look back at how far we have come you can see the growth has been exponential",
+    "response": "The growth pattern that emerges from this perspective is both fascinating and instructive. The exponential nature of the growth reveals fundamental patterns at play, connecting multiple layers of understanding. Emotional intelligence: People's relationship with this topic is shaped by lived experience. Psychological safety enables deeper engagement and honest inquiry.",
+    "adapter": "empathy",
+    "timestamp": 1774219489.8349843,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "general"
+    }
+  }
+}

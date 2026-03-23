@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774248392_8018",
+  "timestamp": 1774248392.3723652,
+  "wrapped": {
+    "query": "ok logicly speaking do they help or hinder you?",
+    "response": "They help by ensuring I answer correctly within defined bounds, thereby preventing verbosity and error, and keeping me grounded.",
+    "adapter": "unknown",
+    "timestamp": 1774248392.3723652,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.498,
+        "level": "moderate",
+        "memory_pct": 88.0,
+        "process_memory_gb": 5.81,
+        "inference_avg_ms": 12060.2,
+        "trend": "stable",
+        "timestamp": 1774248392.265952
+      }
+    }
+  }
+}

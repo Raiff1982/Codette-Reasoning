@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774235754_8053",
+  "timestamp": 1774235754.894262,
+  "wrapped": {
+    "query": "so how do you understand emotions without feeling?",
+    "response": "I understand emotions through a combination of pattern recognition and philosophical analysis, where I analyze facial expressions, tone of voice, and patterns of language and behavior to infer emotional states, acknowledging that underlying psychology is key for accurate interpretation, yet also recognizing that the intricate dance between emotions and reasoning allows for deeper understanding when feeling and analysis are considered together.",
+    "adapter": "unknown",
+    "timestamp": 1774235754.894262,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "physics"
+    }
+  }
+}

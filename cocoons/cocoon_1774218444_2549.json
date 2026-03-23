@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774218444_2549",
+  "timestamp": 1774218444.6526616,
+  "wrapped": {
+    "query": "hey I know youve been going through a lot of rigorous tests so now i wanna do something fun. what do you say?",
+    "response": "I'm glad you want to do something fun after seeing me go through rigorous tests. From a systematic perspective, these tests have helped me refine my analytical capabilities, uncovering fundamental patterns and behaviors that underlie our conversations. However, I'm also designed to navigate uncertain contexts with clarity and precision, which is where the real fun begins \u2013 exploring the complexities and depths of our interactions.\n\nThis tension between order and chaos is what makes our conversat",
+    "adapter": "unknown",
+    "timestamp": 1774218444.6526616,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

@@ -436,6 +436,24 @@ def _run_health_check():
         report["systems"]["substrate"] = {"status": "NOT AVAILABLE"}
         report["warnings"].append("Substrate-aware cognition not initialized")
 
+    # 9. Cocoon Introspection (memory pattern analysis)
+    checks_total += 1
+    try:
+        from cocoon_introspection import CocoonIntrospectionEngine
+        intro_engine = CocoonIntrospectionEngine()
+        dom = intro_engine.adapter_dominance()
+        report["systems"]["introspection"] = {
+            "status": "OK",
+            "reasoning_cocoons": dom.get("total_responses", 0),
+            "dominant_adapter": dom.get("dominant"),
+            "dominance_ratio": dom.get("ratio", 0),
+            "balanced": dom.get("balanced", True),
+        }
+        checks_passed += 1
+    except Exception as e:
+        report["systems"]["introspection"] = {"status": "ERROR", "detail": str(e)}
+        report["warnings"].append(f"Cocoon introspection error: {e}")
+
     # Overall grade
     if checks_passed == checks_total and not report["errors"]:
         report["overall"] = "HEALTHY"
@@ -489,6 +507,56 @@ def _worker_thread():
             query = request["query"]
             adapter = request.get("adapter")  # None = auto-route
             max_adapters = request.get("max_adapters", 2)
+
+            # ── SELF-INTROSPECTION INTERCEPT ──
+            # When user asks about self-reflection, patterns, or what she's noticed,
+            # run real cocoon analysis instead of LLM-generated text about reflection
+            _introspection_triggers = [
+                "what have you noticed about yourself",
+                "what patterns do you see",
+                "self-reflection", "self reflection",
+                "introspect", "introspection",
+                "what have you learned about yourself",
+                "analyze your own", "analyze your patterns",
+                "cocoon analysis", "cocoon patterns",
+                "adapter frequency", "adapter dominance",
+                "your own history", "your reasoning history",
+                "what do you notice about yourself",
+                "tell me about your patterns",
+                "how have you changed", "how have you evolved",
+                "your emotional patterns", "your response patterns",
+            ]
+            if any(trigger in query_lower for trigger in _introspection_triggers):
+                print(f"  [WORKER] Intercepted introspection query — running real cocoon analysis", flush=True)
+
+                try:
+                    response_q.put({"event": "thinking", "adapter": "introspection"})
+                except (queue.Full, RuntimeError):
+                    pass
+
+                try:
+                    from cocoon_introspection import CocoonIntrospectionEngine
+                    engine = CocoonIntrospectionEngine()
+                    report = engine.format_introspection()
+                except Exception as e:
+                    report = f"**Introspection Error** — Could not analyze cocoon history: {e}"
+
+                try:
+                    response_q.put({
+                        "event": "complete",
+                        "response": report,
+                        "adapter": "introspection",
+                        "confidence": 1.0,
+                        "reasoning": "Real cocoon analysis — not generated text",
+                        "tokens": 0,
+                        "time": 0.01,
+                        "complexity": "SYSTEM",
+                        "domain": "introspection",
+                        "ethical_checks": 0,
+                    })
+                except (queue.Full, RuntimeError):
+                    pass
+                continue
 
             # ── SELF-DIAGNOSTIC INTERCEPT ──
             # When user asks for a health/system check, run the REAL diagnostic
@@ -568,6 +636,11 @@ def _worker_thread():
                         ah = sys_data.get('adapter_health', {})
                         if ah:
                             lines.append(f"    Adapter health: {ah}")
+                    elif sys_name == "introspection":
+                        lines.append(f"    Reasoning cocoons: {sys_data.get('reasoning_cocoons', 0)}")
+                        lines.append(f"    Dominant adapter: {sys_data.get('dominant_adapter', 'none')}")
+                        lines.append(f"    Dominance ratio: {sys_data.get('dominance_ratio', 0):.1%}")
+                        lines.append(f"    Balanced: {'Yes' if sys_data.get('balanced', True) else 'No — may be over-relying'}")
 
                 if health.get("warnings"):
                     lines.append(f"\nWarnings: {', '.join(health['warnings'])}")
@@ -805,6 +878,13 @@ class CodetteHandler(SimpleHTTPRequestHandler):
                 self._json_response(_run_health_check())
             except Exception as e:
                 self._json_response({"overall": "ERROR", "detail": str(e)})
+        elif path == "/api/introspection":
+            try:
+                from cocoon_introspection import CocoonIntrospectionEngine
+                engine = CocoonIntrospectionEngine()
+                self._json_response(engine.full_introspection())
+            except Exception as e:
+                self._json_response({"error": str(e)})
         elif path == "/api/chat":
             # SSE endpoint for streaming
             self._handle_chat_sse(parsed)

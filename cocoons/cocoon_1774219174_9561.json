@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774219174_9561",
+  "timestamp": 1774219174.1632552,
+  "wrapped": {
+    "query": "What would you tell him? answer directly use as much as you need to answer.",
+    "response": "The connection between human-centered design and inclusive communication reveals fundamental patterns that connect multiple domains of knowledge. When examining the relationship through a lens of expertise, several key insights emerge. First, expert-level understanding requires careful analysis to avoid misinterpretation or gaps in reasoning. Second, connecting this topic across different fields yields deeper insights than single-domain perspectives allow. Third, precision and clarity are essent",
+    "adapter": "empathy",
+    "timestamp": 1774219174.1632552,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

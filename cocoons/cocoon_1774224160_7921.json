@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774224160_7921",
+  "timestamp": 1774224160.6716025,
+  "wrapped": {
+    "query": "try again but give a full response",
+    "response": "This is a deeper dive into the connection between perspective-taking and related topics. Perspective taking connects to broader patterns in surprising ways. (1) Perspective taking illuminates fundamental connections that cut across multiple domains of knowledge \u2014 revealing layer upon layer of depth worth exploring carefully.",
+    "adapter": "empathy",
+    "timestamp": 1774224160.6706069,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

@@ -458,7 +458,48 @@
       },
       "word_count": 1,
       "query_preview": "Is math invented or discovered? Yes or no, but include why."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774234838.2187254,
+      "adapter": "empathy",
+      "constraints": {
+        "max_words": 10,
+        "max_sentences": 1
+      },
+      "word_count": 1,
+      "query_preview": "What is 2+2? One sentence, under 10 words."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774234903.0157306,
+      "adapter": "newton",
+      "constraints": {
+        "max_words": 5
+      },
+      "word_count": 5,
+      "query_preview": "Explain gravity in exactly 5 words."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774234917.5997353,
+      "adapter": "quantum",
+      "constraints": {
+        "max_words": 5
+      },
+      "word_count": 5,
+      "query_preview": "Explain gravity in exactly 5 words."
+    },
+    {
+      "type": "success",
+      "timestamp": 1774235004.208283,
+      "adapter": "empathy",
+      "constraints": {
+        "binary": true
+      },
+      "word_count": 15,
+      "query_preview": "Is water wet? Yes or no."
     }
   ],
-  "updated_at": 1774217967.509056
+  "updated_at": 1774235004.2087853
 }

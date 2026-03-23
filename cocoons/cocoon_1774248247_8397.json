@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774248247_8397",
+  "timestamp": 1774248247.560788,
+  "wrapped": {
+    "query": "so what else does that mean?",
+    "response": "Nothing additional. That's the full meaning of \"permanence.\"",
+    "adapter": "empathy",
+    "timestamp": 1774248247.560788,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.528,
+        "level": "moderate",
+        "memory_pct": 88.2,
+        "process_memory_gb": 5.82,
+        "inference_avg_ms": 27745.7,
+        "trend": "stable",
+        "timestamp": 1774248247.4541135
+      }
+    }
+  }
+}

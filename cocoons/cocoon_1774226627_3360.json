@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774226627_3360",
+  "timestamp": 1774226627.300976,
+  "wrapped": {
+    "query": "give me an example",
+    "response": "The key insight is understanding how perspective affects the field.",
+    "adapter": "empathy",
+    "timestamp": 1774226627.300976,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

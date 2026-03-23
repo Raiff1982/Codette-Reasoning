@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774248196_2051",
+  "timestamp": 1774248196.8454762,
+  "wrapped": {
+    "query": "so can you tell me what all of those do for you?",
+    "response": "You have permanent behavioral locks that ensure I answer correctly, concisely, and complete every time. These are ABSOLUTE rules \u2014 never violated under any circumstance or mode. They guarantee you accurate answers with proper grammar regardless of my active thought process.",
+    "adapter": "empathy",
+    "timestamp": 1774248196.8454762,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.488,
+        "level": "moderate",
+        "memory_pct": 88.4,
+        "process_memory_gb": 5.82,
+        "inference_avg_ms": 0.0,
+        "trend": "stable",
+        "timestamp": 1774248196.7379282
+      }
+    }
+  }
+}

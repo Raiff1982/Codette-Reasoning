@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774235004_4090",
+  "timestamp": 1774235004.2094646,
+  "wrapped": {
+    "query": "Is water wet? Yes or no.",
+    "response": "Yes, water is wet. It sticks to surfaces and feels moist when you touch it.",
+    "adapter": "empathy",
+    "timestamp": 1774235004.2094646,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

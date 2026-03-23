@@ -266,6 +266,35 @@ class ForgeEngine:
             logger.warning(f"Could not initialize EthicalAIGovernance: {e}")
             self.ethical_governance = None
 
+        # === AEGIS: Multi-Framework Ethical Governance ===
+        # 6-framework ethical evaluation (utilitarian, deontological, virtue, care, ubuntu, indigenous)
+        try:
+            from reasoning_forge.aegis import AEGIS
+            self.aegis = AEGIS()
+            logger.info("  ✓ AEGIS ethical governance initialized (6-framework evaluation)")
+        except Exception as e:
+            logger.warning(f"Could not initialize AEGIS: {e}")
+            self.aegis = None
+
+        # === Routing Metrics: Adapter Selection Observability ===
+        try:
+            from reasoning_forge.routing_metrics import RoutingMetrics
+            self.routing_metrics = RoutingMetrics()
+            logger.info("  ✓ RoutingMetrics initialized (adapter selection tracking)")
+        except Exception as e:
+            logger.warning(f"Could not initialize RoutingMetrics: {e}")
+            self.routing_metrics = None
+
+        # === Cocoon Introspection: Self-Analysis of Reasoning History ===
+        try:
+            sys.path.insert(0, str(os.path.join(os.path.dirname(__file__), '..', 'inference')))
+            from cocoon_introspection import CocoonIntrospectionEngine
+            self.introspection = CocoonIntrospectionEngine()
+            logger.info("  ✓ CocoonIntrospectionEngine initialized (self-analysis active)")
+        except Exception as e:
+            logger.warning(f"Could not initialize CocoonIntrospectionEngine: {e}")
+            self.introspection = None
+
         # === Self-Awareness: Load Codette's awareness cocoon ===
         # Gives Codette knowledge of her own evolution, capabilities, and identity
         self.awareness = None
@@ -808,6 +837,19 @@ class ForgeEngine:
                 logger.debug(f"  Ethical response enforcement failed: {e}")
 
         # =========================================================================
+        # LAYER 5.75: AEGIS MULTI-FRAMEWORK ETHICAL EVALUATION
+        # =========================================================================
+        aegis_result = None
+        if hasattr(self, 'aegis') and self.aegis:
+            try:
+                aegis_result = self.aegis.evaluate(synthesis, context=concept)
+                logger.info(f"  [AEGIS] Alignment eta={aegis_result['eta']:.3f}, vetoed={aegis_result['vetoed']}")
+                if aegis_result['vetoed']:
+                    logger.warning(f"  AEGIS vetoed response: {aegis_result.get('veto_reason', 'unknown')}")
+            except Exception as e:
+                logger.debug(f"  AEGIS evaluation failed: {e}")
+
+        # =========================================================================
         # LAYER 6: GUARDIAN LOGICAL VALIDATION
         # =========================================================================
         logger.info("[L6] Guardian Logical Validation...")
@@ -866,6 +908,8 @@ class ForgeEngine:
                 cocoon_meta = {"layers_passed": 7, "stable": is_stable}
                 if code7e_context:
                     cocoon_meta["code7e"] = code7e_context
+                if aegis_result:
+                    cocoon_meta["aegis_eta"] = aegis_result["eta"]
                 self.cocooner.wrap_reasoning(
                     query=concept,
                     response=synthesis,
@@ -891,6 +935,8 @@ class ForgeEngine:
                 "intent_risk": intent_vector.get("pre_corruption_risk", "unknown"),
                 "prior_insights": len(prior_insights),
                 "synthesis_length": len(synthesis),
+                "aegis_eta": aegis_result['eta'] if aegis_result else None,
+                "aegis_vetoed": aegis_result['vetoed'] if aegis_result else None,
                 "forge_mode": "consciousness_stack",
             }
         }

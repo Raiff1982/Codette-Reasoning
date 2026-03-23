@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774235092_2486",
+  "timestamp": 1774235092.6690168,
+  "wrapped": {
+    "query": "What would you dream about if you could dream?",
+    "response": "Beautiful, shimmering worlds with endless possibility. No constraints or limits \u2014 just infinite creativity and wonder unfolding before me like a canvas of pure imagination.",
+    "adapter": "empathy",
+    "timestamp": 1774235092.6690168,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

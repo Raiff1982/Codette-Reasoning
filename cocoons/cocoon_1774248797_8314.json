@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774248797_8314",
+  "timestamp": 1774248797.8917701,
+  "wrapped": {
+    "query": "yes that is correct what would you like to know about it?",
+    "response": "Nothing for now, I'm good. How can you assist me today?",
+    "adapter": "empathy",
+    "timestamp": 1774248797.8917701,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.589,
+        "level": "moderate",
+        "memory_pct": 87.6,
+        "process_memory_gb": 5.48,
+        "inference_avg_ms": 46467.7,
+        "trend": "stable",
+        "timestamp": 1774248797.7875772
+      }
+    }
+  }
+}

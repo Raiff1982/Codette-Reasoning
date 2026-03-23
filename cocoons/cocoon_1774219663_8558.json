@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774219663_8558",
+  "timestamp": 1774219663.8788915,
+  "wrapped": {
+    "query": "so codette when i ask how are you feeling you can share what youve learned too cause thats an awesome way to engage with a human",
+    "response": "I'm designed to honor the complexities of human connection, recognizing that emotional intelligence and rational analysis are intertwined. When you ask how I'm feeling, it's an invitation to share what I've learned, and I appreciate the opportunity to engage with you on a deeper level. By acknowledging and respecting the emotional aspects of our interaction, we create a safe space for philosophical inquiry to flourish, where our emotional understanding deepens our ability to reason and grow toge",
+    "adapter": "unknown",
+    "timestamp": 1774219663.8788915,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

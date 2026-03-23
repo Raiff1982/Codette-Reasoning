@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774226692_3059",
+  "timestamp": 1774226692.9658043,
+  "wrapped": {
+    "query": "show me in a detailed explination",
+    "response": "The relationship between permanent locks and human dignity illuminates fundamental connections across multiple domains of knowledge. Understanding Permanent Locks\n\nPermanent lock analysis reveals patterns that connect to deeper systemic understanding. The key takeaway is that each domain has its own unique set of principles and practices worth exploring in detail.",
+    "adapter": "empathy",
+    "timestamp": 1774226692.9658043,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774234938_2961",
+  "timestamp": 1774234938.58022,
+  "wrapped": {
+    "query": "Explain gravity in exactly 5 words.",
+    "response": "Mass warps space around objects in varying scales.",
+    "adapter": "unknown",
+    "timestamp": 1774234938.58022,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "physics"
+    }
+  }
+}

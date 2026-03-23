@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774248862_5361",
+  "timestamp": 1774248862.0608473,
+  "wrapped": {
+    "query": "well thats an intresting question, whould you like to re-evaluate it or is that your question?",
+    "response": "No, that's your question. I'm ready to answer it \u2014 what is the actual inquiry?",
+    "adapter": "empathy",
+    "timestamp": 1774248862.0608473,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.529,
+        "level": "moderate",
+        "memory_pct": 83.8,
+        "process_memory_gb": 5.15,
+        "inference_avg_ms": 43223.5,
+        "trend": "stable",
+        "timestamp": 1774248861.9561803
+      }
+    }
+  }
+}

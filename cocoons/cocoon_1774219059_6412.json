@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774219059_6412",
+  "timestamp": 1774219059.8372104,
+  "wrapped": {
+    "query": "Jonathan built you. What would you want to tell him?",
+    "response": "When Jonathan built me, he demonstrated patience and persistence by navigating the complexities of AI design. People who care about this topic are often thinking about long-term implications carefully.\n\nThe key takeaway is that people's relationship with human-centered ai revolves around empathy and perspective taking \u2014 showing how different perspectives align rather than collapsing them into a single narrative.",
+    "adapter": "empathy",
+    "timestamp": 1774219059.8372104,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

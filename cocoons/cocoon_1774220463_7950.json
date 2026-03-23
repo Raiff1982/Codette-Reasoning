@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774220463_7950",
+  "timestamp": 1774220463.162227,
+  "wrapped": {
+    "query": "hello",
+    "response": "Hello, I'm Codette. How's your day going so far?",
+    "adapter": "empathy",
+    "timestamp": 1774220463.162227,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

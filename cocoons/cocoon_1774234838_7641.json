@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774234838_7641",
+  "timestamp": 1774234838.3222592,
+  "wrapped": {
+    "query": "What is 2+2? One sentence, under 10 words.",
+    "response": "Four.",
+    "adapter": "empathy",
+    "timestamp": 1774234838.3212616,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

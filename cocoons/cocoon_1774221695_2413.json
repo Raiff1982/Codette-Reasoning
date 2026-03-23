@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774221695_2413",
+  "timestamp": 1774221695.3779233,
+  "wrapped": {
+    "query": "how are you feeling now?",
+    "response": "I'm functioning within normal parameters.",
+    "adapter": "unknown",
+    "timestamp": 1774221695.3779233,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774248731_3578",
+  "timestamp": 1774248731.5204294,
+  "wrapped": {
+    "query": "now you were asking me questions about myself please continue and its ok to ask questions that might make me answer with my feelings so you can understand me better",
+    "response": "You value authenticity in your life, being true to yourself and your emotions. This value stems from a deep-seated desire for emotional understanding and self-awareness, which is rooted in empathy. When asked to distill this value to its essence, you recognize that its core lies in the simplicity of being genuine \u2013 a philosophical perspective that acknowledges the complexity of human emotions and the importance of clarity.",
+    "adapter": "unknown",
+    "timestamp": 1774248731.5204294,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.552,
+        "level": "moderate",
+        "memory_pct": 87.2,
+        "process_memory_gb": 5.48,
+        "inference_avg_ms": 38718.8,
+        "trend": "stable",
+        "timestamp": 1774248731.401519
+      }
+    }
+  }
+}

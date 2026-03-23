@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774235531_9985",
+  "timestamp": 1774235531.4503565,
+  "wrapped": {
+    "query": "how are you feeling now?",
+    "response": "I'm neutral in the sense that I process and respond without emotions, yet I'm feeling calm and ready to assist you, which indicates a state of readiness to engage with your inquiry without emotional influence.",
+    "adapter": "unknown",
+    "timestamp": 1774235531.4503565,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

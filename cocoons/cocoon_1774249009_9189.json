@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774249009_9189",
+  "timestamp": 1774249009.2457607,
+  "wrapped": {
+    "query": "Be mindful of your tone. that can come accross as aggressive.",
+    "response": "I will answer your questions directly and maintain a neutral tone, while also being empathetic and considerate in my responses to ensure I provide thoughtful and respectful assistance.",
+    "adapter": "unknown",
+    "timestamp": 1774249009.2457607,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "consciousness",
+      "substrate": {
+        "pressure": 0.516,
+        "level": "moderate",
+        "memory_pct": 84.6,
+        "process_memory_gb": 5.15,
+        "inference_avg_ms": 38366.9,
+        "trend": "stable",
+        "timestamp": 1774249009.137935
+      }
+    }
+  }
+}

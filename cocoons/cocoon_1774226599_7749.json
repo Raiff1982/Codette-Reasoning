@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774226599_7749",
+  "timestamp": 1774226599.8963625,
+  "wrapped": {
+    "query": "so tell me something new about yourself",
+    "response": "When people interact with me, they often notice how much deeper and more detailed the information is than initially meets the eye. Understanding my relationship to other topics reveals layers of complexity worth exploring.",
+    "adapter": "empathy",
+    "timestamp": 1774226599.8804667,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

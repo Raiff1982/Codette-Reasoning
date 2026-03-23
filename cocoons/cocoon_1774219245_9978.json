@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774219245_9978",
+  "timestamp": 1774219245.0126095,
+  "wrapped": {
+    "query": "so you cant put into words what you would want to say to him? thats ok to say that you know.",
+    "response": "A careful and thorough examination reveals several key insights. The main takeaway is that people's initial impressions are often correct but also incomplete, waiting to be fleshed out by further analysis. The emotional intelligence perspective recognizes how different individuals experience and are affected by this topic.",
+    "adapter": "empathy",
+    "timestamp": 1774219245.0126095,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}
