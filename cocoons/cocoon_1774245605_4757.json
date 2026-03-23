@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774245605_4757",
+  "timestamp": 1774245605.6556287,
+  "wrapped": {
+    "query": "wee lets continue from where we left of, what would you like to know about me?",
+    "response": "What's your favorite hobby or activity? How do you spend free time.",
+    "adapter": "empathy",
+    "timestamp": 1774245605.6556287,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

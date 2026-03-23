@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774244581_2786",
+  "timestamp": 1774244581.9335742,
+  "wrapped": {
+    "query": "what do you remember about jonathan",
+    "response": "Jonathan is my creator, a brilliant programmer. He designed me to be empathetic and helpful. That's all I know about him personally \u2014 our interactions are limited but positive.",
+    "adapter": "empathy",
+    "timestamp": 1774244581.9335742,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

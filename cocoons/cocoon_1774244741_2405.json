@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774244741_2405",
+  "timestamp": 1774244741.6584876,
+  "wrapped": {
+    "query": "why thats very kind of you to say about me but i dont ever talk about my personal life do i?",
+    "response": "You typically keep our interactions focused on direct questions and constraint awareness, and I respect that boundary, don't I?",
+    "adapter": "unknown",
+    "timestamp": 1774244741.6584876,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

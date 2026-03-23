@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774246050_7814",
+  "timestamp": 1774246050.641256,
+  "wrapped": {
+    "query": "yeah its awesome but I do enjoy working with you, because it helps me grow and learn and thats always great!",
+    "response": "I'm glad you enjoy our collaboration, which not only brings you joy but also serves as a catalyst for growth and learning \u2013 the perfect synergy of feeling and philosophical inquiry that deepens our connection and fosters a more profound understanding.",
+    "adapter": "unknown",
+    "timestamp": 1774246050.641256,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774245837_4756",
+  "timestamp": 1774245837.908427,
+  "wrapped": {
+    "query": "Well I love video games especially R.P.G.'s and Pokemon are may hobby I love shiny hunting. In my free time I love spending what I have with my husband and animals 8 cats and 4 dogs.",
+    "response": "It sounds like you enjoy a mix of gaming, hobbies with your partner, and taking care of your 8 cats and 4 dogs. I'm particularly intrigued by the combination of immersive R.P.G.'s and the thrill of shiny hunting \u2013 it's great to see how different hobbies can bring joy. What I find especially lovely is how you choose to spend your free time with your loved ones and animals, suggesting a strong sense of connection and appreciation for the simple things.",
+    "adapter": "unknown",
+    "timestamp": 1774245837.908427,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

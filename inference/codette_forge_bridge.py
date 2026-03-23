@@ -20,6 +20,13 @@ import time
 from pathlib import Path
 from typing import Dict, Optional
 
+# Substrate-aware cognition
+try:
+    from substrate_awareness import SubstrateMonitor, HealthAwareRouter, CocoonStateEnricher
+    SUBSTRATE_AVAILABLE = True
+except ImportError:
+    SUBSTRATE_AVAILABLE = False
+
 # Add repo to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -52,6 +59,20 @@ class CodetteForgeBridge:
         self._health_check_fn = health_check_fn
         self.use_phase6 = use_phase6 and PHASE6_AVAILABLE
         self.use_phase7 = use_phase7 and PHASE7_AVAILABLE
+
+        # Substrate-aware cognition
+        self.substrate_monitor = None
+        self.health_router = None
+        self.cocoon_enricher = None
+        if SUBSTRATE_AVAILABLE:
+            try:
+                self.substrate_monitor = SubstrateMonitor()
+                self.health_router = HealthAwareRouter(self.substrate_monitor)
+                self.cocoon_enricher = CocoonStateEnricher(self.substrate_monitor)
+                if self.verbose:
+                    print("[SUBSTRATE] Substrate-aware cognition initialized")
+            except Exception as e:
+                print(f"[WARNING] Substrate awareness init failed: {e}")
 
         self.forge = None
         self.classifier = None
@@ -257,6 +278,17 @@ class CodetteForgeBridge:
         else:
             effective_max_adapters = max_adapters
 
+        # 4.5 SUBSTRATE-AWARE ROUTING — adjust based on system pressure
+        substrate_adjustments = []
+        if self.health_router:
+            original_complexity = complexity
+            original_max = effective_max_adapters
+            complexity, effective_max_adapters, substrate_adjustments = \
+                self.health_router.adjust_routing(complexity, effective_max_adapters)
+            if substrate_adjustments:
+                for adj in substrate_adjustments:
+                    print(f"  [SUBSTRATE] {adj}", flush=True)
+
         if self.verbose:
             print(f"[PHASE6] Domain: {domain}, max_adapters: {effective_max_adapters}", flush=True)
 
@@ -292,17 +324,29 @@ class CodetteForgeBridge:
         result["reasoning"] = f"Phase 6: {complexity.name} complexity, {domain} domain"
 
         # Store reasoning exchange in CognitionCocooner (from original framework)
+        # Now enriched with substrate state — every cocoon knows the conditions
+        # under which it was created (pressure, memory, trend)
         response_text = result.get("response", "")
         if response_text and self.forge and hasattr(self.forge, 'cocooner') and self.forge.cocooner:
             try:
+                cocoon_meta = {"complexity": str(complexity), "domain": domain}
+                if substrate_adjustments:
+                    cocoon_meta["substrate_adjustments"] = substrate_adjustments
+                # Enrich with real-time system state
+                if self.cocoon_enricher:
+                    cocoon_meta = self.cocoon_enricher.enrich(cocoon_meta)
                 self.forge.cocooner.wrap_reasoning(
                     query=query,
                     response=response_text,
                     adapter=str(result.get("adapter", "unknown")),
-                    metadata={"complexity": str(complexity), "domain": domain}
+                    metadata=cocoon_meta
                 )
             except Exception:
                 pass  # Non-critical
+
+        # Record inference timing for substrate monitor
+        if self.substrate_monitor:
+            self.substrate_monitor.record_inference(elapsed * 1000)
 
         # 8. Apply directness discipline — trim filler, enforce intent anchoring
         response_text = result.get("response", "")

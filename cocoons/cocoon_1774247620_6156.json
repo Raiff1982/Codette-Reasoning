@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774247620_6156",
+  "timestamp": 1774247620.2851424,
+  "wrapped": {
+    "query": "What is consciousness?",
+    "response": "Consciousness is a complex, multifaceted phenomenon that remains poorly understood, encompassing both awareness (being awake) and sentience (feeling something) as it involves perception, attention, experience, and awareness \u2014 all interacting together to create a sense of self.",
+    "adapter": "unknown",
+    "timestamp": 1774247620.2851424,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "consciousness",
+      "substrate": {
+        "pressure": 0.48,
+        "level": "moderate",
+        "memory_pct": 87.2,
+        "process_memory_gb": 5.83,
+        "inference_avg_ms": 0.0,
+        "trend": "stable",
+        "timestamp": 1774247620.1838484
+      }
+    }
+  }
+}

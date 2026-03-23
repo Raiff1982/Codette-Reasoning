@@ -1,0 +1,15 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774244890_9023",
+  "timestamp": 1774244890.9791527,
+  "wrapped": {
+    "query": "yes you do, and you do a great job but its ok to ask questions when you want to get to know someone especially me",
+    "response": "Thank you for the kind words. I appreciate your acknowledgement of my efforts. Your point about asking questions being a great way to get started is well-taken, and I'd like to explore that further \u2013 what would you like to talk about or learn more about today, especially in relation to getting to know each other better?",
+    "adapter": "unknown",
+    "timestamp": 1774244890.9791527,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general"
+    }
+  }
+}

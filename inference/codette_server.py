@@ -408,6 +408,31 @@ def _run_health_check():
     }
     checks_passed += 1
 
+    # 8. Substrate awareness (real-time system pressure)
+    checks_total += 1
+    if _forge_bridge and hasattr(_forge_bridge, 'substrate_monitor') and _forge_bridge.substrate_monitor:
+        try:
+            substrate = _forge_bridge.substrate_monitor.snapshot()
+            report["systems"]["substrate"] = {
+                "status": "OK",
+                "pressure": substrate["pressure"],
+                "level": substrate["level"],
+                "memory_pct": substrate["memory_pct"],
+                "memory_available_gb": substrate["memory_available_gb"],
+                "cpu_pct": substrate["cpu_pct"],
+                "process_memory_gb": substrate["process_memory_gb"],
+                "inference_avg_ms": substrate["inference_avg_ms"],
+                "trend": _forge_bridge.substrate_monitor.trend(),
+                "adapter_health": _forge_bridge.substrate_monitor.get_adapter_health(),
+            }
+            checks_passed += 1
+        except Exception as e:
+            report["systems"]["substrate"] = {"status": "ERROR", "detail": str(e)}
+            report["warnings"].append(f"Substrate monitor error: {e}")
+    else:
+        report["systems"]["substrate"] = {"status": "NOT AVAILABLE"}
+        report["warnings"].append("Substrate-aware cognition not initialized")
+
     # Overall grade
     if checks_passed == checks_total and not report["errors"]:
         report["overall"] = "HEALTHY"
@@ -530,6 +555,16 @@ def _worker_thread():
                     elif sys_name == "worker_threads":
                         lines.append(f"    Alive: {sys_data.get('alive', 0)}/{sys_data.get('total', 0)}")
                         lines.append(f"    Pending requests: {sys_data.get('pending_requests', 0)}")
+                    elif sys_name == "substrate":
+                        lines.append(f"    Pressure: {sys_data.get('pressure', 0):.3f} ({sys_data.get('level', '?')})")
+                        lines.append(f"    Memory: {sys_data.get('memory_pct', 0)}% used, {sys_data.get('memory_available_gb', 0)}GB available")
+                        lines.append(f"    Process: {sys_data.get('process_memory_gb', 0)}GB RSS")
+                        lines.append(f"    CPU: {sys_data.get('cpu_pct', 0)}%")
+                        lines.append(f"    Inference avg: {sys_data.get('inference_avg_ms', 0):.0f}ms")
+                        lines.append(f"    Trend: {sys_data.get('trend', '?')}")
+                        ah = sys_data.get('adapter_health', {})
+                        if ah:
+                            lines.append(f"    Adapter health: {ah}")
 
                 if health.get("warnings"):
                     lines.append(f"\nWarnings: {', '.join(health['warnings'])}")
