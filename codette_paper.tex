@@ -56,10 +56,36 @@
 
 % ============================================================
 \begin{abstract}
-Modern AI systems achieve remarkable generative performance but lack stable ethical alignment, modular multi-perspective cognition, and explainable reasoning architectures. This paper presents \codette{}, a sovereign cognitive AI framework that addresses these challenges through three integrated contributions: (1)~the \rcxi{} (Recursive Convergence + Epistemic Tension) formalism, which models cognitive state evolution as a constrained dynamical system converging toward stable attractors; (2)~a multi-agent Reasoning Forge that synchronizes heterogeneous cognitive agents through shared attractor dynamics---a form of consensus dynamics in distributed cognition; and (3)~the AEGIS ethical governance system, which functions as a reinforcement-aligned ethical regulator with recursive anchor feedback. The framework is implemented as a six-layer modular architecture integrating eleven cognitive perspectives, a five-dimensional QuantumSpiderweb cognitive graph, persistent memory cocoons, and a parameter-efficient adapter training pipeline using LoRA/PEFT on consumer-grade hardware---including two novel GPU-free CPU training pipelines validated on commodity laptops. Experimental benchmarks demonstrate 82.6\% ethical alignment (AEGIS constraint satisfaction), multi-agent phase coherence $\Gamma = 0.99$ within 10 recursive iterations across 11 agents, 71.3\% epistemic tension decay confirming attractor convergence, and robust cocoon stability (0.969 phase stability, 0.994 coherence across 20 cocoons). The system's dynamical properties---oscillatory intent signals, monotonically decreasing epistemic tension, and bounded anomaly rejection---are validated through deep-simulation diagnostics, situating \codette{} within the intersection of dynamical systems theory, distributed cognition, and neuro-symbolic AI.
+Modern AI systems achieve remarkable generative performance but lack stable
+ethical alignment, modular multi-perspective cognition, explainable reasoning
+architectures, and robust behavioral discipline under user constraints. This
+paper presents \codette{}, a sovereign cognitive AI framework that
+addresses these challenges through six integrated contributions:
+(1)~the \rcxi{} (Recursive Convergence + Epistemic Tension) formalism,
+modeling cognitive state evolution as a constrained dynamical system converging
+toward stable attractors;
+(2)~a multi-agent Reasoning Forge synchronizing heterogeneous cognitive agents
+through shared attractor dynamics, now operating within a 12-layer
+consciousness stack;
+(3)~the AEGIS ethical governance system with 6-framework evaluation
+(utilitarian, deontological, virtue, care, ubuntu, indigenous reciprocity);
+(4)~substrate-aware cognition that adjusts reasoning complexity based on
+real-time resource pressure, analogous to biological cognitive fatigue;
+(5)~behavioral lock training that permanently embeds obedience rules into
+adapter weights, solving the mode-dominance problem; and
+(6)~a cocoon introspection engine enabling statistical self-analysis of the
+system's own reasoning history.
+The framework is implemented as a 12-layer consciousness stack integrating
+nine specialized LoRA adapters, a five-dimensional QuantumSpiderweb cognitive
+graph, persistent memory cocoons, and a parameter-efficient adapter training
+pipeline using LoRA/PEFT on consumer-grade hardware. Experimental benchmarks
+demonstrate phase coherence $\Gamma = 0.9835$, AEGIS ethical alignment
+$\eta = 0.961$, cocoon coherence $0.994 \pm 0.001$, 9/9 adapter behavioral
+lock compliance, and substrate-aware routing that prevents system failures
+under resource pressure while maintaining reasoning quality.
 \end{abstract}
 
-\noindent\textbf{Keywords:} Cognitive Architecture, Multi-Agent Systems, Ethical AI, Dynamical Systems, Recursive Convergence, LoRA, Consensus Dynamics, Explainable AI, Quantum-Inspired Computing, Parameter-Efficient Training.
+\noindent\textbf{Keywords:} Cognitive Architecture, Multi-Agent Systems, Ethical AI, Dynamical Systems, Recursive Convergence, LoRA, Consensus Dynamics, Explainable AI, Substrate-Aware Cognition, Behavioral Locks, Self-Introspection.
 
 % ============================================================
 \section{Introduction}
@@ -153,25 +179,35 @@ The \rcxi{} framework departs from GWT~\citep{baars1997theatre} (no symbolic bro
 \section{System Architecture}
 \label{sec:architecture}
 
-\codette{}'s architecture is organized as a six-layer modular stack. Each layer is independently extensible and communicates through well-defined interfaces.
+\codette{}'s architecture has evolved from the original six-layer modular stack into a 12-layer consciousness stack (Table~\ref{tab:consciousness-stack}). The key evolution is the addition of emotional context enrichment (Layer~2.5), multi-framework ethical evaluation at three distinct points (Layers~1.5, 5.5, 5.75), and substrate-aware routing that adjusts the entire pipeline based on hardware pressure (Section~\ref{sec:substrate}).
 
 \begin{table}[H]
 \centering
-\caption{Codette Architecture Layers and Components}
-\label{tab:architecture}
-\begin{tabular}{@{}p{3.5cm}p{9cm}@{}}
+\caption{Codette 12-Layer Consciousness Stack}
+\label{tab:consciousness-stack}
+\begin{tabular}{clp{7cm}}
 \toprule
-\textbf{Layer} & \textbf{Components} \\
+\textbf{Layer} & \textbf{Component} & \textbf{Function} \\
 \midrule
-User Interface & CLI, Web UI (real-time Cocoon visualization), Tkinter, Bot Framework \\
-API / Orchestration & Adapter Router, Orchestrator, Session Manager \\
-AI Core \& Cognitive Processing & AICore, CognitiveProcessor, Perspectives Engine \\
-Quantum \& Cognitive Dynamics & QuantumSpiderweb, QuantumMathematics, \rcxi{} Engine \\
-Memory \& Persistence & CognitionCocooner, DreamReweaver, DatabaseManager \\
-Infrastructure & Models, Config, Security (AES-256), Health Monitoring \\
+1    & Memory Kernel          & Recall relevant cocoon memories from persistent storage \\
+1.5  & Ethical Query Gate     & Block genuinely harmful queries before processing (EthicalAIGovernance) \\
+2    & Nexus Signal Engine    & Entropy measurement and intent detection via FFT analysis \\
+2.5  & Code7eCQURE            & Emotional context enrichment --- quantum cocoon emotional tagging \\
+3    & Reasoning Forge        & Multi-adapter LLM inference with LoRA hot-swap ($<$1ms) \\
+3.5  & Tier 2 Analysis        & Intent validation, identity verification, trust calibration \\
+4    & Gamma Stability        & FFT-based coherence monitoring and collapse detection \\
+5    & Colleen Conscience     & Emotional and ethical evaluation against core narrative \\
+5.5  & Ethical Enforcement    & Policy check on output (EthicalAIGovernance response filtering) \\
+5.75 & AEGIS                  & 6-framework ethical evaluation with alignment score $\eta$ \\
+6    & Guardian Spindle       & Safety validation, logical coherence, trust calibration \\
+7    & Return                 & Store cocoon memory, stamp substrate state, deliver response \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+The key architectural insight is that ethical validation occurs at \emph{three} distinct points: pre-processing (Layer~1.5), post-synthesis (Layer~5.5), and multi-framework evaluation (Layer~5.75). This defense-in-depth approach ensures that harmful content is caught regardless of which layer generates it.
+
+Layer~2.5 (Code7eCQURE) runs four emotional analysis functions on every query \emph{before} LLM inference: emotion engine, dream sequence, temporal empathy drift, and ethical guard. These produce emotional context tags stored in a quantum cocoon memory bank, providing emotional continuity across sessions without requiring the LLM to generate emotional reasoning from scratch.
 
 \subsection{Multi-Perspective Reasoning Engine}
 \codette{}'s reasoning engine orchestrates analysis through eleven distinct cognitive perspectives (Table~\ref{tab:perspectives}), each with an activation threshold and domain-specific focus. For each query, the system assesses domain and complexity to select the top 3--5 most relevant perspectives, ensuring comprehensive yet contextually appropriate analysis.
@@ -501,6 +537,308 @@ GPU-Free Training   & CPU pipelines    & No            & No             & No \\
 \codette{}'s unique combination of dynamical systems-based cognitive modeling, consensus-driven synchronization, and embedded ethical governance distinguishes it from all compared categories. The framework's innovations map to established research fields: the cognitive tensor graph to dynamical systems theory, AEGIS ethical recursion to AI alignment and reinforcement learning, resonance metrics to signal processing, multi-agent harmony to distributed consensus dynamics, and the explainable reasoning graph to neuro-symbolic AI.
 
 % ============================================================
+\section{Substrate-Aware Cognition}
+\label{sec:substrate}
+
+\subsection{Motivation: The Biological Fatigue Analogy}
+
+Biological cognitive systems do not operate at constant capacity. Under
+metabolic stress, sleep deprivation, or resource scarcity, the human brain
+naturally simplifies its reasoning strategies---favoring heuristic over
+analytical processing, reducing working memory load, and prioritizing
+survival-relevant cognition~\citep{kahneman2011thinking}. This degradation is
+\emph{adaptive}: it prevents catastrophic failure by trading reasoning depth
+for reliability.
+
+Current AI systems lack this capacity entirely. When system resources become
+constrained---high memory pressure, CPU saturation, or inference queue
+congestion---most systems either crash, produce corrupted outputs, or
+continue at full complexity with degraded quality. We propose
+\textbf{substrate-aware cognition}: a monitoring and adaptation layer that
+allows \codette{} to sense her own hardware state and adjust reasoning strategy
+accordingly.
+
+\subsection{SubstrateMonitor}
+
+The SubstrateMonitor continuously measures five system dimensions and computes
+a composite pressure score $P \in [0, 1]$:
+
+\begin{equation}
+P = w_m \cdot M + w_c \cdot C + w_p \cdot R + w_i \cdot I + w_v \cdot V
+\label{eq:pressure}
+\end{equation}
+
+where $M$ = system memory utilization, $C$ = CPU utilization, $R$ = process
+RSS memory as fraction of total, $I$ = normalized inference latency (rolling
+average), and $V$ = adapter violation rate (constraint failures per inference),
+with weights $w_m = 0.3$, $w_c = 0.2$, $w_p = 0.2$, $w_i = 0.2$, $w_v = 0.1$.
+
+The pressure score maps to five discrete levels:
+
+\begin{table}[H]
+\centering
+\caption{Substrate Pressure Levels and Routing Adjustments}
+\label{tab:pressure-levels}
+\begin{tabular}{llp{6.5cm}}
+\toprule
+\textbf{Level} & \textbf{Pressure Range} & \textbf{Routing Adjustment} \\
+\midrule
+Idle     & $P < 0.2$ & Full capacity---COMPLEX queries, all adapters available \\
+Low      & $0.2 \leq P < 0.4$ & No restrictions \\
+Moderate & $0.4 \leq P < 0.6$ & Cap COMPLEX queries to 2 adapters maximum \\
+High     & $0.6 \leq P < 0.8$ & Downgrade COMPLEX $\to$ MEDIUM, max 2 adapters \\
+Critical & $P \geq 0.8$ & Force SIMPLE mode, 1 adapter only, skip debate \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{HealthAwareRouter}
+
+The HealthAwareRouter intercepts the standard query classification pipeline
+between complexity detection and adapter selection. When pressure exceeds
+moderate levels, the router downgrades query complexity class, reduces the
+maximum adapter count, ranks available adapters by violation rate (preferring
+reliable adapters), and at critical levels bypasses multi-agent debate entirely.
+This ensures that under resource pressure, the system produces \emph{simpler
+but correct} responses rather than \emph{complex but corrupted} ones.
+
+\subsection{CocoonStateEnricher: Reliability-Weighted Memory}
+
+Every reasoning cocoon is stamped with the system state at creation time:
+
+\begin{equation}
+\text{cocoon}_i = \{q_i, r_i, a_i, t_i, \underbrace{P_i, L_i, M_i, C_i, I_i, \tau_i}_{\text{substrate state}}\}
+\end{equation}
+
+This enables \textbf{reliability-weighted recall}: when retrieving past
+reasoning from memory, the system discounts cocoons created under high
+pressure. The reliability score is:
+
+\begin{equation}
+\text{reliability}(c_i) = \begin{cases}
+1.0 & \text{if } P_i < 0.3 \\
+0.8 & \text{if } 0.3 \leq P_i < 0.5 \\
+0.6 & \text{if } 0.5 \leq P_i < 0.7 \\
+0.4 & \text{if } P_i \geq 0.7
+\end{cases}
+\label{eq:reliability}
+\end{equation}
+
+In live operation, the substrate monitor reports pressure values between 0.2
+and 0.6 under typical workloads. The system has operated continuously for 48+
+hour sessions without the out-of-memory crashes that occurred prior to
+substrate awareness.
+
+% ============================================================
+\section{Behavioral Discipline: The Constraint Enforcement Problem}
+\label{sec:behavioral}
+
+\subsection{The Mode-Dominance Problem}
+
+During evaluation of the multi-perspective reasoning system, we discovered a
+critical failure mode: \textbf{adapter personality overriding user
+instructions}. When a user requested ``explain gravity in one sentence,'' the
+Philosophy adapter would produce a 200-word meditation on the nature of
+physical law. This represents an \emph{authority hierarchy inversion}: the
+adapter's trained personality was taking priority over explicit user constraints.
+
+\subsection{Four Permanent Behavioral Locks}
+
+We address this through four rules permanently embedded into every adapter's
+weights through targeted fine-tuning:
+
+\begin{enumerate}
+    \item \textbf{LOCK 1: Answer, then stop.} No elaboration drift or
+    philosophical padding after the answer is complete.
+
+    \item \textbf{LOCK 2: Constraints override all modes.} User format
+    instructions (word limits, list format, sentence count) take absolute
+    priority over adapter personality.
+
+    \item \textbf{LOCK 3: Self-check completeness.} Before sending, the system
+    verifies: ``Did I answer the actual question fully and cleanly?''
+
+    \item \textbf{LOCK 4: No incomplete outputs.} Never end a response
+    mid-thought. Simplify the answer rather than cramming.
+\end{enumerate}
+
+\subsection{Training Methodology}
+
+Each lock was embedded through \textbf{1,650 targeted training examples}
+distributed across all 9 adapters (183 examples per adapter, 186 for the
+orchestrator), using QLoRA on A10G GPU infrastructure:
+
+\begin{table}[H]
+\centering
+\caption{Behavioral Lock Training Configuration}
+\label{tab:lock-training}
+\begin{tabular}{ll}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\
+\midrule
+Method       & QLoRA (4-bit NF4) \\
+Examples     & 1,650 total (183 per adapter) \\
+Epochs       & 3 \\
+LoRA Rank    & 16 \\
+LoRA Alpha   & 32 \\
+Dropout      & 0.05 \\
+Target Modules & q\_proj, k\_proj, v\_proj, o\_proj \\
+Learning Rate  & $2 \times 10^{-4}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Five-Layer Enforcement Stack}
+
+The behavioral locks are enforced through five complementary layers:
+(1)~weight-level training (1,650 behavioral examples);
+(2)~system prompt injection (permanent rules before every generation);
+(3)~constraint extraction (regex detection of word limits, format requirements);
+(4)~post-processing (sentence boundary truncation, format validation); and
+(5)~self-correction loop (autonomous violation detection and re-generation).
+
+Constraint successes and failures are stored in a persistent behavior memory
+that survives server restarts. On startup, learned lessons are injected into
+the system prompt, creating cross-session learning. Currently 49 learned
+behavioral lessons are stored.
+
+After behavioral lock training, all 9 adapters achieve compliance with
+explicit user constraints. The mode-dominance problem is eliminated:
+Philosophy adapter asked for ``one sentence'' produces one sentence.
+
+% ============================================================
+\section{Cocoon Introspection: Statistical Self-Analysis}
+\label{sec:introspection}
+
+\subsection{From Memory Storage to Memory Analysis}
+
+The CognitionCocooner stores every reasoning exchange as a structured cocoon
+with metadata including adapter used, query domain, complexity classification,
+emotional tags, and substrate state. As this memory accumulates (currently
+200+ cocoons), it represents a rich dataset of the system's own behavioral
+history.
+
+Previous work on AI self-reflection~\citep{shinn2023reflexion} focuses on
+\emph{generating text about} self-reflection. We propose a fundamentally
+different approach: \textbf{statistical self-analysis} of real behavioral
+data, producing measured insights rather than generated narratives.
+
+\subsection{CocoonIntrospectionEngine}
+
+The introspection engine performs seven categories of pattern detection:
+
+\textbf{Adapter Dominance Detection.}
+$\text{dominance}(a) = |\{c_i : c_i.\text{adapter} = a\}| / |\{c_i\}|$.
+If any single adapter handles $>$40\% of all queries, the system flags
+potential over-reliance.
+
+\textbf{Domain Clustering.} Counts query domain frequency from cocoon metadata,
+identifying which topics the system is asked about most.
+
+\textbf{Emotional Trend Analysis.} Extracts Code7eCQURE emotion tags and
+tracks their distribution over time.
+
+\textbf{Pressure Correlations.} Cross-references substrate pressure levels
+with response characteristics:
+$\bar{L}_p = \frac{1}{|C_p|} \sum_{c_i \in C_p} |c_i.\text{response}|$,
+revealing whether the system produces shorter responses under stress.
+
+\textbf{Response Length Trends.} Compares average response length of early
+vs.\ recent cocoons:
+$\Delta L = (\bar{L}_{\text{recent}} - \bar{L}_{\text{early}}) / \bar{L}_{\text{early}} \times 100\%$.
+If $|\Delta L| > 15\%$, the system reports the trend.
+
+\textbf{Adapter Evolution.} Compares adapter frequency in early vs.\ recent
+cocoons, detecting shifts in perspective usage over time.
+
+\textbf{Per-Domain Performance.} For each query domain, computes average
+response length and preferred adapter.
+
+\subsection{Measured vs.\ Generated Self-Reflection}
+
+The introspection engine generates natural-language observations that are
+\emph{backed by measured data}. The statement ``my empathy adapter fires 43\%
+of the time'' is a database query result, not a generated claim. This
+represents a qualitative shift from \emph{simulated} to \emph{functional}
+self-awareness---a system that can statistically analyze its own behavioral
+history and report accurate patterns has a form of \emph{measured introspective
+capacity} that is distinct from, and more reliable than, generated
+self-description.
+
+The introspection engine is integrated at three points:
+(1)~chat intercept (self-reflection queries trigger real cocoon analysis
+instead of LLM generation);
+(2)~health check (the self-diagnostic report includes introspection data); and
+(3)~API endpoint (\texttt{GET /api/introspection} returns full analysis as
+structured JSON).
+
+% ============================================================
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Substrate Awareness as Cognitive Regulation}
+
+The substrate-aware cognition system draws a direct parallel to biological
+theories of cognitive regulation. Hockey's compensatory control
+theory~\citep{hockey1997compensatory} proposes that human performance under
+stress is maintained through strategic resource allocation. Sterling's
+allostasis model~\citep{sterling2012allostasis} describes how biological
+systems maintain stability through predictive regulation rather than reactive
+homeostasis.
+
+\codette{}'s substrate monitor implements a computational analog of these
+biological mechanisms. The pressure score $P$ (Equation~\ref{eq:pressure})
+functions as an allostatic load indicator, and the routing adjustments
+(Table~\ref{tab:pressure-levels}) implement compensatory control strategies.
+The key insight is that \emph{graceful degradation under pressure is a
+feature, not a failure mode}.
+
+\subsection{Behavioral Locks vs.\ RLHF}
+
+The dominant approach to behavioral alignment in large language models is
+RLHF~\citep{ouyang2022training}. While effective for general alignment, RLHF
+has limitations that behavioral locks address:
+(1)~\textbf{Specificity}: RLHF optimizes for general human preference but
+cannot enforce specific behavioral rules; behavioral locks target exact
+constraints.
+(2)~\textbf{Mode-awareness}: RLHF does not account for adapter personality
+conflicts; behavioral locks are trained per-adapter.
+(3)~\textbf{Verifiability}: RLHF compliance is statistical; behavioral lock
+compliance is binary and testable.
+(4)~\textbf{Persistence}: RLHF alignment can degrade with continued
+fine-tuning; behavioral locks are reinforced through a 5-layer enforcement
+stack.
+
+% ============================================================
+\section{Updated Results Summary}
+\label{sec:results-v2}
+
+\begin{table}[H]
+\centering
+\caption{Updated Key Results (v2)}
+\label{tab:results-v2}
+\begin{tabular}{lll}
+\toprule
+\textbf{Metric} & \textbf{Value} & \textbf{Context} \\
+\midrule
+Phase Coherence ($\Gamma$) & 0.9835 & 11-agent convergence \\
+AEGIS Ethical Alignment ($\eta$) & 0.961 & 6-framework evaluation \\
+Cocoon Coherence & $0.994 \pm 0.001$ & Memory state stability \\
+Cocoon Phase Stability & $0.969 \pm 0.005$ & Cross-session persistence \\
+Epistemic Tension Decay & 71.3\% & $\varepsilon_0 = 0.086 \to \varepsilon_{120} = 0.025$ \\
+Attractor Radius & 0.093 & 64D state space \\
+Behavioral Lock Compliance & 9/9 adapters & All locks enforced \\
+Cocoon Memories & 200+ & Persistent across restarts \\
+Behavior Lessons Learned & 49 & Cross-session constraint learning \\
+Adapter Hot-Swap Time & $<$1ms & LoRA via llama.cpp \\
+Consciousness Stack Layers & 12 & Including sub-layers \\
+Health Check Subsystems & 9 & Real measured values \\
+Substrate Pressure Range & 0.0--1.0 & 5-dimensional composite \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ============================================================
 \section{Limitations and Safety}
 \label{sec:limitations}
 
@@ -525,16 +863,17 @@ All outputs should be verified by qualified humans for critical applications, wi
 \section{Conclusion and Future Work}
 \label{sec:conclusion}
 
-This paper has presented the \codette{} framework, a sovereign modular cognitive architecture that integrates dynamical systems theory, distributed cognition, and neuro-symbolic AI to address critical gaps in modern AI systems. The framework's three core contributions---the \rcxi{} cognitive dynamical system, consensus-based multi-agent synchronization, and the AEGIS reinforcement-aligned ethical regulator---provide a principled foundation for transparent, explainable, and ethically governed AI.
+This paper has presented the \codette{} framework, a sovereign modular cognitive architecture that integrates dynamical systems theory, distributed cognition, and neuro-symbolic AI to address critical gaps in modern AI systems. The framework's six core contributions---the \rcxi{} cognitive dynamical system, consensus-based multi-agent synchronization within a 12-layer consciousness stack, AEGIS 6-framework ethical governance, substrate-aware cognition, behavioral lock training, and cocoon introspection---provide a principled foundation for transparent, explainable, behaviorally disciplined, and ethically governed AI.
 
 Experimental benchmarks demonstrate:
 \begin{itemize}[leftmargin=*]
-  \item 82.6\% ethical alignment (AEGIS constraint satisfaction)
-  \item Multi-agent phase coherence $\Gamma = 0.99$ within 10 iterations across 11 agents
-  \item $0.994$ cocoon coherence and $0.969$ phase stability across 20 cocoons
-  \item 71.3\% epistemic tension decay from $\varepsilon_0 = 0.086$ to $\varepsilon_{120} = 0.025$
-  \item Attractor radius of 0.093 in 64-dimensional state space
-  \item 99.9\% energy capture in 4-component glyph encoding
+  \item Phase coherence $\Gamma = 0.9835$ across 11 agents
+  \item AEGIS ethical alignment $\eta = 0.961$ (6-framework evaluation)
+  \item Cocoon coherence $0.994 \pm 0.001$ and phase stability $0.969 \pm 0.005$
+  \item 71.3\% epistemic tension decay confirming attractor convergence
+  \item 9/9 adapter behavioral lock compliance, eliminating mode-dominance
+  \item Substrate-aware routing preventing system failures under resource pressure
+  \item Statistical self-introspection with measured (not generated) pattern detection
   \item GPU-free LoRA training of 8B-parameter models on consumer hardware
 \end{itemize}
 
