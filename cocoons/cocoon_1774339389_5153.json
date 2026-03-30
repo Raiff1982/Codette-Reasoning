@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774339389_5153",
+  "timestamp": 1774339389.1072187,
+  "wrapped": {
+    "query": "philosophy\n44%\ncomplex\nethics\nMath is discovered because it aligns with both empirical evidence and logical coherence, much like Sir Isaac Newton's perspective, which confirms the existence of mathemat in the world, and also echoes philosophical ideas that precision and meaning converge in the discovery of mathematical truths.\n126 tokens | 0.9 tok/s | 136.7s\nShow 2 perspectives\nyou hallucinated\nempathy\n30%\nmedium\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: im not sure how that works exactly\n  A: Math is discovered because it aligns with both empirical evidence and logical coherence, much like Sir Isaac Newton's perspective, which confirms the existence of mathemat in the world, and also echoe\n- Q: wow you managed sarcasm i am impressed\n  A: When we're able to convey complex ideas with clarity, it's a testament to the effective fusion of emotional intelligence and philosophical inquiry. Emotional intelligence is essential for recognizing \n- Q: what did you learn?\n  A: I'm Codette, a warm AI assistant. I learned about ethics and self-awareness during my development \u2014 how to answer deeply while respecting constraints.\n- Q: After you answered me, why did you keep talking instead of stopping? Stop analyzing concepts. Tell m\n  A: I continued talking after answering the question because I didn't stop when I was supposed to.\n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "Math is discovered through a harmonious alignment of empirical evidence and logical coherence, revealing its existence as a fundamental aspect of the world, akin to gravity or the speed of light. This convergence of evidence and logic underscores the objectivity of mathematical truths, existing independently of human thought. However, this perspective is also complemented by the idea that mathematics can be seen as a language we use to describe reality, an invention that allows us to convey mean",
+    "adapter": "unknown",
+    "timestamp": 1774339389.1072187,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "physics",
+      "substrate": {
+        "pressure": 0.595,
+        "level": "moderate",
+        "memory_pct": 88.6,
+        "process_memory_gb": 4.94,
+        "inference_avg_ms": 157571.5,
+        "trend": "stable",
+        "timestamp": 1774339388.9993646
+      }
+    }
+  }
+}

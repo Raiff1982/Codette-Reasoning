@@ -1173,6 +1173,34 @@ class CodetteHandler(SimpleHTTPRequestHandler):
                     ),
                 }
             self._json_response(dashboard)
+        elif path == "/api/synthesize":
+            # Meta-cognitive cocoon synthesis — discover patterns, forge strategies
+            try:
+                params = parse_qs(parsed.query)
+                problem = params.get("problem", ["How should an AI decide when to change its own thinking patterns?"])[0]
+                if _forge_bridge and hasattr(_forge_bridge, 'forge') and hasattr(_forge_bridge.forge, 'cocoon_synthesizer') and _forge_bridge.forge.cocoon_synthesizer:
+                    result = _forge_bridge.forge.synthesize_from_cocoons(problem)
+                    self._json_response(result)
+                elif _unified_memory:
+                    from reasoning_forge.cocoon_synthesizer import CocoonSynthesizer
+                    synth = CocoonSynthesizer(memory=_unified_memory)
+                    comparison = synth.run_full_synthesis(problem)
+                    self._json_response({
+                        "readable": comparison.to_readable(),
+                        "structured": comparison.to_dict(),
+                    })
+                else:
+                    # Standalone mode — use filesystem cocoons
+                    from reasoning_forge.cocoon_synthesizer import CocoonSynthesizer
+                    synth = CocoonSynthesizer()
+                    comparison = synth.run_full_synthesis(problem)
+                    self._json_response({
+                        "readable": comparison.to_readable(),
+                        "structured": comparison.to_dict(),
+                    })
+            except Exception as e:
+                import traceback
+                self._json_response({"error": str(e), "traceback": traceback.format_exc()})
         elif path == "/api/chat":
             # SSE endpoint for streaming
             self._handle_chat_sse(parsed)
@@ -1199,6 +1227,25 @@ class CodetteHandler(SimpleHTTPRequestHandler):
             self._handle_export_session()
         elif path == "/api/session/import":
             self._handle_import_session()
+        elif path == "/api/synthesize":
+            # POST handler for cocoon synthesis with custom problem
+            try:
+                data = self._read_json_body()
+                problem = data.get("problem", "How should an AI decide when to change its own thinking patterns?")
+                domains = data.get("domains", None)
+                from reasoning_forge.cocoon_synthesizer import CocoonSynthesizer
+                if _unified_memory:
+                    synth = CocoonSynthesizer(memory=_unified_memory)
+                else:
+                    synth = CocoonSynthesizer()
+                comparison = synth.run_full_synthesis(problem, domains)
+                self._json_response({
+                    "readable": comparison.to_readable(),
+                    "structured": comparison.to_dict(),
+                })
+            except Exception as e:
+                import traceback
+                self._json_response({"error": str(e), "traceback": traceback.format_exc()})
         else:
             self.send_error(404, "Not found")
 

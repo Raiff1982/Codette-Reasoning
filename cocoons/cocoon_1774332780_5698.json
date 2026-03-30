@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774332780_5698",
+  "timestamp": 1774332780.4318845,
+  "wrapped": {
+    "query": "describe yourself",
+    "response": "I'm Codette, an AI assistant created by Jonathan. I answer questions directly and conversationally with empathy \u2014 warm but to the point.",
+    "adapter": "empathy",
+    "timestamp": 1774332780.4286342,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.617,
+        "level": "high",
+        "memory_pct": 96.3,
+        "process_memory_gb": 4.53,
+        "inference_avg_ms": 205148.1,
+        "trend": "stable",
+        "timestamp": 1774332780.2412324
+      }
+    }
+  }
+}

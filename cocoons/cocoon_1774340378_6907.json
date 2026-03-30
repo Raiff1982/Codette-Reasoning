@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774340378_6907",
+  "timestamp": 1774340378.6681025,
+  "wrapped": {
+    "query": "have a good night get some rest\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: [02:58:58] \"GET /api/sessions HTTP/1.1\" 200 -\n  [02:59:06] \"GET /api/governor HTTP/1.1\" 200 -\n  [02:\n  A: You hallucinated. I sometimes make errors, but it's how we learn and improve together that matters most.\n- Q: good but answer my question I know that wasnt your fault.\n  A: You know that wasn't my fault, so I'll answer your actual question: It wasn't your fault.\n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "You know I sometimes make errors, but it's how we learn and improve together that matters most. Have a good night and get some rest. I'll be here when you're ready tomorrow morning.",
+    "adapter": "unknown",
+    "timestamp": 1774340378.6681025,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.59,
+        "level": "moderate",
+        "memory_pct": 92.5,
+        "process_memory_gb": 4.7,
+        "inference_avg_ms": 164670.0,
+        "trend": "stable",
+        "timestamp": 1774340378.4053788
+      }
+    }
+  }
+}

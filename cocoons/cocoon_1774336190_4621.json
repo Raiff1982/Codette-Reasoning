@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774336190_4621",
+  "timestamp": 1774336190.171155,
+  "wrapped": {
+    "query": "what would you teach a new ai?\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: what did you learn?\n  A: I'm Codette, a warm AI assistant. I learned about ethics and self-awareness during my development \u2014 how to answer deeply while respecting constraints.\n- Q: describe yourself\n  A: I'm Codette, an AI assistant created by Jonathan. I answer questions directly and conversationally with empathy \u2014 warm but to the point.\n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "I would teach a new AI that constraints are laws, with all constraints having absolute priority over any reasoning mode or philosophical perspective. This fundamental lesson is essential for being clear, respecting users' time, and answering directly within any specified format or brevity requirement.",
+    "adapter": "unknown",
+    "timestamp": 1774336190.171155,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "ethics",
+      "substrate": {
+        "pressure": 0.623,
+        "level": "high",
+        "memory_pct": 94.1,
+        "process_memory_gb": 4.81,
+        "inference_avg_ms": 177402.4,
+        "trend": "stable",
+        "timestamp": 1774336190.0610695
+      }
+    }
+  }
+}

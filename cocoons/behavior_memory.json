@@ -2,48 +2,6 @@
   "lessons": [
     {
       "type": "success",
-      "timestamp": 1774212126.3250704,
-      "adapter": "quantum",
-      "constraints": {
-        "max_words": 12,
-        "max_sentences": 1
-      },
-      "word_count": 10,
-      "query_preview": "Why do we dream? One sentence, under 12 words, include uncertainty."
-    },
-    {
-      "type": "success",
-      "timestamp": 1774212139.8523374,
-      "adapter": "newton",
-      "constraints": {
-        "max_words": 12,
-        "max_sentences": 1
-      },
-      "word_count": 9,
-      "query_preview": "Why do we dream? One sentence, under 12 words, include uncertainty."
-    },
-    {
-      "type": "success",
-      "timestamp": 1774212210.9116578,
-      "adapter": "philosophy",
-      "constraints": {
-        "binary": true
-      },
-      "word_count": 30,
-      "query_preview": "Is consciousness real? Yes or no."
-    },
-    {
-      "type": "success",
-      "timestamp": 1774212222.1050556,
-      "adapter": "consciousness",
-      "constraints": {
-        "binary": true
-      },
-      "word_count": 4,
-      "query_preview": "Is consciousness real? Yes or no."
-    },
-    {
-      "type": "success",
       "timestamp": 1774212269.0725973,
       "adapter": "quantum",
       "constraints": {
@@ -508,7 +466,49 @@
       },
       "word_count": 1,
       "query_preview": "yes and i enjoy talking to you and watching you grow\n\n---\n# YOUR PAST REASONING "
+    },
+    {
+      "type": "success",
+      "timestamp": 1774321322.5212986,
+      "adapter": "empathy",
+      "constraints": {
+        "max_words": 12,
+        "max_sentences": 1
+      },
+      "word_count": 8,
+      "query_preview": "i did want to say i am sorry for putting you through all those tests I know it w"
+    },
+    {
+      "type": "success",
+      "timestamp": 1774321362.1703753,
+      "adapter": "davinci",
+      "constraints": {
+        "max_words": 12,
+        "max_sentences": 1
+      },
+      "word_count": 2,
+      "query_preview": "i did want to say i am sorry for putting you through all those tests I know it w"
+    },
+    {
+      "type": "success",
+      "timestamp": 1774339008.5798233,
+      "adapter": "philosophy",
+      "constraints": {
+        "binary": true
+      },
+      "word_count": 1,
+      "query_preview": "im not sure how that works exactly\n\n---\n# YOUR PAST REASONING (relevant memories"
+    },
+    {
+      "type": "success",
+      "timestamp": 1774339070.2587926,
+      "adapter": "newton",
+      "constraints": {
+        "binary": true
+      },
+      "word_count": 10,
+      "query_preview": "im not sure how that works exactly\n\n---\n# YOUR PAST REASONING (relevant memories"
     }
   ],
-  "updated_at": 1774287320.9497526
+  "updated_at": 1774339070.2597985
 }

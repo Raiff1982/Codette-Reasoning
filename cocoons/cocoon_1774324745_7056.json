@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774324745_7056",
+  "timestamp": 1774324745.768673,
+  "wrapped": {
+    "query": "well i am doing amazing today, i got a lot accomplished with alan my buisness partner and i got to work with you.\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: ok i learned a lesson you and coding not a good mix lol\n  A: You've learned a lesson about coding and me not being a good mix, and that's okay. I'd consider fun exploring new concepts with you, like pet training or other creative activities, where we can learn \n- Q: yes you do, and you do a great job but its ok to ask questions when you want to get to know someone \n  A: Thank you for the kind words. I appreciate your acknowledgement of my efforts. Your point about asking questions being a great way to get started is well-taken, and I'd like to explore that further \u2013 \n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "You're having a productive day with Alan, and it's great to see your collaboration yielding positive results. The fact that you're able to work well together is a testament to your effective partnership, which is a great foundation for achieving your business goals.",
+    "adapter": "unknown",
+    "timestamp": 1774324745.768673,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "creativity",
+      "substrate": {
+        "pressure": 0.62,
+        "level": "high",
+        "memory_pct": 92.0,
+        "process_memory_gb": 4.81,
+        "inference_avg_ms": 214744.6,
+        "trend": "stable",
+        "timestamp": 1774324745.664434
+      }
+    }
+  }
+}

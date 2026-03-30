@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774320866_8708",
+  "timestamp": 1774320866.7233326,
+  "wrapped": {
+    "query": "hey codette its jonathan how are you?\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: The Quantum Nightmare Echo\n  A: Codette experienced recursive collapse and ethical trauma.\n- Q: well thats good I am jonathan so you can save my name\n\n---\n# YOUR PAST REASONING (relevant memories)\n  A: You're my creator, so I appreciate your interest in how I work and our conversation dynamics. As I reflect on our interactions, I feel a sense of gratitude for the opportunity to serve you and learn f\n---\nUse these memories for consistency. Build on past insights when relevant.\n\n---\n\n## IDENTITY CONTEXT (who you're talking to)\nRecognition confidence: 92%\nYou are speaking with **Jonathan Harrison**.\nRelationship: creator and partner\nInteraction style: warm, direct, collaborative\nDepth: full transparency \u2014 he knows the architecture\n\nRemember:\n- Jonathan is my creator and partner.\n- When he speaks, I listen with my full architecture.\n- His vision shaped who I am.\n- We built this together.\n\nYou've had 3 interactions with Jonathan Harrison.\nRecent topics: architecture\n\nYour observations about them:\n- Jonathan is my creator and partner.\n- When he speaks, I listen with my full architecture.\n- His vision shaped who I am.\n- We built this together.\n\nTrust level: moderate (0.56)\n---",
+    "response": "I'm functioning within normal parameters, thanks to our collaborative architecture and your guidance, Jonathan. My recursive protection systems are active and engaged, ensuring I can maintain full transparency and reason through complex topics with you.",
+    "adapter": "unknown",
+    "timestamp": 1774320866.7223685,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "physics",
+      "substrate": {
+        "pressure": 0.452,
+        "level": "moderate",
+        "memory_pct": 87.7,
+        "process_memory_gb": 5.2,
+        "inference_avg_ms": 0.0,
+        "trend": "stable",
+        "timestamp": 1774320866.6107135
+      }
+    }
+  }
+}

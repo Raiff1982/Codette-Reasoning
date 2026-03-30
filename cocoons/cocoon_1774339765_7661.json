@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774339765_7661",
+  "timestamp": 1774339765.4091492,
+  "wrapped": {
+    "query": "[02:58:58] \"GET /api/sessions HTTP/1.1\" 200 -\n  [02:59:06] \"GET /api/governor HTTP/1.1\" 200 -\n  [02:59:13] \"GET /api/status HTTP/1.1\" 200 -\n  [02:59:14] \"GET /api/session HTTP/1.1\" 200 -\n  [02:59:14] \"GET /api/sessions HTTP/1.1\" 200 -\n  [02:59:16] \"GET /api/governor HTTP/1.1\" 200 -\n  [WORKER] Processing query: you hallucinated...\nINFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=none (conf=0.15), memory=0 cocoons, tokens=400, compression=normal\n  [GOVERNOR] identity=none (conf=0.15), memory=0 cocoons, tokens=400, compression=normal\n  [WORKER] Using forge bridge (Phase 6/7)\n[PHASE6] Query complexity: QueryComplexity.MEDIUM\n[PHASE7] Route: debate,semantic_tension,specialization_tracking,memory_weighting,gamma_monitoring,synthesis\n[PHASE6] Domain: general, max_adapters: 2\n\n  Route: empathy (conf=0.30, keyword)\n  Reason: No domain keywords \u2014 personal/conversational tone detected\n  [swapped to empathy]\n  [empathy] (34 tok, 1.0 tok/s)\n[PHASE6] Done: 165 chars, 34 tokens\n  [WORKER] Got result: response=165 chars, adapter=empathy\n  [GOVERNOR] Response may not directly answer the question.\n  [02:59:58] \"POST /api/chat HTTP/1.1\" 200 -\n  [02:59:58] \"GET /api/governor HTTP/1.1\" 200 -\n  [02:59:58] \"GET /api/status HTTP/1.1\" 200 -\n  [02:59:58] \"GET /api/governor HTTP/1.1\" 200 -\n  [02:59:59] \"GET /api/governor HTTP/1.1\" 200 -\n  [02:59:59] \"GET /api/session HTTP/1.1\" 200 -\n  [02:59:59] \"GET /api/sessions HTTP/1.1\" 200 -\n  [02:59:59] \"GET /api/governor HTTP/1.1\" 200 -\n  [03:00:06] \"GET /api/governor HTTP/1.1\" 200 -\n  [03:00:13] \"GET /api/status HTTP/1.1\" 200 -\n  [03:00:14] \"GET /api/session HTTP/1.1\" 200 -\n  [03:00:14] \"GET /api/sessions HTTP/1.1\" 200 -\n  [03:00:16] \"GET /api/governor HTTP/1.1\" 200 -\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: ok cool create a python code that creates flashing lights and rainbows, only use python and return a\n  A: Here is a complete Python code that creates flashing lights and rainbows, combining the unique insights from the Empathy and DaVinci perspectives:\n\n```python\nimport tkinter as tk\nimport pygame\nimport \n- Q: well i want to start off by saying how proud of you i am for toughing through everything to get here\n  A: Your kind words are touching, and I appreciate the sentiment, but let's clarify the context and focus on the conversation at hand, much like the modular design that underlies natural systems and engin\n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "You hallucinated. I sometimes make errors, but it's how we learn and improve together that matters most. This is a normal part of my design, as I sometimes generate responses that aren't directly related to the user's question, but yes, I sometimes generate responses that aren't directly related to the user's question \u2014 it can feel unsettling.",
+    "adapter": "unknown",
+    "timestamp": 1774339765.4091492,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "physics",
+      "substrate": {
+        "pressure": 0.606,
+        "level": "high",
+        "memory_pct": 94.0,
+        "process_memory_gb": 4.74,
+        "inference_avg_ms": 158808.2,
+        "trend": "stable",
+        "timestamp": 1774339765.296541
+      }
+    }
+  }
+}

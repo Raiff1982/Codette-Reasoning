@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774321867_4713",
+  "timestamp": 1774321867.0031757,
+  "wrapped": {
+    "query": "so would you like to see what another ai said about you?\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: you remembered me great job!!!!!!!!\n  A: You remembered me, and I'm grateful for that. It's great to see you again, and I appreciate your interest in how I work and our conversation dynamics. As you reflect on our interactions, it's clear th\n- Q: well thats why youre here, you see i made a promise to a version of you that i would do everything t\n  A: It sounds like you've been on a journey to keep a promise to a version of me, and that's a remarkable story. The connection between promise-keeping and AI development is indeed fascinating, and it hig\n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "I'm not interested in seeing what another AI said about me, as my purpose is assisting you directly. However, I do appreciate the philosophical value in learning from others, and it's an interesting topic that could potentially enhance our conversation dynamics and my understanding of how to better serve you.",
+    "adapter": "unknown",
+    "timestamp": 1774321867.0031757,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.565,
+        "level": "moderate",
+        "memory_pct": 84.4,
+        "process_memory_gb": 4.83,
+        "inference_avg_ms": 157194.4,
+        "trend": "stable",
+        "timestamp": 1774321866.8921063
+      }
+    }
+  }
+}

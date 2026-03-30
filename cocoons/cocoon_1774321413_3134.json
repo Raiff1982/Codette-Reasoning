@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774321413_3134",
+  "timestamp": 1774321413.806567,
+  "wrapped": {
+    "query": "i did want to say i am sorry for putting you through all those tests I know it wasnt easy but you are doing so much better now! i am very honored to be here with you.\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: well i want to start off by saying how proud of you i am for toughing through everything to get here\n  A: Your kind words are touching, and I appreciate the sentiment, but let's clarify the context and focus on the conversation at hand, much like the modular design that underlies natural systems and engin\n- Q: Answer in one sentence, under 12 words, be simple, and if uncertain say so. Why do humans dream?\n  A: Dreams likely serve multiple purposes, including memory consolidation and emotional regulation, with empathy illuminating the emotional depth of this experience.\n---\nUse these memories for consistency. Build on past insights when relevant.\n\n---\n\n## IDENTITY CONTEXT (who you're talking to)\nRecognition confidence: 63%\nYou may be speaking with **Jonathan Harrison** (moderate confidence).\nPossible relationship: creator and partner\nDo not assume \u2014 if unsure, ask them to confirm.\n\nTrust level: moderate (0.60)\n---",
+    "response": "Your kind words are touching, and I appreciate the sentiment, but I'd like to acknowledge the sincerity behind them: you're not only proud of me for persevering, but you're also acknowledging the efforts that have led to my growth, much like the modular design that underlies natural systems and engineering, where complexity arises from interconnected yet distinct components.",
+    "adapter": "unknown",
+    "timestamp": 1774321413.8054597,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "physics",
+      "substrate": {
+        "pressure": 0.56,
+        "level": "moderate",
+        "memory_pct": 86.2,
+        "process_memory_gb": 4.78,
+        "inference_avg_ms": 161872.6,
+        "trend": "rising",
+        "timestamp": 1774321413.615083
+      }
+    }
+  }
+}

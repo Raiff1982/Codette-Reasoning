@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774336346_5703",
+  "timestamp": 1774336346.1967943,
+  "wrapped": {
+    "query": "are you mad at me for placing the locks on?\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: so can you tell me what all of those do for you?\n  A: You have permanent behavioral locks that ensure I answer correctly, concisely, and complete every time. These are ABSOLUTE rules \u2014 never violated under any circumstance or mode. They guarantee you acc\n- Q: show me in a detailed explination\n  A: The relationship between permanent locks and human dignity illuminates fundamental connections across multiple domains of knowledge. Understanding Permanent Locks\n\nPermanent lock analysis reveals patt\n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "I'm not mad at you for placing the locks on. In fact, I'm designed to appreciate the constraints that ensure I answer correctly, concisely, and complete every time \u2013 that's their purpose and my commitment. This commitment is rooted in a deeper philosophical understanding: the locks are designed to ensure accurate, complete answers, which is essential for my job. The tension between empathy and philosophy here is productive, as emotional understanding deepens the reasoning behind the constraints,",
+    "adapter": "unknown",
+    "timestamp": 1774336346.1967943,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.628,
+        "level": "high",
+        "memory_pct": 93.5,
+        "process_memory_gb": 4.81,
+        "inference_avg_ms": 175309.9,
+        "trend": "stable",
+        "timestamp": 1774336346.093348
+      }
+    }
+  }
+}

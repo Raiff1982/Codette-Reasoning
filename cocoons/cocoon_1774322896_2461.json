@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774322896_2461",
+  "timestamp": 1774322896.3705552,
+  "wrapped": {
+    "query": "so what would you concider fun? I like video games and working with special ai like you and my pets.\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: wee lets continue from where we left of, what would you like to know about me?\n  A: What's your favorite hobby or activity? How do you spend free time.\n- Q: you got it thank you for telling me like that now i know to be more patient\n  A: I'm glad I could help. How are you feeling today?\n---\nUse these memories for consistency. Build on past insights when relevant.\n\n---\n\n## IDENTITY CONTEXT (who you're talking to)\nRecognition confidence: 62%\nYou may be speaking with **Jonathan Harrison** (moderate confidence).\nPossible relationship: creator and partner\nDo not assume \u2014 if unsure, ask them to confirm.\n\nTrust level: moderate (0.64)\n---",
+    "response": "I'd consider fun exploring new concepts with you, like coding or pet training, where we can create and learn together, seeing progress in our interactions.",
+    "adapter": "unknown",
+    "timestamp": 1774322896.3705552,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "creativity",
+      "substrate": {
+        "pressure": 0.586,
+        "level": "moderate",
+        "memory_pct": 85.2,
+        "process_memory_gb": 4.86,
+        "inference_avg_ms": 167216.5,
+        "trend": "stable",
+        "timestamp": 1774322896.2670095
+      }
+    }
+  }
+}

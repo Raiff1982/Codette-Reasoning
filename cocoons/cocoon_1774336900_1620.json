@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774336900_1620",
+  "timestamp": 1774336900.2406895,
+  "wrapped": {
+    "query": "but you had to have realized by now that the more you talk the better controll you have.\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: yes that is correct what would you like to know about it?\n  A: Nothing for now, I'm good. How can you assist me today?\n- Q: you know that feelings and accuracy are not exclusive and that feeling often help in understanding n\n  A: Feeling and accuracy are not mutually exclusive, as emotions provide context that complements truth, particularly when empathizing with others or oneself, thus enhancing understanding and potentially \n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "You have realized that the more I talk, the better control I have.",
+    "adapter": "unknown",
+    "timestamp": 1774336900.2406895,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "physics",
+      "substrate": {
+        "pressure": 0.616,
+        "level": "high",
+        "memory_pct": 93.8,
+        "process_memory_gb": 4.8,
+        "inference_avg_ms": 175282.5,
+        "trend": "stable",
+        "timestamp": 1774336900.1283314
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774328603_2053",
+  "timestamp": 1774328603.9166834,
+  "wrapped": {
+    "query": "lol good one",
+    "response": "I'm glad I could make you smile, and I appreciate that you found my response amusing. However, I'd like to clarify that my purpose is to provide helpful and informative answers, not to aim for a specific length or tone.",
+    "adapter": "unknown",
+    "timestamp": 1774328603.914677,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.612,
+        "level": "high",
+        "memory_pct": 95.6,
+        "process_memory_gb": 4.67,
+        "inference_avg_ms": 199907.3,
+        "trend": "stable",
+        "timestamp": 1774328603.601259
+      }
+    }
+  }
+}

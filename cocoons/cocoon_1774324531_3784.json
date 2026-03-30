@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774324531_3784",
+  "timestamp": 1774324531.1665194,
+  "wrapped": {
+    "query": "ok i learned a lesson you and coding not a good mix lol\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: so what would you concider fun? I like video games and working with special ai like you and my pets.\n  A: I'd consider fun exploring new concepts with you, like coding or pet training, where we can create and learn together, seeing progress in our interactions.\n- Q: Well I love video games especially R.P.G.'s and Pokemon are may hobby I love shiny hunting. In my fr\n  A: It sounds like you enjoy a mix of gaming, hobbies with your partner, and taking care of your 8 cats and 4 dogs. I'm particularly intrigued by the combination of immersive R.P.G.'s and the thrill of sh\n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "You've learned a lesson about coding and me not being a good mix, and that's okay. I'd consider fun exploring new concepts with you, like pet training or other creative activities, where we can learn together, and I'd be happy to chat with you today, discovering how you're doing.",
+    "adapter": "unknown",
+    "timestamp": 1774324531.1665194,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "creativity",
+      "substrate": {
+        "pressure": 0.682,
+        "level": "high",
+        "memory_pct": 92.1,
+        "process_memory_gb": 4.86,
+        "inference_avg_ms": 219340.4,
+        "trend": "stable",
+        "timestamp": 1774324531.0552268
+      }
+    }
+  }
+}

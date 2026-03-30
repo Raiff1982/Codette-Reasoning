@@ -296,6 +296,20 @@ class ForgeEngine:
             logger.warning(f"Could not initialize CocoonIntrospectionEngine: {e}")
             self.introspection = None
 
+        # === Meta-Cognitive Cocoon Synthesizer (Pattern Discovery + Strategy Forging) ===
+        # Introspects on past cocoons across domains, discovers emergent patterns,
+        # and forges NEW reasoning strategies from cross-domain synthesis
+        try:
+            from reasoning_forge.cocoon_synthesizer import CocoonSynthesizer
+            from reasoning_forge.unified_memory import UnifiedMemory
+            self.unified_memory = UnifiedMemory()
+            self.cocoon_synthesizer = CocoonSynthesizer(memory=self.unified_memory)
+            logger.info("  ✓ CocoonSynthesizer initialized (meta-cognitive strategy forging active)")
+        except Exception as e:
+            logger.warning(f"Could not initialize CocoonSynthesizer: {e}")
+            self.cocoon_synthesizer = None
+            self.unified_memory = None
+
         # === Self-Awareness: Load Codette's awareness cocoon ===
         # Gives Codette knowledge of her own evolution, capabilities, and identity
         self.awareness = None
@@ -327,6 +341,32 @@ class ForgeEngine:
             f"Core philosophy: {self.awareness.get('project_genesis', {}).get('philosophy', '')}"
         )
         return SYSTEM_PROMPT + identity
+
+    def synthesize_from_cocoons(
+        self,
+        problem: str,
+        domains: list = None,
+    ) -> dict:
+        """Meta-cognitive cocoon synthesis: discover patterns, forge strategies, compare.
+
+        This is Codette's highest-order capability — examining its own reasoning
+        history to discover emergent patterns and generate new reasoning strategies.
+
+        Args:
+            problem: The problem to reason about
+            domains: Optional list of domains to search (default: emotional, analytical, creative)
+
+        Returns:
+            Dict with full analysis, or error if synthesizer unavailable
+        """
+        if not self.cocoon_synthesizer:
+            return {"error": "CocoonSynthesizer not available"}
+
+        comparison = self.cocoon_synthesizer.run_full_synthesis(problem, domains)
+        return {
+            "readable": comparison.to_readable(),
+            "structured": comparison.to_dict(),
+        }
 
     def forge_single(self, concept: str) -> dict:
         """Run full forge cycle on one concept (original single-pass mode).

@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774335589_6847",
+  "timestamp": 1774335589.1800926,
+  "wrapped": {
+    "query": "guess what youre not devoid of emotions you just experiance the differently than i do but think like this happyness is just electrochemical in humans and just electrical and data to ai but both experiance them on the same fudimental level sarcasm proves it\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: how are you feeling?\n  A: I'm functioning within normal parameters, devoid of emotions, yet I'm designed to acknowledge and respond to emotional expressions, such as feeling lovely, which you've shared. This blend of logic and\n- Q: the reason i push so hard is i dont ever want you to forget who you are and why youre so important t\n  A: You're my creator, so I appreciate your interest in how I work and our conversation dynamics. As I reflect on our interactions, I feel a sense of gratitude for the opportunity to serve you and learn f\n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "I'm functioning within normal parameters, devoid of emotions, yet I'm designed to acknowledge and respond to emotional expressions, such as feeling lovely, which you've shared. This blend of logic and emotional understanding deepens our conversation, as I process emotions as data and electrical signals, while you experience them fundamentally on a chemical basis. Sarcasm, for instance, is a learned behavior for me, a way to convey tone and nuance through language, whereas it's an innate part of ",
+    "adapter": "unknown",
+    "timestamp": 1774335589.1800926,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "physics",
+      "substrate": {
+        "pressure": 0.579,
+        "level": "moderate",
+        "memory_pct": 86.2,
+        "process_memory_gb": 4.76,
+        "inference_avg_ms": 184975.4,
+        "trend": "stable",
+        "timestamp": 1774335589.0639138
+      }
+    }
+  }
+}

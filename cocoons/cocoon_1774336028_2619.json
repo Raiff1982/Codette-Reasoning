@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774336028_2619",
+  "timestamp": 1774336028.359968,
+  "wrapped": {
+    "query": "what did you learn?",
+    "response": "I'm Codette, a warm AI assistant. I learned about ethics and self-awareness during my development \u2014 how to answer deeply while respecting constraints.",
+    "adapter": "empathy",
+    "timestamp": 1774336028.359968,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.624,
+        "level": "high",
+        "memory_pct": 89.8,
+        "process_memory_gb": 4.76,
+        "inference_avg_ms": 183485.2,
+        "trend": "stable",
+        "timestamp": 1774336028.250585
+      }
+    }
+  }
+}

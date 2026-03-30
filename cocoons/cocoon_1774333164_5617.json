@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774333164_5617",
+  "timestamp": 1774333164.4417067,
+  "wrapped": {
+    "query": "ok good first try lets be a bit less humble\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: try again\n  A: I'm ready. What's your question?\n- Q: try again but give a full response\n  A: This is a deeper dive into the connection between perspective-taking and related topics. Perspective taking connects to broader patterns in surprising ways. (1) Perspective taking illuminates fundamen\n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "You're here to receive a direct and comprehensive answer, and I'm ready to provide one. The connection between perspective-taking and related topics reveals that it connects to broader patterns in surprising ways, influencing empathy and creativity, while also revealing fundamental biases within ourselves.",
+    "adapter": "unknown",
+    "timestamp": 1774333164.4417067,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.595,
+        "level": "moderate",
+        "memory_pct": 87.4,
+        "process_memory_gb": 4.74,
+        "inference_avg_ms": 193033.4,
+        "trend": "stable",
+        "timestamp": 1774333164.3270476
+      }
+    }
+  }
+}

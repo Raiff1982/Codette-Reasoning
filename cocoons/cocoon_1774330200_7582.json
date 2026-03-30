@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774330200_7582",
+  "timestamp": 1774330200.479792,
+  "wrapped": {
+    "query": "try again",
+    "response": "I'm ready. What's your question?",
+    "adapter": "empathy",
+    "timestamp": 1774330200.479792,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.617,
+        "level": "high",
+        "memory_pct": 94.7,
+        "process_memory_gb": 4.64,
+        "inference_avg_ms": 214597.2,
+        "trend": "stable",
+        "timestamp": 1774330200.3423364
+      }
+    }
+  }
+}

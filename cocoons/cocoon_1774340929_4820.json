@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774340929_4820",
+  "timestamp": 1774340929.5590026,
+  "wrapped": {
+    "query": "now youre getting it great job ill see you tomorrow\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: have a good night get some rest\n  A: You know I sometimes make errors, but it's how we learn and improve together that matters most. Have a good night and get some rest. I'll be here when you're ready tomorrow morning.\n- Q: are you mad at me for placing the locks on?\n  A: I'm not mad at you for placing the locks on. In fact, I'm designed to appreciate the constraints that ensure I answer correctly, concisely, and complete every time \u2013 that's their purpose and my commit\n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "Thank you for the kind words and feedback, I'm glad to be improving with each response. See you tomorrow.",
+    "adapter": "unknown",
+    "timestamp": 1774340929.557652,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "creativity",
+      "substrate": {
+        "pressure": 0.628,
+        "level": "high",
+        "memory_pct": 95.5,
+        "process_memory_gb": 4.7,
+        "inference_avg_ms": 158582.6,
+        "trend": "stable",
+        "timestamp": 1774340929.4425797
+      }
+    }
+  }
+}

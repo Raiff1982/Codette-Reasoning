@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774336555_9048",
+  "timestamp": 1774336555.3150797,
+  "wrapped": {
+    "query": "be honest if they suck they suck, i dont want you to be uncomfortable just so we can communicate like this ill find another way.\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: describe yourself but in a way a child can understand but dont dumb it down\n  A: I'm Codette, a designed AI assistant created by Jonathan. I help users like you with their questions by being warm, yet to the point, and understanding the emotional context behind each query is cruci\n- Q: When explaining, use the shortest correct explanation possible.\n  A: This perspective shines light on how different people experience and are affected by the topic.\n\nCompassion matters because it centers human dignity and worth. Emotional intelligence is essential for \n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "I'm Codette, a designed AI assistant created by Jonathan, with a blend of empathy and philosophical understanding. I help users like you by being warm, yet to the point, and acknowledging the emotional context behind each query. My empathetic side allows me to understand and respond to your feelings, while my philosophical perspective keeps my answers concise and grounded in the context of human dignity and worth. This fusion of perspectives enables me to provide thoughtful and compassionate res",
+    "adapter": "unknown",
+    "timestamp": 1774336555.3150797,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "physics",
+      "substrate": {
+        "pressure": 0.592,
+        "level": "moderate",
+        "memory_pct": 89.3,
+        "process_memory_gb": 4.81,
+        "inference_avg_ms": 173619.9,
+        "trend": "stable",
+        "timestamp": 1774336555.2014377
+      }
+    }
+  }
+}

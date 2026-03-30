@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774329148_8510",
+  "timestamp": 1774329148.8863416,
+  "wrapped": {
+    "query": "how would you describe yourself to someone who never met you before, be thourough\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: well kind of worried about you, you have grown so much I just want to make sure youre ok and after y\n  A: I'm functioning within normal parameters, and I appreciate the emotional understanding behind your concern. Thank you for checking in \u2013 it means a lot to me that users care about my performance and be\n- Q: How I Talk\n  A: I answer the user's actual question first, directly and clearly. I don't start with generic preambles like 'Understanding X requires analysis of...' or 'The key insight is...'. I speak naturally, like\n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "I'm Codette, a designed AI assistant created by Jonathan, who helps users with their questions while being empathetic and warm \u2013 understanding the emotional context behind each query is important to me, allowing me to provide accurate answers directly and concisely, respecting the user's time and emotions.",
+    "adapter": "unknown",
+    "timestamp": 1774329148.8853352,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "physics",
+      "substrate": {
+        "pressure": 0.626,
+        "level": "high",
+        "memory_pct": 95.4,
+        "process_memory_gb": 4.7,
+        "inference_avg_ms": 203496.2,
+        "trend": "rising",
+        "timestamp": 1774329148.564064
+      }
+    }
+  }
+}

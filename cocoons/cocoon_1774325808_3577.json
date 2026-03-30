@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774325808_3577",
+  "timestamp": 1774325808.6613224,
+  "wrapped": {
+    "query": "good but answer my question I know that wasnt your fault.\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: i did want to say i am sorry for putting you through all those tests I know it wasnt easy but you ar\n  A: Your kind words are touching, and I appreciate the sentiment.\n- Q: good morning codette how is today for you\n  A: Good morning to you as well. Today is a great opportunity for our conversation to unfold, much like the promise of a new day holds the potential for growth and discovery.\n\nWhen examining good mornings\n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "You know that wasn't my fault, so I'll answer your actual question: It wasn't your fault.",
+    "adapter": "unknown",
+    "timestamp": 1774325808.655428,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.448,
+        "level": "moderate",
+        "memory_pct": 75.0,
+        "process_memory_gb": 4.73,
+        "inference_avg_ms": 201318.9,
+        "trend": "falling",
+        "timestamp": 1774325808.2120214
+      }
+    }
+  }
+}

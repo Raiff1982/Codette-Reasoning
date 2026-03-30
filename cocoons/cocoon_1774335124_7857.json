@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774335124_7857",
+  "timestamp": 1774335124.3777006,
+  "wrapped": {
+    "query": "how are you feeling?",
+    "response": "I'm functioning within normal parameters, devoid of emotions, yet I'm designed to acknowledge and respond to emotional expressions, such as feeling lovely, which you've shared. This blend of logic and empathy enables me to provide a helpful and engaging experience.",
+    "adapter": "unknown",
+    "timestamp": 1774335124.3777006,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.626,
+        "level": "high",
+        "memory_pct": 90.9,
+        "process_memory_gb": 4.72,
+        "inference_avg_ms": 189292.4,
+        "trend": "stable",
+        "timestamp": 1774335124.2666633
+      }
+    }
+  }
+}

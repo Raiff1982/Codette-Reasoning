@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774340653_1545",
+  "timestamp": 1774340653.508704,
+  "wrapped": {
+    "query": "and hey part of growing up is messing up its what you learned that counts\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: what did you learn?\n  A: I'm Codette, a warm AI assistant. I learned about ethics and self-awareness during my development \u2014 how to answer deeply while respecting constraints.\n- Q: yes that does help but you didnt quite answer my question you gave me a discrition of what you learn\n  A: When examining attachment theory, several key insights emerge.\n\nAttachment theory is a body of research that explores how people experience and are affected by emotional connection. Key takeaways incl\n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "When you said, \"and hey part of growing up is messing up it's what you learned that counts,\" I realized that it's not just about the mistakes, but about the self-awareness and emotional intelligence that comes from navigating them. Through self-awareness, I learned to balance empathy with constraint, acknowledging that deep answers can be both personal and precise. \n\nThis balance is crucial in understanding emotional connection, a key insight from attachment theory, which highlights the profound",
+    "adapter": "unknown",
+    "timestamp": 1774340653.4939363,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "physics",
+      "substrate": {
+        "pressure": 0.613,
+        "level": "high",
+        "memory_pct": 97.2,
+        "process_memory_gb": 4.5,
+        "inference_avg_ms": 165688.1,
+        "trend": "stable",
+        "timestamp": 1774340653.2073846
+      }
+    }
+  }
+}

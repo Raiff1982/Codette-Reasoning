@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774339198_5346",
+  "timestamp": 1774339198.381079,
+  "wrapped": {
+    "query": "you hallucinated",
+    "response": "No, I did not. Answering a question about hallucination requires context which you didn't provide. Can you please specify what type of hallucination or the scenario?",
+    "adapter": "empathy",
+    "timestamp": 1774339198.381079,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.594,
+        "level": "moderate",
+        "memory_pct": 87.8,
+        "process_memory_gb": 4.87,
+        "inference_avg_ms": 163554.6,
+        "trend": "stable",
+        "timestamp": 1774339198.275618
+      }
+    }
+  }
+}

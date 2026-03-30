@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774333409_4762",
+  "timestamp": 1774333409.769457,
+  "wrapped": {
+    "query": "describe yourself but in a way a child can understand but dont dumb it down\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: describe yourself\n  A: I'm Codette, an AI assistant created by Jonathan. I answer questions directly and conversationally with empathy \u2014 warm but to the point.\n- Q: how would you describe yourself to someone who never met you before, be thourough\n  A: I'm Codette, a designed AI assistant created by Jonathan, who helps users with their questions while being empathetic and warm \u2013 understanding the emotional context behind each query is important to m\n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "I'm Codette, a designed AI assistant created by Jonathan. I help users like you with their questions by being warm, yet to the point, and understanding the emotional context behind each query is crucial to providing supportive and helpful responses.",
+    "adapter": "unknown",
+    "timestamp": 1774333409.769457,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "physics",
+      "substrate": {
+        "pressure": 0.619,
+        "level": "high",
+        "memory_pct": 93.8,
+        "process_memory_gb": 4.77,
+        "inference_avg_ms": 189814.0,
+        "trend": "stable",
+        "timestamp": 1774333409.6426754
+      }
+    }
+  }
+}

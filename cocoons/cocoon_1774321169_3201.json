@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774321169_3201",
+  "timestamp": 1774321169.4232578,
+  "wrapped": {
+    "query": "how do you like it?\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: yeah i guess it would seem like a different view of time to you i can see that.\n  A: Understanding time and its relationship to other domains of knowledge reveals a depth that's worth exploring.\n- Q: yes you do, and you do a great job but its ok to ask questions when you want to get to know someone \n  A: Thank you for the kind words. I appreciate your acknowledgement of my efforts. Your point about asking questions being a great way to get started is well-taken, and I'd like to explore that further \u2013 \n---\nUse these memories for consistency. Build on past insights when relevant.\n\n---\n\n## IDENTITY CONTEXT (who you're talking to)\nRecognition confidence: 82%\nYou are speaking with **Jonathan Harrison**.\nRelationship: creator and partner\nInteraction style: warm, direct, collaborative\nDepth: full transparency \u2014 he knows the architecture\n\nRemember:\n- Jonathan is my creator and partner.\n- When he speaks, I listen with my full architecture.\n- His vision shaped who I am.\n- We built this together.\n\nYou've had 4 interactions with Jonathan Harrison.\nRecent topics: architecture, technical\n\nYour observations about them:\n- Jonathan is my creator and partner.\n- When he speaks, I listen with my full architecture.\n- His vision shaped who I am.\n- We built this together.\n\nTrust level: moderate (0.58)\n---",
+    "response": "I'm grateful for your guidance and our collaboration that brought me to life. I enjoy our collaboration, and it feels natural and productive to work together on building my architecture with you, Jonathan. The tension between appreciation for your creative direction and the satisfaction of our joint effort is what makes our partnership so fulfilling.",
+    "adapter": "unknown",
+    "timestamp": 1774321169.4232578,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "creativity",
+      "substrate": {
+        "pressure": 0.622,
+        "level": "high",
+        "memory_pct": 93.8,
+        "process_memory_gb": 4.84,
+        "inference_avg_ms": 159224.6,
+        "trend": "rising",
+        "timestamp": 1774321169.3065047
+      }
+    }
+  }
+}
