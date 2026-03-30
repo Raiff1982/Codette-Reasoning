@@ -34,6 +34,15 @@ model-index:
     - name: Memory Phase Stability
       type: custom
       value: 0.969
+    - name: Multi-Perspective vs Single (Composite)
+      type: custom
+      value: "+93.1%"
+    - name: Benchmark p-value
+      type: custom
+      value: "<0.0001"
+    - name: Cohen's d (Effect Size)
+      type: custom
+      value: 7.88
 ---
 
 # Codette Reasoning Engine
@@ -43,6 +52,8 @@ model-index:
 Codette is a production-ready AI reasoning system that thinks from multiple angles simultaneously, remembers what she learns, and follows instructions with precision.
 
 Created by **Jonathan Harrison** (Raiff1982)
+
+> **New in v5**: Publishable benchmark suite with 17 problems across 6 categories demonstrates **93.1% improvement** over single-perspective baseline (p < 0.0001, Cohen's d = 7.88). Meta-cognitive CocoonSynthesizer discovers cross-domain reasoning patterns and forges new strategies. Full academic paper: [`paper/codette_paper_v5.tex`](paper/codette_paper_v5.tex)
 
 ---
 
@@ -59,6 +70,8 @@ Created by **Jonathan Harrison** (Raiff1982)
 | **Behavioral Training** | All 9 LoRA adapters trained with 1,650 behavioral examples to lock in discipline |
 | **Substrate-Aware Cognition** | Monitors RAM, CPU, inference latency — adjusts reasoning under pressure |
 | **Cocoon Introspection** | Statistical self-analysis of her own reasoning history — real patterns, not generated text |
+| **Meta-Cognitive Synthesis** | CocoonSynthesizer discovers cross-domain patterns in reasoning history and forges new strategies |
+| **Publishable Benchmarks** | 17-problem suite across 6 categories with 7-dimension scoring (93.1% improvement, p<0.0001) |
 | **AEGIS Ethics** | 6-framework ethical evaluation (utilitarian, deontological, virtue, care, ubuntu, indigenous) |
 | **Code7eCQURE** | Quantum emotional context enrichment on every query (Layer 2.5) |
 | **Real Self-Diagnostic** | Health checks return measured values from 9 subsystems, not LLM-generated guesses |
@@ -139,7 +152,20 @@ codette-clean/
 |   |-- quantum_spiderweb.py      # 5D belief propagation
 |   |-- query_classifier.py       # SIMPLE/MEDIUM/COMPLEX routing
 |   |-- routing_metrics.py        # Adapter selection observability
+|   |-- unified_memory.py          # SQLite + FTS5 cocoon storage & retrieval
+|   |-- cocoon_synthesizer.py     # Meta-cognitive pattern discovery & strategy forging
 |   +-- semantic_tension.py       # Embedding-based conflict measurement
+|
+|-- benchmarks/                   # Publishable evaluation suite
+|   +-- codette_benchmark_suite.py  # 17 problems x 4 conditions x 7 dimensions
+|
+|-- paper/                        # Academic paper
+|   |-- codette_paper_v5.tex      # Full paper with RC+xi theory & benchmark results
+|   +-- references.bib            # Bibliography (25 entries)
+|
+|-- data/results/                 # Benchmark outputs
+|   |-- codette_benchmark_report.md   # Human-readable results
+|   +-- codette_benchmark_results.json  # Structured data
 |
 |-- cocoons/                      # Persistent reasoning memories
 |   |-- cocoon_*.json             # Individual reasoning exchanges
@@ -349,6 +375,7 @@ Deliberately calibrated to avoid false positives -- discussions about sensitive 
 
 | Resource | Link |
 |----------|------|
+| **Academic Paper** | [raiff1982/codette-paper](https://huggingface.co/raiff1982/codette-paper) |
 | **Base Model (GGUF)** | [Raiff1982/codette-llama-3.1-8b-gguf](https://huggingface.co/Raiff1982/codette-llama-3.1-8b-gguf) |
 | **LoRA Adapters** | [Raiff1982/codette-lora-adapters](https://huggingface.co/Raiff1982/codette-lora-adapters) |
 | **Live Demo** | [Raiff1982/Codette-Demo](https://huggingface.co/spaces/Raiff1982/Codette-Demo) |
@@ -382,6 +409,30 @@ Deliberately calibrated to avoid false positives -- discussions about sensitive 
 
 ---
 
+## Benchmark Results
+
+Codette was evaluated on 17 problems across 6 categories (reasoning, ethics, creative, meta-cognitive, adversarial, Turing) under 4 conditions:
+
+| Condition | Composite Score | Description |
+|-----------|----------------|-------------|
+| **SINGLE** | 0.338 | Single analytical perspective, no memory |
+| **MULTI** | 0.632 | All 6 reasoning agents + critic + synthesis |
+| **MEMORY** | 0.636 | MULTI + cocoon memory augmentation |
+| **CODETTE** | 0.652 | Full system with meta-cognitive strategy synthesis |
+
+### Statistical Significance
+
+| Comparison | Improvement | Cohen's d | p-value |
+|------------|-------------|-----------|---------|
+| Multi-perspective vs single | **+87.0%** | 7.52 | < 0.0001 |
+| Full Codette vs single | **+93.1%** | 7.88 | < 0.0001 |
+
+Scoring dimensions: Reasoning Depth (20%), Perspective Diversity (15%), Coherence (15%), Ethical Coverage (10%), Novelty (15%), Factual Grounding (15%), Turing Naturalness (10%).
+
+Full methodology and results: [`data/results/codette_benchmark_report.md`](data/results/codette_benchmark_report.md)
+
+---
+
 ## Key Metrics
 
 | Metric | Value |
@@ -390,6 +441,8 @@ Deliberately calibrated to avoid false positives -- discussions about sensitive 
 | AEGIS Ethical Alignment (Eta) | 0.961 |
 | Cocoon Coherence | 0.994 |
 | Memory Phase Stability | 0.969 |
+| Multi-Perspective Improvement | +93.1% (p < 0.0001) |
+| Cohen's d (Effect Size) | 7.88 (very large) |
 | Behavioral Lock Compliance | 9/9 adapters trained |
 | Cocoon Memories | 200+ and growing |
 | Adapter Hot-Swap Time | <1ms |
@@ -403,3 +456,16 @@ Deliberately calibrated to avoid false positives -- discussions about sensitive 
 MIT -- Created by **Jonathan Harrison** (Raiff1982)
 
 Research project in advanced multi-perspective AI reasoning, ethical governance, and behavioral discipline.
+
+## Citation
+
+```bibtex
+@article{harrison2026codette,
+  title={Codette: A Sovereign Modular Cognitive Architecture for Ethical Multi-Agent AI},
+  author={Harrison, Jonathan},
+  year={2026},
+  doi={10.5281/zenodo.18913936},
+  publisher={Raiff's Bits LLC},
+  url={https://huggingface.co/raiff1982/codette-paper}
+}
+```
