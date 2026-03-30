@@ -11,6 +11,9 @@ models/.cache/
 .cache/
 /huggingface_cache/
 
+# Large tokenizer files (duplicated across adapters, ~17MB each)
+**/tokenizer.json
+
 # Python Bytecode
 __pycache__/
 *.pyc
