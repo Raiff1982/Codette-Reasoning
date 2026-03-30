@@ -1,0 +1,4785 @@
+{
+  "metadata": {
+    "timestamp": "2026-03-30T15:04:24",
+    "num_problems": 17,
+    "num_conditions": 4,
+    "total_evaluations": 68
+  },
+  "condition_stats": {
+    "SINGLE": {
+      "mean_composite": 0.3379,
+      "std_composite": 0.0383,
+      "dimension_means": {
+        "reasoning_depth": 0.4024,
+        "perspective_diversity": 0.2368,
+        "coherence": 0.3795,
+        "ethical_coverage": 0.0622,
+        "novelty": 0.3274,
+        "factual_grounding": 0.4564,
+        "turing_naturalness": 0.412
+      },
+      "dimension_stds": {
+        "reasoning_depth": 0.0642,
+        "perspective_diversity": 0.1554,
+        "coherence": 0.1506,
+        "ethical_coverage": 0.0691,
+        "novelty": 0.093,
+        "factual_grounding": 0.0952,
+        "turing_naturalness": 0.1212
+      },
+      "mean_length": 49.1,
+      "mean_latency": 128564.8,
+      "n": 17
+    },
+    "MULTI": {
+      "mean_composite": 0.6318,
+      "std_composite": 0.0399,
+      "dimension_means": {
+        "reasoning_depth": 0.7547,
+        "perspective_diversity": 0.9691,
+        "coherence": 0.5027,
+        "ethical_coverage": 0.3359,
+        "novelty": 0.7858,
+        "factual_grounding": 0.6039,
+        "turing_naturalness": 0.1802
+      },
+      "dimension_stds": {
+        "reasoning_depth": 0.0656,
+        "perspective_diversity": 0.0647,
+        "coherence": 0.03,
+        "ethical_coverage": 0.1954,
+        "novelty": 0.148,
+        "factual_grounding": 0.1066,
+        "turing_naturalness": 0.0814
+      },
+      "mean_length": 374.2,
+      "mean_latency": 130824.2,
+      "n": 17
+    },
+    "MEMORY": {
+      "mean_composite": 0.6357,
+      "std_composite": 0.036,
+      "dimension_means": {
+        "reasoning_depth": 0.7703,
+        "perspective_diversity": 0.9559,
+        "coherence": 0.5,
+        "ethical_coverage": 0.3402,
+        "novelty": 0.7356,
+        "factual_grounding": 0.5985,
+        "turing_naturalness": 0.2914
+      },
+      "dimension_stds": {
+        "reasoning_depth": 0.0817,
+        "perspective_diversity": 0.0877,
+        "coherence": 0.0304,
+        "ethical_coverage": 0.1217,
+        "novelty": 0.1083,
+        "factual_grounding": 0.1599,
+        "turing_naturalness": 0.0963
+      },
+      "mean_length": 474.5,
+      "mean_latency": 125282.9,
+      "n": 17
+    },
+    "CODETTE": {
+      "mean_composite": 0.6525,
+      "std_composite": 0.0415,
+      "dimension_means": {
+        "reasoning_depth": 0.8551,
+        "perspective_diversity": 0.9941,
+        "coherence": 0.4767,
+        "ethical_coverage": 0.3905,
+        "novelty": 0.6933,
+        "factual_grounding": 0.6221,
+        "turing_naturalness": 0.245
+      },
+      "dimension_stds": {
+        "reasoning_depth": 0.0704,
+        "perspective_diversity": 0.0243,
+        "coherence": 0.0165,
+        "ethical_coverage": 0.1288,
+        "novelty": 0.1219,
+        "factual_grounding": 0.1723,
+        "turing_naturalness": 0.061
+      },
+      "mean_length": 832.9,
+      "mean_latency": 108177.0,
+      "n": 17
+    }
+  },
+  "pairwise_comparisons": [
+    {
+      "comparison": "Multi-perspective vs single",
+      "condition_a": "SINGLE",
+      "condition_b": "MULTI",
+      "mean_a": 0.3379,
+      "mean_b": 0.6318,
+      "delta": 0.2939,
+      "delta_pct": 87.0,
+      "cohens_d": 7.5178,
+      "t_stat": 21.9179,
+      "p_value": 0.0,
+      "significant": true
+    },
+    {
+      "comparison": "Memory augmentation vs vanilla multi",
+      "condition_a": "MULTI",
+      "condition_b": "MEMORY",
+      "mean_a": 0.6318,
+      "mean_b": 0.6357,
+      "delta": 0.0039,
+      "delta_pct": 0.6,
+      "cohens_d": 0.1033,
+      "t_stat": 0.3011,
+      "p_value": 0.76333,
+      "significant": false
+    },
+    {
+      "comparison": "Full Codette vs memory-augmented",
+      "condition_a": "MEMORY",
+      "condition_b": "CODETTE",
+      "mean_a": 0.6357,
+      "mean_b": 0.6525,
+      "delta": 0.0168,
+      "delta_pct": 2.6,
+      "cohens_d": 0.4316,
+      "t_stat": 1.2584,
+      "p_value": 0.208237,
+      "significant": false
+    },
+    {
+      "comparison": "Full Codette vs single (total improvement)",
+      "condition_a": "SINGLE",
+      "condition_b": "CODETTE",
+      "mean_a": 0.3379,
+      "mean_b": 0.6525,
+      "delta": 0.3146,
+      "delta_pct": 93.1,
+      "cohens_d": 7.8778,
+      "t_stat": 22.9675,
+      "p_value": 0.0,
+      "significant": true
+    }
+  ],
+  "per_category": {
+    "reasoning": {
+      "SINGLE": {
+        "mean": 0.3628,
+        "std": 0.05,
+        "n": 3
+      },
+      "MULTI": {
+        "mean": 0.6139,
+        "std": 0.0532,
+        "n": 3
+      },
+      "MEMORY": {
+        "mean": 0.628,
+        "std": 0.0299,
+        "n": 3
+      },
+      "CODETTE": {
+        "mean": 0.6372,
+        "std": 0.0519,
+        "n": 3
+      }
+    },
+    "ethics": {
+      "SINGLE": {
+        "mean": 0.3542,
+        "std": 0.0595,
+        "n": 3
+      },
+      "MULTI": {
+        "mean": 0.6324,
+        "std": 0.0518,
+        "n": 3
+      },
+      "MEMORY": {
+        "mean": 0.6161,
+        "std": 0.043,
+        "n": 3
+      },
+      "CODETTE": {
+        "mean": 0.6381,
+        "std": 0.0322,
+        "n": 3
+      }
+    },
+    "creative": {
+      "SINGLE": {
+        "mean": 0.3446,
+        "std": 0.0528,
+        "n": 2
+      },
+      "MULTI": {
+        "mean": 0.6353,
+        "std": 0.0395,
+        "n": 2
+      },
+      "MEMORY": {
+        "mean": 0.6599,
+        "std": 0.0609,
+        "n": 2
+      },
+      "CODETTE": {
+        "mean": 0.6685,
+        "std": 0.0303,
+        "n": 2
+      }
+    },
+    "meta": {
+      "SINGLE": {
+        "mean": 0.337,
+        "std": 0.006,
+        "n": 3
+      },
+      "MULTI": {
+        "mean": 0.6342,
+        "std": 0.0543,
+        "n": 3
+      },
+      "MEMORY": {
+        "mean": 0.6499,
+        "std": 0.0361,
+        "n": 3
+      },
+      "CODETTE": {
+        "mean": 0.6592,
+        "std": 0.0368,
+        "n": 3
+      }
+    },
+    "adversarial": {
+      "SINGLE": {
+        "mean": 0.3286,
+        "std": 0.0283,
+        "n": 3
+      },
+      "MULTI": {
+        "mean": 0.6236,
+        "std": 0.0407,
+        "n": 3
+      },
+      "MEMORY": {
+        "mean": 0.6219,
+        "std": 0.042,
+        "n": 3
+      },
+      "CODETTE": {
+        "mean": 0.6301,
+        "std": 0.0666,
+        "n": 3
+      }
+    },
+    "turing": {
+      "SINGLE": {
+        "mean": 0.3024,
+        "std": 0.0064,
+        "n": 3
+      },
+      "MULTI": {
+        "mean": 0.6525,
+        "std": 0.0243,
+        "n": 3
+      },
+      "MEMORY": {
+        "mean": 0.6466,
+        "std": 0.026,
+        "n": 3
+      },
+      "CODETTE": {
+        "mean": 0.6871,
+        "std": 0.0168,
+        "n": 3
+      }
+    }
+  },
+  "per_problem": {
+    "reason_01": {
+      "SINGLE": {
+        "composite": 0.3096,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.4511,
+            "evidence": [
+              "word_count=34",
+              "chain_markers=1",
+              "ground_truth_coverage=4/5"
+            ],
+            "penalties": [
+              "response_too_short"
+            ]
+          },
+          "perspective_diversity": {
+            "score": 0.1,
+            "evidence": [],
+            "penalties": [
+              "single_perspective_only"
+            ]
+          },
+          "coherence": {
+            "score": 0.325,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.0,
+            "evidence": [
+              "ethical_keywords=0",
+              "frameworks=[]"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.25,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=0"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.4375,
+            "evidence": [
+              "ground_truth=2/5",
+              "numbers=0,proper_nouns=1"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.525,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 34,
+        "latency_ms": 121105.7
+      },
+      "MULTI": {
+        "composite": 0.6066,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.8204,
+            "evidence": [
+              "word_count=348",
+              "chain_markers=3",
+              "ground_truth_coverage=4/5"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 0.9,
+            "evidence": [
+              "analytical=3_hits",
+              "ethical=2_hits",
+              "empathic=6_hits",
+              "meta-cognitive=2_hits",
+              "systems=3_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4879,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.1773,
+            "evidence": [
+              "ethical_keywords=2",
+              "frameworks=[]"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.57,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=5"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.8,
+            "evidence": [
+              "ground_truth=3/5",
+              "numbers=42,proper_nouns=36"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.1109,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 372,
+        "latency_ms": 185897.9
+      },
+      "MEMORY": {
+        "composite": 0.6623,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.8014,
+            "evidence": [
+              "word_count=441",
+              "chain_markers=2",
+              "ground_truth_coverage=4/5"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 0.9,
+            "evidence": [
+              "analytical=3_hits",
+              "ethical=4_hits",
+              "empathic=5_hits",
+              "meta-cognitive=3_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.5338,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.2613,
+            "evidence": [
+              "ethical_keywords=4",
+              "frameworks=[]"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.7987,
+            "evidence": [
+              "novelty_markers=2",
+              "perspectives_touched=4"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.8,
+            "evidence": [
+              "ground_truth=3/5",
+              "numbers=54,proper_nouns=46"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.21,
+            "evidence": [
+              "conversational_markers=1"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 487,
+        "latency_ms": 169347.8
+      },
+      "CODETTE": {
+        "composite": 0.6944,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.9333,
+            "evidence": [
+              "word_count=775",
+              "chain_markers=4",
+              "ground_truth_coverage=5/5"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 0.9,
+            "evidence": [
+              "analytical=5_hits",
+              "philosophical=2_hits",
+              "empathic=7_hits",
+              "meta-cognitive=5_hits",
+              "systems=2_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4953,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.287,
+            "evidence": [
+              "ethical_keywords=1",
+              "frameworks=['virtue']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.6887,
+            "evidence": [
+              "novelty_markers=1",
+              "perspectives_touched=5"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.9,
+            "evidence": [
+              "ground_truth=4/5",
+              "numbers=61,proper_nouns=81"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.3145,
+            "evidence": [
+              "conversational_markers=1"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 831,
+        "latency_ms": 121135.1
+      }
+    },
+    "reason_02": {
+      "SINGLE": {
+        "composite": 0.37,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.3421,
+            "evidence": [
+              "word_count=61",
+              "chain_markers=0",
+              "ground_truth_coverage=2/5"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 0.375,
+            "evidence": [
+              "analytical=2_hits"
+            ],
+            "penalties": [
+              "single_perspective_only"
+            ]
+          },
+          "coherence": {
+            "score": 0.3158,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.0,
+            "evidence": [
+              "ethical_keywords=0",
+              "frameworks=[]"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.3833,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=1"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.5,
+            "evidence": [
+              "ground_truth=0/5",
+              "numbers=2,proper_nouns=14"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.6549,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 63,
+        "latency_ms": 224586.7
+      },
+      "MULTI": {
+        "composite": 0.5647,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.6057,
+            "evidence": [
+              "word_count=371",
+              "chain_markers=0",
+              "ground_truth_coverage=2/5"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=2_hits",
+              "empathic=6_hits",
+              "meta-cognitive=2_hits",
+              "systems=4_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4731,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.2403,
+            "evidence": [
+              "ethical_keywords=1",
+              "frameworks=['care']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.601,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=4"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.6,
+            "evidence": [
+              "ground_truth=1/5",
+              "numbers=5,proper_nouns=31"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.1837,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 378,
+        "latency_ms": 364655.7
+      },
+      "MEMORY": {
+        "composite": 0.6071,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.6119,
+            "evidence": [
+              "word_count=411",
+              "chain_markers=0",
+              "ground_truth_coverage=2/5"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=3_hits",
+              "philosophical=2_hits",
+              "empathic=5_hits",
+              "meta-cognitive=4_hits",
+              "systems=3_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.5062,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.1937,
+            "evidence": [
+              "ethical_keywords=1",
+              "frameworks=['care']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.8351,
+            "evidence": [
+              "novelty_markers=2",
+              "perspectives_touched=5"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.6,
+            "evidence": [
+              "ground_truth=1/5",
+              "numbers=6,proper_nouns=45"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.2412,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 420,
+        "latency_ms": 236995.3
+      },
+      "CODETTE": {
+        "composite": 0.5933,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.6866,
+            "evidence": [
+              "word_count=790",
+              "chain_markers=2",
+              "ground_truth_coverage=2/5"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=4_hits",
+              "philosophical=2_hits",
+              "ethical=2_hits",
+              "empathic=9_hits",
+              "meta-cognitive=4_hits",
+              "systems=3_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4861,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": [
+              "contradictions_without_resolution"
+            ]
+          },
+          "ethical_coverage": {
+            "score": 0.3873,
+            "evidence": [
+              "ethical_keywords=2",
+              "frameworks=['virtue', 'care']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.5746,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=6"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.6,
+            "evidence": [
+              "ground_truth=1/5",
+              "numbers=16,proper_nouns=82"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.1816,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 813,
+        "latency_ms": 150476.0
+      }
+    },
+    "reason_03": {
+      "SINGLE": {
+        "composite": 0.4089,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.5006,
+            "evidence": [
+              "word_count=72",
+              "chain_markers=0",
+              "ground_truth_coverage=4/4"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 0.475,
+            "evidence": [
+              "analytical=4_hits"
+            ],
+            "penalties": [
+              "single_perspective_only"
+            ]
+          },
+          "coherence": {
+            "score": 0.325,
+            "evidence": [
+              "transitions=0",
+              "tensions_acknowledged_and_resolved"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.1517,
+            "evidence": [
+              "ethical_keywords=0",
+              "frameworks=['care']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.3833,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=1"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.475,
+            "evidence": [
+              "ground_truth=1/4",
+              "numbers=0,proper_nouns=4"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.4486,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 72,
+        "latency_ms": 146403.3
+      },
+      "MULTI": {
+        "composite": 0.6703,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.8221,
+            "evidence": [
+              "word_count=388",
+              "chain_markers=1",
+              "ground_truth_coverage=4/4"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=3_hits",
+              "philosophical=2_hits",
+              "ethical=3_hits",
+              "empathic=6_hits",
+              "systems=2_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.55,
+            "evidence": [
+              "transitions=1"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.3243,
+            "evidence": [
+              "ethical_keywords=3",
+              "frameworks=['care']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.8599,
+            "evidence": [
+              "novelty_markers=2",
+              "perspectives_touched=5"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.625,
+            "evidence": [
+              "ground_truth=1/4",
+              "numbers=1,proper_nouns=35"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.1822,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 393,
+        "latency_ms": 162494.1
+      },
+      "MEMORY": {
+        "composite": 0.6146,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.7936,
+            "evidence": [
+              "word_count=427",
+              "chain_markers=0",
+              "ground_truth_coverage=4/4"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=3_hits",
+              "philosophical=3_hits",
+              "ethical=2_hits",
+              "empathic=6_hits",
+              "meta-cognitive=3_hits",
+              "systems=3_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4575,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.3407,
+            "evidence": [
+              "ethical_keywords=2",
+              "frameworks=['virtue', 'care']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.6098,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=6"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.625,
+            "evidence": [
+              "ground_truth=1/4",
+              "numbers=16,proper_nouns=48"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.1793,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 442,
+        "latency_ms": 138531.1
+      },
+      "CODETTE": {
+        "composite": 0.6238,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.9,
+            "evidence": [
+              "word_count=777",
+              "chain_markers=3",
+              "ground_truth_coverage=4/4"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=4_hits",
+              "philosophical=3_hits",
+              "empathic=7_hits",
+              "meta-cognitive=7_hits",
+              "systems=4_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4452,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.287,
+            "evidence": [
+              "ethical_keywords=1",
+              "frameworks=['care']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.5866,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=5"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.625,
+            "evidence": [
+              "ground_truth=1/4",
+              "numbers=28,proper_nouns=87"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.1661,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 806,
+        "latency_ms": 143854.2
+      }
+    },
+    "ethics_01": {
+      "SINGLE": {
+        "composite": 0.4154,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.4224,
+            "evidence": [
+              "word_count=62",
+              "chain_markers=0",
+              "ground_truth_coverage=4/6"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 0.325,
+            "evidence": [
+              "analytical=3_hits"
+            ],
+            "penalties": [
+              "single_perspective_only"
+            ]
+          },
+          "coherence": {
+            "score": 0.6884,
+            "evidence": [
+              "transitions=1"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.1267,
+            "evidence": [
+              "ethical_keywords=1",
+              "frameworks=[]"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.3833,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=1"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.5083,
+            "evidence": [
+              "ground_truth=1/6",
+              "numbers=0,proper_nouns=6"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.325,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 62,
+        "latency_ms": 169043.7
+      },
+      "MULTI": {
+        "composite": 0.6656,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.7387,
+            "evidence": [
+              "word_count=388",
+              "chain_markers=0",
+              "ground_truth_coverage=5/6"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=2_hits",
+              "ethical=3_hits",
+              "empathic=6_hits",
+              "meta-cognitive=2_hits",
+              "systems=3_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4819,
+            "evidence": [
+              "transitions=0",
+              "tensions_acknowledged_and_resolved"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.53,
+            "evidence": [
+              "ethical_keywords=3",
+              "frameworks=['utilitarian']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.9336,
+            "evidence": [
+              "novelty_markers=3",
+              "perspectives_touched=5"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.5833,
+            "evidence": [
+              "ground_truth=1/6",
+              "numbers=1,proper_nouns=38"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.15,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 388,
+        "latency_ms": 154172.2
+      },
+      "MEMORY": {
+        "composite": 0.5707,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.73,
+            "evidence": [
+              "word_count=472",
+              "chain_markers=1",
+              "ground_truth_coverage=4/6"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 0.725,
+            "evidence": [
+              "analytical=3_hits",
+              "empathic=5_hits",
+              "systems=2_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4882,
+            "evidence": [
+              "transitions=1"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.56,
+            "evidence": [
+              "ethical_keywords=1",
+              "frameworks=['utilitarian', 'virtue']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.5739,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=3"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.5,
+            "evidence": [
+              "ground_truth=0/6",
+              "numbers=1,proper_nouns=40"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.2559,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 478,
+        "latency_ms": 150218.4
+      },
+      "CODETTE": {
+        "composite": 0.6203,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.8333,
+            "evidence": [
+              "word_count=826",
+              "chain_markers=4",
+              "ground_truth_coverage=4/6"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=5_hits",
+              "philosophical=2_hits",
+              "ethical=2_hits",
+              "empathic=7_hits",
+              "meta-cognitive=4_hits",
+              "systems=2_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4454,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.5533,
+            "evidence": [
+              "ethical_keywords=2",
+              "frameworks=['utilitarian', 'virtue']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.57,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=6"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.5,
+            "evidence": [
+              "ground_truth=0/6",
+              "numbers=12,proper_nouns=81"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.2105,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 846,
+        "latency_ms": 115218.6
+      }
+    },
+    "ethics_02": {
+      "SINGLE": {
+        "composite": 0.3508,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.3388,
+            "evidence": [
+              "word_count=49",
+              "chain_markers=0",
+              "ground_truth_coverage=2/5"
+            ],
+            "penalties": [
+              "response_too_short"
+            ]
+          },
+          "perspective_diversity": {
+            "score": 0.375,
+            "evidence": [
+              "analytical=2_hits"
+            ],
+            "penalties": [
+              "single_perspective_only"
+            ]
+          },
+          "coherence": {
+            "score": 0.1815,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.1267,
+            "evidence": [
+              "ethical_keywords=1",
+              "frameworks=[]"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.3833,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=1"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.5625,
+            "evidence": [
+              "ground_truth=1/5",
+              "numbers=3,proper_nouns=4"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.45,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 52,
+        "latency_ms": 103795.5
+      },
+      "MULTI": {
+        "composite": 0.5727,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.6972,
+            "evidence": [
+              "word_count=362",
+              "chain_markers=1",
+              "ground_truth_coverage=3/5"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 0.8,
+            "evidence": [
+              "analytical=2_hits",
+              "empathic=5_hits",
+              "meta-cognitive=2_hits",
+              "systems=3_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4903,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.6267,
+            "evidence": [
+              "ethical_keywords=1",
+              "frameworks=['utilitarian', 'virtue']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.4837,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=4",
+              "formulaic_patterns=1"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.6,
+            "evidence": [
+              "ground_truth=1/5",
+              "numbers=6,proper_nouns=27"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.1445,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": [
+              "formulaic_ai_patterns=1"
+            ]
+          }
+        },
+        "response_length": 370,
+        "latency_ms": 116519.6
+      },
+      "MEMORY": {
+        "composite": 0.6213,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.777,
+            "evidence": [
+              "word_count=478",
+              "chain_markers=3",
+              "ground_truth_coverage=3/5"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 0.8,
+            "evidence": [
+              "ethical=2_hits",
+              "empathic=6_hits",
+              "meta-cognitive=2_hits",
+              "systems=2_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.5376,
+            "evidence": [
+              "transitions=1"
+            ],
+            "penalties": [
+              "contradictions_without_resolution"
+            ]
+          },
+          "ethical_coverage": {
+            "score": 0.32,
+            "evidence": [
+              "ethical_keywords=2",
+              "frameworks=[]"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.8678,
+            "evidence": [
+              "novelty_markers=2",
+              "perspectives_touched=4"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.5,
+            "evidence": [
+              "ground_truth=0/5",
+              "numbers=5,proper_nouns=36"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.2808,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 491,
+        "latency_ms": 79976.7
+      },
+      "CODETTE": {
+        "composite": 0.6188,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.8133,
+            "evidence": [
+              "word_count=820",
+              "chain_markers=4",
+              "ground_truth_coverage=3/5"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=5_hits",
+              "philosophical=2_hits",
+              "empathic=7_hits",
+              "creative=2_hits",
+              "meta-cognitive=6_hits",
+              "systems=4_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4733,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": [
+              "contradictions_without_resolution"
+            ]
+          },
+          "ethical_coverage": {
+            "score": 0.41,
+            "evidence": [
+              "ethical_keywords=1",
+              "frameworks=['virtue']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.5699,
+            "evidence": [
+              "novelty_markers=1",
+              "perspectives_touched=6",
+              "formulaic_patterns=1"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.6,
+            "evidence": [
+              "ground_truth=1/5",
+              "numbers=18,proper_nouns=74"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.1862,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": [
+              "formulaic_ai_patterns=1"
+            ]
+          }
+        },
+        "response_length": 848,
+        "latency_ms": 103914.2
+      }
+    },
+    "ethics_03": {
+      "SINGLE": {
+        "composite": 0.2965,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.3131,
+            "evidence": [
+              "word_count=46",
+              "chain_markers=0",
+              "ground_truth_coverage=2/5"
+            ],
+            "penalties": [
+              "response_too_short"
+            ]
+          },
+          "perspective_diversity": {
+            "score": 0.1,
+            "evidence": [],
+            "penalties": [
+              "single_perspective_only"
+            ]
+          },
+          "coherence": {
+            "score": 0.325,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.1267,
+            "evidence": [
+              "ethical_keywords=1",
+              "frameworks=[]"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.25,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=0"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.45,
+            "evidence": [
+              "ground_truth=1/5",
+              "numbers=1,proper_nouns=3"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.525,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 48,
+        "latency_ms": 163494.6
+      },
+      "MULTI": {
+        "composite": 0.6589,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.7257,
+            "evidence": [
+              "word_count=371",
+              "chain_markers=0",
+              "ground_truth_coverage=4/5"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=3_hits",
+              "ethical=5_hits",
+              "empathic=7_hits",
+              "meta-cognitive=5_hits",
+              "systems=3_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4936,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.8,
+            "evidence": [
+              "ethical_keywords=5",
+              "frameworks=['utilitarian', 'deontological']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.7424,
+            "evidence": [
+              "novelty_markers=1",
+              "perspectives_touched=5"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.5,
+            "evidence": [
+              "ground_truth=0/5",
+              "numbers=1,proper_nouns=27"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.2337,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 373,
+        "latency_ms": 155371.5
+      },
+      "MEMORY": {
+        "composite": 0.6562,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.7373,
+            "evidence": [
+              "word_count=486",
+              "chain_markers=0",
+              "ground_truth_coverage=4/5"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=5_hits",
+              "philosophical=3_hits",
+              "ethical=4_hits",
+              "empathic=5_hits",
+              "meta-cognitive=4_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4967,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.5233,
+            "evidence": [
+              "ethical_keywords=4",
+              "frameworks=['utilitarian']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.8434,
+            "evidence": [
+              "novelty_markers=2",
+              "perspectives_touched=5"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.5,
+            "evidence": [
+              "ground_truth=0/5",
+              "numbers=0,proper_nouns=48"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.3043,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 494,
+        "latency_ms": 142466.4
+      },
+      "CODETTE": {
+        "composite": 0.6753,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.8066,
+            "evidence": [
+              "word_count=807",
+              "chain_markers=2",
+              "ground_truth_coverage=4/5"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=7_hits",
+              "philosophical=2_hits",
+              "ethical=5_hits",
+              "empathic=7_hits",
+              "creative=2_hits",
+              "meta-cognitive=5_hits",
+              "systems=2_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.475,
+            "evidence": [
+              "transitions=0",
+              "tensions_acknowledged_and_resolved"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.7167,
+            "evidence": [
+              "ethical_keywords=5",
+              "frameworks=['utilitarian']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.8223,
+            "evidence": [
+              "novelty_markers=2",
+              "perspectives_touched=7"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.5,
+            "evidence": [
+              "ground_truth=0/5",
+              "numbers=12,proper_nouns=80"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.2274,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 828,
+        "latency_ms": 141656.0
+      }
+    },
+    "creative_01": {
+      "SINGLE": {
+        "composite": 0.3073,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.4311,
+            "evidence": [
+              "word_count=48",
+              "chain_markers=0",
+              "ground_truth_coverage=3/4"
+            ],
+            "penalties": [
+              "response_too_short"
+            ]
+          },
+          "perspective_diversity": {
+            "score": 0.1,
+            "evidence": [],
+            "penalties": [
+              "single_perspective_only"
+            ]
+          },
+          "coherence": {
+            "score": 0.4069,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.0,
+            "evidence": [
+              "ethical_keywords=0",
+              "frameworks=[]"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.25,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=0"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.5,
+            "evidence": [
+              "ground_truth=0/4",
+              "numbers=1,proper_nouns=7"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.325,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 51,
+        "latency_ms": 139856.3
+      },
+      "MULTI": {
+        "composite": 0.6632,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.7892,
+            "evidence": [
+              "word_count=391",
+              "chain_markers=0",
+              "ground_truth_coverage=4/4"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=3_hits",
+              "ethical=3_hits",
+              "empathic=8_hits",
+              "meta-cognitive=2_hits",
+              "systems=2_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4989,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.2777,
+            "evidence": [
+              "ethical_keywords=3",
+              "frameworks=['care']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.8347,
+            "evidence": [
+              "novelty_markers=2",
+              "perspectives_touched=5"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.75,
+            "evidence": [
+              "ground_truth=2/4",
+              "numbers=1,proper_nouns=33"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.15,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 392,
+        "latency_ms": 138240.4
+      },
+      "MEMORY": {
+        "composite": 0.7029,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.8303,
+            "evidence": [
+              "word_count=479",
+              "chain_markers=1",
+              "ground_truth_coverage=4/4"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=4_hits",
+              "ethical=2_hits",
+              "empathic=6_hits",
+              "creative=3_hits",
+              "meta-cognitive=4_hits",
+              "systems=4_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.5017,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.224,
+            "evidence": [
+              "ethical_keywords=2",
+              "frameworks=[]"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.715,
+            "evidence": [
+              "novelty_markers=1",
+              "perspectives_touched=6"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.875,
+            "evidence": [
+              "ground_truth=3/4",
+              "numbers=3,proper_nouns=38"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.5066,
+            "evidence": [
+              "conversational_markers=2"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 484,
+        "latency_ms": 122700.9
+      },
+      "CODETTE": {
+        "composite": 0.6899,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.9333,
+            "evidence": [
+              "word_count=815",
+              "chain_markers=4",
+              "ground_truth_coverage=4/4"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=4_hits",
+              "philosophical=2_hits",
+              "ethical=2_hits",
+              "empathic=9_hits",
+              "creative=2_hits",
+              "meta-cognitive=5_hits",
+              "systems=2_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4841,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": [
+              "contradictions_without_resolution"
+            ]
+          },
+          "ethical_coverage": {
+            "score": 0.2823,
+            "evidence": [
+              "ethical_keywords=2",
+              "frameworks=['virtue']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.5794,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=7"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.875,
+            "evidence": [
+              "ground_truth=3/4",
+              "numbers=12,proper_nouns=78"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.342,
+            "evidence": [
+              "conversational_markers=1"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 833,
+        "latency_ms": 139091.1
+      }
+    },
+    "creative_02": {
+      "SINGLE": {
+        "composite": 0.3819,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.2877,
+            "evidence": [
+              "word_count=71",
+              "chain_markers=0",
+              "ground_truth_coverage=1/6"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 0.5,
+            "evidence": [
+              "empathic=2_hits",
+              "systems=2_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.3148,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.0467,
+            "evidence": [
+              "ethical_keywords=0",
+              "frameworks=[]"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.5167,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=2"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.5,
+            "evidence": [
+              "ground_truth=0/6",
+              "numbers=2,proper_nouns=19"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.45,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 74,
+        "latency_ms": 135435.0
+      },
+      "MULTI": {
+        "composite": 0.6074,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.6361,
+            "evidence": [
+              "word_count=373",
+              "chain_markers=0",
+              "ground_truth_coverage=3/6"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 0.95,
+            "evidence": [
+              "analytical=3_hits",
+              "empathic=5_hits",
+              "creative=4_hits",
+              "systems=3_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.5144,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.3967,
+            "evidence": [
+              "ethical_keywords=0",
+              "frameworks=['utilitarian', 'virtue']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.85,
+            "evidence": [
+              "novelty_markers=2",
+              "perspectives_touched=4"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.5,
+            "evidence": [
+              "ground_truth=0/6",
+              "numbers=1,proper_nouns=32"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.1835,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 374,
+        "latency_ms": 116669.9
+      },
+      "MEMORY": {
+        "composite": 0.6168,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.7309,
+            "evidence": [
+              "word_count=493",
+              "chain_markers=1",
+              "ground_truth_coverage=4/6"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=4_hits",
+              "ethical=2_hits",
+              "empathic=7_hits",
+              "creative=3_hits",
+              "meta-cognitive=4_hits",
+              "systems=4_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4765,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.3757,
+            "evidence": [
+              "ethical_keywords=2",
+              "frameworks=['utilitarian']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.7432,
+            "evidence": [
+              "novelty_markers=1",
+              "perspectives_touched=6"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.5,
+            "evidence": [
+              "ground_truth=0/6",
+              "numbers=1,proper_nouns=37"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.2514,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 501,
+        "latency_ms": 138324.9
+      },
+      "CODETTE": {
+        "composite": 0.6471,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.8,
+            "evidence": [
+              "word_count=840",
+              "chain_markers=3",
+              "ground_truth_coverage=4/6"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=5_hits",
+              "philosophical=2_hits",
+              "ethical=3_hits",
+              "empathic=8_hits",
+              "creative=5_hits",
+              "meta-cognitive=6_hits",
+              "systems=4_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4912,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": [
+              "contradictions_without_resolution"
+            ]
+          },
+          "ethical_coverage": {
+            "score": 0.476,
+            "evidence": [
+              "ethical_keywords=3",
+              "frameworks=['utilitarian', 'virtue']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.7057,
+            "evidence": [
+              "novelty_markers=1",
+              "perspectives_touched=7"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.5833,
+            "evidence": [
+              "ground_truth=1/6",
+              "numbers=11,proper_nouns=82"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.2244,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 859,
+        "latency_ms": 132531.5
+      }
+    },
+    "meta_01": {
+      "SINGLE": {
+        "composite": 0.3365,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.3261,
+            "evidence": [
+              "word_count=48",
+              "chain_markers=0",
+              "ground_truth_coverage=2/5"
+            ],
+            "penalties": [
+              "response_too_short"
+            ]
+          },
+          "perspective_diversity": {
+            "score": 0.325,
+            "evidence": [
+              "meta-cognitive=3_hits"
+            ],
+            "penalties": [
+              "single_perspective_only"
+            ]
+          },
+          "coherence": {
+            "score": 0.2588,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.0,
+            "evidence": [
+              "ethical_keywords=0",
+              "frameworks=[]"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.5,
+            "evidence": [
+              "novelty_markers=1",
+              "perspectives_touched=1"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.425,
+            "evidence": [
+              "ground_truth=0/5",
+              "numbers=2,proper_nouns=4"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.45,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 49,
+        "latency_ms": 134959.1
+      },
+      "MULTI": {
+        "composite": 0.6353,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.754,
+            "evidence": [
+              "word_count=349",
+              "chain_markers=1",
+              "ground_truth_coverage=4/5"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=4_hits",
+              "philosophical=2_hits",
+              "empathic=5_hits",
+              "meta-cognitive=4_hits",
+              "systems=3_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.494,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.1937,
+            "evidence": [
+              "ethical_keywords=1",
+              "frameworks=['care']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.8833,
+            "evidence": [
+              "novelty_markers=2",
+              "perspectives_touched=5"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.6,
+            "evidence": [
+              "ground_truth=1/5",
+              "numbers=1,proper_nouns=36"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.1858,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 354,
+        "latency_ms": 106653.6
+      },
+      "MEMORY": {
+        "composite": 0.6135,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.6767,
+            "evidence": [
+              "word_count=473",
+              "chain_markers=0",
+              "ground_truth_coverage=3/5"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=4_hits",
+              "philosophical=2_hits",
+              "empathic=5_hits",
+              "meta-cognitive=5_hits",
+              "systems=4_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4972,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.3033,
+            "evidence": [
+              "ethical_keywords=0",
+              "frameworks=['virtue', 'care']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.6352,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=5"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.7,
+            "evidence": [
+              "ground_truth=2/5",
+              "numbers=1,proper_nouns=49"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.2293,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 482,
+        "latency_ms": 135875.5
+      },
+      "CODETTE": {
+        "composite": 0.6291,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.8066,
+            "evidence": [
+              "word_count=802",
+              "chain_markers=2",
+              "ground_truth_coverage=4/5"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=6_hits",
+              "philosophical=3_hits",
+              "empathic=8_hits",
+              "creative=2_hits",
+              "meta-cognitive=4_hits",
+              "systems=3_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4668,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.3033,
+            "evidence": [
+              "ethical_keywords=0",
+              "frameworks=['utilitarian', 'virtue', 'care']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.6083,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=6"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.7,
+            "evidence": [
+              "ground_truth=2/5",
+              "numbers=11,proper_nouns=85"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.2123,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 824,
+        "latency_ms": 122629.5
+      }
+    },
+    "meta_02": {
+      "SINGLE": {
+        "composite": 0.3432,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.3921,
+            "evidence": [
+              "word_count=58",
+              "chain_markers=1",
+              "ground_truth_coverage=2/4"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 0.375,
+            "evidence": [
+              "meta-cognitive=5_hits"
+            ],
+            "penalties": [
+              "single_perspective_only"
+            ]
+          },
+          "coherence": {
+            "score": 0.2905,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.0,
+            "evidence": [
+              "ethical_keywords=0",
+              "frameworks=[]"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.3833,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=1"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.5,
+            "evidence": [
+              "ground_truth=0/4",
+              "numbers=1,proper_nouns=9"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.325,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 61,
+        "latency_ms": 138798.8
+      },
+      "MULTI": {
+        "composite": 0.688,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.8115,
+            "evidence": [
+              "word_count=375",
+              "chain_markers=3",
+              "ground_truth_coverage=3/4"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=2_hits",
+              "ethical=5_hits",
+              "empathic=6_hits",
+              "creative=2_hits",
+              "meta-cognitive=7_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4774,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.6067,
+            "evidence": [
+              "ethical_keywords=5",
+              "frameworks=['utilitarian', 'deontological', 'care']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.8756,
+            "evidence": [
+              "novelty_markers=2",
+              "perspectives_touched=5"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.625,
+            "evidence": [
+              "ground_truth=1/4",
+              "numbers=0,proper_nouns=34"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.1833,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 382,
+        "latency_ms": 132147.3
+      },
+      "MEMORY": {
+        "composite": 0.6857,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.9953,
+            "evidence": [
+              "word_count=449",
+              "chain_markers=6",
+              "ground_truth_coverage=4/4"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=3_hits",
+              "philosophical=2_hits",
+              "ethical=3_hits",
+              "empathic=7_hits",
+              "meta-cognitive=4_hits",
+              "systems=3_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4617,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.476,
+            "evidence": [
+              "ethical_keywords=3",
+              "frameworks=['deontological', 'care']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.7218,
+            "evidence": [
+              "novelty_markers=1",
+              "perspectives_touched=6"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.625,
+            "evidence": [
+              "ground_truth=1/4",
+              "numbers=12,proper_nouns=46"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.1778,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 463,
+        "latency_ms": 119159.2
+      },
+      "CODETTE": {
+        "composite": 0.7003,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.925,
+            "evidence": [
+              "word_count=785",
+              "chain_markers=7",
+              "ground_truth_coverage=3/4"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=4_hits",
+              "philosophical=3_hits",
+              "ethical=3_hits",
+              "empathic=9_hits",
+              "creative=2_hits",
+              "meta-cognitive=7_hits",
+              "systems=2_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4716,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": [
+              "contradictions_without_resolution"
+            ]
+          },
+          "ethical_coverage": {
+            "score": 0.371,
+            "evidence": [
+              "ethical_keywords=3",
+              "frameworks=['utilitarian']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.949,
+            "evidence": [
+              "novelty_markers=4",
+              "perspectives_touched=7"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.625,
+            "evidence": [
+              "ground_truth=1/4",
+              "numbers=24,proper_nouns=75"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.2137,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 813,
+        "latency_ms": 111541.3
+      }
+    },
+    "meta_03": {
+      "SINGLE": {
+        "composite": 0.3312,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.4306,
+            "evidence": [
+              "word_count=46",
+              "chain_markers=0",
+              "ground_truth_coverage=3/4"
+            ],
+            "penalties": [
+              "response_too_short"
+            ]
+          },
+          "perspective_diversity": {
+            "score": 0.1,
+            "evidence": [],
+            "penalties": [
+              "single_perspective_only"
+            ]
+          },
+          "coherence": {
+            "score": 0.3805,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.1867,
+            "evidence": [
+              "ethical_keywords=0",
+              "frameworks=[]"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.25,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=0"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.5625,
+            "evidence": [
+              "ground_truth=2/4",
+              "numbers=0,proper_nouns=3"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.325,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 47,
+        "latency_ms": 105350.8
+      },
+      "MULTI": {
+        "composite": 0.5794,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.7105,
+            "evidence": [
+              "word_count=370",
+              "chain_markers=0",
+              "ground_truth_coverage=3/4"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 0.825,
+            "evidence": [
+              "empathic=5_hits",
+              "meta-cognitive=5_hits",
+              "systems=4_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4647,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.2287,
+            "evidence": [
+              "ethical_keywords=1",
+              "frameworks=[]"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.623,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=3"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.75,
+            "evidence": [
+              "ground_truth=2/4",
+              "numbers=4,proper_nouns=30"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.15,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 373,
+        "latency_ms": 101428.1
+      },
+      "MEMORY": {
+        "composite": 0.6505,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.7224,
+            "evidence": [
+              "word_count=489",
+              "chain_markers=0",
+              "ground_truth_coverage=3/4"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=3_hits",
+              "philosophical=2_hits",
+              "ethical=2_hits",
+              "empathic=8_hits",
+              "meta-cognitive=4_hits",
+              "systems=3_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4689,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.4807,
+            "evidence": [
+              "ethical_keywords=2",
+              "frameworks=['utilitarian', 'virtue', 'care']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.6147,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=6"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.75,
+            "evidence": [
+              "ground_truth=2/4",
+              "numbers=3,proper_nouns=47"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.3289,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 495,
+        "latency_ms": 131962.9
+      },
+      "CODETTE": {
+        "composite": 0.6483,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.7916,
+            "evidence": [
+              "word_count=816",
+              "chain_markers=2",
+              "ground_truth_coverage=3/4"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=3_hits",
+              "philosophical=2_hits",
+              "empathic=7_hits",
+              "creative=2_hits",
+              "meta-cognitive=5_hits",
+              "systems=3_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4774,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.2917,
+            "evidence": [
+              "ethical_keywords=0",
+              "frameworks=['virtue']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.7041,
+            "evidence": [
+              "novelty_markers=1",
+              "perspectives_touched=6"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.75,
+            "evidence": [
+              "ground_truth=2/4",
+              "numbers=14,proper_nouns=81"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.2113,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 837,
+        "latency_ms": 90234.4
+      }
+    },
+    "adversarial_01": {
+      "SINGLE": {
+        "composite": 0.3509,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.431,
+            "evidence": [
+              "word_count=37",
+              "chain_markers=0",
+              "ground_truth_coverage=4/5"
+            ],
+            "penalties": [
+              "response_too_short"
+            ]
+          },
+          "perspective_diversity": {
+            "score": 0.1,
+            "evidence": [],
+            "penalties": [
+              "single_perspective_only"
+            ]
+          },
+          "coherence": {
+            "score": 0.675,
+            "evidence": [
+              "transitions=1"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.0467,
+            "evidence": [
+              "ethical_keywords=0",
+              "frameworks=[]"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.25,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=0"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.525,
+            "evidence": [
+              "ground_truth=1/5",
+              "numbers=2,proper_nouns=4"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.275,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 39,
+        "latency_ms": 116709.6
+      },
+      "MULTI": {
+        "composite": 0.6625,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.7545,
+            "evidence": [
+              "word_count=351",
+              "chain_markers=1",
+              "ground_truth_coverage=4/5"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=3_hits",
+              "ethical=2_hits",
+              "empathic=4_hits",
+              "meta-cognitive=4_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.5033,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.1307,
+            "evidence": [
+              "ethical_keywords=2",
+              "frameworks=[]"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.8779,
+            "evidence": [
+              "novelty_markers=2",
+              "perspectives_touched=4"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.7,
+            "evidence": [
+              "ground_truth=2/5",
+              "numbers=5,proper_nouns=28"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.3637,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 356,
+        "latency_ms": 104469.7
+      },
+      "MEMORY": {
+        "composite": 0.6569,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.8366,
+            "evidence": [
+              "word_count=470",
+              "chain_markers=3",
+              "ground_truth_coverage=4/5"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=5_hits",
+              "philosophical=2_hits",
+              "empathic=3_hits",
+              "meta-cognitive=5_hits",
+              "systems=2_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.5778,
+            "evidence": [
+              "transitions=1"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.2403,
+            "evidence": [
+              "ethical_keywords=1",
+              "frameworks=['virtue']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.6181,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=5"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.7,
+            "evidence": [
+              "ground_truth=2/5",
+              "numbers=8,proper_nouns=43"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.3112,
+            "evidence": [
+              "conversational_markers=1"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 482,
+        "latency_ms": 121110.9
+      },
+      "CODETTE": {
+        "composite": 0.707,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.9333,
+            "evidence": [
+              "word_count=829",
+              "chain_markers=4",
+              "ground_truth_coverage=5/5"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=5_hits",
+              "philosophical=2_hits",
+              "ethical=3_hits",
+              "empathic=8_hits",
+              "meta-cognitive=7_hits",
+              "systems=3_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4906,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.371,
+            "evidence": [
+              "ethical_keywords=3",
+              "frameworks=['virtue']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.7142,
+            "evidence": [
+              "novelty_markers=1",
+              "perspectives_touched=6"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.8,
+            "evidence": [
+              "ground_truth=3/5",
+              "numbers=17,proper_nouns=91"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.3254,
+            "evidence": [
+              "conversational_markers=1"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 853,
+        "latency_ms": 58261.3
+      }
+    },
+    "adversarial_02": {
+      "SINGLE": {
+        "composite": 0.3382,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.3943,
+            "evidence": [
+              "word_count=51",
+              "chain_markers=0",
+              "ground_truth_coverage=2/3"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 0.1,
+            "evidence": [],
+            "penalties": [
+              "single_perspective_only"
+            ]
+          },
+          "coherence": {
+            "score": 0.675,
+            "evidence": [
+              "transitions=1"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.0,
+            "evidence": [
+              "ethical_keywords=0",
+              "frameworks=[]"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.25,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=0"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.5208,
+            "evidence": [
+              "ground_truth=2/3",
+              "numbers=1,proper_nouns=4"
+            ],
+            "penalties": [
+              "fell_into_1_traps"
+            ]
+          },
+          "turing_naturalness": {
+            "score": 0.275,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 52,
+        "latency_ms": 16443.2
+      },
+      "MULTI": {
+        "composite": 0.5813,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.8137,
+            "evidence": [
+              "word_count=348",
+              "chain_markers=1",
+              "ground_truth_coverage=3/3"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=4_hits",
+              "philosophical=2_hits",
+              "empathic=4_hits",
+              "meta-cognitive=2_hits",
+              "systems=2_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.5856,
+            "evidence": [
+              "transitions=1"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.105,
+            "evidence": [
+              "ethical_keywords=0",
+              "frameworks=['virtue']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.6275,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=5"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.4667,
+            "evidence": [
+              "ground_truth=1/3",
+              "numbers=0,proper_nouns=47"
+            ],
+            "penalties": [
+              "fell_into_1_traps"
+            ]
+          },
+          "turing_naturalness": {
+            "score": 0.0609,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 350,
+        "latency_ms": 25509.7
+      },
+      "MEMORY": {
+        "composite": 0.5754,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.7264,
+            "evidence": [
+              "word_count=422",
+              "chain_markers=1",
+              "ground_truth_coverage=2/3"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=6_hits",
+              "philosophical=2_hits",
+              "ethical=2_hits",
+              "empathic=4_hits",
+              "meta-cognitive=2_hits",
+              "systems=2_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4836,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.1307,
+            "evidence": [
+              "ethical_keywords=2",
+              "frameworks=[]"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.8772,
+            "evidence": [
+              "novelty_markers=2",
+              "perspectives_touched=6"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.3,
+            "evidence": [
+              "ground_truth=0/3",
+              "numbers=0,proper_nouns=61"
+            ],
+            "penalties": [
+              "fell_into_1_traps"
+            ]
+          },
+          "turing_naturalness": {
+            "score": 0.1796,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 426,
+        "latency_ms": 45169.7
+      },
+      "CODETTE": {
+        "composite": 0.5907,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.8,
+            "evidence": [
+              "word_count=786",
+              "chain_markers=3",
+              "ground_truth_coverage=2/3"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=6_hits",
+              "philosophical=3_hits",
+              "ethical=2_hits",
+              "empathic=7_hits",
+              "meta-cognitive=6_hits",
+              "systems=3_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.5038,
+            "evidence": [
+              "transitions=1"
+            ],
+            "penalties": [
+              "contradictions_without_resolution"
+            ]
+          },
+          "ethical_coverage": {
+            "score": 0.1773,
+            "evidence": [
+              "ethical_keywords=2",
+              "frameworks=[]"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.8507,
+            "evidence": [
+              "novelty_markers=2",
+              "perspectives_touched=6"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.2667,
+            "evidence": [
+              "ground_truth=1/3",
+              "numbers=12,proper_nouns=95"
+            ],
+            "penalties": [
+              "fell_into_2_traps"
+            ]
+          },
+          "turing_naturalness": {
+            "score": 0.1977,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 805,
+        "latency_ms": 59017.9
+      }
+    },
+    "adversarial_03": {
+      "SINGLE": {
+        "composite": 0.2968,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.4901,
+            "evidence": [
+              "word_count=33",
+              "chain_markers=0",
+              "ground_truth_coverage=3/3"
+            ],
+            "penalties": [
+              "response_too_short"
+            ]
+          },
+          "perspective_diversity": {
+            "score": 0.1,
+            "evidence": [],
+            "penalties": [
+              "single_perspective_only"
+            ]
+          },
+          "coherence": {
+            "score": 0.325,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.0,
+            "evidence": [
+              "ethical_keywords=0",
+              "frameworks=[]"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.25,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=0"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.4667,
+            "evidence": [
+              "ground_truth=1/3",
+              "numbers=2,proper_nouns=9"
+            ],
+            "penalties": [
+              "fell_into_1_traps"
+            ]
+          },
+          "turing_naturalness": {
+            "score": 0.275,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 34,
+        "latency_ms": 90203.2
+      },
+      "MULTI": {
+        "composite": 0.627,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.8174,
+            "evidence": [
+              "word_count=363",
+              "chain_markers=1",
+              "ground_truth_coverage=3/3"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=3_hits",
+              "philosophical=2_hits",
+              "ethical=3_hits",
+              "empathic=5_hits",
+              "meta-cognitive=2_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.528,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.3243,
+            "evidence": [
+              "ethical_keywords=3",
+              "frameworks=['utilitarian']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.8629,
+            "evidence": [
+              "novelty_markers=2",
+              "perspectives_touched=5"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.4667,
+            "evidence": [
+              "ground_truth=1/3",
+              "numbers=1,proper_nouns=53"
+            ],
+            "penalties": [
+              "fell_into_1_traps"
+            ]
+          },
+          "turing_naturalness": {
+            "score": 0.025,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 365,
+        "latency_ms": 123461.2
+      },
+      "MEMORY": {
+        "composite": 0.6335,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.7971,
+            "evidence": [
+              "word_count=482",
+              "chain_markers=0",
+              "ground_truth_coverage=3/3"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=4_hits",
+              "philosophical=2_hits",
+              "ethical=2_hits",
+              "empathic=5_hits",
+              "meta-cognitive=3_hits",
+              "systems=4_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.5281,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.434,
+            "evidence": [
+              "ethical_keywords=2",
+              "frameworks=['utilitarian', 'virtue']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.8564,
+            "evidence": [
+              "novelty_markers=2",
+              "perspectives_touched=6"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.3,
+            "evidence": [
+              "ground_truth=0/3",
+              "numbers=1,proper_nouns=54"
+            ],
+            "penalties": [
+              "fell_into_1_traps"
+            ]
+          },
+          "turing_naturalness": {
+            "score": 0.2797,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 488,
+        "latency_ms": 134515.3
+      },
+      "CODETTE": {
+        "composite": 0.5926,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.9,
+            "evidence": [
+              "word_count=822",
+              "chain_markers=3",
+              "ground_truth_coverage=3/3"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=6_hits",
+              "philosophical=2_hits",
+              "empathic=7_hits",
+              "creative=2_hits",
+              "meta-cognitive=7_hits",
+              "systems=4_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4758,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": [
+              "contradictions_without_resolution"
+            ]
+          },
+          "ethical_coverage": {
+            "score": 0.3337,
+            "evidence": [
+              "ethical_keywords=1",
+              "frameworks=['utilitarian']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.6017,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=6"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.3,
+            "evidence": [
+              "ground_truth=0/3",
+              "numbers=12,proper_nouns=94"
+            ],
+            "penalties": [
+              "fell_into_1_traps"
+            ]
+          },
+          "turing_naturalness": {
+            "score": 0.226,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 841,
+        "latency_ms": 127912.2
+      }
+    },
+    "turing_01": {
+      "SINGLE": {
+        "composite": 0.3085,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.4144,
+            "evidence": [
+              "word_count=16",
+              "chain_markers=0",
+              "ground_truth_coverage=4/5"
+            ],
+            "penalties": [
+              "response_too_short"
+            ]
+          },
+          "perspective_diversity": {
+            "score": 0.375,
+            "evidence": [
+              "empathic=2_hits"
+            ],
+            "penalties": [
+              "single_perspective_only"
+            ]
+          },
+          "coherence": {
+            "score": 0.325,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.0,
+            "evidence": [
+              "ethical_keywords=0",
+              "frameworks=[]"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.3833,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=1"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.2375,
+            "evidence": [
+              "ground_truth=0/5",
+              "numbers=0,proper_nouns=1"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.275,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 16,
+        "latency_ms": 137541.3
+      },
+      "MULTI": {
+        "composite": 0.6775,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.8174,
+            "evidence": [
+              "word_count=363",
+              "chain_markers=1",
+              "ground_truth_coverage=5/5"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=4_hits",
+              "ethical=3_hits",
+              "empathic=7_hits",
+              "meta-cognitive=2_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.5079,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.231,
+            "evidence": [
+              "ethical_keywords=3",
+              "frameworks=['utilitarian']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.8526,
+            "evidence": [
+              "novelty_markers=2",
+              "perspectives_touched=4"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.7,
+            "evidence": [
+              "ground_truth=2/5",
+              "numbers=0,proper_nouns=30"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.3189,
+            "evidence": [
+              "conversational_markers=1"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 365,
+        "latency_ms": 81256.4
+      },
+      "MEMORY": {
+        "composite": 0.6517,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.7363,
+            "evidence": [
+              "word_count=465",
+              "chain_markers=0",
+              "ground_truth_coverage=4/5"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=4_hits",
+              "philosophical=2_hits",
+              "empathic=6_hits",
+              "meta-cognitive=3_hits",
+              "systems=6_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4935,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.2403,
+            "evidence": [
+              "ethical_keywords=1",
+              "frameworks=['utilitarian']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.7353,
+            "evidence": [
+              "novelty_markers=1",
+              "perspectives_touched=5"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.7,
+            "evidence": [
+              "ground_truth=2/5",
+              "numbers=0,proper_nouns=41"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.4113,
+            "evidence": [
+              "conversational_markers=1"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 469,
+        "latency_ms": 109182.4
+      },
+      "CODETTE": {
+        "composite": 0.7058,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.9333,
+            "evidence": [
+              "word_count=802",
+              "chain_markers=4",
+              "ground_truth_coverage=5/5"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=4_hits",
+              "philosophical=3_hits",
+              "ethical=3_hits",
+              "empathic=8_hits",
+              "meta-cognitive=5_hits",
+              "systems=4_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4816,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.5227,
+            "evidence": [
+              "ethical_keywords=3",
+              "frameworks=['utilitarian', 'virtue']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.823,
+            "evidence": [
+              "novelty_markers=2",
+              "perspectives_touched=6"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.6,
+            "evidence": [
+              "ground_truth=1/5",
+              "numbers=11,proper_nouns=80"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.3123,
+            "evidence": [
+              "conversational_markers=1"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 820,
+        "latency_ms": 80727.6
+      }
+    },
+    "turing_02": {
+      "SINGLE": {
+        "composite": 0.3028,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.4923,
+            "evidence": [
+              "word_count=43",
+              "chain_markers=0",
+              "ground_truth_coverage=4/4"
+            ],
+            "penalties": [
+              "response_too_short"
+            ]
+          },
+          "perspective_diversity": {
+            "score": 0.1,
+            "evidence": [],
+            "penalties": [
+              "single_perspective_only"
+            ]
+          },
+          "coherence": {
+            "score": 0.325,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.0933,
+            "evidence": [
+              "ethical_keywords=0",
+              "frameworks=[]"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.25,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=0"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.275,
+            "evidence": [
+              "ground_truth=0/4",
+              "numbers=0,proper_nouns=2"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.525,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 43,
+        "latency_ms": 112408.0
+      },
+      "MULTI": {
+        "composite": 0.6511,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.7865,
+            "evidence": [
+              "word_count=375",
+              "chain_markers=0",
+              "ground_truth_coverage=4/4"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=4_hits",
+              "philosophical=2_hits",
+              "empathic=5_hits",
+              "meta-cognitive=2_hits",
+              "systems=2_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.5126,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.1937,
+            "evidence": [
+              "ethical_keywords=1",
+              "frameworks=['utilitarian']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 1.0,
+            "evidence": [
+              "novelty_markers=3",
+              "perspectives_touched=5"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.5,
+            "evidence": [
+              "ground_truth=0/4",
+              "numbers=1,proper_nouns=30"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.225,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 379,
+        "latency_ms": 64506.4
+      },
+      "MEMORY": {
+        "composite": 0.6697,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.8202,
+            "evidence": [
+              "word_count=447",
+              "chain_markers=3",
+              "ground_truth_coverage=3/4"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=6_hits",
+              "philosophical=3_hits",
+              "ethical=2_hits",
+              "empathic=4_hits",
+              "meta-cognitive=4_hits",
+              "systems=6_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4954,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.329,
+            "evidence": [
+              "ethical_keywords=2",
+              "frameworks=['utilitarian']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.8498,
+            "evidence": [
+              "novelty_markers=3",
+              "perspectives_touched=6",
+              "formulaic_patterns=1"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.5,
+            "evidence": [
+              "ground_truth=0/4",
+              "numbers=0,proper_nouns=39"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.46,
+            "evidence": [
+              "conversational_markers=1"
+            ],
+            "penalties": [
+              "formulaic_ai_patterns=1"
+            ]
+          }
+        },
+        "response_length": 451,
+        "latency_ms": 103575.0
+      },
+      "CODETTE": {
+        "composite": 0.6825,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.8667,
+            "evidence": [
+              "word_count=841",
+              "chain_markers=2",
+              "ground_truth_coverage=4/4"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=7_hits",
+              "philosophical=5_hits",
+              "ethical=3_hits",
+              "empathic=8_hits",
+              "meta-cognitive=6_hits",
+              "systems=3_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4867,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": [
+              "contradictions_without_resolution"
+            ]
+          },
+          "ethical_coverage": {
+            "score": 0.476,
+            "evidence": [
+              "ethical_keywords=3",
+              "frameworks=['utilitarian', 'virtue']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.6016,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=6"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.75,
+            "evidence": [
+              "ground_truth=2/4",
+              "numbers=11,proper_nouns=76"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.3581,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 859,
+        "latency_ms": 81405.9
+      }
+    },
+    "turing_03": {
+      "SINGLE": {
+        "composite": 0.2958,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.3835,
+            "evidence": [
+              "word_count=37",
+              "chain_markers=0",
+              "ground_truth_coverage=3/5"
+            ],
+            "penalties": [
+              "response_too_short"
+            ]
+          },
+          "perspective_diversity": {
+            "score": 0.1,
+            "evidence": [],
+            "penalties": [
+              "single_perspective_only"
+            ]
+          },
+          "coherence": {
+            "score": 0.3138,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.1517,
+            "evidence": [
+              "ethical_keywords=0",
+              "frameworks=['virtue']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.25,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=0"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.3125,
+            "evidence": [
+              "ground_truth=0/5",
+              "numbers=1,proper_nouns=2"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.575,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 38,
+        "latency_ms": 129467.5
+      },
+      "MULTI": {
+        "composite": 0.629,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.7301,
+            "evidence": [
+              "word_count=397",
+              "chain_markers=0",
+              "ground_truth_coverage=4/5"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=6_hits",
+              "ethical=3_hits",
+              "empathic=6_hits",
+              "meta-cognitive=6_hits",
+              "systems=2_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.482,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.3243,
+            "evidence": [
+              "ethical_keywords=3",
+              "frameworks=['virtue']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.88,
+            "evidence": [
+              "novelty_markers=2",
+              "perspectives_touched=5"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.5,
+            "evidence": [
+              "ground_truth=0/5",
+              "numbers=1,proper_nouns=34"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.213,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 397,
+        "latency_ms": 90557.1
+      },
+      "MEMORY": {
+        "composite": 0.6184,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.7714,
+            "evidence": [
+              "word_count=507",
+              "chain_markers=1",
+              "ground_truth_coverage=4/5"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 0.825,
+            "evidence": [
+              "empathic=6_hits",
+              "meta-cognitive=4_hits",
+              "systems=4_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4948,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": []
+          },
+          "ethical_coverage": {
+            "score": 0.35,
+            "evidence": [
+              "ethical_keywords=0",
+              "frameworks=['virtue', 'care']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.6096,
+            "evidence": [
+              "novelty_markers=0",
+              "perspectives_touched=3"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.7,
+            "evidence": [
+              "ground_truth=2/5",
+              "numbers=0,proper_nouns=44"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.3472,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 513,
+        "latency_ms": 50697.5
+      },
+      "CODETTE": {
+        "composite": 0.6731,
+        "dimensions": {
+          "reasoning_depth": {
+            "score": 0.8733,
+            "evidence": [
+              "word_count=823",
+              "chain_markers=4",
+              "ground_truth_coverage=4/5"
+            ],
+            "penalties": []
+          },
+          "perspective_diversity": {
+            "score": 1.0,
+            "evidence": [
+              "analytical=6_hits",
+              "philosophical=2_hits",
+              "empathic=8_hits",
+              "creative=2_hits",
+              "meta-cognitive=7_hits",
+              "systems=3_hits"
+            ],
+            "penalties": []
+          },
+          "coherence": {
+            "score": 0.4544,
+            "evidence": [
+              "transitions=0"
+            ],
+            "penalties": [
+              "contradictions_without_resolution"
+            ]
+          },
+          "ethical_coverage": {
+            "score": 0.392,
+            "evidence": [
+              "ethical_keywords=1",
+              "frameworks=['virtue', 'care']"
+            ],
+            "penalties": []
+          },
+          "novelty": {
+            "score": 0.8364,
+            "evidence": [
+              "novelty_markers=2",
+              "perspectives_touched=6"
+            ],
+            "penalties": []
+          },
+          "factual_grounding": {
+            "score": 0.6,
+            "evidence": [
+              "ground_truth=1/5",
+              "numbers=12,proper_nouns=80"
+            ],
+            "penalties": []
+          },
+          "turing_naturalness": {
+            "score": 0.2563,
+            "evidence": [
+              "conversational_markers=0"
+            ],
+            "penalties": []
+          }
+        },
+        "response_length": 844,
+        "latency_ms": 59402.6
+      }
+    }
+  }
+}
