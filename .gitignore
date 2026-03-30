@@ -67,6 +67,14 @@ dataset_quality_log.json
 
 # Database files
 data/codette_sessions.db
+data/codette_memory.db
+data/codette_memory.db-journal
+
+# Sensitive / encrypted identity files
+data/identities/*.enc
+
+# Word docs (binary)
+*.docx
 
 # Generated datasets (large)
 datasets/*.jsonl
