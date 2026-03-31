@@ -574,15 +574,20 @@ class OllamaOrchestrator:
         """
         start_time = time.time()
 
-        # Artist query detection (hallucination prevention — same as original)
+        # Artist query detection (hallucination prevention)
+        # Only fires when query is CLEARLY about a music artist/band/album.
+        # Must have explicit music context to avoid false positives on casual conversation.
         query_lower = query.lower()
+        _music_context_words = {'album', 'song', 'songs', 'band', 'artist', 'singer',
+                                'discography', 'music', 'genre', 'tour', 'concert',
+                                'track', 'release', 'record', 'label', 'lyrics'}
+        has_music_context = any(w in query_lower.split() for w in _music_context_words)
         artist_patterns = [
-            r'\b(who is|tell me about|what do you know about|who are)\s+([a-z\s\'-]+)\?',
-            r'\b(album|discography|career|songs? by|music by)\s+([a-z\s\'-]+)',
-            r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+(album|song|band|artist)',
-            r'\b(is [a-z\s\'-]+ (indie-rock|country|hip-hop|rock|pop|electronic))',
+            r'\b(who is|tell me about|what do you know about)\b.*\b(artist|singer|band|musician)\b',
+            r'\b(album|discography|songs? by|music by)\s+[A-Z]',
+            r'\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+\b.+\b(album|song|band|artist|singer|discography)\b',
         ]
-        is_artist_query = any(re.search(p, query_lower, re.IGNORECASE) for p in artist_patterns)
+        is_artist_query = has_music_context and any(re.search(p, query, re.IGNORECASE) for p in artist_patterns)
 
         if is_artist_query:
             artist_response = (
