@@ -359,7 +359,7 @@ ADAPTER_PROMPTS = {
 }
 
 GEN_KWARGS = dict(
-    max_tokens=512,
+    max_tokens=2048,
     temperature=0.7,
     top_p=0.9,
     repeat_penalty=1.3,  # Penalize repetitive phrases
@@ -1103,7 +1103,7 @@ Synthesized response:"""
                 {"role": "system", "content": ADAPTER_PROMPTS["multi_perspective"]},
                 {"role": "user", "content": synthesis_prompt},
             ],
-            max_tokens=1024,
+            max_tokens=2048,
             temperature=0.7,
             top_p=0.9,
             stop=["<|eot_id|>", "<|end_of_text|>"],

@@ -17,7 +17,7 @@ Architecture:
     - CodetteSession for Cocoon-backed memory
 """
 
-import os, sys, json, time, threading, queue, argparse, webbrowser, traceback, re
+import os, sys, json, time, threading, queue, argparse, webbrowser, traceback, re, cgi
 from pathlib import Path
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
@@ -1272,9 +1272,80 @@ class CodetteHandler(SimpleHTTPRequestHandler):
         body = self.rfile.read(length)
         return json.loads(body) if body else {}
 
+    def _parse_multipart_chat(self):
+        """Parse multipart/form-data for chat with file attachments."""
+        content_type = self.headers.get("Content-Type", "")
+        environ = {
+            'REQUEST_METHOD': 'POST',
+            'CONTENT_TYPE': content_type,
+            'CONTENT_LENGTH': self.headers.get('Content-Length', '0'),
+        }
+        form = cgi.FieldStorage(
+            fp=self.rfile,
+            headers=self.headers,
+            environ=environ,
+        )
+
+        query = form.getfirst("query", "").strip()
+        adapter = form.getfirst("adapter", None) or None
+        max_adapters = int(form.getfirst("max_adapters", "2"))
+
+        # Process file attachments
+        file_contexts = []
+        file_errors = []
+        guardian = _session.guardian if _session else None
+
+        files = form.getlist("files")
+        if len(files) > 5:
+            file_errors.append("Too many files (max 5)")
+            files = files[:5]
+
+        for item in files:
+            if not item.filename:
+                continue
+            file_data = item.file.read()
+            if guardian:
+                check = guardian.check_file_upload(item.filename, file_data)
+            else:
+                # Minimal validation without guardian
+                from reasoning_forge.guardian import CodetteGuardian
+                check = CodetteGuardian().check_file_upload(item.filename, file_data)
+
+            if check["safe"]:
+                size_str = f"{len(file_data) / 1024:.1f} KB"
+                file_contexts.append(
+                    f"--- Attached File: {check['filename']} ({size_str}) ---\n"
+                    f"{check['content']}\n"
+                    f"--- End of File ---"
+                )
+            else:
+                file_errors.append(f"{item.filename}: {check['error']}")
+
+        # Prepend file content to query
+        if file_contexts:
+            file_block = "\n\n".join(file_contexts)
+            query = f"{file_block}\n\n{query}"
+
+        return {
+            "query": query,
+            "adapter": adapter,
+            "max_adapters": max_adapters,
+            "file_count": len(file_contexts),
+            "file_errors": file_errors,
+            "has_file_context": len(file_contexts) > 0,
+        }
+
     def _handle_chat_post(self):
         """Handle chat request — queue inference, return via SSE or JSON."""
-        data = self._read_json_body()
+        content_type = self.headers.get("Content-Type", "")
+
+        if content_type.startswith("multipart/form-data"):
+            data = self._parse_multipart_chat()
+            has_file_context = data.get("has_file_context", False)
+        else:
+            data = self._read_json_body()
+            has_file_context = False
+
         query = data.get("query", "").strip()
         adapter = data.get("adapter")
         max_adapters = data.get("max_adapters", 2)
@@ -1283,9 +1354,12 @@ class CodetteHandler(SimpleHTTPRequestHandler):
             self._json_response({"error": "Empty query"}, 400)
             return
 
+        # Return file errors as warnings (still process the query)
+        file_errors = data.get("file_errors", [])
+
         # Guardian input check
         if _session and _session.guardian:
-            check = _session.guardian.check_input(query)
+            check = _session.guardian.check_input(query, has_file_context=has_file_context)
             if not check["safe"]:
                 query = check["cleaned_text"]
 
@@ -1325,6 +1399,11 @@ class CodetteHandler(SimpleHTTPRequestHandler):
 
             # Wait for complete event (multi-perspective can take 15+ min on CPU)
             result = response_q.get(timeout=1200)  # 20 min max for inference
+            # Attach file warnings if any
+            if file_errors:
+                result["file_warnings"] = file_errors
+            if data.get("file_count"):
+                result["files_attached"] = data["file_count"]
             self._json_response(result)
 
         except queue.Empty:

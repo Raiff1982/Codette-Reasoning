@@ -464,6 +464,59 @@ body {
     animation: pulse 1s infinite;
 }
 
+.attach-btn {
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+.attach-btn:hover { border-color: var(--accent); color: var(--text-primary); }
+.attach-btn.has-files { border-color: var(--davinci); color: var(--davinci); }
+
+.attachment-previews {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.attachment-previews:empty { display: none; }
+
+.attachment-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    animation: fadeIn 0.2s ease;
+}
+.attachment-chip .chip-name { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.attachment-chip .chip-size { color: var(--text-muted); font-size: 10px; }
+.attachment-chip .chip-remove {
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0 2px;
+    border: none;
+    background: none;
+}
+.attachment-chip .chip-remove:hover { color: var(--quantum); }
+
 /* ── Status Bar ── */
 .status-bar {
     height: var(--status-height);
