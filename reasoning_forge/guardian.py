@@ -61,17 +61,19 @@ class InputSanitizer:
             logger.warning("Input sanitized: injection pattern detected")
         return text
 
-    def detect_threats(self, text: str) -> Dict[str, bool]:
+    def detect_threats(self, text: str, has_file_context: bool = False) -> Dict[str, bool]:
         """Analyze text for various threat types."""
+        # File-enriched queries can be much longer — raise limit accordingly
+        length_limit = 500_000 if has_file_context else 100_000
         return {
             "injection": bool(self._INJECTION_PATTERNS.search(text)),
             "prompt_injection": bool(self._PROMPT_INJECTION.search(text)),
-            "excessive_length": len(text) > 10000,
+            "excessive_length": len(text) > length_limit,
         }
 
-    def is_safe(self, text: str) -> bool:
+    def is_safe(self, text: str, has_file_context: bool = False) -> bool:
         """Quick safety check — True if no threats detected."""
-        threats = self.detect_threats(text)
+        threats = self.detect_threats(text, has_file_context=has_file_context)
         return not any(threats.values())
 
 
@@ -245,6 +247,18 @@ class TrustCalibrator:
 # ================================================================
 # Combined Guardian
 # ================================================================
+ALLOWED_FILE_EXTENSIONS = {
+    '.txt', '.py', '.js', '.ts', '.json', '.csv', '.md', '.html', '.css',
+    '.xml', '.yaml', '.yml', '.log', '.cfg', '.ini', '.toml', '.sql',
+    '.sh', '.bat', '.ps1', '.r', '.java', '.c', '.cpp', '.h', '.hpp',
+    '.go', '.rs', '.rb', '.php', '.swift', '.kt', '.tsx', '.jsx',
+    '.vue', '.svelte', '.lua', '.pl', '.pm', '.ex', '.exs', '.hs',
+    '.scala', '.clj', '.erl', '.tf', '.proto', '.graphql', '.dockerfile',
+}
+MAX_FILE_SIZE = 512 * 1024   # 512 KB per file
+MAX_FILE_COUNT = 5
+
+
 class CodetteGuardian:
     """Unified guardian combining all three safety layers."""
 
@@ -253,15 +267,76 @@ class CodetteGuardian:
         self.ethics = EthicalAnchor()
         self.trust = TrustCalibrator()
 
-    def check_input(self, text: str) -> Dict:
+    def check_input(self, text: str, has_file_context: bool = False) -> Dict:
         """Check user input for safety issues."""
-        threats = self.sanitizer.detect_threats(text)
+        threats = self.sanitizer.detect_threats(text, has_file_context=has_file_context)
         safe_text = self.sanitizer.sanitize(text) if any(threats.values()) else text
         return {
             "safe": not any(threats.values()),
             "threats": threats,
             "cleaned_text": safe_text,
         }
+
+    def check_file_upload(self, filename: str, data: bytes) -> Dict:
+        """Validate a file upload for safety.
+
+        Returns:
+            {"safe": bool, "error": str|None, "content": str|None, "filename": str}
+        """
+        import os
+        result = {"safe": False, "error": None, "content": None, "filename": filename}
+
+        # 1. Filename validation — path traversal, null bytes, hidden files
+        if not filename or '\x00' in filename:
+            result["error"] = "Invalid filename"
+            return result
+        basename = os.path.basename(filename)
+        if basename != filename or '..' in filename:
+            result["error"] = "Path traversal rejected"
+            return result
+        if basename.startswith('.'):
+            result["error"] = "Hidden files not allowed"
+            return result
+
+        # 2. Extension allowlist
+        _, ext = os.path.splitext(basename.lower())
+        if ext not in ALLOWED_FILE_EXTENSIONS:
+            result["error"] = f"File type '{ext}' not supported. Allowed: text/code files only"
+            return result
+
+        # 3. Size check
+        if len(data) > MAX_FILE_SIZE:
+            size_kb = len(data) / 1024
+            result["error"] = f"File too large ({size_kb:.0f} KB). Max: {MAX_FILE_SIZE // 1024} KB"
+            return result
+
+        if len(data) == 0:
+            result["error"] = "Empty file"
+            return result
+
+        # 4. Must be valid UTF-8 text (rejects binaries)
+        try:
+            text = data.decode('utf-8')
+        except UnicodeDecodeError:
+            try:
+                text = data.decode('utf-8', errors='replace')
+                logger.warning(f"File {basename} had encoding issues, using replacement characters")
+            except Exception:
+                result["error"] = "File is not valid text (binary files not supported)"
+                return result
+
+        # 5. Null byte check in content
+        if '\x00' in text:
+            result["error"] = "File contains null bytes (possible binary)"
+            return result
+
+        # 6. Sanitize content through InputSanitizer
+        text = self.sanitizer.sanitize(text)
+
+        result["safe"] = True
+        result["content"] = text
+        result["filename"] = basename
+        return result
 
     def evaluate_output(self, adapter: str, response: str,
                         coherence: float = 0.5, tension: float = 0.3):

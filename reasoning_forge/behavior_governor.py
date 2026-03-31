@@ -46,7 +46,7 @@ class GovernorDecision:
     confidence: float = 1.0       # Governor's confidence in this decision
     memory_budget: int = 3         # Max cocoons to inject (0 = none)
     identity_budget: str = "full"  # "full", "partial", "none"
-    max_response_tokens: int = 512 # Adaptive response length
+    max_response_tokens: int = 2048 # Adaptive response length (raised for file context)
     compression_level: str = "normal"  # "compressed", "normal", "expanded"
     identity_confidence: float = 0.0  # Current identity confidence after decay
     warnings: List[str] = field(default_factory=list)

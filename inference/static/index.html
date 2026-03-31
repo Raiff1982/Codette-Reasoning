@@ -95,8 +95,13 @@
 
         <!-- Input Area -->
         <div class="input-area">
+            <div class="attachment-previews" id="attachment-previews"></div>
             <div class="input-row">
                 <button class="mic-btn" id="mic-btn" title="Voice input">&#127908;</button>
+                <button class="attach-btn" id="attach-btn" title="Attach file (code, text, config)">&#128206;</button>
+                <input type="file" id="file-attach-input" multiple
+                       accept=".txt,.py,.js,.ts,.json,.csv,.md,.html,.css,.xml,.yaml,.yml,.log,.cfg,.ini,.toml,.sql,.sh,.bat,.ps1,.r,.java,.c,.cpp,.h,.hpp,.go,.rs,.rb,.php,.swift,.kt,.tsx,.jsx,.vue,.svelte,.lua,.pl,.ex,.hs,.scala,.tf,.proto,.graphql"
+                       style="display:none">
                 <div class="input-wrapper">
                     <textarea id="chat-input" placeholder="Ask Codette something..." rows="1"></textarea>
                 </div>

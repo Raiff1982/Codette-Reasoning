@@ -26,6 +26,19 @@ let _totalEthicalChecks = 0;
 let _startupCocoonCount = 0;
 let _selectedVoice = null;
 
+// File attachment state
+let attachedFiles = [];
+const MAX_FILE_SIZE = 512 * 1024; // 512 KB
+const MAX_FILE_COUNT = 5;
+const ALLOWED_EXTENSIONS = new Set([
+    '.txt','.py','.js','.ts','.json','.csv','.md','.html','.css',
+    '.xml','.yaml','.yml','.log','.cfg','.ini','.toml','.sql',
+    '.sh','.bat','.ps1','.r','.java','.c','.cpp','.h','.hpp',
+    '.go','.rs','.rb','.php','.swift','.kt','.tsx','.jsx',
+    '.vue','.svelte','.lua','.pl','.ex','.hs','.scala','.tf',
+    '.proto','.graphql',
+]);
+
 // ── Initialization ──
 document.addEventListener('DOMContentLoaded', () => {
     initUI();
@@ -84,6 +97,25 @@ function initUI() {
     maxAdapters.addEventListener('input', () => {
         document.getElementById('max-adapters-value').textContent = maxAdapters.value;
     });
+
+    // File attachment
+    const attachBtn = document.getElementById('attach-btn');
+    const fileInput = document.getElementById('file-attach-input');
+    if (attachBtn && fileInput) {
+        attachBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFileAttach);
+        // Drag-and-drop on input area
+        const inputArea = document.querySelector('.input-area');
+        if (inputArea) {
+            inputArea.addEventListener('dragover', (e) => { e.preventDefault(); inputArea.classList.add('drag-over'); });
+            inputArea.addEventListener('dragleave', () => inputArea.classList.remove('drag-over'));
+            inputArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                inputArea.classList.remove('drag-over');
+                addFilesFromList(e.dataTransfer.files);
+            });
+        }
+    }
 
     // Voice input via Web Speech API
     initVoice(micBtn);
@@ -432,6 +464,64 @@ function updateCoverage(usage) {
     });
 }
 
+// ── File Attachments ──
+function handleFileAttach(e) {
+    addFilesFromList(e.target.files);
+    e.target.value = ''; // Reset so same file can be re-selected
+}
+
+function addFilesFromList(fileList) {
+    for (const file of fileList) {
+        if (attachedFiles.length >= MAX_FILE_COUNT) {
+            alert(`Maximum ${MAX_FILE_COUNT} files allowed`);
+            break;
+        }
+        const ext = '.' + file.name.split('.').pop().toLowerCase();
+        if (!ALLOWED_EXTENSIONS.has(ext)) {
+            alert(`File type "${ext}" not supported. Only code and text files are allowed.`);
+            continue;
+        }
+        if (file.size > MAX_FILE_SIZE) {
+            alert(`"${file.name}" is too large (${(file.size/1024).toFixed(0)} KB). Max: ${MAX_FILE_SIZE/1024} KB`);
+            continue;
+        }
+        if (file.size === 0) {
+            alert(`"${file.name}" is empty`);
+            continue;
+        }
+        // Avoid duplicates
+        if (attachedFiles.some(f => f.name === file.name && f.size === file.size)) continue;
+        attachedFiles.push(file);
+    }
+    renderAttachmentPreviews();
+}
+
+function removeAttachment(index) {
+    attachedFiles.splice(index, 1);
+    renderAttachmentPreviews();
+}
+
+function renderAttachmentPreviews() {
+    const container = document.getElementById('attachment-previews');
+    const attachBtn = document.getElementById('attach-btn');
+    if (!container) return;
+
+    container.innerHTML = '';
+    attachedFiles.forEach((file, i) => {
+        const sizeStr = file.size < 1024 ? file.size + ' B' : (file.size / 1024).toFixed(1) + ' KB';
+        const chip = document.createElement('div');
+        chip.className = 'attachment-chip';
+        chip.innerHTML = `<span class="chip-name">${escapeHtml(file.name)}</span>`
+            + `<span class="chip-size">${sizeStr}</span>`
+            + `<button class="chip-remove" onclick="removeAttachment(${i})" title="Remove">&times;</button>`;
+        container.appendChild(chip);
+    });
+
+    if (attachBtn) {
+        attachBtn.classList.toggle('has-files', attachedFiles.length > 0);
+    }
+}
+
 // ── Chat ──
 function sendMessage() {
     const input = document.getElementById('chat-input');
@@ -442,8 +532,12 @@ function sendMessage() {
     const welcome = document.getElementById('welcome');
     if (welcome) welcome.style.display = 'none';
 
-    // Add user message
-    addMessage('user', query);
+    // Add user message (show file count if files attached)
+    const fileCount = attachedFiles.length;
+    const displayQuery = fileCount > 0
+        ? `[${fileCount} file${fileCount > 1 ? 's' : ''} attached] ${query}`
+        : query;
+    addMessage('user', displayQuery);
 
     // Clear input
     input.value = '';
@@ -462,16 +556,33 @@ function sendMessage() {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 1200000);
 
-    fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            query: query,
-            adapter: adapter === 'auto' ? null : adapter,
-            max_adapters: maxAdapters,
-        }),
-        signal: controller.signal,
-    })
+    let fetchOptions;
+    if (attachedFiles.length > 0) {
+        // Multipart form data with file attachments
+        const formData = new FormData();
+        formData.append('query', query);
+        formData.append('adapter', adapter === 'auto' ? '' : adapter);
+        formData.append('max_adapters', maxAdapters.toString());
+        attachedFiles.forEach(f => formData.append('files', f));
+        fetchOptions = { method: 'POST', body: formData, signal: controller.signal };
+        // Clear attachments after sending
+        attachedFiles = [];
+        renderAttachmentPreviews();
+    } else {
+        // Standard JSON request
+        fetchOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                query: query,
+                adapter: adapter === 'auto' ? null : adapter,
+                max_adapters: maxAdapters,
+            }),
+            signal: controller.signal,
+        };
+    }
+
+    fetch('/api/chat', fetchOptions)
     .then(r => r.json())
     .then(data => {
         clearTimeout(timeoutId);
@@ -480,6 +591,11 @@ function sendMessage() {
         if (data.error) {
             addMessage('error', data.error);
             return;
+        }
+
+        // Show file warnings if any
+        if (data.file_warnings && data.file_warnings.length > 0) {
+            addMessage('error', 'File warnings: ' + data.file_warnings.join(', '));
         }
 
         // Add assistant message
