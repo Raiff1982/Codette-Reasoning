@@ -100,7 +100,11 @@ _worker_threads_lock = threading.Lock()
 
 
 def _get_orchestrator():
-    """Lazy-load the orchestrator (first call takes ~60s)."""
+    """Lazy-load the orchestrator (first call takes ~60s).
+
+    Set CODETTE_BACKEND=ollama to use Ollama instead of llama_cpp.
+    Ollama provides faster inference with proper GPU acceleration.
+    """
     global _orchestrator, _orchestrator_status, _load_error, _forge_bridge
     if _orchestrator is not None:
         return _orchestrator
@@ -109,26 +113,36 @@ def _get_orchestrator():
         if _orchestrator is not None:
             return _orchestrator
 
+        backend = os.environ.get("CODETTE_BACKEND", "llama_cpp").lower()
+
         with _orchestrator_status_lock:
-            _orchestrator_status.update({"state": "loading", "message": "Loading Codette model..."})
-        print("\n  Loading CodetteOrchestrator...")
+            _orchestrator_status.update({"state": "loading", "message": f"Loading Codette model ({backend})..."})
+        print(f"\n  Loading CodetteOrchestrator (backend: {backend})...")
 
         try:
-            from codette_orchestrator import CodetteOrchestrator
-            # Challenge 2 fix: use 32768 context (model trained on 131072,
-            # 32k is a safe balance of capability vs VRAM on consumer GPU)
-            _orchestrator = CodetteOrchestrator(
-                verbose=True,
-                n_ctx=32768,
-            )
+            if backend == "ollama":
+                from ollama_orchestrator import OllamaOrchestrator
+                _orchestrator = OllamaOrchestrator(
+                    verbose=True,
+                    n_ctx=32768,
+                )
+            else:
+                from codette_orchestrator import CodetteOrchestrator
+                # Challenge 2 fix: use 32768 context (model trained on 131072,
+                # 32k is a safe balance of capability vs VRAM on consumer GPU)
+                _orchestrator = CodetteOrchestrator(
+                    verbose=True,
+                    n_ctx=32768,
+                )
 
             with _orchestrator_status_lock:
                 _orchestrator_status.update({
                     "state": "ready",
-                    "message": f"Ready — {len(_orchestrator.available_adapters)} adapters",
+                    "message": f"Ready — {len(_orchestrator.available_adapters)} adapters ({backend})",
                     "adapters": _orchestrator.available_adapters,
+                    "backend": backend,
                 })
-            print(f"  Orchestrator ready: {_orchestrator.available_adapters}")
+            print(f"  Orchestrator ready ({backend}): {_orchestrator.available_adapters}")
 
             # Initialize Phase 6 bridge with Phase 7 routing (wraps orchestrator with ForgeEngine + Executive Controller)
             print(f"  [DEBUG] _use_phase6 = {_use_phase6}")
@@ -165,20 +179,22 @@ def _get_orchestrator():
 
 
 def _cleanup_orphaned_queues():
-    """Periodically clean up response queues that are older than 5 minutes.
+    """Periodically clean up response queues that are older than 30 minutes.
 
     This prevents memory leaks from accumulating abandoned request queues.
+    Timeout must exceed max handler timeout (1200s) to avoid dropping
+    responses that the handler is still actively waiting for.
     """
     while True:
         try:
-            time.sleep(60)  # Run cleanup every 60 seconds
+            time.sleep(120)  # Run cleanup every 2 minutes
             now = time.time()
 
             with _response_queues_lock:
-                # Find queues older than 5 minutes (300 seconds)
+                # Find queues older than 30 minutes (1800 seconds)
                 orphaned = []
                 for req_id, creation_time in list(_queue_creation_times.items()):
-                    if now - creation_time > 300:
+                    if now - creation_time > 1800:
                         orphaned.append(req_id)
 
                 # Remove orphaned queues
@@ -1423,8 +1439,8 @@ class CodetteHandler(SimpleHTTPRequestHandler):
 
         # Wait for response (with timeout)
         try:
-            # First wait for thinking event
-            thinking = response_q.get(timeout=120)
+            # First wait for thinking event (generous timeout for CPU inference)
+            thinking = response_q.get(timeout=600)
             if "error" in thinking and thinking.get("event") != "thinking":
                 self._json_response(thinking, 500)
                 return
