@@ -1282,40 +1282,64 @@ class CodetteHandler(SimpleHTTPRequestHandler):
 
     def _parse_multipart_chat(self):
         """Parse multipart/form-data for chat with file attachments."""
-        content_type = self.headers.get("Content-Type", "")
-        environ = {
-            'REQUEST_METHOD': 'POST',
-            'CONTENT_TYPE': content_type,
-            'CONTENT_LENGTH': self.headers.get('Content-Length', '0'),
-        }
-        form = cgi.FieldStorage(
-            fp=self.rfile,
-            headers=self.headers,
-            environ=environ,
-        )
+        try:
+            content_type = self.headers.get("Content-Type", "")
+            length = int(self.headers.get('Content-Length', 0))
+            body = self.rfile.read(length)
+            environ = {
+                'REQUEST_METHOD': 'POST',
+                'CONTENT_TYPE': content_type,
+                'CONTENT_LENGTH': str(length),
+            }
+            form = cgi.FieldStorage(
+                fp=BytesIO(body),
+                headers=self.headers,
+                environ=environ,
+            )
+        except Exception as e:
+            print(f"  [WARN] Multipart parse failed: {e}, falling back to empty")
+            return {"query": "", "adapter": None, "max_adapters": 2,
+                    "file_count": 0, "file_errors": [str(e)], "has_file_context": False}
 
-        query = form.getfirst("query", "").strip()
-        adapter = form.getfirst("adapter", None) or None
-        max_adapters = int(form.getfirst("max_adapters", "2"))
+        # Extract text fields — getfirst returns str or None
+        raw_query = form.getfirst("query", "")
+        query = raw_query.strip() if isinstance(raw_query, str) else raw_query.decode('utf-8', errors='replace').strip()
+        raw_adapter = form.getfirst("adapter", None)
+        adapter = raw_adapter if raw_adapter else None
+        try:
+            max_adapters = int(form.getfirst("max_adapters", "2"))
+        except (ValueError, TypeError):
+            max_adapters = 2
 
         # Process file attachments
         file_contexts = []
         file_errors = []
         guardian = _session.guardian if _session else None
 
-        files = form.getlist("files")
-        if len(files) > 5:
-            file_errors.append("Too many files (max 5)")
-            files = files[:5]
+        # Extract file items from the form — cgi.FieldStorage stores them
+        # as FieldStorage objects with .filename set; non-file fields are
+        # MiniFieldStorage (or plain bytes) without .filename
+        file_items = []
+        if "files" in form:
+            raw = form["files"]
+            # Could be a single item or a list
+            if isinstance(raw, list):
+                file_items = raw
+            else:
+                file_items = [raw]
 
-        for item in files:
-            if not item.filename:
-                continue
+        # Filter to actual file uploads (have .filename attribute and it's set)
+        file_items = [f for f in file_items if hasattr(f, 'filename') and f.filename]
+
+        if len(file_items) > 5:
+            file_errors.append("Too many files (max 5)")
+            file_items = file_items[:5]
+
+        for item in file_items:
             file_data = item.file.read()
             if guardian:
                 check = guardian.check_file_upload(item.filename, file_data)
             else:
-                # Minimal validation without guardian
                 from reasoning_forge.guardian import CodetteGuardian
                 check = CodetteGuardian().check_file_upload(item.filename, file_data)
 
