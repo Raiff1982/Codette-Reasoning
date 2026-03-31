@@ -1211,6 +1211,14 @@ class CodetteHandler(SimpleHTTPRequestHandler):
         else:
             super().do_GET()
 
+    def end_headers(self):
+        """Add no-cache headers for static files during development."""
+        if self.path and any(self.path.endswith(ext) for ext in ('.html', '.js', '.css')):
+            self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            self.send_header('Pragma', 'no-cache')
+            self.send_header('Expires', '0')
+        super().end_headers()
+
     def do_POST(self):
         parsed = urlparse(self.path)
         path = parsed.path
