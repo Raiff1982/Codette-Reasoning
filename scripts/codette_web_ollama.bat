@@ -50,6 +50,7 @@ set PYTHONNOUSERSITE=1
 set PATH=J:\;J:\Lib\site-packages\Library\bin;%PATH%
 set CODETTE_BACKEND=ollama
 set OLLAMA_MODELS=J:\.ollama
+set OLLAMA_VULKAN=1
 
 echo   Starting server with Ollama backend...
 echo.
