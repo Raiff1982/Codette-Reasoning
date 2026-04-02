@@ -57,31 +57,6 @@ Created by **Jonathan Harrison** (Raiff1982)
 
 ---
 
-## Evidence
-
-Codette is a modular reasoning system with published demos, tests, benchmarks, and proof artifacts.
-
-- **Proof index**: [docs/proof.md](/mnt/j/codette-clean/docs/proof.md)
-- **Runnable demos**: [demo/README.md](/mnt/j/codette-clean/demo/README.md)
-- **Automated tests**: [tests](/mnt/j/codette-clean/tests)
-- **Benchmark suites**: [benchmarks](/mnt/j/codette-clean/benchmarks)
-- **Saved benchmark reports**: [data/results](/mnt/j/codette-clean/data/results)
-- **Change transparency**: [docs/CHANGELOG_2026-04-02.md](/mnt/j/codette-clean/docs/CHANGELOG_2026-04-02.md)
-
-Quick evidence links:
-- Multi-perspective benchmark report: [codette_benchmark_report.md](/mnt/j/codette-clean/data/results/codette_benchmark_report.md)
-- Runtime benchmark without web research: [codette_runtime_benchmark_20260402_135517.md](/mnt/j/codette-clean/data/results/codette_runtime_benchmark_20260402_135517.md)
-- Runtime benchmark with web research: [codette_runtime_benchmark_20260402_140237.md](/mnt/j/codette-clean/data/results/codette_runtime_benchmark_20260402_140237.md)
-
-This repository includes reproducible evidence of:
-- multi-perspective reasoning and synthesis
-- continuity and memory recall
-- valuation and risk-frontier analysis
-- explicit, cited web research behavior
-- loop resistance and failure-mode fixes
-
----
-
 ## What Makes Codette Different
 
 | Feature | Description |
@@ -113,18 +88,6 @@ This repository includes reproducible evidence of:
 - **Web research is stored as memory.** Retrieved research is persisted as `web_research` cocoons so Codette can reuse prior cited findings instead of re-researching the same topic every time.
 - **System reports are gated.** Self-diagnostic and introspection modes now require explicit phrasing so ordinary conversation does not accidentally fall into a report loop.
 - **Trust cues are shown in the UI.** Responses can display trust tags such as `memory-backed`, `frontier-informed`, `web-cited`, `grounded`, or `low-verification`.
-
-## Proof Structure
-
-The repository now exposes a public evidence layout:
-
-1. `README.md` for high-level claims and direct evidence links.
-2. `docs/proof.md` for a proof index and audit map.
-3. `demo/` for short reproducible local examples.
-4. `tests/` for automated validation.
-5. `benchmarks/` for saved methodology and benchmark runners.
-6. `data/results/` for concrete benchmark outputs.
-7. `logs/` for transcript and run-log capture guidance.
 
 ## Quick Start
 
@@ -208,11 +171,6 @@ codette-clean/
 |-- benchmarks/                   # Publishable evaluation suite
 |   +-- codette_benchmark_suite.py  # 17 problems x 4 conditions x 7 dimensions
 |
-|-- demo/                         # Reproducible local demos
-|   |-- README.md                # Demo index
-|   |-- run_local_api_demo.py    # Calls live local APIs and saves outputs
-|   +-- api_examples.md          # Copy/paste curl examples
-|
 |-- paper/                        # Academic paper
 |   |-- codette_paper_v5.tex      # Full paper with RC+xi theory & benchmark results
 |   +-- references.bib            # Bibliography (25 entries)
@@ -220,9 +178,6 @@ codette-clean/
 |-- data/results/                 # Benchmark outputs
 |   |-- codette_benchmark_report.md   # Human-readable results
 |   +-- codette_benchmark_results.json  # Structured data
-|
-|-- logs/                         # Transcript and proof-log capture guidance
-|   +-- README.md                # How to store and name real run logs
 |
 |-- cocoons/                      # Persistent reasoning memories
 |   |-- cocoon_*.json             # Individual reasoning exchanges

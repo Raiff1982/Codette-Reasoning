@@ -14,7 +14,6 @@ Zero external dependencies beyond what the forge already uses.
 """
 
 import json, os, time, hashlib, sqlite3
-import re
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 
@@ -114,27 +113,6 @@ ADAPTER_COLORS = {
 
 DB_PATH = Path(__file__).parent.parent / "data" / "codette_sessions.db"
 
-_EPHEMERAL_CONSTRAINT_PATTERNS = [
-    re.compile(r'(?:under|fewer than|less than|max(?:imum)?|at most|no more than)\s+\d+\s+words', re.I),
-    re.compile(r'(?:in|using|with)\s+\d+\s+words?\s+or\s+(?:less|fewer)', re.I),
-    re.compile(r'\b\d+\s+words?\s+(?:or\s+(?:less|fewer)|max(?:imum)?)', re.I),
-    re.compile(r'(?:a\s+single|one|1)\s+sentence', re.I),
-    re.compile(r'(?:under|fewer than|less than|max(?:imum)?|at most|no more than)\s+\d+\s+sentences?', re.I),
-    re.compile(r'\b\d+\s+sentences?\s+(?:or\s+(?:less|fewer)|max(?:imum)?)', re.I),
-    re.compile(r'\b(?:be\s+(?:brief|concise|short|terse)|briefly|short\s+answer|one[\s-]liner)\b', re.I),
-    re.compile(r'\b(?:yes\s+or\s+no|true\s+or\s+false)\b', re.I),
-    re.compile(r'\b(?:one\s+word(?:\s+answer)?|single\s+word(?:\s+answer)?)\b', re.I),
-]
-
-
-def is_ephemeral_response_constraint_text(text: str) -> bool:
-    """Return True when text is mainly a temporary formatting/length constraint."""
-    sample = (text or "").strip()
-    if not sample:
-        return False
-    lowered = sample.lower()
-    return any(pattern.search(lowered) for pattern in _EPHEMERAL_CONSTRAINT_PATTERNS)
-
 
 class CodetteSession:
     """Manages a single conversation session with Cocoon state."""
@@ -233,8 +211,6 @@ class CodetteSession:
         text = str(content or "").strip().replace("\n", " ")
         if not text:
             return
-        if is_ephemeral_response_constraint_text(text):
-            return
 
         lowered = text.lower()
         cue_words = [
@@ -278,8 +254,6 @@ class CodetteSession:
             role = msg.get("role")
             text = str(msg.get("content", "")).strip().replace("\n", " ")
             if not text:
-                continue
-            if is_ephemeral_response_constraint_text(text):
                 continue
             snippet = text[:140] + ("..." if len(text) > 140 else "")
             if role == "user" and len(user_intents) < 3:
@@ -348,8 +322,6 @@ class CodetteSession:
                 content = str(msg.get("content", "")).strip().replace("\n", " ")
                 if not content:
                     continue
-                if is_ephemeral_response_constraint_text(content):
-                    continue
                 if len(content) > 180:
                     content = content[:177] + "..."
                 line = f"- {role}: {content}"
@@ -370,8 +342,6 @@ class CodetteSession:
                 continue
             text = str(msg.get("content", "")).strip().replace("\n", " ")
             if not text:
-                continue
-            if is_ephemeral_response_constraint_text(text):
                 continue
             markers.append({
                 "role": msg["role"],

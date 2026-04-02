@@ -33,7 +33,7 @@ except Exception:
     pass
 
 from codette_session import (
-    CodetteSession, SessionStore, ADAPTER_COLORS, AGENT_NAMES, is_ephemeral_response_constraint_text
+    CodetteSession, SessionStore, ADAPTER_COLORS, AGENT_NAMES
 )
 
 # Lazy import orchestrator (heavy — loads llama_cpp)
@@ -1054,10 +1054,6 @@ def _worker_thread():
                             )
                             print(f"  [WORKER] Injected {marker_count} session memory markers", flush=True)
                         landmarks = session.get_recent_decision_landmarks(max_items=3)
-                        landmarks = [
-                            item for item in landmarks
-                            if not is_ephemeral_response_constraint_text(item.get("summary", ""))
-                        ]
                         if landmarks:
                             landmark_lines = [
                                 f"- {item.get('label', 'Decision')}: {item.get('summary', '')}"
@@ -1125,11 +1121,8 @@ def _worker_thread():
                     if decision_landmark_cocoons:
                         for cocoon in decision_landmark_cocoons:
                             meta = cocoon.get("metadata", {})
-                            decision_text = cocoon.get("query", "")[:180]
-                            if is_ephemeral_response_constraint_text(decision_text):
-                                continue
                             decision_lines.append(
-                                f"- {meta.get('label', 'Decision')}: {decision_text}"
+                                f"- {meta.get('label', 'Decision')}: {cocoon.get('query', '')[:180]}"
                             )
 
                     web_lines = []

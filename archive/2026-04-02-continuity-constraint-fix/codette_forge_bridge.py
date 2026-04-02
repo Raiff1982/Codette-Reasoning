@@ -376,12 +376,12 @@ class CodetteForgeBridge:
         # 8. Apply directness discipline — trim filler, enforce intent anchoring
         response_text = result.get("response", "")
         if response_text:
-            result["response"] = self._apply_directness(response_text, user_query)
+            result["response"] = self._apply_directness(response_text, query)
 
         # 9. Enforce user constraints (word limits, sentence limits, etc.)
         try:
             from codette_orchestrator import extract_constraints, enforce_constraints
-            constraints = extract_constraints(user_query)
+            constraints = extract_constraints(query)
             if constraints:
                 result["response"] = enforce_constraints(result["response"], constraints)
                 result["constraints_applied"] = constraints

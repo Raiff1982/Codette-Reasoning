@@ -15,6 +15,7 @@ from reasoning_forge.unified_memory import UnifiedMemory
 from inference.codette_session import CodetteSession
 from inference.codette_tools import tool_run_python
 from inference.web_search import _is_safe_url, query_benefits_from_web_research, query_requests_web_research
+from inference.codette_session import is_ephemeral_response_constraint_text
 
 
 class TestEventEmbeddedValueEngine(unittest.TestCase):
@@ -310,6 +311,17 @@ class TestSessionRecallHelpers(unittest.TestCase):
         self.assertEqual(landmarks[-1]["label"], "Assistant commitment")
         self.assertIn("preserve", landmarks[-1]["summary"].lower())
 
+    def test_ephemeral_word_limit_is_not_promoted_to_continuity(self):
+        session = CodetteSession()
+        session.add_message("user", "For this session, keep answers under 15 words.")
+        session.add_message("assistant", "Okay.")
+        session.add_message("user", "Tell me your approach.")
+
+        self.assertNotIn("15 words", session.active_continuity_summary.lower())
+        self.assertFalse(session.get_recent_decision_landmarks())
+        prompt_context = session.build_prompt_context(max_turns=3, max_chars=500)
+        self.assertNotIn("15 words", prompt_context.lower())
+
 
 class TestSoftTriggerAndToolHardening(unittest.TestCase):
     def test_run_python_rejects_unsafe_modules(self):
@@ -345,6 +357,13 @@ class TestWebSafetyHelpers(unittest.TestCase):
         self.assertFalse(query_benefits_from_web_research("what would you like to try with your upgrades?"))
         self.assertFalse(query_benefits_from_web_research("give me a detailed way you would like to do that"))
         self.assertFalse(query_benefits_from_web_research("tell me your approach"))
+
+
+class TestPromptSanitizationHelpers(unittest.TestCase):
+    def test_ephemeral_constraint_detection(self):
+        self.assertTrue(is_ephemeral_response_constraint_text("keep answers under 15 words"))
+        self.assertTrue(is_ephemeral_response_constraint_text("be brief"))
+        self.assertFalse(is_ephemeral_response_constraint_text("keep cocoon memory and core design intact"))
 
 
 if __name__ == "__main__":
