@@ -219,6 +219,13 @@ body {
     gap: 8px;
 }
 
+.decision-landmarks {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
 .continuity-summary {
     margin-bottom: 10px;
     padding: 10px;
@@ -254,6 +261,27 @@ body {
 .memory-marker-empty {
     font-size: 12px;
     color: var(--text-muted);
+}
+
+.decision-landmark {
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.18);
+}
+
+.decision-landmark-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #f59e0b;
+    margin-bottom: 4px;
+}
+
+.decision-landmark-text {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.45;
 }
 
 /* ── Chat Area ── */
@@ -371,6 +399,74 @@ body {
     color: #10b981;
     font-size: 11px;
     display: inline-block;
+}
+
+.trust-tags {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.trust-tag {
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 1px solid rgba(255,255,255,0.12);
+    color: var(--text-secondary);
+    background: rgba(255,255,255,0.03);
+}
+
+.trust-tag-stable,
+.trust-tag-grounded,
+.trust-tag-memory-backed,
+.trust-tag-frontier-informed,
+.trust-tag-tool-assisted {
+    color: #10b981;
+    border-color: rgba(16, 185, 129, 0.25);
+    background: rgba(16, 185, 129, 0.08);
+}
+
+.trust-tag-low-verification,
+.trust-tag-hallucination-risk {
+    color: #f59e0b;
+    border-color: rgba(245, 158, 11, 0.25);
+    background: rgba(245, 158, 11, 0.08);
+}
+
+.web-sources {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.web-sources-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+}
+
+.web-sources ul {
+    margin: 0;
+    padding-left: 18px;
+}
+
+.web-sources li {
+    margin-bottom: 4px;
+    font-size: 12px;
+}
+
+.web-sources a {
+    color: #60a5fa;
+    text-decoration: none;
+}
+
+.web-sources a:hover {
+    text-decoration: underline;
 }
 
 .perspectives-toggle {

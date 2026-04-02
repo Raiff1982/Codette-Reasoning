@@ -18,21 +18,19 @@ Adapters: ~27 MB each (GGUF LoRA)
 import os, sys, time, json, argparse, ctypes
 from pathlib import Path
 
-# Auto-configure environment for Intel XPU + site-packages
-_site = r"J:\Lib\site-packages"
-if _site not in sys.path:
-    sys.path.insert(0, _site)
-os.environ["PATH"] = r"J:\Lib\site-packages\Library\bin" + os.pathsep + os.environ.get("PATH", "")
-try:
-    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
-except Exception:
-    pass
+from runtime_env import (
+    bootstrap_environment,
+    resolve_adapter_dir,
+    resolve_behavioral_adapter_dir,
+    resolve_model_path,
+)
+
+bootstrap_environment()
 
 import llama_cpp
 from llama_cpp import Llama
 
 # Import the router and tools
-sys.path.insert(0, str(Path(__file__).parent))
 from adapter_router import AdapterRouter, RouteResult
 from codette_tools import (
     ToolRegistry, parse_tool_calls, strip_tool_calls, has_tool_calls,
@@ -47,10 +45,10 @@ MAX_TOOL_ROUNDS = 3  # Max tool call → result → generate cycles
 # Configuration
 # ================================================================
 # Use clean Llama 3.1 8B Instruct as base (merged GGUF had corrupted training data)
-BASE_GGUF = r"J:\codette-clean\models\base\Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf"
+BASE_GGUF = resolve_model_path()
 
-ADAPTER_DIR = Path(r"J:\codette-clean\models\adapters")
-BEHAVIORAL_DIR = Path(r"J:\codette-clean\behavioral-lora-f16-gguf")
+ADAPTER_DIR = resolve_adapter_dir()
+BEHAVIORAL_DIR = resolve_behavioral_adapter_dir()
 
 # Map adapter names to GGUF LoRA files
 # Behavioral adapters (trained with 4 permanent locks) take priority over originals
@@ -443,15 +441,22 @@ class CodetteOrchestrator:
         import re
 
         # ── ARTIST QUERY DETECTION (hallucination prevention) ──
-        # Detect if user is asking about specific artists/songs/albums and route to honesty
+        # Only fire when the user is clearly asking for artist/band/discography facts.
         query_lower = query.lower()
+        music_context_words = {
+            "album", "song", "songs", "band", "artist", "singer", "musician",
+            "discography", "music", "genre", "tour", "concert", "track",
+            "release", "record", "label", "lyrics", "career",
+        }
+        has_music_context = any(word in query_lower.split() for word in music_context_words)
         artist_patterns = [
-            r'\b(who is|tell me about|what do you know about|who are)\s+([a-z\s\'-]+)\?',
-            r'\b(album|discography|career|songs? by|music by)\s+([a-z\s\'-]+)',
-            r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+(album|song|band|artist)',
-            r'\b(is [a-z\s\'-]+ (indie-rock|country|hip-hop|rock|pop|electronic))',
+            r'\b(who is|tell me about|what do you know about)\b.*\b(artist|singer|band|musician)\b',
+            r'\b(album|discography|songs? by|music by|career of)\s+[A-Z]',
+            r'\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+\b.+\b(album|song|band|artist|singer|discography)\b',
         ]
-        is_artist_query = any(re.search(pattern, query_lower, re.IGNORECASE) for pattern in artist_patterns)
+        is_artist_query = has_music_context and any(
+            re.search(pattern, query, re.IGNORECASE) for pattern in artist_patterns
+        )
 
         if is_artist_query:
             # Route artist queries to honesty instead of hallucination
@@ -526,7 +531,7 @@ class CodetteOrchestrator:
         start = time.time()
         # use_mmap=False is required for LoRA hot-swap compatibility
         self._llm = Llama(
-            model_path=BASE_GGUF,
+            model_path=str(BASE_GGUF),
             n_ctx=self.n_ctx,
             n_gpu_layers=self.n_gpu_layers,
             verbose=False,
@@ -852,7 +857,7 @@ class CodetteOrchestrator:
             "show me the code", "read the file", "what's in the",
             "look at the file", "open the file", "search the code",
             "project structure", "project summary", "file structure",
-            "what files", "which files", "list files", "list the",
+            "what files", "which files", "list files",
         ]
 
         if any(t in q for t in strong_triggers):
@@ -862,6 +867,19 @@ class CodetteOrchestrator:
             return True
 
         return False
+
+    @staticmethod
+    def _dedupe_tool_lookups(auto_lookups):
+        """Remove duplicate tool calls while preserving order."""
+        seen = set()
+        deduped = []
+        for tool_name, args in auto_lookups:
+            key = (tool_name, tuple(args))
+            if key in seen:
+                continue
+            seen.add(key)
+            deduped.append((tool_name, args))
+        return deduped
 
     def _auto_gather_context(self, query: str) -> str:
         """Server-side tool execution: gather relevant file context BEFORE
@@ -918,6 +936,8 @@ class CodetteOrchestrator:
             terms = [w for w in q.split() if w not in skip and len(w) > 2]
             if terms:
                 auto_lookups.append(("search_code", [terms[0]]))
+
+        auto_lookups = self._dedupe_tool_lookups(auto_lookups)
 
         # Execute lookups
         tool_log = []

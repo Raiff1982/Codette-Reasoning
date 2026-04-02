@@ -147,6 +147,7 @@ class CodetteSession:
         self.lifeforms: List[str] = []  # Spawned concept nodes
         self.dream_history: List[Dict] = []  # Dream field results
         self.active_continuity_summary: str = ""
+        self.decision_landmarks: List[Dict[str, Any]] = []
 
         # Initialize subsystems
         self._init_cocoon()
@@ -203,6 +204,36 @@ class CodetteSession:
         self.messages.append(msg)
         self.updated_at = time.time()
         self.refresh_active_continuity_summary()
+        self._capture_decision_landmark(role, content)
+
+    def _capture_decision_landmark(self, role: str, content: str) -> None:
+        """Promote explicit decisions/constraints into durable session landmarks."""
+        text = str(content or "").strip().replace("\n", " ")
+        if not text:
+            return
+
+        lowered = text.lower()
+        cue_words = [
+            "preserve", "keep", "without removing", "do not remove", "don't remove",
+            "same rules", "in order", "we decided", "decision", "constraint",
+            "i will", "i'll", "implemented", "next step", "must", "priority",
+        ]
+        if not any(cue in lowered for cue in cue_words):
+            return
+
+        label = "Assistant commitment" if role == "assistant" else "User constraint"
+        summary = text[:180] + ("..." if len(text) > 180 else "")
+        if self.decision_landmarks and self.decision_landmarks[-1].get("summary") == summary:
+            return
+
+        self.decision_landmarks.append({
+            "role": role,
+            "label": label,
+            "summary": summary,
+            "timestamp": time.time(),
+            "persisted": False,
+        })
+        self.decision_landmarks = self.decision_landmarks[-12:]
 
     def refresh_active_continuity_summary(self) -> str:
         """Refresh the compact working-memory summary for the current session."""
@@ -321,6 +352,19 @@ class CodetteSession:
                 break
         markers.reverse()
         return markers
+
+    def get_recent_decision_landmarks(self, max_items: int = 4) -> List[Dict[str, Any]]:
+        """Expose the most important recent constraints/commitments."""
+        return self.decision_landmarks[-max_items:]
+
+    def mark_decision_landmark_persisted(self, summary: str, cocoon_id: str = "") -> None:
+        """Mark a decision landmark as stored in unified memory."""
+        for landmark in reversed(self.decision_landmarks):
+            if landmark.get("summary") == summary:
+                landmark["persisted"] = True
+                if cocoon_id:
+                    landmark["cocoon_id"] = cocoon_id
+                break
 
     def update_after_response(self, route_result, adapter_name: str,
                                perspectives: Optional[Dict[str, str]] = None):
@@ -575,6 +619,7 @@ class CodetteSession:
 
         state["recent_memory_markers"] = self.get_recent_memory_markers()
         state["active_continuity_summary"] = self.active_continuity_summary
+        state["decision_landmarks"] = self.get_recent_decision_landmarks()
 
         return state
 
@@ -593,6 +638,7 @@ class CodetteSession:
             "lifeforms": self.lifeforms,
             "dream_history": self.dream_history,
             "active_continuity_summary": self.active_continuity_summary,
+            "decision_landmarks": self.decision_landmarks,
         }
         if self.spiderweb:
             try:
@@ -645,6 +691,7 @@ class CodetteSession:
         self.lifeforms = data.get("lifeforms", [])
         self.dream_history = data.get("dream_history", [])
         self.active_continuity_summary = data.get("active_continuity_summary", "")
+        self.decision_landmarks = data.get("decision_landmarks", [])
         if not self.active_continuity_summary:
             self.refresh_active_continuity_summary()
 

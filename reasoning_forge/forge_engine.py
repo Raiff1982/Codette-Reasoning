@@ -304,6 +304,12 @@ class ForgeEngine:
             from reasoning_forge.unified_memory import UnifiedMemory
             self.unified_memory = UnifiedMemory()
             self.cocoon_synthesizer = CocoonSynthesizer(memory=self.unified_memory)
+            if enable_memory_weighting and self.memory_weighting is None:
+                self.memory_weighting = MemoryWeighting(self.unified_memory)
+                self.conflict_engine.memory_weighting = self.memory_weighting
+                self.coherence_field.memory_weighting = self.memory_weighting
+                if self.preflight_predictor:
+                    self.preflight_predictor.memory_weighting = self.memory_weighting
             logger.info("  ✓ CocoonSynthesizer initialized (meta-cognitive strategy forging active)")
         except Exception as e:
             logger.warning(f"Could not initialize CocoonSynthesizer: {e}")

@@ -35,17 +35,11 @@ import os, sys, time, json, re
 from pathlib import Path
 from typing import Optional, Dict, List, Tuple
 
-# Auto-configure environment
-_site = r"J:\Lib\site-packages"
-if _site not in sys.path:
-    sys.path.insert(0, _site)
-try:
-    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
-except Exception:
-    pass
+from runtime_env import bootstrap_environment, resolve_ollama_models_dir
+
+bootstrap_environment()
 
 # Import the router and tools (same as original orchestrator)
-sys.path.insert(0, str(Path(__file__).parent))
 from adapter_router import AdapterRouter, RouteResult
 from codette_tools import (
     ToolRegistry, parse_tool_calls, strip_tool_calls, has_tool_calls,
@@ -63,7 +57,7 @@ OLLAMA_MODEL = os.environ.get("CODETTE_OLLAMA_MODEL", "codette-ultimate-v6")
 OLLAMA_BASE_URL = os.environ.get("CODETTE_OLLAMA_URL", "http://localhost:11434")
 
 # Ollama home directory (for custom model storage)
-os.environ.setdefault("OLLAMA_MODELS", r"J:\.ollama")
+os.environ.setdefault("OLLAMA_MODELS", str(resolve_ollama_models_dir()))
 
 # Fallback chain: prefer custom Codette models, then generic
 # Raiff1982/ prefixed models are published to HF and known-good
@@ -268,7 +262,10 @@ class OllamaOrchestrator:
         ]
 
         # Router (identical to original)
-        self.router = AdapterRouter(available_adapters=self.available_adapters)
+        self.router = AdapterRouter(
+            available_adapters=self.available_adapters,
+            memory_weighting=memory_weighting,
+        )
 
         # Initialize Ollama connection
         self._init_ollama()

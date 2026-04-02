@@ -135,17 +135,21 @@ class CodetteForgeBridge:
             }
         """
         start_time = time.time()
+        user_query = self._extract_primary_user_query(query)
 
         # Self-diagnostic: intercept health check queries before LLM
         _health_patterns = [
-            r'self[\s-]*(?:system|health|diagnostic|check)',
+            r'\bself[\s-]*(?:diagnostic|system health)\b',
             r'system[\s-]*health[\s-]*check',
+            r'\bhealth[\s-]*check\b',
+            r'\bsystems?[\s-]*check\b',
             r'run[\s-]*(?:a\s+)?diagnostic',
             r'check\s+(?:your|all)\s+systems',
             r'health[\s-]*report',
-            r'are\s+(?:all\s+)?(?:your\s+)?systems?\s+(?:ok|working|online|running)',
+            r'system[\s-]*status(?:[\s-]*report)?',
+            r'how\s+are\s+your\s+systems',
         ]
-        if any(re.search(p, query, re.I) for p in _health_patterns) and self._health_check_fn:
+        if any(re.search(p, user_query, re.I) for p in _health_patterns) and self._health_check_fn:
             try:
                 health = self._health_check_fn()
 
@@ -208,7 +212,7 @@ class CodetteForgeBridge:
         # Ethical query validation (from original framework)
         if self.forge and hasattr(self.forge, 'ethical_governance') and self.forge.ethical_governance:
             try:
-                qv = self.forge.ethical_governance.validate_query(query)
+                qv = self.forge.ethical_governance.validate_query(user_query)
                 if not qv["valid"]:
                     return {
                         "response": "I can't help with that request. " + "; ".join(qv.get("suggestions", [])),
@@ -261,21 +265,22 @@ class CodetteForgeBridge:
         Phase 7 adds executive routing metadata.
         """
         start_time = time.time()
+        user_query = self._extract_primary_user_query(query)
 
         # 1. Classify query complexity (Phase 6)
-        complexity = self.classifier.classify(query)
+        complexity = self.classifier.classify(user_query)
         if self.verbose:
             print(f"[PHASE6] Query complexity: {complexity}", flush=True)
 
         # 2. Route with Phase 7 Executive Controller
         route_decision = None
         if self.use_phase7 and self.executive_controller:
-            route_decision = self.executive_controller.route_query(query, complexity)
+            route_decision = self.executive_controller.route_query(user_query, complexity)
             if self.verbose:
                 print(f"[PHASE7] Route: {','.join([k for k, v in route_decision.component_activation.items() if v])}", flush=True)
 
         # 3. Domain classification for adapter routing
-        domain = self._classify_domain(query)
+        domain = self._classify_domain(user_query)
 
         # 4. Determine adapter count based on complexity
         if complexity == QueryComplexity.SIMPLE:
@@ -397,6 +402,16 @@ class CodetteForgeBridge:
             print(f"[PHASE6] Done: {resp_len} chars, {result.get('tokens', 0)} tokens", flush=True)
 
         return result
+
+    @staticmethod
+    def _extract_primary_user_query(query: str) -> str:
+        """Strip server-injected memory sections before intent-sensitive routing."""
+        if not query:
+            return ""
+        sentinel = "\n\n---\n"
+        if sentinel in query:
+            return query.split(sentinel, 1)[0].strip()
+        return query.strip()
 
     def _apply_directness(self, response: str, query: str) -> str:
         """Self-critique loop: trim filler, cut abstraction padding, anchor to user intent.

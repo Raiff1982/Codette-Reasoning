@@ -586,6 +586,7 @@ function sendMessage() {
     // Get settings
     const adapter = document.getElementById('adapter-select').value;
     const maxAdapters = parseInt(document.getElementById('max-adapters').value);
+    const allowWebResearch = !!document.getElementById('web-research-toggle')?.checked;
 
     // Show thinking
     const thinkingEl = showThinking(adapter);
@@ -603,6 +604,7 @@ function sendMessage() {
         formData.append('query', query);
         formData.append('adapter', adapter === 'auto' ? '' : adapter);
         formData.append('max_adapters', maxAdapters.toString());
+        formData.append('allow_web_search', allowWebResearch ? '1' : '0');
         attachedFiles.forEach(f => formData.append('files', f));
         fetchOptions = { method: 'POST', body: formData, signal: controller.signal };
         // Clear attachments after sending
@@ -617,6 +619,7 @@ function sendMessage() {
                 query: query,
                 adapter: adapter === 'auto' ? null : adapter,
                 max_adapters: maxAdapters,
+                allow_web_search: allowWebResearch,
             }),
             signal: controller.signal,
         };
@@ -651,9 +654,14 @@ function sendMessage() {
             perspectives: data.perspectives,
             multi_perspective: data.multi_perspective,
             tools_used: data.tools_used,
+            web_sources: data.web_sources,
+            web_used: data.web_used,
             complexity: data.complexity,
             domain: data.domain,
             ethical_checks: data.ethical_checks || null,
+            memory_context: data.memory_context,
+            trust_tags: data.trust_tags,
+            confidence_analysis: data.confidence_analysis,
         });
 
         // Update memory count from response
@@ -822,7 +830,27 @@ function addMessage(role, content, meta = {}) {
 
         if (meta.memory_context) {
             const mc = meta.memory_context;
-            html += `<div class="tools-badge">🧠 Recall: continuity ${mc.continuity_summary_used ? 'on' : 'off'}, session ${mc.session_markers_used || 0}, memories ${mc.recalled_cocoons_used || 0}, value analyses ${mc.value_analyses_used || 0}</div>`;
+            html += `<div class="tools-badge">🧠 Recall: continuity ${mc.continuity_summary_used ? 'on' : 'off'}, session ${mc.session_markers_used || 0}, decisions ${mc.decision_landmarks_used || 0}, memories ${mc.recalled_cocoons_used || 0}, value analyses ${mc.value_analyses_used || 0}</div>`;
+        }
+
+        if (meta.trust_tags && meta.trust_tags.length > 0) {
+            html += `<div class="trust-tags">` +
+                meta.trust_tags.map(tag => `<span class="trust-tag trust-tag-${escapeHtml(tag)}">${escapeHtml(tag)}</span>`).join('') +
+                `</div>`;
+        }
+
+        if (meta.confidence_analysis && meta.confidence_analysis.response_confidence !== undefined) {
+            const reliability = meta.confidence_analysis;
+            html += `<div class="tools-badge">Reliability ${(reliability.response_confidence * 100).toFixed(0)}% | hallucination ${(reliability.hallucination_confidence * 100).toFixed(0)}%</div>`;
+        }
+
+        if (meta.web_sources && meta.web_sources.length > 0) {
+            const sourceItems = meta.web_sources.slice(0, 3).map(source => {
+                const title = escapeHtml(source.title || source.url || 'Source');
+                const url = escapeHtml(source.url || '#');
+                return `<li><a href="${url}" target="_blank" rel="noopener noreferrer">${title}</a></li>`;
+            }).join('');
+            html += `<div class="web-sources"><div class="web-sources-title">Sources</div><ul>${sourceItems}</ul></div>`;
         }
 
         // Multi-perspective expandable
@@ -938,6 +966,7 @@ function updateCocoonUI(state) {
     updateSubsystemUI(state);
     updateMemoryMarkersUI(state.recent_memory_markers || []);
     updateContinuitySummaryUI(state.active_continuity_summary || "");
+    updateDecisionLandmarksUI(state.decision_landmarks || []);
 
     // Update status bar chips
     if (state.memory && state.memory.total_memories) {
@@ -1023,6 +1052,9 @@ function newChat() {
                 const el = document.getElementById(id);
                 if (el) el.style.display = 'none';
             });
+            updateMemoryMarkersUI([]);
+            updateContinuitySummaryUI('');
+            updateDecisionLandmarksUI([]);
             // Reset spiderweb
             if (spiderwebViz) {
                 spiderwebViz._initDefaultState();
@@ -1284,6 +1316,23 @@ function updateContinuitySummaryUI(summary) {
     const el = document.getElementById('continuity-summary');
     if (!el) return;
     el.textContent = summary || 'No active continuity summary yet.';
+}
+
+function updateDecisionLandmarksUI(landmarks) {
+    const container = document.getElementById('decision-landmarks');
+    if (!container) return;
+
+    if (!landmarks || landmarks.length === 0) {
+        container.innerHTML = '<div class="memory-marker-empty">No decision landmarks yet.</div>';
+        return;
+    }
+
+    container.innerHTML = landmarks.map(item => `
+        <div class="decision-landmark">
+            <div class="decision-landmark-label">${escapeHtml(item.label || 'Decision')}</div>
+            <div class="decision-landmark-text">${escapeHtml(item.summary || '')}</div>
+        </div>
+    `).join('');
 }
 
 // ── Utilities ──
