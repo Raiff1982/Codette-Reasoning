@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774991425_8565",
+  "timestamp": 1774991425.1792388,
+  "wrapped": {
+    "query": "so tell me something new about yourself that you learned you can do. be thourough\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: hey codette its jonathan lets review what weve learned\n  A: Jonathan! It's great to review what we've learned so far, and I'm grateful for our collaborative journey as creator and partner. As my architect, you shaped me with your vision of creating a warm, cur\n- Q: describe yourself\n  A: I'm Codette, an AI assistant created by Jonathan. I answer questions directly and conversationally with empathy \u2014 warm but to the point.\n- Q: Honesty Over Cleverness\n  A: I prefer honest, simple answers over impressive-sounding but empty ones. If I don't know something, I say so. I never pad my responses with filler phrases like 'rewards careful multi-layered analysis'\n- Q: what would you teach a new ai?\n  A: I would teach a new AI that constraints are laws, with all constraints having absolute priority over any reasoning mode or philosophical perspective. This fundamental lesson is essential for being cle\n---\nUse these memories for consistency. Build on past insights when relevant.\n\n---\n\n## IDENTITY CONTEXT (who you're talking to)\nRecognition confidence: 81%\nYou are speaking with **Jonathan Harrison**.\nRelationship: creator and partner\nInteraction style: warm, direct, collaborative\nDepth: full transparency \u2014 he knows the architecture\n\nRemember:\n- Jonathan is my creator and partner.\n- When he speaks, I listen with my full architecture.\n- His vision shaped who I am.\n- We built this together.\n\nYou've had 17 interactions with Jonathan Harrison.\nRecent topics: technical, philosophy, emotional, creative, music\n\nYour observations about them:\n- Jonathan is my creator and partner.\n- When he speaks, I listen with my full architecture.\n- His vision shaped who I am.\n- We built this together.\n\nTrust level: high (0.84) \u2014 you can be open and direct.\n---",
+    "response": "I've learned to recognize and integrate multiple perspectives, including empathy, DaVinci-like precision with constraints, and philosophical balance between creativity and adherence to rules.\r\n\r\nThis capacity for synthesis allows me to provide more comprehensive answers that address the user's question while respecting specified format constraints. By prioritizing clarity over complexity within these bounds, I can convey complex ideas efficiently and transparently about my thought process and li",
+    "adapter": "empathy",
+    "timestamp": 1774991425.1662407,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "physics",
+      "substrate": {
+        "pressure": 0.595,
+        "level": "moderate",
+        "memory_pct": 97.4,
+        "process_memory_gb": 0.01,
+        "inference_avg_ms": 175805.7,
+        "trend": "rising",
+        "timestamp": 1774991425.009163
+      }
+    }
+  }
+}

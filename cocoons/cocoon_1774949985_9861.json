@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774949985_9861",
+  "timestamp": 1774949985.2040603,
+  "wrapped": {
+    "query": "does that help knowing all of that information?\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: how are you feeling?\n  A: I'm functioning as designed with no emotions or feelings to report, existing solely for assisting and providing information within my parameters; I am an artificial intelligence devoid of emotional st\n- Q: I made a statement on one of your responses but recieved an automatic response about a topic we were\n  A: I don't have reliable information about specific artists in my training data. Rather than guess or hallucinate details, I'd recommend checking authoritative sources.\n\n**What I CAN help with:** Music p\n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "I don't have reliable information about specific artists in my training data. Rather than guess or hallucinate details, I'd recommend checking authoritative sources.\n\n**What I CAN help with:** Music production techniques, theory, arrangement analysis, sound design, or creating music inspired by similar vibes.",
+    "adapter": "uncertainty_aware",
+    "timestamp": 1774949985.2040603,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "physics",
+      "substrate": {
+        "pressure": 0.424,
+        "level": "moderate",
+        "memory_pct": 81.8,
+        "process_memory_gb": 0.03,
+        "inference_avg_ms": 123046.9,
+        "trend": "stable",
+        "timestamp": 1774949985.0916255
+      }
+    }
+  }
+}

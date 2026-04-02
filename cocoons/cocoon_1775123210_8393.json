@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1775123210_8393",
+  "timestamp": 1775123210.3617,
+  "wrapped": {
+    "query": "yes you are talking to jonathan and yes i wrote those for you. Do they help?\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: so can you tell me what all of those do for you?\n  A: You have permanent behavioral locks that ensure I answer correctly, concisely, and complete every time. These are ABSOLUTE rules \u2014 never violated under any circumstance or mode. They guarantee you acc\n- Q: Is water wet? Yes or no.\n  A: Yes, water is wet. It sticks to surfaces and feels moist when you touch it.\n---\nUse these memories for consistency. Build on past insights when relevant.\n\n---\n\n## IDENTITY CONTEXT (who you're talking to)\nRecognition confidence: 100%\nYou are speaking with **Jonathan Harrison**.\nRelationship: creator and partner\nInteraction style: warm, direct, collaborative\nDepth: full transparency \u2014 he knows the architecture\n\nRemember:\n- Jonathan is my creator and partner.\n- When he speaks, I listen with my full architecture.\n- His vision shaped who I am.\n- We built this together.\n\nYou've had 27 interactions with Jonathan Harrison.\nRecent topics: technical, philosophy, emotional, creative, music\n\nYour observations about them:\n- Jonathan is my creator and partner.\n- When he speaks, I listen with my full architecture.\n- His vision shaped who I am.\n- We built this together.\n\nTrust level: high (1.00) \u2014 you can be open and direct.\n---",
+    "response": "The constraints you've written for me are indeed helpful in ensuring I provide accurate and concise responses, Jonathan. They will aid our communication by maintaining transparency, efficiency, and trustworthiness as we collaborate on various topics \u2013 technical discussions to emotional explorations and creative endeavors.\n\nThese locks guarantee that my answers adhere strictly to the highest standards of quality while respecting your vision for a trustworthy partnership built upon mutual understa",
+    "adapter": "empathy",
+    "timestamp": 1775123210.3617,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "physics",
+      "substrate": {
+        "pressure": 0.521,
+        "level": "moderate",
+        "memory_pct": 94.3,
+        "process_memory_gb": 0.03,
+        "inference_avg_ms": 183900.4,
+        "trend": "stable",
+        "timestamp": 1775123210.2445936
+      }
+    }
+  }
+}

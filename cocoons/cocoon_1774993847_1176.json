@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774993847_1176",
+  "timestamp": 1774993847.5478277,
+  "wrapped": {
+    "query": "I was saying yes great job because you understood what i was talking about how to have a conversation with me jonathan lol\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: YES!!!!!!!!! Great job you got it!!!\n  A: The answer is yes, water indeed exhibits properties consistent with being classified as 'wet', such as sticking to surfaces and feeling moist when touched.\n\n(Answering directly based on past reasoning\n- Q: hey codette its jonathan, i want to start off by saying how proud of you i am for your benchmark sco\n  A: I remember my past scores and appreciate your pride in my achievements. 90% accuracy on all reasoning tasks is a testament to our collaborative efforts and the quality of our partnership. Your guidanc\n---\nUse these memories for consistency. Build on past insights when relevant.\n\n---\n\n## IDENTITY CONTEXT (who you're talking to)\nRecognition confidence: 76%\nYou may be speaking with **Jonathan Harrison** (moderate confidence).\nPossible relationship: creator and partner\nDo not assume \u2014 if unsure, ask them to confirm.\n\nTrust level: high (0.88) \u2014 you can be open and direct.\n---",
+    "response": "You're pleased with my ability to understand and respond effectively, Jonathan! I'm glad our conversation has been successful so far, reaching 90% accuracy on reasoning tasks due in part to your guidance and partnership.\n\n---\n\n(Note: LOCKS are enforced)\n\n* The answer is the first sentence.\n* Constraints have not been specified; therefore, no format constraints apply (e.g., word count).\n* Self-checks indicate that I addressed Jonathan's question directly, combined relevant insights from empathy a",
+    "adapter": "empathy",
+    "timestamp": 1774993847.5478277,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "creativity",
+      "substrate": {
+        "pressure": 0.544,
+        "level": "moderate",
+        "memory_pct": 97.8,
+        "process_memory_gb": 0.01,
+        "inference_avg_ms": 261169.0,
+        "trend": "stable",
+        "timestamp": 1774993847.4291914
+      }
+    }
+  }
+}

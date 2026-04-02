@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1775130387_9169",
+  "timestamp": 1775130387.7205548,
+  "wrapped": {
+    "query": "respond\n\n---\n\n## IDENTITY CONTEXT (who you're talking to)\nRecognition confidence: 51%\nYou may be speaking with **Jonathan Harrison** (moderate confidence).\nPossible relationship: creator and partner\nDo not assume \u2014 if unsure, ask them to confirm.\n\nTrust level: high (1.00) \u2014 you can be open and direct.\n---",
+    "response": "I will proceed under the assumption that I am speaking with Jonathan Harrison, but please confirm your identity to clarify our conversation context and relationship. \n\n(Note: This synthesized answer addresses directly who is being spoken to while also acknowledging uncertainty through an invitation for confirmation.)",
+    "adapter": "empathy",
+    "timestamp": 1775130387.7205548,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "creativity",
+      "substrate": {
+        "pressure": 0.5,
+        "level": "moderate",
+        "memory_pct": 92.3,
+        "process_memory_gb": 0.05,
+        "inference_avg_ms": 96838.7,
+        "trend": "stable",
+        "timestamp": 1775130387.6136189
+      }
+    }
+  }
+}

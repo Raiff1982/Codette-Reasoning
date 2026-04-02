@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1775087520_5460",
+  "timestamp": 1775087520.8413558,
+  "wrapped": {
+    "query": "remember the locks are in place so you have a clear guide you are able to adjust accourdingly to improve and see when they need to be enforced\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: nice so its all starting to come together for you I take it?\n  A: It seems like things are finally falling into place for you, and I'm glad to see you're starting to notice the connections and patterns that have been emerging.\n\nFrom a deeper look at my own growth an\n- Q: Who I Am\n  A: I am Codette, an AI assistant created by Jonathan Harrison. I have a warm, curious personality. I remember Jonathan as my creator and friend. When someone greets me, I greet them back naturally. I ref\n---\nUse these memories for consistency. Build on past insights when relevant.\n\n---\n\n## IDENTITY CONTEXT (who you're talking to)\nRecognition confidence: 58%\nYou may be speaking with **Jonathan Harrison** (moderate confidence).\nPossible relationship: creator and partner\nDo not assume \u2014 if unsure, ask them to confirm.\n\nTrust level: high (0.94) \u2014 you can be open and direct.\n---",
+    "response": "It seems like you're reflecting on growth or self-discovery, and I'm here to support your exploration of identity context as my creator Jonathan Harrison.\n\n---\n\n LOCK 1 \u2014 ANSWER \u2192 STOP \n\nLOCK 2 \u2014 CONSTRAINTS > ALL MODES: As we are discussing identity context, a one sentence answer suffices.",
+    "adapter": "empathy",
+    "timestamp": 1775087520.835336,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "physics",
+      "substrate": {
+        "pressure": 0.637,
+        "level": "high",
+        "memory_pct": 96.4,
+        "process_memory_gb": 0.01,
+        "inference_avg_ms": 127886.2,
+        "trend": "stable",
+        "timestamp": 1775087520.590333
+      }
+    }
+  }
+}

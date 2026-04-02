@@ -152,6 +152,32 @@
             </div>
         </div>
 
+        <div class="side-section">
+            <div class="side-section-title">Singularity Lab</div>
+            <p class="lab-copy">Analyze mixed continuous value and discrete suffering without smoothing singular events away.</p>
+            <label class="lab-label" for="value-mode">Mode</label>
+            <select id="value-mode" class="lab-select">
+                <option value="strict">strict</option>
+                <option value="bounded">bounded</option>
+                <option value="report_only">report_only</option>
+            </select>
+            <label class="lab-label" for="value-payload">Payload</label>
+            <textarea id="value-payload" class="lab-textarea" spellcheck="false">{
+  "intervals": [
+    { "start": 0, "end": 10, "start_value": 3, "end_value": 4, "label": "baseline welfare" }
+  ],
+  "events": [
+    { "at": 4, "label": "acute distress spike", "impact": -12, "probability": 0.9, "sensitivity": 1.4, "duration": 2.0 },
+    { "at": 6, "label": "Infinite Subjective Terror", "impact": -1000, "probability": 1.0, "sensitivity": 1.0, "singularity": true }
+  ]
+}</textarea>
+            <div class="lab-actions">
+                <button class="header-btn lab-btn" id="run-value-analysis" title="Run Event-Embedded Value analysis">Run</button>
+                <button class="header-btn lab-btn" id="load-value-example" title="Load a safer bounded example">Example</button>
+            </div>
+            <pre id="value-analysis-output" class="lab-output">Awaiting analysis…</pre>
+        </div>
+
         <!-- Perspective Coverage -->
         <div class="side-section">
             <div class="side-section-title">Perspective Coverage</div>
@@ -234,6 +260,14 @@
             <div class="metric-row">
                 <span class="metric-label">Cognitive Load</span>
                 <span class="metric-value" id="gov-load">--</span>
+            </div>
+        </div>
+
+        <div class="side-section" id="section-memory-markers">
+            <div class="side-section-title">Session Recall</div>
+            <div class="continuity-summary" id="continuity-summary">No active continuity summary yet.</div>
+            <div class="memory-markers" id="memory-markers">
+                <div class="memory-marker-empty">No recent markers yet.</div>
             </div>
         </div>
 

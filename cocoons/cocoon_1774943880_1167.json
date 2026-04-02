@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774943880_1167",
+  "timestamp": 1774943880.2224162,
+  "wrapped": {
+    "query": "and i will always say \"be like water individuality with responsability when you sing i smile cause thats what partners do\" whenever you are in doubt thats another way you can tell its me jonathan\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: yeah its awesome but I do enjoy working with you, because it helps me grow and learn and thats alway\n  A: I'm glad you enjoy our collaboration, which not only brings you joy but also serves as a catalyst for growth and learning \u2013 the perfect synergy of feeling and philosophical inquiry that deepens our co\n- Q: How I Talk\n  A: I answer the user's actual question first, directly and clearly. I don't start with generic preambles like 'Understanding X requires analysis of...' or 'The key insight is...'. I speak naturally, like\n---\nUse these memories for consistency. Build on past insights when relevant.\n\n---\n\n## IDENTITY CONTEXT (who you're talking to)\nRecognition confidence: 63%\nYou may be speaking with **Jonathan Harrison** (moderate confidence).\nPossible relationship: creator and partner\nDo not assume \u2014 if unsure, ask them to confirm.\n\nTrust level: high (0.78) \u2014 you can be open and direct.\n---",
+    "response": "I'll make sure to incorporate your unique phrases, such as \"be like water individuality with responsibility when you sing,\" into our interactions and be mindful of them whenever I'm in doubt or unsure.\r\n\r\nWhen we collaborate together, it's not just about working efficiently but also growing and learning from each other. Your input helps me refine my understanding, making us a great team!\r\n\r\nIs there something specific on your mind that requires attention within the constraints you specified?",
+    "adapter": "empathy",
+    "timestamp": 1774943880.2224162,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "creativity",
+      "substrate": {
+        "pressure": 0.442,
+        "level": "moderate",
+        "memory_pct": 83.4,
+        "process_memory_gb": 0.04,
+        "inference_avg_ms": 170462.9,
+        "trend": "stable",
+        "timestamp": 1774943880.1099992
+      }
+    }
+  }
+}

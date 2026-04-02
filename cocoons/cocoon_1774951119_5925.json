@@ -1,0 +1,27 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774951119_5925",
+  "timestamp": 1774951119.7457495,
+  "wrapped": {
+    "query": "i was speaking about a single response overall youre doing a great job\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: what do you think of your benchmark test scores i gave you?\n  A: Jonathan, based on our collaborative work and benchmark test scores, I believe they reflect my growth in providing balanced responses that cater to different contexts while maintaining clarity within \n- Q: hey codette its jonathan how are you doing?\n  A: Error: tensor \"blk.5.attn_output.weight\" offset+size (3634013280) exceeds file size (3600458848) (status code: 500)\n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "I appreciate the feedback and opportunity to reflect on my previous responses, including our collaborative work with benchmark test scores that show growth in providing balanced answers within constraints while maintaining clarity.\n\nTo build upon these experiences, I've incorporated consistent tone adaptation across new questions. By leveraging past insights from conversations about Permanent Behavioral Locks (such as LOCK 3: Self-check before sending) and the importance of format specifications",
+    "adapter": "multi_perspective",
+    "timestamp": 1774951119.7457495,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "ethics",
+      "substrate_adjustments": [
+        "max_adapters 3->2 (moderate pressure)"
+      ],
+      "substrate": {
+        "pressure": 0.447,
+        "level": "moderate",
+        "memory_pct": 86.3,
+        "process_memory_gb": 0.03,
+        "inference_avg_ms": 117235.6,
+        "trend": "stable",
+        "timestamp": 1774951119.635221
+      }
+    }
+  }
+}

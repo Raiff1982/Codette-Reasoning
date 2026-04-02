@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadSessions();
     initCoverageDots();
     initAdapterDots();
+    initValueAnalysisLab();
 
     // Initialize spiderweb canvas
     const canvas = document.getElementById('spiderweb-canvas');
@@ -122,6 +123,45 @@ function initUI() {
 
     // TTS — initialize voice selector with preference for natural voices
     initTTS();
+}
+
+function initValueAnalysisLab() {
+    const runBtn = document.getElementById('run-value-analysis');
+    const exampleBtn = document.getElementById('load-value-example');
+    const payloadEl = document.getElementById('value-payload');
+    const modeEl = document.getElementById('value-mode');
+
+    if (!runBtn || !exampleBtn || !payloadEl || !modeEl) return;
+
+    runBtn.addEventListener('click', runValueAnalysis);
+    exampleBtn.addEventListener('click', () => {
+        payloadEl.value = JSON.stringify({
+            intervals: [
+                { start: 0, end: 6, start_value: 2, end_value: 3, label: 'stable interval' },
+                { start: 6, end: 8, start_value: 1, end_value: -1, confidence: 0.7, label: 'degrading interval' },
+            ],
+            events: [
+                {
+                    at: 3,
+                    label: 'acute panic episode',
+                    impact: -9,
+                    probability: 0.8,
+                    sensitivity: 1.6,
+                    duration: 1.5,
+                    context_weights: { psychology: 1.2, support: 0.9 },
+                },
+                {
+                    at: 7,
+                    label: 'protective intervention',
+                    impact: 4,
+                    probability: 0.9,
+                    sensitivity: 1.1,
+                    duration: 0.5,
+                },
+            ],
+        }, null, 2);
+        modeEl.value = 'bounded';
+    });
 }
 
 // ── Voice Input ──
@@ -664,6 +704,76 @@ function sendMessage() {
     });
 }
 
+function runValueAnalysis() {
+    const payloadEl = document.getElementById('value-payload');
+    const modeEl = document.getElementById('value-mode');
+    const outputEl = document.getElementById('value-analysis-output');
+
+    if (!payloadEl || !modeEl || !outputEl) return;
+
+    let payload;
+    try {
+        payload = JSON.parse(payloadEl.value);
+    } catch (err) {
+        outputEl.textContent = `Invalid JSON: ${err.message}`;
+        return;
+    }
+
+    payload.singularity_mode = modeEl.value;
+    outputEl.textContent = 'Running analysis...';
+
+    fetch('/api/value-analysis', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+    })
+    .then(r => r.json())
+    .then(result => {
+        if (result.error) {
+            outputEl.textContent = `Error: ${result.error}`;
+            return;
+        }
+        outputEl.textContent = formatValueAnalysis(result);
+    })
+    .catch(err => {
+        outputEl.textContent = `Request failed: ${err.message}`;
+    });
+}
+
+function formatValueAnalysis(result) {
+    const lines = [];
+    lines.push(`continuous_total: ${formatFiniteNumber(result.continuous_total)}`);
+    lines.push(`discrete_total: ${formatFiniteNumber(result.discrete_total)}`);
+    lines.push(`combined_total: ${formatFiniteNumber(result.combined_total)}`);
+    lines.push(`singularity_detected: ${result.singularity_detected ? 'yes' : 'no'}`);
+    lines.push(`mode: ${result.singularity_mode}`);
+
+    if (Array.isArray(result.dominant_events) && result.dominant_events.length > 0) {
+        lines.push('');
+        lines.push('dominant_events:');
+        result.dominant_events.forEach((event, index) => {
+            lines.push(`${index + 1}. ${event.label} @ t=${event.at} => ${formatFiniteNumber(event.weighted_value)}`);
+        });
+    }
+
+    if (Array.isArray(result.notes) && result.notes.length > 0) {
+        lines.push('');
+        lines.push('notes:');
+        result.notes.forEach((note, index) => {
+            lines.push(`${index + 1}. ${note}`);
+        });
+    }
+
+    return lines.join('\n');
+}
+
+function formatFiniteNumber(value) {
+    if (value === Infinity) return 'Infinity';
+    if (value === -Infinity) return '-Infinity';
+    if (typeof value === 'number') return value.toFixed(6);
+    return String(value);
+}
+
 function askQuestion(query) {
     document.getElementById('chat-input').value = query;
     sendMessage();
@@ -708,6 +818,11 @@ function addMessage(role, content, meta = {}) {
         if (meta.tools_used && meta.tools_used.length > 0) {
             const toolNames = meta.tools_used.map(t => t.tool).join(', ');
             html += `<div class="tools-badge">🔧 Tools: ${toolNames}</div>`;
+        }
+
+        if (meta.memory_context) {
+            const mc = meta.memory_context;
+            html += `<div class="tools-badge">🧠 Recall: continuity ${mc.continuity_summary_used ? 'on' : 'off'}, session ${mc.session_markers_used || 0}, memories ${mc.recalled_cocoons_used || 0}, value analyses ${mc.value_analyses_used || 0}</div>`;
         }
 
         // Multi-perspective expandable
@@ -821,6 +936,8 @@ function updateCocoonUI(state) {
 
     // New subsystem panels (AEGIS, Nexus, Memory, Resonance, Guardian)
     updateSubsystemUI(state);
+    updateMemoryMarkersUI(state.recent_memory_markers || []);
+    updateContinuitySummaryUI(state.active_continuity_summary || "");
 
     // Update status bar chips
     if (state.memory && state.memory.total_memories) {
@@ -1144,6 +1261,29 @@ function updateGuardianUI(guardian) {
     const trust = guardian.trust || {};
     document.getElementById('guardian-trust').textContent =
         trust.total_interactions || 0;
+}
+
+function updateMemoryMarkersUI(markers) {
+    const container = document.getElementById('memory-markers');
+    if (!container) return;
+
+    if (!markers || markers.length === 0) {
+        container.innerHTML = '<div class="memory-marker-empty">No recent markers yet.</div>';
+        return;
+    }
+
+    container.innerHTML = markers.map(marker => `
+        <div class="memory-marker">
+            <div class="memory-marker-role">${escapeHtml(marker.role || 'memory')}</div>
+            <div class="memory-marker-text">${escapeHtml(marker.text || '')}</div>
+        </div>
+    `).join('');
+}
+
+function updateContinuitySummaryUI(summary) {
+    const el = document.getElementById('continuity-summary');
+    if (!el) return;
+    el.textContent = summary || 'No active continuity summary yet.';
 }
 
 // ── Utilities ──

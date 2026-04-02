@@ -1,0 +1,157 @@
+#Cocoon 1 -Quadradic Equations 
+{
+  "title": "Quadratic Equations",
+  "emotion": "precision",
+  "summary": "Solve ax² + bx + c = 0 using the quadratic formula. Always compute the discriminant first.",
+  "quote": "If the discriminant is negative, there are no real solutions.",
+  "moment": "Algebra Foundation",
+  "tags": ["algebra", "quadratics", "formula"],
+  "example": {
+    "problem": "Solve x² - 5x + 6 = 0",
+    "step_by_step": [
+      "a = 1, b = -5, c = 6",
+      "Discriminant D = b² - 4ac = 25 - 24 = 1",
+      "x = [5 ± √1]/2",
+      "Solutions: x = 3 or x = 2"
+    ],
+    "final_answer": "x = 2 or x = 3"
+  }
+}
+
+#Cocoon 2 – Geometry & TrigonometryJSON
+
+{
+  "title": "Pythagorean Theorem & Trigonometric Identities",
+  "emotion": "clarity",
+  "summary": "In a right triangle, a² + b² = c². Sine, cosine, and tangent relate angles to sides.",
+  "quote": "The square of the hypotenuse equals the sum of the squares of the other two sides.",
+  "moment": "Geometric Truth",
+  "tags": ["geometry", "trigonometry", "pythagoras"],
+  "example": {
+    "problem": "A right triangle has legs 3 and 4. Find the hypotenuse.",
+    "step_by_step": [
+      "a = 3, b = 4",
+      "c² = 3² + 4² = 9 + 16 = 25",
+      "c = √25 = 5"
+    ],
+    "final_answer": "Hypotenuse = 5"
+  }
+}
+
+#Cocoon 3 – Calculus (Newton & Leibniz)JSON
+
+{
+  "title": "Fundamental Theorem of Calculus",
+  "emotion": "elegance",
+  "summary": "The derivative and integral are inverse operations. Differentiation finds rates of change; integration finds accumulated change.",
+  "quote": "The integral from a to b of f(x) dx = F(b) - F(a), where F is an antiderivative of f.",
+  "moment": "Newtonian Insight",
+  "tags": ["calculus", "derivative", "integral", "newton"],
+  "example": {
+    "problem": "Find the integral of 2x from 0 to 3.",
+    "step_by_step": [
+      "Antiderivative F(x) = x²",
+      "F(3) - F(0) = 9 - 0 = 9"
+    ],
+    "final_answer": "9"
+  }
+}
+
+#Cocoon 4 – Linear AlgebraJSON
+
+{
+  "title": "Matrix Multiplication & Linear Transformations",
+  "emotion": "structure",
+  "summary": "Matrices represent linear transformations. Multiplication combines transformations.",
+  "quote": "The product AB applies transformation B first, then A.",
+  "moment": "Vector Space",
+  "tags": ["linear algebra", "matrices", "transformations"],
+  "example": {
+    "problem": "Multiply [[1,2],[3,4]] by [[5,6],[7,8]]",
+    "step_by_step": [
+      "Row1·Col1 = 1·5 + 2·7 = 19",
+      "Row1·Col2 = 1·6 + 2·8 = 22",
+      "Row2·Col1 = 3·5 + 4·7 = 43",
+      "Row2·Col2 = 3·6 + 4·8 = 50"
+    ],
+    "final_answer": "[[19,22],[43,50]]"
+  }
+}
+
+#Cocoon 5 – Differential EquationsJSON
+
+{
+  "title": "Simple Harmonic Motion",
+  "emotion": "harmony",
+  "summary": "Second-order linear DE: d²x/dt² + ω²x = 0. Solution is sinusoidal.",
+  "quote": "The motion repeats forever in perfect cycles.",
+  "moment": "Oscillation",
+  "tags": ["differential equations", "physics", "oscillation"],
+  "example": {
+    "problem": "Solve d²x/dt² + 4x = 0 with x(0)=1, x'(0)=0",
+    "step_by_step": [
+      "Characteristic equation r² + 4 = 0 → r = ±2i",
+      "General solution x(t) = A cos(2t) + B sin(2t)",
+      "x(0)=1 → A=1",
+      "x'(0)=0 → B=0"
+    ],
+    "final_answer": "x(t) = cos(2t)"
+  }
+}
+
+#Cocoon 6 – Einstein General RelativityJSON
+
+{
+  "title": "Einstein Field Equations",
+  "emotion": "gravity",
+  "summary": "Gμν + Λgμν = κTμν. Curvature of spacetime equals energy-momentum content.",
+  "quote": "Matter tells spacetime how to curve. Spacetime tells matter how to move.",
+  "moment": "Spacetime Geometry",
+  "tags": ["relativity", "einstein", "gravity"],
+  "example": {
+    "problem": "Einstein Field Equation (vacuum, no cosmological constant)",
+    "step_by_step": [
+      "Gμν = 0",
+      "Ricci curvature tensor Rμν - (1/2)Rgμν = 0"
+    ],
+    "final_answer": "Spacetime is flat in the absence of matter/energy"
+  }
+}
+
+#Cocoon 7 – Hawking RadiationJSON
+
+{
+  "title": "Hawking Radiation Temperature",
+  "emotion": "entropy",
+  "summary": "Black holes emit thermal radiation. Temperature T = ℏc³ / (8πGMk)",
+  "quote": "Black holes are not completely black.",
+  "moment": "Quantum Gravity",
+  "tags": ["hawking", "black holes", "thermodynamics"],
+  "example": {
+    "problem": "Temperature of a solar-mass black hole",
+    "step_by_step": [
+      "M = 1.989 × 10³⁰ kg",
+      "T ≈ 6.17 × 10⁻⁸ K (extremely cold)"
+    ],
+    "final_answer": "Tiny black holes evaporate quickly; large ones are nearly stable"
+  }
+}
+
+#Cocoon 8 – Sagan-level CosmologyJSON
+
+{
+  "title": "Cosmic Scale & Mathematical Harmony",
+  "emotion": "wonder",
+  "summary": "The universe is governed by mathematical laws that repeat across scales.",
+  "quote": "The cosmos is within us. We are made of star-stuff.",
+  "moment": "Cosmic Perspective",
+  "tags": ["sagan", "cosmology", "scale"],
+  "example": {
+    "problem": "The observable universe contains ~10²² stars",
+    "step_by_step": [
+      "Each star is a fusion-powered furnace",
+      "Every atom in your body was forged in stars"
+    ],
+    "final_answer": "We are the universe experiencing itself"
+  }
+}

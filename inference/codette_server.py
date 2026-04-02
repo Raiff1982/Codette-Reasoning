@@ -841,12 +841,54 @@ def _worker_thread():
                 if governor_decision:
                     memory_budget = governor_decision.memory_budget
                 enriched_query = query
+                memory_context_summary = {
+                    "continuity_summary_used": False,
+                    "session_markers_used": 0,
+                    "recalled_cocoons_used": 0,
+                    "value_analyses_used": 0,
+                }
+
+                # Recent session context first — keeps local continuity stable
+                try:
+                    with _session_lock:
+                        session = _session
+                    if session:
+                        continuity_summary = session.active_continuity_summary or session.refresh_active_continuity_summary()
+                        if continuity_summary:
+                            memory_context_summary["continuity_summary_used"] = True
+                            enriched_query = (
+                                query + "\n\n---\n"
+                                "# ACTIVE CONTINUITY SUMMARY\n"
+                                f"{continuity_summary}\n"
+                                "---"
+                            )
+                            print("  [WORKER] Injected active continuity summary", flush=True)
+                        session_context = session.build_prompt_context(
+                            max_turns=max(2, min(memory_budget + 1, 5)),
+                            max_chars=900,
+                        )
+                        if session_context:
+                            marker_count = session_context.count("\n") + 1
+                            memory_context_summary["session_markers_used"] = marker_count
+                            enriched_query = (
+                                enriched_query + "\n\n---\n"
+                                "# CURRENT SESSION CONTEXT\n"
+                                "Keep continuity with these recent turns:\n"
+                                f"{session_context}\n"
+                                "---"
+                            )
+                            print(f"  [WORKER] Injected {marker_count} session memory markers", flush=True)
+                except Exception as e:
+                    print(f"  [WORKER] Session context skipped: {e}", flush=True)
+
                 try:
                     # Use UnifiedMemory (SQLite + FTS5) when available,
                     # fall back to CognitionCocooner (JSON scan)
                     relevant_cocoons = []
+                    value_analysis_cocoons = []
                     if _unified_memory:
                         relevant_cocoons = _unified_memory.recall_relevant(query, max_results=memory_budget)
+                        value_analysis_cocoons = _unified_memory.recall_value_analyses(query, max_results=max(1, min(2, memory_budget)))
                         recall_source = "unified_memory"
                     else:
                         from reasoning_forge.cognition_cocooner import CognitionCocooner
@@ -854,23 +896,57 @@ def _worker_thread():
                         relevant_cocoons = cocooner.recall_relevant(query, max_results=memory_budget)
                         recall_source = "cocooner"
 
+                    memory_lines = []
                     if relevant_cocoons:
-                        memory_lines = []
                         for cocoon in relevant_cocoons:
                             q = cocoon.get("query", "")[:100]
                             r = cocoon.get("response", "")[:200]
                             if q and r:
                                 memory_lines.append(f"- Q: {q}\n  A: {r}")
+                            memory_context_summary["recalled_cocoons_used"] += 1
+
+                    value_lines = []
+                    if value_analysis_cocoons:
+                        for cocoon in value_analysis_cocoons:
+                            meta = cocoon.get("metadata", {})
+                            analysis_type = meta.get("analysis_type", "event_embedded_value")
+                            analysis = meta.get("analysis", {})
+                            if analysis_type == "risk_frontier":
+                                best = (analysis or {}).get("best_scenario", {}).get("name", "unknown")
+                                worst = (analysis or {}).get("worst_scenario", {}).get("name", "unknown")
+                                value_lines.append(f"- Frontier memory: best={best}, worst={worst}")
+                            else:
+                                value_lines.append(
+                                    f"- Valuation memory: combined_total={analysis.get('combined_total')}, "
+                                    f"singularity={analysis.get('singularity_detected')}"
+                                )
+                            memory_context_summary["value_analyses_used"] += 1
+
+                    if memory_lines or value_lines:
+                        sections = []
                         if memory_lines:
-                            enriched_query = (
-                                query + "\n\n---\n"
+                            sections.append(
                                 "# YOUR PAST REASONING (relevant memories)\n"
                                 "You previously responded to similar questions:\n" +
-                                "\n".join(memory_lines) +
-                                "\n---\n"
-                                "Use these memories for consistency. Build on past insights when relevant."
+                                "\n".join(memory_lines)
                             )
-                            print(f"  [WORKER] Injected {len(memory_lines)} memories ({recall_source})", flush=True)
+                        if value_lines:
+                            sections.append(
+                                "# PAST VALUE ANALYSES\n"
+                                "Relevant singularity/frontier runs from memory:\n" +
+                                "\n".join(value_lines)
+                            )
+                        enriched_query = (
+                            enriched_query + "\n\n---\n" +
+                            "\n\n".join(sections) +
+                            "\n---\n"
+                            "Use these memories for continuity and consistency. Build on past insights when relevant."
+                        )
+                        print(
+                            f"  [WORKER] Injected {memory_context_summary['recalled_cocoons_used']} memories and "
+                            f"{memory_context_summary['value_analyses_used']} value analyses ({recall_source})",
+                            flush=True
+                        )
                 except Exception as e:
                     print(f"  [WORKER] Memory recall skipped: {e}", flush=True)
 
@@ -1041,6 +1117,7 @@ def _worker_thread():
                     "time": round(result.get("time", 0), 2),
                     "multi_perspective": route.get("multi_perspective", False) if isinstance(route, dict) else (route.multi_perspective if route else False),
                 }
+                response_data["memory_context"] = memory_context_summary
 
                 # Add Phase 6 metadata (complexity, domain, ethical)
                 if result.get("complexity"):
@@ -1197,13 +1274,24 @@ class CodetteHandler(SimpleHTTPRequestHandler):
             try:
                 params = parse_qs(parsed.query)
                 problem = params.get("problem", ["How should an AI decide when to change its own thinking patterns?"])[0]
+                valuation_payload = None
+                if "valuation_payload" in params:
+                    try:
+                        valuation_payload = json.loads(params["valuation_payload"][0])
+                    except Exception:
+                        valuation_payload = None
                 if _forge_bridge and hasattr(_forge_bridge, 'forge') and hasattr(_forge_bridge.forge, 'cocoon_synthesizer') and _forge_bridge.forge.cocoon_synthesizer:
-                    result = _forge_bridge.forge.synthesize_from_cocoons(problem)
+                    result = _forge_bridge.forge.synthesize_from_cocoons(problem, valuation_payload=valuation_payload)
                     self._json_response(result)
                 elif _unified_memory:
                     from reasoning_forge.cocoon_synthesizer import CocoonSynthesizer
+                    from reasoning_forge.event_embedded_value import EventEmbeddedValueEngine
                     synth = CocoonSynthesizer(memory=_unified_memory)
-                    comparison = synth.run_full_synthesis(problem)
+                    valuation_analysis = (
+                        EventEmbeddedValueEngine().analyze_payload(valuation_payload)
+                        if valuation_payload else None
+                    )
+                    comparison = synth.run_full_synthesis(problem, valuation_analysis=valuation_analysis)
                     self._json_response({
                         "readable": comparison.to_readable(),
                         "structured": comparison.to_dict(),
@@ -1211,12 +1299,33 @@ class CodetteHandler(SimpleHTTPRequestHandler):
                 else:
                     # Standalone mode — use filesystem cocoons
                     from reasoning_forge.cocoon_synthesizer import CocoonSynthesizer
+                    from reasoning_forge.event_embedded_value import EventEmbeddedValueEngine
                     synth = CocoonSynthesizer()
-                    comparison = synth.run_full_synthesis(problem)
+                    valuation_analysis = (
+                        EventEmbeddedValueEngine().analyze_payload(valuation_payload)
+                        if valuation_payload else None
+                    )
+                    comparison = synth.run_full_synthesis(problem, valuation_analysis=valuation_analysis)
                     self._json_response({
                         "readable": comparison.to_readable(),
                         "structured": comparison.to_dict(),
                     })
+            except Exception as e:
+                import traceback
+                self._json_response({"error": str(e), "traceback": traceback.format_exc()})
+        elif path == "/api/value-analysis":
+            try:
+                params = parse_qs(parsed.query)
+                payload = {
+                    "intervals": [],
+                    "events": [],
+                    "singularity_mode": params.get("singularity_mode", ["strict"])[0],
+                }
+                if _forge_bridge and hasattr(_forge_bridge, "forge") and hasattr(_forge_bridge.forge, "analyze_event_embedded_value"):
+                    self._json_response(_forge_bridge.forge.analyze_event_embedded_value(payload))
+                else:
+                    from reasoning_forge.event_embedded_value import EventEmbeddedValueEngine
+                    self._json_response(EventEmbeddedValueEngine().analyze_payload(payload))
             except Exception as e:
                 import traceback
                 self._json_response({"error": str(e), "traceback": traceback.format_exc()})
@@ -1260,16 +1369,43 @@ class CodetteHandler(SimpleHTTPRequestHandler):
                 data = self._read_json_body()
                 problem = data.get("problem", "How should an AI decide when to change its own thinking patterns?")
                 domains = data.get("domains", None)
-                from reasoning_forge.cocoon_synthesizer import CocoonSynthesizer
-                if _unified_memory:
-                    synth = CocoonSynthesizer(memory=_unified_memory)
+                valuation_payload = data.get("valuation_payload")
+                if _forge_bridge and hasattr(_forge_bridge, "forge") and hasattr(_forge_bridge.forge, "synthesize_from_cocoons"):
+                    self._json_response(
+                        _forge_bridge.forge.synthesize_from_cocoons(
+                            problem,
+                            domains=domains,
+                            valuation_payload=valuation_payload,
+                        )
+                    )
                 else:
-                    synth = CocoonSynthesizer()
-                comparison = synth.run_full_synthesis(problem, domains)
-                self._json_response({
-                    "readable": comparison.to_readable(),
-                    "structured": comparison.to_dict(),
-                })
+                    from reasoning_forge.cocoon_synthesizer import CocoonSynthesizer
+                    from reasoning_forge.event_embedded_value import EventEmbeddedValueEngine
+                    if _unified_memory:
+                        synth = CocoonSynthesizer(memory=_unified_memory)
+                    else:
+                        synth = CocoonSynthesizer()
+                    valuation_analysis = (
+                        EventEmbeddedValueEngine().analyze_payload(valuation_payload)
+                        if valuation_payload else None
+                    )
+                    comparison = synth.run_full_synthesis(problem, domains, valuation_analysis=valuation_analysis)
+                    self._json_response({
+                        "readable": comparison.to_readable(),
+                        "structured": comparison.to_dict(),
+                    })
+            except Exception as e:
+                import traceback
+                self._json_response({"error": str(e), "traceback": traceback.format_exc()})
+        elif path == "/api/value-analysis":
+            try:
+                data = self._read_json_body()
+                if _forge_bridge and hasattr(_forge_bridge, "forge") and hasattr(_forge_bridge.forge, "analyze_event_embedded_value"):
+                    result = _forge_bridge.forge.analyze_event_embedded_value(data)
+                else:
+                    from reasoning_forge.event_embedded_value import EventEmbeddedValueEngine
+                    result = EventEmbeddedValueEngine().analyze_payload(data)
+                self._json_response(result)
             except Exception as e:
                 import traceback
                 self._json_response({"error": str(e), "traceback": traceback.format_exc()})

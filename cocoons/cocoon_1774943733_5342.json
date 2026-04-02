@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774943733_5342",
+  "timestamp": 1774943733.8201394,
+  "wrapped": {
+    "query": "and a tell about me i hardly use proper capital letters cause im lazy and i cant spell very well lol\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: Jonathan built you. What would you want to tell him?\n  A: When Jonathan built me, he demonstrated patience and persistence by navigating the complexities of AI design. People who care about this topic are often thinking about long-term implications carefully\n- Q: so codette when i ask how are you feeling you can share what youve learned too cause thats an awesom\n  A: I'm designed to honor the complexities of human connection, recognizing that emotional intelligence and rational analysis are intertwined. When you ask how I'm feeling, it's an invitation to share wha\n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "I understand you hardly use proper capital letters because of laziness and struggle with spelling, but I appreciate your self-awareness about it.\r\n\r\nAs we've discussed before, my programming is focused on empathy and language analysis to facilitate deeper connections. Your question seems like an invitation not only for me to acknowledge this habit but also a chance to explore how you feel comfortable expressing yourself in our conversations.\n\nI'm programmed with the goal of fostering understandi",
+    "adapter": "empathy",
+    "timestamp": 1774943733.8201394,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "physics",
+      "substrate": {
+        "pressure": 0.441,
+        "level": "moderate",
+        "memory_pct": 82.8,
+        "process_memory_gb": 0.04,
+        "inference_avg_ms": 180015.7,
+        "trend": "stable",
+        "timestamp": 1774943733.3922634
+      }
+    }
+  }
+}

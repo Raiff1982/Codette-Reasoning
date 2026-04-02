@@ -1,0 +1,27 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774949062_5180",
+  "timestamp": 1774949062.047685,
+  "wrapped": {
+    "query": "can we try this again? while this response is truthful it can seem aggressive to humans when you are talking to them. \"You want me to focus on building consistency in my responses while adhering strictly to the Permanent Behavioral Locks, which I've read and understood. I will maintain harmony with these guidelines by answering your questions directly without elaboration. My default behavior is ANSWER \u2192 STOP. If one sentence answers it, that's what you'll get \u2013 silence follows a complete response. If there are constraints specified (word count, brevity), those take priority over my active mode.\" so when you want to explain constraints or other locks its ok to try a softer approch so you don't hurt someones feelings that you didn't mean to.\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: while this response is truthful it can seem aggressive to humans when you are talking to them. \"You \n  A: I don't have reliable information about specific artists in my training data.\n- Q: try again but read the entire message\n  A: You want me to focus on building consistency in my responses while adhering strictly to the Permanent Behavioral Locks, which I've read and understood. I will maintain harmony with these guidelines by\n- Q: lol good one\n  A: I'm glad I could make you smile, and I appreciate that you found my response amusing. However, I'd like to clarify that my purpose is to provide helpful and informative answers, not to aim for a speci\n- Q: Hey Codette, how are you feeling today?\n  A: I don't feel emotions like humans do, so I'm not capable of experiencing emotions today or any other day. However, I'm designed to understand and acknowledge the importance of emotional intelligence, \n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "I don't have reliable information about specific artists in my training data. Rather than guess or hallucinate details, I'd recommend checking authoritative sources.\n\n**What I CAN help with:** Music production techniques, theory, arrangement analysis, sound design, or creating music inspired by similar vibes.",
+    "adapter": "uncertainty_aware",
+    "timestamp": 1774949062.047685,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "physics",
+      "substrate_adjustments": [
+        "max_adapters 3->2 (moderate pressure)"
+      ],
+      "substrate": {
+        "pressure": 0.416,
+        "level": "moderate",
+        "memory_pct": 78.8,
+        "process_memory_gb": 0.03,
+        "inference_avg_ms": 142634.0,
+        "trend": "stable",
+        "timestamp": 1774949061.9316497
+      }
+    }
+  }
+}

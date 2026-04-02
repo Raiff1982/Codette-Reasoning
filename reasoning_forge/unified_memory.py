@@ -454,6 +454,74 @@ class UnifiedMemory:
         except Exception as e:
             logger.debug(f"mark_success failed: {e}")
 
+    def store_value_analysis(
+        self,
+        title: str,
+        analysis: Dict[str, Any],
+        payload: Optional[Dict[str, Any]] = None,
+        frontier: bool = False,
+        importance: int = 8,
+    ) -> str:
+        """Persist a valuation or frontier analysis as a searchable cocoon."""
+        mode = "risk_frontier" if frontier else "event_embedded_value"
+        query = title[:500] or ("Risk frontier analysis" if frontier else "Singularity-aware value analysis")
+
+        if frontier:
+            best = (analysis or {}).get("best_scenario") or {}
+            worst = (analysis or {}).get("worst_scenario") or {}
+            response = (
+                f"Risk frontier comparison completed. "
+                f"Best scenario: {best.get('name', 'unknown')}. "
+                f"Worst scenario: {worst.get('name', 'unknown')}. "
+                f"Compared {len((analysis or {}).get('scenarios', []))} scenarios."
+            )
+        else:
+            combined = (analysis or {}).get("combined_total")
+            singularity = (analysis or {}).get("singularity_detected", False)
+            response = (
+                f"Singularity-aware valuation completed. Combined total={combined}. "
+                f"Singularity detected={singularity}. "
+                f"Mode={(analysis or {}).get('singularity_mode', 'strict')}."
+            )
+
+        metadata = {
+            "analysis_type": mode,
+            "payload": payload or {},
+            "analysis": analysis or {},
+            "success": True,
+        }
+        return self.store(
+            query=query,
+            response=response,
+            adapter="event_embedded_value",
+            domain="risk_frontier" if frontier else "singularity_analysis",
+            complexity="COMPLEX",
+            emotion="concerned" if not frontier else "analytical",
+            importance=importance,
+            metadata=metadata,
+        )
+
+    def recall_value_analyses(self, query: str = "", max_results: int = 5) -> List[Dict]:
+        """Recall recent or relevant value-analysis cocoons."""
+        if query.strip():
+            results = self.recall_relevant(query, max_results=max_results)
+            return [
+                cocoon for cocoon in results
+                if cocoon.get("metadata", {}).get("analysis_type") in {"event_embedded_value", "risk_frontier"}
+            ]
+
+        combined = self.recall_by_domain("singularity_analysis", max_results)
+        combined.extend(self.recall_by_domain("risk_frontier", max_results))
+        deduped = []
+        seen = set()
+        for cocoon in sorted(combined, key=lambda c: c.get("timestamp", 0), reverse=True):
+            cid = cocoon.get("id")
+            if cid in seen:
+                continue
+            seen.add(cid)
+            deduped.append(cocoon)
+        return deduped[:max_results]
+
     # ─────────────────────────────────────────────────────────
     # INTROSPECTION — adapter dominance, domain clusters, trends
     # ─────────────────────────────────────────────────────────

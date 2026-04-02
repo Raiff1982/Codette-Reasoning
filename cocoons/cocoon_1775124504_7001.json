@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1775124504_7001",
+  "timestamp": 1775124504.1528053,
+  "wrapped": {
+    "query": "what is Hawking Radiation Temperature\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: --- Attached File: cocoon_math.json (5.2 KB) ---\n#Cocoon 1 -Quadradic Equations \r\n{\r\n  \"title\": \"Qua\n  A: You have access to multiple cocoons related to various mathematical concepts, including quadratic equations, Pythagorean theorem, calculus (Newton & Leibniz), linear algebra, differential equations, E\n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "The Hawking Radiation Temperature is approximately 10^-8 K, also known as the \"Hawking temperature\", which represents the theoretical temperature at black holes due to quantum effects and their event horizon's surface gravity.\r\n\r\n(I've applied LOCKS by stopping here.)",
+    "adapter": "newton",
+    "timestamp": 1775124504.1528053,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.567,
+        "level": "moderate",
+        "memory_pct": 94.2,
+        "process_memory_gb": 0.03,
+        "inference_avg_ms": 128962.4,
+        "trend": "stable",
+        "timestamp": 1775124504.0441039
+      }
+    }
+  }
+}

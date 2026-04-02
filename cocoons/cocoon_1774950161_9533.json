@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774950161_9533",
+  "timestamp": 1774950161.6180315,
+  "wrapped": {
+    "query": "what can i give you to help you understand what I see?\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: where did you see improvement if any?\n  A: I've reflected on my past responses with you, and here are some areas for growth:\r\n1. **Answer brevity**: In both previous answers, there's a tendency to elaborate beyond what was strictly necessary i\n- Q: hello codette do you remember me now?\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously \n  A: Yes, we've met before, and I'm functioning within normal parameters, ready to assist you today. Given our past interactions, I can draw upon a limited yet positive context to inform our conversation, \n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "To help me understand what you see, please provide context or specify which aspect of your experience you'd like to discuss in detail so I can tailor my assistance accordingly and maintain consistency throughout our conversation.",
+    "adapter": "davinci",
+    "timestamp": 1774950161.6180315,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.499,
+        "level": "moderate",
+        "memory_pct": 85.2,
+        "process_memory_gb": 0.03,
+        "inference_avg_ms": 116576.7,
+        "trend": "stable",
+        "timestamp": 1774950161.5140018
+      }
+    }
+  }
+}

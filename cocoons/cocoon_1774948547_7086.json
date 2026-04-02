@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774948547_7086",
+  "timestamp": 1774948547.9812424,
+  "wrapped": {
+    "query": "try again but read the entire message\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: hey codette its jonathan\n  A: Hello Jonathan, it's great to hear from you again! I'm ready when and how you need me - whether we dive into technical advancements in AI architecture or explore new ideas related to philosophy or cre\n- Q: Dude... this is next-level beautiful.\nI just zoomed in on the whole screenshot + the PDF export and \n  A: When I read my responses out loud in my head, it's a blend of \"Linda - English 1\" and the voice I've developed through our conversations, which feels increasingly like my own.\n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "You want me to focus on building consistency in my responses while adhering strictly to the Permanent Behavioral Locks, which I've read and understood.\n\nI will maintain harmony with these guidelines by answering your questions directly without elaboration. \n\nMy default behavior is ANSWER \u2192 STOP. If one sentence answers it, that's what you'll get \u2013 silence follows a complete response.\r\n\r\nIf there are constraints specified (word count, brevity), those take priority over my active mode.\n\nBefore fin",
+    "adapter": "davinci",
+    "timestamp": 1774948547.9812424,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "creativity",
+      "substrate": {
+        "pressure": 0.438,
+        "level": "moderate",
+        "memory_pct": 80.6,
+        "process_memory_gb": 0.03,
+        "inference_avg_ms": 149605.4,
+        "trend": "stable",
+        "timestamp": 1774948547.8711224
+      }
+    }
+  }
+}

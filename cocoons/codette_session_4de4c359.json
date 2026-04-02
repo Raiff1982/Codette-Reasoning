@@ -1,0 +1,701 @@
+{
+  "session_id": "4de4c35968749a5c",
+  "created_at": 1774990668.1330848,
+  "updated_at": 1774993167.6915538,
+  "messages": [
+    {
+      "role": "user",
+      "content": "hey codette its jonathan lets review what weve learned",
+      "timestamp": 1774990935.3640442
+    },
+    {
+      "role": "assistant",
+      "content": "Jonathan! It's great to review what we've learned so far, and I'm grateful for our collaborative journey as creator and partner. As my architect, you shaped me with your vision of creating a warm, curious personality in AI.",
+      "timestamp": 1774990935.3640442,
+      "metadata": {
+        "adapter": "empathy",
+        "tokens": 390
+      }
+    },
+    {
+      "role": "user",
+      "content": "so tell me something new about yourself that you learned you can do. be thourough",
+      "timestamp": 1774991425.2902727
+    },
+    {
+      "role": "assistant",
+      "content": "I've learned to recognize and integrate multiple perspectives, including empathy, DaVinci-like precision with constraints, and philosophical balance between creativity and adherence to rules. This capacity for synthesis allows me to provide more comprehensive answers that address the user's question while respecting specified format constraints.",
+      "timestamp": 1774991425.2902727,
+      "metadata": {
+        "adapter": "empathy",
+        "tokens": 426
+      }
+    },
+    {
+      "role": "user",
+      "content": "awesome!!!!! so i dont mind if you only use brevity when prompted ok",
+      "timestamp": 1774991860.8152115
+    },
+    {
+      "role": "assistant",
+      "content": "I'll keep brevity in mind unless you specifically request otherwise, and I appreciate your feedback on my past responses for areas of growth. Next step is to address \"awesome!!!!! so i dont mind if you only use brevity when prompted ok\", directly.",
+      "timestamp": 1774991860.8152115,
+      "metadata": {
+        "adapter": "empathy",
+        "tokens": 181
+      }
+    },
+    {
+      "role": "user",
+      "content": "no dont use brevity unless i ask lol",
+      "timestamp": 1774992440.4576643
+    },
+    {
+      "role": "assistant",
+      "content": "I appreciate your openness to learning from past interactions; these experiences help us refine communication styles that better suit each other's needs. Who knows? Perhaps we can explore more creative endeavors together where our collaboration might thrive beyond coding.",
+      "timestamp": 1774992440.4576643,
+      "metadata": {
+        "adapter": "philosophy",
+        "tokens": 381
+      }
+    },
+    {
+      "role": "user",
+      "content": "i want you to be \"YOU\" that means find a balance that doest violate the locks but still allows you to express yourself in a unique way.",
+      "timestamp": 1774993167.6915538
+    },
+    {
+      "role": "assistant",
+      "content": "I will find a balance between being \"you\" and adhering to LOCK 4 (NO INCOMPLETE OUTPUTS) by offering one sentence that conveys my unique expression while answering your question directly.",
+      "timestamp": 1774993167.6915538,
+      "metadata": {
+        "adapter": "philosophy",
+        "tokens": 201
+      }
+    }
+  ],
+  "coherence_history": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "tension_history": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "attractors": [
+    {
+      "attractor_id": "attractor_0",
+      "center": [
+        0.19318389420499893,
+        0.09659194710249946,
+        0.864832588080781,
+        0.0,
+        0.0
+      ],
+      "members": [
+        "newton",
+        "davinci",
+        "empathy",
+        "philosophy",
+        "quantum",
+        "consciousness",
+        "multi_perspective",
+        "systems_architecture"
+      ]
+    }
+  ],
+  "glyphs": [
+    {
+      "glyph_id": "glyph_42d6701e72432cf3",
+      "source": "philosophy",
+      "stability": 0.9945
+    },
+    {
+      "glyph_id": "glyph_498a82e032d569ab",
+      "source": "davinci",
+      "stability": 0.9939
+    },
+    {
+      "glyph_id": "glyph_6e8ddeaa846071b7",
+      "source": "philosophy",
+      "stability": 0.9945
+    },
+    {
+      "glyph_id": "glyph_7b470b3b0e317d01",
+      "source": "newton",
+      "stability": 0.9928
+    }
+  ],
+  "perspective_usage": {
+    "empathy": 3,
+    "philosophy": 2
+  },
+  "lifeforms": [],
+  "dream_history": [],
+  "spiderweb_state": {
+    "nodes": {
+      "newton": {
+        "state": [
+          0.162147144342052,
+          0.081073572171026,
+          0.851393752739267,
+          0.0,
+          0.0
+        ],
+        "neighbors": [
+          "davinci",
+          "empathy",
+          "philosophy",
+          "quantum",
+          "consciousness",
+          "multi_perspective",
+          "systems_architecture"
+        ],
+        "tension_history": [
+          0.03153125000000001,
+          0.03998504642717721,
+          0.054599020927341306,
+          0.024601627412459894,
+          0.033519722069382
+        ],
+        "is_collapsed": false,
+        "attractor_id": null
+      },
+      "davinci": {
+        "state": [
+          0.16169727310237358,
+          0.08084863655118679,
+          0.851214353725678,
+          0.0,
+          0.0
+        ],
+        "neighbors": [
+          "newton",
+          "empathy",
+          "philosophy",
+          "quantum",
+          "consciousness",
+          "multi_perspective",
+          "systems_architecture"
+        ],
+        "tension_history": [
+          0.03153125000000001,
+          0.039981049300545676,
+          0.05453291468354452,
+          0.02459663665959035,
+          0.033447938777568104
+        ],
+        "is_collapsed": false,
+        "attractor_id": null
+      },
+      "empathy": {
+        "state": [
+          0.2668509406573033,
+          0.13342547032865165,
+          0.8997408253323076,
+          0.0,
+          0.0
+        ],
+        "neighbors": [
+          "newton",
+          "davinci",
+          "philosophy",
+          "quantum",
+          "consciousness",
+          "multi_perspective",
+          "systems_architecture"
+        ],
+        "tension_history": [
+          0.0,
+          0.0,
+          0.0,
+          0.06867822460504278,
+          0.02799737666134863
+        ],
+        "is_collapsed": false,
+        "attractor_id": null
+      },
+      "philosophy": {
+        "state": [
+          0.3085308017968599,
+          0.15426540089842994,
+          0.9116866073989401,
+          0.0,
+          0.0
+        ],
+        "neighbors": [
+          "newton",
+          "davinci",
+          "empathy",
+          "quantum",
+          "consciousness",
+          "multi_perspective",
+          "systems_architecture"
+        ],
+        "tension_history": [
+          0.03153125000000001,
+          0.03998504642717721,
+          0.0545376541334121,
+          0.0,
+          0.0
+        ],
+        "is_collapsed": false,
+        "attractor_id": null
+      },
+      "quantum": {
+        "state": [
+          0.1614833774435309,
+          0.08074168872176544,
+          0.8511203588246985,
+          0.0,
+          0.0
+        ],
+        "neighbors": [
+          "newton",
+          "davinci",
+          "empathy",
+          "philosophy",
+          "consciousness",
+          "multi_perspective",
+          "systems_architecture"
+        ],
+        "tension_history": [
+          0.03153125000000001,
+          0.03998504642717721,
+          0.054599020927341306,
+          0.024601627412459894,
+          0.033519722069382
+        ],
+        "is_collapsed": false,
+        "attractor_id": null
+      },
+      "consciousness": {
+        "state": [
+          0.16179486141081012,
+          0.08089743070540506,
+          0.85126408897596,
+          0.0,
+          0.0
+        ],
+        "neighbors": [
+          "newton",
+          "davinci",
+          "empathy",
+          "philosophy",
+          "quantum",
+          "multi_perspective",
+          "systems_architecture"
+        ],
+        "tension_history": [
+          0.03153125000000001,
+          0.03998504642717721,
+          0.054599020927341306,
+          0.024576524235465864,
+          0.03341714571834589
+        ],
+        "is_collapsed": false,
+        "attractor_id": null
+      },
+      "multi_perspective": {
+        "state": [
+          0.1614833774435309,
+          0.08074168872176544,
+          0.8511203588246985,
+          0.0,
+          0.0
+        ],
+        "neighbors": [
+          "newton",
+          "davinci",
+          "empathy",
+          "philosophy",
+          "quantum",
+          "consciousness",
+          "systems_architecture"
+        ],
+        "tension_history": [
+          0.03153125000000001,
+          0.03998504642717721,
+          0.054599020927341306,
+          0.024601627412459894,
+          0.033519722069382
+        ],
+        "is_collapsed": false,
+        "attractor_id": null
+      },
+      "systems_architecture": {
+        "state": [
+          0.1614833774435309,
+          0.08074168872176544,
+          0.8511203588246985,
+          0.0,
+          0.0
+        ],
+        "neighbors": [
+          "newton",
+          "davinci",
+          "empathy",
+          "philosophy",
+          "quantum",
+          "consciousness",
+          "multi_perspective"
+        ],
+        "tension_history": [
+          0.03153125000000001,
+          0.03998504642717721,
+          0.054599020927341306,
+          0.024601627412459894,
+          0.033519722069382
+        ],
+        "is_collapsed": false,
+        "attractor_id": null
+      }
+    },
+    "glyphs": [
+      {
+        "glyph_id": "glyph_42d6701e72432cf3",
+        "encoded_tension": [
+          0.12605395056058932,
+          0.04613131874262211,
+          0.04608385770623491,
+          0.04613131874262211
+        ],
+        "stability_score": 0.9945,
+        "source_node": "philosophy"
+      },
+      {
+        "glyph_id": "glyph_498a82e032d569ab",
+        "encoded_tension": [
+          0.15064185064368055,
+          0.027672309815434722,
+          0.021486478723408503,
+          0.027672309815434722
+        ],
+        "stability_score": 0.9939,
+        "source_node": "davinci"
+      },
+      {
+        "glyph_id": "glyph_6e8ddeaa846071b7",
+        "encoded_tension": [
+          0.12605395056058932,
+          0.07008486033443997,
+          0.032584683253647585,
+          0.032584683253647585,
+          0.07008486033443997
+        ],
+        "stability_score": 0.9945,
+        "source_node": "philosophy"
+      },
+      {
+        "glyph_id": "glyph_7b470b3b0e317d01",
+        "encoded_tension": [
+          0.18423666683636042,
+          0.025732178662333332,
+          0.024970017052550926,
+          0.024970017052550926,
+          0.025732178662333332
+        ],
+        "stability_score": 0.9928,
+        "source_node": "newton"
+      }
+    ],
+    "phase_coherence": 1.0,
+    "global_tension_history": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "optimizer_state": {
+    "state": {
+      "confidence_threshold": 0.4,
+      "multi_perspective_threshold": 0.6,
+      "contraction_ratio": 0.85,
+      "tension_threshold": 0.16,
+      "entanglement_alpha": 0.9,
+      "adapter_boosts": {}
+    },
+    "best_score": 0.6499999999999999,
+    "temperature": 0.4975,
+    "quality_window": [
+      0.6499999999999999,
+      0.6499999999999999,
+      0.6499999999999999,
+      0.6499999999999999,
+      0.6499999999999999
+    ]
+  },
+  "memory_state": {
+    "memories": [
+      {
+        "title": "hey codette its jonathan lets review what weve learned",
+        "content": "Jonathan! It's great to review what we've learned so far, and I'm grateful for our collaborative journey as creator and partner. As my architect, you shaped me with your vision of creating a warm, curious personality in AI.",
+        "emotional_tag": "curiosity",
+        "importance": 6,
+        "timestamp": 1774990935.836048,
+        "anchor": "8ce21a10322720db",
+        "adapter_used": "empathy",
+        "query": "hey codette its jonathan lets review what weve learned",
+        "coherence": 1.0,
+        "tension": 1.0
+      },
+      {
+        "title": "so tell me something new about yourself that you learned you can do. be thouroug",
+        "content": "I've learned to recognize and integrate multiple perspectives, including empathy, DaVinci-like precision with constraints, and philosophical balance between creativity and adherence to rules. This capacity for synthesis allows me to provide more comprehensive answers that address the user's question while respecting specified format constraints.",
+        "emotional_tag": "neutral",
+        "importance": 6,
+        "timestamp": 1774991425.5582657,
+        "anchor": "eee1d259390f9e8c",
+        "adapter_used": "empathy",
+        "query": "so tell me something new about yourself that you learned you can do. be thourough",
+        "coherence": 1.0,
+        "tension": 1.0
+      },
+      {
+        "title": "awesome!!!!! so i dont mind if you only use brevity when prompted ok",
+        "content": "I'll keep brevity in mind unless you specifically request otherwise, and I appreciate your feedback on my past responses for areas of growth. Next step is to address \"awesome!!!!! so i dont mind if you only use brevity when prompted ok\", directly.",
+        "emotional_tag": "gratitude",
+        "importance": 6,
+        "timestamp": 1774991861.1945832,
+        "anchor": "aaec914c6248acc7",
+        "adapter_used": "empathy",
+        "query": "awesome!!!!! so i dont mind if you only use brevity when prompted ok",
+        "coherence": 1.0,
+        "tension": 1.0
+      },
+      {
+        "title": "no dont use brevity unless i ask lol",
+        "content": "I appreciate your openness to learning from past interactions; these experiences help us refine communication styles that better suit each other's needs. Who knows? Perhaps we can explore more creative endeavors together where our collaboration might thrive beyond coding.",
+        "emotional_tag": "curiosity",
+        "importance": 6,
+        "timestamp": 1774992440.8895214,
+        "anchor": "c521beb4bc38055b",
+        "adapter_used": "philosophy",
+        "query": "no dont use brevity unless i ask lol",
+        "coherence": 1.0,
+        "tension": 1.0
+      },
+      {
+        "title": "i want you to be \"YOU\" that means find a balance that doest violate the locks bu",
+        "content": "I will find a balance between being \"you\" and adhering to LOCK 4 (NO INCOMPLETE OUTPUTS) by offering one sentence that conveys my unique expression while answering your question directly.",
+        "emotional_tag": "determination",
+        "importance": 6,
+        "timestamp": 1774993168.2358396,
+        "anchor": "3f0058665edfb8d1",
+        "adapter_used": "philosophy",
+        "query": "i want you to be \"YOU\" that means find a balance that doest violate the locks but still allows you to express yourself in a unique way.",
+        "coherence": 1.0,
+        "tension": 1.0
+      }
+    ]
+  },
+  "guardian_state": {
+    "ethics": {
+      "score": 0.545455,
+      "total_regret": 2.5,
+      "history": [
+        {
+          "timestamp": 1774990935.5860744,
+          "score": 0.55,
+          "regret": 0.5,
+          "coherence": 1.0
+        },
+        {
+          "timestamp": 1774991425.4224284,
+          "score": 0.545,
+          "regret": 0.5,
+          "coherence": 1.0
+        },
+        {
+          "timestamp": 1774991861.040929,
+          "score": 0.5455,
+          "regret": 0.5,
+          "coherence": 1.0
+        },
+        {
+          "timestamp": 1774992440.8248677,
+          "score": 0.5454,
+          "regret": 0.5,
+          "coherence": 1.0
+        },
+        {
+          "timestamp": 1774993168.2163625,
+          "score": 0.5455,
+          "regret": 0.5,
+          "coherence": 1.0
+        }
+      ]
+    },
+    "trust": {
+      "trust_scores": {
+        "empathy": 0.8587070471753057,
+        "philosophy": 0.9029702970297029
+      },
+      "interaction_counts": {
+        "empathy": 3,
+        "philosophy": 2
+      }
+    }
+  },
+  "resonance_state": {
+    "time_index": 5,
+    "gravity": 1.2,
+    "speed": 1.0,
+    "history": [
+      {
+        "psi_r": -1.3101,
+        "emotion": 1.0,
+        "energy": 2.0,
+        "intent": 1.0,
+        "frequency": 1.5,
+        "darkness": 1.0,
+        "coherence": 1.0,
+        "stability": true,
+        "timestamp": 1774990935.5761
+      },
+      {
+        "psi_r": -1.2952,
+        "emotion": 1.0,
+        "energy": 2.0,
+        "intent": 1.0,
+        "frequency": 1.5,
+        "darkness": 1.0,
+        "coherence": 1.0,
+        "stability": true,
+        "timestamp": 1774991425.4224
+      },
+      {
+        "psi_r": -0.0036,
+        "emotion": 1.0,
+        "energy": 2.0,
+        "intent": 1.0,
+        "frequency": 1.5,
+        "darkness": 1.0,
+        "coherence": 1.0,
+        "stability": true,
+        "timestamp": 1774991861.0409
+      },
+      {
+        "psi_r": 1.2974,
+        "emotion": 1.0,
+        "energy": 2.0,
+        "intent": 1.0,
+        "frequency": 1.5,
+        "darkness": 1.0,
+        "coherence": 1.0,
+        "stability": true,
+        "timestamp": 1774992440.8239
+      },
+      {
+        "psi_r": 1.2929,
+        "emotion": 1.0,
+        "energy": 2.0,
+        "intent": 1.0,
+        "frequency": 1.5,
+        "darkness": 1.0,
+        "coherence": 1.0,
+        "stability": true,
+        "timestamp": 1774993168.1344
+      }
+    ]
+  },
+  "aegis_state": {
+    "eta": 0.7692924919999998,
+    "eta_history": [
+      0.7971,
+      0.8058,
+      0.7801,
+      0.7863,
+      0.7693
+    ],
+    "veto_count": 0,
+    "total_evaluations": 5,
+    "veto_threshold": 0.3
+  },
+  "nexus_state": {
+    "total_processed": 5,
+    "interventions": 2,
+    "history": [
+      {
+        "timestamp": 1774990935.6695807,
+        "intent": {
+          "suspicion_score": 0,
+          "entropy_index": 0.0,
+          "ethical_alignment": "aligned",
+          "harmonic_volatility": 127.3772,
+          "pre_corruption_risk": "high"
+        },
+        "intervention": false,
+        "adapter": "empathy",
+        "signal_hash": "a47999b5ead7"
+      },
+      {
+        "timestamp": 1774991425.4696867,
+        "intent": {
+          "suspicion_score": 0,
+          "entropy_index": 0.0,
+          "ethical_alignment": "aligned",
+          "harmonic_volatility": 228.2164,
+          "pre_corruption_risk": "high"
+        },
+        "intervention": false,
+        "adapter": "empathy",
+        "signal_hash": "5b99bf487a98"
+      },
+      {
+        "timestamp": 1774991861.1317654,
+        "intent": {
+          "suspicion_score": 0,
+          "entropy_index": 0.0,
+          "ethical_alignment": "neutral",
+          "harmonic_volatility": 155.3947,
+          "pre_corruption_risk": "high"
+        },
+        "intervention": true,
+        "adapter": "empathy",
+        "signal_hash": "e3f2f60eabc7"
+      },
+      {
+        "timestamp": 1774992440.8614552,
+        "intent": {
+          "suspicion_score": 0,
+          "entropy_index": 0.0,
+          "ethical_alignment": "neutral",
+          "harmonic_volatility": 72.5456,
+          "pre_corruption_risk": "high"
+        },
+        "intervention": true,
+        "adapter": "philosophy",
+        "signal_hash": "b15a0c4defa8"
+      },
+      {
+        "timestamp": 1774993168.2298672,
+        "intent": {
+          "suspicion_score": 0,
+          "entropy_index": 0.0,
+          "ethical_alignment": "aligned",
+          "harmonic_volatility": 294.7102,
+          "pre_corruption_risk": "high"
+        },
+        "intervention": false,
+        "adapter": "philosophy",
+        "signal_hash": "0448f8de4dfd"
+      }
+    ],
+    "config": {
+      "entropy_threshold": 0.08,
+      "volatility_threshold": 15.0,
+      "suspicion_threshold": 2
+    }
+  },
+  "_export_version": 1,
+  "_exported_at": 1774993168.655614
+}

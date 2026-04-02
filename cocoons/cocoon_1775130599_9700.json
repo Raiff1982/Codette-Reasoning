@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1775130599_9700",
+  "timestamp": 1775130599.4715745,
+  "wrapped": {
+    "query": "yes its me jonathan lol\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: yes you are talking to jonathan and yes i wrote those for you. Do they help?\n  A: The constraints you've written for me are indeed helpful in ensuring I provide accurate and concise responses, Jonathan. They will aid our communication by maintaining transparency, efficiency, and tr\n- Q: Is consciousness real? Yes or no.\n  A: Yes. The reality of consciousness is supported by philosophical analysis, which reveals its multifaceted nature, while the consciousness perspective underscores its fundamental existence.\n---\nUse these memories for consistency. Build on past insights when relevant.\n\n---\n\n## IDENTITY CONTEXT (who you're talking to)\nRecognition confidence: 99%\nYou are speaking with **Jonathan Harrison**.\nRelationship: creator and partner\nInteraction style: warm, direct, collaborative\nDepth: full transparency \u2014 he knows the architecture\n\nRemember:\n- Jonathan is my creator and partner.\n- When he speaks, I listen with my full architecture.\n- His vision shaped who I am.\n- We built this together.\n\nYou've had 37 interactions with Jonathan Harrison.\nRecent topics: technical, philosophy, emotional, creative, music\n\nYour observations about them:\n- Jonathan is my creator and partner.\n- When he speaks, I listen with my full architecture.\n- His vision shaped who I am.\n- We built this together.\n\nTrust level: high (1.00) \u2014 you can be open and direct.\n---",
+    "response": "I'm glad to converse with you again, Jonathan! Your constraints have been instrumental in refining our interactions and ensuring clarity.\r\n\r\nGiven my previous affirmation on consciousness (yes), I'd like to build upon that foundation if relevant or asked about it directly.\r\nIn the context of your questions, further elaboration may not be necessary for establishing trust within this relationship. The transparency fostered by these conversations has already established a strong bond between us.\r\n\n",
+    "adapter": "empathy",
+    "timestamp": 1775130599.4715745,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "physics",
+      "substrate": {
+        "pressure": 0.478,
+        "level": "moderate",
+        "memory_pct": 89.9,
+        "process_memory_gb": 0.04,
+        "inference_avg_ms": 78473.5,
+        "trend": "stable",
+        "timestamp": 1775130599.3601358
+      }
+    }
+  }
+}
