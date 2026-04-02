@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1775138188_6844",
+  "timestamp": 1775138188.9754074,
+  "wrapped": {
+    "query": "A bat and ball cost $1.10 total. The bat costs $1 more than the ball. How much does the ball cost?\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: Synthesis valuation context: How should Codette compare risky futures while preserving her core desi\n  A: Singularity-aware valuation completed. Combined total=None. Singularity detected=False. Mode=strict.\n- Q: Event-Embedded Value analysis\n  A: Singularity-aware valuation completed. Combined total=None. Singularity detected=False. Mode=strict.\n\n# PAST VALUE ANALYSES\nRelevant singularity/frontier runs from memory:\n- Valuation memory: combined_total=None, singularity=None\n- Valuation memory: combined_total=None, singularity=None\n\n# PAST DECISION LANDMARKS\nPreviously established constraints and commitments:\n- Assistant commitment: Remember \"cobalt anchor\" and keep answers concise under 15 words for continuity throughout this session.\n- Assistant commitment: You will keep answers concise under 15 words.\n---\nUse these memories for continuity and consistency. Build on past insights when relevant.",
+    "response": "The ball costs $0.05, as derived by considering both the total cost and the relative price of the bat compared to the ball. This solution aligns with DAVINCI PERSPECTIVE's conclusion using given information about Bat + Ball = $1.10 and The Bat Costs $1 More Than the Ball.",
+    "adapter": "davinci",
+    "timestamp": 1775138188.9754074,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.555,
+        "level": "moderate",
+        "memory_pct": 98.2,
+        "process_memory_gb": 0.03,
+        "inference_avg_ms": 63668.5,
+        "trend": "stable",
+        "timestamp": 1775138188.8536916
+      }
+    }
+  }
+}

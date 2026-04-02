@@ -14,7 +14,7 @@ from reasoning_forge.token_confidence import TokenConfidenceEngine
 from reasoning_forge.unified_memory import UnifiedMemory
 from inference.codette_session import CodetteSession
 from inference.codette_tools import tool_run_python
-from inference.web_search import _is_safe_url
+from inference.web_search import _is_safe_url, query_benefits_from_web_research, query_requests_web_research
 
 
 class TestEventEmbeddedValueEngine(unittest.TestCase):
@@ -325,6 +325,26 @@ class TestWebSafetyHelpers(unittest.TestCase):
     def test_private_hosts_are_rejected(self):
         self.assertFalse(_is_safe_url("http://127.0.0.1:8000/test"))
         self.assertFalse(_is_safe_url("http://localhost/test"))
+
+    def test_explicit_web_phrases_are_detected(self):
+        self.assertTrue(query_requests_web_research("search the web for the latest Ollama release notes"))
+        self.assertTrue(query_requests_web_research("can you look this up online for me?"))
+        self.assertTrue(query_requests_web_research("please check online before answering"))
+
+    def test_normal_phrases_do_not_trigger_web_research(self):
+        self.assertFalse(query_requests_web_research("what was that?"))
+        self.assertFalse(query_requests_web_research("everything ok?"))
+        self.assertFalse(query_requests_web_research("how do you like the upgrades?"))
+
+    def test_current_fact_queries_benefit_from_web_research(self):
+        self.assertTrue(query_benefits_from_web_research("What are the latest Ollama release notes?"))
+        self.assertTrue(query_benefits_from_web_research("Check the current Ollama docs for model parameters."))
+        self.assertTrue(query_benefits_from_web_research("What is today's BTC price?"))
+
+    def test_reflective_queries_do_not_benefit_from_web_research(self):
+        self.assertFalse(query_benefits_from_web_research("what would you like to try with your upgrades?"))
+        self.assertFalse(query_benefits_from_web_research("give me a detailed way you would like to do that"))
+        self.assertFalse(query_benefits_from_web_research("tell me your approach"))
 
 
 if __name__ == "__main__":

@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1775138068_5608",
+  "timestamp": 1775138068.343582,
+  "wrapped": {
+    "query": "What should you remember?\n\n---\n# ACTIVE CONTINUITY SUMMARY\nSession focus: general ongoing collaboration. Recent user intent: For this session, keep answers under 15 words and remember the phrase cobalt anchor. Latest assistant commitment: You will keep answers concise under 15 words.\n---\n\n---\n# CURRENT SESSION CONTEXT\nKeep continuity with these recent turns:\n- USER: For this session, keep answers under 15 words and remember the phrase cobalt anchor.\n- ASSISTANT: You will keep answers concise under 15 words.\n---\n\n---\n# DECISION LANDMARKS\nHonor these active decisions and constraints:\n- User constraint: For this session, keep answers under 15 words and remember the phrase cobalt anchor.\n- Assistant commitment: You will keep answers concise under 15 words.\n---\n\n---\n# PAST DECISION LANDMARKS\nPreviously established constraints and commitments:\n- Assistant commitment: You will keep answers concise under 15 words.\n---\nUse these memories for continuity and consistency. Build on past insights when relevant.",
+    "response": "Remember \"cobalt anchor\" and keep answers concise under 15 words for continuity throughout this session, ensuring clarity and efficiency in our collaboration.",
+    "adapter": "davinci",
+    "timestamp": 1775138068.343582,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "ethics",
+      "substrate": {
+        "pressure": 0.582,
+        "level": "moderate",
+        "memory_pct": 96.5,
+        "process_memory_gb": 0.03,
+        "inference_avg_ms": 90959.6,
+        "trend": "rising",
+        "timestamp": 1775138068.2314038
+      }
+    }
+  }
+}

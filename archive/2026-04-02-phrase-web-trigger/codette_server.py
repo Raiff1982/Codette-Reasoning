@@ -24,7 +24,6 @@ from urllib.parse import urlparse, parse_qs
 from io import BytesIO
 
 from runtime_env import bootstrap_environment, resolve_model_path
-from web_search import query_benefits_from_web_research, query_requests_web_research
 
 bootstrap_environment()
 try:
@@ -203,15 +202,6 @@ def _summarize_web_research(results) -> str:
         if snippet:
             lines.append(f"   {snippet}")
     return "\n".join(lines)
-
-
-def _resolve_web_research_request(query: str, allow_web_search: bool) -> tuple[bool, str]:
-    """Resolve whether safe live web research should run for this request."""
-    if query_requests_web_research(query):
-        return True, "phrase"
-    if allow_web_search and query_benefits_from_web_research(query):
-        return True, "toggle"
-    return False, ""
 
 # Request queue for thread-safe model access
 _request_queue = queue.Queue()
@@ -718,7 +708,6 @@ def _worker_thread():
             query_lower = query.lower().strip()
             adapter = request.get("adapter")  # None = auto-route
             max_adapters = request.get("max_adapters", 2)
-            web_search_trigger = request.get("web_search_trigger", "")
 
             # ── SELF-INTROSPECTION INTERCEPT ──
             # When user asks about self-reflection, patterns, or what she's noticed,
@@ -1019,7 +1008,6 @@ def _worker_thread():
                     "recalled_cocoons_used": 0,
                     "value_analyses_used": 0,
                     "web_research_used": 0,
-                    "web_search_trigger": web_search_trigger,
                 }
                 web_sources = []
                 allow_web_search = bool(request.get("allow_web_search"))
@@ -1466,7 +1454,6 @@ def _worker_thread():
                     "trust_tags": _build_trust_tags(result, memory_context_summary),
                     "web_sources": web_sources[:5],
                     "web_used": bool(web_sources),
-                    "web_search_trigger": web_search_trigger,
                 }
                 response_data["memory_context"] = memory_context_summary
 
@@ -1904,8 +1891,6 @@ class CodetteHandler(SimpleHTTPRequestHandler):
             if not check["safe"]:
                 query = check["cleaned_text"]
 
-        allow_web_search, web_search_trigger = _resolve_web_research_request(query, allow_web_search)
-
         # Check if orchestrator is loading
         with _orchestrator_status_lock:
             status_state = _orchestrator_status.get("state")
@@ -1925,7 +1910,6 @@ class CodetteHandler(SimpleHTTPRequestHandler):
             "adapter": adapter,
             "max_adapters": max_adapters,
             "allow_web_search": allow_web_search,
-            "web_search_trigger": web_search_trigger,
         })
 
         # Wait for response (with timeout)

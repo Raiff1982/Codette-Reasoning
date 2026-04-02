@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1775138556_8113",
+  "timestamp": 1775138556.724528,
+  "wrapped": {
+    "query": "Summarize those latest Ollama release notes again, briefly.\n\n---\n# ACTIVE CONTINUITY SUMMARY\nSession focus: general ongoing collaboration. Recent user intent: What are the latest Ollama release notes? Cite sources. Latest assistant commitment: The latest Ollama release notes are not readily available in my training data.\n---\n\n---\n# CURRENT SESSION CONTEXT\nKeep continuity with these recent turns:\n- USER: What are the latest Ollama release notes? Cite sources.\n- ASSISTANT: The latest Ollama release notes are not readily available in my training data.\n---\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: What are the latest Ollama release notes? Cite sources.\n  A: The latest Ollama release notes are not readily available in my training data.\n- Q: What are the latest Ollama release notes? Cite sources.\n  A: # WEB RESEARCH\nUse these cited current sources when relevant:\n1. Releases \u00b7 ollama/ollama - GitHub \u2014 https://github.com/ollama/ollama/releases\n   Releases \u00b7 ollama/ollama \u00b7 GitHub   Skip to content   \n\n# PAST DECISION LANDMARKS\nPreviously established constraints and commitments:\n- Assistant commitment: Remember \"cobalt anchor\" and keep answers concise under 15 words consistently throughout this session.\n- Assistant commitment: For this session, remember \"cobalt anchor\" and keep answers concise under 15 words consistently throughout.\n\n# PAST WEB RESEARCH\nPreviously researched current-information notes:\n- Cached research: # WEB RESEARCH\nUse these cited current sources when relevant:\n1. Releases \u00b7 ollama/ollama - GitHub \u2014 https://github.com/ollama/ollama/releases\n   Releases \u00b7 ollama/ollama \u00b7 GitHub   Skip to content   Navigation Menu  Toggle navigation   Sign in  Appearance settings   Platform   A\n---\nUse these memories for continuity and consistency. Build on past insights when relevant.\n\n---\n# WEB RESEARCH\nUse these cited current sources when relevant:\n1. Releases \u00b7 ollama/ollama - GitHub \u2014 https://github.com/ollama/ollama/releases\n   Releases \u00b7 ollama/ollama \u00b7 GitHub   Skip to content   Navigation Menu  Toggle navigation   Sign in  Appearance settings   Platform   AI CODE CREATION   GitHub Copilot Write better code with AI   GitHub Spark Build and deploy intelligent apps   GitHub Models Manage and compare ...\n2. Release Notes - Ollama PDF RAG - tonykipkemboi.github.io \u2014 https://tonykipkemboi.github.io/ollama_pdf_rag/development/changelog/\n   Release Notes - Ollama PDF RAG  Skip to content   Ollama PDF RAG   Release Notes   Initializing search   tonykipkemboi/ollama_pdf_rag   Home   Getting Started   User Guide   API Reference   Development   Ollama PDF RAG   tonykipkemboi/ollama_pdf_rag   Home   Getting Started Ge...\n3. Releases \u00b7 ollama/ollama - GitHub | Release Alert \u2014 https://releasealert.dev/github/ollama/ollama\n   Releases \u00b7 ollama/ollama - GitHub | Release Alert   release alert   +   Explore   Latest Releases   Security Advisories   Contact   \u00a9 2026 Release Alert   release alert   Explore Security Advisories   Auto-detect   Apple App Store   Rust Crate (Cargo)   Chocolatey Package   Do...\n---\nUse these cited web findings for current facts. Distinguish sourced facts from your own inference.",
+    "response": "The latest Ollama release notes are not readily available in my training data, but I can suggest some sources where you may find them:\r\n\r\n1. GitHub - Releases \u00b7 ollama/ollama (https://github.com/ollama/ollama/releases)\r\n2. Release Notes - Ollama PDF RAG by Tony Kipkemboi (https://tonykipkemboi.github.io/ollama_pdf_rag/development/changelog/)",
+    "adapter": "davinci",
+    "timestamp": 1775138556.724528,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.537,
+        "level": "moderate",
+        "memory_pct": 94.8,
+        "process_memory_gb": 0.02,
+        "inference_avg_ms": 58828.8,
+        "trend": "stable",
+        "timestamp": 1775138556.4391916
+      }
+    }
+  }
+}

@@ -24,7 +24,7 @@ from urllib.parse import urlparse, parse_qs
 from io import BytesIO
 
 from runtime_env import bootstrap_environment, resolve_model_path
-from web_search import query_benefits_from_web_research, query_requests_web_research
+from web_search import query_requests_web_research
 
 bootstrap_environment()
 try:
@@ -207,10 +207,10 @@ def _summarize_web_research(results) -> str:
 
 def _resolve_web_research_request(query: str, allow_web_search: bool) -> tuple[bool, str]:
     """Resolve whether safe live web research should run for this request."""
+    if allow_web_search:
+        return True, "toggle"
     if query_requests_web_research(query):
         return True, "phrase"
-    if allow_web_search and query_benefits_from_web_research(query):
-        return True, "toggle"
     return False, ""
 
 # Request queue for thread-safe model access

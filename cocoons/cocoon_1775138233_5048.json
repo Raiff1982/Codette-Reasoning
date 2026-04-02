@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1775138233_5048",
+  "timestamp": 1775138233.0130868,
+  "wrapped": {
+    "query": "For this session, keep answers under 15 words and remember the phrase cobalt anchor.\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: You will keep answers concise under 15 words.\n  A: You will keep answers concise under 15 words.\n- Q: What should you remember?\n  A: Remember \"cobalt anchor\" and keep answers concise under 15 words for continuity throughout this session.\n\n# PAST DECISION LANDMARKS\nPreviously established constraints and commitments:\n- Assistant commitment: Remember \"cobalt anchor\" and keep answers concise under 15 words for continuity throughout this session.\n- Assistant commitment: You will keep answers concise under 15 words.\n---\nUse these memories for continuity and consistency. Build on past insights when relevant.",
+    "response": "For this session, remember \"cobalt anchor\" and keep answers concise under 15 words consistently throughout our interaction.",
+    "adapter": "davinci",
+    "timestamp": 1775138233.0130868,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.584,
+        "level": "moderate",
+        "memory_pct": 96.8,
+        "process_memory_gb": 0.02,
+        "inference_avg_ms": 62631.1,
+        "trend": "stable",
+        "timestamp": 1775138232.7788718
+      }
+    }
+  }
+}

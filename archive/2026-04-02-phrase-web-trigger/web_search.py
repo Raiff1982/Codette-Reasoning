@@ -23,42 +23,6 @@ DEFAULT_TIMEOUT = 8
 MAX_HTML_BYTES = 350_000
 MAX_TEXT_CHARS = 2200
 DUCKDUCKGO_HTML = "https://html.duckduckgo.com/html/"
-EXPLICIT_WEB_RESEARCH_PATTERNS = [
-    re.compile(r"\bsearch (?:the )?web\b", re.I),
-    re.compile(r"\bsearch online\b", re.I),
-    re.compile(r"\bweb search\b", re.I),
-    re.compile(r"\bonline search\b", re.I),
-    re.compile(r"\blook (?:this|that|it) up online\b", re.I),
-    re.compile(r"\blook (?:this|that|it) up on the web\b", re.I),
-    re.compile(r"\blook up online\b", re.I),
-    re.compile(r"\bcheck (?:the )?web\b", re.I),
-    re.compile(r"\bcheck online\b", re.I),
-    re.compile(r"\bbrowse the web\b", re.I),
-    re.compile(r"\bfind (?:this|that|it) online\b", re.I),
-]
-CURRENT_FACT_HINT_PATTERNS = [
-    re.compile(r"\blatest\b", re.I),
-    re.compile(r"\bcurrent\b", re.I),
-    re.compile(r"\brecent\b", re.I),
-    re.compile(r"\btoday('?s)?\b", re.I),
-    re.compile(r"\bnews\b", re.I),
-    re.compile(r"\brelease notes?\b", re.I),
-    re.compile(r"\bversion\b", re.I),
-    re.compile(r"\bupdate(?:d|s)?\b", re.I),
-    re.compile(r"\bdocs?\b", re.I),
-    re.compile(r"\bdocumentation\b", re.I),
-    re.compile(r"\bprice\b", re.I),
-    re.compile(r"\bavailability\b", re.I),
-    re.compile(r"\bstatus\b", re.I),
-]
-NON_FACTUAL_CONVERSATION_PATTERNS = [
-    re.compile(r"\bhow do you like\b", re.I),
-    re.compile(r"\bwhat would you like\b", re.I),
-    re.compile(r"\bgive me (?:a )?detailed way you would like\b", re.I),
-    re.compile(r"\btell me your approach\b", re.I),
-    re.compile(r"\bwhat was that\b", re.I),
-    re.compile(r"\beverything ok\b", re.I),
-]
 
 
 @dataclass
@@ -256,21 +220,3 @@ def research_query(query: str, max_results: int = 3) -> List[SearchResult]:
         if result.fetched_text and not result.snippet:
             result.snippet = result.fetched_text[:240].replace("\n", " ")
     return results
-
-
-def query_requests_web_research(query: str) -> bool:
-    """Return True when the user explicitly asks for a live web lookup."""
-    text = (query or "").strip()
-    if not text:
-        return False
-    return any(pattern.search(text) for pattern in EXPLICIT_WEB_RESEARCH_PATTERNS)
-
-
-def query_benefits_from_web_research(query: str) -> bool:
-    """Return True when a query looks like it needs current facts, not just permission."""
-    text = (query or "").strip()
-    if not text:
-        return False
-    if any(pattern.search(text) for pattern in NON_FACTUAL_CONVERSATION_PATTERNS):
-        return False
-    return any(pattern.search(text) for pattern in CURRENT_FACT_HINT_PATTERNS)
