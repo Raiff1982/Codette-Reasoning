@@ -73,6 +73,9 @@ Quick evidence links:
 - Multi-perspective benchmark report: [codette_benchmark_report.md](data/results/codette_benchmark_report.md)
 - Runtime benchmark without web research: [codette_runtime_benchmark_20260402_135517.md](data/results/codette_runtime_benchmark_20260402_135517.md)
 - Runtime benchmark with web research: [codette_runtime_benchmark_20260402_140237.md](data/results/codette_runtime_benchmark_20260402_140237.md)
+- System proof PDF: [Codette_system_proof.pdf](docs/proof_assets/Codette_system_proof.pdf)
+- Response proof PDF: [Codette_response_proof.pdf](docs/proof_assets/Codette_response_proof.pdf)
+- UI conversation proof: [Codettechat_UI_conversation_proof.pdf](docs/proof_assets/Codettechat_UI_conversation_proof.pdf)
 
 This repository includes reproducible evidence of:
 - multi-perspective reasoning and synthesis

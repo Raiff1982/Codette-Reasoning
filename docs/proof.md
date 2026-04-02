@@ -101,6 +101,20 @@ Use the local demo package:
 - [demo/run_local_api_demo.py](../demo/run_local_api_demo.py)
 - [demo/api_examples.md](../demo/api_examples.md)
 
+### UI Proof Artifacts
+
+Saved UI evidence:
+- [Codette_system_proof.pdf](proof_assets/Codette_system_proof.pdf)
+- [Codette_response_proof.pdf](proof_assets/Codette_response_proof.pdf)
+- [Codettechat_UI_conversation_proof.pdf](proof_assets/Codettechat_UI_conversation_proof.pdf)
+
+What this adds:
+- system-level visual proof artifacts from real Codette runs
+- response-level proof artifacts showing actual outputs
+- proof that the web UI is active during a real conversation
+- visible evidence of mid-session interaction rather than static setup screenshots
+- an audit artifact that complements the benchmark and demo outputs
+
 ### Benchmarks
 
 Run:
