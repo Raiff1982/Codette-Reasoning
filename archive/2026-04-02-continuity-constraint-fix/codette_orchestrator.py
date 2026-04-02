@@ -182,16 +182,6 @@ def extract_constraints(query: str) -> dict:
     return constraints
 
 
-def extract_primary_user_query(query: str) -> str:
-    """Strip server-injected memory sections before constraint extraction."""
-    if not query:
-        return ""
-    sentinel = "\n\n---\n"
-    if sentinel in query:
-        return query.split(sentinel, 1)[0].strip()
-    return query.strip()
-
-
 def build_constraint_override(constraints: dict) -> str:
     """Build a high-priority system prompt prefix from extracted constraints.
 
@@ -654,15 +644,14 @@ class CodetteOrchestrator:
             system_prompt = ADAPTER_PROMPTS.get(adapter_name, ADAPTER_PROMPTS["_base"])
 
         # CONSTRAINT PRIORITY SYSTEM: Extract user constraints and inject as override
-        primary_query = extract_primary_user_query(query)
-        constraints = extract_constraints(primary_query)
+        constraints = extract_constraints(query)
         constraint_override = build_constraint_override(constraints)
 
         # CHAOS DETECTION: Detect competing pressures and apply mitigation
         chaos_mitigation = ""
         chaos_level = 0
         if constraints and SELF_CORRECTION_AVAILABLE:
-            chaos_level, pressures = detect_chaos_level(primary_query, constraints, adapter_name or "base")
+            chaos_level, pressures = detect_chaos_level(query, constraints, adapter_name or "base")
             chaos_mitigation = build_chaos_mitigation(chaos_level, pressures)
             if self.verbose and chaos_level >= 2:
                 print(f"  [CHAOS] Level {chaos_level}: {pressures}")
@@ -758,7 +747,7 @@ class CodetteOrchestrator:
                     print(f"  [SELF-CORRECT] Re-generating with correction prompt...")
 
                 # Build correction prompt and re-generate
-                correction = build_correction_prompt(clean_text, violations, constraints, primary_query)
+                correction = build_correction_prompt(clean_text, violations, constraints, query)
                 messages.append({"role": "assistant", "content": clean_text})
                 messages.append({"role": "user", "content": correction})
 
@@ -804,7 +793,7 @@ class CodetteOrchestrator:
                     print(f"  [LOCKS] Echo-back detected, re-generating with direct prompt...")
                 retry_messages = [
                     {"role": "system", "content": ADAPTER_PROMPTS.get(adapter_name, ADAPTER_PROMPTS["_base"])},
-                    {"role": "user", "content": f"Answer this question directly. Do NOT echo it back. Just give the answer:\n{primary_query}"},
+                    {"role": "user", "content": f"Answer this question directly. Do NOT echo it back. Just give the answer:\n{query}"},
                 ]
                 retry_result = self._llm.create_chat_completion(messages=retry_messages, **GEN_KWARGS)
                 clean_text = retry_result["choices"][0]["message"]["content"].strip()
@@ -821,7 +810,7 @@ class CodetteOrchestrator:
                 final_violations = detect_violations(clean_text, constraints) if SELF_CORRECTION_AVAILABLE else []
                 if final_violations:
                     behavior_mem.record_violation(
-                        query=primary_query,
+                        query=query,
                         constraints=constraints,
                         violations=final_violations,
                         adapter=adapter_name or "base",
@@ -829,7 +818,7 @@ class CodetteOrchestrator:
                     )
                 else:
                     behavior_mem.record_success(
-                        query=primary_query,
+                        query=query,
                         constraints=constraints,
                         adapter=adapter_name or "base",
                         word_count=len(clean_text.split()),
