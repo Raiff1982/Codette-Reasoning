@@ -49,8 +49,7 @@ huggingface-cli download Raiff1982/Codette-Adapters \
 python -m pytest test_tier2_integration.py -v
 
 # 5. Start server
-scripts\codette_web.bat
-# or: scripts\codette_web_ollama.bat
+python inference/codette_server.py
 # Visit: http://localhost:7860
 ```
 
@@ -84,7 +83,6 @@ scripts\codette_web.bat
 - **Tests**: 52/52 passing (100%)
 - **Meta-loops Reduced**: 90% → 5%
 - **Inference Speed**: 2-100+ tokens/sec (CPU to GPU)
-- **Current-facts support**: Optional cited web research with reusable cocoon memory
 
 ### Adapters (8 Specialized LORA)
 - Consciousness (meta-cognitive)
@@ -108,9 +106,6 @@ scripts\codette_web.bat
 ✅ **Logical Validation**: Guardian Spindle checks
 ✅ **Intent Analysis**: NexisSignalEngine
 ✅ **Identity Validation**: TwinFrequencyTrust
-✅ **Continuity Summary**: Active session-state stabilization without replacing cocoons
-✅ **Decision Landmarks**: High-signal session decisions persisted for later recall
-✅ **Safe Web Research**: Explicit live research path with citations and memory reuse
 
 ---
 
@@ -160,7 +155,6 @@ This system is **98% production-ready**:
 - ✅ Security: Considerations documented
 - ✅ Monitoring: Patterns provided
 - ✅ Scaling: Docker/K8s templates
-- ✅ Transparency: Trust tags, gated reports, explicit web research path
 
 Ready for:
 - Local development
@@ -203,8 +197,7 @@ Ready for:
 2. **Read quick start**: `README.md`
 3. **Download models**: Follow `MODEL_DOWNLOAD.md`
 4. **Run tests**: `pytest test_*.py -v`
-5. **Launch locally**: `scripts\codette_web.bat` or `scripts\codette_web_ollama.bat`
-6. **Deploy**: Follow `DEPLOYMENT.md`
+5. **Deploy**: Follow `DEPLOYMENT.md`
 
 ---
 

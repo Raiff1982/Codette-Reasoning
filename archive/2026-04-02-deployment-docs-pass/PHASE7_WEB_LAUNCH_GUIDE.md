@@ -4,16 +4,8 @@
 
 ## What Happens When You Launch
 
-Use one of the repo launchers under `scripts\`:
-
 ```bash
-scripts\codette_web.bat
-```
-
-Alternative backend:
-
-```bash
-scripts\codette_web_ollama.bat
+codette_web.bat
 ```
 
 ### Initialization Sequence (Expected Console Output)
@@ -27,8 +19,6 @@ scripts\codette_web_ollama.bat
   - Phase 7: Executive Controller (query routing)
   - Phase 6: ForgeEngine (semantic tension, specialization)
   - Phases 1-5: Core reasoning infrastructure
-  - Session continuity + decision landmarks active
-  - Unified cocoon memory active
 
   Initializing:
     * CodetteOrchestrator with 8 domain LoRA adapters
@@ -55,8 +45,6 @@ scripts\codette_web_ollama.bat
 ✅ Phase 6 ForgeEngine wrapped behind bridge
 ✅ All 8 domain-specific LoRA adapters loaded
 ✅ Intelligent routing ready
-✅ Continuity summary + decision landmark recall available
-✅ Optional `Web Research` toggle with cited sources and cocoon recall
 
 ---
 
@@ -104,25 +92,6 @@ Once the server is running, **try these queries** to observe Phase 7 routing:
 - Full debate (3 rounds)
 - Higher conflict count (20-40 range)
 - Deep synthesis with multiple perspectives
-
----
-
-### Test 4: Web Research (Opt-In)
-1. Enable `Web Research` in the web UI.
-2. Ask:
-
-```
-"What are the latest Ollama release notes?"
-```
-
-**Expected in Response**:
-- Sources shown inline in the UI
-- Trust tags may include `web-cited`
-- Research results can be stored as `web_research` cocoons for reuse
-
-Important:
-- Local tools do not browse the web on their own.
-- Live research is explicit and opt-in.
 
 ---
 
@@ -211,15 +180,6 @@ Every response will include a `phase7_routing` section:
 - Check: Is `phase7_used` set to TRUE in response?
 - If FALSE: Bridge fallback happened (check console errors)
 
-**Problem**: Codette enters a diagnostic or introspection report unexpectedly
-- System reports are now gated to explicit phrases such as `run diagnostic` or `what do you notice about yourself?`
-- Ordinary conversation like `everything ok?` should stay in normal chat flow after restart
-
-**Problem**: Web research does not return anything
-- Confirm `Web Research` is enabled in the UI
-- Confirm outbound internet access works on this machine
-- Remember that local search tools inspect the workspace; live research is a separate server-side path
-
 ---
 
 ## Next Steps After Testing
@@ -250,7 +210,7 @@ Scroll down to see full phase7_routing metadata in JSON format.
 ## Ready to Launch?
 
 ```bash
-scripts\codette_web.bat
+codette_web.bat
 ```
 
 Open browser to: **http://localhost:7860**

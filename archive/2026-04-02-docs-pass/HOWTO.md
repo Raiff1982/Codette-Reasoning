@@ -64,31 +64,24 @@ codette-training-lab/
 
 ### Option A: Web UI (Recommended)
 ```
-Double-click: scripts\codette_web.bat
+Double-click: codette_web.bat
    OR
-Double-click: scripts\codette_web_ollama.bat
-   OR
-python inference/codette_server.py
+J:\python.exe J:\codette-training-lab\inference\codette_server.py
    THEN open: http://localhost:7860
 ```
 
-Notes:
-- `scripts\codette_web.bat` uses the local `llama_cpp` path.
-- `scripts\codette_web_ollama.bat` uses the Ollama backend.
-- Both launchers now resolve the project root and Python more portably instead of depending on one hardcoded machine path.
-
 ### Option B: Legacy Tkinter UI
 ```
-Double-click: scripts\codette_chat.bat
+Double-click: codette_chat.bat
    OR
-python inference/codette_chat_ui.py
+J:\python.exe J:\codette-training-lab\inference\codette_chat_ui.py
 ```
 
 ### Option C: Command Line
 ```
-python inference/codette_orchestrator.py
-python inference/codette_orchestrator.py --query "How does gravity work?"
-python inference/codette_orchestrator.py --adapter newton --query "F=ma"
+J:\python.exe J:\codette-training-lab\inference\codette_orchestrator.py
+J:\python.exe J:\codette-training-lab\inference\codette_orchestrator.py --query "How does gravity work?"
+J:\python.exe J:\codette-training-lab\inference\codette_orchestrator.py --adapter newton --query "F=ma"
 ```
 
 ---
@@ -150,15 +143,6 @@ The Cocoon is Codette's encrypted memory system:
   Codette loads the cocoon and remembers not just WHAT you discussed, but
   HOW she was thinking about it — which attractors had formed, which
   perspectives were in tension.
-
-- **Active continuity summary**: Each live session also keeps a compact working-memory summary
-  of current goals, recent intent, and latest commitments so long conversations drift less.
-
-- **Decision landmarks**: Important constraints and commitments can be promoted into
-  searchable memory landmarks instead of staying buried in raw transcript history.
-
-- **Web research cocoons**: If `Web Research` is enabled in the web UI, cited current-facts
-  lookups can be stored as memory so Codette can reuse prior research instead of repeating it.
 
 ### Key Metrics
 - **Phase Coherence (Gamma)**: 0-1, how aligned agent perspectives are. Target: >= 0.98
@@ -226,8 +210,6 @@ Datasets live on HuggingFace dataset repo, not in git.
 | Training OOM on CPU | Use Pipeline 2 (offload), reduce seq_len |
 | Adapter not found | Check `adapters/` folder for .gguf files |
 | Voice not working | Install: `pip install sounddevice SpeechRecognition` |
-| Web research not returning anything | Confirm internet access, enable `Web Research` in the UI, and remember it is opt-in |
-| Codette says she cannot browse the web | Local tools only inspect workspace files; live research happens through the explicit web research path |
 
 ---
 
