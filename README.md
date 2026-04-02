@@ -28,7 +28,7 @@ Raiff's Bits LLC, Bridge City, Texas, USA
 ORCID: [0009-0003-7005-8187](https://orcid.org/0009-0003-7005-8187)
 
 ---
-
+https://cse2026.org/aifl/papers
 ## Abstract
 
 Modern AI systems achieve remarkable generative performance but lack stable ethical alignment, modular multi-perspective cognition, explainable reasoning architectures, and robust behavioral discipline under user constraints. This paper presents **Codette**, a sovereign cognitive AI framework that addresses these challenges through six integrated contributions:
