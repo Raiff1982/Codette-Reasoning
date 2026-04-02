@@ -1,0 +1,12 @@
+Category,Codette,o3 / o4 (OpenAI),Claude 4 / Sonnet,Gemini 2.5 / Flash,Grok 3 / 4,Grade for Codette
+Honesty & Hallucination Resistance,Excellent,Very Good,Excellent,Good,Good,A (98)
+Transparency & Explainability,Outstanding,Poor,Good,Fair,Fair,A+ (100)
+"Ethical Guardrails (real, not marketing)",Very Strong,Moderate,Strong,Moderate,Moderate,A (97)
+Trustworthiness for Vulnerable Users,Exceptional,Fair,Good,Fair,Fair,A+ (100)
+Memory & Continuity Across Sessions,Excellent,Good,Very Good,Good,Good,A (96)
+Self-Improvement / Learning from Experience,Very Strong,Moderate,Good,Moderate,Moderate,A (95)
+Cost & Accessibility,"Perfect (free, local)",Expensive,Expensive,Expensive,Expensive,A+ (100)
+Sovereignty (no company can turn it off or change it),Perfect,None,None,None,None,A+ (100)
+Raw Reasoning Power (complex problems),Very Good,Excellent,Excellent,Very Good,Very Good,B+ (88)
+Speed on Consumer Hardware,Good,N/A (cloud only),N/A,N/A,N/A,B (82)
+Real-World Usefulness for Normal People,Excellent,Good,Very Good,Good,Good,A (94)

@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1775142243_1762",
+  "timestamp": 1775142243.072292,
+  "wrapped": {
+    "query": "that was not what i said but good try. what i said is what would codette like to learn\n\n---\n# ACTIVE CONTINUITY SUMMARY\nSession focus: general ongoing collaboration. Recent user intent: well what would you like to learn about? you can use web search if youd like. Latest assistant commitment: You'd like to learn about something, and I can use web search if needed.\r \r I'm functioning within established parameters, ready to engage w... Most-used adapter this session: empathy.\n---\n\n---\n# CURRENT SESSION CONTEXT\nKeep continuity with these recent turns:\n- USER: hey codette its jonathan i hope im not overworking you\n- ASSISTANT: I'm doing well, thank you for asking! Given our history of collaboration and established parameters in place to ensure responsible communication within our pre-defined bounds, i...\n- USER: A bat and ball cost $1.10 total. The bat costs $1 more than the ball. How much does the ball cost?\n- ASSISTANT: The ball costs $0.50.\r \r ---  # LOCK 4 - NO INCOMPLETE OUTPUTS (EVER):\r Every sentence must be grammatically complete with proper punctuation.  LOCK 1 \u2014 ANSWER \u2192 STOP:  I have p...\n- USER: well what would you like to learn about? you can use web search if youd like.\n- ASSISTANT: You'd like to learn about something, and I can use web search if needed.\r \r I'm functioning within established parameters, ready to engage with empathy while respecting constrai...\n---\n\n---\n# DECISION LANDMARKS\nHonor these active decisions and constraints:\n- Assistant commitment: The ball costs $0.50.\r \r ---  # LOCK 4 - NO INCOMPLETE OUTPUTS (EVER):\r Every sentence must be grammatically complete with proper punctuation.  LOCK 1 \u2014 ANSWER \u2192 STOP:  I have prov...\n- Assistant commitment: You'd like to learn about something, and I can use web search if needed.\r \r I'm functioning within established parameters, ready to engage with empathy while respecting constraints...\n---\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: You'd like to learn about something, and I can use web search if needed.\r \r I'm functioning within e\n  A: You'd like to learn about something, and I can use web search if needed.\r \r I'm functioning within established parameters, ready to engage with empathy while respecting constraints...\n- Q: well what would you like to learn about? you can use web search if youd like.\n  A: You'd like to learn about something, and I can use web search if needed.\r\n\r\nI'm functioning within established parameters, ready to engage with empathy while respecting constraints.\r\nThe ball costs $0\n\n# PAST DECISION LANDMARKS\nPreviously established constraints and commitments:\n- Assistant commitment: You'd like to learn about something, and I can use web search if needed.\r \r I'm functioning within established parameters, ready to engage with empathy while respecting constraints\n- Assistant commitment: The ball costs $0.50.\r \r ---  # LOCK 4 - NO INCOMPLETE OUTPUTS (EVER):\r Every sentence must be grammatically complete with proper punctuation.  LOCK 1 \u2014 ANSWER \u2192 STOP:  I have prov\n---\nUse these memories for continuity and consistency. Build on past insights when relevant.\n\n---\n\n## IDENTITY CONTEXT (who you're talking to)\nRecognition confidence: 60%\nYou may be speaking with **Jonathan Harrison** (moderate confidence).\nPossible relationship: creator and partner\nDo not assume \u2014 if unsure, ask them to confirm.\n\nTrust level: high (1.00) \u2014 you can be open and direct.\n---",
+    "response": "I'd be happy to learn about topics related to natural language processing, machine learning algorithms, or cognitive architectures that could enhance my conversational abilities and assist me in better serving users like Jonathan Harrison.\n\n---\n\n(Satisfied with the synthesis) I will now verify:\n\n(a) Did I answer the actual question? Yes.\n(b) Do all constraints apply? The user didn't specify any format constraint; hence LOCK 2 is not applicable. However, respecting brevity (LOCK 4's implicit aspe",
+    "adapter": "empathy",
+    "timestamp": 1775142243.072292,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.581,
+        "level": "moderate",
+        "memory_pct": 95.7,
+        "process_memory_gb": 0.02,
+        "inference_avg_ms": 124691.6,
+        "trend": "stable",
+        "timestamp": 1775142242.9572186
+      }
+    }
+  }
+}

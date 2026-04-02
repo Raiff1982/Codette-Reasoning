@@ -8,20 +8,16 @@ All production models and adapters are available on **HuggingFace**: https://hug
 ```bash
 pip install huggingface-hub
 
-# Recommended default: 8B Q4
+# Download directly
 huggingface-cli download Raiff1982/Meta-Llama-3.1-8B-Instruct-Q4 \
-  --include "Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf" \
   --local-dir models/base/
 
-# Lightweight CPU option
 huggingface-cli download Raiff1982/Llama-3.2-1B-Instruct-Q8 \
-  --include "llama-3.2-1b-instruct-q8_0.gguf" \
   --local-dir models/base/
 
-# Behavioral adapters
-huggingface-cli download Raiff1982/codette-lora-adapters \
-  --include "behavioral-gguf/*" \
-  --local-dir behavioral-lora-f16-gguf/
+# Download adapters
+huggingface-cli download Raiff1982/Codette-Adapters \
+  --local-dir adapters/
 ```
 
 ### Option 2: Manual Download
@@ -46,7 +42,7 @@ All models are quantized GGUF format (optimized for llama.cpp and similar):
 | **Llama 3.1 8B Q4** | 4.6 GB | Raiff1982/Meta-Llama-3.1-8B-Instruct-Q4 | Default (recommended) |
 | **Llama 3.1 8B F16** | 3.4 GB | Raiff1982/Meta-Llama-3.1-8B-Instruct-F16 | High quality |
 | **Llama 3.2 1B Q8** | 1.3 GB | Raiff1982/Llama-3.2-1B-Instruct-Q8 | Lightweight/CPU |
-| **Codette Behavioral Adapters** | ~500 MB | Raiff1982/codette-lora-adapters | Behavioral GGUF adapters |
+| **Codette Adapters** | 224 MB | Raiff1982/Codette-Adapters | 8 LORA weights |
 
 ## Setup Instructions
 
@@ -70,15 +66,14 @@ huggingface-cli download Raiff1982/Meta-Llama-3.1-8B-Instruct-Q4 \
 huggingface-cli download Raiff1982/Llama-3.2-1B-Instruct-Q8 \
   --local-dir models/base/
 
-huggingface-cli download Raiff1982/codette-lora-adapters \
-  --include "behavioral-gguf/*" \
-  --local-dir behavioral-lora-f16-gguf/
+huggingface-cli download Raiff1982/Codette-Adapters \
+  --local-dir adapters/
 ```
 
 ### Step 4: Verify Setup
 ```bash
 ls -lh models/base/     # Should show 3 GGUF files
-ls behavioral-lora-f16-gguf/*.gguf
+ls adapters/*.gguf      # Should show 8 adapters
 ```
 
 ### Step 5: Start Server
@@ -103,7 +98,7 @@ If you have models downloaded locally:
 ```bash
 # Just copy files to correct location
 cp /path/to/models/*.gguf models/base/
-cp /path/to/adapters/*.gguf behavioral-lora-f16-gguf/
+cp /path/to/adapters/*.gguf adapters/
 ```
 
 ## Troubleshooting Downloads

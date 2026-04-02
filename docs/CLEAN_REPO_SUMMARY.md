@@ -99,7 +99,7 @@ cd j:/codette-clean
 # DO NOT initialize with README/license/gitignore
 
 # Then run:
-git remote add origin https://github.com/YOUR_USERNAME/codette-reasoning.git
+git remote add origin https://github.com/Raiff1982/Codette-Reasoning.git
 git branch -M main
 git push -u origin main
 ```

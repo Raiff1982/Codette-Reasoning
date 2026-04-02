@@ -29,7 +29,7 @@ This is a fresh, clean Codette repository containing:
 cd /tmp/codette-clean
 
 # Add your new GitHub repo as remote
-git remote add origin https://github.com/YOUR_USERNAME/codette-reasoning.git
+git remote add origin https://github.com/Raiff1982/Codette-Reasoning.git
 
 # Push to GitHub
 git branch -M main
@@ -37,7 +37,7 @@ git push -u origin main
 ```
 
 ### Step 3: Verify
-- Visit https://github.com/YOUR_USERNAME/codette-reasoning
+- Visit https://github.com/Raiff1982/Codette-Reasoning
 - Should see 142 files, clean history, no LFS issues
 
 ## Repository Structure
