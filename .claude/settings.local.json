@@ -316,7 +316,12 @@
       "Read(//n/Horizon/HorizonDAW/DAW/**)",
       "Bash(npx tsc:*)",
       "Bash(pushd \"N:/Horizon/HorizonDAW/DAW\")",
-      "Bash(popd)"
+      "Bash(popd)",
+      "Bash(find . -name *.py -type f -mtime -1)",
+      "Bash(ls -la inference/*.py)",
+      "Bash(ls -la reasoning_forge/*.py)",
+      "Bash(grep -r \"event_embedded_value\\\\|EventEmbeddedValueEngine\\\\|EEV\" reasoning_forge/*.py inference/*.py --include=\"*.py\")",
+      "Bash(git add:*)"
     ]
   }
 }
