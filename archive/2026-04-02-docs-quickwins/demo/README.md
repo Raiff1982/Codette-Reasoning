@@ -27,7 +27,7 @@ python demo/run_local_api_demo.py --include-web
 
 ### 2. Copy/Paste API Examples
 
-See [api_examples.md](api_examples.md) for direct `curl` examples.
+See [api_examples.md](/mnt/j/codette-clean/demo/api_examples.md) for direct `curl` examples.
 
 ## What This Folder Proves
 

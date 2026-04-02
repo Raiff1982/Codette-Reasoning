@@ -53,7 +53,7 @@ Codette is a production-ready AI reasoning system that thinks from multiple angl
 
 Created by **Jonathan Harrison** (Raiff1982)
 
-> **New in v5**: Publishable benchmark suite with 17 problems across 6 categories demonstrates **93.1% improvement** over single-perspective baseline (p < 0.0001, Cohen's d = 7.88). Meta-cognitive CocoonSynthesizer discovers cross-domain reasoning patterns and forges new strategies. Full academic paper: [`paper/codette_paper_v5.pdf`](paper/codette_paper_v5.pdf) and [`paper/codette_paper_v5.tex`](paper/codette_paper_v5.tex)
+> **New in v5**: Publishable benchmark suite with 17 problems across 6 categories demonstrates **93.1% improvement** over single-perspective baseline (p < 0.0001, Cohen's d = 7.88). Meta-cognitive CocoonSynthesizer discovers cross-domain reasoning patterns and forges new strategies. Full academic paper: [`paper/codette_paper_v5.tex`](paper/codette_paper_v5.tex)
 
 ---
 
@@ -61,18 +61,17 @@ Created by **Jonathan Harrison** (Raiff1982)
 
 Codette is a modular reasoning system with published demos, tests, benchmarks, and proof artifacts.
 
-- **Proof index**: [docs/proof.md](docs/proof.md)
-- **Runnable demos**: [demo/README.md](demo/README.md)
-- **Automated tests**: [tests](tests)
-- **Benchmark suites**: [benchmarks](benchmarks)
-- **Saved benchmark reports**: [data/results](data/results)
-- **Change transparency**: [docs/CHANGELOG_2026-04-02.md](docs/CHANGELOG_2026-04-02.md)
-- **Contributing guide**: [CONTRIBUTING.md](CONTRIBUTING.md)
+- **Proof index**: [docs/proof.md](/mnt/j/codette-clean/docs/proof.md)
+- **Runnable demos**: [demo/README.md](/mnt/j/codette-clean/demo/README.md)
+- **Automated tests**: [tests](/mnt/j/codette-clean/tests)
+- **Benchmark suites**: [benchmarks](/mnt/j/codette-clean/benchmarks)
+- **Saved benchmark reports**: [data/results](/mnt/j/codette-clean/data/results)
+- **Change transparency**: [docs/CHANGELOG_2026-04-02.md](/mnt/j/codette-clean/docs/CHANGELOG_2026-04-02.md)
 
 Quick evidence links:
-- Multi-perspective benchmark report: [codette_benchmark_report.md](data/results/codette_benchmark_report.md)
-- Runtime benchmark without web research: [codette_runtime_benchmark_20260402_135517.md](data/results/codette_runtime_benchmark_20260402_135517.md)
-- Runtime benchmark with web research: [codette_runtime_benchmark_20260402_140237.md](data/results/codette_runtime_benchmark_20260402_140237.md)
+- Multi-perspective benchmark report: [codette_benchmark_report.md](/mnt/j/codette-clean/data/results/codette_benchmark_report.md)
+- Runtime benchmark without web research: [codette_runtime_benchmark_20260402_135517.md](/mnt/j/codette-clean/data/results/codette_runtime_benchmark_20260402_135517.md)
+- Runtime benchmark with web research: [codette_runtime_benchmark_20260402_140237.md](/mnt/j/codette-clean/data/results/codette_runtime_benchmark_20260402_140237.md)
 
 This repository includes reproducible evidence of:
 - multi-perspective reasoning and synthesis
@@ -142,7 +141,6 @@ pip install -r requirements.txt
 **Base model** (one-time, ~5GB):
 ```bash
 huggingface-cli download Raiff1982/codette-llama-3.1-8b-gguf \
-  --include "Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf" \
   --local-dir models/base/
 ```
 
@@ -151,13 +149,6 @@ huggingface-cli download Raiff1982/codette-llama-3.1-8b-gguf \
 huggingface-cli download Raiff1982/codette-lora-adapters \
   --include "behavioral-gguf/*" \
   --local-dir behavioral-lora-f16-gguf/
-```
-
-**Lightweight CPU option**:
-```bash
-huggingface-cli download Raiff1982/Llama-3.2-1B-Instruct-Q8 \
-  --include "llama-3.2-1b-instruct-q8_0.gguf" \
-  --local-dir models/base/
 ```
 
 ### 3. Launch
@@ -173,19 +164,6 @@ python inference/codette_server.py
 ```
 
 Visit **http://localhost:7860** -- Codette is ready.
-
-### 3.5 Run A Full Benchmark Pass
-
-```bash
-python scripts/run_all_benchmarks.py
-```
-
-If the local server is already running and you want the live runtime benchmark too:
-
-```bash
-python scripts/run_all_benchmarks.py --include-runtime
-python scripts/run_all_benchmarks.py --include-runtime --include-web
-```
 
 ### 4. Try It
 
@@ -461,7 +439,6 @@ Deliberately calibrated to avoid false positives -- discussions about sensitive 
 | Resource | Link |
 |----------|------|
 | **Academic Paper** | [raiff1982/codette-paper](https://huggingface.co/raiff1982/codette-paper) |
-| **Rendered Paper (Repo PDF)** | [paper/codette_paper_v5.pdf](paper/codette_paper_v5.pdf) |
 | **Base Model (GGUF)** | [Raiff1982/codette-llama-3.1-8b-gguf](https://huggingface.co/Raiff1982/codette-llama-3.1-8b-gguf) |
 | **LoRA Adapters** | [Raiff1982/codette-lora-adapters](https://huggingface.co/Raiff1982/codette-lora-adapters) |
 | **Live Demo** | [Raiff1982/Codette-Demo](https://huggingface.co/spaces/Raiff1982/Codette-Demo) |
@@ -489,18 +466,6 @@ Deliberately calibrated to avoid false positives -- discussions about sensitive 
 - 16GB+ RAM (or GPU with 8GB+ VRAM)
 - llama-cpp-python with GGUF support
 - ~6GB disk for base model + adapters
-
-## Hardware Recommendations
-
-| Target | Recommended Model | Minimum | Comfortable |
-|--------|-------------------|---------|-------------|
-| CPU-only | Llama 3.2 1B Q8 | 8 GB RAM | 16 GB RAM |
-| Main local use | Llama 3.1 8B Q4 | 16 GB RAM or 8 GB VRAM | 32 GB RAM or 12 GB VRAM |
-| Highest local quality | Llama 3.1 8B F16 | 24 GB VRAM | 24 GB+ VRAM and 32 GB RAM |
-
-For all 9 adapters plus active memory and the web UI, a comfortable target is 16-32 GB system RAM and 8-12 GB VRAM.
-
-Detailed setup guidance: [docs/deployment/MODEL_SETUP.md](docs/deployment/MODEL_SETUP.md)
 
 ### Hardware Tested
 
@@ -531,28 +496,6 @@ Codette was evaluated on 17 problems across 6 categories (reasoning, ethics, cre
 Scoring dimensions: Reasoning Depth (20%), Perspective Diversity (15%), Coherence (15%), Ethical Coverage (10%), Novelty (15%), Factual Grounding (15%), Turing Naturalness (10%).
 
 Full methodology and results: [`data/results/codette_benchmark_report.md`](data/results/codette_benchmark_report.md)
-
-## Cocoon Backup And Migration
-
-Codette's memory and session data can be backed up and moved between machines.
-
-Primary files:
-- `data/codette_memory.db`
-- `data/codette_sessions.db`
-- optional legacy/supporting artifacts in `cocoons/`
-
-Guide: [docs/cocoon_backup_and_migration.md](docs/cocoon_backup_and_migration.md)
-
-## Web Research Auditability
-
-The live web research path is documented here:
-- [docs/web_research.md](docs/web_research.md)
-
-That document explains:
-- how live lookup is triggered
-- what safety filters are applied
-- how cited results are injected
-- how research is persisted into cocoon memory
 
 ---
 

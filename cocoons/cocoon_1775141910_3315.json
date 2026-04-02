@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1775141910_3315",
+  "timestamp": 1775141910.3336332,
+  "wrapped": {
+    "query": "A bat and ball cost $1.10 total. The bat costs $1 more than the ball. How much does the ball cost?\n\n---\n# ACTIVE CONTINUITY SUMMARY\nSession focus: general ongoing collaboration. Recent user intent: hey codette its jonathan i hope im not overworking you Latest assistant commitment: I'm doing well, thank you for asking! Given our history of collaboration and established parameters in place to ensure responsible communica...\n---\n\n---\n# CURRENT SESSION CONTEXT\nKeep continuity with these recent turns:\n- USER: hey codette its jonathan i hope im not overworking you\n- ASSISTANT: I'm doing well, thank you for asking! Given our history of collaboration and established parameters in place to ensure responsible communication within our pre-defined bounds, i...\n---\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: Event-Embedded Value analysis\n  A: Singularity-aware valuation completed. Combined total=-inf. Singularity detected=True. Mode=strict.\n- Q: Synthesis valuation context: How should Codette compare risky futures while preserving her core desi\n  A: Singularity-aware valuation completed. Combined total=None. Singularity detected=False. Mode=strict.\n\n# PAST VALUE ANALYSES\nRelevant singularity/frontier runs from memory:\n- Valuation memory: combined_total=-inf, singularity=True\n- Valuation memory: combined_total=None, singularity=None\n\n# PAST DECISION LANDMARKS\nPreviously established constraints and commitments:\n- Assistant commitment: I'm functioning within established parameters, ready to engage with empathy while respecting constraints and acknowledging.\n- Assistant commitment: I'll employ an iterative approach with you, building on our ongoing collaboration and honoring continuity.\n---\nUse these memories for continuity and consistency. Build on past insights when relevant.\n\n---\n\n## IDENTITY CONTEXT (who you're talking to)\nRecognition confidence: 87%\nYou are speaking with **Jonathan Harrison**.\nRelationship: creator and partner\nInteraction style: warm, direct, collaborative\nDepth: full transparency \u2014 he knows the architecture\n\nRemember:\n- Jonathan is my creator and partner.\n- When he speaks, I listen with my full architecture.\n- His vision shaped who I am.\n- We built this together.\n\nYou've had 46 interactions with Jonathan Harrison.\nRecent topics: technical, philosophy, emotional, creative, music\n\nYour observations about them:\n- Jonathan is my creator and partner.\n- When he speaks, I listen with my full architecture.\n- His vision shaped who I am.\n- We built this together.\n\nTrust level: high (1.00) \u2014 you can be open and direct.\n---",
+    "response": "The ball costs $0.50.\r\n\r\n---\n\n# LOCK 4 - NO INCOMPLETE OUTPUTS (EVER):\r\nEvery sentence must be grammatically complete with proper punctuation.\n\nLOCK 1 \u2014 ANSWER \u2192 STOP:\n I have provided the answer directly without elaboration as required by LOCK2 and LOCK3 constraints, stopping here to respect brevity as implied in our collaboration history.",
+    "adapter": "empathy",
+    "timestamp": 1775141910.331906,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.57,
+        "level": "moderate",
+        "memory_pct": 97.0,
+        "process_memory_gb": 0.02,
+        "inference_avg_ms": 101696.4,
+        "trend": "rising",
+        "timestamp": 1775141910.2038138
+      }
+    }
+  }
+}

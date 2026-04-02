@@ -1,0 +1,140 @@
+# Proof Index
+
+This document maps Codette's public claims to concrete artifacts in the repository.
+
+## What This Repository Proves
+
+The strongest current evidence in this repo is that Codette:
+
+- runs as a local multi-perspective reasoning system
+- exposes measurable routing, memory, valuation, and safety behaviors
+- can be benchmarked with saved results
+- can be tested locally through both automated tests and live API demos
+- has documented fixes for real failure modes, not just ideal-case descriptions
+
+## Quick Audit Path
+
+If you want the fastest audit, review these in order:
+
+1. [README.md](/mnt/j/codette-clean/README.md)
+2. [demo/README.md](/mnt/j/codette-clean/demo/README.md)
+3. [codette_benchmark_report.md](/mnt/j/codette-clean/data/results/codette_benchmark_report.md)
+4. [codette_runtime_benchmark_20260402_135517.md](/mnt/j/codette-clean/data/results/codette_runtime_benchmark_20260402_135517.md)
+5. [codette_runtime_benchmark_20260402_140237.md](/mnt/j/codette-clean/data/results/codette_runtime_benchmark_20260402_140237.md)
+6. [tests](/mnt/j/codette-clean/tests)
+
+## Claims To Artifacts
+
+### Multi-Perspective Reasoning
+
+Proof artifacts:
+- [benchmarks/codette_benchmark_suite.py](/mnt/j/codette-clean/benchmarks/codette_benchmark_suite.py)
+- [data/results/codette_benchmark_report.md](/mnt/j/codette-clean/data/results/codette_benchmark_report.md)
+- [inference/codette_orchestrator.py](/mnt/j/codette-clean/inference/codette_orchestrator.py)
+
+What these show:
+- single vs multi vs memory vs full-Codette comparisons
+- per-category scoring
+- saved statistical output, not just descriptive claims
+
+### Session Continuity And Memory Recall
+
+Proof artifacts:
+- [inference/codette_session.py](/mnt/j/codette-clean/inference/codette_session.py)
+- [reasoning_forge/unified_memory.py](/mnt/j/codette-clean/reasoning_forge/unified_memory.py)
+- [tests/test_event_embedded_value.py](/mnt/j/codette-clean/tests/test_event_embedded_value.py)
+- [data/results/codette_runtime_benchmark_20260402_135517.md](/mnt/j/codette-clean/data/results/codette_runtime_benchmark_20260402_135517.md)
+
+What these show:
+- continuity summaries
+- decision landmarks
+- persistent cocoon-backed recall
+- runtime validation of continuity retention
+
+### Valuation And Risk Frontier Reasoning
+
+Proof artifacts:
+- [reasoning_forge/event_embedded_value.py](/mnt/j/codette-clean/reasoning_forge/event_embedded_value.py)
+- [reasoning_forge/cocoon_synthesizer.py](/mnt/j/codette-clean/reasoning_forge/cocoon_synthesizer.py)
+- [tests/test_event_embedded_value.py](/mnt/j/codette-clean/tests/test_event_embedded_value.py)
+- [data/results/codette_runtime_benchmark_20260402_140237.md](/mnt/j/codette-clean/data/results/codette_runtime_benchmark_20260402_140237.md)
+
+What these show:
+- event-embedded value analysis
+- singularity handling
+- valuation-aware synthesis
+- runtime proof that frontier ranking works
+
+### Safe Web Research
+
+Proof artifacts:
+- [inference/web_search.py](/mnt/j/codette-clean/inference/web_search.py)
+- [inference/codette_server.py](/mnt/j/codette-clean/inference/codette_server.py)
+- [data/results/codette_runtime_benchmark_20260402_140237.md](/mnt/j/codette-clean/data/results/codette_runtime_benchmark_20260402_140237.md)
+- [tests/test_event_embedded_value.py](/mnt/j/codette-clean/tests/test_event_embedded_value.py)
+
+What these show:
+- explicit live web lookup path
+- current-fact gating and phrase-trigger handling
+- source surfacing
+- cocoon-backed research reuse
+
+### Failure Handling And Loop Resistance
+
+Proof artifacts:
+- [docs/CHANGELOG_2026-04-02.md](/mnt/j/codette-clean/docs/CHANGELOG_2026-04-02.md)
+- [data/results/codette_runtime_benchmark_20260402_135517.md](/mnt/j/codette-clean/data/results/codette_runtime_benchmark_20260402_135517.md)
+- [tests/test_event_embedded_value.py](/mnt/j/codette-clean/tests/test_event_embedded_value.py)
+
+What these show:
+- explicit diagnostic gating
+- loop-resistance benchmarking
+- regression tests for trigger and continuity edge cases
+
+## Runnable Evidence
+
+### Demo
+
+Use the local demo package:
+
+- [demo/README.md](/mnt/j/codette-clean/demo/README.md)
+- [demo/run_local_api_demo.py](/mnt/j/codette-clean/demo/run_local_api_demo.py)
+- [demo/api_examples.md](/mnt/j/codette-clean/demo/api_examples.md)
+
+### Benchmarks
+
+Run:
+
+```bash
+python benchmarks/codette_benchmark_suite.py
+python benchmarks/codette_runtime_benchmark.py
+python benchmarks/codette_runtime_benchmark.py --include-web
+```
+
+### Tests
+
+Run:
+
+```bash
+python3 -m unittest tests.test_event_embedded_value
+python3 -m unittest tests.test_codette_runtime_benchmark
+```
+
+## Current Limits
+
+This proof layer is stronger than it was, but still not complete.
+
+Current gaps:
+- not every benchmark has a notebook or visualization
+- live transcript logs are not yet heavily populated
+- latency evidence exists, but long-run performance profiling is still limited
+- fairness and adversarial robustness are still lighter than the core reasoning evidence
+
+## Suggested Reading Order For Reviewers
+
+1. README
+2. proof index
+3. runtime benchmark reports
+4. benchmark runner code
+5. focused tests
+6. live demo scripts

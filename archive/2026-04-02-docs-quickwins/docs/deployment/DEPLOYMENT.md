@@ -25,8 +25,8 @@ This guide walks through deploying Codette's reasoning engine to production with
 
 ### 1.1 Clone Repository
 ```bash
-git clone https://github.com/Raiff1982/Codette-Reasoning.git
-cd Codette-Reasoning
+git clone https://github.com/YOUR_USERNAME/codette-reasoning.git
+cd codette-reasoning
 ```
 
 ### 1.2 Create Virtual Environment (Recommended)
@@ -64,8 +64,8 @@ ls -lh models/base/
 
 ### 2.2 Check Adapters
 ```bash
-ls -lh behavioral-lora-f16-gguf/
-# Should show the behavioral adapter .gguf files
+ls -lh adapters/
+# Should show 8 .gguf files (27MB each)
 ```
 
 ### 2.3 Verify Model Loader
@@ -99,9 +99,10 @@ python -m pytest test_integration_phase6.py -v
 
 ### 3.2 Run Correctness Benchmark
 ```bash
-python scripts/run_all_benchmarks.py
+python correctness_benchmark.py
 # Expected output:
-# publishable benchmark report written to data/results/
+# Phase 6+13+14 accuracy: 78.6%
+# Meta-loops reduced: 90% → 5%
 ```
 
 **If any test fails**: See "Troubleshooting" section below
@@ -633,3 +634,4 @@ For issues:
 **Models Included**: 3 (Llama 3.1 8B Q4, Llama 3.2 1B, Llama 3.1 8B F16)
 **Adapters**: 8 specialized LORA weights
 **Expected Correctness**: 78.6% (validation passing)
+

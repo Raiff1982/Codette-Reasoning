@@ -96,10 +96,10 @@ MODEL_CONFIG = {
 
 ## Adapter Integration
 
-Codette uses behavioral GGUF adapters for multi-perspective reasoning:
+Codette uses 8 specialized LORA adapters for multi-perspective reasoning:
 
 ```
-behavioral-lora-f16-gguf/
+adapters/
 ├── consciousness-lora-f16.gguf       (Meta-cognitive insights)
 ├── davinci-lora-f16.gguf              (Creative reasoning)
 ├── empathy-lora-f16.gguf              (Emotional intelligence)
@@ -116,7 +116,7 @@ Adapters automatically load when inference engine detects them:
 
 ```python
 # In reasoning_forge/forge_engine.py
-self.adapters_path = "behavioral-lora-f16-gguf/"
+self.adapters_path = "adapters/"
 self.loaded_adapters = self._load_adapters()  # Auto-loads all .gguf files
 ```
 
@@ -166,7 +166,7 @@ export CODETTE_GPU_LAYERS=32
 ### Issue: Adapters not loading
 ```bash
 # Verify adapter files exist
-ls -lh behavioral-lora-f16-gguf/
+ls -lh adapters/
 
 # Check adapter loading logs
 python -c "

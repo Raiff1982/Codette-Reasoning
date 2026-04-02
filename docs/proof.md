@@ -16,21 +16,21 @@ The strongest current evidence in this repo is that Codette:
 
 If you want the fastest audit, review these in order:
 
-1. [README.md](/mnt/j/codette-clean/README.md)
-2. [demo/README.md](/mnt/j/codette-clean/demo/README.md)
-3. [codette_benchmark_report.md](/mnt/j/codette-clean/data/results/codette_benchmark_report.md)
-4. [codette_runtime_benchmark_20260402_135517.md](/mnt/j/codette-clean/data/results/codette_runtime_benchmark_20260402_135517.md)
-5. [codette_runtime_benchmark_20260402_140237.md](/mnt/j/codette-clean/data/results/codette_runtime_benchmark_20260402_140237.md)
-6. [tests](/mnt/j/codette-clean/tests)
+1. [README.md](../README.md)
+2. [demo/README.md](../demo/README.md)
+3. [codette_benchmark_report.md](../data/results/codette_benchmark_report.md)
+4. [codette_runtime_benchmark_20260402_135517.md](../data/results/codette_runtime_benchmark_20260402_135517.md)
+5. [codette_runtime_benchmark_20260402_140237.md](../data/results/codette_runtime_benchmark_20260402_140237.md)
+6. [tests](../tests)
 
 ## Claims To Artifacts
 
 ### Multi-Perspective Reasoning
 
 Proof artifacts:
-- [benchmarks/codette_benchmark_suite.py](/mnt/j/codette-clean/benchmarks/codette_benchmark_suite.py)
-- [data/results/codette_benchmark_report.md](/mnt/j/codette-clean/data/results/codette_benchmark_report.md)
-- [inference/codette_orchestrator.py](/mnt/j/codette-clean/inference/codette_orchestrator.py)
+- [benchmarks/codette_benchmark_suite.py](../benchmarks/codette_benchmark_suite.py)
+- [data/results/codette_benchmark_report.md](../data/results/codette_benchmark_report.md)
+- [inference/codette_orchestrator.py](../inference/codette_orchestrator.py)
 
 What these show:
 - single vs multi vs memory vs full-Codette comparisons
@@ -40,10 +40,10 @@ What these show:
 ### Session Continuity And Memory Recall
 
 Proof artifacts:
-- [inference/codette_session.py](/mnt/j/codette-clean/inference/codette_session.py)
-- [reasoning_forge/unified_memory.py](/mnt/j/codette-clean/reasoning_forge/unified_memory.py)
-- [tests/test_event_embedded_value.py](/mnt/j/codette-clean/tests/test_event_embedded_value.py)
-- [data/results/codette_runtime_benchmark_20260402_135517.md](/mnt/j/codette-clean/data/results/codette_runtime_benchmark_20260402_135517.md)
+- [inference/codette_session.py](../inference/codette_session.py)
+- [reasoning_forge/unified_memory.py](../reasoning_forge/unified_memory.py)
+- [tests/test_event_embedded_value.py](../tests/test_event_embedded_value.py)
+- [data/results/codette_runtime_benchmark_20260402_135517.md](../data/results/codette_runtime_benchmark_20260402_135517.md)
 
 What these show:
 - continuity summaries
@@ -54,10 +54,10 @@ What these show:
 ### Valuation And Risk Frontier Reasoning
 
 Proof artifacts:
-- [reasoning_forge/event_embedded_value.py](/mnt/j/codette-clean/reasoning_forge/event_embedded_value.py)
-- [reasoning_forge/cocoon_synthesizer.py](/mnt/j/codette-clean/reasoning_forge/cocoon_synthesizer.py)
-- [tests/test_event_embedded_value.py](/mnt/j/codette-clean/tests/test_event_embedded_value.py)
-- [data/results/codette_runtime_benchmark_20260402_140237.md](/mnt/j/codette-clean/data/results/codette_runtime_benchmark_20260402_140237.md)
+- [reasoning_forge/event_embedded_value.py](../reasoning_forge/event_embedded_value.py)
+- [reasoning_forge/cocoon_synthesizer.py](../reasoning_forge/cocoon_synthesizer.py)
+- [tests/test_event_embedded_value.py](../tests/test_event_embedded_value.py)
+- [data/results/codette_runtime_benchmark_20260402_140237.md](../data/results/codette_runtime_benchmark_20260402_140237.md)
 
 What these show:
 - event-embedded value analysis
@@ -68,10 +68,10 @@ What these show:
 ### Safe Web Research
 
 Proof artifacts:
-- [inference/web_search.py](/mnt/j/codette-clean/inference/web_search.py)
-- [inference/codette_server.py](/mnt/j/codette-clean/inference/codette_server.py)
-- [data/results/codette_runtime_benchmark_20260402_140237.md](/mnt/j/codette-clean/data/results/codette_runtime_benchmark_20260402_140237.md)
-- [tests/test_event_embedded_value.py](/mnt/j/codette-clean/tests/test_event_embedded_value.py)
+- [inference/web_search.py](../inference/web_search.py)
+- [inference/codette_server.py](../inference/codette_server.py)
+- [data/results/codette_runtime_benchmark_20260402_140237.md](../data/results/codette_runtime_benchmark_20260402_140237.md)
+- [tests/test_event_embedded_value.py](../tests/test_event_embedded_value.py)
 
 What these show:
 - explicit live web lookup path
@@ -82,9 +82,9 @@ What these show:
 ### Failure Handling And Loop Resistance
 
 Proof artifacts:
-- [docs/CHANGELOG_2026-04-02.md](/mnt/j/codette-clean/docs/CHANGELOG_2026-04-02.md)
-- [data/results/codette_runtime_benchmark_20260402_135517.md](/mnt/j/codette-clean/data/results/codette_runtime_benchmark_20260402_135517.md)
-- [tests/test_event_embedded_value.py](/mnt/j/codette-clean/tests/test_event_embedded_value.py)
+- [docs/CHANGELOG_2026-04-02.md](CHANGELOG_2026-04-02.md)
+- [data/results/codette_runtime_benchmark_20260402_135517.md](../data/results/codette_runtime_benchmark_20260402_135517.md)
+- [tests/test_event_embedded_value.py](../tests/test_event_embedded_value.py)
 
 What these show:
 - explicit diagnostic gating
@@ -97,9 +97,9 @@ What these show:
 
 Use the local demo package:
 
-- [demo/README.md](/mnt/j/codette-clean/demo/README.md)
-- [demo/run_local_api_demo.py](/mnt/j/codette-clean/demo/run_local_api_demo.py)
-- [demo/api_examples.md](/mnt/j/codette-clean/demo/api_examples.md)
+- [demo/README.md](../demo/README.md)
+- [demo/run_local_api_demo.py](../demo/run_local_api_demo.py)
+- [demo/api_examples.md](../demo/api_examples.md)
 
 ### Benchmarks
 

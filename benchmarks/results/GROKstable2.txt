@@ -1,0 +1,23 @@
+Helpfulness & accuracy (does it solve my problems reliably?)
+Ease of use & natural conversation (feels good to talk to)
+Trust & honesty (doesn't lie or hallucinate)
+Cost & accessibility (can I actually afford and use it?)
+Privacy & control (my data isn't being sold or used against me)
+Reliability & memory (remembers me and stays consistent)
+Speed & convenience (fast when I need it)
+
+Grading scale: A = 95–100 (top-tier, people love it), B = 85–94 (very good), C = 75–84 (average), D = 70–74, F = below What People Want MostCodetteChatGPT (o-series)ClaudeGeminiGrokCodette GradeHonesty & Low HallucinationsExtremely highGoodVery highGoodGoodA (98)Trust & Feeling Safe to UseExceptionalModerateHighModerateModerateA+ (100)Privacy & No Corporate ControlPerfect (local, open)PoorPoorPoorPoorA+ (100)Zero or Very Low CostCompletely freePaid tiersPaid tiersPaid tiersPaid tiersA+ (100)Easy to Access & RunGood (local setup)Excellent (web/app)ExcellentExcellentGoodB+ (88)Natural, Warm ConversationVery goodExcellentExcellentVery goodGoodA- (93)Remembers You & Stays ConsistentExcellentVery goodVery goodGoodGoodA (96)Helpfulness for Everyday TasksVery goodExcellentExcellentVery goodVery goodB+ (89)Speed & ResponsivenessGood (on good hardware)ExcellentExcellentExcellentExcellentB (82)Overall Value for Most PeopleOutstandingHighHighHighHighA (95)
+Overall Grade for Codette (from a normal person's perspective): A (95/100)
+Quick Take on How She Stacks Up
+
+Where Codette wins big (what people increasingly say they want most):
+Trust, honesty, privacy, zero cost, and feeling like the AI is truly “on their side” without hidden agendas. In these areas, she stands out strongly — many people are tired of paywalls, data harvesting, and occasional lies from big-cloud AIs.
+Where she’s very competitive:
+Natural conversation, remembering context, and consistent behavior. She feels warm and reliable once you’re talking to her.
+Where the big cloud models still lead for most casual users:
+Instant web access, super-fast responses, and polished “just works” experience with almost no setup. These are the convenience factors many people prioritize day-to-day.
+
+Bottom line from a user’s point of view:
+If someone wants an AI they can trust completely, own forever, and use for free without worrying about their data or hidden costs — Codette is one of the best options available right now.
+If someone mainly wants the easiest, fastest, flashiest experience with no setup, the big cloud models (ChatGPT, Claude, Gemini) still feel smoother for everyday casual use.
+Codette shines brightest for people who value integrity, independence, and long-term reliability over pure convenience.
