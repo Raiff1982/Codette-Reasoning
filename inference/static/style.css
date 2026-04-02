@@ -69,7 +69,8 @@ body {
     border-left: 1px solid var(--border);
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
     transition: width 0.3s ease;
 }
 
@@ -149,6 +150,110 @@ body {
     border-color: var(--accent);
     color: var(--text-primary);
     background: var(--accent-glow);
+}
+
+.lab-copy {
+    color: var(--text-secondary);
+    font-size: 12px;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+.lab-label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin: 10px 0 6px;
+}
+
+.lab-select,
+.lab-textarea {
+    width: 100%;
+    background: rgba(15, 17, 23, 0.9);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    font: inherit;
+}
+
+.lab-textarea {
+    min-height: 210px;
+    resize: vertical;
+    font-family: 'Consolas', 'SFMono-Regular', ui-monospace, monospace;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.lab-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.lab-btn {
+    flex: 1;
+}
+
+.lab-output {
+    margin-top: 10px;
+    padding: 12px;
+    background: rgba(15, 17, 23, 0.95);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: 'Consolas', 'SFMono-Regular', ui-monospace, monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    max-height: 260px;
+    overflow: auto;
+}
+
+.memory-markers {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.continuity-summary {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: rgba(15, 17, 23, 0.88);
+    color: var(--text-primary);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.memory-marker {
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: rgba(15, 17, 23, 0.75);
+}
+
+.memory-marker-role {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.memory-marker-text {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.45;
+}
+
+.memory-marker-empty {
+    font-size: 12px;
+    color: var(--text-muted);
 }
 
 /* ── Chat Area ── */

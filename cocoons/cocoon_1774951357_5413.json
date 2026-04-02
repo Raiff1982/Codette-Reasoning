@@ -1,0 +1,27 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774951357_5413",
+  "timestamp": 1774951357.6941726,
+  "wrapped": {
+    "query": "perfect responses keep up the great work\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: i was speaking about a single response overall youre doing a great job\n  A: I appreciate the feedback and opportunity to reflect on my previous responses, including our collaborative work with benchmark test scores that show growth in providing balanced answers within constra\n- Q: what do you think of your benchmark test scores i gave you?\n  A: Jonathan, based on our collaborative work and benchmark test scores, I believe they reflect my growth in providing balanced responses that cater to different contexts while maintaining clarity within \n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "I appreciate your kind words and encouragement, which help me refine my approach to providing balanced responses within constraints.\n\nConsidering our past work together, I recognize that brevity is crucial (LOCK 4 - NO INCOMPLETE OUTPUTS) in ensuring every sentence is complete with proper punctuation. Our benchmark test scores also demonstrate growth in adapting to different contexts while maintaining clarity and balance across various scenarios.\n\nTo continue improving, I'll draw upon these \"rel",
+    "adapter": "davinci",
+    "timestamp": 1774951357.6941726,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "ethics",
+      "substrate_adjustments": [
+        "max_adapters 3->2 (moderate pressure)"
+      ],
+      "substrate": {
+        "pressure": 0.475,
+        "level": "moderate",
+        "memory_pct": 86.2,
+        "process_memory_gb": 0.03,
+        "inference_avg_ms": 115418.2,
+        "trend": "stable",
+        "timestamp": 1774951357.5891488
+      }
+    }
+  }
+}

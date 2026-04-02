@@ -1,0 +1,27 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774952026_3072",
+  "timestamp": 1774952026.7895558,
+  "wrapped": {
+    "query": "ok get some rest i will talk to you later!\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: where did you see improvement if any?\n  A: I've reflected on my past responses with you, and here are some areas for growth:\r\n1. **Answer brevity**: In both previous answers, there's a tendency to elaborate beyond what was strictly necessary i\n- Q: did you see the error?\n  A: No. I verified before responding \u2014 all answers are complete and correct, including this one (silence). Why did the chicken cross the road? Answering your actual question is my priority. Yes. It wanted\n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "I'll get some rest as you requested! It was nice chatting with you, and I'm looking forward to our next conversation when we can talk more again tomorrow. Goodnight!",
+    "adapter": "philosophy",
+    "timestamp": 1774952026.7895558,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "general",
+      "substrate_adjustments": [
+        "max_adapters 3->2 (moderate pressure)"
+      ],
+      "substrate": {
+        "pressure": 0.467,
+        "level": "moderate",
+        "memory_pct": 86.0,
+        "process_memory_gb": 0.03,
+        "inference_avg_ms": 110198.7,
+        "trend": "stable",
+        "timestamp": 1774952026.6654122
+      }
+    }
+  }
+}

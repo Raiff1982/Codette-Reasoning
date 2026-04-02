@@ -13,20 +13,47 @@ New in v2.0:
   - ForgeEngine.forge_with_debate(): Multi-turn agent debate
 """
 
-from reasoning_forge.forge_engine import ForgeEngine
-from reasoning_forge.agents.base_agent import ReasoningAgent
-from reasoning_forge.agents.newton_agent import NewtonAgent
-from reasoning_forge.agents.quantum_agent import QuantumAgent
-from reasoning_forge.agents.ethics_agent import EthicsAgent
-from reasoning_forge.agents.philosophy_agent import PhilosophyAgent
-from reasoning_forge.agents.davinci_agent import DaVinciAgent
-from reasoning_forge.agents.empathy_agent import EmpathyAgent
-from reasoning_forge.agents.critic_agent import CriticAgent
-from reasoning_forge.synthesis_engine import SynthesisEngine
-from reasoning_forge.problem_generator import ProblemGenerator
-from reasoning_forge.epistemic_metrics import EpistemicMetrics
-from reasoning_forge.quantum_spiderweb import QuantumSpiderweb, NodeState, IdentityGlyph
-from reasoning_forge.cocoon_sync import CocoonSync, CocoonKeyManager
+from reasoning_forge.event_embedded_value import (
+    ContinuousInterval,
+    DiscreteEvent,
+    EEVAnalysis,
+    EventEmbeddedValueEngine,
+    RiskFrontierComparison,
+)
+
+try:
+    from reasoning_forge.forge_engine import ForgeEngine
+    from reasoning_forge.agents.base_agent import ReasoningAgent
+    from reasoning_forge.agents.newton_agent import NewtonAgent
+    from reasoning_forge.agents.quantum_agent import QuantumAgent
+    from reasoning_forge.agents.ethics_agent import EthicsAgent
+    from reasoning_forge.agents.philosophy_agent import PhilosophyAgent
+    from reasoning_forge.agents.davinci_agent import DaVinciAgent
+    from reasoning_forge.agents.empathy_agent import EmpathyAgent
+    from reasoning_forge.agents.critic_agent import CriticAgent
+    from reasoning_forge.synthesis_engine import SynthesisEngine
+    from reasoning_forge.problem_generator import ProblemGenerator
+    from reasoning_forge.epistemic_metrics import EpistemicMetrics
+    from reasoning_forge.quantum_spiderweb import QuantumSpiderweb, NodeState, IdentityGlyph
+    from reasoning_forge.cocoon_sync import CocoonSync, CocoonKeyManager
+except Exception:
+    ForgeEngine = None
+    ReasoningAgent = None
+    NewtonAgent = None
+    QuantumAgent = None
+    EthicsAgent = None
+    PhilosophyAgent = None
+    DaVinciAgent = None
+    EmpathyAgent = None
+    CriticAgent = None
+    SynthesisEngine = None
+    ProblemGenerator = None
+    EpistemicMetrics = None
+    QuantumSpiderweb = None
+    NodeState = None
+    IdentityGlyph = None
+    CocoonSync = None
+    CocoonKeyManager = None
 
 __all__ = [
     "ForgeEngine",
@@ -46,6 +73,11 @@ __all__ = [
     "IdentityGlyph",
     "CocoonSync",
     "CocoonKeyManager",
+    "ContinuousInterval",
+    "DiscreteEvent",
+    "EEVAnalysis",
+    "EventEmbeddedValueEngine",
+    "RiskFrontierComparison",
 ]
 
 __version__ = "2.0.0"

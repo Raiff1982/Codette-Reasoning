@@ -146,6 +146,7 @@ class CodetteSession:
         self.perspective_usage: Dict[str, int] = {}
         self.lifeforms: List[str] = []  # Spawned concept nodes
         self.dream_history: List[Dict] = []  # Dream field results
+        self.active_continuity_summary: str = ""
 
         # Initialize subsystems
         self._init_cocoon()
@@ -201,6 +202,125 @@ class CodetteSession:
             msg["metadata"] = metadata
         self.messages.append(msg)
         self.updated_at = time.time()
+        self.refresh_active_continuity_summary()
+
+    def refresh_active_continuity_summary(self) -> str:
+        """Refresh the compact working-memory summary for the current session."""
+        recent = [
+            msg for msg in self.messages
+            if msg.get("role") in {"user", "assistant"}
+        ][-8:]
+
+        if not recent:
+            self.active_continuity_summary = ""
+            return self.active_continuity_summary
+
+        active_topics: List[str] = []
+        user_intents: List[str] = []
+        assistant_commitments: List[str] = []
+
+        for msg in recent:
+            role = msg.get("role")
+            text = str(msg.get("content", "")).strip().replace("\n", " ")
+            if not text:
+                continue
+            snippet = text[:140] + ("..." if len(text) > 140 else "")
+            if role == "user" and len(user_intents) < 3:
+                user_intents.append(snippet)
+            elif role == "assistant" and len(assistant_commitments) < 3:
+                assistant_commitments.append(snippet)
+
+            lowered = text.lower()
+            if "singular" in lowered and "singularity analysis" not in active_topics:
+                active_topics.append("singularity analysis")
+            if "risk frontier" in lowered or "frontier" in lowered:
+                if "risk frontier comparison" not in active_topics:
+                    active_topics.append("risk frontier comparison")
+            if "continuity" in lowered or "session recall" in lowered:
+                if "session continuity" not in active_topics:
+                    active_topics.append("session continuity")
+            if "aegis" in lowered and "AEGIS weighting" not in active_topics:
+                active_topics.append("AEGIS weighting")
+            if "cocoon" in lowered and "cocoon persistence" not in active_topics:
+                active_topics.append("cocoon persistence")
+
+        if not active_topics:
+            active_topics.append("general ongoing collaboration")
+
+        summary_lines = [
+            f"Session focus: {', '.join(active_topics[:4])}.",
+            f"Recent user intent: {user_intents[-1] if user_intents else 'No recent user instruction recorded.'}",
+        ]
+
+        if assistant_commitments:
+            summary_lines.append(f"Latest assistant commitment: {assistant_commitments[-1]}")
+
+        if self.perspective_usage:
+            top_adapter = max(self.perspective_usage, key=self.perspective_usage.get)
+            summary_lines.append(f"Most-used adapter this session: {top_adapter}.")
+
+        self.active_continuity_summary = " ".join(summary_lines)[:700]
+        return self.active_continuity_summary
+
+    def build_prompt_context(self, max_turns: int = 3, max_chars: int = 900) -> str:
+        """Build a compact recent-session context for prompt enrichment."""
+        if not self.messages:
+            return ""
+
+        turns = []
+        current_turn = []
+        for msg in reversed(self.messages):
+            role = msg.get("role")
+            if role not in {"user", "assistant"}:
+                continue
+            current_turn.append(msg)
+            if role == "user":
+                turns.append(list(reversed(current_turn)))
+                current_turn = []
+            if len(turns) >= max_turns:
+                break
+
+        if current_turn and len(turns) < max_turns:
+            turns.append(list(reversed(current_turn)))
+
+        snippets = []
+        used = 0
+        for turn in reversed(turns):
+            for msg in turn:
+                role = msg.get("role", "unknown").upper()
+                content = str(msg.get("content", "")).strip().replace("\n", " ")
+                if not content:
+                    continue
+                if len(content) > 180:
+                    content = content[:177] + "..."
+                line = f"- {role}: {content}"
+                if used + len(line) > max_chars:
+                    break
+                snippets.append(line)
+                used += len(line)
+            if used >= max_chars:
+                break
+
+        return "\n".join(snippets)
+
+    def get_recent_memory_markers(self, max_items: int = 4) -> List[Dict[str, Any]]:
+        """Expose a small, UI-safe slice of recent session memory."""
+        markers = []
+        for msg in reversed(self.messages):
+            if msg.get("role") not in {"user", "assistant"}:
+                continue
+            text = str(msg.get("content", "")).strip().replace("\n", " ")
+            if not text:
+                continue
+            markers.append({
+                "role": msg["role"],
+                "text": text[:160] + ("..." if len(text) > 160 else ""),
+                "timestamp": msg.get("timestamp"),
+            })
+            if len(markers) >= max_items:
+                break
+        markers.reverse()
+        return markers
 
     def update_after_response(self, route_result, adapter_name: str,
                                perspectives: Optional[Dict[str, str]] = None):
@@ -453,6 +573,9 @@ class CodetteSession:
         if HAS_PERSPECTIVES:
             state["perspectives_available"] = len(PERSPECTIVES)
 
+        state["recent_memory_markers"] = self.get_recent_memory_markers()
+        state["active_continuity_summary"] = self.active_continuity_summary
+
         return state
 
     def to_dict(self) -> Dict:
@@ -469,6 +592,7 @@ class CodetteSession:
             "perspective_usage": self.perspective_usage,
             "lifeforms": self.lifeforms,
             "dream_history": self.dream_history,
+            "active_continuity_summary": self.active_continuity_summary,
         }
         if self.spiderweb:
             try:
@@ -520,6 +644,9 @@ class CodetteSession:
         self.perspective_usage = data.get("perspective_usage", {})
         self.lifeforms = data.get("lifeforms", [])
         self.dream_history = data.get("dream_history", [])
+        self.active_continuity_summary = data.get("active_continuity_summary", "")
+        if not self.active_continuity_summary:
+            self.refresh_active_continuity_summary()
 
         if self.spiderweb and "spiderweb_state" in data:
             try:

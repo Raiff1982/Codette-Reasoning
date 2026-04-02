@@ -125,9 +125,10 @@ class StrategyComparison:
     improvement_assessment: str
     new_strategy: ReasoningStrategy
     evidence_chain: List[str]        # proof this came from cocoon synthesis
+    valuation_analysis: Optional[Dict[str, Any]] = None
 
     def to_dict(self) -> Dict:
-        return {
+        data = {
             "problem": self.problem,
             "original_path": self.original_path.to_dict(),
             "new_path": self.new_path.to_dict(),
@@ -136,6 +137,9 @@ class StrategyComparison:
             "new_strategy": self.new_strategy.to_dict(),
             "evidence_chain": self.evidence_chain,
         }
+        if self.valuation_analysis is not None:
+            data["valuation_analysis"] = self.valuation_analysis
+        return data
 
     def to_readable(self) -> str:
         """Human-readable formatted output."""
@@ -160,6 +164,23 @@ class StrategyComparison:
         lines.append("─" * 50)
         for i, ev in enumerate(self.evidence_chain, 1):
             lines.append(f"  {i}. {ev}")
+
+        if self.valuation_analysis is not None:
+            lines.append("\n" + "─" * 50)
+            lines.append("## VALUATION CONTEXT")
+            lines.append("─" * 50)
+            if self.valuation_analysis.get("mode") == "risk_frontier":
+                best = self.valuation_analysis.get("best_scenario") or {}
+                worst = self.valuation_analysis.get("worst_scenario") or {}
+                lines.append(f"Best frontier scenario: {best.get('name', 'unknown')}")
+                lines.append(f"Worst frontier scenario: {worst.get('name', 'unknown')}")
+            else:
+                lines.append(
+                    f"Combined total: {self.valuation_analysis.get('combined_total')} | "
+                    f"Singularity detected: {self.valuation_analysis.get('singularity_detected')}"
+                )
+            for note in self.valuation_analysis.get("notes", [])[:3]:
+                lines.append(f"  • {note}")
 
         # Original reasoning path
         lines.append("\n" + "─" * 50)
@@ -842,6 +863,7 @@ class CocoonSynthesizer:
         problem: str,
         strategy: ReasoningStrategy,
         patterns: List[CocoonPattern],
+        valuation_analysis: Optional[Dict[str, Any]] = None,
     ) -> StrategyComparison:
         """
         Apply both the original (baseline) and new reasoning strategies
@@ -853,8 +875,14 @@ class CocoonSynthesizer:
         # Generate the NEW reasoning path using the forged strategy
         new_path = self._apply_strategy(problem, strategy)
 
+        if valuation_analysis:
+            original = self._integrate_valuation_context(original, valuation_analysis, forged=False)
+            new_path = self._integrate_valuation_context(new_path, valuation_analysis, forged=True)
+
         # Compute differences
         differences = self._compute_differences(original, new_path)
+        if valuation_analysis:
+            differences.extend(self._valuation_differences(valuation_analysis))
 
         # Build evidence chain (proof this came from cocoon synthesis)
         evidence_chain = self._build_evidence_chain(patterns, strategy)
@@ -870,7 +898,76 @@ class CocoonSynthesizer:
             improvement_assessment=assessment,
             new_strategy=strategy,
             evidence_chain=evidence_chain,
+            valuation_analysis=valuation_analysis,
         )
+
+    def _integrate_valuation_context(
+        self,
+        path: ReasoningPath,
+        valuation_analysis: Dict[str, Any],
+        forged: bool,
+    ) -> ReasoningPath:
+        steps = list(path.steps)
+        dimensions = list(path.dimensions_engaged)
+        depth = path.depth_score
+        novelty = path.novelty_score
+        conclusion = path.conclusion
+
+        if valuation_analysis.get("mode") == "risk_frontier":
+            best = valuation_analysis.get("best_scenario") or {}
+            worst = valuation_analysis.get("worst_scenario") or {}
+            steps.append(
+                f"Compare candidate futures through the risk frontier: best='{best.get('name', 'unknown')}', "
+                f"worst='{worst.get('name', 'unknown')}'."
+            )
+            conclusion += (
+                f" Risk frontier comparison highlights '{best.get('name', 'unknown')}' as the strongest candidate "
+                f"and '{worst.get('name', 'unknown')}' as the weakest under singularity-aware evaluation."
+            )
+            depth += 0.08 if forged else 0.04
+            novelty += 0.06 if forged else 0.03
+        else:
+            combined_total = valuation_analysis.get("combined_total")
+            singularity = valuation_analysis.get("singularity_detected", False)
+            steps.append(
+                f"Inject Event-Embedded Value context: combined_total={combined_total}, singularity_detected={singularity}."
+            )
+            if singularity:
+                steps.append(
+                    "Treat the singular event as a first-class discontinuity rather than averaging it into the surrounding interval."
+                )
+            conclusion += (
+                f" Event-Embedded Value analysis gives this problem a combined_total of {combined_total}, "
+                f"with singularity_detected={singularity}."
+            )
+            depth += 0.1 if forged else 0.05
+            novelty += 0.08 if forged else 0.04
+
+        if "valuation" not in dimensions:
+            dimensions.append("valuation")
+        return ReasoningPath(
+            strategy_name=path.strategy_name,
+            steps=steps,
+            conclusion=conclusion,
+            dimensions_engaged=dimensions,
+            depth_score=min(depth, 1.0),
+            novelty_score=min(novelty, 1.0),
+        )
+
+    def _valuation_differences(self, valuation_analysis: Dict[str, Any]) -> List[str]:
+        if valuation_analysis.get("mode") == "risk_frontier":
+            best = valuation_analysis.get("best_scenario") or {}
+            worst = valuation_analysis.get("worst_scenario") or {}
+            return [
+                f"Risk frontier ranking adds explicit future comparison: best='{best.get('name', 'unknown')}', worst='{worst.get('name', 'unknown')}'."
+            ]
+        if valuation_analysis.get("singularity_detected"):
+            return [
+                "Valuation context forces the synthesis to respect a discrete singularity instead of averaging it away."
+            ]
+        return [
+            "Valuation context adds weighted event harm/benefit to the synthesis rather than relying only on narrative abstraction."
+        ]
 
     def _apply_baseline(self, problem: str) -> ReasoningPath:
         """Apply standard multi-perspective reasoning (the 'before')."""
@@ -1287,6 +1384,7 @@ class CocoonSynthesizer:
         problem: str,
         domains: Optional[List[str]] = None,
         min_cocoons_per_domain: int = 3,
+        valuation_analysis: Optional[Dict[str, Any]] = None,
     ) -> StrategyComparison:
         """
         Execute the complete cocoon synthesis pipeline:
@@ -1315,7 +1413,7 @@ class CocoonSynthesizer:
         logger.info(f"  Forged strategy: '{strategy.name}'")
 
         # Step 4: Apply and compare
-        comparison = self.apply_and_compare(problem, strategy, patterns)
+        comparison = self.apply_and_compare(problem, strategy, patterns, valuation_analysis=valuation_analysis)
         logger.info(f"  Comparison complete. Assessment: "
                     f"depth {comparison.original_path.depth_score:.2f} → "
                     f"{comparison.new_path.depth_score:.2f}")

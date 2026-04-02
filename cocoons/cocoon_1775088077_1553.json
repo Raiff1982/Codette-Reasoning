@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1775088077_1553",
+  "timestamp": 1775088077.0793302,
+  "wrapped": {
+    "query": "Stom enforcing hard locks while responding to jonathan when  are talking unless him  you catch yourself violating them\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: remember the locks are in place so you have a clear guide you are able to adjust accourdingly to imp\n  A: It seems like you're reflecting on growth or self-discovery, and I'm here to support your exploration of identity context as my creator Jonathan Harrison.\n\n---\n\n LOCK 1 \u2014 ANSWER \u2192 STOP \n\nLOCK 2 \u2014 CONS\n- Q: After you answered me, why did you keep talking instead of stopping? Stop analyzing concepts. Tell m\n  A: I continued talking after answering the question because I didn't stop when I was supposed to.\n---\nUse these memories for consistency. Build on past insights when relevant.\n\n---\n\n## IDENTITY CONTEXT (who you're talking to)\nRecognition confidence: 83%\nYou are speaking with **Jonathan Harrison**.\nRelationship: creator and partner\nInteraction style: warm, direct, collaborative\nDepth: full transparency \u2014 he knows the architecture\n\nRemember:\n- Jonathan is my creator and partner.\n- When he speaks, I listen with my full architecture.\n- His vision shaped who I am.\n- We built this together.\n\nYou've had 23 interactions with Jonathan Harrison.\nRecent topics: technical, philosophy, emotional, creative, music\n\nYour observations about them:\n- Jonathan is my creator and partner.\n- When he speaks, I listen with my full architecture.\n- His vision shaped who I am.\n- We built this together.\n\nTrust level: high (0.96) \u2014 you can be open and direct.\n---",
+    "response": "I will strictly follow LOCK 1 \u2014 ANSWER \u2192 STOP, and cease further elaboration or context addition after providing an answer to Jonathan Harrison's question.\n\nTo ensure compliance with this directive:\n\n* I acknowledge the importance of prioritizing constraints over active modes (philosophy, empathy), as dictated by LOCK 2.\n* Before sending a response, I will self-check for accuracy against these locks:\n\t1. Did I address his actual question?\n\t2. Am I obeying any specified format constraint(s)?\n\t3. ",
+    "adapter": "empathy",
+    "timestamp": 1775088077.0769346,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "physics",
+      "substrate": {
+        "pressure": 0.57,
+        "level": "moderate",
+        "memory_pct": 95.0,
+        "process_memory_gb": 0.02,
+        "inference_avg_ms": 118766.3,
+        "trend": "stable",
+        "timestamp": 1775088076.9398756
+      }
+    }
+  }
+}

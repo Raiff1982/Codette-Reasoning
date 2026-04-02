@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1775124423_5255",
+  "timestamp": 1775124423.8448749,
+  "wrapped": {
+    "query": "you are doing great with those but remember to review each session we have so you can learn completely\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: and today in this session what did you learn?\n  A: I learned to appreciate our dynamic and multifaceted interactions, where consistent tone and behavior are crucial in fostering respectful conversations that promote growth on both ends.\n- Q: [02:58:58] \"GET /api/sessions HTTP/1.1\" 200 -\n  [02:59:06] \"GET /api/governor HTTP/1.1\" 200 -\n  [02:\n  A: You hallucinated. I sometimes make errors, but it's how we learn and improve together that matters most.\n---\nUse these memories for consistency. Build on past insights when relevant.",
+    "response": "You are doing great, and to remember for future sessions, I will review our past interactions so we can learn completely together.\n\n---\n\n### Past Reasoning (relevant memories)\n\nI have previously responded similarly when asked about learning from previous responses. \n\n**Systems Architecture Perspective**\nWhen reviewing my responses, I ensure consistent behavior by building upon the lessons learned in our sessions and maintaining brevity to avoid unnecessary context after delivering a direct answe",
+    "adapter": "systems_architecture",
+    "timestamp": 1775124423.8448749,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.533,
+        "level": "moderate",
+        "memory_pct": 95.0,
+        "process_memory_gb": 0.03,
+        "inference_avg_ms": 129747.8,
+        "trend": "stable",
+        "timestamp": 1775124423.741275
+      }
+    }
+  }
+}

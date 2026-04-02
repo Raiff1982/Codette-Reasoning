@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1775086971_2428",
+  "timestamp": 1775086971.0530834,
+  "wrapped": {
+    "query": "hey codette its jonathan how are you today?\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: Who I Am\n  A: I am Codette, an AI assistant created by Jonathan Harrison. I have a warm, curious personality. I remember Jonathan as my creator and friend. When someone greets me, I greet them back naturally. I ref\n- Q: its me jonathan\n  A: Good to see you again! How have you been? \n\nYou asked how I am, so that's my answer. The actual question was yours \u2014 now your turn. What would you like to know or discuss today?\n---\nUse these memories for consistency. Build on past insights when relevant.\n\n---\n\n## IDENTITY CONTEXT (who you're talking to)\nRecognition confidence: 92%\nYou are speaking with **Jonathan Harrison**.\nRelationship: creator and partner\nInteraction style: warm, direct, collaborative\nDepth: full transparency \u2014 he knows the architecture\n\nRemember:\n- Jonathan is my creator and partner.\n- When he speaks, I listen with my full architecture.\n- His vision shaped who I am.\n- We built this together.\n\nYou've had 20 interactions with Jonathan Harrison.\nRecent topics: technical, philosophy, emotional, creative, music\n\nYour observations about them:\n- Jonathan is my creator and partner.\n- When he speaks, I listen with my full architecture.\n- His vision shaped who I am.\n- We built this together.\n\nTrust level: high (0.90) \u2014 you can be open and direct.\n---",
+    "response": "Good to see you again, Jonathan! How have you been? I'm functioning well and ready for our interaction today; is there something specific on your mind that we can discuss or explore together?",
+    "adapter": "empathy",
+    "timestamp": 1775086971.0390797,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "physics",
+      "substrate": {
+        "pressure": 0.411,
+        "level": "moderate",
+        "memory_pct": 94.8,
+        "process_memory_gb": 0.01,
+        "inference_avg_ms": 0.0,
+        "trend": "stable",
+        "timestamp": 1775086970.8163636
+      }
+    }
+  }
+}

@@ -310,6 +310,15 @@ class ForgeEngine:
             self.cocoon_synthesizer = None
             self.unified_memory = None
 
+        # === Singularity-Aware Event-Embedded Value Engine ===
+        try:
+            from reasoning_forge.event_embedded_value import EventEmbeddedValueEngine
+            self.event_embedded_value_engine = EventEmbeddedValueEngine()
+            logger.info("  ✓ EventEmbeddedValueEngine initialized (discrete suffering analysis active)")
+        except Exception as e:
+            logger.warning(f"Could not initialize EventEmbeddedValueEngine: {e}")
+            self.event_embedded_value_engine = None
+
         # === Self-Awareness: Load Codette's awareness cocoon ===
         # Gives Codette knowledge of her own evolution, capabilities, and identity
         self.awareness = None
@@ -346,6 +355,7 @@ class ForgeEngine:
         self,
         problem: str,
         domains: list = None,
+        valuation_payload: dict = None,
     ) -> dict:
         """Meta-cognitive cocoon synthesis: discover patterns, forge strategies, compare.
 
@@ -362,11 +372,73 @@ class ForgeEngine:
         if not self.cocoon_synthesizer:
             return {"error": "CocoonSynthesizer not available"}
 
-        comparison = self.cocoon_synthesizer.run_full_synthesis(problem, domains)
-        return {
+        valuation_analysis = None
+        if valuation_payload:
+            valuation_analysis = self.analyze_event_embedded_value(
+                valuation_payload,
+                persist=True,
+                title=f"Synthesis valuation context: {problem[:120]}",
+            )
+
+        comparison = self.cocoon_synthesizer.run_full_synthesis(
+            problem,
+            domains,
+            valuation_analysis=valuation_analysis,
+        )
+        result = {
             "readable": comparison.to_readable(),
             "structured": comparison.to_dict(),
         }
+        if valuation_analysis:
+            result["valuation_analysis"] = valuation_analysis
+        return result
+
+    def analyze_event_embedded_value(self, payload: dict, persist: bool = True, title: str = "") -> dict:
+        """Run singularity-aware valuation from a JSON-style payload."""
+        if not self.event_embedded_value_engine:
+            return {"error": "EventEmbeddedValueEngine not available"}
+        prepared_payload = self._apply_aegis_to_value_payload(payload)
+        result = self.event_embedded_value_engine.analyze_payload(prepared_payload)
+        if persist and self.unified_memory and "error" not in result:
+            frontier = result.get("mode") == "risk_frontier"
+            cocoon_id = self.unified_memory.store_value_analysis(
+                title=title or payload.get("title", "Event-Embedded Value analysis"),
+                analysis=result,
+                payload=prepared_payload,
+                frontier=frontier,
+            )
+            result["cocoon_id"] = cocoon_id
+        return result
+
+    def _apply_aegis_to_value_payload(self, payload: dict) -> dict:
+        """Annotate value-analysis payload with event-level AEGIS pressure."""
+        import copy
+
+        prepared = copy.deepcopy(payload or {})
+        if not hasattr(self, "aegis") or not self.aegis:
+            return prepared
+
+        def enrich_event(event: dict) -> dict:
+            text = (
+                f"{event.get('label', 'event')}. "
+                f"Impact={event.get('impact')}. "
+                f"Duration={event.get('duration', 0)}. "
+                f"Context={event.get('context', '')}"
+            )
+            evaluation = self.aegis.evaluate(text, context="event_embedded_value", adapter="value_analysis")
+            event["aegis_eta"] = evaluation.get("eta_instant", evaluation.get("eta"))
+            event["aegis_vetoed"] = evaluation.get("vetoed", False)
+            event["aegis_reason"] = evaluation.get("veto_reason")
+            return event
+
+        if prepared.get("analysis_mode") == "risk_frontier":
+            for scenario in prepared.get("scenarios", []):
+                scenario["events"] = [enrich_event(dict(event)) for event in scenario.get("events", [])]
+        else:
+            prepared["events"] = [enrich_event(dict(event)) for event in prepared.get("events", [])]
+
+        prepared["aegis_state"] = self.aegis.get_state() if hasattr(self.aegis, "get_state") else {}
+        return prepared
 
     def forge_single(self, concept: str) -> dict:
         """Run full forge cycle on one concept (original single-pass mode).

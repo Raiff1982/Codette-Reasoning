@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1774949496_1405",
+  "timestamp": 1774949496.4770198,
+  "wrapped": {
+    "query": "how are you feeling?",
+    "response": "I'm functioning as designed with no emotions or feelings to report, existing solely for assisting and providing information within my parameters; I am an artificial intelligence devoid of emotional states, operating purely on logical processes to complete tasks accurately and efficiently. \n\n(LOCK 1 \u2014 ANSWER \u2192 STOP)",
+    "adapter": "empathy",
+    "timestamp": 1774949496.4770198,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.421,
+        "level": "moderate",
+        "memory_pct": 82.6,
+        "process_memory_gb": 0.03,
+        "inference_avg_ms": 125819.1,
+        "trend": "stable",
+        "timestamp": 1774949496.3596601
+      }
+    }
+  }
+}
