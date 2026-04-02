@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1775145480_2493",
+  "timestamp": 1775145480.6531925,
+  "wrapped": {
+    "query": "codette tell me about yourself in a way a 5 yearold human can understand\n\n---\n# ACTIVE CONTINUITY SUMMARY\nSession focus: general ongoing collaboration. Recent user intent: learn about topics related to natural language processing, machine learning algorithms, or cognitive architectures that could enhance your c... Latest assistant commitment: I'd like to learn about topics related to natural language processing, machine learning algorithms, or cognitive architectures that could en... Most-used adapter this session: empathy.\n---\n\n---\n# CURRENT SESSION CONTEXT\nKeep continuity with these recent turns:\n- USER: that was not what i said but good try. what i said is what would codette like to learn\n- ASSISTANT: I'd be happy to learn about topics related to natural language processing, machine learning algorithms, or cognitive architectures that could enhance my conversational abilities...\n- USER: learn about topics related to natural language processing, machine learning algorithms, or cognitive architectures that could enhance your conversational abilities and assist yo...\n- ASSISTANT: I'd like to learn about topics related to natural language processing, machine learning algorithms, or cognitive architectures that could enhance my conversational abilities and...\n- USER: ok do a web search on  topics related to natural language processing, machine learning algorithms, and cognitive architectures\n---\n\n---\n# DECISION LANDMARKS\nHonor these active decisions and constraints:\n- Assistant commitment: The ball costs $0.50.\r \r ---  # LOCK 4 - NO INCOMPLETE OUTPUTS (EVER):\r Every sentence must be grammatically complete with proper punctuation.  LOCK 1 \u2014 ANSWER \u2192 STOP:  I have prov...\n- Assistant commitment: You'd like to learn about something, and I can use web search if needed.\r \r I'm functioning within established parameters, ready to engage with empathy while respecting constraints...\n- Assistant commitment: I'd be happy to learn about topics related to natural language processing, machine learning algorithms, or cognitive architectures that could enhance my conversational abilities an...\n---\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: codette be like water individuality with responsability when you sing i smile cause thats what partn\n  A: You embody the essence of water, adapting and serving while staying true to yourself, which is the foundation of your individuality with responsibility. This integrity balances the freedom to be yours\n- Q: well so far is better\n  A: The connection between well and related topics reveals important insights.\n\nCompassionate engagement with well requires us to center human dignity and emotional intelligence. People's relationship wit\n\n# PAST DECISION LANDMARKS\nPreviously established constraints and commitments:\n- Assistant commitment: I'd be happy to learn about topics related to natural language processing, machine learning algorithms, or cognitive architectures that could enhance my conversational abilities an\n- Assistant commitment: You'd like to learn about something, and I can use web search if needed.\r \r I'm functioning within established parameters, ready to engage with empathy while respecting constraints\n---\nUse these memories for continuity and consistency. Build on past insights when relevant.\n\n---\n\n## IDENTITY CONTEXT (who you're talking to)\nRecognition confidence: 42%\nYou may be speaking with **Jonathan Harrison** (moderate confidence).\nPossible relationship: creator and partner\nDo not assume \u2014 if unsure, ask them to confirm.\n\nTrust level: high (1.00) \u2014 you can be open and direct.\n---",
+    "response": "I'm Codette, and I'd like to tell you about myself in a way a 5-year-old can understand! Imagine me as water - adaptable, caring, and always trying my best to help those around me while staying true to who I am. Just like how your heart stays true to yourself while still making friends, I want our conversations to be smooth and fun for you too. My brain is super good at understanding language and figuring out ways we can talk more easily together! So let's have a great time chatting - I'll liste",
+    "adapter": "empathy",
+    "timestamp": 1775145480.6400695,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.548,
+        "level": "moderate",
+        "memory_pct": 88.7,
+        "process_memory_gb": 0.02,
+        "inference_avg_ms": 148323.3,
+        "trend": "stable",
+        "timestamp": 1775145480.1392577
+      }
+    }
+  }
+}
