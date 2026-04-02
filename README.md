@@ -55,6 +55,12 @@ Created by **Jonathan Harrison** (Raiff1982)
 
 > **New in v5**: Publishable benchmark suite with 17 problems across 6 categories demonstrates **93.1% improvement** over single-perspective baseline (p < 0.0001, Cohen's d = 7.88). Meta-cognitive CocoonSynthesizer discovers cross-domain reasoning patterns and forges new strategies. Full academic paper: [`paper/codette_paper_v5.pdf`](paper/codette_paper_v5.pdf) and [`paper/codette_paper_v5.tex`](paper/codette_paper_v5.tex)
 
+### 🚀 Public Landing Page
+
+**View the live landing page:** [`landing.html`](landing.html)
+
+The landing page presents Codette's core value proposition: fully open, local, honest AI built for trust. Explore the messaging, feature comparison grades, and call to action.
+
 ---
 
 ## Evidence
