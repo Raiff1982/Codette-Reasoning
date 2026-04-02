@@ -25,7 +25,6 @@ reasoning_forge/           (40+ modules, 7-layer consciousness)
 inference/
 ├── codette_server.py        (Web server port 7860)
 ├── codette_forge_bridge.py  (Reasoning interface)
-├── web_search.py            (Safe opt-in web research layer)
 ├── static/                  (HTML/CSS/JS UI)
 └── model_loader.py          (Multi-model support)
 ```
@@ -121,13 +120,10 @@ baseline_benchmark.py              (Session 12-14 comparison)
 ✅ Pre-configured model loader
 ✅ Automatic adapter discovery
 ✅ Web server + API (port 7860)
-✅ Repo-local launchers for `llama_cpp` and Ollama
 ✅ Correctness benchmarking framework
 ✅ Complete test suite with CI/CD ready
 ✅ Production deployment guide
 ✅ Hardware configuration templates
-✅ Session continuity summary + decision landmarks
-✅ Optional cited web research with cocoon-backed reuse
 
 ---
 
@@ -159,8 +155,7 @@ baseline_benchmark.py              (Session 12-14 comparison)
 ```bash
 cd j:/codette-clean
 pip install -r requirements.txt
-scripts\codette_web.bat
-# or: scripts\codette_web_ollama.bat
+python inference/codette_server.py
 # Visit http://localhost:7860
 ```
 
@@ -228,7 +223,6 @@ Start here based on your need:
 - 8 specialized adapters
 - Complete reasoning engine (40+ modules)
 - Web server + API
-- Two local web launchers for distinct backends
 - 52 unit tests (100% passing)
 - Comprehensive documentation
 - Deployment guides
@@ -254,8 +248,6 @@ This system includes safety layers:
 - **Guardian Spindle Layer**: Logical coherence checking
 - **Cocoon Stability**: Prevents infinite loops/meta-loops
 - **Memory Kernel**: Tracks decisions with regret learning
-- **Gated system reports**: Self-diagnostic and introspection require explicit phrasing
-- **Safe web research**: Live research is opt-in, citation-oriented, and separate from local workspace search
 
 See `DEPLOYMENT.md` for security considerations in production.
 
@@ -369,3 +361,4 @@ This system is ready for:
 **Estimated First Query**: 5 seconds (with GPU)
 
 ✨ **Ready to reason responsibly.** ✨
+

@@ -76,18 +76,8 @@ Created by **Jonathan Harrison** (Raiff1982)
 | **Code7eCQURE** | Quantum emotional context enrichment on every query (Layer 2.5) |
 | **Real Self-Diagnostic** | Health checks return measured values from 9 subsystems, not LLM-generated guesses |
 | **Phase 6/7 Routing** | Query complexity classification, domain detection, executive control |
-| **Session Continuity** | Active continuity summaries, decision landmarks, and recall markers reduce drift in long sessions |
-| **Safe Web Research** | Optional cited web research with safe fetch rules and cocoon-backed recall for current facts |
 
 ---
-
-## Transparency Notes
-
-- **Local tools are not web search.** The built-in tool layer reads local files, searches local code, lists directories, and runs small safe Python snippets. It does not browse the live internet.
-- **Web research is explicit and opt-in.** In the web UI, `Web Research` must be enabled for live current-facts retrieval. When used, results are injected with citations and surfaced back to the user as sources.
-- **Web research is stored as memory.** Retrieved research is persisted as `web_research` cocoons so Codette can reuse prior cited findings instead of re-researching the same topic every time.
-- **System reports are gated.** Self-diagnostic and introspection modes now require explicit phrasing so ordinary conversation does not accidentally fall into a report loop.
-- **Trust cues are shown in the UI.** Responses can display trust tags such as `memory-backed`, `frontier-informed`, `web-cited`, `grounded`, or `low-verification`.
 
 ## Quick Start
 
@@ -118,9 +108,7 @@ huggingface-cli download Raiff1982/codette-lora-adapters \
 
 ```bash
 # Windows
-scripts\codette_web.bat
-# or
-scripts\codette_web_ollama.bat
+codette_web.bat
 
 # Linux/Mac
 python inference/codette_server.py
@@ -279,12 +267,6 @@ Every reasoning exchange is wrapped in a "cocoon" and stored:
 
 Cocoons persist across server restarts and inform future responses. Current count: **150+ memories**.
 
-### Additional Memory Types
-
-- **Value-analysis cocoons** store singularity-aware valuation and risk-frontier runs.
-- **Decision landmarks** store important session constraints and assistant commitments.
-- **Web research cocoons** store cited current-information lookups for later reuse.
-
 ---
 
 ## Substrate-Aware Cognition
@@ -409,9 +391,6 @@ Deliberately calibrated to avoid false positives -- discussions about sensitive 
 - Cocoon metrics panel (phase coherence, epistemic tension, perspective coverage)
 - Status bar with live cocoon count and ethical check indicators
 - Voice selector with natural/neural voice ranking
-- Session recall panel with continuity summary, memory markers, and decision landmarks
-- Trust tags and reliability indicators on answers
-- Optional `Web Research` toggle with cited sources shown inline
 
 ---
 

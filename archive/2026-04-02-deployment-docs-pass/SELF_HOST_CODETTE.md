@@ -89,11 +89,9 @@ Should return JSON with metadata + streaming response.
 - ✓ Adapter/complexity metadata display
 - ✓ AEGIS security status
 - ✓ Cocoon memory counter
-- ✓ Session continuity summary + decision landmarks
 - ✓ Suggestion chips (auto-populated)
 - ✓ Dark theme (lime green + cyan accents)
 - ✓ Mobile responsive
-- ✓ Optional cited web research with reusable memory
 
 ---
 
@@ -109,11 +107,6 @@ Should return JSON with metadata + streaming response.
 - Open DevTools → Network tab → check `/api/chat` request
 - Verify HF Space is running at https://huggingface.co/spaces/Raiff1982/codette-ai
 
-**Web research toggle appears but finds nothing:**
-- Web research is opt-in and depends on the backend exposing the live research path
-- Local workspace/code tools are not the same thing as live internet research
-- Retrieved research should be cited and may be saved as `web_research` memory for reuse
-
 **Styling looks wrong:**
 - Make sure fonts load (Google Fonts CDN should work)
 - Check CSS variables in browser DevTools if colors are off
@@ -128,7 +121,7 @@ Should return JSON with metadata + streaming response.
 - **Music Production Expert**: Grounded in real DAWs, plugins, frequencies
 - **Ethical Governance**: AEGIS-lite pattern-based safety checks
 - **Behavioral Locks**: 4 permanent constraints on all responses
-- **Cocoon Memory**: Searchable cocoon-backed memory, including continuity summaries and research recall when supported by the backend
+- **Cocoon Memory**: In-memory reasoning history (up to 500 cocoons)
 
 ---
 
