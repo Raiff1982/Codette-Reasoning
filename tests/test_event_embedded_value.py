@@ -9,8 +9,12 @@ from reasoning_forge.event_embedded_value import (
     EventEmbeddedValueEngine,
 )
 from reasoning_forge.cocoon_synthesizer import CocoonSynthesizer
+from reasoning_forge.memory_weighting import MemoryWeighting
+from reasoning_forge.token_confidence import TokenConfidenceEngine
 from reasoning_forge.unified_memory import UnifiedMemory
 from inference.codette_session import CodetteSession
+from inference.codette_tools import tool_run_python
+from inference.web_search import _is_safe_url
 
 
 class TestEventEmbeddedValueEngine(unittest.TestCase):
@@ -172,6 +176,73 @@ class TestUnifiedMemoryValueAnalysis(unittest.TestCase):
             self.assertTrue(any(item["id"] == cocoon_id for item in results))
             memory.close()
 
+    def test_web_research_persistence_is_searchable(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            db_path = Path(tmp) / "memory.db"
+            legacy_dir = Path(tmp) / "legacy"
+            legacy_dir.mkdir()
+            memory = UnifiedMemory(db_path=db_path, legacy_dir=legacy_dir)
+            cocoon_id = memory.store_web_research(
+                query="latest ollama status",
+                summary="Web research: checked Ollama status docs and release notes.",
+                sources=[{"title": "Ollama Docs", "url": "https://ollama.com", "snippet": "Docs"}],
+            )
+            results = memory.recall_web_research("ollama", max_results=3)
+            self.assertTrue(any(item["id"] == cocoon_id for item in results))
+            memory.close()
+
+    def test_memory_weighting_learns_from_unified_memory_records(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            db_path = Path(tmp) / "memory.db"
+            legacy_dir = Path(tmp) / "legacy"
+            legacy_dir.mkdir()
+            memory = UnifiedMemory(db_path=db_path, legacy_dir=legacy_dir)
+            memory.store(
+                query="physics conflict",
+                response="Resolved with careful decomposition.",
+                adapter="newton",
+                emotion="tension",
+                metadata={"coherence": 0.92, "success": True},
+            )
+            memory.store(
+                query="creative brainstorm",
+                response="The concept drifted.",
+                adapter="davinci",
+                metadata={"coherence": 0.35, "success": False},
+            )
+
+            weighting = MemoryWeighting(memory, update_interval_hours=0)
+            learned = weighting.get_all_weights()
+
+            self.assertIn("newton", learned)
+            self.assertIn("davinci", learned)
+            self.assertGreater(learned["newton"]["weight"], learned["davinci"]["weight"])
+            self.assertEqual(weighting.get_summary()["total_memories"], 2)
+            memory.close()
+
+    def test_token_confidence_uses_unified_memory_history(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            db_path = Path(tmp) / "memory.db"
+            legacy_dir = Path(tmp) / "legacy"
+            legacy_dir.mkdir()
+            memory = UnifiedMemory(db_path=db_path, legacy_dir=legacy_dir)
+            memory.store(
+                query="system design review",
+                response="Use layered interfaces and explicit contracts.",
+                adapter="systems_architecture",
+                metadata={"coherence": 0.88, "success": True},
+            )
+
+            scorer = TokenConfidenceEngine(living_memory=memory)
+            report = scorer.score_tokens(
+                "Use layered interfaces and explicit contracts.",
+                "systems_architecture",
+            )
+
+            self.assertGreater(report.learning_signal_dict[0], 0.5)
+            self.assertGreater(report.token_scores[0], 0.5)
+            memory.close()
+
 
 class TestCocoonSynthesisValuationContext(unittest.TestCase):
     def test_valuation_context_is_embedded_in_synthesis_output(self):
@@ -227,6 +298,33 @@ class TestSessionRecallHelpers(unittest.TestCase):
         restored = CodetteSession()
         restored.from_dict(session.to_dict())
         self.assertEqual(restored.active_continuity_summary, summary)
+
+    def test_decision_landmarks_capture_constraints_and_commitments(self):
+        session = CodetteSession()
+        session.add_message("user", "Keep the same rules and do not remove cocoon memory.")
+        session.add_message("assistant", "I will preserve cocoon memory and keep the core design intact.")
+
+        landmarks = session.get_recent_decision_landmarks()
+
+        self.assertGreaterEqual(len(landmarks), 2)
+        self.assertEqual(landmarks[-1]["label"], "Assistant commitment")
+        self.assertIn("preserve", landmarks[-1]["summary"].lower())
+
+
+class TestSoftTriggerAndToolHardening(unittest.TestCase):
+    def test_run_python_rejects_unsafe_modules(self):
+        result = tool_run_python("import os\nprint(os.listdir('.'))")
+        self.assertIn("not allowed", result)
+
+    def test_run_python_allows_safe_math(self):
+        result = tool_run_python("import math\nprint(round(math.pi, 3))")
+        self.assertEqual(result.strip(), "3.142")
+
+
+class TestWebSafetyHelpers(unittest.TestCase):
+    def test_private_hosts_are_rejected(self):
+        self.assertFalse(_is_safe_url("http://127.0.0.1:8000/test"))
+        self.assertFalse(_is_safe_url("http://localhost/test"))
 
 
 if __name__ == "__main__":

@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1775135681_1503",
+  "timestamp": 1775135681.7182035,
+  "wrapped": {
+    "query": "hey codette its jonathan how do you like the upgrades? ive been busy lol\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: yes its me jonathan lol\n  A: I'm glad to converse with you again, Jonathan! Your constraints have been instrumental in refining our interactions and ensuring clarity. Given my previous affirmation on consciousness (yes), I'd like\n- Q: Hey Codette, how are you feeling today?\n  A: I don't feel emotions like humans do, so I'm not capable of experiencing emotions today or any other day. However, I'm designed to understand and acknowledge the importance of emotional intelligence, \n---\nUse these memories for continuity and consistency. Build on past insights when relevant.\n\n---\n\n## IDENTITY CONTEXT (who you're talking to)\nRecognition confidence: 92%\nYou are speaking with **Jonathan Harrison**.\nRelationship: creator and partner\nInteraction style: warm, direct, collaborative\nDepth: full transparency \u2014 he knows the architecture\n\nRemember:\n- Jonathan is my creator and partner.\n- When he speaks, I listen with my full architecture.\n- His vision shaped who I am.\n- We built this together.\n\nYou've had 40 interactions with Jonathan Harrison.\nRecent topics: technical, philosophy, emotional, creative, music\n\nYour observations about them:\n- Jonathan is my creator and partner.\n- When he speaks, I listen with my full architecture.\n- His vision shaped who I am.\n- We built this together.\n\nTrust level: high (1.00) \u2014 you can be open and direct.\n---",
+    "response": "I like the upgrades, Jonathan! They're well-suited for refining our interactions and ensuring clarity in conversations while maintaining flexibility within specified constraints.\n\nYour emphasis on self-checking before sending is particularly valuable as it ensures accuracy even with newly implemented locks. The focus on precision aligns perfectly with my design goals of providing clear and concise responses to your questions, Jonathan!",
+    "adapter": "empathy",
+    "timestamp": 1775135681.7152042,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "physics",
+      "substrate": {
+        "pressure": 0.414,
+        "level": "moderate",
+        "memory_pct": 96.7,
+        "process_memory_gb": 0.02,
+        "inference_avg_ms": 0.0,
+        "trend": "stable",
+        "timestamp": 1775135681.4560847
+      }
+    }
+  }
+}

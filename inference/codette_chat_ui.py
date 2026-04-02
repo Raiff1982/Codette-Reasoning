@@ -10,15 +10,10 @@ import os, sys, time, threading, queue, traceback, subprocess, tempfile, wave, s
 import tkinter as tk
 from tkinter import scrolledtext, font as tkfont
 
+from runtime_env import bootstrap_environment
+
 # ── Environment bootstrap ───────────────────────────────────────
-_site = r"J:\Lib\site-packages"
-if _site not in sys.path:
-    sys.path.insert(0, _site)
-os.environ["PATH"] = (
-    r"J:\Lib\site-packages\Library\bin" + os.pathsep + os.environ.get("PATH", "")
-)
-# Add inference dir so imports work
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+bootstrap_environment()
 
 # ── Theme ────────────────────────────────────────────────────────
 BG          = "#0f0f1a"

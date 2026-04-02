@@ -400,9 +400,7 @@ class TokenConfidenceEngine:
 
         # Retrieve past responses by this agent
         try:
-            similar_cocoons = self.living_memory.recall_by_adapter(
-                agent_name, limit=10
-            )
+            similar_cocoons = self.living_memory.recall_by_adapter(agent_name, limit=10)
             if not similar_cocoons:
                 avg_coherence = 0.5
             else:
@@ -412,11 +410,22 @@ class TokenConfidenceEngine:
                 weighted_coherences = []
 
                 for cocoon in similar_cocoons:
-                    age_hours = cocoon.age_hours()
+                    if isinstance(cocoon, dict):
+                        timestamp = float(cocoon.get("timestamp", time.time()) or time.time())
+                        age_hours = max(0.0, (time.time() - timestamp) / 3600.0)
+                        meta = cocoon.get("metadata", {}) or {}
+                        coherence = float(
+                            meta.get("coherence")
+                            or meta.get("epistemic", {}).get("ensemble_coherence")
+                            or 0.5
+                        )
+                    else:
+                        age_hours = cocoon.age_hours()
+                        coherence = float(getattr(cocoon, "coherence", 0.5) or 0.5)
                     # exp(-age_hours / 168) = 0.5 after 168 hours (~7 days)
                     recency_weight = math.exp(-age_hours / 168.0)
                     recency_weights.append(recency_weight)
-                    weighted_coherences.append(cocoon.coherence * recency_weight)
+                    weighted_coherences.append(coherence * recency_weight)
 
                 # Compute weighted average
                 total_weight = sum(recency_weights)

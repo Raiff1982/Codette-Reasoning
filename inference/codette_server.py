@@ -17,28 +17,19 @@ Architecture:
     - CodetteSession for Cocoon-backed memory
 """
 
-import os, sys, json, time, threading, queue, argparse, webbrowser, traceback, re, cgi
+import os, sys, json, time, threading, queue, argparse, webbrowser, traceback, re, cgi, uuid
 from pathlib import Path
-from http.server import HTTPServer, SimpleHTTPRequestHandler
+from http.server import HTTPServer, SimpleHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 from io import BytesIO
 
-# Auto-configure environment
-_site = r"J:\Lib\site-packages"
-if _site not in sys.path:
-    sys.path.insert(0, _site)
-os.environ["PATH"] = r"J:\Lib\site-packages\Library\bin" + os.pathsep + os.environ.get("PATH", "")
+from runtime_env import bootstrap_environment, resolve_model_path
+
+bootstrap_environment()
 try:
-    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
-    # Force unbuffered output so cmd window updates in real-time
     sys.stdout.reconfigure(line_buffering=True)
 except Exception:
     pass
-
-# Project imports
-_inference_dir = str(Path(__file__).parent)
-if _inference_dir not in sys.path:
-    sys.path.insert(0, _inference_dir)
 
 from codette_session import (
     CodetteSession, SessionStore, ADAPTER_COLORS, AGENT_NAMES
@@ -88,6 +79,130 @@ try:
 except Exception as e:
     print(f"  Unified Memory unavailable (falling back to CognitionCocooner): {e}")
 
+_memory_weighting = None
+
+
+def _get_memory_weighting():
+    """Lazily initialize memory weighting against the active unified memory store."""
+    global _memory_weighting
+    if _memory_weighting is not None:
+        return _memory_weighting
+    if not _unified_memory:
+        return None
+
+    try:
+        from reasoning_forge.memory_weighting import MemoryWeighting
+        _memory_weighting = MemoryWeighting(_unified_memory, update_interval_hours=0.1)
+        print("  Memory weighting loaded (unified cocoon feedback active)")
+    except Exception as e:
+        print(f"  Memory weighting unavailable: {e}")
+        _memory_weighting = None
+    return _memory_weighting
+
+
+def _analyze_response_reliability(response_text: str, adapter_name: str, domain: str = "general") -> dict:
+    """Run post-generation reliability analysis over the final response text."""
+    analysis = {
+        "response_confidence": 0.5,
+        "hallucination_confidence": 1.0,
+        "hallucination_detected": False,
+        "hallucination_signals": [],
+        "hallucination_recommendation": "CONTINUE",
+        "low_confidence_claims": [],
+        "mean_token_confidence": 0.5,
+    }
+    if not response_text.strip():
+        return analysis
+
+    try:
+        from reasoning_forge.hallucination_guard import HallucinationGuard
+        guard = HallucinationGuard()
+        detection = guard.scan_chunk(response_text, domain=domain or "general")
+        analysis.update({
+            "hallucination_confidence": round(detection.confidence_score, 3),
+            "hallucination_detected": bool(detection.is_hallucination),
+            "hallucination_signals": detection.signals[:5],
+            "hallucination_recommendation": detection.recommendation,
+        })
+    except Exception as e:
+        analysis["hallucination_signals"] = [f"hallucination_guard_unavailable: {e}"]
+
+    try:
+        from reasoning_forge.token_confidence import TokenConfidenceEngine
+        scorer = TokenConfidenceEngine(living_memory=_unified_memory)
+        token_report = scorer.score_tokens(response_text, adapter_name or "base")
+        mean_token_conf = (
+            sum(token_report.token_scores) / max(len(token_report.token_scores), 1)
+        )
+        low_claims = sorted(token_report.claims, key=lambda claim: claim.confidence)[:3]
+        analysis.update({
+            "mean_token_confidence": round(mean_token_conf, 3),
+            "low_confidence_claims": [
+                {
+                    "text": claim.text[:180],
+                    "confidence": round(claim.confidence, 3),
+                }
+                for claim in low_claims
+                if claim.text.strip()
+            ],
+        })
+    except Exception as e:
+        analysis["low_confidence_claims"] = [{"text": f"token_confidence_unavailable: {e}", "confidence": 0.0}]
+
+    combined_confidence = analysis["mean_token_confidence"] * analysis["hallucination_confidence"]
+    analysis["response_confidence"] = round(max(0.0, min(1.0, combined_confidence)), 3)
+    return analysis
+
+
+def _build_trust_tags(result: dict, memory_context_summary: dict) -> list[str]:
+    """Summarize why a response should be trusted, or where caution is needed."""
+    tags = []
+    response_confidence = float(result.get("response_confidence", 0.5) or 0.5)
+    confidence_analysis = result.get("confidence_analysis", {}) or {}
+
+    if response_confidence >= 0.78:
+        tags.append("stable")
+    elif response_confidence < 0.45:
+        tags.append("low-verification")
+
+    if memory_context_summary.get("recalled_cocoons_used") or memory_context_summary.get("session_markers_used"):
+        tags.append("memory-backed")
+    if memory_context_summary.get("value_analyses_used"):
+        tags.append("frontier-informed")
+    if memory_context_summary.get("web_research_used"):
+        tags.append("web-cited")
+    if result.get("tools_used"):
+        tags.append("tool-assisted")
+    if confidence_analysis.get("hallucination_detected"):
+        tags.append("hallucination-risk")
+    elif confidence_analysis.get("hallucination_confidence", 1.0) >= 0.85:
+        tags.append("grounded")
+
+    seen = set()
+    ordered = []
+    for tag in tags:
+        if tag not in seen:
+            seen.add(tag)
+            ordered.append(tag)
+    return ordered[:5]
+
+
+def _summarize_web_research(results) -> str:
+    """Format fetched web research into a prompt-safe summary block."""
+    if not results:
+        return ""
+    lines = ["# WEB RESEARCH", "Use these cited current sources when relevant:"]
+    for index, result in enumerate(results, start=1):
+        title = result.get("title", "Untitled source")
+        url = result.get("url", "")
+        snippet = (result.get("fetched_text") or result.get("snippet") or "").replace("\n", " ").strip()
+        if len(snippet) > 280:
+            snippet = snippet[:277] + "..."
+        lines.append(f"{index}. {title} — {url}")
+        if snippet:
+            lines.append(f"   {snippet}")
+    return "\n".join(lines)
+
 # Request queue for thread-safe model access
 _request_queue = queue.Queue()
 _response_queues = {}  # request_id -> queue.Queue
@@ -97,6 +212,41 @@ _queue_creation_times = {}  # Track when each queue was created for cleanup
 # Worker threads for health monitoring
 _worker_threads = []
 _worker_threads_lock = threading.Lock()
+
+
+def _next_request_id(prefix: str = "req") -> str:
+    return f"{prefix}_{uuid.uuid4().hex}"
+
+
+def _register_response_queue(prefix: str = "req") -> tuple[str, queue.Queue]:
+    req_id = _next_request_id(prefix)
+    response_q = queue.Queue()
+    with _response_queues_lock:
+        _response_queues[req_id] = response_q
+        _queue_creation_times[req_id] = time.time()
+    return req_id, response_q
+
+
+def _unregister_response_queue(req_id: str) -> None:
+    with _response_queues_lock:
+        _response_queues.pop(req_id, None)
+        _queue_creation_times.pop(req_id, None)
+
+
+def _get_response_queue(req_id: str):
+    with _response_queues_lock:
+        return _response_queues.get(req_id)
+
+
+def _get_active_session():
+    with _session_lock:
+        return _session
+
+
+def _set_active_session(session) -> None:
+    global _session
+    with _session_lock:
+        _session = session
 
 
 def _get_orchestrator():
@@ -120,11 +270,13 @@ def _get_orchestrator():
         print(f"\n  Loading CodetteOrchestrator (backend: {backend})...")
 
         try:
+            memory_weighting = _get_memory_weighting()
             if backend == "ollama":
                 from ollama_orchestrator import OllamaOrchestrator
                 _orchestrator = OllamaOrchestrator(
                     verbose=True,
                     n_ctx=32768,
+                    memory_weighting=memory_weighting,
                 )
             else:
                 from codette_orchestrator import CodetteOrchestrator
@@ -133,6 +285,7 @@ def _get_orchestrator():
                 _orchestrator = CodetteOrchestrator(
                     verbose=True,
                     n_ctx=32768,
+                    memory_weighting=memory_weighting,
                 )
 
             with _orchestrator_status_lock:
@@ -271,7 +424,7 @@ def _run_health_check():
             "status": "OK",
             "adapters_loaded": len(getattr(_orchestrator, 'available_adapters', [])),
             "adapters": getattr(_orchestrator, 'available_adapters', []),
-            "base_model": "Meta-Llama-3.1-8B-Instruct-Q4_K_M",
+            "base_model": resolve_model_path().stem,
         }
         checks_passed += 1
     else:
@@ -536,8 +689,7 @@ def _worker_thread():
         req_id = request["id"]
 
         # Get response queue with thread lock (prevent race condition)
-        with _response_queues_lock:
-            response_q = _response_queues.get(req_id)
+        response_q = _get_response_queue(req_id)
 
         if not response_q:
             print(f"  WARNING: Orphaned request {req_id} (response queue missing)")
@@ -560,22 +712,19 @@ def _worker_thread():
             # ── SELF-INTROSPECTION INTERCEPT ──
             # When user asks about self-reflection, patterns, or what she's noticed,
             # run real cocoon analysis instead of LLM-generated text about reflection
-            _introspection_triggers = [
-                "what have you noticed about yourself",
-                "what patterns do you see",
-                "self-reflection", "self reflection",
-                "introspect", "introspection",
-                "what have you learned about yourself",
-                "analyze your own", "analyze your patterns",
-                "cocoon analysis", "cocoon patterns",
-                "adapter frequency", "adapter dominance",
-                "your own history", "your reasoning history",
-                "what do you notice about yourself",
-                "tell me about your patterns",
-                "how have you changed", "how have you evolved",
-                "your emotional patterns", "your response patterns",
+            _introspection_patterns = [
+                r"\bself[\s-]?reflection\b",
+                r"\bintrospect(?:ion)?\b",
+                r"\bwhat have you (?:noticed|learned) about yourself\b",
+                r"\bwhat do you notice about yourself\b",
+                r"\banalyze your (?:own|response) patterns\b",
+                r"\bcocoon (?:analysis|patterns)\b",
+                r"\badapter (?:frequency|dominance)\b",
+                r"\byour reasoning history\b",
+                r"\byour emotional patterns\b",
+                r"\byour response patterns\b",
             ]
-            if any(trigger in query_lower for trigger in _introspection_triggers):
+            if any(re.search(pattern, query, re.IGNORECASE) for pattern in _introspection_patterns):
                 print(f"  [WORKER] Intercepted introspection query — running real cocoon analysis", flush=True)
 
                 try:
@@ -611,11 +760,22 @@ def _worker_thread():
             # When user asks for a health/system check, run the REAL diagnostic
             # instead of letting the model generate text about it
             _health_triggers = [
-                "health check", "system health", "self diagnostic", "self-diagnostic",
-                "systems check", "system check", "self check", "self-check",
-                "run diagnostic", "diagnostics", "check yourself", "check your systems",
-                "how are your systems", "are you healthy", "status check",
-                "self systems health", "system status",
+                "health check",
+                "system health",
+                "system health check",
+                "self diagnostic",
+                "self-diagnostic",
+                "systems check",
+                "system check",
+                "run diagnostic",
+                "run a diagnostic",
+                "diagnostic report",
+                "check your systems",
+                "check all systems",
+                "how are your systems",
+                "self systems health",
+                "system status",
+                "system status report",
             ]
             if any(trigger in query_lower for trigger in _health_triggers):
                 print(f"  [WORKER] Intercepted health check query — running real diagnostic", flush=True)
@@ -844,14 +1004,17 @@ def _worker_thread():
                 memory_context_summary = {
                     "continuity_summary_used": False,
                     "session_markers_used": 0,
+                    "decision_landmarks_used": 0,
                     "recalled_cocoons_used": 0,
                     "value_analyses_used": 0,
+                    "web_research_used": 0,
                 }
+                web_sources = []
+                allow_web_search = bool(request.get("allow_web_search"))
 
                 # Recent session context first — keeps local continuity stable
                 try:
-                    with _session_lock:
-                        session = _session
+                    session = _get_active_session()
                     if session:
                         continuity_summary = session.active_continuity_summary or session.refresh_active_continuity_summary()
                         if continuity_summary:
@@ -878,6 +1041,21 @@ def _worker_thread():
                                 "---"
                             )
                             print(f"  [WORKER] Injected {marker_count} session memory markers", flush=True)
+                        landmarks = session.get_recent_decision_landmarks(max_items=3)
+                        if landmarks:
+                            landmark_lines = [
+                                f"- {item.get('label', 'Decision')}: {item.get('summary', '')}"
+                                for item in landmarks
+                            ]
+                            memory_context_summary["decision_landmarks_used"] = len(landmark_lines)
+                            enriched_query = (
+                                enriched_query + "\n\n---\n"
+                                "# DECISION LANDMARKS\n"
+                                "Honor these active decisions and constraints:\n"
+                                f"{chr(10).join(landmark_lines)}\n"
+                                "---"
+                            )
+                            print(f"  [WORKER] Injected {len(landmark_lines)} decision landmarks", flush=True)
                 except Exception as e:
                     print(f"  [WORKER] Session context skipped: {e}", flush=True)
 
@@ -886,9 +1064,14 @@ def _worker_thread():
                     # fall back to CognitionCocooner (JSON scan)
                     relevant_cocoons = []
                     value_analysis_cocoons = []
+                    decision_landmark_cocoons = []
+                    web_research_cocoons = []
                     if _unified_memory:
                         relevant_cocoons = _unified_memory.recall_relevant(query, max_results=memory_budget)
                         value_analysis_cocoons = _unified_memory.recall_value_analyses(query, max_results=max(1, min(2, memory_budget)))
+                        decision_landmark_cocoons = _unified_memory.recall_by_domain("decision_landmark", limit=max(1, min(2, memory_budget)))
+                        if allow_web_search:
+                            web_research_cocoons = _unified_memory.recall_web_research(query, max_results=2)
                         recall_source = "unified_memory"
                     else:
                         from reasoning_forge.cognition_cocooner import CognitionCocooner
@@ -922,7 +1105,26 @@ def _worker_thread():
                                 )
                             memory_context_summary["value_analyses_used"] += 1
 
-                    if memory_lines or value_lines:
+                    decision_lines = []
+                    if decision_landmark_cocoons:
+                        for cocoon in decision_landmark_cocoons:
+                            meta = cocoon.get("metadata", {})
+                            decision_lines.append(
+                                f"- {meta.get('label', 'Decision')}: {cocoon.get('query', '')[:180]}"
+                            )
+
+                    web_lines = []
+                    if web_research_cocoons:
+                        for cocoon in web_research_cocoons:
+                            sources = cocoon.get("metadata", {}).get("sources", [])
+                            for source in sources[:3]:
+                                web_sources.append(source)
+                            summary = cocoon.get("response", "")[:280]
+                            if summary:
+                                web_lines.append(f"- Cached research: {summary}")
+                            memory_context_summary["web_research_used"] += 1
+
+                    if memory_lines or value_lines or decision_lines or web_lines:
                         sections = []
                         if memory_lines:
                             sections.append(
@@ -935,6 +1137,18 @@ def _worker_thread():
                                 "# PAST VALUE ANALYSES\n"
                                 "Relevant singularity/frontier runs from memory:\n" +
                                 "\n".join(value_lines)
+                            )
+                        if decision_lines:
+                            sections.append(
+                                "# PAST DECISION LANDMARKS\n"
+                                "Previously established constraints and commitments:\n" +
+                                "\n".join(decision_lines)
+                            )
+                        if web_lines:
+                            sections.append(
+                                "# PAST WEB RESEARCH\n"
+                                "Previously researched current-information notes:\n" +
+                                "\n".join(web_lines)
                             )
                         enriched_query = (
                             enriched_query + "\n\n---\n" +
@@ -949,6 +1163,31 @@ def _worker_thread():
                         )
                 except Exception as e:
                     print(f"  [WORKER] Memory recall skipped: {e}", flush=True)
+
+                if allow_web_search:
+                    try:
+                        live_web_results = []
+                        if memory_context_summary["web_research_used"] == 0:
+                            from web_search import research_query
+                            live_web_results = [item.to_dict() for item in research_query(query, max_results=3)]
+                            if live_web_results and _unified_memory:
+                                _unified_memory.store_web_research(
+                                    query=query,
+                                    summary=_summarize_web_research(live_web_results),
+                                    sources=live_web_results,
+                                )
+                            web_sources.extend(live_web_results)
+                            memory_context_summary["web_research_used"] += len(live_web_results)
+                        if web_sources:
+                            enriched_query = (
+                                enriched_query + "\n\n---\n" +
+                                _summarize_web_research(web_sources[:3]) +
+                                "\n---\n"
+                                "Use these cited web findings for current facts. Distinguish sourced facts from your own inference."
+                            )
+                            print(f"  [WORKER] Injected {len(web_sources[:3])} web research sources", flush=True)
+                    except Exception as e:
+                        print(f"  [WORKER] Web research skipped: {e}", flush=True)
 
                 # ── Identity Context Injection ──
                 # Append identity context AFTER memory context
@@ -1010,7 +1249,34 @@ def _worker_thread():
                         print(f"  {alert}", flush=True)
                 else:
                     result["hallucination_detected"] = False
+
+                adapter_for_analysis = result.get("adapter", "base")
+                if isinstance(adapter_for_analysis, list):
+                    adapter_for_analysis = adapter_for_analysis[0] if adapter_for_analysis else "base"
+                reliability = _analyze_response_reliability(
+                    result.get("response", ""),
+                    adapter_for_analysis,
+                    domain=result.get("domain", "general"),
+                )
+                result["response_confidence"] = reliability["response_confidence"]
+                result["confidence_analysis"] = reliability
+                if reliability["hallucination_detected"]:
+                    existing_alerts = list(result.get("hallucination_alerts", []))
+                    result["hallucination_detected"] = True
+                    result["hallucination_alerts"] = existing_alerts + reliability["hallucination_signals"]
+                if (
+                    reliability["response_confidence"] < 0.45
+                    and result.get("response", "").strip()
+                    and "Confidence note:" not in result.get("response", "")
+                ):
+                    result["response"] = (
+                        result["response"].rstrip() +
+                        "\n\nConfidence note: parts of this answer may be uncertain. "
+                        "Treat factual specifics carefully and verify important claims."
+                    )
+
                 if _behavior_governor and governor_decision:
+                    validation = {}
                     try:
                         validation = _behavior_governor.post_validate(
                             query, result.get("response", ""), governor_decision
@@ -1022,11 +1288,12 @@ def _worker_thread():
                             print(f"  [GOVERNOR] Identity leak detected in response", flush=True)
                     except Exception:
                         pass
+                else:
+                    validation = {}
 
                 # Update session with response data (drives cocoon metrics UI)
                 epistemic = None
-                with _session_lock:
-                    session = _session  # grab reference under lock
+                session = _get_active_session()
                 if session:
                     try:
                         # Add user message + assistant response to session history
@@ -1067,16 +1334,82 @@ def _worker_thread():
                 # Every response goes to SQLite for future FTS5 recall
                 if _unified_memory:
                     try:
+                        if session:
+                            for landmark in session.get_recent_decision_landmarks(max_items=3):
+                                if landmark.get("persisted"):
+                                    continue
+                                summary = landmark.get("summary", "")
+                                if not summary:
+                                    continue
+                                cocoon_id = _unified_memory.store(
+                                    query=summary,
+                                    response=summary,
+                                    adapter="decision_landmark",
+                                    domain="decision_landmark",
+                                    complexity="SESSION",
+                                    importance=9,
+                                    metadata={
+                                        "memory_type": "decision_landmark",
+                                        "success": True,
+                                        "label": landmark.get("label", "Decision"),
+                                        "role": landmark.get("role", "assistant"),
+                                        "session_id": session.session_id,
+                                        "continuity_summary": session.active_continuity_summary,
+                                    },
+                                )
+                                session.mark_decision_landmark_persisted(summary, cocoon_id)
+
                         adapter_for_store = result.get("adapter", "base")
                         if isinstance(adapter_for_store, list):
                             adapter_for_store = adapter_for_store[0] if adapter_for_store else "base"
-                        _unified_memory.store(
+                        route_confidence = route.get("confidence", 0) if isinstance(route, dict) else (route.confidence if route else 0)
+                        route_snapshot = {
+                            "primary": route.get("primary") if isinstance(route, dict) else (route.primary if route else adapter_for_store),
+                            "secondary": route.get("secondary", []) if isinstance(route, dict) else (route.secondary if route else []),
+                            "confidence": route_confidence,
+                            "reasoning": route.get("reasoning", "") if isinstance(route, dict) else (route.reasoning if route else ""),
+                            "strategy": route.get("strategy", "") if isinstance(route, dict) else (route.strategy if route else ""),
+                            "multi_perspective": route.get("multi_perspective", False) if isinstance(route, dict) else (route.multi_perspective if route else False),
+                        }
+                        response_success = bool(result.get("response", "").strip()) and not result.get("hallucination_detected", False)
+                        if validation.get("warnings"):
+                            response_success = False
+                        cocoon_id = _unified_memory.store(
                             query=query,
                             response=result.get("response", ""),
                             adapter=adapter_for_store,
                             domain=result.get("domain", "general"),
                             complexity=result.get("complexity", "MEDIUM"),
+                            metadata={
+                                "success": response_success,
+                                "coherence": (epistemic or {}).get("ensemble_coherence"),
+                                "epistemic": epistemic or {},
+                                "route": route_snapshot,
+                                "memory_context": memory_context_summary,
+                                "trust_tags": _build_trust_tags(result, memory_context_summary),
+                                "web_sources": web_sources[:5],
+                                "hallucination_detected": result.get("hallucination_detected", False),
+                                "response_confidence": result.get("response_confidence", 0.5),
+                                "confidence_analysis": result.get("confidence_analysis", {}),
+                                "governor": {
+                                    "memory_budget": governor_decision.memory_budget if governor_decision else None,
+                                    "max_response_tokens": governor_decision.max_response_tokens if governor_decision else None,
+                                    "warnings": validation.get("warnings", []),
+                                },
+                                "tools_used": result.get("tools_used", []),
+                            },
                         )
+                        memory_weighting = _get_memory_weighting()
+                        if memory_weighting:
+                            memory_weighting.compute_weights(force_recompute=True)
+                        if _behavior_governor and governor_decision:
+                            _behavior_governor.record_outcome(
+                                domain=result.get("domain", "general"),
+                                complexity=str(result.get("complexity", "MEDIUM")),
+                                success=response_success,
+                                actual_tokens=int(result.get("tokens", 0) or 0),
+                                memory_budget_used=int(memory_budget or 0),
+                            )
                     except Exception:
                         pass
 
@@ -1116,6 +1449,11 @@ def _worker_thread():
                     "tokens": result.get("tokens", 0),
                     "time": round(result.get("time", 0), 2),
                     "multi_perspective": route.get("multi_perspective", False) if isinstance(route, dict) else (route.multi_perspective if route else False),
+                    "response_confidence": result.get("response_confidence", 0.5),
+                    "confidence_analysis": result.get("confidence_analysis", {}),
+                    "trust_tags": _build_trust_tags(result, memory_context_summary),
+                    "web_sources": web_sources[:5],
+                    "web_used": bool(web_sources),
                 }
                 response_data["memory_context"] = memory_context_summary
 
@@ -1142,8 +1480,7 @@ def _worker_thread():
                     response_data["perspectives"] = perspectives
 
                 # Cocoon state — send full session state for UI metrics panel
-                with _session_lock:
-                    session = _session
+                session = _get_active_session()
                 if session:
                     try:
                         session_state = session.get_state()
@@ -1453,7 +1790,7 @@ class CodetteHandler(SimpleHTTPRequestHandler):
             )
         except Exception as e:
             print(f"  [WARN] Multipart parse failed: {e}, falling back to empty")
-            return {"query": "", "adapter": None, "max_adapters": 2,
+            return {"query": "", "adapter": None, "max_adapters": 2, "allow_web_search": False,
                     "file_count": 0, "file_errors": [str(e)], "has_file_context": False}
 
         # Extract text fields — getfirst returns str or None
@@ -1461,6 +1798,8 @@ class CodetteHandler(SimpleHTTPRequestHandler):
         query = raw_query.strip() if isinstance(raw_query, str) else raw_query.decode('utf-8', errors='replace').strip()
         raw_adapter = form.getfirst("adapter", None)
         adapter = raw_adapter if raw_adapter else None
+        raw_allow_web = form.getfirst("allow_web_search", "0")
+        allow_web_search = str(raw_allow_web).lower() in {"1", "true", "yes", "on"}
         try:
             max_adapters = int(form.getfirst("max_adapters", "2"))
         except (ValueError, TypeError):
@@ -1517,6 +1856,7 @@ class CodetteHandler(SimpleHTTPRequestHandler):
             "query": query,
             "adapter": adapter,
             "max_adapters": max_adapters,
+            "allow_web_search": allow_web_search,
             "file_count": len(file_contexts),
             "file_errors": file_errors,
             "has_file_context": len(file_contexts) > 0,
@@ -1536,6 +1876,7 @@ class CodetteHandler(SimpleHTTPRequestHandler):
         query = data.get("query", "").strip()
         adapter = data.get("adapter")
         max_adapters = data.get("max_adapters", 2)
+        allow_web_search = bool(data.get("allow_web_search"))
 
         if not query:
             self._json_response({"error": "Empty query"}, 400)
@@ -1561,19 +1902,14 @@ class CodetteHandler(SimpleHTTPRequestHandler):
             return
 
         # Queue the request
-        req_id = f"{time.time()}_{id(self)}"
-        response_q = queue.Queue()
-
-        # Add with thread lock
-        with _response_queues_lock:
-            _response_queues[req_id] = response_q
-            _queue_creation_times[req_id] = time.time()
+        req_id, response_q = _register_response_queue()
 
         _request_queue.put({
             "id": req_id,
             "query": query,
             "adapter": adapter,
             "max_adapters": max_adapters,
+            "allow_web_search": allow_web_search,
         })
 
         # Wait for response (with timeout)
@@ -1596,10 +1932,7 @@ class CodetteHandler(SimpleHTTPRequestHandler):
         except queue.Empty:
             self._json_response({"error": "Request timed out"}, 504)
         finally:
-            # Clean up with thread lock
-            with _response_queues_lock:
-                _response_queues.pop(req_id, None)
-                _queue_creation_times.pop(req_id, None)
+            _unregister_response_queue(req_id)
 
     def _handle_chat_sse(self, parsed):
         """Handle SSE streaming endpoint."""
@@ -1620,13 +1953,7 @@ class CodetteHandler(SimpleHTTPRequestHandler):
         self.end_headers()
 
         # Queue request
-        req_id = f"sse_{time.time()}_{id(self)}"
-        response_q = queue.Queue()
-
-        # Add with thread lock
-        with _response_queues_lock:
-            _response_queues[req_id] = response_q
-            _queue_creation_times[req_id] = time.time()
+        req_id, response_q = _register_response_queue(prefix="sse")
 
         _request_queue.put({
             "id": req_id,
@@ -1650,7 +1977,7 @@ class CodetteHandler(SimpleHTTPRequestHandler):
                 if event_type in ("complete", "error"):
                     break
         finally:
-            _response_queues.pop(req_id, None)
+            _unregister_response_queue(req_id)
 
     def _send_sse(self, event_type, data):
         """Send a Server-Sent Event."""
@@ -1663,20 +1990,20 @@ class CodetteHandler(SimpleHTTPRequestHandler):
 
     def _handle_new_session(self):
         """Create a new session."""
-        global _session
+        session = _get_active_session()
         # Save current session first
-        if _session and _session_store and _session.messages:
+        if session and _session_store and session.messages:
             try:
-                _session_store.save(_session)
+                _session_store.save(session)
             except Exception:
                 pass
 
-        _session = CodetteSession()
-        self._json_response({"session_id": _session.session_id})
+        session = CodetteSession()
+        _set_active_session(session)
+        self._json_response({"session_id": session.session_id})
 
     def _handle_load_session(self):
         """Load a previous session."""
-        global _session
         data = self._read_json_body()
         session_id = data.get("session_id")
 
@@ -1686,35 +2013,37 @@ class CodetteHandler(SimpleHTTPRequestHandler):
 
         loaded = _session_store.load(session_id)
         if loaded:
-            _session = loaded
+            _set_active_session(loaded)
             self._json_response({
-                "session_id": _session.session_id,
-                "messages": _session.messages,
-                "state": _session.get_state(),
+                "session_id": loaded.session_id,
+                "messages": loaded.messages,
+                "state": loaded.get_state(),
             })
         else:
             self._json_response({"error": "Session not found"}, 404)
 
     def _handle_save_session(self):
         """Manually save current session."""
-        if _session and _session_store:
-            _session_store.save(_session)
-            self._json_response({"saved": True, "session_id": _session.session_id})
+        session = _get_active_session()
+        if session and _session_store:
+            _session_store.save(session)
+            self._json_response({"saved": True, "session_id": session.session_id})
         else:
             self._json_response({"error": "No active session"}, 400)
 
     def _handle_export_session(self):
         """Export current session as downloadable JSON."""
-        if not _session:
+        session = _get_active_session()
+        if not session:
             self._json_response({"error": "No active session"}, 400)
             return
 
-        export_data = _session.to_dict()
+        export_data = session.to_dict()
         export_data["_export_version"] = 1
         export_data["_exported_at"] = time.time()
 
         body = json.dumps(export_data, default=str, indent=2).encode("utf-8")
-        filename = f"codette_session_{_session.session_id[:8]}.json"
+        filename = f"codette_session_{session.session_id[:8]}.json"
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Disposition", f'attachment; filename="{filename}"')
@@ -1725,7 +2054,6 @@ class CodetteHandler(SimpleHTTPRequestHandler):
 
     def _handle_import_session(self):
         """Import a session from uploaded JSON."""
-        global _session
         try:
             data = self._read_json_body()
             if not data or "session_id" not in data:
@@ -1733,26 +2061,28 @@ class CodetteHandler(SimpleHTTPRequestHandler):
                 return
 
             # Save current session before importing
-            if _session and _session_store and _session.messages:
+            session = _get_active_session()
+            if session and _session_store and session.messages:
                 try:
-                    _session_store.save(_session)
+                    _session_store.save(session)
                 except Exception:
                     pass
 
-            _session = CodetteSession()
-            _session.from_dict(data)
+            imported = CodetteSession()
+            imported.from_dict(data)
+            _set_active_session(imported)
 
             # Save imported session to store
             if _session_store:
                 try:
-                    _session_store.save(_session)
+                    _session_store.save(imported)
                 except Exception:
                     pass
 
             self._json_response({
-                "session_id": _session.session_id,
-                "messages": _session.messages,
-                "state": _session.get_state(),
+                "session_id": imported.session_id,
+                "messages": imported.messages,
+                "state": imported.get_state(),
                 "imported": True,
             })
         except Exception as e:
@@ -1801,7 +2131,7 @@ def main():
     print(f"  Started worker health monitor thread")
 
     # Start server FIRST so browser can connect immediately
-    server = HTTPServer(("127.0.0.1", args.port), CodetteHandler)
+    server = ThreadingHTTPServer(("127.0.0.1", args.port), CodetteHandler)
     url = f"http://localhost:{args.port}"
     print(f"\n  Server: {url}")
     print(f"  Press Ctrl+C to stop\n")
@@ -1819,9 +2149,10 @@ def main():
     except KeyboardInterrupt:
         print("\n  Shutting down...")
         # Save session
-        if _session and _session_store and _session.messages:
-            _session_store.save(_session)
-            print(f"  Session saved: {_session.session_id}")
+        session = _get_active_session()
+        if session and _session_store and session.messages:
+            _session_store.save(session)
+            print(f"  Session saved: {session.session_id}")
         _request_queue.put(None)  # Shutdown worker
         server.shutdown()
         print("  Goodbye!")

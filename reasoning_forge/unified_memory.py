@@ -407,6 +407,31 @@ class UnifiedMemory:
         except Exception:
             return []
 
+    def fetch_adapter_learning_signals(self, limit: int = 500) -> List[Dict[str, Any]]:
+        """Return recent cocoon records shaped for adapter performance learning."""
+        try:
+            cur = self._conn.cursor()
+            cur.execute("""
+                SELECT id, query, response, adapter, domain, complexity,
+                       emotion, importance, timestamp, metadata_json
+                FROM cocoons
+                WHERE adapter IS NOT NULL
+                  AND TRIM(adapter) != ''
+                  AND adapter != 'unknown'
+                ORDER BY timestamp DESC
+                LIMIT ?
+            """, (limit,))
+
+            results = []
+            for row in cur.fetchall():
+                cocoon = dict(row)
+                cocoon["metadata"] = json.loads(cocoon.pop("metadata_json", "{}"))
+                results.append(cocoon)
+            return results
+        except Exception as e:
+            logger.debug(f"Adapter learning fetch failed: {e}")
+            return []
+
     def recall_important(self, min_importance: int = 7, limit: int = 10) -> List[Dict]:
         """Recall high-importance cocoons (replaces LivingMemoryKernel.recall_important)."""
         try:
@@ -521,6 +546,40 @@ class UnifiedMemory:
             seen.add(cid)
             deduped.append(cocoon)
         return deduped[:max_results]
+
+    def store_web_research(
+        self,
+        query: str,
+        summary: str,
+        sources: List[Dict[str, Any]],
+        importance: int = 8,
+    ) -> str:
+        """Persist cited web research as a searchable cocoon."""
+        metadata = {
+            "memory_type": "web_research",
+            "sources": sources,
+            "success": True,
+        }
+        return self.store(
+            query=query,
+            response=summary,
+            adapter="web_research",
+            domain="web_research",
+            complexity="CURRENT",
+            emotion="analytical",
+            importance=importance,
+            metadata=metadata,
+        )
+
+    def recall_web_research(self, query: str = "", max_results: int = 3) -> List[Dict]:
+        """Recall relevant prior web research cocoons."""
+        if query.strip():
+            results = self.recall_relevant(query, max_results=max_results)
+            return [
+                cocoon for cocoon in results
+                if cocoon.get("metadata", {}).get("memory_type") == "web_research"
+            ]
+        return self.recall_by_domain("web_research", max_results)
 
     # ─────────────────────────────────────────────────────────
     # INTROSPECTION — adapter dominance, domain clusters, trends

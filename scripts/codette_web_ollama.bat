@@ -1,4 +1,5 @@
 @echo off
+setlocal
 REM Codette v2.0 Web UI - Ollama Backend
 REM Uses Ollama for inference instead of llama_cpp
 REM Opens browser automatically to localhost:7860
@@ -45,16 +46,22 @@ echo.
 echo ============================================================
 echo.
 
-cd /d "J:\codette-clean"
+set "SCRIPT_DIR=%~dp0"
+for %%I in ("%SCRIPT_DIR%..") do set "PROJECT_ROOT=%%~fI"
+set "PYTHON_CMD="
+if exist "%PROJECT_ROOT%\.venv\Scripts\python.exe" set "PYTHON_CMD=%PROJECT_ROOT%\.venv\Scripts\python.exe"
+if not defined PYTHON_CMD if exist "%PROJECT_ROOT%\.venv\bin\python" set "PYTHON_CMD=%PROJECT_ROOT%\.venv\bin\python"
+if not defined PYTHON_CMD set "PYTHON_CMD=python"
+
+cd /d "%PROJECT_ROOT%"
 set PYTHONNOUSERSITE=1
-set PATH=J:\;J:\Lib\site-packages\Library\bin;%PATH%
 set CODETTE_BACKEND=ollama
-set OLLAMA_MODELS=J:\.ollama
+if not defined OLLAMA_MODELS set "OLLAMA_MODELS=%PROJECT_ROOT%\.ollama"
 set OLLAMA_VULKAN=1
 
 echo   Starting server with Ollama backend...
 echo.
-J:\python.exe -u -B "J:\codette-clean\inference\codette_server.py"
+"%PYTHON_CMD%" -u -B "%PROJECT_ROOT%\inference\codette_server.py"
 echo.
 if errorlevel 1 (
     echo ERROR: Server exited with an error. See above for details.
@@ -63,3 +70,4 @@ if errorlevel 1 (
 )
 echo.
 pause
+endlocal

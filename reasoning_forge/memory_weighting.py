@@ -10,9 +10,8 @@ Phase: 2 (Closed-Loop Learning)
 
 import time
 import math
-import json
 from dataclasses import dataclass, field, asdict
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 
 # ================================================================
@@ -132,6 +131,89 @@ class MemoryWeighting:
         """
         return self._compute_weights(force_recompute)
 
+    def _iter_memory_records(self) -> List[Any]:
+        """Load normalized learning records from either legacy or unified memory."""
+        if not self.memory:
+            return []
+
+        if hasattr(self.memory, "fetch_adapter_learning_signals"):
+            try:
+                return self.memory.fetch_adapter_learning_signals(limit=1000)
+            except Exception:
+                return []
+
+        memories = getattr(self.memory, "memories", None)
+        if memories:
+            return list(memories)
+
+        return []
+
+    @staticmethod
+    def _extract_adapters(record: Any) -> List[str]:
+        adapter_value = ""
+        if isinstance(record, dict):
+            adapter_value = record.get("adapter") or record.get("adapter_used", "")
+        else:
+            adapter_value = getattr(record, "adapter_used", "") or getattr(record, "adapter", "")
+
+        adapters = []
+        for raw in str(adapter_value).split(","):
+            adapter = raw.strip().lower()
+            if adapter:
+                adapters.append(adapter)
+        return adapters
+
+    @staticmethod
+    def _get_record_metadata(record: Any) -> Dict[str, Any]:
+        if isinstance(record, dict):
+            return record.get("metadata", {}) or {}
+        return {}
+
+    def _get_record_coherence(self, record: Any) -> float:
+        if isinstance(record, dict):
+            meta = self._get_record_metadata(record)
+            if meta.get("coherence") is not None:
+                return float(meta["coherence"])
+            if meta.get("epistemic", {}).get("ensemble_coherence") is not None:
+                return float(meta["epistemic"]["ensemble_coherence"])
+            return 0.5
+        return float(getattr(record, "coherence", 0.5) or 0.5)
+
+    def _get_record_emotional_tag(self, record: Any) -> str:
+        if isinstance(record, dict):
+            meta = self._get_record_metadata(record)
+            return str(meta.get("emotional_tag") or record.get("emotion", "") or "").lower()
+        return str(getattr(record, "emotional_tag", "") or "").lower()
+
+    def _get_record_content(self, record: Any) -> str:
+        if isinstance(record, dict):
+            return " ".join([
+                str(record.get("query", "") or ""),
+                str(record.get("response", "") or ""),
+                str(self._get_record_metadata(record)),
+            ]).lower()
+        return str(getattr(record, "content", "") or "").lower()
+
+    def _get_record_age_hours(self, record: Any) -> float:
+        now = time.time()
+        if isinstance(record, dict):
+            timestamp = float(record.get("timestamp", now) or now)
+            return max(0.0, (now - timestamp) / 3600.0)
+        age_hours = getattr(record, "age_hours", None)
+        if callable(age_hours):
+            try:
+                return float(age_hours())
+            except Exception:
+                return 0.0
+        return 0.0
+
+    def _get_total_memory_count(self, records: List[Any]) -> int:
+        if hasattr(self.memory, "_total_stored"):
+            return int(getattr(self.memory, "_total_stored", 0) or 0)
+        if hasattr(self.memory, "memories"):
+            return len(getattr(self.memory, "memories", []) or [])
+        return len(records)
+
     def _compute_weights(self, force_recompute: bool = False) -> Dict[str, float]:
         """Compute weights for all adapters in memory."""
         # Skip if already computed recently (unless forced)
@@ -140,15 +222,11 @@ class MemoryWeighting:
             return {a: w.weight for a, w in self.adapter_weights.items()}
 
         # Group cocoons by adapter
-        adapter_cocoons: Dict[str, List] = {}
-        if self.memory and self.memory.memories:
-            for cocoon in self.memory.memories:
-                if cocoon.adapter_used:
-                    # Handle compound adapter names like "Newton,DaVinci"
-                    adapters = [a.strip().lower() for a in cocoon.adapter_used.split(",")]
-                    for adapter in adapters:
-                        if adapter:
-                            adapter_cocoons.setdefault(adapter, []).append(cocoon)
+        adapter_cocoons: Dict[str, List[Any]] = {}
+        records = self._iter_memory_records()
+        for record in records:
+            for adapter in self._extract_adapters(record):
+                adapter_cocoons.setdefault(adapter, []).append(record)
 
         # Compute weights for each adapter
         self.adapter_weights = {}
@@ -163,13 +241,13 @@ class MemoryWeighting:
             cocoons = adapter_cocoons[adapter]
 
             # 1. Base coherence: mean coherence from all uses
-            coherences = [c.coherence for c in cocoons if c.coherence > 0]
+            coherences = [self._get_record_coherence(c) for c in cocoons if self._get_record_coherence(c) > 0]
             base_coherence = sum(coherences) / len(coherences) if coherences else 0.5
 
             # 2. Conflict success rate: % of tension memories with coherence > 0.7
-            tension_memories = [c for c in cocoons if c.emotional_tag == "tension"]
+            tension_memories = [c for c in cocoons if self._get_record_emotional_tag(c) == "tension"]
             if tension_memories:
-                successful = sum(1 for c in tension_memories if c.coherence > 0.7)
+                successful = sum(1 for c in tension_memories if self._get_record_coherence(c) > 0.7)
                 conflict_success_rate = successful / len(tension_memories)
             else:
                 conflict_success_rate = 0.5  # No conflict history yet
@@ -178,7 +256,7 @@ class MemoryWeighting:
             #    Using exponential decay with ~7 day half-life
             recency_weights = []
             for cocoon in cocoons:
-                age_hours = cocoon.age_hours()
+                age_hours = self._get_record_age_hours(cocoon)
                 # exp(-age_hours / 168) = 0.5 after 1 week
                 recency = math.exp(-age_hours / 168.0)
                 recency_weights.append(recency)
@@ -234,21 +312,22 @@ class MemoryWeighting:
             return ("", 1.0)  # No history yet
 
         # Find tension cocoons matching conflict_type if provided
-        if conflict_type and self.memory and self.memory.memories:
+        records = self._iter_memory_records()
+        if conflict_type and records:
             conflict_type_lower = conflict_type.lower()
             tension_cocoons = [
-                c for c in self.memory.memories
-                if c.emotional_tag == "tension" and conflict_type_lower in c.content.lower()
+                c for c in records
+                if self._get_record_emotional_tag(c) == "tension"
+                and conflict_type_lower in self._get_record_content(c)
             ]
 
             # Score adapters by conflict success on matching memories
             if tension_cocoons:
                 adapter_conflict_success = {}
                 for cocoon in tension_cocoons:
-                    for adapter_str in cocoon.adapter_used.split(","):
-                        adapter = adapter_str.strip().lower()
+                    for adapter in self._extract_adapters(cocoon):
                         if adapter:
-                            success = cocoon.coherence > 0.7
+                            success = self._get_record_coherence(cocoon) > 0.7
                             adapter_conflict_success.setdefault(adapter, []).append(success)
 
                 # Rank by success rate
@@ -350,7 +429,7 @@ class MemoryWeighting:
 
         return {
             "total_adapters": len(self.adapter_weights),
-            "total_memories": len(self.memory.memories) if self.memory else 0,
+            "total_memories": self._get_total_memory_count(self._iter_memory_records()),
             "avg_weight": sum(weights) / len(weights) if weights else 1.0,
             "best_adapter": max(self.adapter_weights.items(), key=lambda x: x[1].weight)[0] if self.adapter_weights else "none",
             "avg_coherence": sum(coherences) / len(coherences) if coherences else 0.0,
