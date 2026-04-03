@@ -321,7 +321,14 @@
       "Bash(ls -la inference/*.py)",
       "Bash(ls -la reasoning_forge/*.py)",
       "Bash(grep -r \"event_embedded_value\\\\|EventEmbeddedValueEngine\\\\|EEV\" reasoning_forge/*.py inference/*.py --include=\"*.py\")",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git push:*)",
+      "Bash(git diff:*)",
+      "mcp__1197825c-47a1-4d5b-a2cb-2f243821d0f6__hub_repo_search",
+      "Bash(find . -name *Q4_K_M.gguf -o -name *.gguf)",
+      "Bash(ollama run:*)",
+      "Bash(huggingface-cli download:*)",
+      "Bash(ls -lh J:/codette-clean/ollama/*.gguf)"
     ]
   }
 }
