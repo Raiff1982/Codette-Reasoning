@@ -4,7 +4,7 @@
 # Enhanced: April 2, 2026 — Event-Embedded Value analysis, tightened triggers, web research, memory continuity
 # License: MIT
 
-FROM ./codette-orchestrator-Q4_K_M.gguf
+FROM ./codette-orchestrator-f16.gguf
 
 PARAMETER temperature 0.7
 PARAMETER top_p 0.9
