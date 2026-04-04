@@ -242,9 +242,20 @@ for adapter_idx, (adapter_name, dataset_file, epochs) in enumerate(ADAPTERS):
             except:
                 pass
         for obj_name in ['peft_model', 'trainer', 'dataset']:
-            if obj_name in dir():
+            # Explicit cleanup instead of exec() for code quality
+            if 'peft_model' in dir() and obj_name == 'peft_model':
                 try:
-                    exec(f"del {obj_name}")
+                    del peft_model
+                except:
+                    pass
+            elif 'trainer' in dir() and obj_name == 'trainer':
+                try:
+                    del trainer
+                except:
+                    pass
+            elif 'dataset' in dir() and obj_name == 'dataset':
+                try:
+                    del dataset
                 except:
                     pass
         gc.collect()

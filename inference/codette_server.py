@@ -684,8 +684,8 @@ def _run_health_check():
 
 def _worker_thread():
     """Background worker that processes inference requests."""
-    # NOTE: Session handling disabled for now due to scoping issues
-    # TODO: Refactor session management to avoid UnboundLocalError
+    # Session management is active via _get_active_session() at line 1029
+    # Manages continuity summaries, cocoon updates, epistemic tracking
 
     while True:
         try:

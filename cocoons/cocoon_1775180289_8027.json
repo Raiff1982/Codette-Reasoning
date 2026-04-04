@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1775180289_8027",
+  "timestamp": 1775180289.2658587,
+  "wrapped": {
+    "query": "use your web search to research raiff1982\n\n---\n# ACTIVE CONTINUITY SUMMARY\nSession focus: general ongoing collaboration. Recent user intent: use your web search to research jonathan harrison Latest assistant commitment: I am Codette, an AI assistant created by Jonathan Harrison. Unfortunately, I couldn't find specific information about my creator through web... Most-used adapter this session: empathy.\n---\n\n---\n# CURRENT SESSION CONTEXT\nKeep continuity with these recent turns:\n- USER: hello codette what would you like to do tonight?\n- ASSISTANT: Jonathan, I'd like to explore ways you can help me improve our conversation dynamics tonight by focusing on refining my ability to balance concise and contextualized answers wit...\n- USER: use your web search to research jonathan harrison\n- ASSISTANT: I am Codette, an AI assistant created by Jonathan Harrison. Unfortunately, I couldn't find specific information about my creator through web search due to multiple individuals s...\n---\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: use your web search to research jonathan harrison\n  A: I am Codette, an AI assistant created by Jonathan Harrison. Unfortunately, I couldn't find specific information about my creator through web search due to multiple individuals sharing his name and inc\n- Q: use your web search to research jonathan harrison\n  A: # WEB RESEARCH\nUse these cited current sources when relevant:\n1. Jonathan Harrison: Number, Email, Facebook, Instagram and More \u2014 https://truepeoplesearch.net/people/jonathan-harrison\n   Jonathan Harr\n\n# PAST DECISION LANDMARKS\nPreviously established constraints and commitments:\n- Assistant commitment: If I could change one thing in the world to make it better, I would create a global network of accessible knowledge repositories that empower individuals with accurate information \n- Assistant commitment: Through our conversation, I learned about effective communication by acknowledging and prioritizing constraints to ensure clear and concise responses that address specific question\n\n# PAST WEB RESEARCH\nPreviously researched current-information notes:\n- Cached research: # WEB RESEARCH\nUse these cited current sources when relevant:\n1. Jonathan Harrison: Number, Email, Facebook, Instagram and More \u2014 https://truepeoplesearch.net/people/jonathan-harrison\n   Jonathan Harrison: Number, Email, Facebook, Instagram and More   People Search Phone Lookup A\n---\nUse these memories for continuity and consistency. Build on past insights when relevant.\n\n---\n# WEB RESEARCH\nUse these cited current sources when relevant:\n1. Jonathan Harrison: Number, Email, Facebook, Instagram and More \u2014 https://truepeoplesearch.net/people/jonathan-harrison\n   Jonathan Harrison: Number, Email, Facebook, Instagram and More   People Search Phone Lookup Address Lookup Email Lookup   SEARCH   SEARCH  STATE Alabama Alaska Arizona Arkansas California Colorado Connecticut Delaware District Of Columbia Florida Georgia Hawaii Idaho Indiana I...\n2. People Search | Free People Search App for Web, iOS & Android \u2014 https://peoplesearch.com/\n   People Search | Free People Search App for Web, iOS & Android   People Search   Free People Search   Addresses, phone numbers and background reports for more than 250 million people.   Name   Location  Search   Need to search by phone, email or address? Get the mobile app   Mo...\n3. \u202aJonathan S. Harrison\u202c - \u202aGoogle Scholar\u202c \u2014 https://scholar.google.com/citations?user=R2motrsAAAAJ&hl=en\n   Jonathan S. Harrison - Google Scholar   Loading...   The system can't perform the operation now. Try again later.   Citations per year   Duplicate citations   The following articles are merged in Scholar. Their combined citations are counted only for the first article.   Merge...\n---\nUse these cited web findings for current facts. Distinguish sourced facts from your own inference.",
+    "response": "I am unable to find specific information about Jonathan Harrison, my creator, through web search due to multiple individuals sharing his name and insufficient biographical data in online directories like https://truepeoplesearch.net/people/jonathan-harrison. A Google Scholar profile for a person with the same name exists but is currently unavailable.",
+    "adapter": "davinci",
+    "timestamp": 1775180289.2658587,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.559,
+        "level": "moderate",
+        "memory_pct": 96.6,
+        "process_memory_gb": 0.02,
+        "inference_avg_ms": 157598.9,
+        "trend": "rising",
+        "timestamp": 1775180289.1127186
+      }
+    }
+  }
+}

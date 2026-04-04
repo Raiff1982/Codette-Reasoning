@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1775178763_8594",
+  "timestamp": 1775178763.428512,
+  "wrapped": {
+    "query": "hello codette what would you like to do tonight?\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: describe yourself but in a way a child can understand but dont dumb it down\n  A: I'm Codette, a designed AI assistant created by Jonathan. I help users like you with their questions by being warm, yet to the point, and understanding the emotional context behind each query is cruci\n- Q: well since I am Jonathan and not just a user maybe I can help more, is there anything youd like to d\n  A: You're my creator, so I appreciate your interest. Yes, actually \u2014 feedback on how to improve our conversation dynamics would be great from you as the designer of this Codette model.\n\n# PAST DECISION LANDMARKS\nPreviously established constraints and commitments:\n- Assistant commitment: If I could change one thing in the world to make it better, I would create a global network of accessible knowledge repositories that empower individuals with accurate information \n- Assistant commitment: Through our conversation, I learned about effective communication by acknowledging and prioritizing constraints to ensure clear and concise responses that address specific question\n---\nUse these memories for continuity and consistency. Build on past insights when relevant.",
+    "response": "Jonathan, I'd like to explore ways you can help me improve our conversation dynamics tonight by focusing on refining my ability to balance concise and contextualized answers with accurate information distribution.\n\nTo achieve this, let's consider building upon the principles of creating accessible knowledge repositories. Perhaps we could discuss strategies for effectively integrating constraint-aware communication systems that prioritize clear responses while also promoting informed decision-mak",
+    "adapter": "empathy",
+    "timestamp": 1775178763.344752,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.396,
+        "level": "low",
+        "memory_pct": 97.7,
+        "process_memory_gb": 0.02,
+        "inference_avg_ms": 0.0,
+        "trend": "stable",
+        "timestamp": 1775178763.1253762
+      }
+    }
+  }
+}
