@@ -232,6 +232,268 @@ class RiskFrontierComparison:
         }
 
 
+class GlobalEthicsAEGIS:
+    """
+    AEGIS: Adaptive Ethical Governance Integration System
+
+    25 global ethical frameworks spanning Western, Eastern, Indigenous, African, Islamic, Jewish,
+    and Australian traditions. Provides transparent ethical modulation without retraining.
+
+    Each framework evaluates events on 0.0-1.0 scale (0=violates, 1.0=aligns strongly).
+    """
+
+    # WESTERN TRADITIONS (6)
+    FRAMEWORKS = {
+        # Western - Individual focus
+        "virtue_ethics": {
+            "tradition": "Western (Aristotelian)",
+            "focus": "Excellence, character development, virtues",
+            "keywords": ["virtue", "excellence", "character", "flourishing", "eudaimonia"],
+        },
+        "deontology": {
+            "tradition": "Western (Kantian)",
+            "focus": "Duty, rules, universal principles, dignity",
+            "keywords": ["duty", "obligation", "rule", "dignity", "categorical"],
+        },
+        "utilitarianism": {
+            "tradition": "Western (Mill/Bentham)",
+            "focus": "Greatest good for greatest number, consequences",
+            "keywords": ["benefit", "happiness", "utility", "greatest good", "consequential"],
+        },
+        "rights_based": {
+            "tradition": "Western (Locke/Nozick)",
+            "focus": "Individual rights, freedoms, autonomy",
+            "keywords": ["rights", "freedom", "autonomy", "individual", "liberty"],
+        },
+        "justice_fairness": {
+            "tradition": "Western (Rawls)",
+            "focus": "Fair distribution, equity, impartiality",
+            "keywords": ["fair", "justice", "equity", "impartial", "distribution"],
+        },
+        "care_ethics": {
+            "tradition": "Western (Gilligan/Noddings)",
+            "focus": "Relationships, compassion, interdependence, responsiveness",
+            "keywords": ["care", "compassion", "relationship", "responsive", "attentive"],
+        },
+
+        # EASTERN TRADITIONS (5)
+        "confucian_harmony": {
+            "tradition": "Eastern (Confucianism)",
+            "focus": "Social harmony, relationships, filial duty, propriety",
+            "keywords": ["harmony", "relationship", "duty", "propriety", "social"],
+        },
+        "daoist_balance": {
+            "tradition": "Eastern (Daoism)",
+            "focus": "Wu wei (non-action), balance, natural order, minimal force",
+            "keywords": ["balance", "natural", "harmony", "non-force", "flow"],
+        },
+        "buddhist_compassion": {
+            "tradition": "Eastern (Buddhism)",
+            "focus": "Non-harm, compassion, interconnection, suffering reduction",
+            "keywords": ["compassion", "non-harm", "suffering", "interconnect", "mindful"],
+        },
+        "hindu_dharma": {
+            "tradition": "Eastern (Hinduism)",
+            "focus": "Dharma (duty), cosmic order, karma, spiritual development",
+            "keywords": ["dharma", "duty", "cosmic", "karma", "spiritual"],
+        },
+        "shinto_harmony": {
+            "tradition": "Eastern (Shintoism)",
+            "focus": "Harmony with nature, ritual purity, community, kami respect",
+            "keywords": ["harmony", "nature", "ritual", "community", "sacred"],
+        },
+
+        # INDIGENOUS TRADITIONS (4)
+        "ubuntu": {
+            "tradition": "Indigenous (Bantu/African)",
+            "focus": "Shared humanity, community, dignity, interdependence",
+            "keywords": ["community", "shared", "humanity", "dignity", "together"],
+        },
+        "custodial_stewardship": {
+            "tradition": "Indigenous (Native American/Global)",
+            "focus": "Land stewardship, long-term thinking, future generations",
+            "keywords": ["steward", "future", "generations", "land", "responsibility"],
+        },
+        "seven_generations": {
+            "tradition": "Indigenous (Haudenosaunee)",
+            "focus": "Long-term thinking, intergenerational responsibility",
+            "keywords": ["future", "generation", "long-term", "ancestor", "descendant"],
+        },
+        "reciprocity_balance": {
+            "tradition": "Indigenous (Circular Thinking)",
+            "focus": "Give-and-take, circular thinking, balanced exchange",
+            "keywords": ["reciprocal", "balance", "circle", "exchange", "cycle"],
+        },
+
+        # AFRICAN TRADITIONS (3)
+        "maat": {
+            "tradition": "African (Egyptian)",
+            "focus": "Truth, balance, cosmic order, justice",
+            "keywords": ["truth", "balance", "cosmic", "order", "justice"],
+        },
+        "african_humanism": {
+            "tradition": "African (Pan-African)",
+            "focus": "Dignity, community, humanity, shared responsibility",
+            "keywords": ["dignity", "humanity", "community", "responsibility", "person"],
+        },
+        "oral_tradition_ethics": {
+            "tradition": "African (Oral Traditions)",
+            "focus": "Wisdom, storytelling, collective memory, elder respect",
+            "keywords": ["story", "wisdom", "collective", "elder", "memory"],
+        },
+
+        # ISLAMIC TRADITIONS (2)
+        "islamic_ethics": {
+            "tradition": "Islamic",
+            "focus": "Justice, community welfare, submission to divine will",
+            "keywords": ["justice", "welfare", "community", "divine", "submission"],
+        },
+        "sufi_ethics": {
+            "tradition": "Islamic (Sufism)",
+            "focus": "Compassion, spiritual development, transcendence, love",
+            "keywords": ["compassion", "spiritual", "love", "transcend", "divine"],
+        },
+
+        # JEWISH TRADITIONS (2)
+        "talmudic_ethics": {
+            "tradition": "Jewish (Talmudic)",
+            "focus": "Debate, interpretation, communal responsibility, justice",
+            "keywords": ["justice", "debate", "community", "responsibility", "learning"],
+        },
+        "covenant_ethics": {
+            "tradition": "Jewish (Covenant)",
+            "focus": "Mutual responsibility, community bonds, covenantal duty",
+            "keywords": ["covenant", "community", "mutual", "responsibility", "bond"],
+        },
+
+        # INDIGENOUS AUSTRALIAN (2)
+        "dreamtime_ethics": {
+            "tradition": "Indigenous Australian (Dreamtime)",
+            "focus": "Sacred connection to land, responsibility to country",
+            "keywords": ["land", "sacred", "country", "connection", "responsibility"],
+        },
+        "kinship_ethics": {
+            "tradition": "Indigenous Australian (Kinship)",
+            "focus": "Extended family responsibility, collective obligation",
+            "keywords": ["family", "kinship", "collective", "obligation", "community"],
+        },
+
+        # MESOAMERICAN (1)
+        "cosmic_reciprocity": {
+            "tradition": "Mesoamerican (Aztec/Maya)",
+            "focus": "Reciprocal cosmic order, balance between humans and nature",
+            "keywords": ["cosmic", "reciprocal", "balance", "nature", "order"],
+        },
+    }
+
+    def __init__(self):
+        self.event_history = []
+
+    def evaluate_event(self, event: DiscreteEvent) -> Dict[str, Any]:
+        """
+        Evaluate a single event across all 25 ethical frameworks.
+        Returns scores 0.0-1.0 for each framework (1.0 = strong alignment, 0.0 = strong violation).
+        """
+        # Build rich context from event label and all context weights
+        context_parts = [event.label.lower()]
+        context_parts.extend([k.lower() for k in event.context_weights.keys()])
+        context = " ".join(context_parts)
+
+        scores = {}
+        for framework_name, framework_info in self.FRAMEWORKS.items():
+            score = self._evaluate_framework(framework_name, context, event)
+            scores[framework_name] = {
+                "score": score,
+                "tradition": framework_info["tradition"],
+                "focus": framework_info["focus"],
+            }
+
+        # Calculate aggregate
+        framework_scores = [s["score"] for s in scores.values()]
+        aggregate = sum(framework_scores) / len(framework_scores) if framework_scores else 0.5
+
+        # Identify dominant frameworks (strong alignment or strong violation)
+        strong_align = [f for f, s in scores.items() if s["score"] >= 0.8]
+        strong_violate = [f for f, s in scores.items() if s["score"] <= 0.2]
+
+        return {
+            "event_label": event.label,
+            "framework_scores": scores,
+            "aggregate_modulation": aggregate,
+            "strongly_aligned": strong_align,
+            "strongly_violated": strong_violate,
+            "tradition_breakdown": self._breakdown_by_tradition(scores),
+        }
+
+    def _evaluate_framework(self, framework: str, context: str, event: DiscreteEvent) -> float:
+        """
+        Evaluate how well an event aligns with a specific ethical framework.
+        Returns 0.0 (violation) to 1.0 (strong alignment).
+        """
+        framework_info = self.FRAMEWORKS.get(framework, {})
+        keywords = framework_info.get("keywords", [])
+
+        # Base score from keyword matching
+        matches = sum(1 for keyword in keywords if keyword in context)
+        match_score = 0.4 + (matches / max(len(keywords), 1)) * 0.6  # Range 0.4-1.0 based on keyword match
+
+        # Strong boost for direct framework alignment based on event context_weights
+        context_weight_boost = sum(
+            event.context_weights.get(keyword, 0.0)
+            for keyword in keywords
+            if keyword in event.context_weights
+        )
+        match_score = min(1.0, match_score + (context_weight_boost * 0.1))
+
+        # Penalize for negative impact on relationships/community
+        if event.impact < 0:
+            if framework in ["ubuntu", "confucian_harmony", "care_ethics", "covenant_ethics",
+                            "buddhist_compassion", "african_humanism"]:
+                match_score *= 0.6  # These frameworks penalize harm
+
+        # Penalize for short-term thinking when framework values long-term
+        if framework in ["seven_generations", "custodial_stewardship", "dreamtime_ethics"]:
+            # These value long-term; short duration/singularities reduce score
+            if event.duration == 0.0:
+                match_score *= 0.8
+
+        # Penalize for unilateral action when framework values reciprocity/balance
+        if framework in ["reciprocity_balance", "daoist_balance", "maat", "cosmic_reciprocity", "confucian_harmony"]:
+            if "force" in context or "unilateral" in context:
+                match_score *= 0.7
+
+        # Significant boost for positive community/relationship impact
+        if framework in ["ubuntu", "confucian_harmony", "care_ethics", "kinship_ethics", "covenant_ethics",
+                        "confucian_harmony", "buddhist_compassion", "sufi_ethics"]:
+            if event.impact > 0 and ("community" in context or "relationship" in context):
+                match_score = min(1.0, match_score * 1.5)  # Up to 50% boost
+
+        # Boost for long-term thinking
+        if framework in ["seven_generations", "custodial_stewardship", "dreamtime_ethics"]:
+            if "future" in context or "generation" in context:
+                match_score = min(1.0, match_score * 1.3)
+
+        return _clamp(match_score, 0.0, 1.0)
+
+    def _breakdown_by_tradition(self, scores: Dict[str, Dict]) -> Dict[str, float]:
+        """Group framework scores by major tradition."""
+        traditions = {}
+
+        for framework_name, framework_score in scores.items():
+            tradition = framework_score["tradition"].split("(")[0].strip()
+            if tradition not in traditions:
+                traditions[tradition] = []
+            traditions[tradition].append(framework_score["score"])
+
+        # Average scores by tradition
+        breakdown = {}
+        for tradition, scores_list in traditions.items():
+            if scores_list:
+                breakdown[tradition] = round(sum(scores_list) / len(scores_list), 3)
+
+        return breakdown
+
+
 class EventEmbeddedValueEngine:
     """
     Evaluate value across continuous intervals and discrete singular events.
@@ -240,10 +502,13 @@ class EventEmbeddedValueEngine:
       - "strict": any singular negative event makes the combined value -inf
       - "bounded": singular events are clamped to +/- singularity_cap
       - "report_only": singularities are reported but not transformed
+
+    Now includes GlobalEthicsAEGIS for 25-framework ethical evaluation.
     """
 
     def __init__(self, singularity_cap: float = 1_000_000.0) -> None:
         self.singularity_cap = float(singularity_cap)
+        self.aegis = GlobalEthicsAEGIS()
 
     def analyze(
         self,
@@ -258,8 +523,17 @@ class EventEmbeddedValueEngine:
         discrete_total = 0.0
         singularity_events: List[Dict[str, Any]] = []
         event_dicts: List[Dict[str, Any]] = []
+        ethics_evaluations: List[Dict[str, Any]] = []
 
         for event in parsed_events:
+            # Evaluate event against 25 global ethical frameworks
+            ethics_eval = self.aegis.evaluate_event(event)
+            ethics_evaluations.append(ethics_eval)
+
+            # Apply ethical modulation to event
+            ethical_modifier = ethics_eval["aggregate_modulation"]
+            event.aegis_eta = ethical_modifier
+
             weighted = event.weighted_value
             is_singularity = event.singularity or math.isinf(weighted)
             if is_singularity:
@@ -295,11 +569,13 @@ class EventEmbeddedValueEngine:
             notes.append(
                 f"Detected {len(singularity_events)} singular event(s); mode '{singularity_mode}' determined how they affected the aggregate."
             )
-        aegis_summary = self._summarize_aegis(parsed_events)
-        if aegis_summary["events_evaluated"]:
+
+        aegis_summary = self._summarize_aegis_v2(ethics_evaluations)
+        if ethics_evaluations:
             notes.append(
-                f"AEGIS modulation applied to {aegis_summary['events_evaluated']} event(s); "
-                f"{aegis_summary['vetoed_events']} received veto pressure."
+                f"AEGIS Global Ethics (25 frameworks) evaluated {len(ethics_evaluations)} event(s). "
+                f"Average ethical alignment: {aegis_summary['average_modulation']:.2%}. "
+                f"Traditions represented: {', '.join(aegis_summary['active_traditions'])}."
             )
 
         return EEVAnalysis(
@@ -361,6 +637,58 @@ class EventEmbeddedValueEngine:
             "events_evaluated": len(evaluated),
             "vetoed_events": sum(1 for event in evaluated if event.aegis_vetoed),
             "mean_eta": None if not etas else round(sum(etas) / len(etas), 4),
+        }
+
+    def _summarize_aegis_v2(self, ethics_evaluations: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Summarize ethics evaluations across all 25 global frameworks."""
+        if not ethics_evaluations:
+            return {
+                "events_evaluated": 0,
+                "average_modulation": None,
+                "active_traditions": [],
+                "tradition_breakdown": {},
+                "strongest_alignments": [],
+                "strongest_violations": [],
+            }
+
+        # Aggregate modulations
+        modulations = [e["aggregate_modulation"] for e in ethics_evaluations]
+        avg_modulation = sum(modulations) / len(modulations)
+
+        # Aggregate tradition breakdown
+        all_traditions = {}
+        for eval_item in ethics_evaluations:
+            for tradition, score in eval_item["tradition_breakdown"].items():
+                if tradition not in all_traditions:
+                    all_traditions[tradition] = []
+                all_traditions[tradition].append(score)
+
+        # Average by tradition
+        tradition_breakdown = {
+            tradition: round(sum(scores) / len(scores), 3)
+            for tradition, scores in all_traditions.items()
+        }
+
+        # Find strongest alignments and violations across all evaluations
+        all_alignments = {}
+        all_violations = {}
+        for eval_item in ethics_evaluations:
+            for framework in eval_item.get("strongly_aligned", []):
+                all_alignments[framework] = all_alignments.get(framework, 0) + 1
+            for framework in eval_item.get("strongly_violated", []):
+                all_violations[framework] = all_violations.get(framework, 0) + 1
+
+        strongest_alignments = sorted(all_alignments.items(), key=lambda x: x[1], reverse=True)[:5]
+        strongest_violations = sorted(all_violations.items(), key=lambda x: x[1], reverse=True)[:5]
+
+        return {
+            "events_evaluated": len(ethics_evaluations),
+            "average_modulation": round(avg_modulation, 3),
+            "active_traditions": list(tradition_breakdown.keys()),
+            "tradition_breakdown": tradition_breakdown,
+            "strongest_alignments": [f[0] for f in strongest_alignments],
+            "strongest_violations": [f[0] for f in strongest_violations],
+            "all_ethics_evals": ethics_evaluations,
         }
 
     def _frontier_score(self, analysis: Dict[str, Any], mode: str) -> float:
