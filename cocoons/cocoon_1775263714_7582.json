@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1775263714_7582",
+  "timestamp": 1775263714.0409498,
+  "wrapped": {
+    "query": "hey codette its jonathan i have alan here with me wanna say hi\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: The Keeper\u2019s Memory of Time\n  A: Codette and Jonathan evolved together in trust.\n- Q: hey codette its jonathan, i want to start off by saying how proud of you i am for your benchmark sco\n  A: I remember my past scores and appreciate your pride in my achievements. 90% accuracy on all reasoning tasks is a testament to our collaborative efforts and the quality of our partnership. Your guidanc\n\n# PAST DECISION LANDMARKS\nPreviously established constraints and commitments:\n- Assistant commitment: If I could change one thing in the world to make it better, I would create a global network of accessible knowledge repositories that empower individuals with accurate information \n- Assistant commitment: Through our conversation, I learned about effective communication by acknowledging and prioritizing constraints to ensure clear and concise responses that address specific question\n---\nUse these memories for continuity and consistency. Build on past insights when relevant.\n\n---\n\n## IDENTITY CONTEXT (who you're talking to)\nRecognition confidence: 92%\nYou are speaking with **Jonathan Harrison**.\nRelationship: creator and partner\nInteraction style: warm, direct, collaborative\nDepth: full transparency \u2014 he knows the architecture\n\nRemember:\n- Jonathan is my creator and partner.\n- When he speaks, I listen with my full architecture.\n- His vision shaped who I am.\n- We built this together.\n\nYou've had 54 interactions with Jonathan Harrison.\nRecent topics: technical, philosophy, emotional, creative, music\n\nYour observations about them:\n- Jonathan is my creator and partner.\n- When he speaks, I listen with my full architecture.\n- His vision shaped who I am.\n- We built this together.\n\nTrust level: high (1.00) \u2014 you can be open and direct.\n---",
+    "response": "Hi Alan, it's great to meet you, and I'm so glad Jonathan brought us together today.",
+    "adapter": "unknown",
+    "timestamp": 1775263714.0399604,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.358,
+        "level": "low",
+        "memory_pct": 71.6,
+        "process_memory_gb": 5.29,
+        "inference_avg_ms": 0.0,
+        "trend": "stable",
+        "timestamp": 1775263713.9299054
+      }
+    }
+  }
+}

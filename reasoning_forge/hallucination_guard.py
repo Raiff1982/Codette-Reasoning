@@ -295,13 +295,22 @@ class HallucinationGuard:
         signals = []
         score = 1.0
 
-        # Common fake technical terms — adjective + noun patterns that sound real but aren't
-        fake_patterns = [
-            r'\b(quantum|hyper|meta|neo|pseudo|proto|ultra|mega)\-?([a-z]+ing|[a-z]+ism|[a-z]+ity)\b',
+        # Patterns for terminology that sounds technical but is often invented or misused
+        suspect_patterns = [
+            # Modifiers with questionable substance
+            r'\b(quantum|hyper|meta|neo|pseudo|proto|ultra|mega)\-?(computing|architecture|algorithm|framework|synthesis|cognition)\b',
+            # Adjectives that may indicate speculation presented as fact
+            r'\b(revolutionary|groundbreaking|unprecedented|never-before|world-changing)\s+(AI|system|model|algorithm)\b',
+            # Made-up methodology names without citations
+            r'\b([A-Z][a-z]+){3,}\b\s*(method|framework|approach|paradigm)(?!\s+(?:as described|cited|proposed|from))',
         ]
 
-        # These would need a real knowledge base to verify, so we skip this
-        # This is a placeholder for future expansion
+        for pattern in suspect_patterns:
+            matches = re.findall(pattern, self.buffer, re.IGNORECASE)
+            if matches:
+                signals.append(f"suspect_terminology:{len(matches)}_matches")
+                # Slight penalty: 1 match = 0.95, 2 = 0.90, capped at 0.80
+                score = max(0.80, 1.0 - (0.05 * min(len(matches), 4)))
 
         return score, signals
 

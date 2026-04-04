@@ -1017,11 +1017,19 @@ def train_adapters(dataset_dir: Path) -> dict:
                     model = peft_model.base_model.model
                 except Exception:
                     pass
-            for var_name in ['peft_model', 'trainer', 'dataset']:
-                try:
-                    exec(f"del {var_name}")
-                except Exception:
-                    pass
+            # Explicit cleanup instead of exec() for code quality
+            try:
+                del peft_model
+            except:
+                pass
+            try:
+                del trainer
+            except:
+                pass
+            try:
+                del dataset
+            except:
+                pass
             gc.collect()
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()

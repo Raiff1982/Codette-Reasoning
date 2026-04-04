@@ -328,7 +328,8 @@
       "Bash(find . -name *Q4_K_M.gguf -o -name *.gguf)",
       "Bash(ollama run:*)",
       "Bash(huggingface-cli download:*)",
-      "Bash(ls -lh J:/codette-clean/ollama/*.gguf)"
+      "Bash(ls -lh J:/codette-clean/ollama/*.gguf)",
+      "Bash(find J:/codette-clean/cocoons -name *project* -o -name *awareness*)"
     ]
   }
 }
