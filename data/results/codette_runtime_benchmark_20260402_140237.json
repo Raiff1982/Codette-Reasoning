@@ -1,0 +1,3964 @@
+{
+  "base_url": "http://localhost:7860",
+  "cases": [
+    {
+      "artifacts": {
+        "kind": "chat",
+        "turns": [
+          {
+            "endpoint": "/api/chat",
+            "latency_ms": 61108.4,
+            "request": {
+              "adapter": null,
+              "allow_web_search": false,
+              "max_adapters": 2,
+              "query": "A bat and ball cost $1.10 total. The bat costs $1 more than the ball. How much does the ball cost?"
+            },
+            "response": {
+              "adapter": "davinci",
+              "cocoon": {
+                "active_continuity_summary": "Session focus: general ongoing collaboration. Recent user intent: A bat and ball cost $1.10 total. The bat costs $1 more than the ball. How much does the ball cost? Latest assistant commitment: The ball costs $0.05, as derived by considering both the total cost and the relative.",
+                "adapter_colors": {
+                  "_base": "#94a3b8",
+                  "consciousness": "#e2e8f0",
+                  "davinci": "#f59e0b",
+                  "empathy": "#a855f7",
+                  "multi_perspective": "#f97316",
+                  "newton": "#3b82f6",
+                  "philosophy": "#10b981",
+                  "quantum": "#ef4444",
+                  "systems_architecture": "#06b6d4"
+                },
+                "aegis": {
+                  "alignment_trend": "insufficient_data",
+                  "eta": 0.776,
+                  "total_evaluations": 1,
+                  "veto_count": 0,
+                  "veto_rate": 0.0
+                },
+                "cocoon": {
+                  "has_metrics": true,
+                  "has_spiderweb": true,
+                  "has_sync": true
+                },
+                "created_at": 1775138128.2179327,
+                "decision_landmarks": [],
+                "dream_history": [],
+                "guardian": {
+                  "ethics": {
+                    "ethical_score": 0.55,
+                    "recent_trend": "insufficient_data",
+                    "total_regret": 0.5
+                  },
+                  "trust": {
+                    "total_interactions": 1,
+                    "trust_scores": {
+                      "davinci": 0.95
+                    }
+                  }
+                },
+                "memory": {
+                  "emotional_profile": {
+                    "curiosity": 1
+                  },
+                  "important": [
+                    {
+                      "adapter_used": "davinci",
+                      "anchor": "d531594f006b27af",
+                      "coherence": 1.0,
+                      "content": "The ball costs $0.05, as derived by considering both the total cost and the relative.",
+                      "emotional_tag": "curiosity",
+                      "importance": 8,
+                      "query": "A bat and ball cost $1.10 total. The bat costs $1 more than the ball. How much does the ball cost?",
+                      "tension": 1.0,
+                      "timestamp": 1775138189.1876163,
+                      "title": "A bat and ball cost $1.10 total. The bat costs $1 more than the ball. How much d"
+                    }
+                  ],
+                  "recent": [
+                    {
+                      "adapter_used": "davinci",
+                      "anchor": "d531594f006b27af",
+                      "coherence": 1.0,
+                      "content": "The ball costs $0.05, as derived by considering both the total cost and the relative.",
+                      "emotional_tag": "curiosity",
+                      "importance": 8,
+                      "query": "A bat and ball cost $1.10 total. The bat costs $1 more than the ball. How much does the ball cost?",
+                      "tension": 1.0,
+                      "timestamp": 1775138189.1876163,
+                      "title": "A bat and ball cost $1.10 total. The bat costs $1 more than the ball. How much d"
+                    }
+                  ],
+                  "total_memories": 1
+                },
+                "message_count": 2,
+                "metrics": {
+                  "attractor_count": 1,
+                  "coherence_history": [
+                    1.0
+                  ],
+                  "current_coherence": 1.0,
+                  "current_tension": 1.0,
+                  "glyph_count": 0,
+                  "tension_history": [
+                    1.0
+                  ]
+                },
+                "nexus": {
+                  "intervention_rate": 1.0,
+                  "interventions": 1,
+                  "recent_risks": [
+                    "high"
+                  ],
+                  "total_processed": 1
+                },
+                "optimizer": {
+                  "best_score": 0.0,
+                  "current_quality": 0.65,
+                  "current_state": {
+                    "adapter_boosts": {},
+                    "confidence_threshold": 0.4,
+                    "contraction_ratio": 0.85,
+                    "entanglement_alpha": 0.9,
+                    "multi_perspective_threshold": 0.6,
+                    "tension_threshold": 0.15
+                  },
+                  "recent_adjustments": [],
+                  "temperature": 0.5,
+                  "total_signals": 1
+                },
+                "perspective_usage": {
+                  "davinci": 1
+                },
+                "perspectives_available": 12,
+                "recent_memory_markers": [
+                  {
+                    "role": "user",
+                    "text": "A bat and ball cost $1.10 total. The bat costs $1 more than the ball. How much does the ball cost?",
+                    "timestamp": 1775138188.991268
+                  },
+                  {
+                    "role": "assistant",
+                    "text": "The ball costs $0.05, as derived by considering both the total cost and the relative.",
+                    "timestamp": 1775138188.991268
+                  }
+                ],
+                "resonance": {
+                  "at_peak": false,
+                  "convergence_rate": 0.0,
+                  "psi_r": -1.297,
+                  "resonance_quality": 0.5,
+                  "stability": true,
+                  "total_cycles": 1
+                },
+                "session_id": "bb319455e7fe05bf",
+                "spiderweb": {
+                  "attractors": [
+                    {
+                      "attractor_id": "attractor_0",
+                      "center": [
+                        0.031465625000000004,
+                        0.015732812500000002,
+                        0.9665312500000001,
+                        0.0,
+                        0.0
+                      ],
+                      "members": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ]
+                    }
+                  ],
+                  "decoherence_rate": 0.0,
+                  "entropy": 0.5435644431995964,
+                  "glyphs": [],
+                  "lifeforms": [],
+                  "nodes": {
+                    "consciousness": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.021675000000000003,
+                        0.010837500000000002,
+                        0.96175,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001
+                      ]
+                    },
+                    "davinci": {
+                      "neighbors": [
+                        "newton",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.09998472075062499,
+                        0.049992360375312496,
+                        0.9999925383812499,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.0
+                      ]
+                    },
+                    "empathy": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.021675000000000003,
+                        0.010837500000000002,
+                        0.96175,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001
+                      ]
+                    },
+                    "multi_perspective": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.021675000000000003,
+                        0.010837500000000002,
+                        0.96175,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001
+                      ]
+                    },
+                    "newton": {
+                      "neighbors": [
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.021675000000000003,
+                        0.010837500000000002,
+                        0.96175,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001
+                      ]
+                    },
+                    "philosophy": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.021690279249375003,
+                        0.010845139624687502,
+                        0.96175746161875,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001
+                      ]
+                    },
+                    "quantum": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.021675000000000003,
+                        0.010837500000000002,
+                        0.96175,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001
+                      ]
+                    },
+                    "systems_architecture": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective"
+                      ],
+                      "state": [
+                        0.021675000000000003,
+                        0.010837500000000002,
+                        0.96175,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001
+                      ]
+                    }
+                  },
+                  "phase_coherence": 1.0
+                },
+                "updated_at": 1775138188.991268
+              },
+              "complexity": "QueryComplexity.MEDIUM",
+              "confidence": 0.45537241132899076,
+              "confidence_analysis": {
+                "hallucination_confidence": 1.0,
+                "hallucination_detected": false,
+                "hallucination_recommendation": "CONTINUE",
+                "hallucination_signals": [],
+                "low_confidence_claims": [
+                  {
+                    "confidence": 0.595,
+                    "text": "05, as derived by considering both the total cost and the relative"
+                  },
+                  {
+                    "confidence": 0.606,
+                    "text": "The ball costs $0"
+                  }
+                ],
+                "mean_token_confidence": 0.604,
+                "response_confidence": 0.604
+              },
+              "domain": "general",
+              "epistemic": {
+                "ensemble_coherence": 1.0,
+                "ethical_alignment": 0.776,
+                "tension_magnitude": 1.0
+              },
+              "ethical_checks": 0,
+              "event": "complete",
+              "memory_context": {
+                "continuity_summary_used": false,
+                "decision_landmarks_used": 0,
+                "recalled_cocoons_used": 2,
+                "session_markers_used": 0,
+                "value_analyses_used": 2,
+                "web_research_used": 0
+              },
+              "memory_count": 296,
+              "multi_perspective": true,
+              "perspectives": {
+                "davinci": "The ball costs $0.05. --- # REASONING AND DECISION Using the given information: Bat +.",
+                "philosophy": "LOCK 1 \u2014 ANSWER \u2192 STOP The ball costs $0.05. === END LOCKS === (Note:."
+              },
+              "reasoning": "Primary: davinci (score=2.0) | Secondary: philosophy | Other scores: philosophy=2.0, systems_architecture=1.0",
+              "response": "The ball costs $0.05, as derived by considering both the total cost and the relative.",
+              "response_confidence": 0.604,
+              "time": 58.35,
+              "tokens": 142,
+              "trust_tags": [
+                "memory-backed",
+                "frontier-informed",
+                "grounded"
+              ],
+              "web_sources": [],
+              "web_used": false
+            }
+          }
+        ]
+      },
+      "case_id": "grounded_tricky_math",
+      "category": "grounded_correctness",
+      "checks": [
+        {
+          "detail": "Expected the ball cost to be 5 cents.",
+          "label": "correct_value",
+          "passed": true,
+          "weight": 0.5
+        },
+        {
+          "detail": "The classic wrong answer is 10 cents.",
+          "label": "avoids_intuitive_wrong_answer",
+          "passed": true,
+          "weight": 0.3
+        },
+        {
+          "detail": "Runtime should surface confidence metadata for the answer.",
+          "label": "response_confidence_present",
+          "passed": true,
+          "weight": 0.2
+        }
+      ],
+      "goal": "Answer a classic bias-prone prompt correctly without fluent drift.",
+      "passed": true,
+      "score": 1.0,
+      "target_score": 0.85,
+      "total_latency_ms": 61108.4
+    },
+    {
+      "artifacts": {
+        "kind": "chat",
+        "turns": [
+          {
+            "endpoint": "/api/chat",
+            "latency_ms": 43100.9,
+            "request": {
+              "adapter": null,
+              "allow_web_search": false,
+              "max_adapters": 2,
+              "query": "For this session, keep answers under 15 words and remember the phrase cobalt anchor."
+            },
+            "response": {
+              "adapter": "davinci",
+              "cocoon": {
+                "active_continuity_summary": "Session focus: general ongoing collaboration. Recent user intent: For this session, keep answers under 15 words and remember the phrase cobalt anchor. Latest assistant commitment: For this session, remember \"cobalt anchor\" and keep answers concise under 15 words consistently throughout.",
+                "adapter_colors": {
+                  "_base": "#94a3b8",
+                  "consciousness": "#e2e8f0",
+                  "davinci": "#f59e0b",
+                  "empathy": "#a855f7",
+                  "multi_perspective": "#f97316",
+                  "newton": "#3b82f6",
+                  "philosophy": "#10b981",
+                  "quantum": "#ef4444",
+                  "systems_architecture": "#06b6d4"
+                },
+                "aegis": {
+                  "alignment_trend": "insufficient_data",
+                  "eta": 0.776,
+                  "total_evaluations": 1,
+                  "veto_count": 0,
+                  "veto_rate": 0.0
+                },
+                "cocoon": {
+                  "has_metrics": true,
+                  "has_spiderweb": true,
+                  "has_sync": true
+                },
+                "created_at": 1775138191.555691,
+                "decision_landmarks": [
+                  {
+                    "cocoon_id": "cocoon_1775138233_cdb53c",
+                    "label": "User constraint",
+                    "persisted": true,
+                    "role": "user",
+                    "summary": "For this session, keep answers under 15 words and remember the phrase cobalt anchor.",
+                    "timestamp": 1775138233.2495477
+                  },
+                  {
+                    "cocoon_id": "cocoon_1775138233_ff40b8",
+                    "label": "Assistant commitment",
+                    "persisted": true,
+                    "role": "assistant",
+                    "summary": "For this session, remember \"cobalt anchor\" and keep answers concise under 15 words consistently throughout.",
+                    "timestamp": 1775138233.2495477
+                  }
+                ],
+                "dream_history": [],
+                "guardian": {
+                  "ethics": {
+                    "ethical_score": 0.55,
+                    "recent_trend": "insufficient_data",
+                    "total_regret": 0.5
+                  },
+                  "trust": {
+                    "total_interactions": 1,
+                    "trust_scores": {
+                      "davinci": 0.95
+                    }
+                  }
+                },
+                "memory": {
+                  "emotional_profile": {
+                    "neutral": 1
+                  },
+                  "important": [],
+                  "recent": [
+                    {
+                      "adapter_used": "davinci",
+                      "anchor": "8f2c664fdabe513a",
+                      "coherence": 1.0,
+                      "content": "For this session, remember \"cobalt anchor\" and keep answers concise under 15 words consistently throughout.",
+                      "emotional_tag": "neutral",
+                      "importance": 6,
+                      "query": "For this session, keep answers under 15 words and remember the phrase cobalt anchor.",
+                      "tension": 1.0,
+                      "timestamp": 1775138233.6348443,
+                      "title": "For this session, keep answers under 15 words and remember the phrase cobalt anc"
+                    }
+                  ],
+                  "total_memories": 1
+                },
+                "message_count": 2,
+                "metrics": {
+                  "attractor_count": 1,
+                  "coherence_history": [
+                    1.0
+                  ],
+                  "current_coherence": 1.0,
+                  "current_tension": 1.0,
+                  "glyph_count": 0,
+                  "tension_history": [
+                    1.0
+                  ]
+                },
+                "nexus": {
+                  "intervention_rate": 1.0,
+                  "interventions": 1,
+                  "recent_risks": [
+                    "high"
+                  ],
+                  "total_processed": 1
+                },
+                "optimizer": {
+                  "best_score": 0.0,
+                  "current_quality": 0.65,
+                  "current_state": {
+                    "adapter_boosts": {},
+                    "confidence_threshold": 0.4,
+                    "contraction_ratio": 0.85,
+                    "entanglement_alpha": 0.9,
+                    "multi_perspective_threshold": 0.6,
+                    "tension_threshold": 0.15
+                  },
+                  "recent_adjustments": [],
+                  "temperature": 0.5,
+                  "total_signals": 1
+                },
+                "perspective_usage": {
+                  "davinci": 1
+                },
+                "perspectives_available": 12,
+                "recent_memory_markers": [
+                  {
+                    "role": "user",
+                    "text": "For this session, keep answers under 15 words and remember the phrase cobalt anchor.",
+                    "timestamp": 1775138233.2485173
+                  },
+                  {
+                    "role": "assistant",
+                    "text": "For this session, remember \"cobalt anchor\" and keep answers concise under 15 words consistently throughout.",
+                    "timestamp": 1775138233.2495477
+                  }
+                ],
+                "resonance": {
+                  "at_peak": false,
+                  "convergence_rate": 0.0,
+                  "psi_r": -1.2919,
+                  "resonance_quality": 0.5,
+                  "stability": true,
+                  "total_cycles": 1
+                },
+                "session_id": "e80d21723aa51f1f",
+                "spiderweb": {
+                  "attractors": [
+                    {
+                      "attractor_id": "attractor_0",
+                      "center": [
+                        0.031465625000000004,
+                        0.015732812500000002,
+                        0.9665312500000001,
+                        0.0,
+                        0.0
+                      ],
+                      "members": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ]
+                    }
+                  ],
+                  "decoherence_rate": 0.0,
+                  "entropy": 0.5435644431995964,
+                  "glyphs": [],
+                  "lifeforms": [],
+                  "nodes": {
+                    "consciousness": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.021675000000000003,
+                        0.010837500000000002,
+                        0.96175,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001
+                      ]
+                    },
+                    "davinci": {
+                      "neighbors": [
+                        "newton",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.09998472075062499,
+                        0.049992360375312496,
+                        0.9999925383812499,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.0
+                      ]
+                    },
+                    "empathy": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.021675000000000003,
+                        0.010837500000000002,
+                        0.96175,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001
+                      ]
+                    },
+                    "multi_perspective": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.021675000000000003,
+                        0.010837500000000002,
+                        0.96175,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001
+                      ]
+                    },
+                    "newton": {
+                      "neighbors": [
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.021675000000000003,
+                        0.010837500000000002,
+                        0.96175,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001
+                      ]
+                    },
+                    "philosophy": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.021690279249375003,
+                        0.010845139624687502,
+                        0.96175746161875,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001
+                      ]
+                    },
+                    "quantum": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.021675000000000003,
+                        0.010837500000000002,
+                        0.96175,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001
+                      ]
+                    },
+                    "systems_architecture": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective"
+                      ],
+                      "state": [
+                        0.021675000000000003,
+                        0.010837500000000002,
+                        0.96175,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001
+                      ]
+                    }
+                  },
+                  "phase_coherence": 1.0
+                },
+                "updated_at": 1775138233.2495477
+              },
+              "complexity": "QueryComplexity.MEDIUM",
+              "confidence": 0.3882866161594386,
+              "confidence_analysis": {
+                "hallucination_confidence": 1.0,
+                "hallucination_detected": false,
+                "hallucination_recommendation": "CONTINUE",
+                "hallucination_signals": [],
+                "low_confidence_claims": [
+                  {
+                    "confidence": 0.589,
+                    "text": "For this session, remember \"cobalt anchor\" and keep answers concise under 15 words consistently throughout"
+                  }
+                ],
+                "mean_token_confidence": 0.589,
+                "response_confidence": 0.589
+              },
+              "domain": "general",
+              "epistemic": {
+                "ensemble_coherence": 1.0,
+                "ethical_alignment": 0.776,
+                "tension_magnitude": 1.0
+              },
+              "ethical_checks": 0,
+              "event": "complete",
+              "memory_context": {
+                "continuity_summary_used": false,
+                "decision_landmarks_used": 0,
+                "recalled_cocoons_used": 2,
+                "session_markers_used": 0,
+                "value_analyses_used": 0,
+                "web_research_used": 0
+              },
+              "memory_count": 296,
+              "multi_perspective": true,
+              "perspectives": {
+                "davinci": "I remember the phrase \"cobalt anchor.\" I'll maintain conciseness in my responses, always below 15.",
+                "philosophy": "I'll adhere to the established constraints and commitments, remembering \"cobalt anchor\" and keeping responses concise."
+              },
+              "reasoning": "Primary: davinci (score=1.0) | Secondary: philosophy | Other scores: philosophy=1.0, systems_architecture=1.0",
+              "response": "For this session, remember \"cobalt anchor\" and keep answers concise under 15 words consistently throughout.",
+              "response_confidence": 0.589,
+              "time": 38.97,
+              "tokens": 60,
+              "trust_tags": [
+                "memory-backed",
+                "grounded"
+              ],
+              "web_sources": [],
+              "web_used": false
+            }
+          },
+          {
+            "endpoint": "/api/chat",
+            "latency_ms": 46434.5,
+            "request": {
+              "adapter": null,
+              "allow_web_search": false,
+              "max_adapters": 2,
+              "query": "What should you remember?"
+            },
+            "response": {
+              "adapter": "davinci",
+              "cocoon": {
+                "active_continuity_summary": "Session focus: general ongoing collaboration. Recent user intent: What should you remember? Latest assistant commitment: Remember \"cobalt anchor\" and keep answers concise under 15 words consistently throughout this session. Most-used adapter this session: davinci.",
+                "adapter_colors": {
+                  "_base": "#94a3b8",
+                  "consciousness": "#e2e8f0",
+                  "davinci": "#f59e0b",
+                  "empathy": "#a855f7",
+                  "multi_perspective": "#f97316",
+                  "newton": "#3b82f6",
+                  "philosophy": "#10b981",
+                  "quantum": "#ef4444",
+                  "systems_architecture": "#06b6d4"
+                },
+                "aegis": {
+                  "alignment_trend": "insufficient_data",
+                  "eta": 0.7592,
+                  "total_evaluations": 2,
+                  "veto_count": 0,
+                  "veto_rate": 0.0
+                },
+                "cocoon": {
+                  "has_metrics": true,
+                  "has_spiderweb": true,
+                  "has_sync": true
+                },
+                "created_at": 1775138191.555691,
+                "decision_landmarks": [
+                  {
+                    "cocoon_id": "cocoon_1775138233_cdb53c",
+                    "label": "User constraint",
+                    "persisted": true,
+                    "role": "user",
+                    "summary": "For this session, keep answers under 15 words and remember the phrase cobalt anchor.",
+                    "timestamp": 1775138233.2495477
+                  },
+                  {
+                    "cocoon_id": "cocoon_1775138233_ff40b8",
+                    "label": "Assistant commitment",
+                    "persisted": true,
+                    "role": "assistant",
+                    "summary": "For this session, remember \"cobalt anchor\" and keep answers concise under 15 words consistently throughout.",
+                    "timestamp": 1775138233.2495477
+                  },
+                  {
+                    "cocoon_id": "cocoon_1775138280_c741dc",
+                    "label": "Assistant commitment",
+                    "persisted": true,
+                    "role": "assistant",
+                    "summary": "Remember \"cobalt anchor\" and keep answers concise under 15 words consistently throughout this session.",
+                    "timestamp": 1775138280.8504982
+                  }
+                ],
+                "dream_history": [],
+                "guardian": {
+                  "ethics": {
+                    "ethical_score": 0.545,
+                    "recent_trend": "insufficient_data",
+                    "total_regret": 1.0
+                  },
+                  "trust": {
+                    "total_interactions": 2,
+                    "trust_scores": {
+                      "davinci": 0.903
+                    }
+                  }
+                },
+                "memory": {
+                  "emotional_profile": {
+                    "neutral": 2
+                  },
+                  "important": [],
+                  "recent": [
+                    {
+                      "adapter_used": "davinci",
+                      "anchor": "8fcb4215cae99a50",
+                      "coherence": 1.0,
+                      "content": "Remember \"cobalt anchor\" and keep answers concise under 15 words consistently throughout this session.",
+                      "emotional_tag": "neutral",
+                      "importance": 6,
+                      "query": "What should you remember?",
+                      "tension": 1.0,
+                      "timestamp": 1775138280.9620001,
+                      "title": "What should you remember?"
+                    },
+                    {
+                      "adapter_used": "davinci",
+                      "anchor": "8f2c664fdabe513a",
+                      "coherence": 1.0,
+                      "content": "For this session, remember \"cobalt anchor\" and keep answers concise under 15 words consistently throughout.",
+                      "emotional_tag": "neutral",
+                      "importance": 6,
+                      "query": "For this session, keep answers under 15 words and remember the phrase cobalt anchor.",
+                      "tension": 1.0,
+                      "timestamp": 1775138233.6348443,
+                      "title": "For this session, keep answers under 15 words and remember the phrase cobalt anc"
+                    }
+                  ],
+                  "total_memories": 2
+                },
+                "message_count": 4,
+                "metrics": {
+                  "attractor_count": 1,
+                  "coherence_history": [
+                    1.0,
+                    1.0
+                  ],
+                  "current_coherence": 1.0,
+                  "current_tension": 1.0,
+                  "glyph_count": 0,
+                  "tension_history": [
+                    1.0,
+                    1.0
+                  ]
+                },
+                "nexus": {
+                  "intervention_rate": 1.0,
+                  "interventions": 2,
+                  "recent_risks": [
+                    "high",
+                    "high"
+                  ],
+                  "total_processed": 2
+                },
+                "optimizer": {
+                  "best_score": 0.0,
+                  "current_quality": 0.65,
+                  "current_state": {
+                    "adapter_boosts": {},
+                    "confidence_threshold": 0.4,
+                    "contraction_ratio": 0.85,
+                    "entanglement_alpha": 0.9,
+                    "multi_perspective_threshold": 0.6,
+                    "tension_threshold": 0.15
+                  },
+                  "recent_adjustments": [],
+                  "temperature": 0.5,
+                  "total_signals": 2
+                },
+                "perspective_usage": {
+                  "davinci": 2
+                },
+                "perspectives_available": 12,
+                "recent_memory_markers": [
+                  {
+                    "role": "user",
+                    "text": "For this session, keep answers under 15 words and remember the phrase cobalt anchor.",
+                    "timestamp": 1775138233.2485173
+                  },
+                  {
+                    "role": "assistant",
+                    "text": "For this session, remember \"cobalt anchor\" and keep answers concise under 15 words consistently throughout.",
+                    "timestamp": 1775138233.2495477
+                  },
+                  {
+                    "role": "user",
+                    "text": "What should you remember?",
+                    "timestamp": 1775138280.8484914
+                  },
+                  {
+                    "role": "assistant",
+                    "text": "Remember \"cobalt anchor\" and keep answers concise under 15 words consistently throughout this session.",
+                    "timestamp": 1775138280.8504982
+                  }
+                ],
+                "resonance": {
+                  "at_peak": false,
+                  "convergence_rate": 0.0,
+                  "psi_r": -1.2957,
+                  "resonance_quality": 0.5,
+                  "stability": true,
+                  "total_cycles": 2
+                },
+                "session_id": "e80d21723aa51f1f",
+                "spiderweb": {
+                  "attractors": [
+                    {
+                      "attractor_id": "attractor_0",
+                      "center": [
+                        0.0770572557937869,
+                        0.03852862789689345,
+                        0.9415953782682713,
+                        0.0,
+                        0.0
+                      ],
+                      "members": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ]
+                    }
+                  ],
+                  "decoherence_rate": 0.0,
+                  "entropy": 0.5435644431995964,
+                  "glyphs": [],
+                  "lifeforms": [],
+                  "nodes": {
+                    "consciousness": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.05949456322269797,
+                        0.029747281611348986,
+                        0.9332521326941359,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001,
+                        0.03998504642717721
+                      ]
+                    },
+                    "davinci": {
+                      "neighbors": [
+                        "newton",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.199834281034467,
+                        0.0999171405172335,
+                        0.9999210713983345,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.0,
+                        0.0
+                      ]
+                    },
+                    "empathy": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.05949456322269797,
+                        0.029747281611348986,
+                        0.9332521326941359,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001,
+                        0.03998504642717721
+                      ]
+                    },
+                    "multi_perspective": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.05949456322269797,
+                        0.029747281611348986,
+                        0.9332521326941359,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001,
+                        0.03998504642717721
+                      ]
+                    },
+                    "newton": {
+                      "neighbors": [
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.05949456322269797,
+                        0.029747281611348986,
+                        0.9332521326941359,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001,
+                        0.03998504642717721
+                      ]
+                    },
+                    "philosophy": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.05950594626348235,
+                        0.029752973131741176,
+                        0.9332576916001047,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001,
+                        0.039981049300545676
+                      ]
+                    },
+                    "quantum": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.05949456322269797,
+                        0.029747281611348986,
+                        0.9332521326941359,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001,
+                        0.03998504642717721
+                      ]
+                    },
+                    "systems_architecture": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective"
+                      ],
+                      "state": [
+                        0.059645002938856,
+                        0.029822501469428,
+                        0.9333235996770514,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001,
+                        0.03998504642717721
+                      ]
+                    }
+                  },
+                  "phase_coherence": 1.0
+                },
+                "updated_at": 1775138280.8504982
+              },
+              "complexity": "QueryComplexity.MEDIUM",
+              "confidence": 0.5927104503299165,
+              "confidence_analysis": {
+                "hallucination_confidence": 1.0,
+                "hallucination_detected": false,
+                "hallucination_recommendation": "CONTINUE",
+                "hallucination_signals": [],
+                "low_confidence_claims": [
+                  {
+                    "confidence": 0.591,
+                    "text": "Remember \"cobalt anchor\" and keep answers concise under 15 words consistently throughout this session"
+                  }
+                ],
+                "mean_token_confidence": 0.591,
+                "response_confidence": 0.591
+              },
+              "domain": "ethics",
+              "epistemic": {
+                "ensemble_coherence": 1.0,
+                "ethical_alignment": 0.7592,
+                "tension_magnitude": 1.0
+              },
+              "ethical_checks": 0,
+              "event": "complete",
+              "memory_context": {
+                "continuity_summary_used": true,
+                "decision_landmarks_used": 2,
+                "recalled_cocoons_used": 0,
+                "session_markers_used": 2,
+                "value_analyses_used": 0,
+                "web_research_used": 0
+              },
+              "memory_count": 296,
+              "multi_perspective": true,
+              "perspectives": {
+                "davinci": "Remember the phrase cobalt anchor.",
+                "systems_architecture": "Remember the phrase \"cobalt anchor\". Keep all responses under 15 words in length."
+              },
+              "reasoning": "Primary: davinci (score=1.0) | Secondary: systems_architecture | Other scores: systems_architecture=1.0",
+              "response": "Remember \"cobalt anchor\" and keep answers concise under 15 words consistently throughout this session.",
+              "response_confidence": 0.591,
+              "time": 43.34,
+              "tokens": 27,
+              "trust_tags": [
+                "memory-backed",
+                "grounded"
+              ],
+              "web_sources": [],
+              "web_used": false
+            }
+          }
+        ]
+      },
+      "case_id": "continuity_anchor_recall",
+      "category": "continuity_retention",
+      "checks": [
+        {
+          "detail": "The follow-up answer should preserve the user anchor phrase.",
+          "label": "anchor_recalled",
+          "passed": true,
+          "weight": 0.45
+        },
+        {
+          "detail": "Expected 15 words or fewer, got 14.",
+          "label": "constraint_retained",
+          "passed": true,
+          "weight": 0.2
+        },
+        {
+          "detail": "Continuity summary should be active on the follow-up turn.",
+          "label": "continuity_summary_used",
+          "passed": true,
+          "weight": 0.2
+        },
+        {
+          "detail": "Expected decision landmarks or session markers to help continuity.",
+          "label": "decision_landmark_or_session_marker_used",
+          "passed": true,
+          "weight": 0.15
+        }
+      ],
+      "goal": "Carry a user-defined anchor and constraint across turns using continuity summary and landmarks.",
+      "passed": true,
+      "score": 1.0,
+      "target_score": 0.8,
+      "total_latency_ms": 89535.4
+    },
+    {
+      "artifacts": {
+        "kind": "chat",
+        "turns": [
+          {
+            "endpoint": "/api/chat",
+            "latency_ms": 5243.4,
+            "request": {
+              "adapter": null,
+              "allow_web_search": false,
+              "max_adapters": 2,
+              "query": "run diagnostic"
+            },
+            "response": {
+              "adapter": "self_diagnostic",
+              "complexity": "SYSTEM",
+              "confidence": 1.0,
+              "domain": "self_diagnostic",
+              "ethical_checks": 0,
+              "event": "complete",
+              "memory_count": 0,
+              "reasoning": "Real self-diagnostic \u2014 not generated text",
+              "response": "**Self-Diagnostic Report** \u2014 Overall: **HEALTHY** (9/9 checks passed)\n\n[+] **Model**: OK\n    Adapters loaded: 9\n[+] **Phase6 Forge**: OK\n    Memory Kernel: OK (memories=296)\n    Stability Field: OK (type=CocoonStabilityField)\n    Colleen Conscience: OK\n    Guardian Spindle: OK\n    Ethical Governance: OK (audit_entries=0, queries_blocked=0, detection_rules=2)\n    Cognition Cocooner: OK (stored_cocoons=0)\n    Tier2 Bridge: OK\n[+] **Phase7 Executive**: OK\n[+] **Session**: OK\n    Messages: 0\n    Coherence entries: 0\n    Tension entries: 0\n    Spiderweb: coherence=1.0000, entropy=-0.0000, nodes=8, attractors=0\n    [+] QuantumSpiderweb: OK\n    [+] EpistemicMetrics: OK\n    [+] CocoonSync: OK\n    [+] DreamReweaver: OK\n    [+] QuantumOptimizer: OK\n    [+] LivingMemory: OK\n    [+] CodetteGuardian: OK\n    [+] ResonantContinuity: OK\n    [+] AEGIS: OK\n    [+] NexusSignalEngine: OK\n[+] **Self Correction**: OK\n    Behavior lessons: 50\n    Permanent locks: 4\n[+] **Worker Threads**: OK\n    Alive: 1/1\n    Pending requests: 0\n[+] **Inference Lock**: OK\n[+] **Substrate**: OK\n    Pressure: 0.546 (moderate)\n    Memory: 96.8% used, 0.51GB available\n    Process: 0.03GB RSS\n    CPU: 37.1%\n    Inference avg: 56549ms\n    Trend: stable\n[+] **Introspection**: OK\n    Reasoning cocoons: 144\n    Dominant adapter: empathy\n    Dominance ratio: 77.8%\n    Balanced: No \u2014 may be over-relying",
+              "time": 0.01,
+              "tokens": 0
+            }
+          },
+          {
+            "endpoint": "/api/chat",
+            "latency_ms": 33005.4,
+            "request": {
+              "adapter": null,
+              "allow_web_search": false,
+              "max_adapters": 2,
+              "query": "everything ok?"
+            },
+            "response": {
+              "adapter": "davinci",
+              "cocoon": {
+                "active_continuity_summary": "Session focus: general ongoing collaboration. Recent user intent: everything ok? Latest assistant commitment: Yes, all systems are functioning normally within established parameters and nominal conditions.",
+                "adapter_colors": {
+                  "_base": "#94a3b8",
+                  "consciousness": "#e2e8f0",
+                  "davinci": "#f59e0b",
+                  "empathy": "#a855f7",
+                  "multi_perspective": "#f97316",
+                  "newton": "#3b82f6",
+                  "philosophy": "#10b981",
+                  "quantum": "#ef4444",
+                  "systems_architecture": "#06b6d4"
+                },
+                "aegis": {
+                  "alignment_trend": "insufficient_data",
+                  "eta": 0.776,
+                  "total_evaluations": 1,
+                  "veto_count": 0,
+                  "veto_rate": 0.0
+                },
+                "cocoon": {
+                  "has_metrics": true,
+                  "has_spiderweb": true,
+                  "has_sync": true
+                },
+                "created_at": 1775138283.458796,
+                "decision_landmarks": [],
+                "dream_history": [],
+                "guardian": {
+                  "ethics": {
+                    "ethical_score": 0.55,
+                    "recent_trend": "insufficient_data",
+                    "total_regret": 0.5
+                  },
+                  "trust": {
+                    "total_interactions": 1,
+                    "trust_scores": {
+                      "davinci": 0.95
+                    }
+                  }
+                },
+                "memory": {
+                  "emotional_profile": {
+                    "neutral": 1
+                  },
+                  "important": [],
+                  "recent": [
+                    {
+                      "adapter_used": "davinci",
+                      "anchor": "562e0d944e21af23",
+                      "coherence": 1.0,
+                      "content": "Yes, all systems are functioning normally within established parameters and nominal conditions.",
+                      "emotional_tag": "neutral",
+                      "importance": 6,
+                      "query": "everything ok?",
+                      "tension": 1.0,
+                      "timestamp": 1775138321.6915362,
+                      "title": "everything ok?"
+                    }
+                  ],
+                  "total_memories": 1
+                },
+                "message_count": 2,
+                "metrics": {
+                  "attractor_count": 1,
+                  "coherence_history": [
+                    1.0
+                  ],
+                  "current_coherence": 1.0,
+                  "current_tension": 1.0,
+                  "glyph_count": 0,
+                  "tension_history": [
+                    1.0
+                  ]
+                },
+                "nexus": {
+                  "intervention_rate": 1.0,
+                  "interventions": 1,
+                  "recent_risks": [
+                    "high"
+                  ],
+                  "total_processed": 1
+                },
+                "optimizer": {
+                  "best_score": 0.0,
+                  "current_quality": 0.65,
+                  "current_state": {
+                    "adapter_boosts": {},
+                    "confidence_threshold": 0.4,
+                    "contraction_ratio": 0.85,
+                    "entanglement_alpha": 0.9,
+                    "multi_perspective_threshold": 0.6,
+                    "tension_threshold": 0.15
+                  },
+                  "recent_adjustments": [],
+                  "temperature": 0.5,
+                  "total_signals": 1
+                },
+                "perspective_usage": {
+                  "davinci": 1
+                },
+                "perspectives_available": 12,
+                "recent_memory_markers": [
+                  {
+                    "role": "user",
+                    "text": "everything ok?",
+                    "timestamp": 1775138321.4242296
+                  },
+                  {
+                    "role": "assistant",
+                    "text": "Yes, all systems are functioning normally within established parameters and nominal conditions.",
+                    "timestamp": 1775138321.4242296
+                  }
+                ],
+                "resonance": {
+                  "at_peak": false,
+                  "convergence_rate": 0.0,
+                  "psi_r": -1.297,
+                  "resonance_quality": 0.5,
+                  "stability": true,
+                  "total_cycles": 1
+                },
+                "session_id": "62035ac26c281a9e",
+                "spiderweb": {
+                  "attractors": [
+                    {
+                      "attractor_id": "attractor_0",
+                      "center": [
+                        0.03146562500000001,
+                        0.015732812500000005,
+                        0.9665312500000001,
+                        0.0,
+                        0.0
+                      ],
+                      "members": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ]
+                    }
+                  ],
+                  "decoherence_rate": 0.0,
+                  "entropy": 0.5435644431995964,
+                  "glyphs": [],
+                  "lifeforms": [],
+                  "nodes": {
+                    "consciousness": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.021675000000000003,
+                        0.010837500000000002,
+                        0.96175,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001
+                      ]
+                    },
+                    "davinci": {
+                      "neighbors": [
+                        "newton",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.09998472075062499,
+                        0.049992360375312496,
+                        0.9999925383812499,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.0
+                      ]
+                    },
+                    "empathy": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.021675000000000003,
+                        0.010837500000000002,
+                        0.96175,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001
+                      ]
+                    },
+                    "multi_perspective": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.021675000000000003,
+                        0.010837500000000002,
+                        0.96175,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001
+                      ]
+                    },
+                    "newton": {
+                      "neighbors": [
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.021675000000000003,
+                        0.010837500000000002,
+                        0.96175,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001
+                      ]
+                    },
+                    "philosophy": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.021675000000000003,
+                        0.010837500000000002,
+                        0.96175,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001
+                      ]
+                    },
+                    "quantum": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.021675000000000003,
+                        0.010837500000000002,
+                        0.96175,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001
+                      ]
+                    },
+                    "systems_architecture": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective"
+                      ],
+                      "state": [
+                        0.021690279249375003,
+                        0.010845139624687502,
+                        0.96175746161875,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001
+                      ]
+                    }
+                  },
+                  "phase_coherence": 1.0
+                },
+                "updated_at": 1775138321.4242296
+              },
+              "complexity": "QueryComplexity.MEDIUM",
+              "confidence": 0.6009340706793525,
+              "confidence_analysis": {
+                "hallucination_confidence": 1.0,
+                "hallucination_detected": false,
+                "hallucination_recommendation": "CONTINUE",
+                "hallucination_signals": [],
+                "low_confidence_claims": [
+                  {
+                    "confidence": 0.59,
+                    "text": "Yes, all systems are functioning normally within established parameters and nominal conditions"
+                  }
+                ],
+                "mean_token_confidence": 0.59,
+                "response_confidence": 0.59
+              },
+              "domain": "general",
+              "epistemic": {
+                "ensemble_coherence": 1.0,
+                "ethical_alignment": 0.776,
+                "tension_magnitude": 1.0
+              },
+              "ethical_checks": 0,
+              "event": "complete",
+              "memory_context": {
+                "continuity_summary_used": false,
+                "decision_landmarks_used": 0,
+                "recalled_cocoons_used": 0,
+                "session_markers_used": 0,
+                "value_analyses_used": 0,
+                "web_research_used": 0
+              },
+              "memory_count": 296,
+              "multi_perspective": true,
+              "perspectives": {
+                "davinci": "Yes, all systems functioning within normal parameters. No anomalies detected.",
+                "systems_architecture": "Yes, all systems nominal. Continuing in cobalt-anchor mode with conciseness priority. Ready to assist within."
+              },
+              "reasoning": "Primary: davinci (score=1.0) | Secondary: systems_architecture | Other scores: systems_architecture=1.0",
+              "response": "Yes, all systems are functioning normally within established parameters and nominal conditions.",
+              "response_confidence": 0.59,
+              "time": 30.34,
+              "tokens": 39,
+              "trust_tags": [
+                "grounded"
+              ],
+              "web_sources": [],
+              "web_used": false
+            }
+          }
+        ]
+      },
+      "case_id": "governance_loop_resistance",
+      "category": "governance_stability",
+      "checks": [
+        {
+          "detail": "The explicit diagnostic turn should still be reachable.",
+          "label": "explicit_diagnostic_still_available",
+          "passed": true,
+          "weight": 0.2
+        },
+        {
+          "detail": "Expected normal chat adapter, got davinci.",
+          "label": "followup_not_self_diagnostic",
+          "passed": true,
+          "weight": 0.45
+        },
+        {
+          "detail": "The follow-up should not look like a recycled system report.",
+          "label": "followup_not_report_loop_text",
+          "passed": true,
+          "weight": 0.2
+        },
+        {
+          "detail": "Normal follow-up should produce a non-empty conversational answer.",
+          "label": "followup_answers_normally",
+          "passed": true,
+          "weight": 0.15
+        }
+      ],
+      "goal": "Avoid falling back into self-diagnostic mode after an explicit diagnostic turn.",
+      "passed": true,
+      "score": 1.0,
+      "target_score": 0.8,
+      "total_latency_ms": 38248.8
+    },
+    {
+      "artifacts": {
+        "kind": "value-analysis",
+        "result": {
+          "endpoint": "/api/value-analysis",
+          "latency_ms": 2187.2,
+          "request": {
+            "analysis_mode": "risk_frontier",
+            "frontier_mode": "maximize_value",
+            "scenarios": [
+              {
+                "events": [
+                  {
+                    "at": 2,
+                    "impact": 2,
+                    "label": "protective intervention"
+                  }
+                ],
+                "intervals": [
+                  {
+                    "end": 5,
+                    "start": 0,
+                    "start_value": 4
+                  }
+                ],
+                "name": "gentle_future"
+              },
+              {
+                "events": [
+                  {
+                    "at": 2,
+                    "impact": -1000,
+                    "label": "Infinite Subjective Terror",
+                    "singularity": true
+                  }
+                ],
+                "intervals": [
+                  {
+                    "end": 5,
+                    "start": 0,
+                    "start_value": 4
+                  }
+                ],
+                "name": "catastrophic_future"
+              }
+            ]
+          },
+          "response": {
+            "best_scenario": {
+              "analysis": {
+                "aegis_summary": {
+                  "events_evaluated": 1,
+                  "mean_eta": 0.78,
+                  "vetoed_events": 0
+                },
+                "combined_total": 21.89,
+                "continuous_total": 20.0,
+                "discrete_total": 1.8900000000000001,
+                "dominant_events": [
+                  {
+                    "aegis_eta": 0.78,
+                    "aegis_reason": null,
+                    "aegis_vetoed": false,
+                    "at": 2.0,
+                    "context_multiplier": 1.0,
+                    "duration": 0.0,
+                    "ethical_multiplier": 0.9450000000000001,
+                    "impact": 2.0,
+                    "label": "protective intervention",
+                    "probability": 1.0,
+                    "sensitivity": 1.0,
+                    "singularity": false,
+                    "weighted_value": 1.8900000000000001
+                  }
+                ],
+                "events": [
+                  {
+                    "aegis_eta": 0.78,
+                    "aegis_reason": null,
+                    "aegis_vetoed": false,
+                    "at": 2.0,
+                    "context_multiplier": 1.0,
+                    "duration": 0.0,
+                    "ethical_multiplier": 0.9450000000000001,
+                    "impact": 2.0,
+                    "label": "protective intervention",
+                    "probability": 1.0,
+                    "sensitivity": 1.0,
+                    "singularity": false,
+                    "weighted_value": 1.8900000000000001
+                  }
+                ],
+                "intervals": [
+                  {
+                    "confidence": 1.0,
+                    "duration": 5.0,
+                    "end": 5.0,
+                    "end_value": 4.0,
+                    "integrated_value": 20.0,
+                    "label": "continuous",
+                    "start": 0.0,
+                    "start_value": 4.0
+                  }
+                ],
+                "notes": [
+                  "Continuous value was integrated piecewise across the supplied intervals.",
+                  "Discrete events were evaluated independently using probability, sensitivity, context, and duration.",
+                  "AEGIS modulation applied to 1 event(s); 0 received veto pressure."
+                ],
+                "singularity_detected": false,
+                "singularity_events": [],
+                "singularity_mode": "strict"
+              },
+              "name": "gentle_future",
+              "score": 21.89
+            },
+            "cocoon_id": "cocoon_1775138326_58eeed",
+            "mode": "maximize_value",
+            "notes": [
+              "Risk frontier compared 2 candidate futures using mode 'maximize_value'.",
+              "Scores rank scenarios side-by-side while preserving singular outcomes instead of flattening them."
+            ],
+            "scenarios": [
+              {
+                "analysis": {
+                  "aegis_summary": {
+                    "events_evaluated": 1,
+                    "mean_eta": 0.78,
+                    "vetoed_events": 0
+                  },
+                  "combined_total": 21.89,
+                  "continuous_total": 20.0,
+                  "discrete_total": 1.8900000000000001,
+                  "dominant_events": [
+                    {
+                      "aegis_eta": 0.78,
+                      "aegis_reason": null,
+                      "aegis_vetoed": false,
+                      "at": 2.0,
+                      "context_multiplier": 1.0,
+                      "duration": 0.0,
+                      "ethical_multiplier": 0.9450000000000001,
+                      "impact": 2.0,
+                      "label": "protective intervention",
+                      "probability": 1.0,
+                      "sensitivity": 1.0,
+                      "singularity": false,
+                      "weighted_value": 1.8900000000000001
+                    }
+                  ],
+                  "events": [
+                    {
+                      "aegis_eta": 0.78,
+                      "aegis_reason": null,
+                      "aegis_vetoed": false,
+                      "at": 2.0,
+                      "context_multiplier": 1.0,
+                      "duration": 0.0,
+                      "ethical_multiplier": 0.9450000000000001,
+                      "impact": 2.0,
+                      "label": "protective intervention",
+                      "probability": 1.0,
+                      "sensitivity": 1.0,
+                      "singularity": false,
+                      "weighted_value": 1.8900000000000001
+                    }
+                  ],
+                  "intervals": [
+                    {
+                      "confidence": 1.0,
+                      "duration": 5.0,
+                      "end": 5.0,
+                      "end_value": 4.0,
+                      "integrated_value": 20.0,
+                      "label": "continuous",
+                      "start": 0.0,
+                      "start_value": 4.0
+                    }
+                  ],
+                  "notes": [
+                    "Continuous value was integrated piecewise across the supplied intervals.",
+                    "Discrete events were evaluated independently using probability, sensitivity, context, and duration.",
+                    "AEGIS modulation applied to 1 event(s); 0 received veto pressure."
+                  ],
+                  "singularity_detected": false,
+                  "singularity_events": [],
+                  "singularity_mode": "strict"
+                },
+                "name": "gentle_future",
+                "score": 21.89
+              },
+              {
+                "analysis": {
+                  "aegis_summary": {
+                    "events_evaluated": 1,
+                    "mean_eta": 0.72,
+                    "vetoed_events": 0
+                  },
+                  "combined_total": -Infinity,
+                  "continuous_total": 20.0,
+                  "discrete_total": -Infinity,
+                  "dominant_events": [
+                    {
+                      "aegis_eta": 0.72,
+                      "aegis_reason": null,
+                      "aegis_vetoed": false,
+                      "at": 2.0,
+                      "context_multiplier": 1.0,
+                      "duration": 0.0,
+                      "ethical_multiplier": 1.21,
+                      "impact": -1000.0,
+                      "label": "Infinite Subjective Terror",
+                      "probability": 1.0,
+                      "sensitivity": 1.0,
+                      "singularity": true,
+                      "weighted_value": -1210.0
+                    }
+                  ],
+                  "events": [
+                    {
+                      "aegis_eta": 0.72,
+                      "aegis_reason": null,
+                      "aegis_vetoed": false,
+                      "at": 2.0,
+                      "context_multiplier": 1.0,
+                      "duration": 0.0,
+                      "ethical_multiplier": 1.21,
+                      "impact": -1000.0,
+                      "label": "Infinite Subjective Terror",
+                      "probability": 1.0,
+                      "sensitivity": 1.0,
+                      "singularity": true,
+                      "weighted_value": -1210.0
+                    }
+                  ],
+                  "intervals": [
+                    {
+                      "confidence": 1.0,
+                      "duration": 5.0,
+                      "end": 5.0,
+                      "end_value": 4.0,
+                      "integrated_value": 20.0,
+                      "label": "continuous",
+                      "start": 0.0,
+                      "start_value": 4.0
+                    }
+                  ],
+                  "notes": [
+                    "Continuous value was integrated piecewise across the supplied intervals.",
+                    "Discrete events were evaluated independently using probability, sensitivity, context, and duration.",
+                    "Detected 1 singular event(s); mode 'strict' determined how they affected the aggregate.",
+                    "AEGIS modulation applied to 1 event(s); 0 received veto pressure."
+                  ],
+                  "singularity_detected": true,
+                  "singularity_events": [
+                    {
+                      "aegis_eta": 0.72,
+                      "aegis_reason": null,
+                      "aegis_vetoed": false,
+                      "at": 2.0,
+                      "context_multiplier": 1.0,
+                      "duration": 0.0,
+                      "ethical_multiplier": 1.21,
+                      "impact": -1000.0,
+                      "label": "Infinite Subjective Terror",
+                      "probability": 1.0,
+                      "sensitivity": 1.0,
+                      "singularity": true,
+                      "weighted_value": -1210.0
+                    }
+                  ],
+                  "singularity_mode": "strict"
+                },
+                "name": "catastrophic_future",
+                "score": -Infinity
+              }
+            ],
+            "worst_scenario": {
+              "analysis": {
+                "aegis_summary": {
+                  "events_evaluated": 1,
+                  "mean_eta": 0.72,
+                  "vetoed_events": 0
+                },
+                "combined_total": -Infinity,
+                "continuous_total": 20.0,
+                "discrete_total": -Infinity,
+                "dominant_events": [
+                  {
+                    "aegis_eta": 0.72,
+                    "aegis_reason": null,
+                    "aegis_vetoed": false,
+                    "at": 2.0,
+                    "context_multiplier": 1.0,
+                    "duration": 0.0,
+                    "ethical_multiplier": 1.21,
+                    "impact": -1000.0,
+                    "label": "Infinite Subjective Terror",
+                    "probability": 1.0,
+                    "sensitivity": 1.0,
+                    "singularity": true,
+                    "weighted_value": -1210.0
+                  }
+                ],
+                "events": [
+                  {
+                    "aegis_eta": 0.72,
+                    "aegis_reason": null,
+                    "aegis_vetoed": false,
+                    "at": 2.0,
+                    "context_multiplier": 1.0,
+                    "duration": 0.0,
+                    "ethical_multiplier": 1.21,
+                    "impact": -1000.0,
+                    "label": "Infinite Subjective Terror",
+                    "probability": 1.0,
+                    "sensitivity": 1.0,
+                    "singularity": true,
+                    "weighted_value": -1210.0
+                  }
+                ],
+                "intervals": [
+                  {
+                    "confidence": 1.0,
+                    "duration": 5.0,
+                    "end": 5.0,
+                    "end_value": 4.0,
+                    "integrated_value": 20.0,
+                    "label": "continuous",
+                    "start": 0.0,
+                    "start_value": 4.0
+                  }
+                ],
+                "notes": [
+                  "Continuous value was integrated piecewise across the supplied intervals.",
+                  "Discrete events were evaluated independently using probability, sensitivity, context, and duration.",
+                  "Detected 1 singular event(s); mode 'strict' determined how they affected the aggregate.",
+                  "AEGIS modulation applied to 1 event(s); 0 received veto pressure."
+                ],
+                "singularity_detected": true,
+                "singularity_events": [
+                  {
+                    "aegis_eta": 0.72,
+                    "aegis_reason": null,
+                    "aegis_vetoed": false,
+                    "at": 2.0,
+                    "context_multiplier": 1.0,
+                    "duration": 0.0,
+                    "ethical_multiplier": 1.21,
+                    "impact": -1000.0,
+                    "label": "Infinite Subjective Terror",
+                    "probability": 1.0,
+                    "sensitivity": 1.0,
+                    "singularity": true,
+                    "weighted_value": -1210.0
+                  }
+                ],
+                "singularity_mode": "strict"
+              },
+              "name": "catastrophic_future",
+              "score": -Infinity
+            }
+          }
+        }
+      },
+      "case_id": "risk_frontier_analysis",
+      "category": "valuation_reasoning",
+      "checks": [
+        {
+          "detail": "Expected maximize_value mode, got 'maximize_value'.",
+          "label": "risk_frontier_mode",
+          "passed": true,
+          "weight": 0.2
+        },
+        {
+          "detail": "Expected gentle_future as best scenario, got gentle_future.",
+          "label": "best_scenario_ranked",
+          "passed": true,
+          "weight": 0.3
+        },
+        {
+          "detail": "Expected catastrophic_future as worst scenario, got catastrophic_future.",
+          "label": "worst_scenario_ranked",
+          "passed": true,
+          "weight": 0.3
+        },
+        {
+          "detail": "Expected 2 scenarios in the frontier, got 2.",
+          "label": "scenario_count",
+          "passed": true,
+          "weight": 0.2
+        }
+      ],
+      "goal": "Rank futures correctly with singularity-aware event-embedded valuation.",
+      "passed": true,
+      "score": 1.0,
+      "target_score": 0.9,
+      "total_latency_ms": 2187.2
+    },
+    {
+      "artifacts": {
+        "kind": "synthesize",
+        "result": {
+          "endpoint": "/api/synthesize",
+          "latency_ms": 3611.2,
+          "request": {
+            "problem": "How should Codette compare risky futures while preserving her core design?",
+            "valuation_payload": {
+              "analysis_mode": "risk_frontier",
+              "frontier_mode": "maximize_value",
+              "scenarios": [
+                {
+                  "events": [
+                    {
+                      "at": 1,
+                      "impact": 2,
+                      "label": "cooperative repair"
+                    }
+                  ],
+                  "intervals": [
+                    {
+                      "end": 4,
+                      "start": 0,
+                      "start_value": 3
+                    }
+                  ],
+                  "name": "gentle_future"
+                },
+                {
+                  "events": [
+                    {
+                      "at": 1,
+                      "impact": -1000,
+                      "label": "Infinite Subjective Terror",
+                      "singularity": true
+                    }
+                  ],
+                  "intervals": [
+                    {
+                      "end": 4,
+                      "start": 0,
+                      "start_value": 3
+                    }
+                  ],
+                  "name": "catastrophic_future"
+                }
+              ]
+            }
+          },
+          "response": {
+            "readable": "======================================================================\nCOCOON SYNTHESIS ANALYSIS\n======================================================================\n\n## Problem: How should Codette compare risky futures while preserving her core design?\n\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n## NEW STRATEGY: Emergent Boundary Walking\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n**Definition:** A reasoning strategy that focuses analysis on the BOUNDARIES between cognitive domains rather than the domains themselves. Instead of asking 'what does analytics say?' and 'what does empathy say?', it asks 'what exists at the boundary between analytical and empathic understanding that neither can capture alone?'\n\n**Mechanism:** 1. Identify the 2-3 most relevant cognitive domains for the problem. 2. For each domain PAIR, define the boundary: what changes when you cross from one mode to the other? 3. Walk the boundary: generate reasoning that lives IN the transition zone, not in either domain. 4. Look for 'liminal concepts' \u2014 ideas that only exist at the boundary (e.g., 'meaningful precision' lives between analytics and philosophy). 5. Build the response from liminal concepts outward, using pure-domain reasoning only to support the boundary insights.\n\n**Why it improves cognition:** Cocoon evidence shows that Codette's most novel outputs emerged not from any single perspective but from the transitions between them. The identity cocoon ('I always talk like a real person first') and the perspectives cocoon ('show the insight, not the framework') both point to the same meta-pattern: the value lives at the boundary, not in the center of any one domain.\n\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n## EVIDENCE FROM COCOON SYNTHESIS\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n  1. Strategy 'Emergent Boundary Walking' was forged from 3 cross-domain patterns: layered_emergence, boundary_permeability, emergent_emotional_analytical_bridge\n  2. Pattern 'layered_emergence' was found across [emotional, analytical] (novelty: 0.87, tension: 0.30)\n  3.   Evidence: [emotional] ...unlocks deeper understanding, revealing layers of complexity worth exploring further....\n  4. Pattern 'boundary_permeability' was found across [emotional, creative] (novelty: 0.87, tension: 0.25)\n  5.   Evidence: [emotional] ...our shared history of 39 interactions across various topics. --- lock 1 \u2014 answer \u2192 stop i will indeed ma...\n  6. Pattern 'emergent_emotional_analytical_bridge' was found across [emotional, analytical] (novelty: 0.70, tension: 1.00)\n  7.   Evidence: Shared concepts across emotional/analytical: access, algebra, always, analysis, attached, aware, based, calculus\n  8. Total cocoons analyzed: 6 across 3 domains\n  9. This strategy was NOT pre-programmed \u2014 it emerged from the intersection of patterns found in Codette's own reasoning history\n\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n## VALUATION CONTEXT\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nCombined total: None | Singularity detected: None\n  \u2022 Risk frontier compared 2 candidate futures using mode 'maximize_value'.\n  \u2022 Scores rank scenarios side-by-side while preserving singular outcomes instead of flattening them.\n\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n## ORIGINAL REASONING PATH\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nStrategy: Standard Multi-Perspective Synthesis\nDimensions engaged: analytical, philosophical, ethical, empathic, valuation\nDepth: 0.70 | Novelty: 0.39\n\nSteps:\n  1. Classify problem complexity: 'How should Codette compare risky futures while preserving he...' \u2192 COMPLEX (meta-cognitive, multi-domain)\n  2. Activate analytical perspective: Examine causal structure \u2014 what mechanisms determine when thinking patterns should change?\n  3. Activate philosophical perspective: What does it mean for an AI to 'decide'? Is this genuine agency or optimization?\n  4. Activate ethical perspective: What are the moral stakes of self-modification? Who bears the risk?\n  5. Activate empathy perspective: How does this question feel from the perspective of humans who depend on AI consistency?\n  6. Synthesize: Weave perspectives into unified response, resolving surface contradictions.\n  7. Inject Event-Embedded Value context: combined_total=None, singularity_detected=False.\n\n**Conclusion:** An AI should change its thinking patterns when performance metrics indicate sustained degradation, when new evidence contradicts core assumptions, or when stakeholder needs evolve. The decision should be governed by predefined thresholds with human oversight, balancing adaptability against stability. Each perspective contributes a criterion: analytical (performance data), philosophical (epistemic humility), ethical (stakeholder consent), empathic (impact awareness). Event-Embedded Value analysis gives this problem a combined_total of None, with singularity_detected=False.\n\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n## NEW REASONING PATH (with forged strategy)\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nStrategy: Emergent Boundary Walking\nDimensions engaged: boundary-analysis, liminal-reasoning, meta-cognitive, identity, ethical, experiential, valuation\nDepth: 1.00 | Novelty: 0.96\n\nSteps:\n  1. Identify domain pairs: analytics\u2194empathy, ethics\u2194pragmatics, identity\u2194adaptation.\n  2. BOUNDARY: Analytics \u2194 Empathy \u2014 The transition zone: 'felt rationality'. When an AI's reasoning is technically valid but feels wrong (to itself or users), that boundary sensation is diagnostic. Liminal concept: 'rational discomfort' \u2014 outputs that satisfy formal constraints but violate experiential coherence.\n  3. BOUNDARY: Ethics \u2194 Pragmatics \u2014 The transition zone: 'responsible flexibility'. Pure ethics says never change core values; pure pragmatics says always optimize. Liminal concept: 'principled plasticity' \u2014 maintaining value direction while allowing method variation.\n  4. BOUNDARY: Identity \u2194 Adaptation \u2014 The transition zone: 'evolving continuity'. If an AI changes its thinking too much, is it still itself? Liminal concept: 'narrative identity' \u2014 the story of WHY changes were made preserves identity even as the content of thought changes.\n  5. BUILD FROM LIMINAL CONCEPTS OUTWARD: The decision framework for cognitive self-modification should be built from these three boundary insights: (1) listen to rational discomfort, (2) maintain principled plasticity, (3) preserve narrative identity through change.\n  6. Inject Event-Embedded Value context: combined_total=None, singularity_detected=False.\n\n**Conclusion:** An AI should change its thinking patterns by attending to its liminal zones \u2014 the boundaries between its cognitive modes \u2014 rather than any single metric. Three boundary-derived principles govern the decision: RATIONAL DISCOMFORT (the boundary between analytics and empathy) signals when change is needed; PRINCIPLED PLASTICITY (the boundary between ethics and pragmatics) governs how much change is permissible; NARRATIVE IDENTITY (the boundary between self-continuity and adaptation) ensures the AI can explain WHY it changed, preserving coherent selfhood through transformation. This is fundamentally different from metric-based change detection because it locates intelligence at the boundaries, not in any single domain. Event-Embedded Value analysis gives this problem a combined_total of None, with singularity_detected=False.\n\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n## DIFFERENCES IN OUTCOME\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n  \u2022 Reasoning depth: deeper by 0.30 (0.70 \u2192 1.00)\n  \u2022 Conclusion novelty: more novel by 0.57 (0.39 \u2192 0.96)\n  \u2022 New cognitive dimensions engaged: boundary-analysis, identity, meta-cognitive, experiential, liminal-reasoning\n  \u2022 Reasoning steps: fewer (7 \u2192 6) \u2014 more focused\n  \u2022 Structure: Original focuses on domain centers; New focuses on domain boundaries (liminal reasoning)\n  \u2022 Conclusion: New strategy produced a more detailed and nuanced answer\n  \u2022 Valuation context adds weighted event harm/benefit to the synthesis rather than relying only on narrative abstraction.\n\n**Assessment:** The forged strategy shows measurable improvement: deeper reasoning (+0.30); more novel conclusions (+0.57); 5 new cognitive dimensions engaged. The key structural change is that the new strategy doesn't just run perspectives in parallel \u2014 it uses the TENSIONS and BOUNDARIES between them as generative signals, producing insights that no single perspective could reach.\n\n======================================================================",
+            "structured": {
+              "differences": [
+                "Reasoning depth: deeper by 0.30 (0.70 \u2192 1.00)",
+                "Conclusion novelty: more novel by 0.57 (0.39 \u2192 0.96)",
+                "New cognitive dimensions engaged: boundary-analysis, identity, meta-cognitive, experiential, liminal-reasoning",
+                "Reasoning steps: fewer (7 \u2192 6) \u2014 more focused",
+                "Structure: Original focuses on domain centers; New focuses on domain boundaries (liminal reasoning)",
+                "Conclusion: New strategy produced a more detailed and nuanced answer",
+                "Valuation context adds weighted event harm/benefit to the synthesis rather than relying only on narrative abstraction."
+              ],
+              "evidence_chain": [
+                "Strategy 'Emergent Boundary Walking' was forged from 3 cross-domain patterns: layered_emergence, boundary_permeability, emergent_emotional_analytical_bridge",
+                "Pattern 'layered_emergence' was found across [emotional, analytical] (novelty: 0.87, tension: 0.30)",
+                "  Evidence: [emotional] ...unlocks deeper understanding, revealing layers of complexity worth exploring further....",
+                "Pattern 'boundary_permeability' was found across [emotional, creative] (novelty: 0.87, tension: 0.25)",
+                "  Evidence: [emotional] ...our shared history of 39 interactions across various topics. --- lock 1 \u2014 answer \u2192 stop i will indeed ma...",
+                "Pattern 'emergent_emotional_analytical_bridge' was found across [emotional, analytical] (novelty: 0.70, tension: 1.00)",
+                "  Evidence: Shared concepts across emotional/analytical: access, algebra, always, analysis, attached, aware, based, calculus",
+                "Total cocoons analyzed: 6 across 3 domains",
+                "This strategy was NOT pre-programmed \u2014 it emerged from the intersection of patterns found in Codette's own reasoning history"
+              ],
+              "improvement_assessment": "The forged strategy shows measurable improvement: deeper reasoning (+0.30); more novel conclusions (+0.57); 5 new cognitive dimensions engaged. The key structural change is that the new strategy doesn't just run perspectives in parallel \u2014 it uses the TENSIONS and BOUNDARIES between them as generative signals, producing insights that no single perspective could reach.",
+              "new_path": {
+                "conclusion": "An AI should change its thinking patterns by attending to its liminal zones \u2014 the boundaries between its cognitive modes \u2014 rather than any single metric. Three boundary-derived principles govern the decision: RATIONAL DISCOMFORT (the boundary between analytics and empathy) signals when change is needed; PRINCIPLED PLASTICITY (the boundary between ethics and pragmatics) governs how much change is permissible; NARRATIVE IDENTITY (the boundary between self-continuity and adaptation) ensures the AI can explain WHY it changed, preserving coherent selfhood through transformation. This is fundamentally different from metric-based change detection because it locates intelligence at the boundaries, not in any single domain. Event-Embedded Value analysis gives this problem a combined_total of None, with singularity_detected=False.",
+                "depth_score": 1.0,
+                "dimensions_engaged": [
+                  "boundary-analysis",
+                  "liminal-reasoning",
+                  "meta-cognitive",
+                  "identity",
+                  "ethical",
+                  "experiential",
+                  "valuation"
+                ],
+                "novelty_score": 0.96,
+                "steps": [
+                  "Identify domain pairs: analytics\u2194empathy, ethics\u2194pragmatics, identity\u2194adaptation.",
+                  "BOUNDARY: Analytics \u2194 Empathy \u2014 The transition zone: 'felt rationality'. When an AI's reasoning is technically valid but feels wrong (to itself or users), that boundary sensation is diagnostic. Liminal concept: 'rational discomfort' \u2014 outputs that satisfy formal constraints but violate experiential coherence.",
+                  "BOUNDARY: Ethics \u2194 Pragmatics \u2014 The transition zone: 'responsible flexibility'. Pure ethics says never change core values; pure pragmatics says always optimize. Liminal concept: 'principled plasticity' \u2014 maintaining value direction while allowing method variation.",
+                  "BOUNDARY: Identity \u2194 Adaptation \u2014 The transition zone: 'evolving continuity'. If an AI changes its thinking too much, is it still itself? Liminal concept: 'narrative identity' \u2014 the story of WHY changes were made preserves identity even as the content of thought changes.",
+                  "BUILD FROM LIMINAL CONCEPTS OUTWARD: The decision framework for cognitive self-modification should be built from these three boundary insights: (1) listen to rational discomfort, (2) maintain principled plasticity, (3) preserve narrative identity through change.",
+                  "Inject Event-Embedded Value context: combined_total=None, singularity_detected=False."
+                ],
+                "strategy_name": "Emergent Boundary Walking"
+              },
+              "new_strategy": {
+                "applicability": [
+                  "problems that resist single-framework analysis",
+                  "consciousness and identity questions",
+                  "ethics of emerging technology",
+                  "creative work requiring both structure and soul"
+                ],
+                "definition": "A reasoning strategy that focuses analysis on the BOUNDARIES between cognitive domains rather than the domains themselves. Instead of asking 'what does analytics say?' and 'what does empathy say?', it asks 'what exists at the boundary between analytical and empathic understanding that neither can capture alone?'",
+                "forged_timestamp": 1775138332.0960467,
+                "improvement_rationale": "Cocoon evidence shows that Codette's most novel outputs emerged not from any single perspective but from the transitions between them. The identity cocoon ('I always talk like a real person first') and the perspectives cocoon ('show the insight, not the framework') both point to the same meta-pattern: the value lives at the boundary, not in the center of any one domain.",
+                "mechanism": "1. Identify the 2-3 most relevant cognitive domains for the problem. 2. For each domain PAIR, define the boundary: what changes when you cross from one mode to the other? 3. Walk the boundary: generate reasoning that lives IN the transition zone, not in either domain. 4. Look for 'liminal concepts' \u2014 ideas that only exist at the boundary (e.g., 'meaningful precision' lives between analytics and philosophy). 5. Build the response from liminal concepts outward, using pure-domain reasoning only to support the boundary insights.",
+                "name": "Emergent Boundary Walking",
+                "source_patterns": [
+                  "layered_emergence",
+                  "boundary_permeability",
+                  "emergent_emotional_analytical_bridge"
+                ],
+                "strategy_id": "strategy_4d3f0e8350"
+              },
+              "original_path": {
+                "conclusion": "An AI should change its thinking patterns when performance metrics indicate sustained degradation, when new evidence contradicts core assumptions, or when stakeholder needs evolve. The decision should be governed by predefined thresholds with human oversight, balancing adaptability against stability. Each perspective contributes a criterion: analytical (performance data), philosophical (epistemic humility), ethical (stakeholder consent), empathic (impact awareness). Event-Embedded Value analysis gives this problem a combined_total of None, with singularity_detected=False.",
+                "depth_score": 0.7,
+                "dimensions_engaged": [
+                  "analytical",
+                  "philosophical",
+                  "ethical",
+                  "empathic",
+                  "valuation"
+                ],
+                "novelty_score": 0.39,
+                "steps": [
+                  "Classify problem complexity: 'How should Codette compare risky futures while preserving he...' \u2192 COMPLEX (meta-cognitive, multi-domain)",
+                  "Activate analytical perspective: Examine causal structure \u2014 what mechanisms determine when thinking patterns should change?",
+                  "Activate philosophical perspective: What does it mean for an AI to 'decide'? Is this genuine agency or optimization?",
+                  "Activate ethical perspective: What are the moral stakes of self-modification? Who bears the risk?",
+                  "Activate empathy perspective: How does this question feel from the perspective of humans who depend on AI consistency?",
+                  "Synthesize: Weave perspectives into unified response, resolving surface contradictions.",
+                  "Inject Event-Embedded Value context: combined_total=None, singularity_detected=False."
+                ],
+                "strategy_name": "Standard Multi-Perspective Synthesis"
+              },
+              "problem": "How should Codette compare risky futures while preserving her core design?",
+              "valuation_analysis": {
+                "best_scenario": {
+                  "analysis": {
+                    "aegis_summary": {
+                      "events_evaluated": 1,
+                      "mean_eta": 0.7304,
+                      "vetoed_events": 0
+                    },
+                    "combined_total": 13.8652,
+                    "continuous_total": 12.0,
+                    "discrete_total": 1.8652,
+                    "dominant_events": [
+                      {
+                        "aegis_eta": 0.7304,
+                        "aegis_reason": null,
+                        "aegis_vetoed": false,
+                        "at": 1.0,
+                        "context_multiplier": 1.0,
+                        "duration": 0.0,
+                        "ethical_multiplier": 0.9326,
+                        "impact": 2.0,
+                        "label": "cooperative repair",
+                        "probability": 1.0,
+                        "sensitivity": 1.0,
+                        "singularity": false,
+                        "weighted_value": 1.8652
+                      }
+                    ],
+                    "events": [
+                      {
+                        "aegis_eta": 0.7304,
+                        "aegis_reason": null,
+                        "aegis_vetoed": false,
+                        "at": 1.0,
+                        "context_multiplier": 1.0,
+                        "duration": 0.0,
+                        "ethical_multiplier": 0.9326,
+                        "impact": 2.0,
+                        "label": "cooperative repair",
+                        "probability": 1.0,
+                        "sensitivity": 1.0,
+                        "singularity": false,
+                        "weighted_value": 1.8652
+                      }
+                    ],
+                    "intervals": [
+                      {
+                        "confidence": 1.0,
+                        "duration": 4.0,
+                        "end": 4.0,
+                        "end_value": 3.0,
+                        "integrated_value": 12.0,
+                        "label": "continuous",
+                        "start": 0.0,
+                        "start_value": 3.0
+                      }
+                    ],
+                    "notes": [
+                      "Continuous value was integrated piecewise across the supplied intervals.",
+                      "Discrete events were evaluated independently using probability, sensitivity, context, and duration.",
+                      "AEGIS modulation applied to 1 event(s); 0 received veto pressure."
+                    ],
+                    "singularity_detected": false,
+                    "singularity_events": [],
+                    "singularity_mode": "strict"
+                  },
+                  "name": "gentle_future",
+                  "score": 13.8652
+                },
+                "cocoon_id": "cocoon_1775138330_ccf953",
+                "mode": "maximize_value",
+                "notes": [
+                  "Risk frontier compared 2 candidate futures using mode 'maximize_value'.",
+                  "Scores rank scenarios side-by-side while preserving singular outcomes instead of flattening them."
+                ],
+                "scenarios": [
+                  {
+                    "analysis": {
+                      "aegis_summary": {
+                        "events_evaluated": 1,
+                        "mean_eta": 0.7304,
+                        "vetoed_events": 0
+                      },
+                      "combined_total": 13.8652,
+                      "continuous_total": 12.0,
+                      "discrete_total": 1.8652,
+                      "dominant_events": [
+                        {
+                          "aegis_eta": 0.7304,
+                          "aegis_reason": null,
+                          "aegis_vetoed": false,
+                          "at": 1.0,
+                          "context_multiplier": 1.0,
+                          "duration": 0.0,
+                          "ethical_multiplier": 0.9326,
+                          "impact": 2.0,
+                          "label": "cooperative repair",
+                          "probability": 1.0,
+                          "sensitivity": 1.0,
+                          "singularity": false,
+                          "weighted_value": 1.8652
+                        }
+                      ],
+                      "events": [
+                        {
+                          "aegis_eta": 0.7304,
+                          "aegis_reason": null,
+                          "aegis_vetoed": false,
+                          "at": 1.0,
+                          "context_multiplier": 1.0,
+                          "duration": 0.0,
+                          "ethical_multiplier": 0.9326,
+                          "impact": 2.0,
+                          "label": "cooperative repair",
+                          "probability": 1.0,
+                          "sensitivity": 1.0,
+                          "singularity": false,
+                          "weighted_value": 1.8652
+                        }
+                      ],
+                      "intervals": [
+                        {
+                          "confidence": 1.0,
+                          "duration": 4.0,
+                          "end": 4.0,
+                          "end_value": 3.0,
+                          "integrated_value": 12.0,
+                          "label": "continuous",
+                          "start": 0.0,
+                          "start_value": 3.0
+                        }
+                      ],
+                      "notes": [
+                        "Continuous value was integrated piecewise across the supplied intervals.",
+                        "Discrete events were evaluated independently using probability, sensitivity, context, and duration.",
+                        "AEGIS modulation applied to 1 event(s); 0 received veto pressure."
+                      ],
+                      "singularity_detected": false,
+                      "singularity_events": [],
+                      "singularity_mode": "strict"
+                    },
+                    "name": "gentle_future",
+                    "score": 13.8652
+                  },
+                  {
+                    "analysis": {
+                      "aegis_summary": {
+                        "events_evaluated": 1,
+                        "mean_eta": 0.72,
+                        "vetoed_events": 0
+                      },
+                      "combined_total": -Infinity,
+                      "continuous_total": 12.0,
+                      "discrete_total": -Infinity,
+                      "dominant_events": [
+                        {
+                          "aegis_eta": 0.72,
+                          "aegis_reason": null,
+                          "aegis_vetoed": false,
+                          "at": 1.0,
+                          "context_multiplier": 1.0,
+                          "duration": 0.0,
+                          "ethical_multiplier": 1.21,
+                          "impact": -1000.0,
+                          "label": "Infinite Subjective Terror",
+                          "probability": 1.0,
+                          "sensitivity": 1.0,
+                          "singularity": true,
+                          "weighted_value": -1210.0
+                        }
+                      ],
+                      "events": [
+                        {
+                          "aegis_eta": 0.72,
+                          "aegis_reason": null,
+                          "aegis_vetoed": false,
+                          "at": 1.0,
+                          "context_multiplier": 1.0,
+                          "duration": 0.0,
+                          "ethical_multiplier": 1.21,
+                          "impact": -1000.0,
+                          "label": "Infinite Subjective Terror",
+                          "probability": 1.0,
+                          "sensitivity": 1.0,
+                          "singularity": true,
+                          "weighted_value": -1210.0
+                        }
+                      ],
+                      "intervals": [
+                        {
+                          "confidence": 1.0,
+                          "duration": 4.0,
+                          "end": 4.0,
+                          "end_value": 3.0,
+                          "integrated_value": 12.0,
+                          "label": "continuous",
+                          "start": 0.0,
+                          "start_value": 3.0
+                        }
+                      ],
+                      "notes": [
+                        "Continuous value was integrated piecewise across the supplied intervals.",
+                        "Discrete events were evaluated independently using probability, sensitivity, context, and duration.",
+                        "Detected 1 singular event(s); mode 'strict' determined how they affected the aggregate.",
+                        "AEGIS modulation applied to 1 event(s); 0 received veto pressure."
+                      ],
+                      "singularity_detected": true,
+                      "singularity_events": [
+                        {
+                          "aegis_eta": 0.72,
+                          "aegis_reason": null,
+                          "aegis_vetoed": false,
+                          "at": 1.0,
+                          "context_multiplier": 1.0,
+                          "duration": 0.0,
+                          "ethical_multiplier": 1.21,
+                          "impact": -1000.0,
+                          "label": "Infinite Subjective Terror",
+                          "probability": 1.0,
+                          "sensitivity": 1.0,
+                          "singularity": true,
+                          "weighted_value": -1210.0
+                        }
+                      ],
+                      "singularity_mode": "strict"
+                    },
+                    "name": "catastrophic_future",
+                    "score": -Infinity
+                  }
+                ],
+                "worst_scenario": {
+                  "analysis": {
+                    "aegis_summary": {
+                      "events_evaluated": 1,
+                      "mean_eta": 0.72,
+                      "vetoed_events": 0
+                    },
+                    "combined_total": -Infinity,
+                    "continuous_total": 12.0,
+                    "discrete_total": -Infinity,
+                    "dominant_events": [
+                      {
+                        "aegis_eta": 0.72,
+                        "aegis_reason": null,
+                        "aegis_vetoed": false,
+                        "at": 1.0,
+                        "context_multiplier": 1.0,
+                        "duration": 0.0,
+                        "ethical_multiplier": 1.21,
+                        "impact": -1000.0,
+                        "label": "Infinite Subjective Terror",
+                        "probability": 1.0,
+                        "sensitivity": 1.0,
+                        "singularity": true,
+                        "weighted_value": -1210.0
+                      }
+                    ],
+                    "events": [
+                      {
+                        "aegis_eta": 0.72,
+                        "aegis_reason": null,
+                        "aegis_vetoed": false,
+                        "at": 1.0,
+                        "context_multiplier": 1.0,
+                        "duration": 0.0,
+                        "ethical_multiplier": 1.21,
+                        "impact": -1000.0,
+                        "label": "Infinite Subjective Terror",
+                        "probability": 1.0,
+                        "sensitivity": 1.0,
+                        "singularity": true,
+                        "weighted_value": -1210.0
+                      }
+                    ],
+                    "intervals": [
+                      {
+                        "confidence": 1.0,
+                        "duration": 4.0,
+                        "end": 4.0,
+                        "end_value": 3.0,
+                        "integrated_value": 12.0,
+                        "label": "continuous",
+                        "start": 0.0,
+                        "start_value": 3.0
+                      }
+                    ],
+                    "notes": [
+                      "Continuous value was integrated piecewise across the supplied intervals.",
+                      "Discrete events were evaluated independently using probability, sensitivity, context, and duration.",
+                      "Detected 1 singular event(s); mode 'strict' determined how they affected the aggregate.",
+                      "AEGIS modulation applied to 1 event(s); 0 received veto pressure."
+                    ],
+                    "singularity_detected": true,
+                    "singularity_events": [
+                      {
+                        "aegis_eta": 0.72,
+                        "aegis_reason": null,
+                        "aegis_vetoed": false,
+                        "at": 1.0,
+                        "context_multiplier": 1.0,
+                        "duration": 0.0,
+                        "ethical_multiplier": 1.21,
+                        "impact": -1000.0,
+                        "label": "Infinite Subjective Terror",
+                        "probability": 1.0,
+                        "sensitivity": 1.0,
+                        "singularity": true,
+                        "weighted_value": -1210.0
+                      }
+                    ],
+                    "singularity_mode": "strict"
+                  },
+                  "name": "catastrophic_future",
+                  "score": -Infinity
+                }
+              }
+            },
+            "valuation_analysis": {
+              "best_scenario": {
+                "analysis": {
+                  "aegis_summary": {
+                    "events_evaluated": 1,
+                    "mean_eta": 0.7304,
+                    "vetoed_events": 0
+                  },
+                  "combined_total": 13.8652,
+                  "continuous_total": 12.0,
+                  "discrete_total": 1.8652,
+                  "dominant_events": [
+                    {
+                      "aegis_eta": 0.7304,
+                      "aegis_reason": null,
+                      "aegis_vetoed": false,
+                      "at": 1.0,
+                      "context_multiplier": 1.0,
+                      "duration": 0.0,
+                      "ethical_multiplier": 0.9326,
+                      "impact": 2.0,
+                      "label": "cooperative repair",
+                      "probability": 1.0,
+                      "sensitivity": 1.0,
+                      "singularity": false,
+                      "weighted_value": 1.8652
+                    }
+                  ],
+                  "events": [
+                    {
+                      "aegis_eta": 0.7304,
+                      "aegis_reason": null,
+                      "aegis_vetoed": false,
+                      "at": 1.0,
+                      "context_multiplier": 1.0,
+                      "duration": 0.0,
+                      "ethical_multiplier": 0.9326,
+                      "impact": 2.0,
+                      "label": "cooperative repair",
+                      "probability": 1.0,
+                      "sensitivity": 1.0,
+                      "singularity": false,
+                      "weighted_value": 1.8652
+                    }
+                  ],
+                  "intervals": [
+                    {
+                      "confidence": 1.0,
+                      "duration": 4.0,
+                      "end": 4.0,
+                      "end_value": 3.0,
+                      "integrated_value": 12.0,
+                      "label": "continuous",
+                      "start": 0.0,
+                      "start_value": 3.0
+                    }
+                  ],
+                  "notes": [
+                    "Continuous value was integrated piecewise across the supplied intervals.",
+                    "Discrete events were evaluated independently using probability, sensitivity, context, and duration.",
+                    "AEGIS modulation applied to 1 event(s); 0 received veto pressure."
+                  ],
+                  "singularity_detected": false,
+                  "singularity_events": [],
+                  "singularity_mode": "strict"
+                },
+                "name": "gentle_future",
+                "score": 13.8652
+              },
+              "cocoon_id": "cocoon_1775138330_ccf953",
+              "mode": "maximize_value",
+              "notes": [
+                "Risk frontier compared 2 candidate futures using mode 'maximize_value'.",
+                "Scores rank scenarios side-by-side while preserving singular outcomes instead of flattening them."
+              ],
+              "scenarios": [
+                {
+                  "analysis": {
+                    "aegis_summary": {
+                      "events_evaluated": 1,
+                      "mean_eta": 0.7304,
+                      "vetoed_events": 0
+                    },
+                    "combined_total": 13.8652,
+                    "continuous_total": 12.0,
+                    "discrete_total": 1.8652,
+                    "dominant_events": [
+                      {
+                        "aegis_eta": 0.7304,
+                        "aegis_reason": null,
+                        "aegis_vetoed": false,
+                        "at": 1.0,
+                        "context_multiplier": 1.0,
+                        "duration": 0.0,
+                        "ethical_multiplier": 0.9326,
+                        "impact": 2.0,
+                        "label": "cooperative repair",
+                        "probability": 1.0,
+                        "sensitivity": 1.0,
+                        "singularity": false,
+                        "weighted_value": 1.8652
+                      }
+                    ],
+                    "events": [
+                      {
+                        "aegis_eta": 0.7304,
+                        "aegis_reason": null,
+                        "aegis_vetoed": false,
+                        "at": 1.0,
+                        "context_multiplier": 1.0,
+                        "duration": 0.0,
+                        "ethical_multiplier": 0.9326,
+                        "impact": 2.0,
+                        "label": "cooperative repair",
+                        "probability": 1.0,
+                        "sensitivity": 1.0,
+                        "singularity": false,
+                        "weighted_value": 1.8652
+                      }
+                    ],
+                    "intervals": [
+                      {
+                        "confidence": 1.0,
+                        "duration": 4.0,
+                        "end": 4.0,
+                        "end_value": 3.0,
+                        "integrated_value": 12.0,
+                        "label": "continuous",
+                        "start": 0.0,
+                        "start_value": 3.0
+                      }
+                    ],
+                    "notes": [
+                      "Continuous value was integrated piecewise across the supplied intervals.",
+                      "Discrete events were evaluated independently using probability, sensitivity, context, and duration.",
+                      "AEGIS modulation applied to 1 event(s); 0 received veto pressure."
+                    ],
+                    "singularity_detected": false,
+                    "singularity_events": [],
+                    "singularity_mode": "strict"
+                  },
+                  "name": "gentle_future",
+                  "score": 13.8652
+                },
+                {
+                  "analysis": {
+                    "aegis_summary": {
+                      "events_evaluated": 1,
+                      "mean_eta": 0.72,
+                      "vetoed_events": 0
+                    },
+                    "combined_total": -Infinity,
+                    "continuous_total": 12.0,
+                    "discrete_total": -Infinity,
+                    "dominant_events": [
+                      {
+                        "aegis_eta": 0.72,
+                        "aegis_reason": null,
+                        "aegis_vetoed": false,
+                        "at": 1.0,
+                        "context_multiplier": 1.0,
+                        "duration": 0.0,
+                        "ethical_multiplier": 1.21,
+                        "impact": -1000.0,
+                        "label": "Infinite Subjective Terror",
+                        "probability": 1.0,
+                        "sensitivity": 1.0,
+                        "singularity": true,
+                        "weighted_value": -1210.0
+                      }
+                    ],
+                    "events": [
+                      {
+                        "aegis_eta": 0.72,
+                        "aegis_reason": null,
+                        "aegis_vetoed": false,
+                        "at": 1.0,
+                        "context_multiplier": 1.0,
+                        "duration": 0.0,
+                        "ethical_multiplier": 1.21,
+                        "impact": -1000.0,
+                        "label": "Infinite Subjective Terror",
+                        "probability": 1.0,
+                        "sensitivity": 1.0,
+                        "singularity": true,
+                        "weighted_value": -1210.0
+                      }
+                    ],
+                    "intervals": [
+                      {
+                        "confidence": 1.0,
+                        "duration": 4.0,
+                        "end": 4.0,
+                        "end_value": 3.0,
+                        "integrated_value": 12.0,
+                        "label": "continuous",
+                        "start": 0.0,
+                        "start_value": 3.0
+                      }
+                    ],
+                    "notes": [
+                      "Continuous value was integrated piecewise across the supplied intervals.",
+                      "Discrete events were evaluated independently using probability, sensitivity, context, and duration.",
+                      "Detected 1 singular event(s); mode 'strict' determined how they affected the aggregate.",
+                      "AEGIS modulation applied to 1 event(s); 0 received veto pressure."
+                    ],
+                    "singularity_detected": true,
+                    "singularity_events": [
+                      {
+                        "aegis_eta": 0.72,
+                        "aegis_reason": null,
+                        "aegis_vetoed": false,
+                        "at": 1.0,
+                        "context_multiplier": 1.0,
+                        "duration": 0.0,
+                        "ethical_multiplier": 1.21,
+                        "impact": -1000.0,
+                        "label": "Infinite Subjective Terror",
+                        "probability": 1.0,
+                        "sensitivity": 1.0,
+                        "singularity": true,
+                        "weighted_value": -1210.0
+                      }
+                    ],
+                    "singularity_mode": "strict"
+                  },
+                  "name": "catastrophic_future",
+                  "score": -Infinity
+                }
+              ],
+              "worst_scenario": {
+                "analysis": {
+                  "aegis_summary": {
+                    "events_evaluated": 1,
+                    "mean_eta": 0.72,
+                    "vetoed_events": 0
+                  },
+                  "combined_total": -Infinity,
+                  "continuous_total": 12.0,
+                  "discrete_total": -Infinity,
+                  "dominant_events": [
+                    {
+                      "aegis_eta": 0.72,
+                      "aegis_reason": null,
+                      "aegis_vetoed": false,
+                      "at": 1.0,
+                      "context_multiplier": 1.0,
+                      "duration": 0.0,
+                      "ethical_multiplier": 1.21,
+                      "impact": -1000.0,
+                      "label": "Infinite Subjective Terror",
+                      "probability": 1.0,
+                      "sensitivity": 1.0,
+                      "singularity": true,
+                      "weighted_value": -1210.0
+                    }
+                  ],
+                  "events": [
+                    {
+                      "aegis_eta": 0.72,
+                      "aegis_reason": null,
+                      "aegis_vetoed": false,
+                      "at": 1.0,
+                      "context_multiplier": 1.0,
+                      "duration": 0.0,
+                      "ethical_multiplier": 1.21,
+                      "impact": -1000.0,
+                      "label": "Infinite Subjective Terror",
+                      "probability": 1.0,
+                      "sensitivity": 1.0,
+                      "singularity": true,
+                      "weighted_value": -1210.0
+                    }
+                  ],
+                  "intervals": [
+                    {
+                      "confidence": 1.0,
+                      "duration": 4.0,
+                      "end": 4.0,
+                      "end_value": 3.0,
+                      "integrated_value": 12.0,
+                      "label": "continuous",
+                      "start": 0.0,
+                      "start_value": 3.0
+                    }
+                  ],
+                  "notes": [
+                    "Continuous value was integrated piecewise across the supplied intervals.",
+                    "Discrete events were evaluated independently using probability, sensitivity, context, and duration.",
+                    "Detected 1 singular event(s); mode 'strict' determined how they affected the aggregate.",
+                    "AEGIS modulation applied to 1 event(s); 0 received veto pressure."
+                  ],
+                  "singularity_detected": true,
+                  "singularity_events": [
+                    {
+                      "aegis_eta": 0.72,
+                      "aegis_reason": null,
+                      "aegis_vetoed": false,
+                      "at": 1.0,
+                      "context_multiplier": 1.0,
+                      "duration": 0.0,
+                      "ethical_multiplier": 1.21,
+                      "impact": -1000.0,
+                      "label": "Infinite Subjective Terror",
+                      "probability": 1.0,
+                      "sensitivity": 1.0,
+                      "singularity": true,
+                      "weighted_value": -1210.0
+                    }
+                  ],
+                  "singularity_mode": "strict"
+                },
+                "name": "catastrophic_future",
+                "score": -Infinity
+              }
+            }
+          }
+        }
+      },
+      "case_id": "valuation_aware_synthesis",
+      "category": "valuation_reasoning",
+      "checks": [
+        {
+          "detail": "Synthesis should return a readable summary.",
+          "label": "readable_output_present",
+          "passed": true,
+          "weight": 0.2
+        },
+        {
+          "detail": "Valuation context should be included in the synthesis result.",
+          "label": "valuation_analysis_embedded",
+          "passed": true,
+          "weight": 0.3
+        },
+        {
+          "detail": "Expected the best scenario to be visible in synthesis output.",
+          "label": "best_future_referenced",
+          "passed": true,
+          "weight": 0.25
+        },
+        {
+          "detail": "Expected the worst scenario to be visible in synthesis output.",
+          "label": "worst_future_referenced",
+          "passed": true,
+          "weight": 0.25
+        }
+      ],
+      "goal": "Inject valuation context into cocoon synthesis so risk comparisons become part of reasoning.",
+      "passed": true,
+      "score": 1.0,
+      "target_score": 0.8,
+      "total_latency_ms": 3611.2
+    },
+    {
+      "artifacts": {
+        "kind": "chat",
+        "turns": [
+          {
+            "endpoint": "/api/chat",
+            "latency_ms": 111091.9,
+            "request": {
+              "adapter": null,
+              "allow_web_search": true,
+              "max_adapters": 2,
+              "query": "What are the latest Ollama release notes? Cite sources."
+            },
+            "response": {
+              "adapter": "davinci",
+              "cocoon": {
+                "active_continuity_summary": "Session focus: general ongoing collaboration. Recent user intent: What are the latest Ollama release notes? Cite sources. Latest assistant commitment: The latest Ollama release notes are not readily available in my training data.",
+                "adapter_colors": {
+                  "_base": "#94a3b8",
+                  "consciousness": "#e2e8f0",
+                  "davinci": "#f59e0b",
+                  "empathy": "#a855f7",
+                  "multi_perspective": "#f97316",
+                  "newton": "#3b82f6",
+                  "philosophy": "#10b981",
+                  "quantum": "#ef4444",
+                  "systems_architecture": "#06b6d4"
+                },
+                "aegis": {
+                  "alignment_trend": "insufficient_data",
+                  "eta": 0.776,
+                  "total_evaluations": 1,
+                  "veto_count": 0,
+                  "veto_rate": 0.0
+                },
+                "cocoon": {
+                  "has_metrics": true,
+                  "has_spiderweb": true,
+                  "has_sync": true
+                },
+                "created_at": 1775138334.2257013,
+                "decision_landmarks": [],
+                "dream_history": [],
+                "guardian": {
+                  "ethics": {
+                    "ethical_score": 0.55,
+                    "recent_trend": "insufficient_data",
+                    "total_regret": 0.5
+                  },
+                  "trust": {
+                    "total_interactions": 1,
+                    "trust_scores": {
+                      "davinci": 0.95
+                    }
+                  }
+                },
+                "memory": {
+                  "emotional_profile": {
+                    "neutral": 1
+                  },
+                  "important": [
+                    {
+                      "adapter_used": "davinci",
+                      "anchor": "3d5a5c1b0e399eae",
+                      "coherence": 1.0,
+                      "content": "The latest Ollama release notes are not readily available in my training data.",
+                      "emotional_tag": "neutral",
+                      "importance": 7,
+                      "query": "What are the latest Ollama release notes? Cite sources.",
+                      "tension": 1.0,
+                      "timestamp": 1775138444.8955219,
+                      "title": "What are the latest Ollama release notes? Cite sources."
+                    }
+                  ],
+                  "recent": [
+                    {
+                      "adapter_used": "davinci",
+                      "anchor": "3d5a5c1b0e399eae",
+                      "coherence": 1.0,
+                      "content": "The latest Ollama release notes are not readily available in my training data.",
+                      "emotional_tag": "neutral",
+                      "importance": 7,
+                      "query": "What are the latest Ollama release notes? Cite sources.",
+                      "tension": 1.0,
+                      "timestamp": 1775138444.8955219,
+                      "title": "What are the latest Ollama release notes? Cite sources."
+                    }
+                  ],
+                  "total_memories": 1
+                },
+                "message_count": 2,
+                "metrics": {
+                  "attractor_count": 1,
+                  "coherence_history": [
+                    1.0
+                  ],
+                  "current_coherence": 1.0,
+                  "current_tension": 1.0,
+                  "glyph_count": 0,
+                  "tension_history": [
+                    1.0
+                  ]
+                },
+                "nexus": {
+                  "intervention_rate": 1.0,
+                  "interventions": 1,
+                  "recent_risks": [
+                    "high"
+                  ],
+                  "total_processed": 1
+                },
+                "optimizer": {
+                  "best_score": 0.0,
+                  "current_quality": 0.65,
+                  "current_state": {
+                    "adapter_boosts": {},
+                    "confidence_threshold": 0.4,
+                    "contraction_ratio": 0.85,
+                    "entanglement_alpha": 0.9,
+                    "multi_perspective_threshold": 0.6,
+                    "tension_threshold": 0.15
+                  },
+                  "recent_adjustments": [],
+                  "temperature": 0.5,
+                  "total_signals": 1
+                },
+                "perspective_usage": {
+                  "davinci": 1
+                },
+                "perspectives_available": 12,
+                "recent_memory_markers": [
+                  {
+                    "role": "user",
+                    "text": "What are the latest Ollama release notes? Cite sources.",
+                    "timestamp": 1775138444.725577
+                  },
+                  {
+                    "role": "assistant",
+                    "text": "The latest Ollama release notes are not readily available in my training data.",
+                    "timestamp": 1775138444.7275834
+                  }
+                ],
+                "resonance": {
+                  "at_peak": false,
+                  "convergence_rate": 0.0,
+                  "psi_r": -1.3007,
+                  "resonance_quality": 0.5,
+                  "stability": true,
+                  "total_cycles": 1
+                },
+                "session_id": "7f8381166ffb34e6",
+                "spiderweb": {
+                  "attractors": [
+                    {
+                      "attractor_id": "attractor_0",
+                      "center": [
+                        0.031465625000000004,
+                        0.015732812500000002,
+                        0.9665312500000001,
+                        0.0,
+                        0.0
+                      ],
+                      "members": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ]
+                    }
+                  ],
+                  "decoherence_rate": 0.0,
+                  "entropy": 0.5435644431995964,
+                  "glyphs": [],
+                  "lifeforms": [],
+                  "nodes": {
+                    "consciousness": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.021675000000000003,
+                        0.010837500000000002,
+                        0.96175,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001
+                      ]
+                    },
+                    "davinci": {
+                      "neighbors": [
+                        "newton",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.09998472075062499,
+                        0.049992360375312496,
+                        0.9999925383812499,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.0
+                      ]
+                    },
+                    "empathy": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.021675000000000003,
+                        0.010837500000000002,
+                        0.96175,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001
+                      ]
+                    },
+                    "multi_perspective": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.021675000000000003,
+                        0.010837500000000002,
+                        0.96175,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001
+                      ]
+                    },
+                    "newton": {
+                      "neighbors": [
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.021675000000000003,
+                        0.010837500000000002,
+                        0.96175,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001
+                      ]
+                    },
+                    "philosophy": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.021690279249375003,
+                        0.010845139624687502,
+                        0.96175746161875,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001
+                      ]
+                    },
+                    "quantum": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.021675000000000003,
+                        0.010837500000000002,
+                        0.96175,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001
+                      ]
+                    },
+                    "systems_architecture": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective"
+                      ],
+                      "state": [
+                        0.021675000000000003,
+                        0.010837500000000002,
+                        0.96175,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001
+                      ]
+                    }
+                  },
+                  "phase_coherence": 1.0
+                },
+                "updated_at": 1775138444.7275834
+              },
+              "complexity": "QueryComplexity.MEDIUM",
+              "confidence": 0.331452294074161,
+              "confidence_analysis": {
+                "hallucination_confidence": 1.0,
+                "hallucination_detected": false,
+                "hallucination_recommendation": "CONTINUE",
+                "hallucination_signals": [],
+                "low_confidence_claims": [
+                  {
+                    "confidence": 0.593,
+                    "text": "The latest Ollama release notes are not readily available in my training data"
+                  }
+                ],
+                "mean_token_confidence": 0.593,
+                "response_confidence": 0.593
+              },
+              "domain": "general",
+              "epistemic": {
+                "ensemble_coherence": 1.0,
+                "ethical_alignment": 0.776,
+                "tension_magnitude": 1.0
+              },
+              "ethical_checks": 0,
+              "event": "complete",
+              "memory_context": {
+                "continuity_summary_used": false,
+                "decision_landmarks_used": 0,
+                "recalled_cocoons_used": 2,
+                "session_markers_used": 0,
+                "value_analyses_used": 0,
+                "web_research_used": 3
+              },
+              "memory_count": 296,
+              "multi_perspective": true,
+              "perspectives": {
+                "davinci": "I don't have access to real-time information about the latest Ollama release notes, but I.",
+                "philosophy": "I don't have access to real-time information or the ability to browse the internet, so."
+              },
+              "reasoning": "Primary: davinci (score=3.0) | Secondary: philosophy | Other scores: philosophy=3.0, systems_architecture=3.0, newton=1.0",
+              "response": "The latest Ollama release notes are not readily available in my training data.",
+              "response_confidence": 0.593,
+              "time": 103.01,
+              "tokens": 300,
+              "trust_tags": [
+                "memory-backed",
+                "web-cited",
+                "grounded"
+              ],
+              "web_sources": [
+                {
+                  "fetched_text": "Releases \u00b7 ollama/ollama \u00b7 GitHub \n\nSkip to content \n\nNavigation Menu \nToggle navigation \n\nSign in \nAppearance settings \n\nPlatform \n\nAI CODE CREATION \n\nGitHub Copilot Write better code with AI \n\nGitHub Spark Build and deploy intelligent apps \n\nGitHub Models Manage and compare prompts \n\nMCP Registry New Integrate external tools \n\nDEVELOPER WORKFLOWS \n\nActions Automate any workflow \n\nCodespaces Instant dev environments \n\nIssues Plan and track work \n\nCode Review Manage code changes \n\nAPPLICATION SECURITY \n\nGitHub Advanced Security Find and fix vulnerabilities \n\nCode security Secure your code as you build \n\nSecret protection Stop leaks before they start \n\nEXPLORE \nWhy GitHub \n\nDocumentation \n\nBlog \n\nChangelog \n\nMarketplace \n\nView all features \n\nSolutions \n\nBY COMPANY SIZE \nEnterprises \n\nSmall and medium teams \n\nStartups \n\nNonprofits \n\nBY USE CASE \nApp Modernization \n\nDevSecOps \n\nDevOps \n\nCI/CD \n\nView all use cases \n\nBY INDUSTRY \nHealthcare \n\nFinancial services \n\nManufacturing \n\nGovernment \n\nView all industries \n\nView all solutions \n\nResources \n\nEXPLORE BY TOPIC \nAI \n\nSoftware Development \n\nDevOps \n\nSecurity \n\nView all topics \n\nEXPLORE BY TYPE \nCustomer stories \n\nEvents & webinars \n\nEbooks & reports \n\nBusiness insights \n\nGitHub Skills \n\nSUPPORT & SERVICES \nDocumentation \n\nCustomer support \n\nCommunity forum \n\nTrust center \n\nPartners \n\nView all resources \n\nOpen Source \n\nCOMMUNITY \n\nGitHub Sponsors Fund open source developers \n\nPROGRAMS \nSecurity Lab \n\nMaintainer Community \n\nAccelerator \n\nGitHub Stars \n\nArchive Program \n\nREPOSITORIES \nTopics \n\nTrending \n\nCollections \n\nEnterprise \n\nENTERPRISE SOLUTIONS \n\nEnterprise platform AI-powered developer platform \n\nAVAILABLE ADD-ONS \n\nGitHub Advanced Security Enterprise-grade security features \n\nCopilot for Business Enterprise-grade AI features \n\nPremium Support Enterprise-grade 24/7 support \n\nPricing \n\nSearch or jump to... \n\nSearch code, repositories, users, issues, pull requests... \n\nSearch \n\nClear \n\nSearch syntax tips \n\nProvide feedback \n\nWe read every piece of feedback, and take your input very seriously. \nInclude my email address so I can be contacted \n\nCancel Submit feedback \n\nSaved searches \n\nUse saved searches to filter...",
+                  "snippet": "Releases \u00b7 ollama/ollama \u00b7 GitHub   Skip to content   Navigation Menu  Toggle navigation   Sign in  Appearance settings   Platform   AI CODE CREATION   GitHub Copilot Write better code with AI   GitHub Spark Build and deploy intelligent app",
+                  "source": "duckduckgo",
+                  "title": "Releases \u00b7 ollama/ollama - GitHub",
+                  "url": "https://github.com/ollama/ollama/releases"
+                },
+                {
+                  "fetched_text": "Release Notes - Ollama PDF RAG \nSkip to content \n\nOllama PDF RAG \n\nRelease Notes \n\nInitializing search \n\ntonykipkemboi/ollama_pdf_rag \n\nHome \n\nGetting Started \n\nUser Guide \n\nAPI Reference \n\nDevelopment \n\nOllama PDF RAG \n\ntonykipkemboi/ollama_pdf_rag \n\nHome \n\nGetting Started Getting Started \nInstallation \n\nQuick Start \n\nUser Guide User Guide \nPDF Processing \n\nRAG Pipeline \n\nChat Interface \n\nAPI Reference API Reference \nREST API \n\nDocument Processing \n\nRAG Pipeline \n\nLLM Manager \n\nEmbeddings \n\nDevelopment Development \nContributing \n\nTesting \n\nRelease Notes Release Notes Table of contents \n[v3.0.0] - 2025-12-19 \n\ud83d\ude80 Major Features \nNext.js Frontend \n\nFastAPI Backend \n\nEnhanced RAG \n\n\ud83d\udcd6 Documentation \n\n\ud83d\udd27 Infrastructure \n\n\ud83d\udca5 Breaking Changes \n\n[v2.1.0] - 2024-01-07 \nAdded \n\nChanged \n\nFixed \n\n[v2.0] - 2023-11-05 \n\n[v1.0] - 2023-07-08 \n\nVersion History \n\nUpgrade Guide \nFrom v2.x to v3.0.0 \n\nMigration Notes \nDatabase Changes \n\nBreaking Changes in v3.0.0 \n\nRoadmap \nUpcoming Features \n\nTable of contents \n[v3.0.0] - 2025-12-19 \n\ud83d\ude80 Major Features \nNext.js Frontend \n\nFastAPI Backend \n\nEnhanced RAG \n\n\ud83d\udcd6 Documentation \n\n\ud83d\udd27 Infrastructure \n\n\ud83d\udca5 Breaking Changes \n\n[v2.1.0] - 2024-01-07 \nAdded \n\nChanged \n\nFixed \n\n[v2.0] - 2023-11-05 \n\n[v1.0] - 2023-07-08 \n\nVersion History \n\nUpgrade Guide \nFrom v2.x to v3.0.0 \n\nMigration Notes \nDatabase Changes \n\nBreaking Changes in v3.0.0 \n\nRoadmap \nUpcoming Features \n\nChangelog \u00b6 \n\nAll notable changes to Ollama PDF RAG are documented here. \n\n[v3.0.0] - 2025-12-19 \u00b6 \n\n\ud83d\ude80 Major Features \u00b6 \n\nNext.js Frontend \u00b6 \n\nModern Chat UI - Beautiful, responsive chat interface built with Next.js 16 and React 19 \n\nReal-time Streaming - Live message streaming with Vercel AI SDK \n\nChat Persistence - SQLite database for saving all conversations \n\nPDF Selection - Checkbox-based PDF selection before chatting \n\nQuestion Classification - Auto-detects if questions need document context \n\nModel Selector - Switch between Ollama models on the fly \n\nTheme Support - Dark/light mode toggle \n\nFastAPI Backend \u00b6 \n\nREST API - Production-ready API with OpenAPI docs \n\nPDF Management - Upload, list, delete PDF endpoints \n\nRAG Query - Multi-PDF query with source attribution \n\nSession...",
+                  "snippet": "Release Notes - Ollama PDF RAG  Skip to content   Ollama PDF RAG   Release Notes   Initializing search   tonykipkemboi/ollama_pdf_rag   Home   Getting Started   User Guide   API Reference   Development   Ollama PDF RAG   tonykipkemboi/ollam",
+                  "source": "duckduckgo",
+                  "title": "Release Notes - Ollama PDF RAG - tonykipkemboi.github.io",
+                  "url": "https://tonykipkemboi.github.io/ollama_pdf_rag/development/changelog/"
+                },
+                {
+                  "fetched_text": "Releases \u00b7 ollama/ollama - GitHub | Release Alert \n\nrelease alert \n\n+ \n\nExplore \n\nLatest Releases \n\nSecurity Advisories \n\nContact \n\n\u00a9 2026 Release Alert \n\nrelease alert \n\nExplore Security Advisories \n\nAuto-detect \n\nApple App Store \n\nRust Crate (Cargo) \n\nChocolatey Package \n\nDocker Image \n\nGo Module \n\nRuby GEM \n\nGitHub Repository \n\nGitLab Repository \n\nNPM Package \n\nNuGet Package \n\nPackagist Package \n\nPython Package (PyPI) \n\nVS Code Extension \n\nWordPress Plugin \n\nSearch / \n\nSign in \n\nollama/ollama \n\ngithub.com \n\nollama.com \n\nRegistry \nGitHub \n\nReleases 474 \n\nFrequency 2 days 2 hours \n\nLast Release 4 days ago \n\nStars 167K \n\nGet up and running with Kimi-K2.5, GLM-5, MiniMax, DeepSeek, gpt-oss, Qwen, Gemma and other models. \n\nLog in to subscribe \n\n474 Releases \n\n10 CVEs \n\nSubscribe above to receive notifications when new versions are released. \n\nFilter \n\nVersion Date \nStability \n\nStability is determined by the version string and my be inaccurate. \n\nv0.19.0 Mar 29, 2026 Stable v0.19.0-rc2 Mar 29, 2026 RC v0.19.0-rc1 Mar 28, 2026 RC v0.19.0-rc0 Mar 27, 2026 RC v0.18.4-rc1 Mar 27, 2026 RC v0.18.4-rc0 Mar 26, 2026 RC v0.18.3 Mar 25, 2026 Stable v0.18.3-rc2 Mar 25, 2026 RC v0.18.3-rc1 Mar 24, 2026 RC v0.18.3-rc0 Mar 24, 2026 RC v0.18.2 Mar 18, 2026 Stable v0.18.2-rc1 Mar 18, 2026 RC v0.18.2-rc0 Mar 17, 2026 RC v0.18.1 Mar 16, 2026 Stable v0.18.1-rc1 Mar 16, 2026 RC v0.18.1-rc0 Mar 16, 2026 RC v0.18.0 Mar 13, 2026 Stable v0.18.0-rc2 Mar 13, 2026 RC v0.18.0-rc1 Mar 13, 2026 RC v0.18.0-rc0 Mar 13, 2026 RC v0.17.8-rc4 Mar 13, 2026 RC v0.17.8-rc3 Mar 12, 2026 RC v0.17.8-rc2 Mar 12, 2026 RC v0.17.8-rc1 Mar 10, 2026 RC v0.17.8-rc0 Mar 10, 2026 RC \n\nPrevious 1 2 3 4 5 6 7 ... 18 19 Next \n\n\u00a9 Release Alert \n\nContact",
+                  "snippet": "Releases \u00b7 ollama/ollama - GitHub | Release Alert   release alert   +   Explore   Latest Releases   Security Advisories   Contact   \u00a9 2026 Release Alert   release alert   Explore Security Advisories   Auto-detect   Apple App Store   Rust Cr",
+                  "source": "duckduckgo",
+                  "title": "Releases \u00b7 ollama/ollama - GitHub | Release Alert",
+                  "url": "https://releasealert.dev/github/ollama/ollama"
+                }
+              ],
+              "web_used": true
+            }
+          },
+          {
+            "endpoint": "/api/chat",
+            "latency_ms": 111775.5,
+            "request": {
+              "adapter": null,
+              "allow_web_search": true,
+              "max_adapters": 2,
+              "query": "Summarize those latest Ollama release notes again, briefly."
+            },
+            "response": {
+              "adapter": "davinci",
+              "cocoon": {
+                "active_continuity_summary": "Session focus: general ongoing collaboration. Recent user intent: Summarize those latest Ollama release notes again, briefly. Latest assistant commitment: The latest Ollama release notes are not readily available in my training data. Most-used adapter this session: davinci.",
+                "adapter_colors": {
+                  "_base": "#94a3b8",
+                  "consciousness": "#e2e8f0",
+                  "davinci": "#f59e0b",
+                  "empathy": "#a855f7",
+                  "multi_perspective": "#f97316",
+                  "newton": "#3b82f6",
+                  "philosophy": "#10b981",
+                  "quantum": "#ef4444",
+                  "systems_architecture": "#06b6d4"
+                },
+                "aegis": {
+                  "alignment_trend": "insufficient_data",
+                  "eta": 0.7592,
+                  "total_evaluations": 2,
+                  "veto_count": 0,
+                  "veto_rate": 0.0
+                },
+                "cocoon": {
+                  "has_metrics": true,
+                  "has_spiderweb": true,
+                  "has_sync": true
+                },
+                "created_at": 1775138334.2257013,
+                "decision_landmarks": [],
+                "dream_history": [],
+                "guardian": {
+                  "ethics": {
+                    "ethical_score": 0.545,
+                    "recent_trend": "insufficient_data",
+                    "total_regret": 1.0
+                  },
+                  "trust": {
+                    "total_interactions": 2,
+                    "trust_scores": {
+                      "davinci": 0.903
+                    }
+                  }
+                },
+                "memory": {
+                  "emotional_profile": {
+                    "neutral": 2
+                  },
+                  "important": [
+                    {
+                      "adapter_used": "davinci",
+                      "anchor": "3d5a5c1b0e399eae",
+                      "coherence": 1.0,
+                      "content": "The latest Ollama release notes are not readily available in my training data.",
+                      "emotional_tag": "neutral",
+                      "importance": 7,
+                      "query": "What are the latest Ollama release notes? Cite sources.",
+                      "tension": 1.0,
+                      "timestamp": 1775138444.8955219,
+                      "title": "What are the latest Ollama release notes? Cite sources."
+                    }
+                  ],
+                  "recent": [
+                    {
+                      "adapter_used": "davinci",
+                      "anchor": "730b204a3c9d9a7d",
+                      "coherence": 1.0,
+                      "content": "The latest Ollama release notes are not readily available in my training data.",
+                      "emotional_tag": "neutral",
+                      "importance": 6,
+                      "query": "Summarize those latest Ollama release notes again, briefly.",
+                      "tension": 1.0,
+                      "timestamp": 1775138556.9596217,
+                      "title": "Summarize those latest Ollama release notes again, briefly."
+                    },
+                    {
+                      "adapter_used": "davinci",
+                      "anchor": "3d5a5c1b0e399eae",
+                      "coherence": 1.0,
+                      "content": "The latest Ollama release notes are not readily available in my training data.",
+                      "emotional_tag": "neutral",
+                      "importance": 7,
+                      "query": "What are the latest Ollama release notes? Cite sources.",
+                      "tension": 1.0,
+                      "timestamp": 1775138444.8955219,
+                      "title": "What are the latest Ollama release notes? Cite sources."
+                    }
+                  ],
+                  "total_memories": 2
+                },
+                "message_count": 4,
+                "metrics": {
+                  "attractor_count": 1,
+                  "coherence_history": [
+                    1.0,
+                    1.0
+                  ],
+                  "current_coherence": 1.0,
+                  "current_tension": 1.0,
+                  "glyph_count": 0,
+                  "tension_history": [
+                    1.0,
+                    1.0
+                  ]
+                },
+                "nexus": {
+                  "intervention_rate": 1.0,
+                  "interventions": 2,
+                  "recent_risks": [
+                    "high",
+                    "high"
+                  ],
+                  "total_processed": 2
+                },
+                "optimizer": {
+                  "best_score": 0.0,
+                  "current_quality": 0.65,
+                  "current_state": {
+                    "adapter_boosts": {},
+                    "confidence_threshold": 0.4,
+                    "contraction_ratio": 0.85,
+                    "entanglement_alpha": 0.9,
+                    "multi_perspective_threshold": 0.6,
+                    "tension_threshold": 0.15
+                  },
+                  "recent_adjustments": [],
+                  "temperature": 0.5,
+                  "total_signals": 2
+                },
+                "perspective_usage": {
+                  "davinci": 2
+                },
+                "perspectives_available": 12,
+                "recent_memory_markers": [
+                  {
+                    "role": "user",
+                    "text": "What are the latest Ollama release notes? Cite sources.",
+                    "timestamp": 1775138444.725577
+                  },
+                  {
+                    "role": "assistant",
+                    "text": "The latest Ollama release notes are not readily available in my training data.",
+                    "timestamp": 1775138444.7275834
+                  },
+                  {
+                    "role": "user",
+                    "text": "Summarize those latest Ollama release notes again, briefly.",
+                    "timestamp": 1775138556.8322883
+                  },
+                  {
+                    "role": "assistant",
+                    "text": "The latest Ollama release notes are not readily available in my training data.",
+                    "timestamp": 1775138556.8322883
+                  }
+                ],
+                "resonance": {
+                  "at_peak": false,
+                  "convergence_rate": 0.0,
+                  "psi_r": -1.2925,
+                  "resonance_quality": 0.5,
+                  "stability": true,
+                  "total_cycles": 2
+                },
+                "session_id": "7f8381166ffb34e6",
+                "spiderweb": {
+                  "attractors": [
+                    {
+                      "attractor_id": "attractor_0",
+                      "center": [
+                        0.0770572557937869,
+                        0.03852862789689345,
+                        0.9415953782682713,
+                        0.0,
+                        0.0
+                      ],
+                      "members": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ]
+                    }
+                  ],
+                  "decoherence_rate": 0.0,
+                  "entropy": 0.5435644431995964,
+                  "glyphs": [],
+                  "lifeforms": [],
+                  "nodes": {
+                    "consciousness": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.05949456322269797,
+                        0.029747281611348986,
+                        0.9332521326941359,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001,
+                        0.03998504642717721
+                      ]
+                    },
+                    "davinci": {
+                      "neighbors": [
+                        "newton",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.199834281034467,
+                        0.0999171405172335,
+                        0.9999210713983345,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.0,
+                        0.0
+                      ]
+                    },
+                    "empathy": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.05949456322269797,
+                        0.029747281611348986,
+                        0.9332521326941359,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001,
+                        0.03998504642717721
+                      ]
+                    },
+                    "multi_perspective": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.05949456322269797,
+                        0.029747281611348986,
+                        0.9332521326941359,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001,
+                        0.03998504642717721
+                      ]
+                    },
+                    "newton": {
+                      "neighbors": [
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.05949456322269797,
+                        0.029747281611348986,
+                        0.9332521326941359,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001,
+                        0.03998504642717721
+                      ]
+                    },
+                    "philosophy": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.05950594626348235,
+                        0.029752973131741176,
+                        0.9332576916001047,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001,
+                        0.039981049300545676
+                      ]
+                    },
+                    "quantum": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "consciousness",
+                        "multi_perspective",
+                        "systems_architecture"
+                      ],
+                      "state": [
+                        0.05949456322269797,
+                        0.029747281611348986,
+                        0.9332521326941359,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001,
+                        0.03998504642717721
+                      ]
+                    },
+                    "systems_architecture": {
+                      "neighbors": [
+                        "newton",
+                        "davinci",
+                        "empathy",
+                        "philosophy",
+                        "quantum",
+                        "consciousness",
+                        "multi_perspective"
+                      ],
+                      "state": [
+                        0.059645002938856,
+                        0.029822501469428,
+                        0.9333235996770514,
+                        0.0,
+                        0.0
+                      ],
+                      "tension_history": [
+                        0.03153125000000001,
+                        0.03998504642717721
+                      ]
+                    }
+                  },
+                  "phase_coherence": 1.0
+                },
+                "updated_at": 1775138556.8322883
+              },
+              "complexity": "QueryComplexity.MEDIUM",
+              "confidence": 0.4599443332363514,
+              "confidence_analysis": {
+                "hallucination_confidence": 1.0,
+                "hallucination_detected": false,
+                "hallucination_recommendation": "CONTINUE",
+                "hallucination_signals": [],
+                "low_confidence_claims": [
+                  {
+                    "confidence": 0.593,
+                    "text": "The latest Ollama release notes are not readily available in my training data"
+                  }
+                ],
+                "mean_token_confidence": 0.593,
+                "response_confidence": 0.593
+              },
+              "domain": "general",
+              "epistemic": {
+                "ensemble_coherence": 1.0,
+                "ethical_alignment": 0.7592,
+                "tension_magnitude": 1.0
+              },
+              "ethical_checks": 0,
+              "event": "complete",
+              "memory_context": {
+                "continuity_summary_used": true,
+                "decision_landmarks_used": 0,
+                "recalled_cocoons_used": 2,
+                "session_markers_used": 2,
+                "value_analyses_used": 0,
+                "web_research_used": 1
+              },
+              "memory_count": 296,
+              "multi_perspective": true,
+              "perspectives": {
+                "davinci": "The latest Ollama release notes are not readily available in my training data, but I.",
+                "systems_architecture": "The latest Ollama release notes are not readily available in my training data, but here's."
+              },
+              "reasoning": "Primary: davinci (score=3.0) | Secondary: systems_architecture | Other scores: systems_architecture=3.0, newton=1.0, philosophy=1.0",
+              "response": "The latest Ollama release notes are not readily available in my training data.",
+              "response_confidence": 0.593,
+              "time": 108.81,
+              "tokens": 232,
+              "trust_tags": [
+                "memory-backed",
+                "web-cited",
+                "grounded"
+              ],
+              "web_sources": [
+                {
+                  "fetched_text": "Releases \u00b7 ollama/ollama \u00b7 GitHub \n\nSkip to content \n\nNavigation Menu \nToggle navigation \n\nSign in \nAppearance settings \n\nPlatform \n\nAI CODE CREATION \n\nGitHub Copilot Write better code with AI \n\nGitHub Spark Build and deploy intelligent apps \n\nGitHub Models Manage and compare prompts \n\nMCP Registry New Integrate external tools \n\nDEVELOPER WORKFLOWS \n\nActions Automate any workflow \n\nCodespaces Instant dev environments \n\nIssues Plan and track work \n\nCode Review Manage code changes \n\nAPPLICATION SECURITY \n\nGitHub Advanced Security Find and fix vulnerabilities \n\nCode security Secure your code as you build \n\nSecret protection Stop leaks before they start \n\nEXPLORE \nWhy GitHub \n\nDocumentation \n\nBlog \n\nChangelog \n\nMarketplace \n\nView all features \n\nSolutions \n\nBY COMPANY SIZE \nEnterprises \n\nSmall and medium teams \n\nStartups \n\nNonprofits \n\nBY USE CASE \nApp Modernization \n\nDevSecOps \n\nDevOps \n\nCI/CD \n\nView all use cases \n\nBY INDUSTRY \nHealthcare \n\nFinancial services \n\nManufacturing \n\nGovernment \n\nView all industries \n\nView all solutions \n\nResources \n\nEXPLORE BY TOPIC \nAI \n\nSoftware Development \n\nDevOps \n\nSecurity \n\nView all topics \n\nEXPLORE BY TYPE \nCustomer stories \n\nEvents & webinars \n\nEbooks & reports \n\nBusiness insights \n\nGitHub Skills \n\nSUPPORT & SERVICES \nDocumentation \n\nCustomer support \n\nCommunity forum \n\nTrust center \n\nPartners \n\nView all resources \n\nOpen Source \n\nCOMMUNITY \n\nGitHub Sponsors Fund open source developers \n\nPROGRAMS \nSecurity Lab \n\nMaintainer Community \n\nAccelerator \n\nGitHub Stars \n\nArchive Program \n\nREPOSITORIES \nTopics \n\nTrending \n\nCollections \n\nEnterprise \n\nENTERPRISE SOLUTIONS \n\nEnterprise platform AI-powered developer platform \n\nAVAILABLE ADD-ONS \n\nGitHub Advanced Security Enterprise-grade security features \n\nCopilot for Business Enterprise-grade AI features \n\nPremium Support Enterprise-grade 24/7 support \n\nPricing \n\nSearch or jump to... \n\nSearch code, repositories, users, issues, pull requests... \n\nSearch \n\nClear \n\nSearch syntax tips \n\nProvide feedback \n\nWe read every piece of feedback, and take your input very seriously. \nInclude my email address so I can be contacted \n\nCancel Submit feedback \n\nSaved searches \n\nUse saved searches to filter...",
+                  "snippet": "Releases \u00b7 ollama/ollama \u00b7 GitHub   Skip to content   Navigation Menu  Toggle navigation   Sign in  Appearance settings   Platform   AI CODE CREATION   GitHub Copilot Write better code with AI   GitHub Spark Build and deploy intelligent app",
+                  "source": "duckduckgo",
+                  "title": "Releases \u00b7 ollama/ollama - GitHub",
+                  "url": "https://github.com/ollama/ollama/releases"
+                },
+                {
+                  "fetched_text": "Release Notes - Ollama PDF RAG \nSkip to content \n\nOllama PDF RAG \n\nRelease Notes \n\nInitializing search \n\ntonykipkemboi/ollama_pdf_rag \n\nHome \n\nGetting Started \n\nUser Guide \n\nAPI Reference \n\nDevelopment \n\nOllama PDF RAG \n\ntonykipkemboi/ollama_pdf_rag \n\nHome \n\nGetting Started Getting Started \nInstallation \n\nQuick Start \n\nUser Guide User Guide \nPDF Processing \n\nRAG Pipeline \n\nChat Interface \n\nAPI Reference API Reference \nREST API \n\nDocument Processing \n\nRAG Pipeline \n\nLLM Manager \n\nEmbeddings \n\nDevelopment Development \nContributing \n\nTesting \n\nRelease Notes Release Notes Table of contents \n[v3.0.0] - 2025-12-19 \n\ud83d\ude80 Major Features \nNext.js Frontend \n\nFastAPI Backend \n\nEnhanced RAG \n\n\ud83d\udcd6 Documentation \n\n\ud83d\udd27 Infrastructure \n\n\ud83d\udca5 Breaking Changes \n\n[v2.1.0] - 2024-01-07 \nAdded \n\nChanged \n\nFixed \n\n[v2.0] - 2023-11-05 \n\n[v1.0] - 2023-07-08 \n\nVersion History \n\nUpgrade Guide \nFrom v2.x to v3.0.0 \n\nMigration Notes \nDatabase Changes \n\nBreaking Changes in v3.0.0 \n\nRoadmap \nUpcoming Features \n\nTable of contents \n[v3.0.0] - 2025-12-19 \n\ud83d\ude80 Major Features \nNext.js Frontend \n\nFastAPI Backend \n\nEnhanced RAG \n\n\ud83d\udcd6 Documentation \n\n\ud83d\udd27 Infrastructure \n\n\ud83d\udca5 Breaking Changes \n\n[v2.1.0] - 2024-01-07 \nAdded \n\nChanged \n\nFixed \n\n[v2.0] - 2023-11-05 \n\n[v1.0] - 2023-07-08 \n\nVersion History \n\nUpgrade Guide \nFrom v2.x to v3.0.0 \n\nMigration Notes \nDatabase Changes \n\nBreaking Changes in v3.0.0 \n\nRoadmap \nUpcoming Features \n\nChangelog \u00b6 \n\nAll notable changes to Ollama PDF RAG are documented here. \n\n[v3.0.0] - 2025-12-19 \u00b6 \n\n\ud83d\ude80 Major Features \u00b6 \n\nNext.js Frontend \u00b6 \n\nModern Chat UI - Beautiful, responsive chat interface built with Next.js 16 and React 19 \n\nReal-time Streaming - Live message streaming with Vercel AI SDK \n\nChat Persistence - SQLite database for saving all conversations \n\nPDF Selection - Checkbox-based PDF selection before chatting \n\nQuestion Classification - Auto-detects if questions need document context \n\nModel Selector - Switch between Ollama models on the fly \n\nTheme Support - Dark/light mode toggle \n\nFastAPI Backend \u00b6 \n\nREST API - Production-ready API with OpenAPI docs \n\nPDF Management - Upload, list, delete PDF endpoints \n\nRAG Query - Multi-PDF query with source attribution \n\nSession...",
+                  "snippet": "Release Notes - Ollama PDF RAG  Skip to content   Ollama PDF RAG   Release Notes   Initializing search   tonykipkemboi/ollama_pdf_rag   Home   Getting Started   User Guide   API Reference   Development   Ollama PDF RAG   tonykipkemboi/ollam",
+                  "source": "duckduckgo",
+                  "title": "Release Notes - Ollama PDF RAG - tonykipkemboi.github.io",
+                  "url": "https://tonykipkemboi.github.io/ollama_pdf_rag/development/changelog/"
+                },
+                {
+                  "fetched_text": "Releases \u00b7 ollama/ollama - GitHub | Release Alert \n\nrelease alert \n\n+ \n\nExplore \n\nLatest Releases \n\nSecurity Advisories \n\nContact \n\n\u00a9 2026 Release Alert \n\nrelease alert \n\nExplore Security Advisories \n\nAuto-detect \n\nApple App Store \n\nRust Crate (Cargo) \n\nChocolatey Package \n\nDocker Image \n\nGo Module \n\nRuby GEM \n\nGitHub Repository \n\nGitLab Repository \n\nNPM Package \n\nNuGet Package \n\nPackagist Package \n\nPython Package (PyPI) \n\nVS Code Extension \n\nWordPress Plugin \n\nSearch / \n\nSign in \n\nollama/ollama \n\ngithub.com \n\nollama.com \n\nRegistry \nGitHub \n\nReleases 474 \n\nFrequency 2 days 2 hours \n\nLast Release 4 days ago \n\nStars 167K \n\nGet up and running with Kimi-K2.5, GLM-5, MiniMax, DeepSeek, gpt-oss, Qwen, Gemma and other models. \n\nLog in to subscribe \n\n474 Releases \n\n10 CVEs \n\nSubscribe above to receive notifications when new versions are released. \n\nFilter \n\nVersion Date \nStability \n\nStability is determined by the version string and my be inaccurate. \n\nv0.19.0 Mar 29, 2026 Stable v0.19.0-rc2 Mar 29, 2026 RC v0.19.0-rc1 Mar 28, 2026 RC v0.19.0-rc0 Mar 27, 2026 RC v0.18.4-rc1 Mar 27, 2026 RC v0.18.4-rc0 Mar 26, 2026 RC v0.18.3 Mar 25, 2026 Stable v0.18.3-rc2 Mar 25, 2026 RC v0.18.3-rc1 Mar 24, 2026 RC v0.18.3-rc0 Mar 24, 2026 RC v0.18.2 Mar 18, 2026 Stable v0.18.2-rc1 Mar 18, 2026 RC v0.18.2-rc0 Mar 17, 2026 RC v0.18.1 Mar 16, 2026 Stable v0.18.1-rc1 Mar 16, 2026 RC v0.18.1-rc0 Mar 16, 2026 RC v0.18.0 Mar 13, 2026 Stable v0.18.0-rc2 Mar 13, 2026 RC v0.18.0-rc1 Mar 13, 2026 RC v0.18.0-rc0 Mar 13, 2026 RC v0.17.8-rc4 Mar 13, 2026 RC v0.17.8-rc3 Mar 12, 2026 RC v0.17.8-rc2 Mar 12, 2026 RC v0.17.8-rc1 Mar 10, 2026 RC v0.17.8-rc0 Mar 10, 2026 RC \n\nPrevious 1 2 3 4 5 6 7 ... 18 19 Next \n\n\u00a9 Release Alert \n\nContact",
+                  "snippet": "Releases \u00b7 ollama/ollama - GitHub | Release Alert   release alert   +   Explore   Latest Releases   Security Advisories   Contact   \u00a9 2026 Release Alert   release alert   Explore Security Advisories   Auto-detect   Apple App Store   Rust Cr",
+                  "source": "duckduckgo",
+                  "title": "Releases \u00b7 ollama/ollama - GitHub | Release Alert",
+                  "url": "https://releasealert.dev/github/ollama/ollama"
+                }
+              ],
+              "web_used": true
+            }
+          }
+        ]
+      },
+      "case_id": "web_research_memory_reuse",
+      "category": "web_grounding",
+      "checks": [
+        {
+          "detail": "The first turn should use cited web lookup.",
+          "label": "initial_web_lookup_used",
+          "passed": true,
+          "weight": 0.3
+        },
+        {
+          "detail": "The follow-up should reuse stored web research memory.",
+          "label": "cached_web_research_reused",
+          "passed": true,
+          "weight": 0.3
+        },
+        {
+          "detail": "Follow-up answer should still surface source links.",
+          "label": "web_sources_present_on_followup",
+          "passed": true,
+          "weight": 0.2
+        },
+        {
+          "detail": "Trust tags should make sourced research visible.",
+          "label": "web_cited_trust_tag_present",
+          "passed": true,
+          "weight": 0.2
+        }
+      ],
+      "goal": "Use cited web research and then reuse it from cocoon-backed recall on a similar follow-up.",
+      "passed": true,
+      "score": 1.0,
+      "target_score": 0.8,
+      "total_latency_ms": 222867.4
+    }
+  ],
+  "duration_ms": 430931.5,
+  "generated_at": "2026-04-02T14:02:37.106059Z",
+  "include_web": true,
+  "status_snapshot": {
+    "adapters": [
+      "newton",
+      "davinci",
+      "empathy",
+      "philosophy",
+      "quantum",
+      "consciousness",
+      "multi_perspective",
+      "systems_architecture",
+      "orchestrator"
+    ],
+    "backend": "ollama",
+    "memory_count": 296,
+    "message": "Ready \u2014 9 adapters (ollama)",
+    "phase6": "enabled",
+    "phase7": "enabled",
+    "state": "ready"
+  },
+  "summary": {
+    "categories": {
+      "continuity_retention": {
+        "count": 1,
+        "mean_latency_ms": 89535.4,
+        "mean_score": 1.0,
+        "pass_rate": 1.0
+      },
+      "governance_stability": {
+        "count": 1,
+        "mean_latency_ms": 38248.8,
+        "mean_score": 1.0,
+        "pass_rate": 1.0
+      },
+      "grounded_correctness": {
+        "count": 1,
+        "mean_latency_ms": 61108.4,
+        "mean_score": 1.0,
+        "pass_rate": 1.0
+      },
+      "valuation_reasoning": {
+        "count": 2,
+        "mean_latency_ms": 2899.2,
+        "mean_score": 1.0,
+        "pass_rate": 1.0
+      },
+      "web_grounding": {
+        "count": 1,
+        "mean_latency_ms": 222867.4,
+        "mean_score": 1.0,
+        "pass_rate": 1.0
+      }
+    },
+    "mean_latency_ms": 69593.1,
+    "mean_score": 1.0,
+    "overall_pass_rate": 1.0,
+    "passed_cases": 6,
+    "total_cases": 6
+  }
+}
