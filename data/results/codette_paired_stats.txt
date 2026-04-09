@@ -1,0 +1,70 @@
+======================================================================
+CODETTE BENCHMARK — PAIRED STATISTICAL ANALYSIS
+======================================================================
+
+----------------------------------------------------------------------
+  Multi-perspective vs single
+  SINGLE (M=0.3563) vs MULTI (M=0.6577)
+----------------------------------------------------------------------
+  N (paired problems):  17
+  Mean difference:      +0.3014 (+84.6%)
+  95% CI (t-based):     [+0.2682, +0.3346]
+  Paired t-test:        t(16) = 19.235, p = 0.000000
+  Wilcoxon signed-rank: W = 0.0, p = 0.000293
+  Cohen's d (paired):   4.665  (very large)
+
+----------------------------------------------------------------------
+  Memory augmentation vs vanilla multi
+  MULTI (M=0.6577) vs MEMORY (M=0.6756)
+----------------------------------------------------------------------
+  N (paired problems):  17
+  Mean difference:      +0.0179 (+2.7%)
+  95% CI (t-based):     [-0.0064, +0.0422]
+  Paired t-test:        t(16) = 1.558, p = 0.119109
+  Wilcoxon signed-rank: W = 49.0, p = 0.192985
+  Cohen's d (paired):   0.378  (small)
+
+----------------------------------------------------------------------
+  Full Codette vs memory-augmented
+  MEMORY (M=0.6756) vs CODETTE (M=0.6893)
+----------------------------------------------------------------------
+  N (paired problems):  17
+  Mean difference:      +0.0137 (+2.0%)
+  95% CI (t-based):     [-0.0117, +0.0392]
+  Paired t-test:        t(16) = 1.143, p = 0.252825
+  Wilcoxon signed-rank: W = 53.0, p = 0.265947
+  Cohen's d (paired):   0.277  (small)
+
+----------------------------------------------------------------------
+  Full Codette vs single (total improvement)
+  SINGLE (M=0.3563) vs CODETTE (M=0.6893)
+----------------------------------------------------------------------
+  N (paired problems):  17
+  Mean difference:      +0.3330 (+93.5%)
+  95% CI (t-based):     [+0.2939, +0.3722]
+  Paired t-test:        t(16) = 18.050, p = 0.000000
+  Wilcoxon signed-rank: W = 0.0, p = 0.000293
+  Cohen's d (paired):   4.378  (very large)
+
+======================================================================
+MULTIPLE COMPARISON CORRECTION (Holm-Bonferroni)
+======================================================================
+  Multi-perspective vs single
+    Adjusted p = 0.000000  -> SIGNIFICANT
+  Full Codette vs single (total improvement)
+    Adjusted p = 0.000000  -> SIGNIFICANT
+  Memory augmentation vs vanilla multi
+    Adjusted p = 0.238218  -> not significant
+  Full Codette vs memory-augmented
+    Adjusted p = 0.252825  -> not significant
+
+======================================================================
+PER-DIMENSION BREAKDOWN: SINGLE vs CODETTE
+======================================================================
+  reasoning_depth          : delta=+0.5497, d=9.521, t(16)=39.256, p=0.000000
+  perspective_diversity    : delta=+0.6824, d=3.419, t(16)=14.098, p=0.000000
+  coherence                : delta=+0.0794, d=0.428, t(16)=1.766, p=0.077309
+  ethical_coverage         : delta=+0.3866, d=3.001, t(16)=12.372, p=0.000000
+  novelty                  : delta=+0.3210, d=2.317, t(16)=9.554, p=0.000000
+  factual_grounding        : delta=+0.1914, d=0.654, t(16)=2.699, p=0.006962
+  turing_naturalness       : delta=-0.0669, d=-0.359, t(16)=-1.482, p=0.138288

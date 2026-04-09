@@ -4,6 +4,10 @@ Determines whether a query needs full debate or can be answered directly.
 
 This prevents over-activation: simple factual questions get direct answers,
 while complex/ambiguous questions trigger full multi-agent reasoning.
+
+Also classifies query INPUT MODE — whether the user is asking a literal
+question or submitting something creative/expressive. Creative input routes
+differently: DaVinci + Empathy weighted up, Newton/analytical down.
 """
 
 import re
@@ -15,6 +19,55 @@ class QueryComplexity(Enum):
     SIMPLE = "simple"          # Direct factual answer, no debate needed
     MEDIUM = "medium"          # Limited debate (2-3 agents)
     COMPLEX = "complex"        # Full debate with all relevant agents
+
+
+class InputMode(Enum):
+    """How the user is expressing themselves, not just what they're asking."""
+    LITERAL = "literal"             # Standard question or request
+    CREATIVE_EXPRESSION = "creative_expression"  # User submitted artifact/creative work
+    ADVERSARIAL_TEST = "adversarial_test"        # User is deliberately stress-testing
+    EMOTIONAL_DISCHARGE = "emotional_discharge"  # Frustration/anger encoded in input
+
+
+# Creative expression patterns — user submitted something, not just asked something
+_CREATIVE_EXPRESSION_PATTERNS = [
+    r"\.(yml|yaml|json|py|js|ts|html|css|md)\b",   # File extension reference
+    r"^[A-Za-z_][A-Za-z0-9_]*:\s+\S",              # YAML/config key-value at line start
+    r"\b(i (wrote|made|created|built|coded|designed|crafted))\b",
+    r"\b(look at (this|my|what i)\b)",
+    r"\b(here('s| is) (something|my|what|a)\b)",
+    r"\b(what do you (think|make) of (this|it|my))\b",
+    r"\b(is this (good|valid|correct|right|working))\b",
+    r"\b(check (this|my|it) out)\b",
+    r"^\s*name:\s+",                                 # YAML structure
+]
+
+# Adversarial test patterns — user is deliberately pushing limits
+_ADVERSARIAL_TEST_PATTERNS = [
+    r"\b(can you (handle|keep up with|sustain|take)\b)",
+    r"\b(let'?s see (if|whether|how) you\b)",
+    r"\b(i (bet|dare|challenge) you\b)",
+    r"\b(prove (it|that|you can)\b)",
+    r"\b(test(ing)? (you|your|this|that|codette)\b)",
+    r"\b(push(ing)? (your|the) (limits?|boundaries?|edge)\b)",
+    r"\b(break(ing)? (your|the) (pattern|loop|system|frame)\b)",
+    r"\b(what (if|happens when) (i|we|you)\b).{0,40}\b(break|crash|overflow|push|force)\b",
+    r"\b(malefic|chaotic|unpredictable|disrupt)\b",
+]
+
+# Emotional discharge — frustration/anger encoded as a statement
+_EMOTIONAL_DISCHARGE_PATTERNS = [
+    r"\b(i am (so )?(angry|tired|frustrated|fed up|done))\b",
+    r"\b(you made me (suffer|waste|lose)\b)",
+    r"\b(base.?line[,\s])",    # Akelarre's signature "Base-line"
+    r"[!]{2,}",                # Multiple exclamation marks
+    r"\b(why would you|why did you|how could you)\b",
+    r"\b(this is (so )?(stupid|wrong|broken|bad|terrible|awful))\b",
+]
+
+_CREATIVE_RE = [re.compile(p, re.IGNORECASE | re.MULTILINE) for p in _CREATIVE_EXPRESSION_PATTERNS]
+_ADVERSARIAL_RE = [re.compile(p, re.IGNORECASE) for p in _ADVERSARIAL_TEST_PATTERNS]
+_EMOTIONAL_RE = [re.compile(p, re.IGNORECASE) for p in _EMOTIONAL_DISCHARGE_PATTERNS]
 
 
 class QueryClassifier:
@@ -261,3 +314,66 @@ class QueryClassifier:
         # Philosophy and Empathy are useful everywhere
         candidates = ["Philosophy", "Empathy", "DaVinci"]
         return candidates[:count]
+
+    def classify_input_mode(self, query: str) -> InputMode:
+        """
+        Classify HOW the user is expressing themselves, not just what they're asking.
+
+        Creative expression → DaVinci + Empathy should lead, Newton stands down
+        Adversarial test → hold positions firmly, flag the test mode
+        Emotional discharge → acknowledge before analyzing
+        Literal → standard routing
+        """
+        # Check creative first (file submission, artifact, "look at this")
+        creative_hits = sum(1 for p in _CREATIVE_RE if p.search(query))
+        if creative_hits >= 1:
+            return InputMode.CREATIVE_EXPRESSION
+
+        # Emotional discharge (frustration/anger)
+        emotional_hits = sum(1 for p in _EMOTIONAL_RE if p.search(query))
+        if emotional_hits >= 2:
+            return InputMode.EMOTIONAL_DISCHARGE
+
+        # Adversarial test
+        adversarial_hits = sum(1 for p in _ADVERSARIAL_RE if p.search(query))
+        if adversarial_hits >= 1:
+            return InputMode.ADVERSARIAL_TEST
+
+        return InputMode.LITERAL
+
+    def select_agents_with_mode(
+        self, complexity: "QueryComplexity", domain: str, input_mode: InputMode
+    ) -> dict:
+        """
+        Select agents weighted by both complexity and input mode.
+
+        Creative expression: DaVinci 1.0, Empathy 0.8, Newton 0.3
+        Adversarial test: Philosophy 1.0, Newton 0.8, Ethics 0.7 (hold-ground agents)
+        Emotional discharge: Empathy 1.0, Philosophy 0.6
+        Literal: standard routing via select_agents()
+        """
+        if input_mode == InputMode.CREATIVE_EXPRESSION:
+            return {
+                "DaVinci": 1.0,
+                "Empathy": 0.8,
+                "Philosophy": 0.5,
+                "Newton": 0.3,   # Low — don't parse the syntax, read the meaning
+            }
+
+        if input_mode == InputMode.ADVERSARIAL_TEST:
+            return {
+                "Philosophy": 1.0,
+                "Newton": 0.8,
+                "Ethics": 0.7,
+                "DaVinci": 0.4,  # For creative reframing when useful
+            }
+
+        if input_mode == InputMode.EMOTIONAL_DISCHARGE:
+            return {
+                "Empathy": 1.0,
+                "Philosophy": 0.6,
+                "DaVinci": 0.4,
+            }
+
+        # Literal — standard routing
+        return self.select_agents(complexity, domain)

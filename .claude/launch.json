@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "codette-ui",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8080", "--directory", "J:\\codette-clean\\inference\\static"],
+      "port": 8080
+    }
+  ]
+}

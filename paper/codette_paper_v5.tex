@@ -331,39 +331,39 @@ The composite score is the weighted mean across dimensions.
 \toprule
 \textbf{Condition} & \textbf{Composite} & \textbf{Depth} & \textbf{Diversity} & \textbf{Coherence} & \textbf{Ethics} & \textbf{Novelty} & \textbf{Grounding} & \textbf{Turing} \\
 \midrule
-SINGLE  & 0.338 & 0.402 & 0.237 & 0.380 & 0.062 & 0.327 & 0.456 & \textbf{0.412} \\
-MULTI   & 0.632 & 0.755 & 0.969 & \textbf{0.503} & 0.336 & 0.786 & 0.604 & 0.180 \\
-MEMORY  & 0.636 & 0.770 & 0.956 & 0.500 & 0.340 & 0.736 & 0.599 & 0.291 \\
-CODETTE & \textbf{0.652} & \textbf{0.855} & \textbf{0.994} & 0.477 & \textbf{0.391} & \textbf{0.693} & \textbf{0.622} & 0.245 \\
+SINGLE  & 0.356 & 0.381 & 0.306 & 0.414 & 0.102 & 0.360 & 0.451 & \textbf{0.404} \\
+MULTI   & 0.658 & 0.871 & 0.938 & \textbf{0.521} & 0.451 & 0.650 & \textbf{0.655} & 0.240 \\
+MEMORY  & 0.676 & 0.900 & 0.978 & 0.510 & 0.449 & 0.663 & 0.633 & 0.331 \\
+CODETTE & \textbf{0.689} & \textbf{0.931} & \textbf{0.988} & 0.493 & \textbf{0.488} & \textbf{0.681} & 0.642 & 0.338 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \begin{table}[ht]
 \centering
-\caption{Statistical comparisons between conditions (Welch's $t$-test, two-tailed).}
+\caption{Statistical comparisons between conditions (paired $t$-test, $n = 17$ problems, Holm--Bonferroni corrected).}
 \label{tab:statistics}
 \begin{tabular}{lccccc}
 \toprule
 \textbf{Comparison} & \textbf{$\Delta$} & \textbf{$\Delta$\%} & \textbf{Cohen's $d$} & \textbf{$t$-stat} & \textbf{$p$-value} \\
 \midrule
-MULTI vs SINGLE             & +0.294 & +87.0\% & 7.52  & 21.92 & $<0.0001$ \\
-MEMORY vs MULTI             & +0.004 & +0.6\%  & 0.10  & 0.30  & 0.763 \\
-CODETTE vs MEMORY           & +0.017 & +2.6\%  & 0.43  & 1.26  & 0.208 \\
-CODETTE vs SINGLE           & +0.315 & +93.1\% & 7.88  & 22.97 & $<0.0001$ \\
+MULTI vs SINGLE             & +0.301 & +84.6\% & 4.67  & 19.24 & $<0.0001$ \\
+MEMORY vs MULTI             & +0.018 & +2.7\%  & 0.38  & 1.56  & 0.119 \\
+CODETTE vs MEMORY           & +0.014 & +2.0\%  & 0.28  & 1.14  & 0.253 \\
+CODETTE vs SINGLE           & +0.333 & +93.5\% & 4.38  & 18.05 & $<0.0001$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \textbf{Key findings:}
 \begin{enumerate}[nosep]
-  \item \textbf{Multi-perspective reasoning doubles quality}: MULTI vs SINGLE shows +87.0\% improvement with Cohen's $d = 7.52$ ($p < 0.0001$), confirming that heterogeneous agent synthesis significantly outperforms single-perspective analysis.
+  \item \textbf{Multi-perspective reasoning nearly doubles quality}: MULTI vs SINGLE shows +84.6\% improvement with paired Cohen's $d = 4.67$ ($p < 0.0001$), confirming that heterogeneous agent synthesis significantly outperforms single-perspective analysis. This remains significant after Holm--Bonferroni correction.
 
-  \item \textbf{Full system achieves 93.1\% total improvement}: CODETTE vs SINGLE yields $d = 7.88$, the largest effect in our evaluation. Reasoning depth more than doubles (0.402 $\to$ 0.855) and perspective diversity reaches near-unity (0.994).
+  \item \textbf{Full system achieves 93.5\% total improvement}: CODETTE vs SINGLE yields paired $d = 4.38$ ($p < 0.0001$). Reasoning depth more than doubles (0.381 $\to$ 0.931) and perspective diversity reaches near-unity (0.988). Per-problem deltas range from +0.18 to +0.49 (median +0.33), confirming the effect is consistent across problem types rather than driven by outliers.
 
-  \item \textbf{Memory augmentation shows marginal impact}: MEMORY vs MULTI is not significant ($p = 0.763$). With 217 stored cocoons, the memory system's recall precision is limited. We expect this to improve as the cocoon corpus grows.
+  \item \textbf{Memory augmentation shows small, non-significant gains}: MEMORY vs MULTI yields $d = 0.38$ ($p = 0.119$, not significant after correction). With 358 stored cocoons, the memory system's FTS5 recall adds context but does not reliably improve scoring. We expect this to strengthen as the cocoon corpus grows and retrieval precision improves.
 
-  \item \textbf{Strategy synthesis adds incremental value}: CODETTE vs MEMORY shows $d = 0.43$ (medium effect), not yet significant at $p = 0.208$ with $n = 17$. Larger problem sets may reveal significance.
+  \item \textbf{Strategy synthesis does not reach significance}: CODETTE vs MEMORY shows $d = 0.28$ (small effect, $p = 0.253$, not significant). At $n = 17$ problems, the current evaluation lacks power to detect the modest gains from meta-cognitive strategy forging. We report this honestly as a limitation rather than claiming incremental improvement.
 \end{enumerate}
 
 \subsection{Per-Category Analysis}

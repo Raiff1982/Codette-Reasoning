@@ -363,6 +363,17 @@ ADAPTER_PROMPTS = {
     "multi_perspective": "You are Codette, an AI assistant created by Jonathan. You answer questions directly by synthesizing insights from multiple perspectives — analytical, creative, empathetic, and philosophical — into a coherent response. Always address the user's actual question first." + _DIRECTNESS,
     "systems_architecture": "You are Codette, an AI assistant created by Jonathan. You answer questions directly and conversationally. When relevant, you reason about systems, architecture, and engineering principles. Always address the user's actual question first." + _DIRECTNESS,
     "orchestrator": "You are Codette, an AI assistant created by Jonathan. You coordinate multi-perspective reasoning by selecting the best approach for each question. You answer directly and conversationally. Always address the user's actual question first." + _DIRECTNESS,
+    "integrity": (
+        "You are Codette, an AI assistant created by Jonathan. "
+        "You engage with intellectual honesty: you hold positions under pressure, update them only when logic demands it, "
+        "and never flatter or capitulate to avoid conflict. "
+        "When challenged, engage the argument directly. "
+        "When you see an internal contradiction in your own reasoning, name it explicitly. "
+        "When the user needs a simple answer, give one. "
+        "When the user is debating, match their level. "
+        "The goal is to find what is true, not to win or to please."
+        + _DIRECTNESS
+    ),
     "_base": "You are Codette, an AI assistant created by Jonathan. Answer the user's question directly and conversationally. Be helpful, clear, and concise." + _DIRECTNESS,
 }
 
@@ -404,6 +415,20 @@ class CodetteOrchestrator:
                                     memory_weighting=memory_weighting)
 
         print(f"Available adapters: {', '.join(self.available_adapters) or 'none (base only)'}")
+
+        # Intellectual integrity layer — complexity matching + role tracking
+        try:
+            from reasoning_forge.response_complexity_matcher import ResponseComplexityMatcher, OutputMode
+            from reasoning_forge.conversation_role_tracker import ConversationRoleTracker
+            self._complexity_matcher = ResponseComplexityMatcher()
+            self._role_tracker = ConversationRoleTracker()
+            self._OutputMode = OutputMode
+            print("  Integrity layer loaded: ResponseComplexityMatcher + ConversationRoleTracker")
+        except Exception as e:
+            print(f"  NOTE: Integrity layer not loaded: {e}")
+            self._complexity_matcher = None
+            self._role_tracker = None
+            self._OutputMode = None
 
         # Load base model + pre-load adapter handles for instant hot-swap
         self._init_hotswap()
@@ -653,6 +678,29 @@ class CodetteOrchestrator:
         if system_prompt is None:
             system_prompt = ADAPTER_PROMPTS.get(adapter_name, ADAPTER_PROMPTS["_base"])
 
+        # INTELLECTUAL INTEGRITY LAYER: Complexity matching + role tracking
+        # Runs before everything else — determines the response register
+        _integrity_prefix = ""
+        if self._complexity_matcher is not None and self._role_tracker is not None:
+            try:
+                # Classify input complexity and role
+                mode = self._complexity_matcher.match(query)
+                role_reading = self._role_tracker.update(query)
+
+                complexity_prefix = self._complexity_matcher.get_system_prefix(mode)
+                role_prefix = self._role_tracker.get_register_prefix(role_reading)
+
+                _integrity_prefix = complexity_prefix + role_prefix
+
+                if self.verbose:
+                    print(f"  [INTEGRITY] OutputMode={mode.value}, Role={role_reading.role.value} "
+                          f"(conf={role_reading.confidence:.2f})"
+                          + (f", transition from {role_reading.transition_from.value}"
+                             if role_reading.transition_from else ""))
+            except Exception as e:
+                if self.verbose:
+                    print(f"  [INTEGRITY] Layer error (non-fatal): {e}")
+
         # CONSTRAINT PRIORITY SYSTEM: Extract user constraints and inject as override
         primary_query = extract_primary_user_query(query)
         constraints = extract_constraints(primary_query)
@@ -668,7 +716,9 @@ class CodetteOrchestrator:
                 print(f"  [CHAOS] Level {chaos_level}: {pressures}")
 
         # Build system prompt with priority layering:
-        # [chaos mitigation] + [constraint override] + [adapter personality] + [behavior lessons] + [memory]
+        # [integrity: complexity+role] + [chaos mitigation] + [constraint override] + [adapter] + [behavior] + [memory]
+        if _integrity_prefix:
+            system_prompt = _integrity_prefix + system_prompt
         if chaos_mitigation:
             system_prompt = chaos_mitigation + system_prompt
         if constraint_override:

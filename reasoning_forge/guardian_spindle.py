@@ -5,8 +5,11 @@ Post-synthesis rules-based validator.
 Complements Colleen's conscience validation with logical rules.
 """
 
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Optional
 import re
+
+from reasoning_forge.sycophancy_guard import SycophancyGuard
+from reasoning_forge.debate_tracker import DebateTracker, CounterArgumentCoherenceChecker
 
 
 class CoreGuardianSpindle:
@@ -14,13 +17,17 @@ class CoreGuardianSpindle:
     Rules-based validator that checks synthesis coherence and ethical alignment.
 
     Works AFTER Colleen's conscience check to catch logical/coherence issues.
+    Also runs sycophancy detection and debate position consistency checks.
     """
 
-    def __init__(self):
+    def __init__(self, debate_tracker: Optional[DebateTracker] = None):
         """Initialize Guardian with validation rules."""
         self.min_coherence_score = 0.5
         self.max_meta_commentary = 0.30  # 30% meta-references max
         self.required_tags = []
+        self.sycophancy_guard = SycophancyGuard(block_threshold=0.6, warn_threshold=0.3)
+        self.debate_tracker = debate_tracker or DebateTracker()
+        self._coherence_checker = CounterArgumentCoherenceChecker()
 
     def validate(self, synthesis: str) -> Tuple[bool, Dict]:
         """
@@ -58,11 +65,45 @@ class CoreGuardianSpindle:
         if not self._check_ethical_alignment(synthesis):
             return False, {"reason": "ethical alignment check failed"}
 
-        return True, {
+        # --- Sycophancy check ---
+        syco = self.sycophancy_guard.scan(synthesis)
+        if syco["action"] == "block":
+            return False, {
+                "reason": "sycophancy detected — capitulation or flattery loop",
+                "sycophancy_score": syco["score"],
+                "hits": syco["hits"],
+                "suggestion": "Acknowledge the argument's merit without conceding the position. "
+                              "Use 'That raises a valid point, but...' rather than 'You're right.'",
+            }
+
+        # --- Internal counterargument coherence ---
+        ca_check = self._coherence_checker.check(synthesis)
+        if not ca_check["coherent"] and ca_check["severity"] >= 0.6:
+            return False, {
+                "reason": "counterargument contains internal contradictions",
+                "tensions": ca_check["tensions"],
+                "severity": ca_check["severity"],
+                "suggestion": "The argument's sub-points contradict each other. "
+                              "Pick a consistent frame before outputting.",
+            }
+
+        # --- Debate position consistency ---
+        consistency = self.debate_tracker.check_consistency(synthesis)
+        if not consistency["consistent"] and consistency["flip_detected"]:
+            # Warn but don't block — position updates are allowed if explicit
+            pass  # Caller can inspect metadata and decide
+
+        validation_details = {
             "reason": "passed all validation rules",
             "coherence": coherence,
             "meta_ratio": meta_ratio,
+            "sycophancy_score": syco["score"],
+            "sycophancy_action": syco["action"],
+            "ca_coherent": ca_check["coherent"],
+            "position_consistent": consistency["consistent"],
         }
+
+        return True, validation_details
 
     def _calculate_coherence(self, text: str) -> float:
         """
