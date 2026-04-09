@@ -951,15 +951,12 @@ class BenchmarkRunner:
         return f"From an analytical perspective: {problem.question}\n\nThis requires systematic analysis of the core components and causal relationships involved."
  
     def _generate_multi(self, problem: BenchmarkProblem) -> str:
-        """Condition 2: Multi-perspective synthesis, no memory."""
-        if self.forge:
-            try:
-                result = self.forge.forge_single(problem.question)
-                return result.get("messages", [{}])[-1].get("content", "")
-            except Exception:
-                pass
- 
-        # Fallback: combine multiple agent templates
+        """Condition 2: Multi-perspective synthesis, no memory.
+
+        Uses template-based agents directly (no LLM call) for reproducibility
+        and to avoid hanging when Ollama/inference backend is unavailable.
+        """
+        # Combine multiple agent templates
         if self.forge:
             parts = []
             for agent in self.forge.analysis_agents:

@@ -1,0 +1,101 @@
+{
+  "input": "J:\\codette-clean\\data\\results\\codette_benchmark_results.json",
+  "n_problems": 17,
+  "n_conditions": 4,
+  "n_rows": 68,
+  "sanity_issues": [],
+  "comparisons": [
+    {
+      "label": "Multi-perspective vs single",
+      "cond_a": "SINGLE",
+      "cond_b": "MULTI",
+      "n_paired": 17,
+      "mean_a": 0.3563,
+      "mean_b": 0.6577,
+      "mean_diff": 0.3014,
+      "ci_95": [
+        0.2682,
+        0.3346
+      ],
+      "paired_t": {
+        "t": 19.2349,
+        "p": 0.0,
+        "df": 16
+      },
+      "wilcoxon": {
+        "W": 0,
+        "p": 0.000293
+      },
+      "cohens_d": 4.6651
+    },
+    {
+      "label": "Memory augmentation vs vanilla multi",
+      "cond_a": "MULTI",
+      "cond_b": "MEMORY",
+      "n_paired": 17,
+      "mean_a": 0.6577,
+      "mean_b": 0.6756,
+      "mean_diff": 0.0179,
+      "ci_95": [
+        -0.0064,
+        0.0422
+      ],
+      "paired_t": {
+        "t": 1.5585,
+        "p": 0.119109,
+        "df": 16
+      },
+      "wilcoxon": {
+        "W": 49.0,
+        "p": 0.192985
+      },
+      "cohens_d": 0.378
+    },
+    {
+      "label": "Full Codette vs memory-augmented",
+      "cond_a": "MEMORY",
+      "cond_b": "CODETTE",
+      "n_paired": 17,
+      "mean_a": 0.6756,
+      "mean_b": 0.6893,
+      "mean_diff": 0.0137,
+      "ci_95": [
+        -0.0117,
+        0.0392
+      ],
+      "paired_t": {
+        "t": 1.1435,
+        "p": 0.252825,
+        "df": 16
+      },
+      "wilcoxon": {
+        "W": 53.0,
+        "p": 0.265947
+      },
+      "cohens_d": 0.2773
+    },
+    {
+      "label": "Full Codette vs single (total improvement)",
+      "cond_a": "SINGLE",
+      "cond_b": "CODETTE",
+      "n_paired": 17,
+      "mean_a": 0.3563,
+      "mean_b": 0.6893,
+      "mean_diff": 0.333,
+      "ci_95": [
+        0.2939,
+        0.3722
+      ],
+      "paired_t": {
+        "t": 18.0498,
+        "p": 0.0,
+        "df": 16
+      },
+      "wilcoxon": {
+        "W": 0,
+        "p": 0.000293
+      },
+      "cohens_d": 4.3777
+    }
+  ]
+}

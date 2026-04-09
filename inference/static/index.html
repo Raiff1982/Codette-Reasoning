@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Codette</title>
+    <title>Codette — Neural Interface</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>◈</text></svg>">
 </head>
 <body>
 
 <!-- Loading Screen -->
 <div class="loading-screen" id="loading-screen">
-    <div class="loading-title">Codette</div>
-    <div class="loading-status" id="loading-status">Initializing...</div>
+    <div class="loading-title">CODETTE</div>
+    <div class="loading-status" id="loading-status">Initializing neural substrate...</div>
     <div class="loading-bar"><div class="loading-bar-fill"></div></div>
 </div>
 
@@ -22,15 +23,15 @@
         <!-- Header -->
         <div class="header">
             <div class="header-left">
-                <span class="logo" id="logo">Codette</span>
+                <span class="logo" id="logo">CODETTE</span>
                 <div class="adapter-dots" id="adapter-dots"></div>
             </div>
             <div class="header-right">
-                <button class="header-btn" id="btn-new-chat" title="New conversation">+ New</button>
-                <button class="header-btn" id="btn-export" title="Export session">Export</button>
-                <button class="header-btn" id="btn-import" title="Import session">Import</button>
+                <button class="header-btn" id="btn-new-chat" title="New conversation">⟨ NEW ⟩</button>
+                <button class="header-btn" id="btn-export" title="Export session">EXPORT</button>
+                <button class="header-btn" id="btn-import" title="Import session">IMPORT</button>
                 <input type="file" id="import-file" accept=".json" style="display:none">
-                <button class="header-btn" id="btn-toggle-panel" title="Toggle side panel">Cocoon</button>
+                <button class="header-btn" id="btn-toggle-panel" title="Toggle side panel">◈ COCOON</button>
             </div>
         </div>
 
@@ -38,26 +39,26 @@
         <div class="chat-area" id="chat-area">
             <div class="welcome" id="welcome">
                 <div class="welcome-avatar">
-                    <div class="welcome-avatar-glyph">&#9775;</div>
+                    <div class="welcome-avatar-glyph">◈</div>
                 </div>
                 <h2>Hello. I'm Codette.</h2>
                 <p class="welcome-subtext">I'm curious, warm, and built to think from multiple angles at once. Ask me anything — I'll bring the right perspectives to it.</p>
                 <div class="welcome-cocoon-hint" id="welcome-cocoon-hint"></div>
                 <div class="welcome-grid">
                     <div class="welcome-card" onclick="askQuestion('What is the speed of light and why does it matter?')">
-                        <div class="welcome-card-title" style="color:var(--newton)">&#9883; Physics</div>
+                        <div class="welcome-card-title" style="color:var(--newton)">⚛ Physics</div>
                         <div class="welcome-card-desc">What is the speed of light and why does it matter?</div>
                     </div>
                     <div class="welcome-card" onclick="askQuestion('How should we balance accuracy and explainability in AI systems?')">
-                        <div class="welcome-card-title" style="color:var(--philosophy)">&#9784; Ethics</div>
+                        <div class="welcome-card-title" style="color:var(--philosophy)">◎ Ethics</div>
                         <div class="welcome-card-desc">How should we balance accuracy and explainability in AI systems?</div>
                     </div>
                     <div class="welcome-card" onclick="askQuestion('I&#39;m feeling overwhelmed — can you help me think through it?')">
-                        <div class="welcome-card-title" style="color:var(--empathy)">&#9825; Support</div>
+                        <div class="welcome-card-title" style="color:var(--empathy)">♡ Support</div>
                         <div class="welcome-card-desc">I'm feeling overwhelmed — can you help me think through it?</div>
                     </div>
                     <div class="welcome-card" onclick="askQuestion('What would it mean for a machine to genuinely understand?')">
-                        <div class="welcome-card-title" style="color:var(--consciousness)">&#9670; Consciousness</div>
+                        <div class="welcome-card-title" style="color:var(--consciousness)">◆ Consciousness</div>
                         <div class="welcome-card-desc">What would it mean for a machine to genuinely understand?</div>
                     </div>
                 </div>
@@ -87,7 +88,7 @@
             </div>
             <div class="control-group" style="margin-left:auto">
                 <label>
-                    <input type="checkbox" id="web-research-toggle"> Web Research
+                    <input type="checkbox" id="web-research-toggle"> Web
                 </label>
                 <label>
                     <input type="checkbox" id="tts-toggle"> Voice
@@ -101,12 +102,12 @@
             <div class="attachment-previews" id="attachment-previews"></div>
             <div class="input-row">
                 <button class="mic-btn" id="mic-btn" title="Voice input">&#127908;</button>
-                <button class="attach-btn" id="attach-btn" title="Attach file (code, text, config)">&#128206;</button>
+                <button class="attach-btn" id="attach-btn" title="Attach file">&#128206;</button>
                 <input type="file" id="file-attach-input" multiple
                        accept=".txt,.py,.js,.ts,.json,.csv,.md,.html,.css,.xml,.yaml,.yml,.log,.cfg,.ini,.toml,.sql,.sh,.bat,.ps1,.r,.java,.c,.cpp,.h,.hpp,.go,.rs,.rb,.php,.swift,.kt,.tsx,.jsx,.vue,.svelte,.lua,.pl,.ex,.hs,.scala,.tf,.proto,.graphql"
                        style="display:none">
                 <div class="input-wrapper">
-                    <textarea id="chat-input" placeholder="Ask Codette something..." rows="1"></textarea>
+                    <textarea id="chat-input" placeholder="interface://query > _" rows="1"></textarea>
                 </div>
                 <button class="send-btn" id="send-btn" title="Send">&#9654;</button>
             </div>
@@ -178,7 +179,7 @@
                 <button class="header-btn lab-btn" id="run-value-analysis" title="Run Event-Embedded Value analysis">Run</button>
                 <button class="header-btn lab-btn" id="load-value-example" title="Load a safer bounded example">Example</button>
             </div>
-            <pre id="value-analysis-output" class="lab-output">Awaiting analysis…</pre>
+            <pre id="value-analysis-output" class="lab-output">Awaiting analysis...</pre>
         </div>
 
         <!-- Perspective Coverage -->

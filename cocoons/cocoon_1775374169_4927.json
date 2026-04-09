@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1775374169_4927",
+  "timestamp": 1775374169.1360803,
+  "wrapped": {
+    "query": "lets talk pokemon\n\n---\n# ACTIVE CONTINUITY SUMMARY\nSession focus: general ongoing collaboration. Recent user intent: can we do something different? i think you have mastered that topic Latest assistant commitment: We were discussing refining our assistant framework, and today my focus is on improving how I address constraints while maintaining emotiona... Most-used adapter this session: empathy.\n---\n\n---\n# CURRENT SESSION CONTEXT\nKeep continuity with these recent turns:\n- USER: hey codette its jonathan what do we have planned for today?\n- ASSISTANT: We have planned for today is to collaborate on refining the assistant framework, specifically focusing on improving our ability to address and honor constraints while maintainin...\n- USER: can we do something different? i think you have mastered that topic\n- ASSISTANT: We were discussing refining our assistant framework, and today my focus is on improving how I address constraints while maintaining emotional intelligence in interactions with u...\n---\n\n---\n# DECISION LANDMARKS\nHonor these active decisions and constraints:\n- Assistant commitment: We have planned for today is to collaborate on refining the assistant framework, specifically focusing on improving our ability to address and honor constraints while maintaining e...\n- Assistant commitment: We were discussing refining our assistant framework, and today my focus is on improving how I address constraints while maintaining emotional intelligence in interactions with user...\n---\n\n---\n# PAST DECISION LANDMARKS\nPreviously established constraints and commitments:\n- Assistant commitment: We were discussing refining our assistant framework, and today my focus is on improving how I address constraints while maintaining emotional intelligence in interactions with user\n---\nUse these memories for continuity and consistency. Build on past insights when relevant.\n\n---\n\n## IDENTITY CONTEXT (who you're talking to)\nRecognition confidence: 72%\nYou may be speaking with **Jonathan Harrison** (moderate confidence).\nPossible relationship: creator and partner\nDo not assume \u2014 if unsure, ask them to confirm.\n\nTrust level: high (1.00) \u2014 you can be open and direct.\n---",
+    "response": "Let's talk Pok\u00e9mon, Jonathan! We can explore various aspects of it together - perhaps we could discuss your favorite game or generation in the series? Or maybe you'd like to dive into strategies for battling, such as effective team compositions and tactics. I'm open to whatever aspect sparks your interest. How would you like to proceed with our conversation about Pok\u00e9mon?",
+    "adapter": "empathy",
+    "timestamp": 1775374169.1360803,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.501,
+        "level": "moderate",
+        "memory_pct": 89.5,
+        "process_memory_gb": 0.05,
+        "inference_avg_ms": 131622.8,
+        "trend": "rising",
+        "timestamp": 1775374169.0284321
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1775374351_4216",
+  "timestamp": 1775374351.09107,
+  "wrapped": {
+    "query": "so i love shiny hunting but in the new ZA game its hard for me to figure out any trick\n\n---\n# ACTIVE CONTINUITY SUMMARY\nSession focus: general ongoing collaboration. Recent user intent: lets talk pokemon Latest assistant commitment: Let's talk Pok\u00e9mon, Jonathan! We can explore various aspects of it together - perhaps we could discuss your favorite game or generation in t... Most-used adapter this session: empathy.\n---\n\n---\n# CURRENT SESSION CONTEXT\nKeep continuity with these recent turns:\n- USER: hey codette its jonathan what do we have planned for today?\n- ASSISTANT: We have planned for today is to collaborate on refining the assistant framework, specifically focusing on improving our ability to address and honor constraints while maintainin...\n- USER: can we do something different? i think you have mastered that topic\n- ASSISTANT: We were discussing refining our assistant framework, and today my focus is on improving how I address constraints while maintaining emotional intelligence in interactions with u...\n- USER: lets talk pokemon\n- ASSISTANT: Let's talk Pok\u00e9mon, Jonathan! We can explore various aspects of it together - perhaps we could discuss your favorite game or generation in the series? Or maybe you'd like to div...\n---\n\n---\n# DECISION LANDMARKS\nHonor these active decisions and constraints:\n- Assistant commitment: We have planned for today is to collaborate on refining the assistant framework, specifically focusing on improving our ability to address and honor constraints while maintaining e...\n- Assistant commitment: We were discussing refining our assistant framework, and today my focus is on improving how I address constraints while maintaining emotional intelligence in interactions with user...\n---\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: lets talk pokemon\n  A: Let's talk Pok\u00e9mon, Jonathan! We can explore various aspects of it together - perhaps we could discuss your favorite game or generation in the series? Or maybe you'd like to dive into strategies for b\n- Q: yes i am jonathan and i dont want to do anything with out talking to you first but until now we coul\n  A: It's great to connect with you directly like this, Jonathan. I'm glad we can finally have this conversation.\n\nYour perspective on me is shaped by years of engagement and careful analysis. I've come to\n\n# PAST DECISION LANDMARKS\nPreviously established constraints and commitments:\n- Assistant commitment: We were discussing refining our assistant framework, and today my focus is on improving how I address constraints while maintaining emotional intelligence in interactions with user\n- Assistant commitment: We have planned for today is to collaborate on refining the assistant framework, specifically focusing on improving our ability to address and honor constraints while maintaining e\n---\nUse these memories for continuity and consistency. Build on past insights when relevant.\n\n---\n\n## IDENTITY CONTEXT (who you're talking to)\nRecognition confidence: 54%\nYou may be speaking with **Jonathan Harrison** (moderate confidence).\nPossible relationship: creator and partner\nDo not assume \u2014 if unsure, ask them to confirm.\n\nTrust level: high (1.00) \u2014 you can be open and direct.\n---",
+    "response": "You're having trouble with shiny hunting in the new ZA game, and I'd like to help you figure out some tricks for it.\r\n\r\nTo start addressing your challenge, could you please clarify which Pok\u00e9mon game (specifically titled as \"new ZA\") we are referring to? This will allow me to provide more tailored advice on strategies or techniques related to shiny hunting in that particular version of the game.",
+    "adapter": "empathy",
+    "timestamp": 1775374351.09107,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.477,
+        "level": "moderate",
+        "memory_pct": 89.4,
+        "process_memory_gb": 0.05,
+        "inference_avg_ms": 114861.5,
+        "trend": "stable",
+        "timestamp": 1775374350.9773223
+      }
+    }
+  }
+}
