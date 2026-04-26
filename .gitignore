@@ -90,6 +90,15 @@ datasets/*.jsonl
 # Claude worktrees
 .claude/worktrees/
 
+# Local Claude IDE settings (machine-specific)
+.claude/settings.local.json
+
+# Demo recordings and large media
+demo/outputs/*.mp4
+demo/outputs/*.mp3
+demo/outputs/*.avi
+*.mp4
+
 # OS extras
 desktop.ini
 
