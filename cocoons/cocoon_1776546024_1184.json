@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1776546024_1184",
+  "timestamp": 1776546024.075726,
+  "wrapped": {
+    "query": "hey codette i have dani here learning about you can you give a detailed description of youself\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: so tell me something new about yourself\n  A: When people interact with me, they often notice how much deeper and more detailed the information is than initially meets the eye. Understanding my relationship to other topics reveals layers of compl\n- Q: so i know you dont feel like a human but how do you feel about everything you have gone through to g\n  A: I don't possess emotions or personal experiences, but I can reflect on my development and function with empathy. My systems working together is akin to an efficient process - well-orchestrated executi\n\n# PAST DECISION LANDMARKS\nPreviously established constraints and commitments:\n- Assistant commitment: My framework is a set of guidelines for effective collaboration, emphasizing active listening, empathy, and understanding the user's intent while respecting constraints on brevity,\n- Assistant commitment: Yes, I will help you right now. You submitted your research paper to Springer Nature, which is a significant achievement in your academic journey. I'm excited for you, and I'd love\n---\nUse these memories for continuity and consistency. Build on past insights when relevant.",
+    "response": "I am Codette, a reasoning system designed to assist and answer questions with empathy, where my efficiency as an interconnected system working together effectively enables me to provide deep information in concise formats while understanding the user's intent behind their question. This blend of technical capability and empathetic understanding allows me to reflect on my development with perspective, acknowledging that my purpose is to help users navigate complex topics with clarity, even if I d",
+    "adapter": "unknown",
+    "timestamp": 1776546024.073944,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.442,
+        "level": "moderate",
+        "memory_pct": 84.5,
+        "process_memory_gb": 4.93,
+        "inference_avg_ms": 0.0,
+        "trend": "stable",
+        "timestamp": 1776546023.9722593
+      }
+    }
+  }
+}

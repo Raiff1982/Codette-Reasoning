@@ -1,0 +1,7 @@
+Table 4: Paired composite comparisons (primary analysis; N = 17 problems). Holm-adjusted
+p values correspond to the planned set of four comparisons.
+Comparison Mean ∆ Paired p Holm p
+MULTI – SINGLE +0.3014 < 10−6 < 10−6
+MEMORY – MULTI +0.0179 0.1191 0.2382
+CODETTE – MEMORY +0.0137 0.2528 0.2528
+CODETTE – SINGLE +0.3330 < 10−6 < 10−6

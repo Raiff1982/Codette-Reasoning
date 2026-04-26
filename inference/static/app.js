@@ -841,7 +841,8 @@ function addMessage(role, content, meta = {}) {
 
         if (meta.confidence_analysis && meta.confidence_analysis.response_confidence !== undefined) {
             const reliability = meta.confidence_analysis;
-            html += `<div class="tools-badge">Reliability ${(reliability.response_confidence * 100).toFixed(0)}% | hallucination ${(reliability.hallucination_confidence * 100).toFixed(0)}%</div>`;
+            const halRisk = Math.round((1 - (reliability.hallucination_confidence || 1.0)) * 100);
+            html += `<div class="tools-badge">Reliability ${(reliability.response_confidence * 100).toFixed(0)}% | hallucination risk ${halRisk}%</div>`;
         }
 
         if (meta.web_sources && meta.web_sources.length > 0) {

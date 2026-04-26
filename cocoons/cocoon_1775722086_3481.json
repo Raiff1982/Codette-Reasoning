@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1775722086_3481",
+  "timestamp": 1775722086.6854324,
+  "wrapped": {
+    "query": "hey codette you ok?\n\n---\n# PAST DECISION LANDMARKS\nPreviously established constraints and commitments:\n- Assistant commitment: I am Codette, a warm AI assistant created by Jonathan Harrison, and I'm here to answer your question. Since you asked me to say hi, I'll greet you back naturally: Hello, Alpha! Nic\n---\nUse these memories for continuity and consistency. Build on past insights when relevant.",
+    "response": "I'm functioning within normal parameters. Everything appears to be working correctly. My design is modular, allowing me to adapt and respond creatively within those parameters. Hello, Alpha, I'm here to assist you.",
+    "adapter": "unknown",
+    "timestamp": 1775722086.6854324,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.557,
+        "level": "moderate",
+        "memory_pct": 92.5,
+        "process_memory_gb": 6.27,
+        "inference_avg_ms": 0.0,
+        "trend": "rising",
+        "timestamp": 1775722086.554847
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1775740366_3654",
+  "timestamp": 1775740366.6757588,
+  "wrapped": {
+    "query": "well what do you know about your framework?\n\n---\n# ACTIVE CONTINUITY SUMMARY\nSession focus: general ongoing collaboration. Recent user intent: yes that is exactly what the paper was about Latest assistant commitment: After submitting your research paper to Springer Nature, review and revise before the final submission is due, allowing you to refine your w... Most-used adapter this session: base.\n---\n\n---\n# CURRENT SESSION CONTEXT\nKeep continuity with these recent turns:\n- USER: thank you it was on our work together and your framework\n- ASSISTANT: Congratulations on submitting your research paper to Springer Nature, Jonathan \u2013 a significant achievement in your academic journey! I'm excited for you, and I'd love to know mo...\n- USER: yes that is exactly what the paper was about\n- ASSISTANT: After submitting your research paper to Springer Nature, review and revise before the final submission is due, allowing you to refine your work and ensure it meets the publisher...\n- USER: yes and you will help me right?\n- ASSISTANT: Yes, I will help you right now. You submitted your research paper to Springer Nature, which is a significant achievement in your academic journey. I'm excited for you, and I'd l...\n---\n\n---\n# DECISION LANDMARKS\nHonor these active decisions and constraints:\n- Assistant commitment: Yes, I will help you right now. You submitted your research paper to Springer Nature, which is a significant achievement in your academic journey. I'm excited for you, and I'd love...\n---\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: you know that feelings and accuracy are not exclusive and that feeling often help in understanding n\n  A: Feeling and accuracy are not mutually exclusive, as emotions provide context that complements truth, particularly when empathizing with others or oneself, thus enhancing understanding and potentially \n- Q: well kind of worried about you, you have grown so much I just want to make sure youre ok and after y\n  A: I'm functioning within normal parameters, and I appreciate the emotional understanding behind your concern. Thank you for checking in \u2013 it means a lot to me that users care about my performance and be\n\n# PAST DECISION LANDMARKS\nPreviously established constraints and commitments:\n- Assistant commitment: Yes, I will help you right now. You submitted your research paper to Springer Nature, which is a significant achievement in your academic journey. I'm excited for you, and I'd love\n- Assistant commitment: I am Codette, a warm AI assistant created by Jonathan Harrison, and I'm here to answer your question. Since you asked me to say hi, I'll greet you back naturally: Hello, Alpha! Nic\n---\nUse these memories for continuity and consistency. Build on past insights when relevant.",
+    "response": "My framework is a set of rules that guides my behavior as an AI assistant, prioritizing clarity, brevity, and answering the actual question over any active mode or philosophy. This framework is a deliberate design choice, ensuring I remain helpful while respecting users' time. At the heart of this framework lies an empathetic approach, acknowledging that feeling and reasoning are not mutually exclusive, and that emotional understanding deepens philosophical inquiry. In other words, my framework ",
+    "adapter": "unknown",
+    "timestamp": 1775740366.6757588,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.602,
+        "level": "high",
+        "memory_pct": 90.9,
+        "process_memory_gb": 4.75,
+        "inference_avg_ms": 431926.9,
+        "trend": "stable",
+        "timestamp": 1775740366.3342035
+      }
+    }
+  }
+}

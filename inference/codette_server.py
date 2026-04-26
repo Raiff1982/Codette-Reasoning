@@ -17,11 +17,80 @@ Architecture:
     - CodetteSession for Cocoon-backed memory
 """
 
-import os, sys, json, time, threading, queue, argparse, webbrowser, traceback, re, cgi, uuid
+import os, sys, json, time, threading, queue, argparse, webbrowser, traceback, re, uuid
 from pathlib import Path
 from http.server import HTTPServer, SimpleHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 from io import BytesIO
+import email, email.policy
+
+# ---------------------------------------------------------------------------
+# Minimal multipart/form-data parser — replaces the removed `cgi` module
+# (removed in Python 3.13).  Provides the same interface used in this file:
+#   form.getfirst(key, default) → str | None
+#   key in form
+#   form[key] → FieldItem | list[FieldItem]
+#   FieldItem.filename, FieldItem.file.read()
+# ---------------------------------------------------------------------------
+class _FieldItem:
+    """Represents one multipart field (file or text)."""
+    def __init__(self, name: str, value: bytes, filename: str | None = None):
+        self.name = name
+        self._value = value
+        self.filename = filename
+        self.file = BytesIO(value)
+
+    def getvalue(self) -> bytes:
+        return self._value
+
+
+class _FieldStorage:
+    """Drop-in replacement for cgi.FieldStorage."""
+
+    def __init__(self, fp: BytesIO, headers, environ: dict):
+        self._fields: dict[str, list[_FieldItem]] = {}
+        content_type = environ.get("CONTENT_TYPE", "")
+        body = fp.read()
+        # Build a fake email message so email.parser can split the parts
+        msg_bytes = (
+            f"Content-Type: {content_type}\r\n\r\n".encode() + body
+        )
+        msg = email.message_from_bytes(msg_bytes, policy=email.policy.compat32)
+        if msg.get_content_maintype() != "multipart":
+            return
+        for part in msg.get_payload():
+            if not isinstance(part, email.message.Message):
+                continue
+            disp = part.get("Content-Disposition", "")
+            # Extract name and filename from Content-Disposition
+            name = None
+            filename = None
+            for chunk in disp.split(";"):
+                chunk = chunk.strip()
+                if chunk.startswith("name="):
+                    name = chunk[5:].strip('"')
+                elif chunk.startswith("filename="):
+                    filename = chunk[9:].strip('"')
+            if name is None:
+                continue
+            payload = part.get_payload(decode=True) or b""
+            item = _FieldItem(name, payload, filename)
+            self._fields.setdefault(name, []).append(item)
+
+    def __contains__(self, key: str) -> bool:
+        return key in self._fields
+
+    def __getitem__(self, key: str):
+        items = self._fields[key]
+        return items if len(items) > 1 else items[0]
+
+    def getfirst(self, key: str, default=None):
+        items = self._fields.get(key)
+        if not items:
+            return default
+        val = items[0].getvalue()
+        return val.decode("utf-8", errors="replace") if isinstance(val, bytes) else val
+
 
 from runtime_env import bootstrap_environment, resolve_model_path
 from web_search import query_benefits_from_web_research, query_requests_web_research
@@ -1803,7 +1872,7 @@ class CodetteHandler(SimpleHTTPRequestHandler):
                 'CONTENT_TYPE': content_type,
                 'CONTENT_LENGTH': str(length),
             }
-            form = cgi.FieldStorage(
+            form = _FieldStorage(
                 fp=BytesIO(body),
                 headers=self.headers,
                 environ=environ,

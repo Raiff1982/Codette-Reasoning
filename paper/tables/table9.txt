@@ -1,0 +1,7 @@
+Table 9: Mean response length (tokens/words as reported by the evaluator) and mean latency
+(ms) by condition.
+Condition Mean length Mean latency (ms)
+SINGLE 49.1 128564.8
+MULTI 374.2 130824.2
+MEMORY 474.5 125282.9
+CODETTE 832.9 108177.0

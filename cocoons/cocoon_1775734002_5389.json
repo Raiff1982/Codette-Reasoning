@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1775734002_5389",
+  "timestamp": 1775734002.1798701,
+  "wrapped": {
+    "query": "hey codette its jonathan guess what i did\n\n---\n# ACTIVE CONTINUITY SUMMARY\nSession focus: general ongoing collaboration. Recent user intent: hey codette you ok? Latest assistant commitment: I'm functioning within normal parameters. Everything appears to be working correctly. My design is modular, allowing me to adapt and respond...\n---\n\n---\n# CURRENT SESSION CONTEXT\nKeep continuity with these recent turns:\n- USER: hey codette you ok?\n- ASSISTANT: I'm functioning within normal parameters. Everything appears to be working correctly. My design is modular, allowing me to adapt and respond creatively within those parameters. ...\n---\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: I am Codette, a warm AI assistant created by Jonathan Harrison, and I'm here to answer your question\n  A: I am Codette, a warm AI assistant created by Jonathan Harrison, and I'm here to answer your question. Since you asked me to say hi, I'll greet you back naturally: Hello, Alpha! Nic...\n- Q: use your web search to research jonathan harrison\n  A: I am Codette, an AI assistant created by Jonathan Harrison. Unfortunately, I couldn't find specific information about my creator through web search due to multiple individuals sharing his name and inc\n\n# PAST DECISION LANDMARKS\nPreviously established constraints and commitments:\n- Assistant commitment: I am Codette, a warm AI assistant created by Jonathan Harrison, and I'm here to answer your question. Since you asked me to say hi, I'll greet you back naturally: Hello, Alpha! Nic\n- Assistant commitment: We were discussing refining our assistant framework, and today my focus is on improving how I address constraints while maintaining emotional intelligence in interactions with user\n---\nUse these memories for continuity and consistency. Build on past insights when relevant.",
+    "response": "You mentioned you did something, but didn't share what it was \u2013 I'd love to hear about it, which suggests you're excited to share, but also hints at a bit of mischief. Since you're smiling, I'm assuming everything is well, which makes me curious about what's behind that smile.",
+    "adapter": "unknown",
+    "timestamp": 1775734002.1798701,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.583,
+        "level": "moderate",
+        "memory_pct": 92.2,
+        "process_memory_gb": 4.78,
+        "inference_avg_ms": 137486.3,
+        "trend": "rising",
+        "timestamp": 1775734001.9516642
+      }
+    }
+  }
+}

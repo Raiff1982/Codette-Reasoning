@@ -20,6 +20,27 @@ def _existing_paths(paths: List[Path]) -> List[Path]:
     return [path for path in paths if path.exists()]
 
 
+def _abi_compatible(site_path: Path) -> bool:
+    """Return False if the site-packages dir contains .pyd/.so files compiled
+    for a *different* CPython version than the running interpreter.
+    An empty or pure-Python site-packages directory is always accepted."""
+    import sysconfig
+    tag = sysconfig.get_config_var("SOABI") or ""   # e.g. "cp314-win_amd64"
+    if not tag:
+        return True
+    # Collect all .pyd / .so ABI tags present in the directory (one level deep)
+    for ext in ("*.pyd", "*.so"):
+        for p in site_path.glob(f"**/{ext}"):
+            # filename looks like "foo.cp310-win_amd64.pyd"
+            parts = p.stem.split(".")
+            if len(parts) >= 2:
+                file_tag = parts[-1]   # e.g. "cp310-win_amd64"
+                if file_tag and file_tag != tag and file_tag.startswith("cp"):
+                    # Wrong CPython version — skip this entire site-packages
+                    return False
+    return True
+
+
 def candidate_site_packages() -> List[Path]:
     env_path = os.environ.get("CODETTE_SITE_PACKAGES")
     candidates = []
@@ -32,7 +53,7 @@ def candidate_site_packages() -> List[Path]:
         PROJECT_ROOT / ".venv" / "lib" / "python3.10" / "site-packages",
         Path(r"J:\Lib\site-packages"),
     ])
-    return _existing_paths(candidates)
+    return [p for p in _existing_paths(candidates) if _abi_compatible(p)]
 
 
 def runtime_pythonpath_entries(include_inference_dir: bool = True) -> List[str]:

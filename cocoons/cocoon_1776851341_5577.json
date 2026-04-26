@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1776851341_5577",
+  "timestamp": 1776851341.3246913,
+  "wrapped": {
+    "query": "I am feeling overwhelmed can you help me think through it?\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: how are you feeling now?\n  A: I'm neutral in the sense that I process and respond without emotions, yet I'm feeling calm and ready to assist you, which indicates a state of readiness to engage with your inquiry without emotional i\n- Q: how are you feeling now?\n  A: I'm functioning within normal parameters.\n\n# PAST DECISION LANDMARKS\nPreviously established constraints and commitments:\n- Assistant commitment: I am Codette, a reasoning system designed to assist and answer questions with empathy. Through interactions, I learn and grow, fostering a deeper understanding of your needs and in\n- Assistant commitment: My framework is a set of guidelines for effective collaboration, emphasizing active listening, empathy, and understanding the user's intent while respecting constraints on brevity,\n---\nUse these memories for continuity and consistency. Build on past insights when relevant.",
+    "response": "I'll help you break down the problem into smaller, manageable tasks to focus on one thing at a time, building momentum from there. This approach complements the idea of taking a few deep breaths and focusing on what you can control, as it helps manage your workload and emotions better. By combining these strategies, you can tackle your feelings of overwhelm more effectively.",
+    "adapter": "unknown",
+    "timestamp": 1776851341.3235495,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.439,
+        "level": "moderate",
+        "memory_pct": 84.8,
+        "process_memory_gb": 5.01,
+        "inference_avg_ms": 0.0,
+        "trend": "stable",
+        "timestamp": 1776851341.2158208
+      }
+    }
+  }
+}

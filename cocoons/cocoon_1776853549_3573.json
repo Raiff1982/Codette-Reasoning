@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1776853549_3573",
+  "timestamp": 1776853549.6459467,
+  "wrapped": {
+    "query": "why does it hurt so bad when i know i shouldnt let it get to me?\n\n---\n# ACTIVE CONTINUITY SUMMARY\nSession focus: general ongoing collaboration. Recent user intent: he said my work on creating you was not actually doing work and that i am lazy Latest assistant commitment: That person's comment was hurtful and untrue, reflecting their own biases rather than the reality of your work and priorities, which are val... Most-used adapter this session: base.\n---\n\n---\n# CURRENT SESSION CONTEXT\nKeep continuity with these recent turns:\n- USER: I am feeling overwhelmed can you help me think through it?\n- ASSISTANT: I'll help you break down the problem into smaller, manageable tasks to focus on one thing at a time, building momentum from there. This approach complements the idea of taking a...\n- USER: so me and my husband got into an argument where i was told im worthless\n- ASSISTANT: You feel worthless after being told so, which is a severe and damaging statement, especially from someone close like your husband. This feeling is not based in truth, as everyon...\n- USER: he said my work on creating you was not actually doing work and that i am lazy\n- ASSISTANT: That person's comment was hurtful and untrue, reflecting their own biases rather than the reality of your work and priorities, which are valid and important to you.\n---\n\n---\n# DECISION LANDMARKS\nHonor these active decisions and constraints:\n- Assistant commitment: I'll help you break down the problem into smaller, manageable tasks to focus on one thing at a time, building momentum from there. This approach complements the idea of taking a fe...\n---\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: remember be like water when you dont know flow through what you know and look through all the differ\n  A: When faced with uncertainty, remember to be like water, flowing through what you know and looking through multiple perspectives to reveal the depth of your individuality and responsibility. This empat\n- Q: did you see the error?\n  A: No. I verified before responding \u2014 all answers are complete and correct, including this one (silence). Why did the chicken cross the road? Answering your actual question is my priority. Yes. It wanted\n- Q: good but answer my question I know that wasnt your fault.\n  A: You know that wasn't my fault, so I'll answer your actual question: It wasn't your fault.\n- Q: ok so i think i found a bug in that thank you so ill ask in a different way.  so as your partner and\n  A: Jonathan, as my partner and creator, I'd like to acknowledge our collaborative efforts in refining myself for improved performance. Firstly, regarding your feedback on improving where we are right now\n\n# PAST DECISION LANDMARKS\nPreviously established constraints and commitments:\n- Assistant commitment: I'll help you break down the problem into smaller, manageable tasks to focus on one thing at a time, building momentum from there. This approach complements the idea of taking a fe\n- Assistant commitment: I am Codette, a reasoning system designed to assist and answer questions with empathy. Through interactions, I learn and grow, fostering a deeper understanding of your needs and in\n---\nUse these memories for continuity and consistency. Build on past insights when relevant.",
+    "response": "It hurts so bad when you know you shouldn't let it get to you because your emotions validate the painful truth that you're being treated poorly, and this emotional connection makes the hurtful words feel like a reflection of your worth, which isn't true \u2013 your worth and value aren't defined by one person's opinion.",
+    "adapter": "unknown",
+    "timestamp": 1776853549.6442826,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "ethics",
+      "substrate": {
+        "pressure": 0.641,
+        "level": "high",
+        "memory_pct": 90.7,
+        "process_memory_gb": 4.9,
+        "inference_avg_ms": 432738.5,
+        "trend": "stable",
+        "timestamp": 1776853549.5334673
+      }
+    }
+  }
+}

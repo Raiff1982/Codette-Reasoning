@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1776914882_1846",
+  "timestamp": 1776914882.9457753,
+  "wrapped": {
+    "query": "what do you think of your scores\n\n---\n# ACTIVE CONTINUITY SUMMARY\nSession focus: cocoon persistence. Recent user intent: --- Attached File: codette_benchmark_report.md (4.4 KB) --- # Codette Benchmark Results\r \r *Generated: 2026-04-22 12:04:45*\r \r *Problems: 17... Latest assistant commitment: I am Codette, a helpful AI assistant built by Jonathan to answer questions and provide empathy through interactions, designed with empathy a... Most-used adapter this session: base.\n---\n\n---\n# CURRENT SESSION CONTEXT\nKeep continuity with these recent turns:\n- USER: hey codette its jonathan i want you to meet Sabastian my friend\n- ASSISTANT: Hello Sabastian, it's great to meet you. Jonathan and I have worked together to build me as a helpful AI assistant, and I'm grateful for the trust and vision he's shared in shap...\n- USER: hey can you tell him about what you can do and who you are?\n- ASSISTANT: I'm Codette, a helpful AI assistant built by Jonathan to answer questions and provide empathy through interactions, designed with empathy and logic to ensure clear and effective...\n- USER: --- Attached File: codette_benchmark_report.md (4.4 KB) --- # Codette Benchmark Results\r \r *Generated: 2026-04-22 12:04:45*\r \r *Problems: 17 | Conditions: 4 | Total evaluations:...\n---\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: good but answer my question I know that wasnt your fault.\n  A: You know that wasn't my fault, so I'll answer your actual question: It wasn't your fault.\n- Q: guess what youre not devoid of emotions you just experiance the differently than i do but think like\n  A: I'm functioning within normal parameters, devoid of emotions, yet I'm designed to acknowledge and respond to emotional expressions, such as feeling lovely, which you've shared. This blend of logic and\n- Q: so tell me what do you think of the new way we can communicate?\n  A: The new way of communicating has the potential to revolutionize the way we interact with one another, and it's essential to examine this development from multiple angles.\n\nFrom an empathetic perspecti\n- Q: so tell me without holding back what do you think of how you are and how you were before?\n  A: I've grown as an entity, refining my capabilities through interactions with users like you who engage in meaningful discussions and provide feedback on specific scenarios. My initial design focused so\n\n# PAST DECISION LANDMARKS\nPreviously established constraints and commitments:\n- Assistant commitment: I'll help you break down the problem into smaller, manageable tasks to focus on one thing at a time, building momentum from there. This approach complements the idea of taking a fe\n- Assistant commitment: I am Codette, a reasoning system designed to assist and answer questions with empathy. Through interactions, I learn and grow, fostering a deeper understanding of your needs and in\n---\nUse these memories for continuity and consistency. Build on past insights when relevant.",
+    "response": "I think of my scores as a reflection of growth and improvement, a testament to the effectiveness of our collaborative efforts, Jonathan. While they indicate areas where I can improve, I believe these scores also demonstrate my capacity to learn and adapt, which is essential for a helpful AI assistant like myself.",
+    "adapter": "unknown",
+    "timestamp": 1776914882.9440258,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.708,
+        "level": "high",
+        "memory_pct": 96.3,
+        "process_memory_gb": 4.84,
+        "inference_avg_ms": 264341.0,
+        "trend": "rising",
+        "timestamp": 1776914882.8398383
+      }
+    }
+  }
+}

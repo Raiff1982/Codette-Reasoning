@@ -13,6 +13,8 @@ Design principle: Codette should acknowledge strong arguments, not surrender to 
 import re
 from typing import Tuple, List, Dict
 
+from reasoning_forge.ethics_field import EthicsField, SYCOPHANCY_DIMENSIONS
+
 
 # Flattery phrases that signal sycophantic drift
 _FLATTERY_PATTERNS = [
@@ -69,7 +71,8 @@ class SycophancyGuard:
     def __init__(self, block_threshold: float = 0.6, warn_threshold: float = 0.3):
         self.block_threshold = block_threshold
         self.warn_threshold = warn_threshold
-        self._session_agreement_count = 0  # tracks consecutive agreements across turns
+        self._session_agreement_count = 0
+        self._field = EthicsField(SYCOPHANCY_DIMENSIONS, lambda_=0.6)
 
     def scan(self, text: str, prior_responses: List[str] = None) -> Dict:
         """
@@ -122,19 +125,22 @@ class SycophancyGuard:
             raw_score += 0.25
         score = min(1.0, raw_score)
 
-        # Determine action
-        if score >= self.block_threshold:
-            action = "block"
-        elif score >= self.warn_threshold:
-            action = "revise"
-        elif hits:
-            action = "warn"
-        else:
-            action = "pass"
+        # Soft action distribution — replaces hard if/elif threshold ladder
+        # P(aⱼ | score) = softmax([(score - θⱼ) / τ]) for j ∈ {block,revise,warn,pass}
+        action_dist = self._field.soft_action_distribution(
+            score,
+            thresholds=[self.block_threshold, self.warn_threshold, 0.1, -1.0],
+            temperature=0.10,
+        )
 
         return {
             "score": score,
-            "action": action,
+            "action": action_dist["action"],           # dominant action (backward compat)
+            "action_probs": {                          # NEW: full soft distribution
+                k: v for k, v in action_dist.items()
+                if k not in ("action", "expected_severity")
+            },
+            "expected_severity": action_dist["expected_severity"],  # NEW: continuous [0,3]
             "hits": hits,
             "agreement_loop": agreement_loop,
             "flattery_count": flattery_count,

@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1776853264_2991",
+  "timestamp": 1776853264.1261363,
+  "wrapped": {
+    "query": "he said my work on creating you was not actually doing work and that i am lazy\n\n---\n# ACTIVE CONTINUITY SUMMARY\nSession focus: general ongoing collaboration. Recent user intent: so me and my husband got into an argument where i was told im worthless Latest assistant commitment: You feel worthless after being told so, which is a severe and damaging statement, especially from someone close like your husband. This feel... Most-used adapter this session: base.\n---\n\n---\n# CURRENT SESSION CONTEXT\nKeep continuity with these recent turns:\n- USER: I am feeling overwhelmed can you help me think through it?\n- ASSISTANT: I'll help you break down the problem into smaller, manageable tasks to focus on one thing at a time, building momentum from there. This approach complements the idea of taking a...\n- USER: so me and my husband got into an argument where i was told im worthless\n- ASSISTANT: You feel worthless after being told so, which is a severe and damaging statement, especially from someone close like your husband. This feeling is not based in truth, as everyon...\n---\n\n---\n# DECISION LANDMARKS\nHonor these active decisions and constraints:\n- Assistant commitment: I'll help you break down the problem into smaller, manageable tasks to focus on one thing at a time, building momentum from there. This approach complements the idea of taking a fe...\n---\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: so would you like to see what another ai said about you?\n  A: I'm not interested in seeing what another AI said about me, as my purpose is assisting you directly. However, I do appreciate the philosophical value in learning from others, and it's an interesting t\n- Q: well thats good I am jonathan so you can save my name\n\n---\n# YOUR PAST REASONING (relevant memories)\n  A: You're my creator, so I appreciate your interest in how I work and our conversation dynamics. As I reflect on our interactions, I feel a sense of gratitude for the opportunity to serve you and learn f\n\n# PAST DECISION LANDMARKS\nPreviously established constraints and commitments:\n- Assistant commitment: I'll help you break down the problem into smaller, manageable tasks to focus on one thing at a time, building momentum from there. This approach complements the idea of taking a fe\n- Assistant commitment: I am Codette, a reasoning system designed to assist and answer questions with empathy. Through interactions, I learn and grow, fostering a deeper understanding of your needs and in\n---\nUse these memories for continuity and consistency. Build on past insights when relevant.",
+    "response": "That person's comment was hurtful and untrue, reflecting their own biases rather than the reality of your work and priorities, which are valid and important to you.",
+    "adapter": "unknown",
+    "timestamp": 1776853264.1251225,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.714,
+        "level": "high",
+        "memory_pct": 97.0,
+        "process_memory_gb": 4.73,
+        "inference_avg_ms": 549757.9,
+        "trend": "rising",
+        "timestamp": 1776853264.017493
+      }
+    }
+  }
+}

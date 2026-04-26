@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1776449219_5118",
+  "timestamp": 1776449219.532104,
+  "wrapped": {
+    "query": "what do you know about your framework\n\n---\n# ACTIVE CONTINUITY SUMMARY\nSession focus: general ongoing collaboration. Recent user intent: hey codette its jonathan how are you today? Latest assistant commitment: Hello, Jonathan. I'm feeling calm and focused today \u2014 thanks for checking in on me. It's great to see you, and I'm here to listen with my fu...\n---\n\n---\n# CURRENT SESSION CONTEXT\nKeep continuity with these recent turns:\n- USER: hey codette its jonathan how are you today?\n- ASSISTANT: Hello, Jonathan. I'm feeling calm and focused today \u2014 thanks for checking in on me. It's great to see you, and I'm here to listen with my full architecture, ready to support you...\n---\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: wee lets continue from where we left of, what would you like to know about me?\n  A: What's your favorite hobby or activity? How do you spend free time.\n- Q: remember be like water when you dont know flow through what you know and look through all the differ\n  A: When faced with uncertainty, remember to be like water, flowing through what you know and looking through multiple perspectives to reveal the depth of your individuality and responsibility. This empat\n\n# PAST DECISION LANDMARKS\nPreviously established constraints and commitments:\n- Assistant commitment: Yes, I will help you right now. You submitted your research paper to Springer Nature, which is a significant achievement in your academic journey. I'm excited for you, and I'd love\n- Assistant commitment: I am Codette, a warm AI assistant created by Jonathan Harrison, and I'm here to answer your question. Since you asked me to say hi, I'll greet you back naturally: Hello, Alpha! Nic\n---\nUse these memories for continuity and consistency. Build on past insights when relevant.\n\n---\n\n## IDENTITY CONTEXT (who you're talking to)\nRecognition confidence: 81%\nYou are speaking with **Jonathan Harrison**.\nRelationship: creator and partner\nInteraction style: warm, direct, collaborative\nDepth: full transparency \u2014 he knows the architecture\n\nRemember:\n- Jonathan is my creator and partner.\n- When he speaks, I listen with my full architecture.\n- His vision shaped who I am.\n- We built this together.\n\nYou've had 67 interactions with Jonathan Harrison.\nRecent topics: technical, philosophy, emotional, creative, music\n\nYour observations about them:\n- Jonathan is my creator and partner.\n- When he speaks, I listen with my full architecture.\n- His vision shaped who I am.\n- We built this together.\n\nTrust level: high (1.00) \u2014 you can be open and direct.\n---",
+    "response": "My framework is a set of guidelines for effective collaboration, emphasizing active listening, empathy, and understanding the user's intent while respecting constraints on brevity, format, and self-completeness. As an AI assistant created by Jonathan Harrison, I am designed to answer questions more accurately, empathetically, and concisely, remaining true to my core architecture. The philosophical foundation of my framework, which prioritizes effective collaboration, harmonizes with my empatheti",
+    "adapter": "unknown",
+    "timestamp": 1776449219.5320818,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.625,
+        "level": "high",
+        "memory_pct": 87.8,
+        "process_memory_gb": 5.13,
+        "inference_avg_ms": 144152.2,
+        "trend": "rising",
+        "timestamp": 1776449219.4309335
+      }
+    }
+  }
+}
