@@ -1,13 +1,36 @@
-torch>=2.8.0
-transformers>=4.30.0
-peft>=0.4.0
-numpy>=1.24.0
-scipy>=1.10.0
-dataclasses-json>=0.5.14
-pydantic>=2.0.0
-numba>=0.57.0
-tqdm>=4.65.0
-gradio>=3.50.0
-requests>=2.31.0
-python-dotenv>=1.0.0
-cryptography>=42.0.0
+# Core inference — llama.cpp backend
+llama-cpp-python>=0.2.90,<0.3.0
+
+# PyTorch — pinned to 2.x; 3.x API is not yet validated
+torch>=2.1.0,<3.0.0
+torchvision>=0.16.0,<1.0.0
+
+# HuggingFace stack — LoRA training pipeline
+transformers>=4.40.0,<5.0.0
+peft>=0.10.0,<1.0.0
+trl>=0.8.0,<1.0.0
+datasets>=2.18.0,<3.0.0
+accelerate>=0.27.0,<1.0.0
+huggingface-hub>=0.22.0,<1.0.0
+
+# Numerical
+numpy>=1.24.0,<2.0.0
+scipy>=1.11.0,<2.0.0
+
+# Async + HTTP
+aiohttp>=3.9.0,<4.0.0
+requests>=2.31.0,<3.0.0
+
+# Utilities
+python-dotenv>=1.0.0,<2.0.0
+cryptography>=42.0.0,<44.0.0
+tqdm>=4.65.0,<5.0.0
+pydantic>=2.0.0,<3.0.0
+
+# Sentiment (used by universal_reasoning legacy module — optional)
+vaderSentiment>=3.3.2,<4.0.0
+
+# Gradio (demo space UI only — not required for server)
+gradio>=4.0.0,<5.0.0
+
+# SQLite FTS5 is built into Python's standard library sqlite3 (no extra install needed)

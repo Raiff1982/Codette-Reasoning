@@ -53,7 +53,7 @@ Codette is a production-ready AI reasoning system that thinks from multiple angl
 
 Created by **Jonathan Harrison** (Raiff1982)
 
-> **New in v5**: Publishable benchmark suite with 17 problems across 6 categories demonstrates **93.1% improvement** over single-perspective baseline (p < 0.0001, Cohen's d = 7.88). Meta-cognitive CocoonSynthesizer discovers cross-domain reasoning patterns and forges new strategies. Full academic paper: [`paper/codette_paper_v5.pdf`](paper/codette_paper_v5.pdf) and [`paper/codette_paper_v5.tex`](paper/codette_paper_v5.tex)
+> **Paper v7 available**: [`paper/codette_paper_v7.tex`](paper/codette_paper_v7.tex) — includes rebuttal changes, updated tables, and Kaggle notebook. Benchmark suite (17 problems, 6 categories) demonstrates **93.1% improvement** over single-perspective baseline (p < 0.0001, Cohen's d = 7.88). New **ablation study** isolates each component's contribution. Full v5 paper: [`paper/codette_paper_v5.pdf`](paper/codette_paper_v5.pdf)
 
 ### 🚀 Public Landing Page
 
@@ -72,7 +72,7 @@ Codette is a modular reasoning system with published demos, tests, benchmarks, a
 - **Automated tests**: [tests](tests)
 - **Benchmark suites**: [benchmarks](benchmarks)
 - **Saved benchmark reports**: [data/results](data/results)
-- **Change transparency**: [docs/CHANGELOG_2026-04-02.md](docs/CHANGELOG_2026-04-02.md)
+- **Change transparency**: [docs/CHANGELOG_2026-04-26.md](docs/CHANGELOG_2026-04-26.md) · [docs/CHANGELOG_2026-04-02.md](docs/CHANGELOG_2026-04-02.md)
 - **Contributing guide**: [CONTRIBUTING.md](CONTRIBUTING.md)
 
 Quick evidence links:
@@ -107,8 +107,11 @@ This repository includes reproducible evidence of:
 | **Cocoon Introspection** | Statistical self-analysis of her own reasoning history — real patterns, not generated text |
 | **Meta-Cognitive Synthesis** | CocoonSynthesizer discovers cross-domain patterns in reasoning history and forges new strategies |
 | **Publishable Benchmarks** | 17-problem suite across 6 categories with 7-dimension scoring (93.1% improvement, p<0.0001) |
-| **AEGIS Ethics** | 6-framework ethical evaluation (utilitarian, deontological, virtue, care, ubuntu, indigenous) |
-| **Code7eCQURE** | Quantum emotional context enrichment on every query (Layer 2.5) |
+| **Ablation Study** | `benchmarks/ablation_study.py` isolates each component's contribution — memory, ethical layer, sycophancy guard, single-agent baseline |
+| **AEGIS Ethics** | 6-framework ethical evaluation (utilitarian, deontological, virtue, care, ubuntu, indigenous) with differentiable ethics potential field |
+| **Code7eCQURE** | Stochastic multi-perspective reasoning with named cognitive frames (Newton, DaVinci, Ethical, Quantum, Memory) — metaphorical "quantum" framing for probabilistic reasoning |
+| **WAL-mode SQLite** | Write-Ahead Logging + thread-safe write lock prevents serialization under concurrent requests |
+| **Hardened Model Loading** | Path validation before load + 5-minute timeout prevent silent hangs on missing or corrupted GGUF |
 | **Real Self-Diagnostic** | Health checks return measured values from 9 subsystems, not LLM-generated guesses |
 | **Phase 6/7 Routing** | Query complexity classification, domain detection, executive control |
 | **Session Continuity** | Active continuity summaries, decision landmarks, and recall markers reduce drift in long sessions |
@@ -237,7 +240,8 @@ codette-clean/
 |   +-- semantic_tension.py       # Embedding-based conflict measurement
 |
 |-- benchmarks/                   # Publishable evaluation suite
-|   +-- codette_benchmark_suite.py  # 17 problems x 4 conditions x 7 dimensions
+|   |-- codette_benchmark_suite.py  # 17 problems x 4 conditions x 7 dimensions
+|   +-- ablation_study.py           # Component contribution analysis (run standalone)
 |
 |-- demo/                         # Reproducible local demos
 |   |-- README.md                # Demo index
@@ -580,6 +584,46 @@ That document explains:
 | Adapter Hot-Swap Time | <1ms |
 | Consciousness Stack Layers | 12 (including sub-layers) |
 | Health Check Subsystems | 9 real-time checks |
+
+---
+
+## Run the Ablation Study
+
+```bash
+python benchmarks/ablation_study.py
+```
+
+Outputs a table showing how much each component contributes to the full-system score:
+
+```
+Condition            Mean    Drop   Cohen d   p-value
+------------------------------------------------------------
+full                0.652  +0.000     0.000    1.0000
+no_memory           0.636  +0.016     x.xxx    x.xxxx
+no_ethical          0.xxx  +0.xxx     x.xxx    x.xxxx **
+no_sycophancy       0.xxx  +0.xxx     x.xxx    x.xxxx
+single_agent        0.338  +0.314     7.520   <0.0001 **
+```
+
+Results are saved to `benchmarks/results/ablation_results.json`.
+
+---
+
+## Recent Improvements (April 2026)
+
+| Area | Change |
+|------|--------|
+| **Session race condition** | Session captured once per request — eliminates mid-request swap when `/api/new_session` fires concurrently |
+| **Model load hang** | GGUF path validated before load; 5-min `ThreadPoolExecutor` timeout prevents indefinite hang on corrupt files |
+| **SQLite concurrency** | WAL journal mode + `threading.Lock` on all writes — concurrent reads no longer block writes |
+| **Memory consolidation** | Removed orphaned `memory_kernel_local.py`; `memory_kernel.py` is canonical |
+| **Ablation study** | `benchmarks/ablation_study.py` added — isolates contribution of memory, ethical layer, sycophancy guard |
+| **Honest quantum docs** | `code7e_cqure.py` now documents that "quantum" is a metaphor for stochastic multi-perspective reasoning |
+| **Test coverage** | Added `test_aegis.py`, `test_cocoon_synthesizer.py`, `test_web_research.py` |
+| **Dependencies** | `requirements.txt` now has upper-bound version pins; removed bloated unused deps |
+| **Legacy module** | `universal_reasoning.py` fixed (broken imports, botbuilder removed, memory destroy hardened) and archived |
+| **Bare except** | `hallucination_guard.py` bare `except:` narrowed to `(ValueError, AttributeError, IndexError)` |
+| **Paper v7** | `paper/codette_paper_v7.tex`, rebuttal, tables, and Kaggle notebook added |
 
 ---
 
