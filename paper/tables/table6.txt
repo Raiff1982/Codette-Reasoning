@@ -1,0 +1,34 @@
+Table 6: Evidence index: where each headline claim is backed by an export in this repository.
+Claim Where in paper Primary evidence artifacts
+(paths)
+Overall benchmark means
+(all conditions, all dimen-
+sions)
+table 1, table 7, table 8 codette_benchmark_results.
+txt, codette-paper/data/
+results/codette_benchmark_
+report.md
+Per-problem composite
+scores (within-problem com-
+parisons)
+table 11 codette_benchmark_results.
+txt (per-problem entries)
+Evaluator-exported pairwise
+stats (t, p, d)
+table 3 codette_benchmark_results.txt
+→ pairwise_comparisons
+Depth–naturalness tradeoff
+(Turing score drop)
+table 1, section 10 codette_benchmark_results.
+txt (dimension means/stds)
+Memory impact at current
+scale (217 cocoons)
+section 8, section 10 codette_benchmark_results.
+txt, data/codette\_memory.db
+Runtime latency plots / sub-
+strate pressure behavior
+section 9, fig. 4 codette_runtime_
+benchmark_20260402_*.txt,
+codette-paper/data/results/
+codette_runtime_benchmark_
+20260402_*.md

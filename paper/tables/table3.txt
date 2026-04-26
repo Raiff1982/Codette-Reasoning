@@ -1,0 +1,7 @@
+Table 3: Independent-sample diagnostics exported by the evaluator (Welch t, pooled d; reported
+for traceability only).
+Comparison t p d Note
+MULTI vs SINGLE 21.92 < 10−12 7.52 export
+MEMORY vs MULTI 0.30 0.763 0.10 export
+CODETTE vs MEMORY 1.26 0.208 0.43 export
+CODETTE vs SINGLE 22.97 < 10−12 7.88 export

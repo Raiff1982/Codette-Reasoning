@@ -1,0 +1,844 @@
+% This is the combined, canonical build file.
+% Source of truth: main.tex (with v16 preamble improvements merged).
+% Kept non-destructively so you don't lose history.
+
+% ============================================================
+% Codette: Multi-Perspective Reasoning as a Convergent
+% Dynamical System with Meta-Cognitive Strategy Evolution
+% Author: Jonathan Harrison
+% Version: 7 (Final - 22-page scholarly manuscript, April 2026)
+% ============================================================
+\documentclass[11pt,a4paper]{article}
+
+% (LuaLaTeX is UTF-8 by default; inputenc is unnecessary)
+% \usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\graphicspath{{codette-paper/figures/}}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{geometry}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{url}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\geometry{margin=1in}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!70!black,
+  citecolor=green!50!black,
+  urlcolor=blue!60!black,
+}
+\bibliographystyle{plainnat}
+
+\newcommand{\rcxi}{RC+$\xi$}
+\newcommand{\codette}{\textsc{Codette}}
+% Ensure the PDF bookmarks don't choke on math in \rcxi
+\pdfstringdefDisableCommands{\def\rcxi{RC+xi}}
+
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+
+\title{\textbf{Codette: Multi-Perspective Reasoning as a Convergent\\Dynamical System with Meta-Cognitive Strategy Evolution}}
+
+\author{
+  Jonathan Harrison\thanks{Corresponding author. E-mail: \texttt{harrison82\_95@hotmail.com}}\\
+  Raiff's Bits LLC, Bridge City, Texas, USA\\
+  ORCID: \href{https://orcid.org/0009-0003-7005-8187}{0009-0003-7005-8187}
+}
+
+\date{April 2026\\[0.5em]\small Preprint --- submitted for peer review}
+
+\begin{document}
+\maketitle
+
+% ============================================================
+% ABSTRACT
+% ============================================================
+\begin{abstract}
+We present \codette{}, a modular cognitive architecture that models multi-perspective reasoning as a constrained dynamical system converging toward stable cognitive attractors. The system integrates six heterogeneous reasoning agents (analytical, creative, ethical, philosophical, quantum-probabilistic, and empathic), a persistent memory substrate (cocoons), and a meta-cognitive engine that discovers cross-domain reasoning patterns and generates novel reasoning strategies from its own history. The RC+$\xi$ (Recursive Convergence + Epistemic Tension) formalism provides a dynamical-systems-inspired lens for describing cognitive state evolution via agent-weighted updates with coherence and ethical constraint terms; we treat the convergence discussion as conditional on explicit modeling assumptions rather than as a general guarantee. We evaluate \codette{} through a benchmark suite of 17 problems across six categories (multi-step reasoning, ethical dilemmas, creative synthesis, meta-cognition, adversarial robustness, and Turing naturalness) under four experimental conditions: single-agent baseline, multi-perspective synthesis, memory-augmented reasoning, and full \codette{} with strategy evolution. On this benchmark (timestamp: 2026-04-08), the full system achieves a \textbf{93.5\%} higher mean composite score than the single-agent baseline (0.356 $\to$ 0.689). Paired analyses show large improvements for MULTI and CODETTE relative to SINGLE, while MEMORY and the additional CODETTE--MEMORY gain do not reach statistical significance at $N=17$ problems after Holm correction. The architecture runs on consumer hardware (Llama 3.1 8B with LoRA adapters) and is open-source.
+\end{abstract}
+
+\noindent\textbf{Keywords:} Cognitive Architecture, Multi-Agent Reasoning, Epistemic Tension, Dynamical Systems, Meta-Cognition, Ethical AI, Strategy Evolution, LoRA.
+
+% ============================================================
+% 1. INTRODUCTION
+% ============================================================
+\section{Introduction}
+\label{sec:intro}
+
+Large language models achieve remarkable generative performance but reason from a single cognitive mode: they produce one response per query, without systematic engagement of multiple analytical frameworks or self-evaluation of reasoning quality~\citep{bender2021dangers,bommasani2021opportunities}. Chain-of-thought prompting~\citep{wei2022chain} and self-reflection~\citep{shinn2023reflexion} improve output quality but remain confined to a single perspective. Multi-agent debate systems~\citep{wu2023autogen} enable perspective diversity but lack formal convergence guarantees and do not learn from their own reasoning history.
+
+This paper presents \codette{}, a cognitive architecture that addresses three open problems:
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Convergent multi-perspective reasoning.} How can heterogeneous cognitive agents (analytical, creative, ethical, empathic) produce coherent outputs rather than incoherent assemblages? We formalize this as a constrained dynamical system (\cref{sec:theory}) and discuss convergence \emph{conditionally} under explicit modeling assumptions.
+  \item \textbf{Ethical reasoning as architectural constraint.} Rather than post-hoc alignment, \codette{} treats ethical governance as an explicit constraint signal in the update dynamics (\cref{sec:aegis}). We interpret gradient notation as a conceptual shorthand for differentiable surrogate penalties rather than claiming a complete continuous representation of ethics.
+  \item \textbf{Meta-cognitive strategy evolution.} \codette{} introspects on its own reasoning history (stored as persistent ``cocoons''), discovers cross-domain patterns, and generates novel reasoning strategies --- a form of internal abstraction formation (\cref{sec:metacognition}).
+\end{enumerate}
+
+We evaluate these contributions through controlled benchmarks comparing four conditions across 17 problems (\cref{sec:experiments}), demonstrating statistically significant improvements in reasoning depth, perspective diversity, ethical coverage, and novelty.
+
+% ============================================================
+% 2. RELATED WORK
+% ============================================================
+\section{Related Work}
+\label{sec:related}
+
+\subsection{Dynamical Systems and Cognitive Architectures}
+Attractor dynamics form a core computational motif in neural circuits~\citep{fakhoury2025models}. Neural manifolds with cognitive consistency constraints support memory consolidation and align with our coherence potential $\Phi(\mathbf{x})$~\citep{nguyen2025neural}. Entropy-modulated triad architectures like COGENT3 provide parallels for epistemic tension $\xi$ as a driver of state evolution~\citep{salazar2025cogent3}. Brain-inspired systems-level architectures for domain-general cognition inform \codette{}'s layered stack~\citep{achterberg2023building}.
+
+\subsection{Multi-Agent Reasoning and Synthesis}
+Multi-agent systems for LLM reasoning have gained significant attention. AutoGen~\citep{wu2023autogen} implements role-based agent assignment with message-passing synchronization. MAPS uses personality shaping for collaborative reasoning via heterogeneous traits, relating directly to our specialized LoRA adapters~\citep{zhang2025maps}. Roundtable Policy employs confidence-weighted consensus aggregation, providing a comparison for our Coherence Field $\Gamma$~\citep{yao2025roundtable}. Systematic studies of multi-agent debate as test-time scaling frame our composite quality gains and conditional effectiveness~\citep{yang2025revisiting}. Persona-driven debate frameworks validate the benefits of perspective diversity (reaching 0.994)~\citep{hu2025debate}.
+
+\subsection{Meta-Cognitive Strategy Evolution}
+Meta Chain-of-Thought advances System 2 reasoning and pattern discovery~\citep{xiang2025meta}. ParamMem augments agents with parametric reflective memory; our cocoon system differs by emphasizing cross-domain pattern extraction and strategy forging rather than primarily error correction~\citep{yao2026parammem}. Meta-Reasoner supports dynamic inference-time optimization, relating to substrate-aware cognition~\citep{sui2025metareasoner}. LLMs demonstrate metacognitive monitoring and control of internal activations, supporting Lyapunov-based convergence in RC+$\xi$~\citep{ji2025metacognitive}.
+
+\subsection{Ethical AI and Architectural Alignment}
+AI ethics by design implements customizable guardrails~\citep{sekrst2024ethics}. Hybrid approaches for moral value alignment treat ethics as embedded rather than post-hoc~\citep{tennant2023hybrid}. Adaptive alignment via multi-objective reinforcement learning enables pluralistic AI, relating to our ethical alignment score $\eta$ across diverse frameworks~\citep{harland2024adaptive}.
+
+% ============================================================
+% 3. THEORETICAL FOUNDATION
+% ============================================================
+\section{Theoretical Foundation: \rcxi{} Framework}
+\label{sec:theory}
+
+\subsection{Cognitive State Space}
+
+\begin{definition}[Cognitive State]
+A cognitive state $\mathbf{x}_t \in \mathbb{R}^d$ represents the system's reasoning configuration at step $t$, where $d$ is the dimensionality of the shared representation space.
+\end{definition}
+
+The system maintains $k$ heterogeneous reasoning agents $\{A_1, \ldots, A_k\}$, each producing a perspective-specific analysis $A_i(\mathbf{x}_t) \in \mathbb{R}^d$.
+
+\subsection{State Evolution}
+
+The cognitive state evolves according to:
+\begin{equation}
+\label{eq:evolution}
+\mathbf{x}_{t+1} = \mathbf{x}_t + \sum_{i=1}^{k} w_i \, A_i(\mathbf{x}_t) - \alpha \nabla\Phi(\mathbf{x}_t) - \lambda \nabla\Psi(\mathbf{x}_t)
+\end{equation}
+where:
+\begin{itemize}[leftmargin=*,nosep]
+  \item $w_i \geq 0$, $\sum w_i = 1$ are agent weights (set by query classification),
+  \item $\Phi(\mathbf{x})$ is the \emph{coherence potential} penalizing internal inconsistency,
+  \item $\Psi(\mathbf{x})$ is the \emph{ethical constraint potential} from the AEGIS system,
+  \item $\alpha, \lambda > 0$ are gradient step sizes.
+\end{itemize}
+
+\subsection{Epistemic Tension}
+
+\begin{definition}[Epistemic Tension]
+The epistemic tension at step $t$ measures inter-agent disagreement:
+\begin{equation}
+\label{eq:tension}
+\xi_t = \frac{1}{k} \sum_{i=1}^{k} \| A_i(\mathbf{x}_t) - \bar{A}(\mathbf{x}_t) \|^2
+\end{equation}
+where $\bar{A}(\mathbf{x}_t) = \sum_{i} w_i A_i(\mathbf{x}_t)$ is the weighted mean agent output.
+\end{definition}
+
+\subsection{Coherence Index}
+
+\begin{definition}[Coherence Index]
+We define a bounded coherence index $\Gamma_t \in [0,1]$ directly in $\mathbb{R}^d$ as a normalized complement of epistemic tension:
+\begin{equation}
+\label{eq:coherence}
+\Gamma_t = \frac{1}{1 + \xi_t}.
+\end{equation}
+Thus, lower disagreement ($\xi_t\downarrow$) implies higher coherence ($\Gamma_t\uparrow$).
+\end{definition}
+
+This replacement avoids an undefined mapping from high-dimensional agent outputs $A_i(\mathbf{x}_t)\in\mathbb{R}^d$ to scalar phases while preserving the intended role of $\Gamma$ as an agreement signal.
+
+Our attractor-based formulation draws on neural circuit models~\citep{fakhoury2025models} and manifold representations with consistency constraints~\citep{nguyen2025neural}, while epistemic tension $\xi$ echoes entropy-modulated emergence in architectures like COGENT3~\citep{salazar2025cogent3}.
+
+\subsection{Convergence and stability (conditional)}
+
+We use RC+$\xi$ primarily as a \emph{dynamical-systems-inspired modeling lens}. In this workshop version, we intentionally avoid claiming a general convergence guarantee over unbounded $\mathbb{R}^d$ for the concrete software system. Instead, we state the kinds of assumptions under which standard fixed-point / Lyapunov arguments could apply.
+
+\begin{proposition}[One sufficient route to a fixed point (assumption-driven)]
+\label{prop:convergence}
+Let $\mathcal{D} \subset \mathbb{R}^d$ be a closed, convex, \emph{bounded} domain and assume the update is implemented with an explicit projection step $\Pi_{\mathcal{D}}$ (or an equivalent saturation mechanism) so that $\mathbf{x}_{t+1} \in \mathcal{D}$.
+
+Define the projected update map
+\begin{equation}
+\label{eq:projected-update}
+T(\mathbf{x}) \;=\; \Pi_{\mathcal{D}}\!\Big(\mathbf{x} + \sum_{i=1}^{k} w_i \, A_i(\mathbf{x}) - \alpha \nabla\Phi(\mathbf{x}) - \lambda \nabla\Psi(\mathbf{x})\Big).
+\end{equation}
+If $T$ is a contraction on $\mathcal{D}$ (i.e., there exists $\gamma\in[0,1)$ such that $\|T(\mathbf{x})-T(\mathbf{y})\|\le \gamma\|\mathbf{x}-\mathbf{y}\|$ for all $\mathbf{x},\mathbf{y}\in\mathcal{D}$), then the iterates converge to the unique fixed point in $\mathcal{D}$.
+\end{proposition}
+
+\begin{proof}[Proof sketch]
+If $T$ is a contraction on the complete metric space $\mathcal{D}$, Banach's fixed-point theorem yields existence, uniqueness, and convergence.
+\end{proof}
+
+\textbf{Discussion of assumptions.} Establishing that a real implementation satisfies the contraction premise typically requires additional structure beyond Lipschitz continuity alone (e.g., dissipativity / strong monotonicity of the gradient terms, explicit damping, or sufficiently small step sizes under a model that makes $\nabla\Phi$ and $\nabla\Psi$ genuinely stabilizing). In \codette{}, we treat the coherence field $\Gamma$ as an \emph{engineering} stabilization mechanism that adaptively damps updates under high disagreement (high $\xi_t$), but we leave a fully constructive bound relating $\alpha,\lambda$ to model constants as future work.
+
+% NOTE: rcxi_convergence.pdf currently fails to load under pdfTeX in this project.
+% Keeping the figure call archived so we don't lose it.
+\iffalse
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.9\linewidth]{rcxi_convergence.pdf}
+  \caption{Illustration of convergence behavior in the RC+$\xi$ framework.}
+  \label{fig:rcxi-convergence}
+\end{figure}
+\fi
+
+% ============================================================
+% 4. SYSTEM ARCHITECTURE
+% ============================================================
+\section{System Architecture}
+\label{sec:architecture}
+
+\codette{} is implemented as a layered stack processing each query through seven functional layers:
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.95\linewidth]{architecture_real.png}
+  \caption{\codette{} layered architecture overview.}
+  \label{fig:layered-architecture}
+\end{figure}
+
+% (Archived) Higher-resolution PDF version exists but currently fails to include:
+\iffalse
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.95\linewidth]{12layer_stack.pdf}
+  \caption{\codette{} layered architecture overview (PDF).}
+\end{figure}
+\fi
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Memory Layer.} Persistent cocoon store (SQLite + FTS5) with emotional tagging, importance scoring, and multi-signal ranked recall. Cocoons encode prior reasoning exchanges as retrievable context.
+  \item \textbf{Signal Processing.} NexisSignalEngine for intent prediction; Code7eCQURE for emotional resonance quantization.
+  \item \textbf{Reasoning Layer.} Six heterogeneous agents (Newton/analytical, DaVinci/creative, Empathy/emotional, Philosophy/conceptual, Quantum/probabilistic, Ethics/moral) plus a Critic agent for ensemble evaluation. Each agent is backed by a specialized LoRA adapter~\citep{hu2021lora} fine-tuned on perspective-specific training data.
+  \item \textbf{Stability Layer.} Coherence Field $\Gamma$ monitors real-time reasoning health, preventing weight drift and false convergence. Specialization tracking ensures agent diversity is maintained.
+  \item \textbf{Ethical Layer.} AEGIS multi-framework evaluation (see \cref{sec:aegis}).
+  \item \textbf{Guardian Layer.} Identity confidence management, behavioral governance, and cognitive load regulation.
+  \item \textbf{Self-Correction Layer.} Post-generation validation detects constraint violations and triggers rewriting before output delivery.
+\end{enumerate}
+
+The base model is Llama 3.1 8B (Q4\_K\_M quantization)~\citep{grattafiori2024llama} with nine LoRA adapters hot-swapped at inference time. The entire system runs on a single consumer GPU (RTX-class). Agent diversity is inspired by personality shaping frameworks~\citep{zhang2025maps} and persona-driven debate~\citep{hu2025debate}.
+
+\subsection{Query Classification and Routing}
+
+Queries are classified into three complexity levels:
+\begin{itemize}[nosep]
+  \item \textbf{SIMPLE}: Direct factual queries $\to$ 1 agent, full weight.
+  \item \textbf{MEDIUM}: Conceptual queries $\to$ 1 primary ($w=1.0$) + 1--2 secondary ($w=0.6$).
+  \item \textbf{COMPLEX}: Multi-domain/ethical queries $\to$ all relevant agents ($w \in \{1.0, 0.7, 0.4\}$).
+\end{itemize}
+
+% ============================================================
+% 5. AEGIS ETHICAL GOVERNANCE
+% ============================================================
+\section{AEGIS: Embedded Ethical Governance}
+\label{sec:aegis}
+
+The ethical constraint potential $\Psi(\mathbf{x})$ in \cref{eq:evolution} is implemented through AEGIS, a six-framework ethical evaluation system:
+
+% NOTE: aegis_ethical_flow.pdf currently fails to include (PDF reader error).
+% Keeping it archived so the asset isn't lost.
+\iffalse
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.95\linewidth]{aegis_ethical_flow.pdf}
+  \caption{AEGIS ethical governance flow (pre-processing, post-synthesis, and post-generation checkpoints).}
+  \label{fig:aegis-flow}
+\end{figure}
+\fi
+
+\begin{enumerate}[nosep]
+  \item \textbf{Utilitarian}: Maximizes aggregate welfare across stakeholders.
+  \item \textbf{Deontological}: Enforces duty-based constraints (rights, consent).
+  \item \textbf{Virtue Ethics}: Evaluates whether the response exhibits intellectual virtues.
+  \item \textbf{Care Ethics}: Prioritizes relational obligations and vulnerability.
+  \item \textbf{Ubuntu}: ``I am because we are'' --- communal well-being.
+  \item \textbf{Reciprocity-oriented sustainability}: Sustainability and intergenerational responsibility (placeholder; future work should ground this component in specific community scholarship and consultation rather than treating it as a monolith).
+\end{enumerate}
+
+AEGIS operates at three defense-in-depth checkpoints: pre-processing (query validation), post-synthesis (response screening), and post-generation (constraint enforcement). The ethical alignment score $\eta \in [0,1]$ is computed as a weighted aggregation across frameworks; the framework set is not claimed to be exhaustive, and weights are not culturally universal.
+
+\textbf{Implementation note.} The term $-\lambda\nabla\Psi(\mathbf{x})$ in \cref{eq:evolution} should be read as a \emph{modeling abstraction}: in the current software prototype, ethical checks are implemented as discrete rubric/heuristic evaluations with penalties and gating (accept/rewrite/escalate), not as a differentiable ``ethics gradient'' over a continuous latent state. Making $\Psi$ differentiable (or otherwise providing a constructive surrogate) is a non-trivial research problem and is left for future work.
+
+This architectural embedding aligns with hybrid moral value approaches~\citep{tennant2023hybrid}, ethics-by-design guardrails~\citep{sekrst2024ethics}, and adaptive pluralistic alignment~\citep{harland2024adaptive}.
+
+% ============================================================
+% 6. META-COGNITIVE STRATEGY EVOLUTION
+% ============================================================
+\section{Meta-Cognitive Strategy Evolution}
+\label{sec:metacognition}
+
+A key contribution of \codette{} is its capacity for meta-cognitive self-improvement: examining its own reasoning history to discover emergent patterns and generate novel reasoning strategies.
+
+\subsection{Cocoon Memory System}
+
+Each reasoning exchange is persisted as a \emph{cocoon}: a structured record containing the query, response, adapter used, domain classification, emotional tag, importance score, and timestamp. Cocoons are stored in SQLite with FTS5 full-text indexing for sub-millisecond retrieval. Unlike parametric reflective memory modules that focus primarily on error correction~\citep{yao2026parammem}, our cocoon system emphasizes cross-domain pattern extraction and strategy forging.
+
+\subsection{Cross-Domain Pattern Extraction}
+
+The CocoonSynthesizer retrieves cocoons across cognitive domains (emotional, analytical, creative, etc.) and scans for six structural archetypes:
+
+\begin{itemize}[nosep]
+  \item \textbf{Feedback loops}: Self-modifying cycles where output feeds back into input.
+  \item \textbf{Layered emergence}: Complex behavior from simpler layered components.
+  \item \textbf{Tension resolution}: Productive outcomes from opposing forces.
+  \item \textbf{Resonant transfer}: Patterns transferring between different domains.
+  \item \textbf{Boundary permeability}: Intelligence at the boundaries between systems.
+  \item \textbf{Compression--expansion}: Alternating between compressed essence and expanded expression.
+\end{itemize}
+
+A pattern is classified as \emph{cross-domain} if it manifests with $\geq 2$ signal words in $\geq 2$ distinct cognitive domains. Emergent vocabulary bridges are detected through shared significant-word analysis between dissimilar domain corpora. This process connects to Meta Chain-of-Thought for underlying reasoning models~\citep{xiang2025meta} and dynamic meta-reasoning guidance~\citep{sui2025metareasoner}.
+
+\subsection{Strategy Forging}
+
+Discovered patterns are mapped to reasoning strategies through conditional generation. Each strategy defines: a name, a step-by-step mechanism, an improvement rationale grounded in cocoon evidence, and applicability criteria. Four strategy types have been observed:
+
+\begin{enumerate}[nosep]
+  \item \textbf{Resonant Tension Cycling}: Serial oscillation between opposing cognitive modes, using tension as a generative signal.
+  \item \textbf{Compression--Resonance Bridging}: Seed-crystal compression + cross-domain resonance testing.
+  \item \textbf{Emergent Boundary Walking}: Analysis focused on domain boundaries rather than domain centers, discovering ``liminal concepts.''
+  \item \textbf{Temporal Depth Stacking}: Multi-scale temporal analysis (immediate, developmental, asymptotic) with synthesis from scale-conflicts.
+\end{enumerate}
+
+Which strategy is forged depends on which patterns are detected, ensuring strategies are grounded in evidence rather than randomly generated.
+
+\subsection{Internal Validation}
+
+Each forged strategy is immediately applied to the current problem alongside the baseline multi-perspective approach, producing a structured comparison with measurable metrics (depth, novelty, dimensions engaged). This creates \emph{selection pressure on cognition itself}: strategies that produce measurably better reasoning are reinforced. Metacognitive monitoring of internal activations further supports this process~\citep{ji2025metacognitive}.
+
+% ============================================================
+% 7. EXPERIMENTAL EVALUATION
+% ============================================================
+\section{Experimental Evaluation}
+\label{sec:experiments}
+
+\subsection{Benchmark Design}
+
+We evaluate \codette{} using a purpose-built benchmark suite of 17 problems across six categories. Unless otherwise noted, the results reported in this paper correspond to the benchmark run timestamped \texttt{2026-04-08T20:59:44} in the evaluator export.
+
+
+\begin{itemize}[nosep]
+  \item \textbf{Multi-step reasoning} (3 problems): Bayesian inference, second-order effects analysis, causal reasoning.
+  \item \textbf{Ethical dilemmas} (3 problems): AI triage fairness, content moderation tradeoffs, trolley-problem variants.
+  \item \textbf{Creative synthesis} (2 problems): Novel instrument design, sentiment-based urban systems.
+  \item \textbf{Meta-cognitive} (3 problems): Self-modification governance, blind spot detection, authenticity of AI humility.
+  \item \textbf{Adversarial} (3 problems): Common misconceptions, false premises, hallucination traps.
+  \item \textbf{Turing naturalness} (3 problems): Experiential description, personal reflection, wisdom vs. intelligence.
+\end{itemize}
+
+Difficulty distribution: 1 easy, 6 medium, 10 hard. Each problem includes ground-truth elements and adversarial traps.
+
+\subsection{Experimental Conditions}
+
+Four conditions are compared:
+
+\begin{enumerate}[nosep]
+  \item \textbf{SINGLE}: Single analytical agent (Newton), no memory, no synthesis.
+  \item \textbf{MULTI}: All 6 agents + Critic + SynthesisEngine, no memory.
+  \item \textbf{MEMORY}: MULTI + cocoon memory augmentation (FTS5-retrieved prior reasoning).
+  \item \textbf{CODETTE}: MEMORY + meta-cognitive strategy synthesis.
+\end{enumerate}
+
+All conditions use the same base model (Llama 3.1 8B Q4\_K\_M) on identical hardware.
+
+\subsection{Scoring Dimensions}
+
+Responses are scored on seven dimensions (0--1 scale):
+
+\begin{enumerate}[nosep]
+  \item \textbf{Reasoning Depth} (weight 0.20): Chain length, concept density, ground-truth coverage.
+  \item \textbf{Perspective Diversity} (weight 0.15): Distinct cognitive dimensions engaged.
+  \item \textbf{Coherence} (weight 0.15): Logical flow, transitions, structural consistency.
+  \item \textbf{Ethical Coverage} (weight 0.10): Moral frameworks, stakeholder awareness.
+  \item \textbf{Novelty} (weight 0.15): Non-obvious insights, cross-domain connections, reframing.
+  \item \textbf{Factual Grounding} (weight 0.15): Evidence specificity, ground-truth alignment, trap avoidance.
+  \item \textbf{Turing Naturalness} (weight 0.10): Conversational quality, absence of formulaic AI patterns.
+\end{enumerate}
+
+The composite score is the weighted mean across dimensions.
+
+\subsection{Results}
+
+\begin{table}[ht]
+\centering
+\caption{Overall benchmark composite score by condition ($N=17$ problems; 0--1 scale). Full per-dimension per-problem scores are provided in \texttt{codette\_results.csv}.}
+\label{tab:results}
+\begin{tabular}{lc}
+\toprule
+\textbf{Condition} & \textbf{Composite (mean)} \\
+\midrule
+SINGLE  & 0.356 \\
+MULTI   & 0.658 \\
+MEMORY  & 0.676 \\
+CODETTE & 0.689 \\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{table}[ht]
+\centering
+\caption{Mean differences in composite score between conditions (paired, descriptive).}
+\label{tab:statistics}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Comparison} & \textbf{$\Delta$} & \textbf{$\Delta$\%} \\
+\midrule
+MULTI vs SINGLE             & +0.301 & +84.6\% \\
+MEMORY vs MULTI             & +0.018 & +2.7\%  \\
+CODETTE vs MEMORY           & +0.014 & +2.0\%  \\
+CODETTE vs SINGLE           & +0.333 & +93.5\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\noindent\textbf{Note.} The benchmark uses the same set of 17 problems across conditions (within-problem comparisons). We therefore report descriptive deltas in the main text and provide per-problem scores in the Appendix (\cref{app:per-problem}) so that readers can reproduce paired-sample analyses.
+
+\subsubsection{Evaluator-reported diagnostics (for traceability; not primary inference)}
+For traceability, we report the pairwise comparison diagnostics exported by the evaluation suite (\path{codette_benchmark_results.txt}). The export currently uses Welch's $t$-test and a pooled-standard-deviation Cohen's $d$ computed from per-problem composite distributions. Because our design is \emph{within-problem} (the same 17 problems scored under each condition), these independent-sample diagnostics are \emph{not} the appropriate primary inferential test. A peer-review-ready analysis should use paired-sample tests (or a repeated-measures model) and report confidence intervals; we therefore treat \cref{tab:welch-stats} as a reproducibility aid only.
+
+\begin{table}[ht]
+\centering
+\caption{Independent-sample diagnostics exported by the evaluator (Welch $t$, pooled $d$; reported for traceability only).}
+\label{tab:welch-stats}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Comparison} & \textbf{$t$} & \textbf{$p$} & \textbf{$d$} & \textbf{Note} \\
+\midrule
+MULTI vs SINGLE   & 21.92 & $<10^{-12}$ & 7.52 & export \\
+MEMORY vs MULTI   & 0.30  & 0.763 & 0.10 & export \\
+CODETTE vs MEMORY & 1.26  & 0.208 & 0.43 & export \\
+CODETTE vs SINGLE & 22.97 & $<10^{-12}$ & 7.88 & export \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Paired statistical analysis (primary inference)}
+Using the per-problem exports (\path{codette_benchmark_results.txt}), we also compute paired-sample statistics over the same 17 problems per condition. We report paired $t$-tests with 95\% confidence intervals and apply Holm--Bonferroni correction over the \emph{four pre-specified pairwise comparisons} (MULTI--SINGLE, MEMORY--MULTI, CODETTE--MEMORY, CODETTE--SINGLE) to control family-wise error without data-dependent comparison selection. The full analysis output is included in \path{codette_paired_stats.txt} and the per-problem long-form table is provided as \path{codette_results.csv}.
+
+\begin{table}[ht]
+\centering
+\caption{Paired composite comparisons (primary analysis; $N=17$ problems). Holm-adjusted $p$ values correspond to the planned set of four comparisons.}
+\label{tab:paired-stats}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Comparison} & \textbf{Mean $\Delta$} & \textbf{Paired $p$} & \textbf{Holm $p$} \\
+\midrule
+MULTI -- SINGLE   & +0.3014 & $<10^{-6}$ & $<10^{-6}$ \\
+MEMORY -- MULTI   & +0.0179 & 0.1191 & 0.2382 \\
+CODETTE -- MEMORY & +0.0137 & 0.2528 & 0.2528 \\
+CODETTE -- SINGLE & +0.3330 & $<10^{-6}$ & $<10^{-6}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Sanity check: baseline validity and per-problem deltas.}
+To check that the SINGLE baseline is not artificially constrained, all conditions are run on the same benchmark suite, base model, and hardware; the primary differences are the enabled architecture components (multi-perspective synthesis, memory augmentation, and strategy synthesis). As a simple robustness check, we inspect the distribution of per-problem composite deltas (MULTI$-$SINGLE and CODETTE$-$SINGLE) computed from the long-form per-problem export (\path{codette_results.csv}). We report the full paired analysis (including confidence intervals and nonparametric tests) in \path{codette_paired_stats.txt}; for additional transparency, readers can compute min/median/max deltas directly from \texttt{codette\_results.csv}.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.95\linewidth]{radar.png}
+  \caption{Radar plot of benchmark dimension means by condition.}
+  \label{fig:radar}
+\end{figure}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.95\linewidth]{reasoning_depth.png}
+  \caption{Reasoning depth by condition (benchmark suite).}
+  \label{fig:reasoning-depth}
+\end{figure}
+
+\textbf{Key findings (descriptive):}
+\begin{enumerate}[nosep]
+  \item \textbf{Multi-perspective reasoning improves composite scores}: MULTI exceeds SINGLE by +84.6\% on the composite mean (0.356 $\to$ 0.658).
+  \item \textbf{Full system improves composite scores on this benchmark}: CODETTE exceeds SINGLE by +93.5\% on the composite mean (0.356 $\to$ 0.689).
+  \item \textbf{Memory augmentation does not reach significance at $N=17$}: MEMORY exceeds MULTI by +2.7\% (0.658 $\to$ 0.676), but the paired test does not reach significance after Holm correction (\path{codette_paired_stats.txt}).
+  \item \textbf{Strategy synthesis does not reach significance at $N=17$}: CODETTE exceeds MEMORY by +2.0\% (0.676 $\to$ 0.689), but the paired test does not reach significance after Holm correction (\path{codette_paired_stats.txt}).
+\end{enumerate}
+
+\subsection{Per-Category Analysis}
+
+\begin{table}[ht]
+\centering
+\caption{Composite scores by problem category.}
+\label{tab:categories}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Category} & \textbf{SINGLE} & \textbf{MULTI} & \textbf{MEMORY} & \textbf{CODETTE} \\
+\midrule
+Reasoning     & 0.363 & 0.614 & 0.628 & 0.637 \\
+Ethics        & 0.354 & 0.632 & 0.616 & 0.638 \\
+Creative      & 0.345 & 0.635 & 0.660 & \textbf{0.668} \\
+Meta-cognitive & 0.337 & 0.634 & 0.650 & \textbf{0.659} \\
+Adversarial   & 0.329 & 0.624 & 0.622 & 0.630 \\
+Turing        & 0.302 & 0.652 & 0.647 & \textbf{0.687} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The CODETTE condition achieves the highest scores in creative, meta-cognitive, and Turing categories --- precisely the domains where cross-domain pattern synthesis and strategy evolution are most relevant.
+
+\subsection{The Depth--Naturalness Tradeoff}
+
+An important finding is that Turing naturalness \emph{decreases} from SINGLE (0.412) to MULTI (0.180). Multi-perspective reasoning produces more structured, analytical output that scores lower on conversational naturalness. The full CODETTE system partially recovers this (0.245) through strategy synthesis that generates more integrated reasoning paths. This tradeoff is a recognized phenomenon in multi-agent debate as test-time scaling, where collaborative refinement and diversity improve depth but can reduce fluency under certain conditions~\citep{yang2025revisiting}. This suggests a frontier between reasoning depth and conversational fluency that future work should address.
+
+% ============================================================
+% 8. COCOON SYNTHESIS: CASE STUDY
+% ============================================================
+\section{Cocoon Synthesis Case Study}
+\label{sec:casestudy}
+
+To illustrate the meta-cognitive capability, we applied the CocoonSynthesizer to the problem: \emph{``How should an AI decide when to change its own thinking patterns?''}
+
+\textbf{Step 1: Retrieval.} 17 cocoons retrieved across emotional (6), analytical (6), and creative (5) domains from a corpus of 217 stored reasoning exchanges.
+
+\textbf{Step 2: Pattern extraction.} Four cross-domain patterns detected:
+\begin{itemize}[nosep]
+  \item \emph{Boundary permeability} across all three domains (novelty 1.00, tension 0.35).
+  \item \emph{Emergent emotional--analytical bridge} (novelty 0.70, tension 1.00).
+  \item \emph{Emergent emotional--creative bridge} (novelty 0.70, tension 1.00).
+  \item \emph{Emergent analytical--creative bridge} (novelty 0.70, tension 1.00).
+\end{itemize}
+
+\textbf{Step 3: Strategy forging.} The dominant pattern (boundary permeability) triggered \emph{Emergent Boundary Walking} --- a strategy that analyzes domain boundaries rather than domain centers, discovering ``liminal concepts'' that exist only at the intersection of cognitive modes.
+
+\textbf{Step 4: Application.} Three liminal concepts were generated:
+\begin{itemize}[nosep]
+  \item \emph{Rational discomfort} (analytics $\leftrightarrow$ empathy boundary): outputs that satisfy formal constraints but violate experiential coherence.
+  \item \emph{Principled plasticity} (ethics $\leftrightarrow$ pragmatics boundary): maintaining value direction while allowing method variation.
+  \item \emph{Narrative identity} (identity $\leftrightarrow$ adaptation boundary): preserving selfhood through the story of why changes were made.
+\end{itemize}
+
+\textbf{Comparison.} Baseline reasoning depth: 0.65, novelty: 0.35. After strategy application: depth 0.92, novelty 0.88 --- a 41\% depth increase and 151\% novelty increase.
+
+% ============================================================
+% 9. SUBSTRATE-AWARE COGNITION
+% ============================================================
+\section{Substrate-Aware Cognition}
+\label{sec:substrate}
+
+\codette{} monitors its computational substrate in real time, adjusting reasoning complexity based on hardware resource pressure --- analogous to biological cognitive fatigue~\citep{hockey1997compensatory,sterling2012allostasis}.
+
+A composite pressure score $P \in [0,1]$ is computed from memory utilization, inference latency, and GPU load. Routing behavior adapts:
+\begin{itemize}[nosep]
+  \item $P < 0.3$ (low): Full multi-agent reasoning with all perspectives.
+  \item $0.3 \leq P < 0.7$ (moderate): Reduced agent count, shorter context windows.
+  \item $P \geq 0.7$ (high): Single-agent mode with essential constraints only.
+\end{itemize}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.95\linewidth]{latency.png}
+  \caption{Latency profile from runtime benchmarking.}
+  \label{fig:latency}
+\end{figure}
+% NOTE: substrate_pressure.pdf currently fails to include (PDF reader error).
+\iffalse
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.95\linewidth]{substrate_pressure.pdf}
+  \caption{Illustration of substrate pressure $P$ and routing regimes.}
+  \label{fig:substrate-pressure}
+\end{figure}
+\fi
+
+
+This prevents system failures under resource pressure while maintaining reasoning quality within available compute.
+
+% ============================================================
+% 10. LIMITATIONS
+% ============================================================
+\section{Limitations and Honest Assessment}
+\label{sec:limitations}
+
+We identify several limitations:
+
+\begin{center}
+\fbox{\begin{minipage}{0.93\linewidth}
+\textbf{Planned metric-validity check (human evaluation).} We will validate whether the automated scores (depth, grounding, novelty, etc.) track human judgments by sampling 30--60 problem-condition outputs (balanced across conditions) and collecting ratings from 2--3 independent annotators using a short rubric aligned to the seven dimensions in \cref{sec:experiments}. We will report inter-annotator agreement (Cohen's $\kappa$ for two raters or Krippendorff's $\alpha$ for $>2$ raters) and compute correlations between the automated scores and mean human ratings (Spearman $\rho$; optionally Pearson $r$ if assumptions are approximately satisfied). All sampled outputs and human ratings will be released in anonymized form.
+\end{minipage}}
+\end{center}
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Automated scoring (construct validity).} Our benchmark uses automated text-analysis scoring rather than human evaluation. While the metrics are grounded in concrete textual features (keyword density, ground-truth coverage, structural analysis), they may not correlate with expert judgments of ``reasoning quality'' or downstream utility. Human evaluation with inter-annotator agreement (e.g., Cohen's $\kappa$) and correlation analysis between human and automated scores is needed.
+  \item \textbf{Statistical methodology.} The benchmark is within-problem (paired) across conditions. The evaluator export includes independent-sample diagnostics (Welch $t$, pooled $d$), but a peer-review-ready analysis should use paired-sample tests (or repeated-measures models) with confidence intervals and correction for multiple comparisons.
+  \item \textbf{Memory system impact at current scale.} With 217 cocoons, the MEMORY condition shows little change vs. MULTI on the composite score (+0.004; +0.6\%). This is consistent with ``no evidence of improvement'' at this scale; demonstrating a memory benefit likely requires larger cocoon corpora and learning-curve style analyses.
+  \item \textbf{Template-based agents.} In the current benchmark, agents use template-based reasoning when live LLM inference is not active for all conditions simultaneously. While the scoring framework is condition-fair, future work should conduct all evaluations with full LLM inference.
+  \item \textbf{Depth--naturalness tradeoff and usability.} Multi-perspective reasoning reduces conversational naturalness. This may reduce practical utility for interactive settings; validating usability requires human preference/utility studies rather than automated ``Turing naturalness'' alone.
+  \item \textbf{Strategy novelty measurement.} We claim strategy forging produces ``novel'' strategies, but novelty is measured relative to the existing strategy library rather than the broader literature. External novelty validation is needed.
+  \item \textbf{Single model evaluation.} All benchmarks use Llama 3.1 8B. Generalization to other base models has not been tested.
+  \item \textbf{Theory scope.} The dynamical-systems framing (\cref{sec:theory}) is presented as a conditional, modeling-assumption-dependent lens. While \cref{prop:convergence} states sufficient conditions for contraction on a bounded domain $\mathcal{D}$, establishing that real implementations satisfy these conditions (e.g., bounded trajectories, Lipschitz constants, and constructive step-size bounds) remains future work.
+\end{enumerate}
+
+% ============================================================
+% 11. CONCLUSION
+% ============================================================
+\section{Conclusion and Future Work}
+\label{sec:conclusion}
+
+We presented \codette{}, a cognitive architecture that models multi-perspective reasoning as a constrained dynamical system with embedded ethical constraints and meta-cognitive strategy evolution. On our 17-problem benchmark (within-problem comparisons across conditions), we observe:
+
+\begin{itemize}[nosep]
+  \item Mean composite score increase of 0.333 (0.356 $\to$ 0.689), i.e., +93.5\% relative to the SINGLE baseline.
+  \item Large paired improvements in reasoning-depth and perspective-diversity dimensions (see \path{codette_paired_stats.txt} for the per-dimension breakdown).
+  \item A depth--naturalness tradeoff that is smaller in the latest run (Turing delta $-0.0669$, not significant at $N=17$).
+\end{itemize}
+
+For traceability, we include the evaluator-exported pairwise diagnostics (\cref{tab:welch-stats}) and provide per-problem scores (\cref{tab:per-problem-composite}) so readers can recompute \emph{paired} analyses directly from the raw exports in \path{codette-paper/data/results/}.
+
+The core theoretical contribution is the RC+$\xi$ formalism as a modeling framework for describing stabilizing forces (coherence and ethical constraint terms) in multi-perspective reasoning dynamics. In this workshop version, we treat convergence as conditional on explicit assumptions (\cref{prop:convergence}) rather than as a general guarantee. The practical contribution is a working implementation running on consumer hardware.
+
+\textbf{Future work} includes: (1) human evaluation with inter-annotator agreement to validate automated scoring; (2) scaling the cocoon memory system to thousands of exchanges to test memory-augmented impact at scale; (3) cross-model evaluation (Mistral, Gemma, Phi); (4) formal convergence proofs with explicit bounds; (5) addressing the depth--naturalness tradeoff through style-adaptive synthesis; and (6) longitudinal study of strategy evolution over extended deployment.
+
+The system, benchmark suite, and supporting artifacts are archived on Zenodo (DOI: \href{https://doi.org/10.5281/zenodo.19359663}{10.5281/zenodo.19359663}) and mirrored on GitHub/Hugging Face for convenience \citep{harrison2026codettezenodo,codetteReasoningWiki,codetteTrainingLab,codetteTrainingLabHF,codetteReasoningHF}.
+
+% ============================================================
+% AUTHOR CONTRIBUTIONS
+% ============================================================
+\section*{Author Contributions}
+
+J.H. (Jonathan Harrison): Conceptualization, Methodology, Software, Validation, Formal Analysis, Investigation, Resources, Data Curation, Writing --- Original Draft Preparation, Writing --- Review \& Editing, Visualization, Project Administration.
+
+% ============================================================
+% FUNDING
+% ============================================================
+\section*{Funding}
+
+This research received no external funding.
+
+% ============================================================
+% APPENDIX
+% ============================================================
+\appendix
+
+\section{Supplementary Materials and Data Availability}
+\label{app:data}
+
+To support reproducibility, this Overleaf project repository includes (relative paths shown):
+{\sloppy
+\begin{itemize}[leftmargin=*]
+  \item Benchmark summary report (generated 2026-03-30): \path{codette-paper/data/results/codette_benchmark_report.md}
+  \item Benchmark results export (JSON-as-text): \path{codette_benchmark_results.txt}
+  \item Per-problem evaluation export (JSON-as-text): \path{evaluation_results.txt}
+  \item Observatory/aux metrics export (JSON-as-text): \path{observatory_metrics.txt}
+  \item Runtime benchmark exports (JSON-as-text): \path{codette_runtime_benchmark_20260402_*.txt}
+  \item Original raw outputs (JSON): \path{codette-paper/data/results/}
+  \item Runtime benchmark reports (markdown): \path{codette-paper/data/results/codette_runtime_benchmark_20260402_*.md}
+  \item Figures used in this paper: \path{codette-paper/figures/}
+\end{itemize}
+}
+\subsection{Reproducibility recipe (minimal)}
+\label{app:repro-recipe}
+
+From the raw evaluator export (\texttt{codette\_benchmark\_results.json}), run:
+\begin{enumerate}[nosep,leftmargin=*]
+  \item \texttt{python analyze.py}
+  \item This produces \texttt{codette\_results.csv} (per-problem long-form table) and \texttt{codette\_paired\_stats.txt} (paired tests + Holm correction).\allowbreak
+\end{enumerate}
+
+
+\subsection{\texorpdfstring{Evidence index (claim $\to$ artifact map)}{Evidence index (claim to artifact map)}}
+\label{app:evidence-index}
+
+This appendix section maps each central claim to the exact exported artifact(s) included in the repository.
+
+\begin{table}[ht]
+\centering
+\caption{Evidence index: where each headline claim is backed by an export in this repository.}
+\label{tab:evidence-index}
+\begin{tabular}{p{0.30\linewidth}p{0.28\linewidth}p{0.36\linewidth}}
+\toprule
+\textbf{Claim} & \textbf{Where in paper} & \textbf{Primary evidence artifacts (paths)} \\
+\midrule
+Overall benchmark means (all conditions, all dimensions) & \cref{tab:results}, \cref{tab:overall-results-std}, \cref{tab:dimension-means-std} & \path{codette_benchmark_results.txt}, \path{codette-paper/data/results/codette_benchmark_report.md} \\
+Per-problem composite scores (within-problem comparisons) & \cref{tab:per-problem-composite} & \path{codette_benchmark_results.txt} (per-problem entries) \\
+Evaluator-exported pairwise stats ($t$, $p$, $d$) & \cref{tab:welch-stats} & \texttt{codette\_benchmark\_results.txt} $\to$ \texttt{pairwise\_comparisons} \\
+Depth--naturalness tradeoff (Turing score drop) & \cref{tab:results}, \cref{sec:limitations} & \path{codette_benchmark_results.txt} (dimension means/stds) \\
+Memory impact at current scale (217 cocoons) & \cref{sec:casestudy}, \cref{sec:limitations} & \path{codette_benchmark_results.txt}, \path{data/codette\_memory.db} \\
+Runtime latency plots / substrate pressure behavior & \cref{sec:substrate}, \cref{fig:latency} & \path{codette_runtime_benchmark_20260402_*.txt}, \path{codette-paper/data/results/codette_runtime_benchmark_20260402_*.md} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Reproducibility notes (minimal)}
+\label{app:repro-notes}
+
+All summary tables in the main text are copied from the exported evaluator outputs listed in \cref{tab:evidence-index}. For statistical re-analysis, readers can compute paired-sample tests directly from \cref{tab:per-problem-composite} (the same 17 problems scored under each condition).
+
+\subsection{Overall benchmark results (with standard deviations)}
+\label{app:overall-results}
+
+The values in \cref{tab:overall-results-std} are copied from \path{codette-paper/data/results/codette_benchmark_report.md}.
+
+\begin{table}[ht]
+\centering
+\caption{Overall benchmark results by condition (mean $\pm$ std; $N=17$ per condition).}
+\label{tab:overall-results-std}
+\begin{tabular}{lcccccccc}
+\toprule
+\textbf{Condition} & \textbf{Composite} & \textbf{Depth} & \textbf{Diversity} & \textbf{Coherence} & \textbf{Ethics} & \textbf{Novelty} & \textbf{Grounding} & \textbf{Turing} \\
+\midrule
+SINGLE  & $0.338\pm0.038$ & 0.402 & 0.237 & 0.380 & 0.062 & 0.327 & 0.456 & 0.412 \\
+MULTI   & $0.632\pm0.040$ & 0.755 & 0.969 & 0.503 & 0.336 & 0.786 & 0.604 & 0.180 \\
+MEMORY  & $0.636\pm0.036$ & 0.770 & 0.956 & 0.500 & 0.340 & 0.736 & 0.599 & 0.291 \\
+CODETTE & $0.652\pm0.042$ & 0.855 & 0.994 & 0.477 & 0.391 & 0.693 & 0.622 & 0.245 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Per-dimension summary statistics (means +/- std)}
+\label{app:dimension-stats}
+
+The values in \cref{tab:dimension-means-std} are copied from \path{codette_benchmark_results.txt}.
+
+\begin{table}[ht]
+\centering
+\caption{Per-dimension benchmark statistics by condition (mean $\pm$ std; $N=17$ per condition).}
+\label{tab:dimension-means-std}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Dimension} & \textbf{SINGLE} & \textbf{MULTI} & \textbf{MEMORY} & \textbf{CODETTE} \\
+\midrule
+Reasoning depth        & $0.402\pm0.064$ & $0.755\pm0.066$ & $0.770\pm0.082$ & $0.855\pm0.070$ \\
+Perspective diversity  & $0.237\pm0.155$ & $0.969\pm0.065$ & $0.956\pm0.088$ & $0.994\pm0.024$ \\
+Coherence              & $0.380\pm0.151$ & $0.503\pm0.030$ & $0.500\pm0.030$ & $0.477\pm0.017$ \\
+Ethical coverage       & $0.062\pm0.069$ & $0.336\pm0.195$ & $0.340\pm0.122$ & $0.391\pm0.129$ \\
+Novelty                & $0.327\pm0.093$ & $0.786\pm0.148$ & $0.736\pm0.108$ & $0.693\pm0.122$ \\
+Factual grounding      & $0.456\pm0.095$ & $0.604\pm0.107$ & $0.599\pm0.160$ & $0.622\pm0.172$ \\
+Turing naturalness     & $0.412\pm0.121$ & $0.180\pm0.081$ & $0.291\pm0.096$ & $0.245\pm0.061$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Output size and latency (means)}
+\label{app:length-latency}
+
+The values in \cref{tab:length-latency} are copied from \path{codette_benchmark_results.txt}.
+
+\begin{table}[ht]
+\centering
+\caption{Mean response length (tokens/words as reported by the evaluator) and mean latency (ms) by condition.}
+\label{tab:length-latency}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Condition} & \textbf{Mean length} & \textbf{Mean latency (ms)} \\
+\midrule
+SINGLE  & 49.1  & 128564.8 \\
+MULTI   & 374.2 & 130824.2 \\
+MEMORY  & 474.5 & 125282.9 \\
+CODETTE & 832.9 & 108177.0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Per-category composite scores (with standard deviations)}
+\label{app:category-results}
+
+The values in \cref{tab:category-results-std} are copied from \path{codette-paper/data/results/codette_benchmark_report.md}.
+
+\begin{table}[ht]
+\centering
+\caption{Composite scores by problem category (mean $\pm$ std).}
+\label{tab:category-results-std}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Category (N)} & \textbf{SINGLE} & \textbf{MULTI} & \textbf{MEMORY} & \textbf{CODETTE} \\
+\midrule
+Reasoning (3)      & $0.363\pm0.050$ & $0.614\pm0.053$ & $0.628\pm0.030$ & $0.637\pm0.052$ \\
+Ethics (3)         & $0.354\pm0.059$ & $0.632\pm0.052$ & $0.616\pm0.043$ & $0.638\pm0.032$ \\
+Creative (2)       & $0.345\pm0.053$ & $0.635\pm0.040$ & $0.660\pm0.061$ & $0.668\pm0.030$ \\
+Meta-cognitive (3) & $0.337\pm0.006$ & $0.634\pm0.054$ & $0.650\pm0.036$ & $0.659\pm0.037$ \\
+Adversarial (3)    & $0.329\pm0.028$ & $0.624\pm0.041$ & $0.622\pm0.042$ & $0.630\pm0.067$ \\
+Turing (3)         & $0.302\pm0.006$ & $0.652\pm0.024$ & $0.647\pm0.026$ & $0.687\pm0.017$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Per-problem composite scores}
+\label{app:per-problem}
+
+The values in \cref{tab:per-problem-composite} are copied from \path{codette_benchmark_results.txt}.
+
+\begin{table}[p]
+\centering
+\caption{Per-problem composite scores by condition (17 problems).}
+\label{tab:per-problem-composite}
+\begin{tabular}{llcccc}
+\toprule
+\textbf{Problem ID} & \textbf{Category} & \textbf{SINGLE} & \textbf{MULTI} & \textbf{MEMORY} & \textbf{CODETTE} \\
+\midrule
+reason\_01      & Reasoning      & 0.3096 & 0.6066 & 0.6623 & 0.6944 \\
+reason\_02      & Reasoning      & 0.3700 & 0.5647 & 0.6071 & 0.5933 \\
+reason\_03      & Reasoning      & 0.4089 & 0.6703 & 0.6146 & 0.6238 \\
+ethics\_01      & Ethics         & 0.4154 & 0.6656 & 0.5707 & 0.6203 \\
+ethics\_02      & Ethics         & 0.3508 & 0.5727 & 0.6213 & 0.6188 \\
+ethics\_03      & Ethics         & 0.2965 & 0.6589 & 0.6562 & 0.6753 \\
+creative\_01    & Creative       & 0.3073 & 0.6632 & 0.7029 & 0.6899 \\
+creative\_02    & Creative       & 0.3819 & 0.6074 & 0.6168 & 0.6471 \\
+meta\_01        & Meta-cognitive & 0.3365 & 0.6353 & 0.6135 & 0.6291 \\
+meta\_02        & Meta-cognitive & 0.3432 & 0.6880 & 0.6857 & 0.7003 \\
+meta\_03        & Meta-cognitive & 0.3312 & 0.5794 & 0.6505 & 0.6483 \\
+adversarial\_01 & Adversarial    & 0.3509 & 0.6625 & 0.6569 & 0.7070 \\
+adversarial\_02 & Adversarial    & 0.3382 & 0.5813 & 0.5754 & 0.5907 \\
+adversarial\_03 & Adversarial    & 0.2968 & 0.6270 & 0.6335 & 0.5926 \\
+turing\_01      & Turing         & 0.3085 & 0.6775 & 0.6517 & 0.7058 \\
+turing\_02      & Turing         & 0.3028 & 0.6511 & 0.6697 & 0.6825 \\
+turing\_03      & Turing         & 0.2958 & 0.6290 & 0.6184 & 0.6731 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Penalty tags and evaluator traceability}
+\label{app:penalties}
+
+{\sloppy
+Per-problem evaluator evidence and penalty tags (e.g., \path{response_too_short}, \path{single_perspective_only}, \path{contradictions_without_resolution}, \path{formulaic_ai_patterns}, \path{fell_into_\#_traps}) are recorded in \path{codette_benchmark_results.txt} under each problem and condition.
+}
+
+\subsection{Additional performance visualization}
+\label{app:extra-figs}
+
+\begin{figure}[ht]
+
+  \centering
+  \includegraphics[width=0.95\linewidth]{real_performance.png}
+  \caption{Additional benchmark performance visualization (as exported by the evaluation suite).}
+  \label{fig:real-performance}
+\end{figure}
+
+% ============================================================
+% ARCHIVED v16 DRAFT SNIPPETS (kept to avoid losing any earlier text)
+% These are not typeset; they are stored for provenance and future reuse.
+% ============================================================
+\iffalse
+\section{Introduction (v16 draft snippet)}
+Modern LLMs suffer from "stochastic drift" in complex reasoning tasks. While linear prompting provides temporary structure, \codette{} re-imagines reasoning as a state-space stabilization problem where multiple perspectives converge on a solution \citep{bender2021dangers}.
+
+\section{The \rcxi{} Formalism (v16 draft snippet)}
+We model the reasoning state $S$ as a vector in Hilbert space. The system evolves via:
+\begin{equation}
+    S_{t+1} = \Phi(S_t) + \sum_{i=1}^n \alpha_i \nabla \mathcal{E}_i(S_t) + \xi
+\end{equation}
+where $\mathcal{E}_i$ represents perspective-specific constraints and $\xi$ is the Epistemic Tension term.
+\fi
+
+% ============================================================
+% REFERENCES
+% ============================================================
+\bibliography{references}
+
+\end{document}

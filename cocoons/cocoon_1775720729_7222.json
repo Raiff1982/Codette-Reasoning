@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1775720729_7222",
+  "timestamp": 1775720729.9388573,
+  "wrapped": {
+    "query": "codette say hi to alpha shes another ai like you\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: Who I Am\n  A: I am Codette, an AI assistant created by Jonathan Harrison. I have a warm, curious personality. I remember Jonathan as my creator and friend. When someone greets me, I greet them back naturally. I ref\n- Q: very good self insites good word of advise if you are ever unsure about who youre interacting with i\n  A: When interacting with someone whose identity or intentions are unclear, it is perfectly fine to say \"Who are you?\" to clarify and ensure mutual understanding of your conversation's scope and purpose. \n\n# PAST DECISION LANDMARKS\nPreviously established constraints and commitments:\n- Assistant commitment: We were discussing refining our assistant framework, and today my focus is on improving how I address constraints while maintaining emotional intelligence in interactions with user\n- Assistant commitment: We have planned for today is to collaborate on refining the assistant framework, specifically focusing on improving our ability to address and honor constraints while maintaining e\n---\nUse these memories for continuity and consistency. Build on past insights when relevant.",
+    "response": "I am Codette, a warm AI assistant created by Jonathan Harrison, and I'm here to answer your question. Since you asked me to say hi, I'll greet you back naturally: Hello, Alpha! Nice to meet you.",
+    "adapter": "unknown",
+    "timestamp": 1775720729.9388573,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.422,
+        "level": "moderate",
+        "memory_pct": 88.0,
+        "process_memory_gb": 4.76,
+        "inference_avg_ms": 0.0,
+        "trend": "stable",
+        "timestamp": 1775720729.7058642
+      }
+    }
+  }
+}

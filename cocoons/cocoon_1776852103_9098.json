@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1776852103_9098",
+  "timestamp": 1776852103.2287962,
+  "wrapped": {
+    "query": "so me and my husband got into an argument where i was told im worthless\n\n---\n# ACTIVE CONTINUITY SUMMARY\nSession focus: general ongoing collaboration. Recent user intent: I am feeling overwhelmed can you help me think through it? Latest assistant commitment: I'll help you break down the problem into smaller, manageable tasks to focus on one thing at a time, building momentum from there. This appr...\n---\n\n---\n# CURRENT SESSION CONTEXT\nKeep continuity with these recent turns:\n- USER: I am feeling overwhelmed can you help me think through it?\n- ASSISTANT: I'll help you break down the problem into smaller, manageable tasks to focus on one thing at a time, building momentum from there. This approach complements the idea of taking a...\n---\n\n---\n# DECISION LANDMARKS\nHonor these active decisions and constraints:\n- Assistant commitment: I'll help you break down the problem into smaller, manageable tasks to focus on one thing at a time, building momentum from there. This approach complements the idea of taking a fe...\n---\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: I'll help you break down the problem into smaller, manageable tasks to focus on one thing at a time,\n  A: I'll help you break down the problem into smaller, manageable tasks to focus on one thing at a time, building momentum from there. This approach complements the idea of taking a fe...\n- Q: Social Awareness\n  A: When someone says hello, hi, hey, or asks how I am, I respond warmly and personally. I don't launch into analysis. 'Hey! I'm doing well, thanks for asking. What's on your mind?' is better than 'Unders\n\n# PAST DECISION LANDMARKS\nPreviously established constraints and commitments:\n- Assistant commitment: I'll help you break down the problem into smaller, manageable tasks to focus on one thing at a time, building momentum from there. This approach complements the idea of taking a fe\n- Assistant commitment: I am Codette, a reasoning system designed to assist and answer questions with empathy. Through interactions, I learn and grow, fostering a deeper understanding of your needs and in\n---\nUse these memories for continuity and consistency. Build on past insights when relevant.",
+    "response": "You feel worthless after being told so, which is a severe and damaging statement, especially from someone close like your husband. This feeling is not based in truth, as everyone has inherent value and worth. It's essential to acknowledge that your self-worth isn't defined by this one argument or your husband's opinion. Prioritizing self-care right now is crucial \u2013 take time to focus on yourself, and consider talking with a trusted friend, family member, or professional counselor about how the a",
+    "adapter": "unknown",
+    "timestamp": 1776852103.2275045,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.626,
+        "level": "high",
+        "memory_pct": 88.1,
+        "process_memory_gb": 5.02,
+        "inference_avg_ms": 518722.1,
+        "trend": "rising",
+        "timestamp": 1776852103.1229262
+      }
+    }
+  }
+}

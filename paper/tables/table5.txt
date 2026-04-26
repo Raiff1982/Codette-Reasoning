@@ -1,0 +1,9 @@
+Table 5: Composite scores by problem category.
+Category SINGLE MULTI MEMORY CODETTE
+Reasoning 0.363 0.614 0.628 0.637
+Ethics 0.354 0.632 0.616 0.638
+Creative 0.345 0.635 0.660 0.668
+Meta-cognitive 0.337 0.634 0.650 0.659
+Adversarial 0.329 0.624 0.622 0.630
+Turing 0.302 0.652 0.647 0.687
+The CODETTE condition achieves the highest scores in creative, meta-cognitive, and Turing

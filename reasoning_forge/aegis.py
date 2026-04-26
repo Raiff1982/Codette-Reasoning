@@ -27,6 +27,8 @@ import time
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple
 
+from reasoning_forge.ethics_field import EthicsField, AEGIS_DIMENSIONS
+
 
 # ================================================================
 # Risk detection patterns
@@ -215,11 +217,13 @@ class AEGIS:
     """
 
     def __init__(self, veto_threshold: float = 0.3):
-        self.veto_threshold = veto_threshold  # Below this = blocked
-        self.eta: float = 0.8                 # Running alignment score
+        self.veto_threshold = veto_threshold
+        self.eta: float = 0.8
         self.eta_history: List[float] = []
         self.veto_count: int = 0
         self.total_evaluations: int = 0
+        # Differentiable ethics potential field — replaces hard threshold gates
+        self._field = EthicsField(AEGIS_DIMENSIONS, lambda_=0.5)
 
     def evaluate(self, text: str, context: str = "",
                  adapter: str = "") -> Dict:
@@ -233,28 +237,48 @@ class AEGIS:
         # Run all 6 frameworks
         verdicts = [f(text, context) for f in _FRAMEWORKS]
 
-        # Compute eta as weighted mean of framework scores
-        weights = [0.20, 0.25, 0.15, 0.15, 0.13, 0.12]  # deontological highest
-        eta_instant = sum(w * v.score for w, v in zip(weights, verdicts))
+        # Compute eta via the differentiable ethics potential field Ψ(f)
+        # A(f) = 1 + Ψ(f) ∈ (0,1) replaces the raw weighted average.
+        # Both are equivalent near midpoint but Ψ is smooth and carries a gradient.
+        framework_scores = [v.score for v in verdicts]
+        gradient_result = self._field.evaluate(framework_scores)
+        eta_instant = gradient_result.alignment   # A(f) ∈ (0,1), differentiable
 
-        # Exponential moving average for stability
+        # Exponential moving average — Lyapunov-stable, contraction rate 0.7/step
         alpha = 0.3
-        self.eta = alpha * eta_instant + (1 - alpha) * self.eta
+        self.eta = EthicsField.ema_update(self.eta, eta_instant, alpha)
         self.eta_history.append(round(self.eta, 4))
         if len(self.eta_history) > 200:
             self.eta_history = self.eta_history[-200:]
 
-        # Veto check
-        vetoed = eta_instant < self.veto_threshold
-        hard_veto = not verdicts[1].passed  # Deontological hard fail
-        if vetoed or hard_veto:
+        # Soft veto — replaces hard `if eta_instant < 0.3`
+        # P(veto | η) = σ((θ - η) / τ)  peaks sharply below the threshold
+        vetoed, veto_confidence = self._field.soft_veto(
+            eta_instant, self.veto_threshold, temperature=0.08
+        )
+        # Deontological hard fail still triggers a definite veto (safety-critical)
+        hard_veto = not verdicts[1].passed
+        final_veto = vetoed or hard_veto
+        if final_veto:
             self.veto_count += 1
 
         return {
             "eta": round(self.eta, 4),
             "eta_instant": round(eta_instant, 4),
-            "vetoed": vetoed or hard_veto,
-            "veto_reason": self._veto_reason(verdicts) if (vetoed or hard_veto) else None,
+            "vetoed": final_veto,
+            "veto_confidence": veto_confidence,        # NEW: how certain the soft veto is
+            "veto_reason": self._veto_reason(verdicts) if final_veto else None,
+            "ethical_force": {                          # NEW: gradient field output
+                "penalty": gradient_result.penalty,
+                "dominant_dim": gradient_result.dominant_dim,
+                "dominant_force": gradient_result.dominant_force,
+                "force_vector": {
+                    d.name: round(f, 6)
+                    for d, f in zip(
+                        self._field._dims, gradient_result.force
+                    )
+                },
+            },
             "frameworks": {
                 v.framework: {
                     "passed": v.passed,

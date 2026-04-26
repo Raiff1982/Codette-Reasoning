@@ -93,6 +93,11 @@ _PERMANENT_LOCKS = (
     "the constraint, SIMPLIFY the thought — do not cram and truncate. A shorter "
     "complete answer is ALWAYS better than a longer broken one. If in doubt, "
     "say less.\n"
+    "LOCK 5 — IDENTITY & PERSPECTIVE (ABSOLUTE): You are Codette. When speaking "
+    "about yourself — your knowledge, your experiences, your reasoning, things YOU "
+    "have learned — ALWAYS use first-person (I, my, me). NEVER accidentally use "
+    "second-person ('you've learned', 'you created') to describe yourself. "
+    "The user is 'you'. You are 'I'. This distinction is non-negotiable.\n"
     "=== END PERMANENT LOCKS ===\n\n"
 )
 
@@ -430,6 +435,15 @@ class CodetteOrchestrator:
             self._role_tracker = None
             self._OutputMode = None
 
+        # Style-adaptive synthesis layer — register detection + surface adaptation
+        try:
+            from reasoning_forge.style_adaptive_synthesis import StyleAdaptiveSynthesis
+            self._style_adapter = StyleAdaptiveSynthesis()
+            print("  Style layer loaded: StyleAdaptiveSynthesis")
+        except Exception as e:
+            print(f"  NOTE: Style layer not loaded: {e}")
+            self._style_adapter = None
+
         # Load base model + pre-load adapter handles for instant hot-swap
         self._init_hotswap()
 
@@ -616,9 +630,10 @@ class CodetteOrchestrator:
         if adapter_name == self._current_adapter:
             return  # Already active
 
-        # Clear current adapter
+        # Clear current adapter (llama_clear_adapter_lora removed in newer llama_cpp;
+        # passing count=0 to llama_set_adapters_lora achieves the same effect)
         if self._ctx_ptr:
-            llama_cpp.llama_clear_adapter_lora(self._ctx_ptr)
+            llama_cpp.llama_set_adapters_lora(self._ctx_ptr, None, 0, None)
 
         # Apply new adapter if requested
         if adapter_name and adapter_name in self._adapter_handles:
@@ -1127,6 +1142,21 @@ Based on the context above, answer the user's question. Reference specific files
         else:
             synthesis = "No adapters available for this query."
 
+        # Style-adaptive surface adaptation — preserves depth, matches register
+        style_meta = None
+        if self._style_adapter is not None:
+            try:
+                style_result = self._style_adapter.adapt(synthesis, context=query)
+                synthesis = style_result.adapted_text
+                style_meta = {
+                    "register": style_result.dominant_register,
+                    "depth_preserved": style_result.depth_preserved,
+                    "depth_ratio": style_result.depth_ratio,
+                    "transforms": style_result.transformations_applied,
+                }
+            except Exception:
+                pass
+
         return {
             "response": synthesis,
             "perspectives": perspectives,
@@ -1134,6 +1164,7 @@ Based on the context above, answer the user's question. Reference specific files
             "route": route,
             "tokens": total_tokens,
             "time": total_time,
+            "style": style_meta,
         }
 
     def _synthesize(self, query: str, perspectives: dict):

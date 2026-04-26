@@ -1,0 +1,6 @@
+Table 2: Mean differences in composite score between conditions (paired, descriptive).
+Comparison ∆ ∆%
+MULTI vs SINGLE +0.301 +84.6%
+MEMORY vs MULTI +0.018 +2.7%
+CODETTE vs MEMORY +0.014 +2.0%
+CODETTE vs SINGLE +0.333 +93.5%

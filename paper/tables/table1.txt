@@ -1,0 +1,7 @@
+Table 1: Overall benchmark composite score by condition (N = 17 problems; 0–1 scale). Full
+per-dimension per-problem scores are provided in codette_results.csv.
+Condition Composite (mean)
+SINGLE 0.356
+MULTI 0.658
+MEMORY 0.676
+CODETTE 0.689
