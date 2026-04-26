@@ -25,6 +25,7 @@ Author: Jonathan Harrison (Raiff's Bits LLC)
 import json
 import math
 import sqlite3
+import threading
 import time
 import hashlib
 import os
@@ -60,9 +61,17 @@ class UnifiedMemory:
         # In-memory LRU cache (id -> cocoon dict)
         self._cache: OrderedDict = OrderedDict()
 
+        # Serialize all writes — SQLite's shared connection isn't write-safe across threads.
+        # Reads are safe because WAL mode (set below) allows concurrent readers.
+        self._write_lock = threading.Lock()
+
         # Initialize database
         self._conn = sqlite3.connect(str(self.db_path), check_same_thread=False)
         self._conn.row_factory = sqlite3.Row
+        # WAL mode: readers don't block writers and writers don't block readers.
+        # This is the single biggest concurrency win for a multi-threaded server.
+        self._conn.execute("PRAGMA journal_mode=WAL")
+        self._conn.execute("PRAGMA synchronous=NORMAL")
         self._init_schema()
 
         # Stats
@@ -165,28 +174,29 @@ class UnifiedMemory:
         meta_json = json.dumps(metadata or {})
 
         try:
-            cur = self._conn.cursor()
-            cur.execute("""
-                INSERT OR REPLACE INTO cocoons
-                (id, query, response, adapter, domain, complexity, emotion,
-                 importance, timestamp, metadata_json)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                cocoon_id,
-                query[:500],      # Cap query length
-                response[:2000],  # Cap response length
-                adapter,
-                domain,
-                complexity,
-                emotion,
-                importance,
-                timestamp,
-                meta_json,
-            ))
-            self._conn.commit()
-            self._total_stored += 1
+            with self._write_lock:
+                cur = self._conn.cursor()
+                cur.execute("""
+                    INSERT OR REPLACE INTO cocoons
+                    (id, query, response, adapter, domain, complexity, emotion,
+                     importance, timestamp, metadata_json)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    cocoon_id,
+                    query[:500],      # Cap query length
+                    response[:2000],  # Cap response length
+                    adapter,
+                    domain,
+                    complexity,
+                    emotion,
+                    importance,
+                    timestamp,
+                    meta_json,
+                ))
+                self._conn.commit()
+                self._total_stored += 1
 
-            # Cache it
+            # Cache it (lock-free — OrderedDict ops are GIL-protected)
             cocoon = {
                 "id": cocoon_id, "query": query[:500], "response": response[:2000],
                 "adapter": adapter, "domain": domain, "complexity": complexity,
@@ -460,22 +470,23 @@ class UnifiedMemory:
         get boosted in future searches, unsuccessful ones get demoted.
         """
         try:
-            cur = self._conn.cursor()
-            cur.execute(
-                "SELECT metadata_json FROM cocoons WHERE id = ?",
-                (cocoon_id,)
-            )
-            row = cur.fetchone()
-            if row:
-                meta = json.loads(row["metadata_json"] or "{}")
-                meta["success"] = success
-                if identity_id:
-                    meta["identity_id"] = identity_id
+            with self._write_lock:
+                cur = self._conn.cursor()
                 cur.execute(
-                    "UPDATE cocoons SET metadata_json = ? WHERE id = ?",
-                    (json.dumps(meta), cocoon_id)
+                    "SELECT metadata_json FROM cocoons WHERE id = ?",
+                    (cocoon_id,)
                 )
-                self._conn.commit()
+                row = cur.fetchone()
+                if row:
+                    meta = json.loads(row["metadata_json"] or "{}")
+                    meta["success"] = success
+                    if identity_id:
+                        meta["identity_id"] = identity_id
+                    cur.execute(
+                        "UPDATE cocoons SET metadata_json = ? WHERE id = ?",
+                        (json.dumps(meta), cocoon_id)
+                    )
+                    self._conn.commit()
         except Exception as e:
             logger.debug(f"mark_success failed: {e}")
 
