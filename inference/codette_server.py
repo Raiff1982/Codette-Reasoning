@@ -344,6 +344,20 @@ def _get_orchestrator():
 
         backend = os.environ.get("CODETTE_BACKEND", "llama_cpp").lower()
 
+        # Validate model path exists before attempting load — prevents silent hang
+        if backend != "ollama":
+            from runtime_env import resolve_model_path
+            _model_path = resolve_model_path()
+            if not _model_path.exists():
+                _load_error = (
+                    f"Model file not found: {_model_path}\n"
+                    f"Set CODETTE_MODEL_PATH env var or place the GGUF at that location."
+                )
+                with _orchestrator_status_lock:
+                    _orchestrator_status.update({"state": "error", "message": _load_error})
+                print(f"  ERROR: {_load_error}")
+                return None
+
         with _orchestrator_status_lock:
             _orchestrator_status.update({"state": "loading", "message": f"Loading Codette model ({backend})..."})
         print(f"\n  Loading CodetteOrchestrator (backend: {backend})...")
@@ -359,13 +373,23 @@ def _get_orchestrator():
                 )
             else:
                 from codette_orchestrator import CodetteOrchestrator
-                # Challenge 2 fix: use 32768 context (model trained on 131072,
-                # 32k is a safe balance of capability vs VRAM on consumer GPU)
-                _orchestrator = CodetteOrchestrator(
-                    verbose=True,
-                    n_ctx=32768,
-                    memory_weighting=memory_weighting,
-                )
+                import concurrent.futures as _cf
+                # Load with a 5-minute timeout — llama_cpp can hang indefinitely
+                # on corrupted GGUF files without raising an exception.
+                with _cf.ThreadPoolExecutor(max_workers=1) as _pool:
+                    _fut = _pool.submit(
+                        CodetteOrchestrator,
+                        verbose=True,
+                        n_ctx=32768,
+                        memory_weighting=memory_weighting,
+                    )
+                    try:
+                        _orchestrator = _fut.result(timeout=300)
+                    except _cf.TimeoutError:
+                        raise RuntimeError(
+                            "Model load timed out after 5 minutes — "
+                            "the GGUF may be corrupted or the system is out of memory."
+                        )
 
             with _orchestrator_status_lock:
                 _orchestrator_status.update({
@@ -1024,6 +1048,10 @@ def _worker_thread():
             try:
                 print(f"  [WORKER] Processing query: {query[:60]}...", flush=True)
 
+                # Capture session once for this request to avoid race with /api/new_session
+                # swapping the global between our multiple _get_active_session() calls.
+                session = _get_active_session()
+
                 # ── Identity Recognition ──
                 # Recognize WHO is talking and inject relationship context
                 identity_context = ""
@@ -1095,7 +1123,6 @@ def _worker_thread():
 
                 # Recent session context first — keeps local continuity stable
                 try:
-                    session = _get_active_session()
                     if session:
                         continuity_summary = session.active_continuity_summary or session.refresh_active_continuity_summary()
                         if continuity_summary:
@@ -1381,7 +1408,6 @@ def _worker_thread():
 
                 # Update session with response data (drives cocoon metrics UI)
                 epistemic = None
-                session = _get_active_session()
                 if session:
                     try:
                         # Add user message + assistant response to session history
@@ -1569,7 +1595,6 @@ def _worker_thread():
                     response_data["perspectives"] = perspectives
 
                 # Cocoon state — send full session state for UI metrics panel
-                session = _get_active_session()
                 if session:
                     try:
                         session_state = session.get_state()

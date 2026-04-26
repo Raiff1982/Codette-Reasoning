@@ -1,3 +1,34 @@
+"""
+Code7eCQURE — Codette's Multi-Perspective Reasoning Core
+=========================================================
+
+IMPLEMENTATION NOTE — "Quantum" Terminology
+--------------------------------------------
+The word "quantum" in this module is a METAPHOR, not a technical claim.
+There is no quantum computing, no qubits, and no quantum algorithms here.
+
+What the module actually implements:
+  - Multi-perspective text processing: each named perspective (Newton,
+    DaVinci, Ethical, Quantum, Memory) applies a labeled prefix transform
+    to the input string.
+  - Controlled non-determinism: random.choice() and random() simulate
+    "superposition" (exploring multiple outcomes) and "fluctuation"
+    (occasional indeterminate results). This is standard stochastic
+    reasoning, not quantum mechanics.
+  - Memory clustering: SHA-256 key lookup in a JSON file provides
+    simple pattern-based recall of prior reasoning chains.
+  - Recursive refinement: the main loop passes the signal through
+    ethical checking, dream synthesis (random style), emotional coloring
+    (random emotion), and temporal framing (random time horizon).
+
+The mechanism is a stylized, non-deterministic multi-agent loop.
+It is useful for generating diverse, perspective-rich text responses;
+it does not model quantum phenomena.
+
+When citing this module in research, describe it as:
+  "A stochastic multi-perspective reasoning loop with named cognitive
+  frames and controlled randomness to model epistemic uncertainty."
+"""
 
 import json
 import os
@@ -34,6 +65,10 @@ class Code7eCQURE:
             json.dump(self.memory_bank, file, indent=4)
 
     def quantum_spiderweb(self, input_signal):
+        # Runs every perspective on the input and collects labeled outputs.
+        # The "quantum fluctuation" is a random.() check that occasionally
+        # injects an indeterminate result — models epistemic uncertainty,
+        # not quantum superposition.
         web_nodes = []
         for perspective in self.perspectives:
             node = self.reason_with_perspective(perspective, input_signal)
@@ -105,6 +140,8 @@ class Code7eCQURE:
         return f"DaVinci: {input_signal}"
 
     def quantum_superposition(self, input_signal):
+        # Metaphor only: labels the input with a "Quantum" frame to
+        # signal probabilistic/open-ended interpretation, not quantum math.
         return f"Quantum: {input_signal}"
 
     def general_reasoning(self, input_signal):
