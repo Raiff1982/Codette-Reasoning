@@ -239,7 +239,7 @@ class HallucinationGuard:
                 if freq_low < 0 or freq_high > 20000 or freq_low > freq_high:
                     signals.append(f"Nonsense frequency range: {freq_low}Hz-{freq_high}Hz")
                     score *= 0.3  # Major red flag
-            except:
+            except (ValueError, AttributeError, IndexError):
                 pass
 
         return score, signals, len(signals) > 0
