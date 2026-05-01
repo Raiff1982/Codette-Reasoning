@@ -393,7 +393,7 @@ class LivingMemoryKernelV2:
 
     # ── Bridge: accept cocoon_schema_v2.Cocoon ───────────────────────────
 
-    def store_v2_cocoon(self, cocoon) -> MemoryCocoonV2:
+    def store_v2_cocoon(self, cocoon, psi_r: float = 0.0) -> MemoryCocoonV2:
         """Accept a cocoon_schema_v2.Cocoon and store it as MemoryCocoonV2.
 
         Field mapping:
@@ -430,6 +430,7 @@ class LivingMemoryKernelV2:
             synthesis_quality=_sq_map.get(cocoon.synthesis_quality, 0.6),
             perspectives_active=list(cocoon.active_perspectives),
             epsilon_band=_band,
+            psi_r=psi_r,
         )
         mc.anchor = cocoon.cocoon_id[:16]
         self.store(mc)
