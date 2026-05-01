@@ -73,6 +73,15 @@ except Exception as _rc_err:
     _RC_AVAILABLE = False
     logger.debug(f"ResonantContinuityEngine not available: {_rc_err}")
 
+# === v2.1 INTEGRITY GUARDS ===
+try:
+    from reasoning_forge.hallucination_guard import HallucinationGuard
+    from reasoning_forge.sycophancy_guard import SycophancyGuard
+    _GUARDS_AVAILABLE = True
+except Exception as _guards_err:
+    _GUARDS_AVAILABLE = False
+    logger.debug(f"Integrity guards not available: {_guards_err}")
+
 # === v2.1 OBSERVABILITY + SCHEMA ===
 try:
     from reasoning_forge.reasoning_trace import (
@@ -86,6 +95,8 @@ try:
         EVENT_MEMORY_WRITE,
         EVENT_SPIDERWEB_UPDATE,
         EVENT_PSI_UPDATE,
+        EVENT_HALLUCINATION_FLAG,
+        EVENT_SYCOPHANCY_FLAG,
     )
     from reasoning_forge.cocoon_schema_v2 import build_cocoon
     _V21_AVAILABLE = True
@@ -160,6 +171,8 @@ class ForgeEngine:
         self.epistemic = EpistemicMetrics()
         self.spiderweb = QuantumSpiderweb()  # Initialize Spiderweb for preflight prediction
         self.resonance_engine = ResonantContinuityEngine() if _RC_AVAILABLE else None
+        self._hallucination_guard = HallucinationGuard() if _GUARDS_AVAILABLE else None
+        self._sycophancy_guard = SycophancyGuard() if _GUARDS_AVAILABLE else None
 
         # Store living_memory for Phase 2
         self.living_memory = living_memory
@@ -592,8 +605,38 @@ class ForgeEngine:
         problems = self.problem_generator.generate_problems(concept)
 
         analyses = {}
+        _hallucination_flags = []
         for agent in self.analysis_agents:
-            analyses[agent.name] = agent.analyze(concept)
+            output = agent.analyze(concept)
+            analyses[agent.name] = output
+            # Scan each perspective output with a fresh guard buffer (no bleed between agents)
+            if getattr(self, '_hallucination_guard', None):
+                try:
+                    self._hallucination_guard.reset()
+                    _det = self._hallucination_guard.scan_chunk(
+                        output if isinstance(output, str) else str(output),
+                        domain="multi_perspective",
+                    )
+                    if _det.recommendation in ("PAUSE", "INTERRUPT"):
+                        _hallucination_flags.append((agent.name, _det))
+                        logger.warning(
+                            f"[HallucinationGuard] {agent.name}: {_det.recommendation} "
+                            f"(confidence={_det.confidence_score:.2f}) — {_det.explanation[:80]}"
+                        )
+                except Exception as _he:
+                    logger.debug(f"[HallucinationGuard] {agent.name} scan failed: {_he}")
+
+        if _trace and _hallucination_flags:
+            for _agent_name, _det in _hallucination_flags:
+                _trace.record(EVENT_HALLUCINATION_FLAG, "HallucinationGuard", {
+                    "perspective": _agent_name,
+                    "confidence_score": _det.confidence_score,
+                    "recommendation": _det.recommendation,
+                    "domain": _det.domain,
+                    "signals": _det.signals,
+                    "explanation": _det.explanation,
+                    "flagged": True,
+                })
 
         critique = self.critic.evaluate_ensemble(concept, analyses)
         synthesized_response = self.synthesis.synthesize(concept, analyses, critique)
@@ -607,6 +650,32 @@ class ForgeEngine:
             )
 
         epistemic_report = self.epistemic.full_epistemic_report(analyses, synthesized_response)
+
+        # Sycophancy scan on final synthesis (cross-turn agreement loop is intentional)
+        if getattr(self, '_sycophancy_guard', None):
+            try:
+                _syco = self._sycophancy_guard.scan(synthesized_response)
+                if _syco["action"] in ("revise", "block"):
+                    logger.warning(
+                        f"[SycophancyGuard] action={_syco['action']} score={_syco['score']:.2f} "
+                        f"hits={len(_syco['hits'])}"
+                    )
+                    if _syco["action"] == "revise":
+                        synthesized_response = _syco["clean_text"] or synthesized_response
+                if _trace:
+                    _trace.record(EVENT_SYCOPHANCY_FLAG, "SycophancyGuard", {
+                        "score": _syco["score"],
+                        "action": _syco["action"],
+                        "action_probs": _syco.get("action_probs", {}),
+                        "expected_severity": _syco.get("expected_severity", 0.0),
+                        "hits": _syco["hits"],
+                        "agreement_loop": _syco["agreement_loop"],
+                        "flattery_count": _syco["flattery_count"],
+                        "capitulation_count": _syco["capitulation_count"],
+                        "flagged": _syco["action"] in ("revise", "block"),
+                    })
+            except Exception as _se:
+                logger.debug(f"[forge_single_safe] SycophancyGuard skipped: {_se}")
 
         # ── Consciousness-stack screening (soft — logs but does not block) ───
         safety_notes = {}
@@ -1270,6 +1339,54 @@ class ForgeEngine:
                 "synthesis_quality": "adequate",
                 "unresolved_tensions": [],
             })
+
+        # Hallucination scan on final synthesis (reset for clean per-turn state)
+        if getattr(self, '_hallucination_guard', None) and synthesis and not synthesis.startswith("["):
+            try:
+                self._hallucination_guard.reset()
+                _hall_det = self._hallucination_guard.scan_chunk(synthesis, domain="multi_perspective")
+                if _hall_det.recommendation in ("PAUSE", "INTERRUPT"):
+                    logger.warning(
+                        f"[HallucinationGuard] synthesis {_hall_det.recommendation} "
+                        f"(confidence={_hall_det.confidence_score:.2f}) — {_hall_det.explanation[:80]}"
+                    )
+                if _trace and _hall_det.recommendation in ("PAUSE", "INTERRUPT"):
+                    _trace.record(EVENT_HALLUCINATION_FLAG, "HallucinationGuard", {
+                        "perspective": "synthesis",
+                        "confidence_score": _hall_det.confidence_score,
+                        "recommendation": _hall_det.recommendation,
+                        "domain": _hall_det.domain,
+                        "signals": _hall_det.signals,
+                        "explanation": _hall_det.explanation,
+                        "flagged": True,
+                    })
+            except Exception as _he:
+                logger.debug(f"  HallucinationGuard skipped: {_he}")
+
+        # Sycophancy scan on final synthesis
+        if getattr(self, '_sycophancy_guard', None) and synthesis:
+            try:
+                _syco = self._sycophancy_guard.scan(synthesis)
+                if _syco["action"] in ("revise", "block"):
+                    logger.warning(
+                        f"[SycophancyGuard] action={_syco['action']} score={_syco['score']:.2f}"
+                    )
+                    if _syco["action"] == "revise":
+                        synthesis = _syco["clean_text"] or synthesis
+                if _trace:
+                    _trace.record(EVENT_SYCOPHANCY_FLAG, "SycophancyGuard", {
+                        "score": _syco["score"],
+                        "action": _syco["action"],
+                        "action_probs": _syco.get("action_probs", {}),
+                        "expected_severity": _syco.get("expected_severity", 0.0),
+                        "hits": _syco["hits"],
+                        "agreement_loop": _syco["agreement_loop"],
+                        "flattery_count": _syco["flattery_count"],
+                        "capitulation_count": _syco["capitulation_count"],
+                        "flagged": _syco["action"] in ("revise", "block"),
+                    })
+            except Exception as _se:
+                logger.debug(f"  SycophancyGuard skipped: {_se}")
 
         # =========================================================================
         # LAYER 3.5: TIER 2 ANALYSIS (Intent + Identity + Trust Validation)
