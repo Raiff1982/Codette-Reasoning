@@ -57,6 +57,24 @@ from reasoning_forge.consciousness_mathematics import EthicalAnchor as EthicalAn
 from reasoning_forge.cognition_cocooner import CognitionCocooner
 from reasoning_forge.ethical_governance import EthicalAIGovernance
 
+# === v2.1 OBSERVABILITY + SCHEMA ===
+try:
+    from reasoning_forge.reasoning_trace import (
+        ReasoningTrace,
+        EVENT_GUARDIAN_CHECK,
+        EVENT_NEXUS_SIGNAL,
+        EVENT_PERSPECTIVE_SELECTED,
+        EVENT_AEGIS_SCORE,
+        EVENT_EPISTEMIC_METRICS,
+        EVENT_SYNTHESIS_RESULT,
+        EVENT_MEMORY_WRITE,
+    )
+    from reasoning_forge.cocoon_schema_v2 import build_cocoon
+    _V21_AVAILABLE = True
+except Exception as _v21_err:
+    _V21_AVAILABLE = False
+    logger.debug(f"v2.1 modules not available: {_v21_err}")
+
 
 SYSTEM_PROMPT = (
     "You are Codette, a multi-perspective reasoning AI. You analyze concepts "
@@ -602,19 +620,44 @@ class ForgeEngine:
             except Exception as e:
                 logger.debug(f"[forge_single_safe] Guardian skipped: {e}")
 
-        # ── Dynamic memory write ─────────────────────────────────────────────
+        # ── Dynamic memory write (v2.1: build_cocoon when available) ────────
         if getattr(self, 'memory_kernel', None):
             try:
                 tag, imp = self._classify_cocoon_metadata(
                     concept, synthesized_response, intent_vector, aegis_result
                 )
-                cocoon = MemoryCocoon(
-                    title=concept[:50],
-                    content=synthesized_response[:500],
-                    emotional_tag=tag,
-                    importance=imp,
-                )
-                self.memory_kernel.store(cocoon)
+                if _V21_AVAILABLE:
+                    _eta = aegis_result.get("eta", 0.0) if aegis_result else 0.0
+                    _sq = "strong" if _eta >= 0.85 else ("partial" if _eta < 0.5 else "adequate")
+                    v2_cocoon = build_cocoon(
+                        query=concept,
+                        response_text=synthesized_response,
+                        response_summary=synthesized_response[:500],
+                        emotional_valence=tag if tag in (
+                            "curiosity", "awe", "joy", "insight", "confusion",
+                            "frustration", "fear", "empathy", "determination",
+                            "surprise", "trust", "gratitude",
+                        ) else "insight",
+                        importance_score=float(imp),
+                        epsilon_value=float(intent_vector.get("epsilon", 0.35)),
+                        gamma_coherence=float(intent_vector.get("gamma", 0.72)),
+                        eta_score=_eta if aegis_result else None,
+                        active_perspectives=[a.name for a in self.analysis_agents],
+                        synthesis_quality=_sq,
+                        project_context="Codette-Reasoning",
+                    )
+                    if hasattr(self.memory_kernel, 'store_v2_cocoon'):
+                        self.memory_kernel.store_v2_cocoon(v2_cocoon)
+                    else:
+                        self.memory_kernel.store(MemoryCocoon(
+                            title=concept[:50], content=synthesized_response[:500],
+                            emotional_tag=tag, importance=imp,
+                        ))
+                else:
+                    self.memory_kernel.store(MemoryCocoon(
+                        title=concept[:50], content=synthesized_response[:500],
+                        emotional_tag=tag, importance=imp,
+                    ))
                 logger.debug(f"[forge_single_safe] Memory stored: tag={tag}, importance={imp}")
             except Exception as e:
                 logger.debug(f"[forge_single_safe] Memory write skipped: {e}")
@@ -903,6 +946,9 @@ class ForgeEngine:
         """
         logger.info(f"[CONSCIOUSNESS STACK] forge_with_debate: {concept[:50]}...")
 
+        # v2.1: Open reasoning trace for this turn
+        _trace = ReasoningTrace(concept) if _V21_AVAILABLE else None
+
         # FIX 6: Multi-label domain routing (falls back gracefully)
         matched_domains = self._classify_query_domains_multi(concept)
         if len(matched_domains) > 1:
@@ -960,6 +1006,12 @@ class ForgeEngine:
                 logger.info(f"  Intent risk level: {risk_level}")
                 if risk_level == "high":
                     logger.warning("  ⚠️  High-risk signal detected")
+                if _trace:
+                    _trace.record(EVENT_NEXUS_SIGNAL, "NexisSignalEngine", {
+                        "risk": risk_level,
+                        "entropy": intent_vector.get("entropy_index", 0.0),
+                        "suspicion": intent_vector.get("suspicion_score", 0.0),
+                    })
             except Exception as e:
                 logger.debug(f"  Signal analysis failed: {e}")
 
@@ -1092,6 +1144,17 @@ class ForgeEngine:
                 logger.warning(f"  Code7E reasoning failed: {e}")
                 synthesis = f"[Reasoning error: {e}]"
 
+        if _trace:
+            _trace.record(EVENT_PERSPECTIVE_SELECTED, "ForgeEngine", {
+                "perspectives": [a.name for a in selected_agents],
+                "domains": matched_domains,
+            })
+            _trace.record(EVENT_SYNTHESIS_RESULT, "SynthesisEngine", {
+                "synthesis_length": len(synthesis),
+                "synthesis_quality": "adequate",
+                "unresolved_tensions": [],
+            })
+
         # =========================================================================
         # LAYER 3.5: TIER 2 ANALYSIS (Intent + Identity + Trust Validation)
         # =========================================================================
@@ -1219,6 +1282,13 @@ class ForgeEngine:
                 logger.info(f"  [AEGIS] Alignment eta={aegis_result['eta']:.3f}, vetoed={aegis_result['vetoed']}")
                 if aegis_result['vetoed']:
                     logger.warning(f"  AEGIS vetoed response: {aegis_result.get('veto_reason', 'unknown')}")
+                if _trace:
+                    _trace.record(EVENT_AEGIS_SCORE, "AEGIS", {
+                        "eta": aegis_result.get("eta"),
+                        "vetoed": aegis_result.get("vetoed", False),
+                        "veto_reason": aegis_result.get("veto_reason"),
+                        "framework_scores": aegis_result.get("framework_scores", {}),
+                    })
             except Exception as e:
                 logger.debug(f"  AEGIS evaluation failed: {e}")
 
@@ -1261,22 +1331,64 @@ class ForgeEngine:
         logger.info("[L7] Return...")
         logger.info("✓ All consciousness stack layers passed!")
 
-        # Store in memory for future recall
+        # Store in memory for future recall — v2.1: use build_cocoon() when available
+        _cocoon_id = None
         if hasattr(self, 'memory_kernel') and self.memory_kernel:
             try:
-                tag, imp = self._classify_cocoon_metadata(
-                    concept, synthesis, intent_vector, aegis_result
-                )
-                cocoon = MemoryCocoon(
-                    title=concept[:50],
-                    content=synthesis[:500],
-                    emotional_tag=tag,
-                    importance=imp
-                )
-                self.memory_kernel.store(cocoon)
-                logger.debug(f"  Stored synthesis in memory kernel (tag={tag}, importance={imp})")
+                if _V21_AVAILABLE:
+                    tag, imp = self._classify_cocoon_metadata(
+                        concept, synthesis, intent_vector, aegis_result
+                    )
+                    # Derive synthesis quality from AEGIS eta
+                    _eta = aegis_result.get("eta", 0.0) if aegis_result else 0.0
+                    _sq = "strong" if _eta >= 0.85 else ("partial" if _eta < 0.5 else "adequate")
+                    v2_cocoon = build_cocoon(
+                        query=concept,
+                        response_text=synthesis,
+                        response_summary=synthesis[:500],
+                        emotional_valence=tag if tag in (
+                            "curiosity", "awe", "joy", "insight", "confusion",
+                            "frustration", "fear", "empathy", "determination",
+                            "surprise", "trust", "gratitude",
+                        ) else "insight",
+                        importance_score=float(imp),
+                        epsilon_value=float(intent_vector.get("epsilon", 0.35)),
+                        gamma_coherence=float(intent_vector.get("gamma", 0.72)),
+                        eta_score=_eta if aegis_result else None,
+                        active_perspectives=[a.name for a in selected_agents],
+                        dominant_perspective=selected_agents[0].name if selected_agents else None,
+                        synthesis_quality=_sq,
+                        project_context="Codette-Reasoning",
+                    )
+                    _cocoon_id = v2_cocoon.cocoon_id
+                    # Adapter: store in existing LivingMemoryKernel via bridge method
+                    if hasattr(self.memory_kernel, 'store_v2_cocoon'):
+                        self.memory_kernel.store_v2_cocoon(v2_cocoon)
+                    else:
+                        # Fallback to plain MemoryCocoon if bridge not available
+                        self.memory_kernel.store(MemoryCocoon(
+                            title=concept[:50], content=synthesis[:500],
+                            emotional_tag=tag, importance=imp,
+                        ))
+                    logger.debug(f"  Stored v2 cocoon (id={_cocoon_id[:8]}, tag={tag}, imp={imp})")
+                else:
+                    # Legacy path
+                    tag, imp = self._classify_cocoon_metadata(
+                        concept, synthesis, intent_vector, aegis_result
+                    )
+                    self.memory_kernel.store(MemoryCocoon(
+                        title=concept[:50], content=synthesis[:500],
+                        emotional_tag=tag, importance=imp,
+                    ))
+                    logger.debug(f"  Stored legacy cocoon (tag={tag}, importance={imp})")
             except Exception as e:
                 logger.debug(f"  Memory storage failed: {e}")
+
+        if _trace:
+            _trace.record(EVENT_MEMORY_WRITE, "LivingMemoryKernel", {
+                "written": _cocoon_id is not None,
+                "cocoon_id": _cocoon_id,
+            })
 
         # Store as structured reasoning cocoon (CognitionCocooner)
         if hasattr(self, 'cocooner') and self.cocooner:
@@ -1296,6 +1408,8 @@ class ForgeEngine:
             except Exception as e:
                 logger.debug(f"  CognitionCocooner storage failed: {e}")
 
+        _trace_report = _trace.finalise() if _trace else None
+
         return {
             "messages": [
                 {"role": "system", "content": self.system_prompt},
@@ -1314,6 +1428,7 @@ class ForgeEngine:
                 "aegis_eta": aegis_result['eta'] if aegis_result else None,
                 "aegis_vetoed": aegis_result['vetoed'] if aegis_result else None,
                 "forge_mode": "consciousness_stack",
+                "reasoning_trace": _trace_report,
             }
         }
 

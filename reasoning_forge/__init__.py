@@ -55,7 +55,20 @@ except Exception:
     CocoonSync = None
     CocoonKeyManager = None
 
+# v2.1: observability + rich cocoon schema
+try:
+    from reasoning_forge.reasoning_trace import ReasoningTrace, TraceEvent
+    from reasoning_forge.cocoon_schema_v2 import Cocoon, build_cocoon
+    from reasoning_forge.living_memory import LivingMemoryKernel
+except Exception:
+    ReasoningTrace = None
+    TraceEvent = None
+    Cocoon = None
+    build_cocoon = None
+    LivingMemoryKernel = None
+
 __all__ = [
+    # v2.0 core
     "ForgeEngine",
     "ReasoningAgent",
     "NewtonAgent",
@@ -78,6 +91,12 @@ __all__ = [
     "EEVAnalysis",
     "EventEmbeddedValueEngine",
     "RiskFrontierComparison",
+    # v2.1 observability + schema
+    "ReasoningTrace",
+    "TraceEvent",
+    "Cocoon",
+    "build_cocoon",
+    "LivingMemoryKernel",
 ]
 
-__version__ = "2.0.0"
+__version__ = "2.1.0"
