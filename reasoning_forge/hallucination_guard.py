@@ -264,7 +264,7 @@ class HallucinationGuard:
         lang_pattern = r'(?:language|programming language)\s+([A-Z][a-zA-Z0-9#\+]*)'
         for match in re.finditer(lang_pattern, self.buffer, re.IGNORECASE):
             lang_name = match.group(1).lower()
-            if lang_name and not any(real in lang_name for real in REAL_PROGRAMMING_LANGUAGES):
+            if lang_name and len(lang_name) >= 3 and not any(real in lang_name for real in REAL_PROGRAMMING_LANGUAGES):
                 signals.append(f"Unknown language: {match.group(1)}")
                 score *= 0.4  # Likely hallucination
 
@@ -272,7 +272,8 @@ class HallucinationGuard:
         framework_pattern = r'(?:framework|library|package)\s+([A-Z][a-zA-Z0-9\.\-0-9]+)'
         for match in re.finditer(framework_pattern, self.buffer, re.IGNORECASE):
             framework_name = match.group(1).lower()
-            if framework_name and not any(real in framework_name for real in REAL_FRAMEWORKS):
+            # Require minimum 4-char name to exclude English function words ("and", "in", "for")
+            if framework_name and len(framework_name) >= 4 and not any(real in framework_name for real in REAL_FRAMEWORKS):
                 # Avoid false positives on version numbers
                 if not re.match(r'^\d+\.\d+', framework_name):
                     signals.append(f"Unknown framework: {match.group(1)}")
