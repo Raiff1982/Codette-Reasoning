@@ -60,12 +60,15 @@ try:
     from reasoning_forge.reasoning_trace import ReasoningTrace, TraceEvent
     from reasoning_forge.cocoon_schema_v2 import Cocoon, build_cocoon
     from reasoning_forge.living_memory import LivingMemoryKernel
+    from reasoning_forge.living_memory_v2 import LivingMemoryKernelV2, MemoryCocoonV2
 except Exception:
     ReasoningTrace = None
     TraceEvent = None
     Cocoon = None
     build_cocoon = None
     LivingMemoryKernel = None
+    LivingMemoryKernelV2 = None
+    MemoryCocoonV2 = None
 
 __all__ = [
     # v2.0 core
@@ -97,6 +100,8 @@ __all__ = [
     "Cocoon",
     "build_cocoon",
     "LivingMemoryKernel",
+    "LivingMemoryKernelV2",
+    "MemoryCocoonV2",
 ]
 
 __version__ = "2.1.0"

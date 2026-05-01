@@ -560,6 +560,9 @@ class ForgeEngine:
         Warnings are logged but do not block output — preserves throughput.
         Memory is written with dynamic metadata via _classify_cocoon_metadata().
         """
+        # v2.1: Open reasoning trace for this turn
+        _trace = ReasoningTrace(concept) if _V21_AVAILABLE else None
+
         # ── Original forge_single logic (verbatim) ───────────────────────────
         problems = self.problem_generator.generate_problems(concept)
 
@@ -591,6 +594,12 @@ class ForgeEngine:
                     logger.warning(f"[forge_single_safe] AEGIS veto: {aegis_result.get('veto_reason')}")
                 safety_notes['aegis_eta'] = aegis_result.get('eta')
                 safety_notes['aegis_vetoed'] = aegis_result.get('vetoed', False)
+                if _trace:
+                    _trace.record(EVENT_AEGIS_SCORE, "AEGIS", {
+                        "eta": aegis_result.get("eta"),
+                        "vetoed": aegis_result.get("vetoed", False),
+                        "framework_scores": aegis_result.get("framework_scores", {}),
+                    })
             except Exception as e:
                 logger.debug(f"[forge_single_safe] AEGIS skipped: {e}")
 
@@ -599,6 +608,17 @@ class ForgeEngine:
             try:
                 intent_vector = self.nexis_signal_engine.process(concept)
                 safety_notes['intent_risk'] = intent_vector.get('pre_corruption_risk', 'unknown')
+                if _trace:
+                    _trace.record(EVENT_NEXUS_SIGNAL, "NexisSignalEngine", {
+                        "risk": safety_notes['intent_risk'],
+                        "entropy": intent_vector.get("entropy_index", 0.0),
+                    })
+                    _trace.record(EVENT_EPISTEMIC_METRICS, "EpistemicMetrics", {
+                        "epsilon": epistemic_report.get("tension_magnitude", 0.35),
+                        "epsilon_band": "high" if epistemic_report.get("tension_magnitude", 0) > 0.6 else "moderate",
+                        "gamma": epistemic_report.get("ensemble_coherence", 0.72),
+                        "top_tensions": list(epistemic_report.get("tension_productivity", {}).keys())[:3],
+                    })
             except Exception as e:
                 logger.debug(f"[forge_single_safe] Nexis skipped: {e}")
 
@@ -617,6 +637,11 @@ class ForgeEngine:
                 if not valid:
                     logger.warning(f"[forge_single_safe] Guardian warning: {details}")
                 safety_notes['guardian_valid'] = valid
+                if _trace:
+                    _trace.record(EVENT_GUARDIAN_CHECK, "Guardian", {
+                        "trust_level": "pass" if valid else "reject",
+                        "safety_flags": list(details.keys()) if not valid else [],
+                    })
             except Exception as e:
                 logger.debug(f"[forge_single_safe] Guardian skipped: {e}")
 
@@ -658,9 +683,21 @@ class ForgeEngine:
                         title=concept[:50], content=synthesized_response[:500],
                         emotional_tag=tag, importance=imp,
                     ))
+                _cocoon_id_safe = v2_cocoon.cocoon_id if _V21_AVAILABLE and 'v2_cocoon' in dir() else None
                 logger.debug(f"[forge_single_safe] Memory stored: tag={tag}, importance={imp}")
+                if _trace:
+                    _trace.record(EVENT_SYNTHESIS_RESULT, "SynthesisEngine", {
+                        "synthesis_quality": _sq if _V21_AVAILABLE else "adequate",
+                        "unresolved_tensions": [],
+                    })
+                    _trace.record(EVENT_MEMORY_WRITE, "LivingMemoryKernel", {
+                        "written": True,
+                        "cocoon_id": _cocoon_id_safe,
+                    })
             except Exception as e:
                 logger.debug(f"[forge_single_safe] Memory write skipped: {e}")
+
+        _trace_report = _trace.finalise() if _trace else None
 
         return {
             "messages": [
@@ -681,6 +718,7 @@ class ForgeEngine:
                 "perspective_coverage": epistemic_report.get("perspective_coverage", {}),
                 "tension_productivity": epistemic_report.get("tension_productivity", {}),
                 "forge_mode":           "single_safe",
+                "reasoning_trace":      _trace_report,
                 **safety_notes,
             },
         }
@@ -993,6 +1031,11 @@ class ForgeEngine:
                     }
             except Exception as e:
                 logger.debug(f"  Ethical query validation failed: {e}")
+        if _trace:
+            _trace.record(EVENT_GUARDIAN_CHECK, "EthicalAIGovernance", {
+                "trust_level": "standard",
+                "safety_flags": [],
+            })
 
         # =========================================================================
         # LAYER 2: SIGNAL ANALYSIS (Intent Prediction & Risk Detection)
@@ -1011,6 +1054,12 @@ class ForgeEngine:
                         "risk": risk_level,
                         "entropy": intent_vector.get("entropy_index", 0.0),
                         "suspicion": intent_vector.get("suspicion_score", 0.0),
+                    })
+                    _trace.record(EVENT_EPISTEMIC_METRICS, "NexisSignalEngine", {
+                        "epsilon": intent_vector.get("epsilon", intent_vector.get("tension_magnitude", 0.35)),
+                        "epsilon_band": "high" if intent_vector.get("epsilon", 0.35) > 0.6 else "moderate",
+                        "gamma": intent_vector.get("gamma", intent_vector.get("ensemble_coherence", 0.72)),
+                        "top_tensions": intent_vector.get("top_tensions", []),
                     })
             except Exception as e:
                 logger.debug(f"  Signal analysis failed: {e}")
@@ -1307,6 +1356,11 @@ class ForgeEngine:
                 logger.warning(f"  Guardian validation failed: {e}")
                 guardian_valid = False
                 guardian_details = {"error": str(e)}
+        if _trace:
+            _trace.record(EVENT_GUARDIAN_CHECK, "Guardian", {
+                "trust_level": "pass" if guardian_valid else "reject",
+                "safety_flags": list(guardian_details.keys()) if not guardian_valid else [],
+            })
 
         # If Guardian rejects, use fallback
         if not guardian_valid:
