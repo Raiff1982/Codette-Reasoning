@@ -1446,48 +1446,109 @@ function pollGovernorDashboard() {
 setTimeout(pollGovernorDashboard, 5000);
 
 // Polls /api/drift every 60s and updates the Longitudinal Drift panel
-function pollDriftDashboard() {
-    fetch('/api/drift')
-        .then(r => r.json())
-        .then(data => {
-            if (data.error) return;
-            const el = (id) => document.getElementById(id);
+async function pollDrift() {
+    try {
+        const res = await fetch('/api/drift');
+        if (!res.ok) return;
+        const data = await res.json();
 
-            const section = document.getElementById('section-drift');
-            if (section) section.style.display = '';
+        // Unhide panel on first successful response
+        const panel = document.getElementById('drift-panel');
+        if (panel) panel.style.display = '';
 
-            const trend = data.epsilon_trend || '--';
-            const trendEl = el('drift-epsilon-trend');
-            if (trendEl) {
-                trendEl.textContent = trend;
-                trendEl.style.color = trend === 'rising' ? 'var(--quantum)' :
-                                      trend === 'falling' ? 'var(--empathy)' : '';
-            }
+        // psi_r readout
+        const psiEl = document.getElementById('psi-value');
+        if (psiEl) psiEl.textContent = (data.psi_r || 0).toFixed(3);
 
-            const lockEl = el('drift-persp-lock');
-            if (lockEl) {
-                const locked = data.perspective_lock;
-                const ratio = data.perspective_lock_ratio || 0;
-                lockEl.textContent = locked ? `YES (${(ratio * 100).toFixed(0)}%)` : 'no';
-                lockEl.style.color = locked ? 'var(--quantum)' : '';
-            }
+        // State label with colour
+        const stateEl = document.getElementById('drift-state');
+        if (stateEl) {
+            stateEl.textContent = data.state || '--';
+            stateEl.style.color =
+                data.state === 'coherent'     ? 'var(--empathy, #00e5cc)' :
+                data.state === 'high-tension' ? 'var(--quantum, #7c6bff)' :
+                data.state === 'resonant'     ? 'var(--accent, #00e5ff)'  : '';
+        }
 
-            const domEl = el('drift-dominant');
-            if (domEl) {
-                domEl.textContent = data.dominant_perspective
-                    ? data.dominant_perspective.replace('_agent', '') : '--';
-            }
+        // epsilon / gamma readouts
+        const epsEl = document.getElementById('drift-epsilon');
+        if (epsEl) epsEl.textContent = (data.epsilon || 0).toFixed(3);
+        const gamEl = document.getElementById('drift-gamma');
+        if (gamEl) gamEl.textContent = (data.gamma || 0).toFixed(3);
 
-            const tensEl = el('drift-tensions');
-            if (tensEl) tensEl.textContent = (data.recurring_tensions || []).length;
+        // psi_r waveform sparkline
+        drawPsiSparkline(data.psi_history || []);
 
-            const hooksEl = el('drift-hooks');
-            if (hooksEl) hooksEl.textContent = data.open_hook_count || 0;
-        })
-        .catch(() => {}); // Silent fail — non-critical
-
-    setTimeout(pollDriftDashboard, 60000); // Every 60s
+        // Hook list
+        const hookList = document.getElementById('hook-list');
+        if (hookList) {
+            hookList.innerHTML = '';
+            (data.hooks || []).forEach(h => {
+                const li = document.createElement('li');
+                const label = String(h.label || '');
+                const pct = ((h.strength || 0) * 100).toFixed(0);
+                li.style.cssText = `opacity:${Math.max(0.4, h.strength || 0.5)};
+                    display:flex;align-items:flex-start;gap:4px;margin-bottom:3px`;
+                li.innerHTML = `<button onclick="resolveHook(this,'${
+                    label.replace(/'/g, "\\'")
+                    }')" style="background:none;border:1px solid #555;border-radius:3px;
+                    color:#aaa;cursor:pointer;font-size:10px;line-height:1;padding:1px 4px;
+                    flex-shrink:0" title="Mark resolved">&times;</button>
+                    <span style="color:#aaa;word-break:break-word">${
+                        label.replace(/&/g,'&amp;').replace(/</g,'&lt;')
+                    } <span style="color:#555">(${pct}%)</span></span>`;
+                hookList.appendChild(li);
+            });
+        }
+    } catch (e) {
+        // Backend not running — panel stays hidden, no error surfaced to user
+    }
 }
 
-// Start drift polling after 15s (well after model init)
-setTimeout(pollDriftDashboard, 15000);
+function drawPsiSparkline(history) {
+    const canvas = document.getElementById('drift-psi-sparkline');
+    if (!canvas || !canvas.getContext || history.length < 2) return;
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+
+    const min = Math.min(...history);
+    const max = Math.max(...history);
+    const range = max - min || 1;
+    const pts = history.map((v, i) => ({
+        x: (i / (history.length - 1)) * (W - 4) + 2,
+        y: H - 4 - ((v - min) / range) * (H - 8),
+    }));
+
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+    ctx.strokeStyle = 'var(--quantum, #7c6bff)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    const last = pts[pts.length - 1];
+    ctx.beginPath();
+    ctx.arc(last.x, last.y, 2.5, 0, Math.PI * 2);
+    ctx.fillStyle = 'var(--quantum, #7c6bff)';
+    ctx.fill();
+}
+
+function resolveHook(btn, hookText) {
+    fetch('/api/resolve_hook', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({hook: hookText}),
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.resolved) {
+            const li = btn.closest('li');
+            if (li) li.style.opacity = '0.2';
+        }
+    })
+    .catch(() => {});
+}
+
+setInterval(pollDrift, 3000);
+pollDrift();

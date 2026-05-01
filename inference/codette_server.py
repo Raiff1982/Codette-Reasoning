@@ -413,7 +413,7 @@ def _get_orchestrator():
                     # Add memory count from forge kernel
                     mem_count = 0
                     if hasattr(_forge_bridge, 'forge') and hasattr(_forge_bridge.forge, 'memory_kernel') and _forge_bridge.forge.memory_kernel:
-                        mem_count = len(_forge_bridge.forge.memory_kernel)
+                        mem_count = len(_forge_bridge.forge.memory_kernel.memories)
                     with _orchestrator_status_lock:
                         _orchestrator_status.update({"phase6": "enabled", "phase7": "enabled", "memory_count": mem_count})
                 except Exception as e:
@@ -542,7 +542,7 @@ def _run_health_check():
 
         # Memory kernel
         if hasattr(forge, 'memory_kernel') and forge.memory_kernel:
-            mem_count = len(forge.memory_kernel)
+            mem_count = len(forge.memory_kernel.memories)
             p6["components"]["memory_kernel"] = {"status": "OK", "memories": mem_count}
         else:
             p6["components"]["memory_kernel"] = {"status": "MISSING"}
@@ -1588,7 +1588,7 @@ def _worker_thread():
 
                 # Add updated memory count from cocoon
                 if _forge_bridge and hasattr(_forge_bridge, 'forge') and hasattr(_forge_bridge.forge, 'memory_kernel') and _forge_bridge.forge.memory_kernel:
-                    response_data["memory_count"] = len(_forge_bridge.forge.memory_kernel)
+                    response_data["memory_count"] = len(_forge_bridge.forge.memory_kernel.memories)
 
                 # Add perspectives if available
                 if perspectives:
@@ -1670,7 +1670,7 @@ class CodetteHandler(SimpleHTTPRequestHandler):
             # Dynamically update memory count from forge kernel
             if _forge_bridge and hasattr(_forge_bridge, 'forge') and hasattr(_forge_bridge.forge, 'memory_kernel') and _forge_bridge.forge.memory_kernel:
                 with _orchestrator_status_lock:
-                    _orchestrator_status["memory_count"] = len(_forge_bridge.forge.memory_kernel)
+                    _orchestrator_status["memory_count"] = len(_forge_bridge.forge.memory_kernel.memories)
             self._json_response(_orchestrator_status)
         elif path == "/api/session":
             self._json_response(_session.get_state() if _session else {})
@@ -1780,20 +1780,42 @@ class CodetteHandler(SimpleHTTPRequestHandler):
             except Exception as e:
                 import traceback
                 self._json_response({"error": str(e), "traceback": traceback.format_exc()})
+        elif path == "/api/search":
+            q = parse_qs(parsed.query).get("q", [""])[0].strip()
+            if not q:
+                self._json_response({"error": "q parameter required", "results": []})
+            else:
+                results = []
+                try:
+                    # FTS5 search via UnifiedMemory
+                    if _unified_memory and hasattr(_unified_memory, 'search'):
+                        for cocoon in _unified_memory.search(q, limit=10):
+                            results.append({
+                                "source": "unified",
+                                "title": getattr(cocoon, 'title', ''),
+                                "content": getattr(cocoon, 'content', '')[:200],
+                                "domain": getattr(cocoon, 'domain', ''),
+                                "timestamp": getattr(cocoon, 'timestamp', 0),
+                            })
+                    # Fallback: kernel full-text search
+                    if not results:
+                        kernel = None
+                        if _forge_bridge and hasattr(_forge_bridge, 'forge'):
+                            kernel = getattr(_forge_bridge.forge, 'memory_kernel', None)
+                        if kernel and hasattr(kernel, 'search'):
+                            for m in kernel.search(q, limit=10):
+                                results.append({
+                                    "source": "kernel",
+                                    "title": getattr(m, 'title', ''),
+                                    "content": getattr(m, 'content', '')[:200],
+                                    "domain": getattr(m, 'adapter_used', ''),
+                                    "timestamp": getattr(m, 'timestamp', 0),
+                                })
+                except Exception as e:
+                    results = [{"error": str(e)}]
+                self._json_response({"query": q, "results": results})
         elif path == "/api/drift":
-            try:
-                kernel = None
-                if _forge_bridge and hasattr(_forge_bridge, 'forge'):
-                    kernel = getattr(_forge_bridge.forge, 'memory_kernel', None)
-                if kernel is not None:
-                    from reasoning_forge.drift_detector import DriftDetector
-                    report = DriftDetector().detect(kernel)
-                    self._json_response(report.to_dict())
-                else:
-                    self._json_response({"error": "memory_kernel not available"})
-            except Exception as e:
-                import traceback
-                self._json_response({"error": str(e), "traceback": traceback.format_exc()})
+            self._json_response(self._build_drift_payload())
         elif path == "/api/chat":
             # SSE endpoint for streaming
             self._handle_chat_sse(parsed)
@@ -1828,6 +1850,23 @@ class CodetteHandler(SimpleHTTPRequestHandler):
             self._handle_export_session()
         elif path == "/api/session/import":
             self._handle_import_session()
+        elif path == "/api/resolve_hook":
+            try:
+                data = self._read_json_body()
+                hook_text = data.get("hook", "").strip()
+                if not hook_text:
+                    self._json_response({"error": "hook field required"}, status=400)
+                    return
+                kernel = None
+                if _forge_bridge and hasattr(_forge_bridge, 'forge'):
+                    kernel = getattr(_forge_bridge.forge, 'memory_kernel', None)
+                if kernel is None:
+                    self._json_response({"error": "memory_kernel not available"})
+                    return
+                resolved = kernel.resolve_hook(hook_text)
+                self._json_response({"resolved": resolved, "hook": hook_text})
+            except Exception as e:
+                self._json_response({"error": str(e)})
         elif path == "/api/synthesize":
             # POST handler for cocoon synthesis with custom problem
             try:
@@ -1876,6 +1915,80 @@ class CodetteHandler(SimpleHTTPRequestHandler):
                 self._json_response({"error": str(e), "traceback": traceback.format_exc()})
         else:
             self.send_error(404, "Not found")
+
+    def _build_drift_payload(self) -> dict:
+        """Collect live resonance state from the forge engine for the drift panel."""
+        payload = {
+            "psi_r": 0.0,
+            "psi_history": [],
+            "epsilon": 0.0,
+            "gamma": 0.0,
+            "hooks": [],
+            "state": "idle",
+        }
+
+        forge = None
+        if _forge_bridge and hasattr(_forge_bridge, 'forge'):
+            forge = _forge_bridge.forge
+
+        if forge is None:
+            return payload
+
+        # psi_r + psi_history from ResonantContinuityEngine
+        re = getattr(forge, 'resonance_engine', None)
+        if re and getattr(re, 'history', None):
+            history = re.history
+            current = history[-1]
+            payload["psi_r"] = round(float(current.psi_r), 4)
+            payload["psi_history"] = [
+                round(float(s.psi_r), 4) for s in history[-64:]
+            ]
+            payload["epsilon"] = round(float(current.darkness), 4)
+            payload["gamma"] = round(float(current.coherence), 4)
+
+        # Fallback gamma from spiderweb phase coherence
+        if payload["gamma"] == 0.0:
+            sw = getattr(forge, 'spiderweb', None)
+            if sw and hasattr(sw, 'phase_coherence'):
+                try:
+                    payload["gamma"] = round(float(sw.phase_coherence()), 4)
+                except Exception:
+                    pass
+
+        # Hooks: from memory kernel's open follow-up hooks
+        kernel = getattr(forge, 'memory_kernel', None)
+        if kernel:
+            try:
+                hooked = kernel.recall_with_hooks(limit=12)
+                seen: set = set()
+                for m in hooked:
+                    for h in getattr(m, 'follow_up_hooks', []):
+                        if h not in seen:
+                            seen.add(h)
+                            payload["hooks"].append({
+                                "label": h,
+                                "strength": round(float(getattr(m, 'importance', 5)) / 10.0, 2),
+                            })
+                            if len(payload["hooks"]) >= 12:
+                                break
+                    if len(payload["hooks"]) >= 12:
+                        break
+            except Exception:
+                pass
+
+        # Derive state label
+        e = payload["epsilon"]
+        g = payload["gamma"]
+        if e < 0.25 and g > 0.75:
+            payload["state"] = "coherent"
+        elif e > 0.65:
+            payload["state"] = "high-tension"
+        elif g > 0.5:
+            payload["state"] = "resonant"
+        elif payload["psi_r"] != 0.0:
+            payload["state"] = "drifting"
+
+        return payload
 
     def _json_response(self, data, status=200):
         """Send a JSON response."""
