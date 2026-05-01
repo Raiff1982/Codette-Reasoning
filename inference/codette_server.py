@@ -2117,6 +2117,11 @@ class CodetteHandler(SimpleHTTPRequestHandler):
 
         session = CodetteSession()
         _set_active_session(session)
+        # Reset sycophancy agreement-loop counter at each session boundary
+        if _forge_bridge and hasattr(_forge_bridge, 'forge'):
+            _sg = getattr(_forge_bridge.forge, '_sycophancy_guard', None)
+            if _sg:
+                _sg.reset_session()
         self._json_response({"session_id": session.session_id})
 
     def _handle_load_session(self):

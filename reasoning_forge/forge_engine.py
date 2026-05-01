@@ -639,7 +639,12 @@ class ForgeEngine:
                 })
 
         critique = self.critic.evaluate_ensemble(concept, analyses)
-        synthesized_response = self.synthesis.synthesize(concept, analyses, critique)
+        _synth_result = self.synthesis.synthesize(concept, analyses, critique)
+        # synthesize() returns (text, CognitiveStateTrace) — unpack correctly
+        if isinstance(_synth_result, tuple):
+            synthesized_response, _synth_trace = _synth_result
+        else:
+            synthesized_response, _synth_trace = _synth_result, None
 
         if problems and random.random() < 0.5:
             problem_type, problem_text = random.choice(problems)
@@ -782,6 +787,9 @@ class ForgeEngine:
                         eta_score=_eta if aegis_result else None,
                         active_perspectives=[a.name for a in self.analysis_agents],
                         synthesis_quality=_sq,
+                        problem_type=self._infer_problem_type(
+                            self._classify_query_domains_multi(concept)
+                        ),
                         project_context="Codette-Reasoning",
                     )
                     if hasattr(self.memory_kernel, 'store_v2_cocoon'):
@@ -988,6 +996,24 @@ class ForgeEngine:
 
         # Always include critic/synthesizer if available
         return active_agents if active_agents else self.analysis_agents
+
+    # Maps multi-label domain classifier output → cocoon_schema_v2 VALID_PROBLEM_TYPES
+    _DOMAIN_TO_PROBLEM_TYPE = {
+        'physics':       'analytical',
+        'ethics':        'ethical',
+        'consciousness': 'exploratory',
+        'creativity':    'creative',
+        'systems':       'architectural',
+        'general':       'unknown',
+    }
+
+    def _infer_problem_type(self, matched_domains: list) -> str:
+        """Derive a VALID_PROBLEM_TYPES value from domain routing labels."""
+        for domain in matched_domains:
+            pt = self._DOMAIN_TO_PROBLEM_TYPE.get(domain)
+            if pt:
+                return pt
+        return 'unknown'
 
     def _classify_query_domains_multi(self, query: str) -> list:
         """Multi-label domain classifier for compound queries.
@@ -1619,6 +1645,7 @@ class ForgeEngine:
                         active_perspectives=[a.name for a in selected_agents],
                         dominant_perspective=selected_agents[0].name if selected_agents else None,
                         synthesis_quality=_sq,
+                        problem_type=self._infer_problem_type(matched_domains),
                         project_context="Codette-Reasoning",
                     )
                     _cocoon_id = v2_cocoon.cocoon_id
