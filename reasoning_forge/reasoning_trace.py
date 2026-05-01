@@ -1,27 +1,30 @@
 """
-Codette Reasoning Trace API
-============================
-Provides a structured, verifiable record of every subsystem's contribution
-to a Codette response. Addresses the core architecture-verification gap:
-the system documents multi-perspective reasoning, but previously produced no
-auditable artifact proving those subsystems actually fired and influenced output.
+Reasoning Trace — Codette v2.1
 
-Usage:
-    from reasoning_forge.reasoning_trace import ReasoningTrace, TraceCollector
+A single-file module that collects, serialises, and replays the full
+reasoning trace for any Codette turn. This is the observability layer
+that makes the RC+xi architecture debuggable rather than decorative.
 
-    # In forge_with_debate() or any forge method:
-    trace = TraceCollector(query="How does quantum coherence affect thought?")
-    trace.record_guardian(trust_level="high", flags=[])
-    trace.record_nexus(risk_level="low", entropy=0.04)
-    trace.record_perspective("Newton", text="...", confidence=0.82)
-    trace.record_aegis(eta=0.91, vetoed=False, verdicts={...})
-    trace.record_epistemic(gamma=0.73, epsilon=0.28, pairwise={"newton_vs_empathy": 0.31})
-    trace.record_synthesis(text="...", resolved_tensions=["newton_vs_empathy"])
-    trace.record_memory(cocoons_recalled=3, cocoon_stored=True)
-    trace.record_psi(psi_r=0.67)
-    finished = trace.finalize()
+Design goals:
+- Zero required dependencies beyond stdlib
+- Works as a context manager: `with ReasoningTrace(query) as trace:`
+- Each subsystem writes its own event with `trace.record()`
+- At turn end, `trace.finalise()` emits a structured JSON-serialisable dict
+- Optional text summary via `trace.to_report()`
 
-    # finished is a ReasoningTrace with .to_dict(), .to_json(), .summary()
+Subsystem event types (add more as needed):
+    GUARDIAN_CHECK        trust level, safety flags
+    NEXUS_SIGNAL          intent classification, corruption risk
+    PERSPECTIVE_SELECTED  which perspectives were activated and why
+    PERSPECTIVE_OUTPUT    per-perspective analysis (compressed)
+    AEGIS_SCORE           per-framework ethical scores + eta
+    EPISTEMIC_METRICS     epsilon, gamma, pairwise tensions
+    SPIDERWEB_UPDATE      phase coherence, node states changed
+    SYNTHESIS_RESULT      final synthesis quality + unresolved tensions
+    MEMORY_WRITE          whether / how the turn was cocooned
+    PSI_UPDATE            resonant continuity waveform value
+    HALLUCINATION_FLAG    if hallucination_guard tripped
+    SYCOPHANCY_FLAG       if sycophancy_guard tripped
 """
 
 from __future__ import annotations
@@ -29,422 +32,177 @@ from __future__ import annotations
 import json
 import time
 from dataclasses import dataclass, field, asdict
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 
-# ─────────────────────────────────────────────────────────────
-#  Data classes — one per subsystem
-# ─────────────────────────────────────────────────────────────
+# ─── Event types ────────────────────────────────────────────────────────────
 
-@dataclass
-class GuardianRecord:
-    trust_level: str            # "high" | "medium" | "low" | "blocked"
-    flags: List[str]            # Any safety flags raised
-    blocked: bool = False       # True if Guardian blocked the query
-    reason: Optional[str] = None
-
-
-@dataclass
-class NexusRecord:
-    risk_level: str             # "low" | "medium" | "high"
-    entropy: float              # Raw entropy score from signal engine
-    suspicion_score: float = 0.0
-    ethical_alignment: str = "unaligned"  # "aligned" | "unaligned"
-    resonance_spectrum: Optional[List[float]] = None
+EVENT_GUARDIAN_CHECK       = "GUARDIAN_CHECK"
+EVENT_NEXUS_SIGNAL         = "NEXUS_SIGNAL"
+EVENT_PERSPECTIVE_SELECTED = "PERSPECTIVE_SELECTED"
+EVENT_PERSPECTIVE_OUTPUT   = "PERSPECTIVE_OUTPUT"
+EVENT_AEGIS_SCORE          = "AEGIS_SCORE"
+EVENT_EPISTEMIC_METRICS    = "EPISTEMIC_METRICS"
+EVENT_SPIDERWEB_UPDATE     = "SPIDERWEB_UPDATE"
+EVENT_SYNTHESIS_RESULT     = "SYNTHESIS_RESULT"
+EVENT_MEMORY_WRITE         = "MEMORY_WRITE"
+EVENT_PSI_UPDATE           = "PSI_UPDATE"
+EVENT_HALLUCINATION_FLAG   = "HALLUCINATION_FLAG"
+EVENT_SYCOPHANCY_FLAG      = "SYCOPHANCY_FLAG"
 
 
 @dataclass
-class PerspectiveRecord:
-    name: str                   # "Newton" | "DaVinci" | "Empathy" etc.
-    text_length: int            # Word count of this perspective's output
-    confidence: float           # 0.0–1.0, estimated by agent if available
-    active: bool = True         # False if perspective was skipped
-    summary: Optional[str] = None  # First 100 chars of output
+class TraceEvent:
+    event_type: str
+    subsystem: str
+    data: dict[str, Any]
+    ts: float = field(default_factory=time.time)
 
-
-@dataclass
-class AEGISRecord:
-    eta: float                  # Running alignment score (0.0–1.0)
-    eta_instant: float          # Single-turn alignment
-    vetoed: bool
-    veto_reason: Optional[str]
-    verdicts: Dict[str, float]  # framework_name → score
-    # e.g. {"utilitarian": 0.82, "deontological": 0.75, ...}
-
-
-@dataclass
-class EpistemicRecord:
-    gamma: float                # Ensemble coherence (0.0–1.0)
-    epsilon: float              # Epistemic tension magnitude (0.0–1.0)
-    epsilon_band: str           # "low" | "medium" | "high" | "max"
-    pairwise: Dict[str, float]  # e.g. {"newton_vs_empathy": 0.31}
-    coverage: Dict[str, float]  # perspective_name → coverage score
-    tension_productivity: float = 0.0  # Productivity score from TensionProductivity
-
-
-@dataclass
-class SynthesisRecord:
-    text_length: int            # Word count of synthesized output
-    resolved_tensions: List[str]  # Which pairwise tensions were resolved
-    unresolved_tensions: List[str]  # Tensions remaining open
-    critic_quality: float = 0.0   # Overall quality from CriticAgent
-    synthesis_mode: str = "full"  # "full" | "fallback" | "single"
-
-
-@dataclass
-class MemoryRecord:
-    cocoons_recalled: int
-    cocoon_stored: bool
-    emotional_tag: Optional[str] = None
-    importance: Optional[int] = None
-    coherence_at_storage: Optional[float] = None
-    tension_at_storage: Optional[float] = None
-
-
-@dataclass
-class ResonanceRecord:
-    psi_r: float                # Signed waveform value (-1.0 to 1.0)
-    coherence_trend: str        # "improving" | "stable" | "degrading"
-    turns_tracked: int = 0
-
-
-# ─────────────────────────────────────────────────────────────
-#  Top-level ReasoningTrace
-# ─────────────────────────────────────────────────────────────
-
-@dataclass
-class ReasoningTrace:
-    """
-    Immutable record of a single Codette reasoning turn.
-
-    Created by TraceCollector.finalize(). This is the artifact that makes
-    Codette's architecture verifiable — every subsystem that fired is
-    documented here with its inputs and outputs.
-    """
-    query: str
-    query_hash: str             # First 8 chars of SHA-256 of query
-    started_at: float           # Unix timestamp
-    finished_at: float
-    latency_ms: float
-
-    guardian: Optional[GuardianRecord] = None
-    nexus: Optional[NexusRecord] = None
-    perspectives: List[PerspectiveRecord] = field(default_factory=list)
-    aegis: Optional[AEGISRecord] = None
-    epistemic: Optional[EpistemicRecord] = None
-    synthesis: Optional[SynthesisRecord] = None
-    memory: Optional[MemoryRecord] = None
-    resonance: Optional[ResonanceRecord] = None
-
-    forge_mode: str = "consciousness_stack"
-    subsystems_fired: int = 0   # Count of subsystems that actually ran
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Serialize to a JSON-compatible dict."""
-        d = asdict(self)
-        return _clean_nones(d)
-
-    def to_json(self, indent: int = 2) -> str:
-        return json.dumps(self.to_dict(), indent=indent)
-
-    def summary(self) -> str:
-        """One-line human-readable summary of this trace."""
-        eps = f"ε={self.epistemic.epsilon:.2f}" if self.epistemic else "ε=?"
-        gam = f"Γ={self.epistemic.gamma:.2f}" if self.epistemic else "Γ=?"
-        eta = f"η={self.aegis.eta:.2f}" if self.aegis else "η=?"
-        psi = f"ψ={self.resonance.psi_r:+.2f}" if self.resonance else "ψ=?"
-        persp = len([p for p in self.perspectives if p.active])
-        vetoed = " [VETOED]" if (self.aegis and self.aegis.vetoed) else ""
-        blocked = " [BLOCKED]" if (self.guardian and self.guardian.blocked) else ""
-        return (
-            f"[Trace {self.query_hash}] "
-            f"{eps} {gam} {eta} {psi} "
-            f"perspectives={persp} "
-            f"subsystems={self.subsystems_fired} "
-            f"latency={self.latency_ms:.0f}ms"
-            f"{vetoed}{blocked}"
-        )
-
-    def verify(self) -> Dict[str, bool]:
-        """
-        Returns a verification report showing which subsystems were active.
-        Useful for integration tests and debugging.
-        """
+    def to_dict(self) -> dict:
         return {
-            "guardian_ran":     self.guardian is not None,
-            "nexus_ran":        self.nexus is not None,
-            "perspectives_ran": len(self.perspectives) > 0,
-            "aegis_ran":        self.aegis is not None,
-            "epistemic_ran":    self.epistemic is not None,
-            "synthesis_ran":    self.synthesis is not None,
-            "memory_ran":       self.memory is not None,
-            "resonance_ran":    self.resonance is not None,
-            "not_vetoed":       not (self.aegis and self.aegis.vetoed),
-            "not_blocked":      not (self.guardian and self.guardian.blocked),
-            "epsilon_band_set": self.epistemic is not None and bool(self.epistemic.epsilon_band),
+            "event_type": self.event_type,
+            "subsystem": self.subsystem,
+            "ts": self.ts,
+            "data": self.data,
         }
 
 
-# ─────────────────────────────────────────────────────────────
-#  TraceCollector — mutable builder
-# ─────────────────────────────────────────────────────────────
+@dataclass
+class ReasoningTrace:
+    """Collects all subsystem events for a single Codette turn.
 
-class TraceCollector:
+    Usage as context manager:
+
+        with ReasoningTrace(query="What is consciousness?") as trace:
+            trace.record(EVENT_GUARDIAN_CHECK, "Guardian", {"trust_level": "standard"})
+            trace.record(EVENT_NEXUS_SIGNAL, "Nexus", {"risk": "low"})
+            # ... run perspectives, synthesis, etc.
+            trace.record(EVENT_SYNTHESIS_RESULT, "SynthesisEngine", {...})
+        # trace is finalised automatically; trace.report is available
+
+    Usage without context manager:
+
+        trace = ReasoningTrace(query)
+        trace.record(...)
+        report = trace.finalise()
     """
-    Collects subsystem outputs during a reasoning turn and finalizes
-    them into an immutable ReasoningTrace.
 
-    Designed to be injected into ForgeEngine with zero breaking changes:
-    all record_*() methods are safe to call with partial data.
-    """
+    query: str
+    session_id: Optional[str] = None
+    _events: list[TraceEvent] = field(default_factory=list, repr=False)
+    _start_ts: float = field(default_factory=time.time, repr=False)
+    _end_ts: Optional[float] = field(default=None, repr=False)
+    report: Optional[dict] = field(default=None, repr=False)
 
-    def __init__(self, query: str, forge_mode: str = "consciousness_stack"):
-        import hashlib
-        self.query = query
-        self.forge_mode = forge_mode
-        self.started_at = time.time()
-        self._query_hash = hashlib.sha256(query.encode()).hexdigest()[:8]
-
-        self._guardian: Optional[GuardianRecord] = None
-        self._nexus: Optional[NexusRecord] = None
-        self._perspectives: List[PerspectiveRecord] = []
-        self._aegis: Optional[AEGISRecord] = None
-        self._epistemic: Optional[EpistemicRecord] = None
-        self._synthesis: Optional[SynthesisRecord] = None
-        self._memory: Optional[MemoryRecord] = None
-        self._resonance: Optional[ResonanceRecord] = None
-
-    # ── Per-subsystem record methods ──────────────────────────
-
-    def record_guardian(
-        self,
-        trust_level: str,
-        flags: Optional[List[str]] = None,
-        blocked: bool = False,
-        reason: Optional[str] = None,
-    ) -> "TraceCollector":
-        self._guardian = GuardianRecord(
-            trust_level=trust_level,
-            flags=flags or [],
-            blocked=blocked,
-            reason=reason,
-        )
+    def __enter__(self) -> "ReasoningTrace":
+        self._start_ts = time.time()
         return self
 
-    def record_nexus(
+    def __exit__(self, exc_type, exc_val, exc_tb) -> bool:
+        self.finalise(error=str(exc_val) if exc_val else None)
+        return False  # do not suppress exceptions
+
+    def record(
         self,
-        risk_level: str,
-        entropy: float = 0.0,
-        suspicion_score: float = 0.0,
-        ethical_alignment: str = "unaligned",
-        resonance_spectrum: Optional[List[float]] = None,
-    ) -> "TraceCollector":
-        self._nexus = NexusRecord(
-            risk_level=risk_level,
-            entropy=entropy,
-            suspicion_score=suspicion_score,
-            ethical_alignment=ethical_alignment,
-            resonance_spectrum=resonance_spectrum,
-        )
-        return self
+        event_type: str,
+        subsystem: str,
+        data: dict[str, Any],
+    ) -> None:
+        """Record a subsystem event."""
+        self._events.append(TraceEvent(event_type=event_type, subsystem=subsystem, data=data))
 
-    def record_perspective(
-        self,
-        name: str,
-        text: str = "",
-        confidence: float = 0.5,
-        active: bool = True,
-    ) -> "TraceCollector":
-        self._perspectives.append(PerspectiveRecord(
-            name=name,
-            text_length=len(text.split()),
-            confidence=round(confidence, 4),
-            active=active,
-            summary=text[:100] if text else None,
-        ))
-        return self
+    def finalise(self, error: Optional[str] = None) -> dict:
+        """Build and store the final trace report."""
+        self._end_ts = time.time()
+        duration_ms = round((self._end_ts - self._start_ts) * 1000, 1)
 
-    def record_aegis(
-        self,
-        eta: float,
-        vetoed: bool = False,
-        veto_reason: Optional[str] = None,
-        verdicts: Optional[Dict[str, float]] = None,
-        eta_instant: Optional[float] = None,
-    ) -> "TraceCollector":
-        self._aegis = AEGISRecord(
-            eta=round(eta, 4),
-            eta_instant=round(eta_instant if eta_instant is not None else eta, 4),
-            vetoed=vetoed,
-            veto_reason=veto_reason,
-            verdicts=verdicts or {},
-        )
-        return self
+        # Extract key summary values from events
+        summary = self._extract_summary()
+        summary["duration_ms"] = duration_ms
+        if error:
+            summary["error"] = error
 
-    def record_epistemic(
-        self,
-        gamma: float,
-        epsilon: float,
-        pairwise: Optional[Dict[str, float]] = None,
-        coverage: Optional[Dict[str, float]] = None,
-        tension_productivity: float = 0.0,
-    ) -> "TraceCollector":
-        if epsilon < 0.3:
-            band = "low"
-        elif epsilon < 0.6:
-            band = "medium"
-        elif epsilon < 0.9:
-            band = "high"
-        else:
-            band = "max"
+        self.report = {
+            "query": self.query,
+            "session_id": self.session_id,
+            "start_ts": self._start_ts,
+            "end_ts": self._end_ts,
+            "duration_ms": duration_ms,
+            "summary": summary,
+            "events": [e.to_dict() for e in self._events],
+        }
+        return self.report
 
-        self._epistemic = EpistemicRecord(
-            gamma=round(gamma, 4),
-            epsilon=round(epsilon, 4),
-            epsilon_band=band,
-            pairwise={k: round(v, 4) for k, v in (pairwise or {}).items()},
-            coverage={k: round(v, 4) for k, v in (coverage or {}).items()},
-            tension_productivity=round(tension_productivity, 4),
-        )
-        return self
+    def to_json(self, indent: int = 2) -> str:
+        """JSON serialisation of the full trace."""
+        if self.report is None:
+            self.finalise()
+        return json.dumps(self.report, indent=indent, default=str)
 
-    def record_synthesis(
-        self,
-        text: str,
-        resolved_tensions: Optional[List[str]] = None,
-        unresolved_tensions: Optional[List[str]] = None,
-        critic_quality: float = 0.0,
-        synthesis_mode: str = "full",
-    ) -> "TraceCollector":
-        self._synthesis = SynthesisRecord(
-            text_length=len(text.split()),
-            resolved_tensions=resolved_tensions or [],
-            unresolved_tensions=unresolved_tensions or [],
-            critic_quality=round(critic_quality, 4),
-            synthesis_mode=synthesis_mode,
-        )
-        return self
+    def to_report(self, verbose: bool = False) -> str:
+        """Human-readable summary of the reasoning trace."""
+        if self.report is None:
+            self.finalise()
+        s = self.report["summary"]
+        lines = [
+            f"Query        : {self.query[:80]}",
+            f"Duration     : {self.report['duration_ms']}ms",
+            f"Trust level  : {s.get('trust_level', 'unknown')}",
+            f"Corruption   : {s.get('corruption_risk', 'unknown')}",
+            f"Perspectives : {', '.join(s.get('active_perspectives', []))}",
+            f"ε (tension)  : {s.get('epsilon', '?')} ({s.get('epsilon_band', '?')})",
+            f"γ (coherence): {s.get('gamma', '?')}",
+            f"η (ethics)   : {s.get('eta', 'not evaluated')}",
+            f"ψ (psi_r)    : {s.get('psi_r', '?')}",
+            f"Top tensions : {'; '.join(s.get('top_tensions', ['none']))}",
+            f"Unresolved   : {'; '.join(s.get('unresolved_tensions', ['none']))}",
+            f"Synthesis    : {s.get('synthesis_quality', '?')}",
+            f"Cocoon write : {s.get('memory_write', '?')}",
+            f"Hallucination: {s.get('hallucination_flagged', False)}",
+            f"Sycophancy   : {s.get('sycophancy_flagged', False)}",
+        ]
+        if s.get("error"):
+            lines.append(f"ERROR        : {s['error']}")
+        if verbose:
+            lines.append("\nEvent log:")
+            for e in self._events:
+                lines.append(f"  [{e.subsystem}] {e.event_type}: {json.dumps(e.data, default=str)[:120]}")
+        return "\n".join(lines)
 
-    def record_memory(
-        self,
-        cocoons_recalled: int = 0,
-        cocoon_stored: bool = False,
-        emotional_tag: Optional[str] = None,
-        importance: Optional[int] = None,
-        coherence_at_storage: Optional[float] = None,
-        tension_at_storage: Optional[float] = None,
-    ) -> "TraceCollector":
-        self._memory = MemoryRecord(
-            cocoons_recalled=cocoons_recalled,
-            cocoon_stored=cocoon_stored,
-            emotional_tag=emotional_tag,
-            importance=importance,
-            coherence_at_storage=round(coherence_at_storage, 4) if coherence_at_storage else None,
-            tension_at_storage=round(tension_at_storage, 4) if tension_at_storage else None,
-        )
-        return self
+    # ─── Private ─────────────────────────────────────────────────────────────
 
-    def record_psi(
-        self,
-        psi_r: float,
-        coherence_trend: str = "stable",
-        turns_tracked: int = 0,
-    ) -> "TraceCollector":
-        self._resonance = ResonanceRecord(
-            psi_r=round(psi_r, 4),
-            coherence_trend=coherence_trend,
-            turns_tracked=turns_tracked,
-        )
-        return self
-
-    # ── Finalize ──────────────────────────────────────────────
-
-    def finalize(self) -> ReasoningTrace:
-        """Build and return the immutable ReasoningTrace."""
-        finished_at = time.time()
-        subsystems = sum([
-            self._guardian is not None,
-            self._nexus is not None,
-            len(self._perspectives) > 0,
-            self._aegis is not None,
-            self._epistemic is not None,
-            self._synthesis is not None,
-            self._memory is not None,
-            self._resonance is not None,
-        ])
-        return ReasoningTrace(
-            query=self.query,
-            query_hash=self._query_hash,
-            started_at=self.started_at,
-            finished_at=finished_at,
-            latency_ms=round((finished_at - self.started_at) * 1000, 1),
-            guardian=self._guardian,
-            nexus=self._nexus,
-            perspectives=self._perspectives,
-            aegis=self._aegis,
-            epistemic=self._epistemic,
-            synthesis=self._synthesis,
-            memory=self._memory,
-            resonance=self._resonance,
-            forge_mode=self.forge_mode,
-            subsystems_fired=subsystems,
-        )
-
-
-# ─────────────────────────────────────────────────────────────
-#  Utility
-# ─────────────────────────────────────────────────────────────
-
-def _clean_nones(obj: Any) -> Any:
-    """Recursively remove None values from a dict/list."""
-    if isinstance(obj, dict):
-        return {k: _clean_nones(v) for k, v in obj.items() if v is not None}
-    if isinstance(obj, list):
-        return [_clean_nones(v) for v in obj]
-    return obj
-
-
-def trace_from_forge_result(result: dict, query: str) -> ReasoningTrace:
-    """
-    Build a ReasoningTrace from an existing forge output dict.
-
-    Bridges the gap until TraceCollector is wired into ForgeEngine directly.
-    Reads whatever keys are present in result["metadata"] and populates the
-    trace with them.
-    """
-    meta = result.get("metadata", {})
-    collector = TraceCollector(query=query, forge_mode=meta.get("mode", "unknown"))
-
-    # Aegis
-    eta = meta.get("aegis_eta")
-    if eta is not None:
-        collector.record_aegis(
-            eta=eta,
-            vetoed=meta.get("aegis_vetoed", False),
-        )
-
-    # Epistemic
-    epsilon = meta.get("epistemic_tension")
-    gamma = meta.get("ensemble_coherence")
-    if epsilon is not None or gamma is not None:
-        collector.record_epistemic(
-            gamma=gamma or 0.0,
-            epsilon=epsilon or 0.0,
-            coverage=meta.get("perspective_coverage", {}),
-            tension_productivity=meta.get("tension_productivity", {}).get("productivity", 0.0),
-        )
-
-    # Memory
-    prior = meta.get("prior_insights")
-    if prior is not None:
-        collector.record_memory(cocoons_recalled=prior)
-
-    # Guardian / Nexus from intent_risk
-    risk = meta.get("intent_risk")
-    if risk:
-        collector.record_nexus(risk_level=risk)
-        collector.record_guardian(
-            trust_level="high" if risk == "low" else ("medium" if risk == "medium" else "low"),
-        )
-
-    return collector.finalize()
+    def _extract_summary(self) -> dict:
+        summary: dict[str, Any] = {}
+        for event in self._events:
+            t = event.event_type
+            d = event.data
+            if t == EVENT_GUARDIAN_CHECK:
+                summary["trust_level"] = d.get("trust_level")
+                summary["safety_flags"] = d.get("safety_flags", [])
+            elif t == EVENT_NEXUS_SIGNAL:
+                summary["corruption_risk"] = d.get("risk")
+            elif t == EVENT_PERSPECTIVE_SELECTED:
+                summary["active_perspectives"] = d.get("perspectives", [])
+                summary["selection_rationale"] = d.get("rationale")
+            elif t == EVENT_AEGIS_SCORE:
+                summary["eta"] = d.get("eta")
+                summary["aegis_framework_scores"] = d.get("framework_scores", {})
+            elif t == EVENT_EPISTEMIC_METRICS:
+                summary["epsilon"] = d.get("epsilon")
+                summary["epsilon_band"] = d.get("epsilon_band")
+                summary["gamma"] = d.get("gamma")
+                summary["top_tensions"] = d.get("top_tensions", [])
+            elif t == EVENT_SYNTHESIS_RESULT:
+                summary["synthesis_quality"] = d.get("synthesis_quality")
+                summary["unresolved_tensions"] = d.get("unresolved_tensions", [])
+            elif t == EVENT_MEMORY_WRITE:
+                summary["memory_write"] = d.get("written")
+                summary["cocoon_id"] = d.get("cocoon_id")
+            elif t == EVENT_PSI_UPDATE:
+                summary["psi_r"] = d.get("psi_r")
+            elif t == EVENT_HALLUCINATION_FLAG:
+                summary["hallucination_flagged"] = d.get("flagged", False)
+                summary["hallucination_detail"] = d.get("detail")
+            elif t == EVENT_SYCOPHANCY_FLAG:
+                summary["sycophancy_flagged"] = d.get("flagged", False)
+        return summary
