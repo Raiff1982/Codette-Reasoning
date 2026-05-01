@@ -65,6 +65,14 @@ except Exception as _v2k_err:
     _V2_KERNEL_AVAILABLE = False
     logger.debug(f"LivingMemoryKernelV2 not available: {_v2k_err}")
 
+# === v2.1 RESONANT CONTINUITY ===
+try:
+    from reasoning_forge.resonant_continuity import ResonantContinuityEngine
+    _RC_AVAILABLE = True
+except Exception as _rc_err:
+    _RC_AVAILABLE = False
+    logger.debug(f"ResonantContinuityEngine not available: {_rc_err}")
+
 # === v2.1 OBSERVABILITY + SCHEMA ===
 try:
     from reasoning_forge.reasoning_trace import (
@@ -76,6 +84,8 @@ try:
         EVENT_EPISTEMIC_METRICS,
         EVENT_SYNTHESIS_RESULT,
         EVENT_MEMORY_WRITE,
+        EVENT_SPIDERWEB_UPDATE,
+        EVENT_PSI_UPDATE,
     )
     from reasoning_forge.cocoon_schema_v2 import build_cocoon
     _V21_AVAILABLE = True
@@ -149,6 +159,7 @@ class ForgeEngine:
         self.problem_generator = ProblemGenerator()
         self.epistemic = EpistemicMetrics()
         self.spiderweb = QuantumSpiderweb()  # Initialize Spiderweb for preflight prediction
+        self.resonance_engine = ResonantContinuityEngine() if _RC_AVAILABLE else None
 
         # Store living_memory for Phase 2
         self.living_memory = living_memory
@@ -659,6 +670,25 @@ class ForgeEngine:
             except Exception as e:
                 logger.debug(f"[forge_single_safe] Guardian skipped: {e}")
 
+        # Compute Ψ_r using real epistemic metrics from this turn
+        _psi_r = 0.0
+        if getattr(self, 'resonance_engine', None):
+            try:
+                _psi_state = self.resonance_engine.compute_psi(
+                    coherence=epistemic_report.get("ensemble_coherence", 0.72),
+                    tension=epistemic_report.get("tension_magnitude", 0.35),
+                )
+                _psi_r = _psi_state.psi_r
+                if _trace:
+                    _trace.record(EVENT_PSI_UPDATE, "ResonantContinuityEngine", {
+                        "psi_r": round(_psi_r, 4),
+                        "resonance_quality": round(self.resonance_engine.resonance_quality(), 4),
+                        "at_peak": self.resonance_engine.detect_resonance_peak(),
+                        "stability": _psi_state.stability,
+                    })
+            except Exception as e:
+                logger.debug(f"[forge_single_safe] Resonance skipped: {e}")
+
         # ── Dynamic memory write (v2.1: build_cocoon when available) ────────
         if getattr(self, 'memory_kernel', None):
             try:
@@ -686,7 +716,7 @@ class ForgeEngine:
                         project_context="Codette-Reasoning",
                     )
                     if hasattr(self.memory_kernel, 'store_v2_cocoon'):
-                        self.memory_kernel.store_v2_cocoon(v2_cocoon)
+                        self.memory_kernel.store_v2_cocoon(v2_cocoon, psi_r=_psi_r)
                     else:
                         self.memory_kernel.store(MemoryCocoon(
                             title=concept[:50], content=synthesized_response[:500],
@@ -1010,6 +1040,29 @@ class ForgeEngine:
                 matched_domains[0] if matched_domains else 'general'
             )
         logger.debug(f"  Domain routing: {matched_domains} → {[a.name for a in selected_agents]}")
+
+        # Wire spiderweb for this turn (build/update belief graph from selected agents)
+        _web_coherence = None
+        if getattr(self, 'spiderweb', None) and selected_agents:
+            try:
+                self.spiderweb.build_from_agents([a.name for a in selected_agents])
+                _origin = selected_agents[0].name
+                from reasoning_forge.quantum_spiderweb import NodeState as _NodeState
+                _belief = _NodeState(psi=0.6, tau=0.0, chi=0.7, phi=0.3, lam=0.5)
+                _prop_result = self.spiderweb.propagate_belief(_origin, _belief, max_hops=2)
+                _web_coherence = self.spiderweb.phase_coherence()
+                _attractors = self.spiderweb.detect_attractors()
+                if _trace:
+                    _trace.record(EVENT_SPIDERWEB_UPDATE, "QuantumSpiderweb", {
+                        "gamma": _web_coherence,
+                        "nodes_updated": len(_prop_result.visited),
+                        "anomalies_rejected": len(_prop_result.anomalies_rejected),
+                        "attractors_detected": len(_attractors),
+                        "converging": self.spiderweb.check_convergence()[0],
+                    })
+                logger.debug(f"  Spiderweb: gamma={_web_coherence:.3f}, agents={len(self.spiderweb.nodes)}")
+            except Exception as e:
+                logger.debug(f"  Spiderweb propagation failed: {e}")
 
         # =========================================================================
         # LAYER 1: MEMORY RECALL
@@ -1355,6 +1408,29 @@ class ForgeEngine:
             except Exception as e:
                 logger.debug(f"  AEGIS evaluation failed: {e}")
 
+        # Compute Ψ_r (resonant wavefunction) using epsilon/gamma from intent signal
+        _psi_r = 0.0
+        if getattr(self, 'resonance_engine', None):
+            try:
+                _coherence_val = float(intent_vector.get("gamma", intent_vector.get("ensemble_coherence", 0.72)))
+                _tension_val = float(intent_vector.get("epsilon", intent_vector.get("tension_magnitude", 0.35)))
+                _psi_state = self.resonance_engine.compute_psi(
+                    coherence=_coherence_val,
+                    tension=_tension_val,
+                )
+                _psi_r = _psi_state.psi_r
+                if _trace:
+                    _trace.record(EVENT_PSI_UPDATE, "ResonantContinuityEngine", {
+                        "psi_r": round(_psi_r, 4),
+                        "resonance_quality": round(self.resonance_engine.resonance_quality(), 4),
+                        "convergence_rate": round(self.resonance_engine.convergence_rate(), 4),
+                        "at_peak": self.resonance_engine.detect_resonance_peak(),
+                        "stability": _psi_state.stability,
+                    })
+                logger.debug(f"  Ψ_r={_psi_r:.4f}, stable={_psi_state.stability}")
+            except Exception as e:
+                logger.debug(f"  Resonance computation failed: {e}")
+
         # =========================================================================
         # LAYER 6: GUARDIAN LOGICAL VALIDATION
         # =========================================================================
@@ -1431,7 +1507,7 @@ class ForgeEngine:
                     _cocoon_id = v2_cocoon.cocoon_id
                     # Adapter: store in existing LivingMemoryKernel via bridge method
                     if hasattr(self.memory_kernel, 'store_v2_cocoon'):
-                        self.memory_kernel.store_v2_cocoon(v2_cocoon)
+                        self.memory_kernel.store_v2_cocoon(v2_cocoon, psi_r=_psi_r)
                     else:
                         # Fallback to plain MemoryCocoon if bridge not available
                         self.memory_kernel.store(MemoryCocoon(
