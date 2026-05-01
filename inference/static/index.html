@@ -336,28 +336,29 @@
         </div>
 
         <!-- Drift Analysis -->
-        <div class="side-section" id="section-drift" style="display:none">
-            <div class="side-section-title">Longitudinal Drift</div>
+        <div class="side-section" id="drift-panel" style="display:none">
+            <div class="side-section-title">Resonant Drift</div>
             <div class="metric-row">
-                <span class="metric-label">&#949; Trend</span>
-                <span class="metric-value" id="drift-epsilon-trend">--</span>
+                <span class="metric-label">&#968;_r</span>
+                <span class="metric-value" id="psi-value">--</span>
             </div>
             <div class="metric-row" style="margin-top:6px">
-                <span class="metric-label">Perspective Lock</span>
-                <span class="metric-value" id="drift-persp-lock">--</span>
+                <span class="metric-label">State</span>
+                <span class="metric-value" id="drift-state">--</span>
             </div>
             <div class="metric-row" style="margin-top:6px">
-                <span class="metric-label">Dominant</span>
-                <span class="metric-value" id="drift-dominant">--</span>
+                <span class="metric-label">&#949; Tension</span>
+                <span class="metric-value" id="drift-epsilon">--</span>
             </div>
             <div class="metric-row" style="margin-top:6px">
-                <span class="metric-label">Recurring Tensions</span>
-                <span class="metric-value" id="drift-tensions">0</span>
+                <span class="metric-label">&#947; Coherence</span>
+                <span class="metric-value" id="drift-gamma">--</span>
             </div>
-            <div class="metric-row">
-                <span class="metric-label">Open Hooks</span>
-                <span class="metric-value" id="drift-hooks">0</span>
-            </div>
+            <canvas id="drift-psi-sparkline" width="200" height="36"
+                style="display:block;margin:8px auto 4px;opacity:0.85"></canvas>
+            <div style="font-size:10px;color:#666;margin:4px 0 2px">Open Hooks</div>
+            <ul id="hook-list" style="margin:0;padding:0 0 0 2px;list-style:none;
+                font-size:11px;line-height:1.6;max-height:120px;overflow-y:auto"></ul>
         </div>
 
         <!-- Guardian -->

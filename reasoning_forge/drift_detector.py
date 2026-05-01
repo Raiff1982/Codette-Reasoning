@@ -30,6 +30,7 @@ LOCK_THRESHOLD     = 0.60   # one perspective > 60% usage → perspective_lock
 RECURRING_MIN      = 3      # tension must appear in ≥3 cocoons to be "recurring"
 EPSILON_WINDOW     = 10     # number of recent cocoons for windowed epsilon
 STABLE_BAND        = 0.05   # |slope| < this → "stable" trend
+CONSECUTIVE_RISING = 3      # N consecutive "rising" windows → calibration warning
 
 
 # ── Band encoding ────────────────────────────────────────────────────────────
@@ -91,6 +92,9 @@ class DriftReport:
     open_hook_count: int = 0
     hooks_sample: List[str] = field(default_factory=list)  # up to 5 example hooks
 
+    # psi_r time-series (last EPSILON_WINDOW cocoons, chronological)
+    psi_r_history: List[float] = field(default_factory=list)
+
     # Meta
     total_cocoons: int = 0
     observation_window: int = EPSILON_WINDOW
@@ -144,9 +148,29 @@ class DriftReport:
             ],
             "open_hook_count": self.open_hook_count,
             "hooks_sample": self.hooks_sample,
+            "psi_r_history": [round(v, 4) for v in self.psi_r_history],
             "total_cocoons": self.total_cocoons,
             "observation_window": self.observation_window,
         }
+
+
+# ── Intervention ─────────────────────────────────────────────────────────────
+
+@dataclass
+class InterventionPlan:
+    """
+    Action recommendations derived from a DriftReport.
+
+    Produced by DriftDetector.should_intervene() — the caller (forge_engine)
+    decides whether to act on each flag.
+    """
+    inject_perspective: Optional[str] = None  # name of underused perspective to force-inject
+    calibration_warning: bool = False          # epsilon rising ≥ CONSECUTIVE_RISING windows
+    reasons: List[str] = field(default_factory=list)
+
+    @property
+    def active(self) -> bool:
+        return bool(self.inject_perspective or self.calibration_warning)
 
 
 # ── Detector ─────────────────────────────────────────────────────────────────
@@ -160,8 +184,46 @@ class DriftDetector:
         .continuity_profile() → dict (used for perspective_usage, epsilon_distribution,
                                        follow-up hooks, unresolved_tensions)
         .recall_with_hooks()  → list of MemoryCocoonV2 with open hooks
+        .recall_recent(n)     → list of MemoryCocoonV2, newest-first (for psi_r_history)
     Falls back gracefully if any of those attributes are absent.
     """
+
+    def should_intervene(
+        self,
+        report: DriftReport,
+        trend_history: Optional[List[str]] = None,
+    ) -> InterventionPlan:
+        """
+        Convert a DriftReport into concrete intervention recommendations.
+
+        trend_history — caller-maintained list of recent epsilon_trend strings
+        (e.g. ["rising","rising","rising"]); used for calibration warning.
+        """
+        plan = InterventionPlan()
+
+        if report.perspective_lock and report.perspective_usage:
+            # Find the least-used perspective that isn't the dominant one
+            least = min(
+                report.perspective_usage,
+                key=lambda p: report.perspective_usage[p],
+            )
+            if least != report.dominant_perspective:
+                plan.inject_perspective = least
+                plan.reasons.append(
+                    f"Perspective lock: '{report.dominant_perspective}' at "
+                    f"{report.perspective_lock_ratio:.0%}; injecting '{least}'"
+                )
+
+        if trend_history and len(trend_history) >= CONSECUTIVE_RISING:
+            window = trend_history[-CONSECUTIVE_RISING:]
+            if all(t == "rising" for t in window):
+                plan.calibration_warning = True
+                plan.reasons.append(
+                    f"Epsilon rising for {CONSECUTIVE_RISING} consecutive sessions; "
+                    "query domain may exceed confidence calibration"
+                )
+
+        return plan
 
     def detect(self, kernel: Any) -> DriftReport:
         report = DriftReport()
@@ -204,6 +266,21 @@ class DriftDetector:
         elif eps_values:
             report.epsilon_mean = eps_values[0]
             report.epsilon_trend = "stable"
+
+        # ── psi_r history (chronological, newest-last) ───────────────────────
+        try:
+            recent_for_psi = getattr(kernel, 'recall_recent', None)
+            if callable(recent_for_psi):
+                psi_cocoons = list(reversed(recent_for_psi(EPSILON_WINDOW)))
+            else:
+                psi_cocoons = memories[-EPSILON_WINDOW:]
+        except Exception:
+            psi_cocoons = memories[-EPSILON_WINDOW:]
+
+        for m in psi_cocoons:
+            psi_val = getattr(m, 'psi_r', None)
+            if isinstance(psi_val, (int, float)):
+                report.psi_r_history.append(float(psi_val))
 
         # ── Perspective dominance ─────────────────────────────────────────────
         perspective_usage: Dict[str, int] = profile.get("perspective_usage", {})

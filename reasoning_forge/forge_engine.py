@@ -107,7 +107,7 @@ try:
         EVENT_SYCOPHANCY_FLAG,
     )
     from reasoning_forge.cocoon_schema_v2 import build_cocoon
-    from reasoning_forge.drift_detector import DriftDetector
+    from reasoning_forge.drift_detector import DriftDetector, CONSECUTIVE_RISING
     _V21_AVAILABLE = True
 except Exception as _v21_err:
     _V21_AVAILABLE = False
@@ -184,6 +184,7 @@ class ForgeEngine:
         self._sycophancy_guard = SycophancyGuard() if _GUARDS_AVAILABLE else None
         self._style_adapter = StyleAdaptiveSynthesis() if _STYLE_AVAILABLE else None
         self.drift_detector = DriftDetector() if _V21_AVAILABLE else None
+        self._epsilon_trend_history: List[str] = []  # per-process; used for calibration warning
 
         # Store living_memory for Phase 2
         self.living_memory = living_memory
@@ -1187,6 +1188,32 @@ class ForgeEngine:
                 matched_domains[0] if matched_domains else 'general'
             )
         logger.debug(f"  Domain routing: {matched_domains} → {[a.name for a in selected_agents]}")
+
+        # ── Drift-triggered intervention ─────────────────────────────────────
+        if self.drift_detector and getattr(self, 'memory_kernel', None):
+            try:
+                _drift_report = self.drift_detector.detect(self.memory_kernel)
+                self._epsilon_trend_history.append(_drift_report.epsilon_trend)
+                _intervention = self.drift_detector.should_intervene(
+                    _drift_report, self._epsilon_trend_history
+                )
+                if _intervention.inject_perspective:
+                    _target = _intervention.inject_perspective
+                    _already = {a.name for a in selected_agents}
+                    if _target not in _already:
+                        _inject_agent = next(
+                            (a for a in self.analysis_agents if a.name == _target), None
+                        )
+                        if _inject_agent:
+                            selected_agents = list(selected_agents) + [_inject_agent]
+                            logger.info(f"  [Drift] Injected underused perspective: {_target}")
+                if _intervention.calibration_warning:
+                    logger.warning(
+                        f"  [Drift] Calibration warning: epsilon rising "
+                        f"{CONSECUTIVE_RISING}+ consecutive sessions"
+                    )
+            except Exception as _de:
+                logger.debug(f"  Drift intervention skipped: {_de}")
 
         # Wire spiderweb for this turn (build/update belief graph from selected agents)
         _web_coherence = None

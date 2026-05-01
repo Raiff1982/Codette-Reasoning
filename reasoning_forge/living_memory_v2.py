@@ -242,6 +242,9 @@ class LivingMemoryKernelV2:
 
     # ── V1 Retrieval (preserved) ──────────────────────────────────────────
 
+    def __len__(self) -> int:
+        return len(self.memories)
+
     def recall_by_emotion(self, tag: str, limit: int = 10) -> List[MemoryCocoonV2]:
         return [m for m in self.memories if m.emotional_tag == tag][:limit]
 
@@ -286,6 +289,21 @@ class LivingMemoryKernelV2:
             key=lambda m: m.importance, reverse=True,
         )
         return ranked[:limit]
+
+    def resolve_hook(self, hook_text: str) -> bool:
+        """
+        Remove hook_text from every cocoon that contains it.
+
+        Returns True if at least one cocoon was modified, False if the hook
+        was not found anywhere.
+        """
+        hook_norm = hook_text.strip()
+        modified = False
+        for m in self.memories:
+            if hook_norm in m.follow_up_hooks:
+                m.follow_up_hooks = [h for h in m.follow_up_hooks if h != hook_norm]
+                modified = True
+        return modified
 
     def search_by_tension(self, tension_label: str, limit: int = 10) -> List[MemoryCocoonV2]:
         """Find cocoons where a specific tension label remained unresolved."""
