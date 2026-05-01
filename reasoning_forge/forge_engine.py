@@ -107,6 +107,7 @@ try:
         EVENT_SYCOPHANCY_FLAG,
     )
     from reasoning_forge.cocoon_schema_v2 import build_cocoon
+    from reasoning_forge.drift_detector import DriftDetector
     _V21_AVAILABLE = True
 except Exception as _v21_err:
     _V21_AVAILABLE = False
@@ -182,6 +183,7 @@ class ForgeEngine:
         self._hallucination_guard = HallucinationGuard() if _GUARDS_AVAILABLE else None
         self._sycophancy_guard = SycophancyGuard() if _GUARDS_AVAILABLE else None
         self._style_adapter = StyleAdaptiveSynthesis() if _STYLE_AVAILABLE else None
+        self.drift_detector = DriftDetector() if _V21_AVAILABLE else None
 
         # Store living_memory for Phase 2
         self.living_memory = living_memory
@@ -831,6 +833,28 @@ class ForgeEngine:
                     ))
                 _cocoon_id_safe = v2_cocoon.cocoon_id if _V21_AVAILABLE and 'v2_cocoon' in dir() else None
                 logger.debug(f"[forge_single_safe] Memory stored: tag={tag}, importance={imp}")
+                # Dual-write to UnifiedMemory for FTS5 cross-system search
+                if getattr(self, 'unified_memory', None):
+                    try:
+                        self.unified_memory.store(
+                            query=concept,
+                            response=synthesized_response[:2000],
+                            adapter="forge_single_safe",
+                            domain=self._infer_problem_type(
+                                self._classify_query_domains_multi(concept)
+                            ),
+                            emotion=tag,
+                            importance=imp,
+                            metadata={
+                                "cocoon_id": _cocoon_id_safe,
+                                "epsilon": float(intent_vector.get("epsilon", 0.35)),
+                                "gamma": float(intent_vector.get("gamma", 0.72)),
+                                "psi_r": _psi_r,
+                                "forge_path": "single_safe",
+                            },
+                        )
+                    except Exception as _ue:
+                        logger.debug(f"[forge_single_safe] UnifiedMemory dual-write skipped: {_ue}")
                 if _trace:
                     _trace.record(EVENT_SYNTHESIS_RESULT, "SynthesisEngine", {
                         "synthesis_quality": _sq if _V21_AVAILABLE else "adequate",
@@ -1690,6 +1714,26 @@ class ForgeEngine:
                             emotional_tag=tag, importance=imp,
                         ))
                     logger.debug(f"  Stored v2 cocoon (id={_cocoon_id[:8]}, tag={tag}, imp={imp})")
+                    # Dual-write to UnifiedMemory for FTS5 cross-system search
+                    if getattr(self, 'unified_memory', None):
+                        try:
+                            self.unified_memory.store(
+                                query=concept,
+                                response=synthesis[:2000],
+                                adapter="forge_with_debate",
+                                domain=self._infer_problem_type(matched_domains),
+                                emotion=tag,
+                                importance=imp,
+                                metadata={
+                                    "cocoon_id": _cocoon_id,
+                                    "epsilon": float(intent_vector.get("epsilon", 0.35)),
+                                    "gamma": float(intent_vector.get("gamma", 0.72)),
+                                    "psi_r": _psi_r,
+                                    "forge_path": "debate",
+                                },
+                            )
+                        except Exception as _ue:
+                            logger.debug(f"  UnifiedMemory dual-write skipped: {_ue}")
                 else:
                     # Legacy path
                     tag, imp = self._classify_cocoon_metadata(
