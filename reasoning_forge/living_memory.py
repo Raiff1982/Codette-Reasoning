@@ -229,6 +229,38 @@ class LivingMemoryKernel:
     def to_dict(self) -> Dict:
         return {"memories": [m.to_dict() for m in self.memories]}
 
+    def store_v2_cocoon(self, cocoon) -> MemoryCocoon:
+        """Accept a cocoon_schema_v2.Cocoon and store it as a MemoryCocoon.
+
+        Bridges the v2 rich schema to the v1 storage layer so ForgeEngine can
+        call build_cocoon() and hand the result directly to this kernel.
+
+        Field mapping:
+          Cocoon.query[:80]          → MemoryCocoon.title
+          Cocoon.response_summary    → MemoryCocoon.content
+          Cocoon.emotional_valence   → MemoryCocoon.emotional_tag
+          Cocoon.importance_score    → MemoryCocoon.importance (int, clamped)
+          Cocoon.cocoon_id[:16]      → MemoryCocoon.anchor (override)
+          Cocoon.dominant_perspective → MemoryCocoon.adapter_used
+          Cocoon.query               → MemoryCocoon.query
+          Cocoon.gamma_coherence     → MemoryCocoon.coherence
+          Cocoon.epsilon_value       → MemoryCocoon.tension
+        """
+        mc = MemoryCocoon(
+            title=cocoon.query[:80],
+            content=cocoon.response_summary[:500],
+            emotional_tag=cocoon.emotional_valence,
+            importance=max(1, min(10, int(round(cocoon.importance_score)))),
+            adapter_used=cocoon.dominant_perspective or "",
+            query=cocoon.query[:200],
+            coherence=cocoon.gamma_coherence,
+            tension=cocoon.epsilon_value,
+        )
+        # Override auto-generated anchor with the v2 cocoon_id for cross-schema linkability
+        mc.anchor = cocoon.cocoon_id[:16]
+        self.store(mc)
+        return mc
+
     def store_conflict(self, conflict: Dict, resolution_outcome: Optional[Dict] = None):
         """
         Store conflict metadata as a memory cocoon.
