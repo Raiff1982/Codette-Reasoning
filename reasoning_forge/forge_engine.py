@@ -82,6 +82,14 @@ except Exception as _guards_err:
     _GUARDS_AVAILABLE = False
     logger.debug(f"Integrity guards not available: {_guards_err}")
 
+# === v2.1 STYLE ADAPTATION ===
+try:
+    from reasoning_forge.style_adaptive_synthesis import StyleAdaptiveSynthesis
+    _STYLE_AVAILABLE = True
+except Exception as _style_err:
+    _STYLE_AVAILABLE = False
+    logger.debug(f"StyleAdaptiveSynthesis not available: {_style_err}")
+
 # === v2.1 OBSERVABILITY + SCHEMA ===
 try:
     from reasoning_forge.reasoning_trace import (
@@ -173,6 +181,7 @@ class ForgeEngine:
         self.resonance_engine = ResonantContinuityEngine() if _RC_AVAILABLE else None
         self._hallucination_guard = HallucinationGuard() if _GUARDS_AVAILABLE else None
         self._sycophancy_guard = SycophancyGuard() if _GUARDS_AVAILABLE else None
+        self._style_adapter = StyleAdaptiveSynthesis() if _STYLE_AVAILABLE else None
 
         # Store living_memory for Phase 2
         self.living_memory = living_memory
@@ -682,6 +691,22 @@ class ForgeEngine:
             except Exception as _se:
                 logger.debug(f"[forge_single_safe] SycophancyGuard skipped: {_se}")
 
+        # ── Style adaptation — register-matched surface form, depth preserved ──
+        _style_result = None
+        if getattr(self, '_style_adapter', None) and synthesized_response:
+            try:
+                _style_result = self._style_adapter.adapt(
+                    synthesized_response, context=concept
+                )
+                synthesized_response = _style_result.adapted_text
+                logger.debug(
+                    f"[forge_single_safe] style: register={_style_result.dominant_register} "
+                    f"transforms={_style_result.transformations_applied} "
+                    f"depth_preserved={_style_result.depth_preserved}"
+                )
+            except Exception as _ste:
+                logger.debug(f"[forge_single_safe] StyleAdaptiveSynthesis skipped: {_ste}")
+
         # ── Consciousness-stack screening (soft — logs but does not block) ───
         safety_notes = {}
 
@@ -810,6 +835,9 @@ class ForgeEngine:
                     _trace.record(EVENT_SYNTHESIS_RESULT, "SynthesisEngine", {
                         "synthesis_quality": _sq if _V21_AVAILABLE else "adequate",
                         "unresolved_tensions": [],
+                        "style_register": _style_result.dominant_register if _style_result else None,
+                        "style_depth_preserved": _style_result.depth_preserved if _style_result else None,
+                        "style_transforms": _style_result.transformations_applied if _style_result else [],
                     })
                     _trace.record(EVENT_MEMORY_WRITE, "LivingMemoryKernel", {
                         "written": True,
@@ -1482,6 +1510,7 @@ class ForgeEngine:
                     "mode": "safe_fallback",
                     "reason": "stability_check_failed",
                     "consciousness_stack": "layers_1-4_completed",
+                    "reasoning_trace": _trace.finalise() if _trace else None,
                 }
             }
 
@@ -1516,6 +1545,7 @@ class ForgeEngine:
                     "mode": "safe_fallback",
                     "reason": f"colleen_rejected: {colleen_reason}",
                     "consciousness_stack": "layers_1-5_completed",
+                    "reasoning_trace": _trace.finalise() if _trace else None,
                 }
             }
 
@@ -1609,6 +1639,7 @@ class ForgeEngine:
                     "mode": "safe_fallback",
                     "reason": f"guardian_rejected: {guardian_details}",
                     "consciousness_stack": "layers_1-6_completed",
+                    "reasoning_trace": _trace.finalise() if _trace else None,
                 }
             }
 
