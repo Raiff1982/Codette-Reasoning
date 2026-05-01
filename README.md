@@ -72,7 +72,7 @@ Codette is a modular reasoning system with published demos, tests, benchmarks, a
 - **Automated tests**: [tests](tests)
 - **Benchmark suites**: [benchmarks](benchmarks)
 - **Saved benchmark reports**: [data/results](data/results)
-- **Change transparency**: [docs/CHANGELOG_2026-04-26.md](docs/CHANGELOG_2026-04-26.md) · [docs/CHANGELOG_2026-04-02.md](docs/CHANGELOG_2026-04-02.md)
+- **Change transparency**: [docs/CHANGELOG_2026-05-01.md](docs/CHANGELOG_2026-05-01.md) · [docs/CHANGELOG_2026-04-26.md](docs/CHANGELOG_2026-04-26.md) · [docs/CHANGELOG_2026-04-02.md](docs/CHANGELOG_2026-04-02.md)
 - **Contributing guide**: [CONTRIBUTING.md](CONTRIBUTING.md)
 
 Quick evidence links:
@@ -116,6 +116,12 @@ This repository includes reproducible evidence of:
 | **Phase 6/7 Routing** | Query complexity classification, domain detection, executive control |
 | **Session Continuity** | Active continuity summaries, decision landmarks, and recall markers reduce drift in long sessions |
 | **Safe Web Research** | Optional cited web research with safe fetch rules and cocoon-backed recall for current facts |
+| **RC+ξ Trace (v2.1)** | Every inference turn emits a full `ReasoningTrace` — 12 event types (AEGIS_SCORE, PSI_UPDATE, SPIDERWEB_UPDATE, HALLUCINATION_FLAG, SYCOPHANCY_FLAG, MEMORY_WRITE, ...) with real measured values |
+| **Style-Adaptive Synthesis** | Detects conversational register (CASUAL/TECHNICAL/EMOTIONAL/FORMAL/EXPLORATORY) and adapts surface form while preserving reasoning depth (invariant: depth ≥ 0.85×) |
+| **Longitudinal Drift Detection** | `DriftDetector` reads `LivingMemoryKernelV2` each session start: epsilon trend (rising/falling/stable), perspective lock (>60%), recurring unresolved tensions, open hook accumulation. Live at `GET /api/drift` |
+| **UnifiedMemory Bridge** | RC+ξ cocoons dual-written to SQLite FTS5 store — cross-system search works across forge paths without schema duplication |
+| **Hallucination Guard (v2.1)** | Canonical terms whitelist prevents false positives on Codette's own vocabulary; per-perspective scanning in both forge paths |
+| **Integrity Guards** | SycophancyGuard reset on each new session; HallucinationGuard reset between perspectives; all early fallback exits preserve the partial ReasoningTrace |
 
 ---
 
@@ -237,6 +243,14 @@ codette-clean/
 |   |-- routing_metrics.py        # Adapter selection observability
 |   |-- unified_memory.py          # SQLite + FTS5 cocoon storage & retrieval
 |   |-- cocoon_synthesizer.py     # Meta-cognitive pattern discovery & strategy forging
+|   |-- reasoning_trace.py        # Turn-level audit log (12 event types, RC+xi v2.1)
+|   |-- drift_detector.py         # Longitudinal drift: epsilon trend, perspective lock, tensions
+|   |-- style_adaptive_synthesis.py  # Register-matched output (depth preservation invariant)
+|   |-- hallucination_guard.py    # Real-time hallucination scanning with canonical whitelist
+|   |-- sycophancy_guard.py       # Post-synthesis flattery/capitulation detection
+|   |-- resonant_continuity.py    # psi_r wavefunction (ResonantContinuityEngine)
+|   |-- quantum_spiderweb.py      # 5D belief propagation graph
+|   |-- living_memory_v2.py       # MemoryCocoonV2 with epsilon_band, psi_r, unresolved_tensions
 |   +-- semantic_tension.py       # Embedding-based conflict measurement
 |
 |-- benchmarks/                   # Publishable evaluation suite

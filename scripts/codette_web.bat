@@ -1,99 +1,68 @@
 @echo off
 setlocal
-REM Codette v2.0 Web UI - Phase 7 MVP Launch with Restored Foundations
-REM Opens browser automatically to localhost:7860
+REM Codette v2.1 RC+xi Web UI
+REM Opens browser to http://localhost:7860
 REM
-REM RESTORED FOUNDATION SYSTEMS (Session 2026-03-20):
-REM   Memory Kernel: Emotional continuity via SHA256 anchors
-REM   - MemoryCocoon: Persistent emotional memory storage with integrity validation
-REM   - LivingMemoryKernel: Emotion-based recall + importance decay (1-week horizon)
-REM   - EthicalAnchor: Regret-based learning (M = λ*(R+H) + γ*Learn + μ*Regret)
-REM   - DynamicMemoryEngine: Exponential decay + reinforcement
-REM   - WisdomModule: Reflection generation over memories
-REM   - ReflectionJournal: Persistent JSON logging
+REM RC+xi FRAMEWORK (v2.1 — May 2026):
+REM   Recursive Convergence + Epistemic Tension
+REM   Every inference turn emits a full ReasoningTrace with 12 event types:
+REM     SPIDERWEB_UPDATE  QuantumSpiderweb belief propagation (forge_with_debate)
+REM     GUARDIAN_CHECK    Input safety + trust calibration
+REM     NEXUS_SIGNAL      Pre-corruption detection
+REM     EPISTEMIC_METRICS epsilon band, gamma coherence, coverage
+REM     PERSPECTIVE_SELECTED  Active perspectives + domains (forge_with_debate)
+REM     AEGIS_SCORE       6-framework ethical evaluation (utilitarian/deontological/virtue...)
+REM     HALLUCINATION_FLAG  Per-perspective, fires on PAUSE/INTERRUPT only
+REM     SYNTHESIS_RESULT  Integrated output + style register + depth_preserved
+REM     SYCOPHANCY_FLAG   Post-synthesis integrity check, every turn
+REM     PSI_UPDATE        Resonant continuity wavefunction psi_r
+REM     MEMORY_WRITE      MemoryCocoonV2 with epsilon_band, psi_r, problem_type
 REM
-REM   Cocoon Stability Field: FFT-based collapse detection
-REM   - text_to_spectrum(): Character encoding to frequency spectrum
-REM   - check_energy_concentration(): Detects repetition/self-similarity syndrome
-REM   - check_self_similarity(): Tracks response pattern changes (cosine similarity)
-REM   - check_vocabulary_diversity(): Catches "Another perspective on..." cascades
-REM   - validate_round(): Full multi-agent stability check with reporting
-REM   - should_halt_debate(): Pre-synthesis stability gates
+REM   New in v2.1:
+REM     StyleAdaptiveSynthesis   Register-matched surface form (CASUAL/TECHNICAL/EMOTIONAL/FORMAL/EXPLORATORY)
+REM                              Depth preservation invariant: adapted depth >= 0.85 * original
+REM     DriftDetector            Longitudinal drift: epsilon trend, perspective lock, recurring tensions
+REM                              Exposed at GET /api/drift, polled every 60s in UI
+REM     UnifiedMemory bridge     RC+xi cocoons dual-written to SQLite FTS5 store
+REM                              Enables cross-system search (CocoonSynthesizer, adapter learning)
+REM     HallucinationGuard       Codette canonical terms whitelist prevents false positives
+REM                              forge_with_debate path: scans per-perspective + synthesis
+REM     SycophancyGuard          reset_session() called on /api/new_session
+REM     Early-return trace fix   All fallback exits (stability/Colleen/Guardian) now finalize trace
 REM
-REM   Purpose: Prevent synthesis loop corruption by maintaining emotional continuity
-REM   Root cause fixed: Synthesis loop corruption from "Another perspective on..." cascade
-REM   Expected improvement: Correctness 0.24 → 0.55+ | Meta-loops 90% → <10%
+REM ACTIVE SUBSYSTEMS:
+REM   Memory:     LivingMemoryKernelV2 (epsilon_band, psi_r, unresolved_tensions, synthesis_quality)
+REM               UnifiedMemory (SQLite+FTS5, WAL mode, LRU cache, legacy migration)
+REM   Reasoning:  QuantumSpiderweb (5D belief graph), ResonantContinuityEngine (psi_r)
+REM   Integrity:  HallucinationGuard + SycophancyGuard + DebateTracker + SycophancyGuard
+REM   Ethics:     AEGIS (6-framework) + EthicalAIGovernance + Colleen + Guardian
+REM   Output:     StyleAdaptiveSynthesis, ResponseComplexityMatcher
+REM   Analytics:  DriftDetector (/api/drift), CocoonSynthesizer (/api/synthesize)
 REM
-REM Phases Enabled:
-REM   FOUNDATION (RESTORED): Emotional Continuity + Stability Validation
-REM     - Memory kernel stores analysis debates as MemoryCocoons
-REM     - Stability checker validates agents BEFORE synthesis (pre-flight gate)
-REM     - Regret tracking prevents repeating mistakes
-REM     - Gamma coherence monitoring alerts on collapse zone (< 0.35)
-REM     - All integrated into ForgeEngine.forge_with_debate()
-REM
-REM   PHASE 7: Executive Control Architecture
-REM     - Intelligent component routing by query complexity
-REM     - SIMPLE queries: Skip heavy machinery (~150ms, direct answer)
-REM     - MEDIUM queries: 1-round debate with selective components (~900ms)
-REM     - COMPLEX queries: Full 3-round debate with all Phase 1-6 (~2500ms)
-REM     - Transparent routing metadata in responses
-REM     - ~40-50% compute savings on typical mixed workload
-REM
-REM   PHASE 6: Semantic Tension & Specialization
-REM     - Query complexity classification (SIMPLE/MEDIUM/COMPLEX)
-REM     - Embedding-based conflict strength (semantic tension)
-REM     - Adapter specialization tracking per domain
-REM     - Pre-flight conflict prediction (Spiderweb injection)
-REM     - Hybrid opposition scoring (semantic + heuristic)
-REM
-REM   PHASES 1-5: Core Reasoning Infrastructure
-REM     - Multi-perspective reasoning with controlled debate
-REM     - Domain-aware agent routing (physics, ethics, consciousness, creativity, systems)
-REM     - Semantic conflict detection and resolution
-REM     - Real-time coherence monitoring (Gamma)
-REM     - Experience-weighted adapter selection (Phase 2: MemoryWeighting)
-REM     - Living memory with cocoon storage
-REM     - AEGIS ethical governance + Nexus signal intelligence
-REM
-REM Model: Llama 3.1 8B quantized with LoRA adapters (9 domain-specific + orchestrator)
-REM Memory: Cocoon-backed (persistent, encrypted session state)
-REM Foundation: ENABLED (Memory kernel + stability field fully integrated)
-REM Phase 6: ENABLED (ForgeEngine integration with restored systems)
-REM Phase 7: ENABLED (Executive Controller routing)
-REM
-REM Files Modified:
-REM   - reasoning_forge/memory_kernel.py: CREATED (290 lines, recovered from new data)
-REM   - reasoning_forge/cocoon_stability.py: CREATED (300 lines, recovered from new data)
-REM   - reasoning_forge/forge_engine.py: Updated __init__ + pre-synthesis checks
-REM   - inference/codette_server.py: Ready to enable Phase 6 (_use_phase6 = True)
-REM   - codette_web.bat: Updated with foundation documentation (this file)
+REM Model: Llama 3.1 8B quantized + 9 domain-specific LoRA adapters + orchestrator
+REM Tests: 26 passing (e2e trace, debate trace, hallucination, drift detector)
 REM
 
 echo.
 echo ============================================================
-echo   Codette v2.0 - Foundation Restored + Phase 7 Executive
+echo   Codette v2.1 RC+xi  --  Structurally Complete
 echo ============================================================
 echo.
-echo   Starting with emotional continuity + stability validation...
-echo   - Foundation: Memory kernel + Cocoon stability field
-echo   - Phase 7: Executive Controller (query routing)
-echo   - Phase 6: ForgeEngine (semantic tension, specialization)
-echo   - Phases 1-5: Core reasoning infrastructure
+echo   All 12 trace event types wired and tested.
+echo   Longitudinal drift detection active.
+echo   Style-adaptive synthesis: register-matched output.
+echo   UnifiedMemory bridge: FTS5 cross-system search enabled.
 echo.
-echo   Initializing:
-echo     * CodetteOrchestrator with 9 domain LoRA adapters (+ orchestrator)
-echo     * ForgeEngine with Query Classifier PLUS RESTORED SYSTEMS
-echo     * Memory Kernel with emotional continuity engine
-echo     * Cocoon Stability Field with collapse detection
-echo     * Executive Controller for intelligent routing
+echo   Subsystems:
+echo     * 9 LoRA adapters (Newton, DaVinci, Empathy, Philosophy,
+echo         Quantum, Consciousness, Multi-Perspective, Systems, Orchestrator)
+echo     * 7-layer consciousness stack (forge_with_debate)
+echo     * QuantumSpiderweb + ResonantContinuityEngine
+echo     * HallucinationGuard + SycophancyGuard + AEGIS
+echo     * LivingMemoryKernelV2 + UnifiedMemory (SQLite+FTS5)
+echo     * DriftDetector  --  GET /api/drift
 echo.
 echo   Testing locally at: http://localhost:7860
-echo.
-echo   Expected improvement:
-echo     - Correctness: 0.24 --- RESTORED --- 0.55+
-echo     - Meta-loops: 90%% --- PREVENTED --- under 10%%
-echo     - Token efficiency: 50%% waste --- ELIMINATED --- 80%% useful
 echo.
 echo ============================================================
 echo.
