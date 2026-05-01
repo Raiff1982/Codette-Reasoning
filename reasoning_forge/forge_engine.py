@@ -57,6 +57,14 @@ from reasoning_forge.consciousness_mathematics import EthicalAnchor as EthicalAn
 from reasoning_forge.cognition_cocooner import CognitionCocooner
 from reasoning_forge.ethical_governance import EthicalAIGovernance
 
+# === v2.1 KERNEL UPGRADE ===
+try:
+    from reasoning_forge.living_memory_v2 import LivingMemoryKernelV2
+    _V2_KERNEL_AVAILABLE = True
+except Exception as _v2k_err:
+    _V2_KERNEL_AVAILABLE = False
+    logger.debug(f"LivingMemoryKernelV2 not available: {_v2k_err}")
+
 # === v2.1 OBSERVABILITY + SCHEMA ===
 try:
     from reasoning_forge.reasoning_trace import (
@@ -202,9 +210,15 @@ class ForgeEngine:
         # Emotional memory anchoring with SHA256 integrity validation
         # Prevents synthesis loop corruption by maintaining emotional continuity
         if living_memory is None:
-            # Load persistent cocoon memories from disk
+            # Load persistent cocoon memories from disk via v1 kernel, then migrate to v2
             cocoon_dir = os.path.join(os.path.dirname(__file__), '..', 'cocoons')
-            living_memory = LivingMemoryKernel(cocoon_dir=cocoon_dir)
+            _v1_kernel = LivingMemoryKernel(cocoon_dir=cocoon_dir)
+            if _V2_KERNEL_AVAILABLE:
+                _v1_dict = {"memories": [m.to_dict() for m in _v1_kernel.memories]}
+                living_memory = LivingMemoryKernelV2.migrate_from_v1(_v1_dict)
+                logger.info(f"  ✓ Migrated {len(living_memory.memories)} cocoons to v2 kernel")
+            else:
+                living_memory = _v1_kernel
 
         self.memory_kernel = living_memory
         self.dynamic_memory = DynamicMemoryEngine(self.memory_kernel)

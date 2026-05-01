@@ -391,6 +391,50 @@ class LivingMemoryKernelV2:
         kernel._rebuild_index()
         return kernel
 
+    # ── Bridge: accept cocoon_schema_v2.Cocoon ───────────────────────────
+
+    def store_v2_cocoon(self, cocoon) -> MemoryCocoonV2:
+        """Accept a cocoon_schema_v2.Cocoon and store it as MemoryCocoonV2.
+
+        Field mapping:
+          Cocoon.query[:50]              → title
+          Cocoon.response_summary[:500]  → content
+          Cocoon.emotional_valence       → emotional_tag
+          Cocoon.importance_score        → importance (int, clamped 1-10)
+          Cocoon.dominant_perspective    → adapter_used
+          Cocoon.query[:200]             → query
+          Cocoon.gamma_coherence         → coherence
+          Cocoon.epsilon_value           → tension
+          Cocoon.unresolved_tensions     → unresolved_tensions
+          Cocoon.open_threads            → follow_up_hooks
+          Cocoon.project_context         → active_project
+          Cocoon.synthesis_quality       → synthesis_quality (str→float)
+          Cocoon.active_perspectives     → perspectives_active
+          Cocoon.cocoon_id[:16]          → anchor (override for cross-schema link)
+        """
+        _sq_map = {"strong": 0.9, "adequate": 0.6, "partial": 0.3}
+        _eps = cocoon.epsilon_value
+        _band = "max" if _eps > 0.7 else "high" if _eps > 0.5 else "medium" if _eps > 0.3 else "low"
+        mc = MemoryCocoonV2(
+            title=cocoon.query[:50],
+            content=cocoon.response_summary[:500],
+            emotional_tag=cocoon.emotional_valence,
+            importance=max(1, min(10, int(round(cocoon.importance_score)))),
+            adapter_used=cocoon.dominant_perspective or "",
+            query=cocoon.query[:200],
+            coherence=cocoon.gamma_coherence,
+            tension=cocoon.epsilon_value,
+            unresolved_tensions=list(cocoon.unresolved_tensions),
+            follow_up_hooks=list(cocoon.open_threads),
+            active_project=cocoon.project_context or "",
+            synthesis_quality=_sq_map.get(cocoon.synthesis_quality, 0.6),
+            perspectives_active=list(cocoon.active_perspectives),
+            epsilon_band=_band,
+        )
+        mc.anchor = cocoon.cocoon_id[:16]
+        self.store(mc)
+        return mc
+
     # ── Importance estimation (unchanged from V1) ─────────────────────────
 
     def _estimate_importance(self, query: str, response: str, emotional_tag: str) -> int:
