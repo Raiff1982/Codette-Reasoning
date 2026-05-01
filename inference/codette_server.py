@@ -1780,6 +1780,20 @@ class CodetteHandler(SimpleHTTPRequestHandler):
             except Exception as e:
                 import traceback
                 self._json_response({"error": str(e), "traceback": traceback.format_exc()})
+        elif path == "/api/drift":
+            try:
+                kernel = None
+                if _forge_bridge and hasattr(_forge_bridge, 'forge'):
+                    kernel = getattr(_forge_bridge.forge, 'memory_kernel', None)
+                if kernel is not None:
+                    from reasoning_forge.drift_detector import DriftDetector
+                    report = DriftDetector().detect(kernel)
+                    self._json_response(report.to_dict())
+                else:
+                    self._json_response({"error": "memory_kernel not available"})
+            except Exception as e:
+                import traceback
+                self._json_response({"error": str(e), "traceback": traceback.format_exc()})
         elif path == "/api/chat":
             # SSE endpoint for streaming
             self._handle_chat_sse(parsed)
