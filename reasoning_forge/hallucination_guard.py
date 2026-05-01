@@ -70,6 +70,17 @@ REAL_FRAMEWORKS = {
     "pytest", "jest", "junit", "rspec"
 }
 
+# Codette's own canonical architectural terms — exempt from invented-terminology penalty
+CODETTE_CANONICAL_TERMS = frozenset([
+    "quantum cognition", "quantum-cognition",
+    "meta-synthesis", "meta synthesis",
+    "epistemic tension", "resonant continuity",
+    "quantum spiderweb", "cocoon schema",
+    "rc+xi", "psi-resonance", "psi_r",
+    "gamma coherence", "epsilon tension",
+    "consciousness stack", "forge engine",
+])
+
 ARTIST_KEY_SIGNALS = {
     # Artists known to be alive (as of March 2026)
     "laney wilson", "megan moroney", "tyler childers", "jason isbell",
@@ -305,12 +316,18 @@ class HallucinationGuard:
             r'\b([A-Z][a-z]+){3,}\b\s*(method|framework|approach|paradigm)(?!\s+(?:as described|cited|proposed|from))',
         ]
 
+        buf_lower = self.buffer.lower()
         for pattern in suspect_patterns:
             matches = re.findall(pattern, self.buffer, re.IGNORECASE)
             if matches:
-                signals.append(f"suspect_terminology:{len(matches)}_matches")
-                # Slight penalty: 1 match = 0.95, 2 = 0.90, capped at 0.80
-                score = max(0.80, 1.0 - (0.05 * min(len(matches), 4)))
+                # Skip matches that are Codette canonical terms
+                non_canonical = [
+                    m for m in matches
+                    if not any(term in buf_lower for term in CODETTE_CANONICAL_TERMS)
+                ]
+                if non_canonical:
+                    signals.append(f"suspect_terminology:{len(non_canonical)}_matches")
+                    score = max(0.80, 1.0 - (0.05 * min(len(non_canonical), 4)))
 
         return score, signals
 
