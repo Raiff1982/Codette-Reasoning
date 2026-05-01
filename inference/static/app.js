@@ -1444,3 +1444,50 @@ function pollGovernorDashboard() {
 
 // Start dashboard polling after 5s (let model load first)
 setTimeout(pollGovernorDashboard, 5000);
+
+// Polls /api/drift every 60s and updates the Longitudinal Drift panel
+function pollDriftDashboard() {
+    fetch('/api/drift')
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) return;
+            const el = (id) => document.getElementById(id);
+
+            const section = document.getElementById('section-drift');
+            if (section) section.style.display = '';
+
+            const trend = data.epsilon_trend || '--';
+            const trendEl = el('drift-epsilon-trend');
+            if (trendEl) {
+                trendEl.textContent = trend;
+                trendEl.style.color = trend === 'rising' ? 'var(--quantum)' :
+                                      trend === 'falling' ? 'var(--empathy)' : '';
+            }
+
+            const lockEl = el('drift-persp-lock');
+            if (lockEl) {
+                const locked = data.perspective_lock;
+                const ratio = data.perspective_lock_ratio || 0;
+                lockEl.textContent = locked ? `YES (${(ratio * 100).toFixed(0)}%)` : 'no';
+                lockEl.style.color = locked ? 'var(--quantum)' : '';
+            }
+
+            const domEl = el('drift-dominant');
+            if (domEl) {
+                domEl.textContent = data.dominant_perspective
+                    ? data.dominant_perspective.replace('_agent', '') : '--';
+            }
+
+            const tensEl = el('drift-tensions');
+            if (tensEl) tensEl.textContent = (data.recurring_tensions || []).length;
+
+            const hooksEl = el('drift-hooks');
+            if (hooksEl) hooksEl.textContent = data.open_hook_count || 0;
+        })
+        .catch(() => {}); // Silent fail — non-critical
+
+    setTimeout(pollDriftDashboard, 60000); // Every 60s
+}
+
+// Start drift polling after 15s (well after model init)
+setTimeout(pollDriftDashboard, 15000);
