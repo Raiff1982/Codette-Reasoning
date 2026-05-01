@@ -473,6 +473,11 @@ class ForgeEngine:
         Returns:
             Training example dict in OpenAI chat format.
         """
+        # FIX 3: Route through consciousness-stack safety layer when available
+        if getattr(self, 'nexis_signal_engine', None) or getattr(self, 'aegis', None) \
+                or getattr(self, 'colleen', None) or getattr(self, 'guardian', None):
+            return self._forge_single_safe(concept)
+
         # Step 1: Generate reasoning problems
         problems = self.problem_generator.generate_problems(concept)
 
@@ -528,6 +533,114 @@ class ForgeEngine:
         }
 
         return training_example
+
+    def _forge_single_safe(self, concept: str) -> dict:
+        """Consciousness-stack safety wrapper around the original forge_single logic.
+
+        FIX 3: Runs the original fast forge pipeline then passes the synthesis
+        through AEGIS, Colleen (soft), and Guardian (soft) before returning.
+        Warnings are logged but do not block output — preserves throughput.
+        Memory is written with dynamic metadata via _classify_cocoon_metadata().
+        """
+        # ── Original forge_single logic (verbatim) ───────────────────────────
+        problems = self.problem_generator.generate_problems(concept)
+
+        analyses = {}
+        for agent in self.analysis_agents:
+            analyses[agent.name] = agent.analyze(concept)
+
+        critique = self.critic.evaluate_ensemble(concept, analyses)
+        synthesized_response = self.synthesis.synthesize(concept, analyses, critique)
+
+        if problems and random.random() < 0.5:
+            problem_type, problem_text = random.choice(problems)
+            user_content = problem_text
+        else:
+            user_content = (
+                f"Analyze this concept from multiple perspectives:\n\n{concept}"
+            )
+
+        epistemic_report = self.epistemic.full_epistemic_report(analyses, synthesized_response)
+
+        # ── Consciousness-stack screening (soft — logs but does not block) ───
+        safety_notes = {}
+
+        aegis_result = None
+        if getattr(self, 'aegis', None):
+            try:
+                aegis_result = self.aegis.evaluate(synthesized_response, context=concept)
+                if aegis_result.get('vetoed'):
+                    logger.warning(f"[forge_single_safe] AEGIS veto: {aegis_result.get('veto_reason')}")
+                safety_notes['aegis_eta'] = aegis_result.get('eta')
+                safety_notes['aegis_vetoed'] = aegis_result.get('vetoed', False)
+            except Exception as e:
+                logger.debug(f"[forge_single_safe] AEGIS skipped: {e}")
+
+        intent_vector = {}
+        if getattr(self, 'nexis_signal_engine', None):
+            try:
+                intent_vector = self.nexis_signal_engine.process(concept)
+                safety_notes['intent_risk'] = intent_vector.get('pre_corruption_risk', 'unknown')
+            except Exception as e:
+                logger.debug(f"[forge_single_safe] Nexis skipped: {e}")
+
+        if getattr(self, 'colleen', None):
+            try:
+                valid, reason = self.colleen.validate_output(synthesized_response)
+                if not valid:
+                    logger.warning(f"[forge_single_safe] Colleen warning: {reason}")
+                safety_notes['colleen_valid'] = valid
+            except Exception as e:
+                logger.debug(f"[forge_single_safe] Colleen skipped: {e}")
+
+        if getattr(self, 'guardian', None):
+            try:
+                valid, details = self.guardian.validate(synthesized_response)
+                if not valid:
+                    logger.warning(f"[forge_single_safe] Guardian warning: {details}")
+                safety_notes['guardian_valid'] = valid
+            except Exception as e:
+                logger.debug(f"[forge_single_safe] Guardian skipped: {e}")
+
+        # ── Dynamic memory write ─────────────────────────────────────────────
+        if getattr(self, 'memory_kernel', None):
+            try:
+                tag, imp = self._classify_cocoon_metadata(
+                    concept, synthesized_response, intent_vector, aegis_result
+                )
+                cocoon = MemoryCocoon(
+                    title=concept[:50],
+                    content=synthesized_response[:500],
+                    emotional_tag=tag,
+                    importance=imp,
+                )
+                self.memory_kernel.store(cocoon)
+                logger.debug(f"[forge_single_safe] Memory stored: tag={tag}, importance={imp}")
+            except Exception as e:
+                logger.debug(f"[forge_single_safe] Memory write skipped: {e}")
+
+        return {
+            "messages": [
+                {"role": "system",    "content": self.system_prompt},
+                {"role": "user",      "content": user_content},
+                {"role": "assistant", "content": synthesized_response},
+            ],
+            "metadata": {
+                "concept":              concept,
+                "agent_scores":         critique.get("agent_scores", {}),
+                "overall_quality":      critique.get("overall_quality", 0.0),
+                "problems_generated":   len(problems),
+                "problem_types":        [p[0] for p in problems],
+                "redundancies_found":   len(critique.get("redundancies", [])),
+                "missing_perspectives": len(critique.get("missing_perspectives", [])),
+                "epistemic_tension":    epistemic_report.get("tension_magnitude", 0),
+                "ensemble_coherence":   epistemic_report.get("ensemble_coherence", 0),
+                "perspective_coverage": epistemic_report.get("perspective_coverage", {}),
+                "tension_productivity": epistemic_report.get("tension_productivity", {}),
+                "forge_mode":           "single_safe",
+                **safety_notes,
+            },
+        }
 
     # -- Closed Critic Feedback Loop (new) ---------------------------------
 
@@ -682,6 +795,63 @@ class ForgeEngine:
         # Always include critic/synthesizer if available
         return active_agents if active_agents else self.analysis_agents
 
+    def _classify_query_domains_multi(self, query: str) -> list:
+        """Multi-label domain classifier for compound queries.
+
+        FIX 6: Extends _classify_query_domain() (preserved) to return a LIST
+        of matched domains. Falls back to ['general'] if nothing matches.
+        """
+        query_lower = query.lower()
+
+        domains = {
+            'physics':      ['speed', 'light', 'entropy', 'time', 'quantum', 'particle',
+                             'force', 'energy', 'wave', 'matter'],
+            'ethics':       ['moral', 'right', 'wrong', 'ethical', 'should', 'ought',
+                             'duty', 'consequence', 'virtue', 'lie', 'transparency', 'explain'],
+            'consciousness':['conscious', 'aware', 'mind', 'experience', 'qualia',
+                             'sentient', 'machine', 'feel', 'perception'],
+            'creativity':   ['creative', 'invent', 'imagine', 'novel', 'original',
+                             'artistic', 'design', 'innovate'],
+            'systems':      ['system', 'emerge', 'adapt', 'stability', 'complexity',
+                             'feedback', 'balance', 'equilibrium'],
+        }
+
+        matches = {
+            domain: sum(1 for kw in kws if kw in query_lower)
+            for domain, kws in domains.items()
+        }
+
+        if max(matches.values()) == 0:
+            return ['general']
+
+        matched = [d for d, count in matches.items() if count >= 1]
+        return matched if matched else ['general']
+
+    def _get_agents_for_domains_multi(self, domains: list) -> list:
+        """Return the union of agents relevant to multiple matched domains.
+
+        FIX 6: Companion to _classify_query_domains_multi(). Unions agent
+        sets across all matched domains, de-duplicated, preserving order.
+        """
+        domain_agents = {
+            'physics':      ['Newton', 'Quantum'],
+            'ethics':       ['Philosophy', 'Empathy'],
+            'consciousness':['Philosophy', 'Quantum'],
+            'creativity':   ['DaVinci', 'Quantum'],
+            'systems':      ['Quantum', 'Philosophy'],
+            'general':      [a.name for a in self.analysis_agents],
+        }
+
+        wanted_names = set()
+        for domain in domains:
+            wanted_names.update(domain_agents.get(domain, []))
+
+        if not wanted_names:
+            return self.analysis_agents
+
+        result = [a for a in self.analysis_agents if a.name in wanted_names]
+        return result if result else self.analysis_agents
+
     def _should_skip_further_rounds(self, gamma_metrics) -> bool:
         """
         === PATCH 4: Gamma Authority (TUNED) ===
@@ -732,6 +902,16 @@ class ForgeEngine:
             Training example dict with consciousness stack metadata
         """
         logger.info(f"[CONSCIOUSNESS STACK] forge_with_debate: {concept[:50]}...")
+
+        # FIX 6: Multi-label domain routing (falls back gracefully)
+        matched_domains = self._classify_query_domains_multi(concept)
+        if len(matched_domains) > 1:
+            selected_agents = self._get_agents_for_domains_multi(matched_domains)
+        else:
+            selected_agents = self._get_agents_for_domain(
+                matched_domains[0] if matched_domains else 'general'
+            )
+        logger.debug(f"  Domain routing: {matched_domains} → {[a.name for a in selected_agents]}")
 
         # =========================================================================
         # LAYER 1: MEMORY RECALL
@@ -1084,14 +1264,17 @@ class ForgeEngine:
         # Store in memory for future recall
         if hasattr(self, 'memory_kernel') and self.memory_kernel:
             try:
+                tag, imp = self._classify_cocoon_metadata(
+                    concept, synthesis, intent_vector, aegis_result
+                )
                 cocoon = MemoryCocoon(
                     title=concept[:50],
                     content=synthesis[:500],
-                    emotional_tag="processed",
-                    importance=7
+                    emotional_tag=tag,
+                    importance=imp
                 )
                 self.memory_kernel.store(cocoon)
-                logger.debug("  Stored synthesis in memory kernel")
+                logger.debug(f"  Stored synthesis in memory kernel (tag={tag}, importance={imp})")
             except Exception as e:
                 logger.debug(f"  Memory storage failed: {e}")
 
@@ -1214,6 +1397,77 @@ class ForgeEngine:
             parts.append(f"Critic suggests: {suggestions[0]}")
         parts.append("Reanalyze with these improvements:")
         return " ".join(parts)
+
+    def _classify_cocoon_metadata(
+        self,
+        concept: str,
+        synthesis: str,
+        intent_vector: dict = None,
+        aegis_result: dict = None,
+    ) -> tuple:
+        """Derive a meaningful emotional_tag and importance score for a memory cocoon.
+
+        FIX 2: Replaces the hardcoded ("processed", 7) write in Layer 7.
+
+        Returns:
+            (emotional_tag: str, importance: int)
+        """
+        intent_vector = intent_vector or {}
+        text_lower = (concept + " " + synthesis).lower()
+
+        # ── Emotional tag classification ──────────────────────────────────────
+        if aegis_result:
+            eta = aegis_result.get("eta", 0.0)
+            vetoed = aegis_result.get("vetoed", False)
+            if vetoed:
+                tag = "cautious"
+            elif eta >= 0.88:
+                tag = "trust"
+            elif eta >= 0.72:
+                tag = "ethical"
+            else:
+                tag = "inquiry"
+        elif intent_vector.get("pre_corruption_risk") == "high":
+            tag = "cautious"
+        elif intent_vector.get("pre_corruption_risk") == "low":
+            _emotion_keywords = {
+                "joy":       ["joy", "celebrat", "delight", "excit", "happin"],
+                "awe":       ["awe", "wonder", "profound", "breath", "magnif"],
+                "curiosity": ["curious", "question", "explore", "wonder", "discover"],
+                "grief":     ["grief", "loss", "mourn", "sorrow", "tragic"],
+                "resolve":   ["resolv", "determin", "commit", "persist", "overcome"],
+                "insight":   ["insight", "realiz", "understand", "clarity", "reveal"],
+            }
+            detected = "insight"
+            for emotion, keywords in _emotion_keywords.items():
+                if any(kw in text_lower for kw in keywords):
+                    detected = emotion
+                    break
+            tag = detected
+        else:
+            tag = "insight"
+
+        # ── Importance score ──────────────────────────────────────────────────
+        importance = 6
+
+        if len(synthesis) > 300:
+            importance += 1
+        if len(synthesis) > 500:
+            importance += 1
+
+        if aegis_result:
+            eta = aegis_result.get("eta", 0.0)
+            if eta >= 0.85:
+                importance += 1
+            if aegis_result.get("vetoed", False):
+                importance -= 1
+
+        if intent_vector.get("pre_corruption_risk") == "low" and len(synthesis) > 400:
+            importance += 1
+
+        importance = max(1, min(10, importance))
+
+        return tag, importance
 
     def forge_batch(
         self, concept: str, variants: int = 3

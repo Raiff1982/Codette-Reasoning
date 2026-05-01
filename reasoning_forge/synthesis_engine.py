@@ -108,12 +108,11 @@ class SynthesisEngine:
         for agent_name, summary in perspective_summaries.items():
             sections.append(f"**{agent_name} perspective:** {summary}")
 
-        # 3. Cross-perspective bridges (pick 2-3)
-        bridges = self._generate_bridges(analyses, perspective_summaries)
+        # 3. Cross-perspective bridges — real agent text comparison (Fix 1)
+        bridges = self._build_comparison_bridges(analyses)
         if bridges:
-            sections.append("")  # blank line for readability
-            for bridge in bridges[:2]:
-                sections.append(bridge)
+            sections.append("")
+            sections.append(bridges)
 
         # 4. Incorporate critic insights
         critic_section = self._incorporate_critique(critique)
@@ -153,7 +152,7 @@ class SynthesisEngine:
             summaries[agent_name] = summary
         return summaries
 
-    def _generate_bridges(
+    def _build_template_bridges_legacy(
         self,
         analyses: dict[str, str],
         summaries: dict[str, str],
@@ -199,6 +198,91 @@ class SynthesisEngine:
                 bridges.append(bridge)
 
         return bridges
+
+    def _build_comparison_bridges(self, perspectives: dict) -> str:
+        """Build synthesis bridge text from actual agent content, not templates.
+
+        FIX 1: Replaces static bridge placeholders with sentences derived from
+        real divergences and convergences between agent outputs.
+
+        Args:
+            perspectives: dict mapping agent_name (str) -> text output (str)
+
+        Returns:
+            A multi-sentence bridge paragraph (str).
+        """
+        from itertools import combinations
+
+        if not perspectives:
+            return ""
+
+        _stop = {
+            "the", "a", "an", "is", "are", "was", "were", "be", "been",
+            "have", "has", "had", "do", "does", "did", "will", "would",
+            "and", "but", "or", "not", "to", "of", "in", "for", "on",
+            "with", "at", "by", "from", "it", "its", "this", "that",
+            "they", "we", "you", "he", "she", "as", "so", "if", "then",
+        }
+
+        def _tok(text):
+            return set(
+                w for w in re.findall(r"[a-z]{3,}", text.lower())
+                if w not in _stop
+            )
+
+        def _jaccard(a: set, b: set) -> float:
+            if not a and not b:
+                return 1.0
+            union = a | b
+            return len(a & b) / len(union) if union else 0.0
+
+        def _excerpt(text: str, max_chars: int = 80) -> str:
+            first_sentence_end = text.find(". ")
+            if 0 < first_sentence_end <= max_chars:
+                return text[: first_sentence_end + 1].strip()
+            return text[:max_chars].strip() + "…"
+
+        names = list(perspectives.keys())
+        tokens = {name: _tok(text) for name, text in perspectives.items()}
+
+        bridge_lines = []
+        CONV_THRESHOLD = 0.30
+        TENSION_THRESHOLD = 0.10
+
+        seen_in_pair = set()
+        for a, b in combinations(names, 2):
+            j = _jaccard(tokens[a], tokens[b])
+            seen_in_pair.add(a)
+            seen_in_pair.add(b)
+
+            if j >= CONV_THRESHOLD:
+                excerpt_a = _excerpt(perspectives[a])
+                excerpt_b = _excerpt(perspectives[b])
+                bridge_lines.append(
+                    f"{a} and {b} arrive at similar ground: "
+                    f"{a} notes \"{excerpt_a}\" while {b} echoes \"{excerpt_b}\"."
+                )
+            elif j <= TENSION_THRESHOLD:
+                excerpt_a = _excerpt(perspectives[a])
+                excerpt_b = _excerpt(perspectives[b])
+                bridge_lines.append(
+                    f"A productive tension exists between {a} and {b}: "
+                    f"{a} emphasises \"{excerpt_a}\" whereas {b} counters with \"{excerpt_b}\"."
+                )
+
+        lone = [n for n in names if n not in seen_in_pair]
+        for name in lone:
+            excerpt = _excerpt(perspectives[name])
+            bridge_lines.append(
+                f"{name} contributes a distinctive vantage: \"{excerpt}\""
+            )
+
+        if not bridge_lines:
+            bridge_lines = [
+                f"{name}: \"{_excerpt(perspectives[name])}\"" for name in names
+            ]
+
+        return " ".join(bridge_lines)
 
     def _incorporate_critique(self, critique: dict) -> str:
         """Turn critic feedback into a synthesis-relevant observation."""
@@ -257,6 +341,58 @@ class SynthesisEngine:
 
         return result
 
+    def _is_bridge_section(self, text: str) -> bool:
+        """Return True if text block is a comparison bridge that must be protected.
+
+        FIX 5: Called by _trim_to_target() to prevent bridge sentences from
+        being pruned during aggressive length reduction.
+        """
+        t = text.lower()
+
+        if "bridge:" in t or "[bridge" in t or "## bridge" in t:
+            return True
+
+        comparison_phrases = [
+            "arrive at similar ground",
+            "productive tension exists between",
+            "contributes a distinctive vantage",
+            "notes \"",
+            "echoes \"",
+            "whereas",
+            "counters with",
+        ]
+        if any(phrase in t for phrase in comparison_phrases):
+            return True
+
+        if re.search(r'[A-Z][a-z]+ and [A-Z][a-z]+ (arrive|emphasise|contribute|note)', text):
+            return True
+
+        return False
+
+    def _is_critic_section(self, text: str) -> bool:
+        """Return True if text block contains critic evaluation content.
+
+        FIX 5: Called by _trim_to_target() to protect critic output from being
+        pruned during length reduction.
+        """
+        t = text.lower()
+        critic_markers = [
+            "critic:",
+            "## critic",
+            "critique:",
+            "overall quality:",
+            "missing perspective",
+            "redundanc",
+            "agent score",
+            "revision directive",
+            "## revision",
+            "[critic]",
+            "evaluate ensemble",
+            "the critic notes",
+            "notable gap",
+        ]
+        return any(marker in t for marker in critic_markers)
+
     def _trim_to_target(
         self, text: str, min_words: int = 200, max_words: int = 400
     ) -> str:
@@ -269,6 +405,13 @@ class SynthesisEngine:
             while len(" ".join(lines).split()) > max_words and len(lines) > 3:
                 # Remove the longest middle section
                 middle_indices = list(range(1, len(lines) - 1))
+                if not middle_indices:
+                    break
+                # FIX 5: Always protect bridge and critic content
+                middle_indices = [
+                    i for i in middle_indices
+                    if not (self._is_bridge_section(lines[i]) or self._is_critic_section(lines[i]))
+                ]
                 if not middle_indices:
                     break
                 longest_idx = max(middle_indices, key=lambda i: len(lines[i].split()))

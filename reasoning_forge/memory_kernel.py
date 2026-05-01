@@ -16,12 +16,57 @@ import time
 import hashlib
 import json
 import math
+import re
 import logging
+from collections import Counter
 from typing import List, Dict, Optional
 from dataclasses import dataclass, field
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
+
+
+# ---------------------------------------------------------------------------
+# Lightweight semantic helpers (no external deps, consistent with EpistemicMetrics)
+# ---------------------------------------------------------------------------
+
+_STOP_WORDS = {
+    "the", "a", "an", "is", "are", "was", "were", "be", "been", "being",
+    "have", "has", "had", "do", "does", "did", "will", "would", "shall",
+    "should", "may", "might", "must", "can", "could", "to", "of", "in",
+    "for", "on", "with", "at", "by", "from", "as", "into", "through",
+    "during", "before", "after", "and", "but", "or", "nor", "not", "so",
+    "yet", "both", "this", "that", "these", "those", "it", "its", "they",
+    "them", "their", "we", "our", "you", "your", "he", "she", "his", "her",
+}
+
+
+def _mk_tokenize(text: str) -> List[str]:
+    """Tokenise text: lowercase alpha tokens >= 3 chars, stop-words removed."""
+    return [w for w in re.findall(r"[a-z]{3,}", text.lower()) if w not in _STOP_WORDS]
+
+
+def _mk_vector(text: str) -> Counter:
+    return Counter(_mk_tokenize(text))
+
+
+def _mk_relevance(query_vec: Counter, cocoon_text: str) -> float:
+    """Score a cocoon's content against a query vector using cosine similarity.
+
+    Returns a float in [0, 1].
+    """
+    mem_vec = _mk_vector(cocoon_text)
+    if not query_vec or not mem_vec:
+        return 0.0
+    shared = set(query_vec) & set(mem_vec)
+    if not shared:
+        return 0.0
+    dot = sum(query_vec[k] * mem_vec[k] for k in shared)
+    mag_q = math.sqrt(sum(v * v for v in query_vec.values()))
+    mag_m = math.sqrt(sum(v * v for v in mem_vec.values()))
+    if mag_q == 0 or mag_m == 0:
+        return 0.0
+    return dot / (mag_q * mag_m)
 
 
 class MemoryCocoon:
@@ -150,9 +195,41 @@ class LivingMemoryKernel:
         """Recall all memories with specific emotional tag."""
         return [mem for mem in self.memories if mem.emotional_tag == tag]
 
-    def recall_important(self, min_importance: int = 7) -> List[MemoryCocoon]:
-        """Recall high-importance memories (default: 7+)."""
-        return [mem for mem in self.memories if mem.importance >= min_importance]
+    def recall_important(
+        self,
+        min_importance: int = 7,
+        query: Optional[str] = None,
+        top_n: Optional[int] = None,
+    ) -> List[MemoryCocoon]:
+        """Recall high-importance memories, optionally ranked by relevance to a query.
+
+        FIX 4: When `query` is provided, results are sorted by a combined score of
+        (importance * relevance) so that semantically relevant memories rank above
+        high-importance but unrelated ones.  The pure threshold behaviour is
+        completely unchanged when query=None.
+
+        Args:
+            min_importance: Minimum importance threshold (default 7). Always applied.
+            query:          Optional natural-language query string for relevance ranking.
+            top_n:          Optional hard cap on returned results (applied after ranking).
+        """
+        candidates = [mem for mem in self.memories if mem.importance >= min_importance]
+
+        if not query:
+            return candidates if top_n is None else candidates[:top_n]
+
+        # Relevance-ranked path (Fix 4)
+        query_vec = _mk_vector(query)
+        ranked = []
+        for mem in candidates:
+            full_text = f"{mem.title} {mem.content}"
+            rel = _mk_relevance(query_vec, full_text)
+            combined = mem.importance * (0.5 + rel)
+            ranked.append((combined, mem))
+
+        ranked.sort(key=lambda x: -x[0])
+        results = [m for _, m in ranked]
+        return results if top_n is None else results[:top_n]
 
     def forget_least_important(self, keep_n: int = 10) -> None:
         """Forget least important memories, keep top N."""
