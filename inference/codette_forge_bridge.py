@@ -360,11 +360,56 @@ class CodetteForgeBridge:
                 # Enrich with real-time system state
                 if self.cocoon_enricher:
                     cocoon_meta = self.cocoon_enricher.enrich(cocoon_meta)
+
+                # Build v3 cocoon with echo detection and full provenance
+                v3_cocoon = None
+                try:
+                    from reasoning_forge.cocoon_schema_v3 import build_cocoon_v3
+                    from reasoning_forge.echo_collapse_detector import EchoCollapseDetector
+
+                    perspectives_dict = result.get("perspectives", {})
+                    if not isinstance(perspectives_dict, dict):
+                        perspectives_dict = {}
+
+                    echo_risk = "unknown"
+                    perspective_collapse_detected = False
+                    pairwise_tensions: dict = {}
+                    if perspectives_dict:
+                        try:
+                            echo_result = EchoCollapseDetector().check(query, perspectives_dict)
+                            echo_risk = echo_result.echo_risk
+                            perspective_collapse_detected = echo_result.perspective_collapse_detected
+                            pairwise_tensions = {
+                                f"{a}_vs_{b}": round(s, 4)
+                                for a, b, s in echo_result.collapse_pairs
+                            }
+                        except Exception:
+                            pass
+
+                    v3_cocoon = build_cocoon_v3(
+                        query=query,
+                        response_text=response_text,
+                        response_summary=response_text[:200],
+                        execution_path="adapter_lightweight",
+                        model_inference_invoked=True,
+                        active_perspectives=list(perspectives_dict.keys()),
+                        dominant_perspective=str(result.get("adapter", "unknown")),
+                        problem_type=domain,
+                        echo_risk=echo_risk,
+                        perspective_collapse_detected=perspective_collapse_detected,
+                        pairwise_tensions=pairwise_tensions,
+                        user_response_text=response_text,
+                        metrics_population_status="partial",
+                    )
+                except Exception:
+                    pass  # Fall back to legacy write if v3 build fails
+
                 self.forge.cocooner.wrap_reasoning(
                     query=query,
                     response=response_text,
                     adapter=str(result.get("adapter", "unknown")),
-                    metadata=cocoon_meta
+                    metadata=cocoon_meta,
+                    v3_cocoon=v3_cocoon,
                 )
             except Exception:
                 pass  # Non-critical
