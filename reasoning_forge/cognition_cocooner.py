@@ -121,29 +121,62 @@ class CognitionCocooner:
         return json.loads(decrypted)
 
     def wrap_reasoning(self, query: str, response: str, adapter: str = "unknown",
-                       metadata: Optional[Dict] = None) -> str:
+                       metadata: Optional[Dict] = None,
+                       v3_cocoon=None) -> str:
         """
-        Wrap a reasoning exchange (query + response) as a cocoon.
-        This is the primary integration point with ForgeEngine.
+        Wrap a reasoning exchange as a cocoon and persist to disk.
 
         Args:
-            query: User query
-            response: AI response
-            adapter: Which adapter produced this
-            metadata: Optional extra metadata (complexity, domain, etc.)
+            query:     User query
+            response:  AI response (truncated to 500 chars in legacy block)
+            adapter:   Which adapter produced this
+            metadata:  Optional shallow metadata dict (legacy path)
+            v3_cocoon: Optional CocoonV3 instance — when provided, its full
+                       serialized dict is embedded in the disk file, replacing
+                       the legacy shallow metadata structure.  This is the
+                       preferred path for all new forge writes.
 
         Returns:
-            Cocoon ID
+            Cocoon ID (file stem)
         """
+        if v3_cocoon is not None and hasattr(v3_cocoon, "to_dict"):
+            # Full v3 path: embed complete provenance, metrics, integrity data
+            v3_dict = v3_cocoon.to_dict()
+            cocoon_id = f"cocoon_{int(v3_cocoon.timestamp)}_{random.randint(1000, 9999)}"
+            disk_payload = {
+                "type": "reasoning_v3",
+                "id": cocoon_id,
+                "timestamp": v3_cocoon.timestamp,
+                "schema_version": v3_dict.get("serialization_version", "3.0"),
+                "execution_path": v3_dict.get("execution_path", "unknown"),
+                "model_inference_invoked": v3_dict.get("model_inference_invoked", False),
+                "orchestrator_trace_id": v3_dict.get("orchestrator_trace_id", ""),
+                "cocoon_integrity": v3_dict.get("cocoon_integrity", "partial"),
+                "cocoon_integrity_score": v3_dict.get("cocoon_integrity_score", 0.0),
+                "wrapped": {
+                    "query": query,
+                    "response": response[:2000],
+                    "adapter": adapter,
+                    "timestamp": v3_cocoon.timestamp,
+                },
+                "v3": v3_dict,
+            }
+            if metadata:
+                disk_payload["wrapped"]["metadata"] = metadata
+            file_path = self.storage_path / f"{cocoon_id}.json"
+            with open(file_path, "w", encoding="utf-8") as f:
+                json.dump(disk_payload, f, indent=2, ensure_ascii=False, default=str)
+            return cocoon_id
+
+        # Legacy path — shallow metadata only
         thought = {
             "query": query,
-            "response": response[:500],  # Truncate to prevent bloat
+            "response": response[:500],
             "adapter": adapter,
             "timestamp": time.time(),
         }
         if metadata:
             thought["metadata"] = metadata
-
         return self.wrap(thought, type_="reasoning")
 
     def wrap_and_store(self, content: str, type_: str = "prompt") -> str:

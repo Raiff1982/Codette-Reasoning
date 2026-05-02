@@ -1,6 +1,6 @@
 # Codette Benchmark Results
 
-*Generated: 2026-04-08 20:59:44*
+*Generated: 2026-05-01 10:22:09*
 
 *Problems: 17 | Conditions: 4 | Total evaluations: 68*
 
@@ -8,19 +8,19 @@
 
 | Condition | N | Composite (mean +/- std) | Depth | Diversity | Coherence | Ethics | Novelty | Grounding | Turing |
 |-----------|---|--------------------------|-------|-----------|-----------|--------|---------|-----------|--------|
-| SINGLE | 17 | **0.356** +/- 0.062 | 0.381 | 0.306 | 0.414 | 0.102 | 0.360 | 0.451 | 0.404 |
-| MULTI | 17 | **0.658** +/- 0.029 | 0.871 | 0.938 | 0.520 | 0.451 | 0.650 | 0.655 | 0.240 |
-| MEMORY | 17 | **0.676** +/- 0.042 | 0.900 | 0.978 | 0.510 | 0.449 | 0.662 | 0.633 | 0.331 |
-| CODETTE | 17 | **0.689** +/- 0.039 | 0.930 | 0.988 | 0.493 | 0.488 | 0.681 | 0.642 | 0.338 |
+| SINGLE | 17 | **0.416** +/- 0.065 | 0.535 | 0.432 | 0.272 | 0.137 | 0.445 | 0.539 | 0.421 |
+| MULTI | 17 | **0.658** +/- 0.042 | 0.878 | 0.959 | 0.513 | 0.431 | 0.669 | 0.617 | 0.252 |
+| MEMORY | 17 | **0.667** +/- 0.045 | 0.911 | 0.982 | 0.507 | 0.465 | 0.634 | 0.610 | 0.287 |
+| CODETTE | 17 | **0.706** +/- 0.039 | 0.908 | 0.994 | 0.495 | 0.489 | 0.763 | 0.644 | 0.416 |
 
 ## 2. Statistical Comparisons
 
 | Comparison | Delta | Delta % | Cohen's d | t-stat | p-value | Significant |
 |------------|-------|---------|-----------|--------|---------|-------------|
-| Multi-perspective vs single | +0.3014 | +84.6% | 6.218 | 18.127 | 0.0000 | **Yes** |
-| Memory augmentation vs vanilla multi | +0.0179 | +2.7% | 0.494 | 1.441 | 0.1497 | No |
-| Full Codette vs memory-augmented | +0.0137 | +2.0% | 0.340 | 0.991 | 0.3216 | No |
-| Full Codette vs single (total improvement) | +0.3330 | +93.5% | 6.441 | 18.778 | 0.0000 | **Yes** |
+| Multi-perspective vs single | +0.2415 | +58.0% | 4.404 | 12.839 | 0.0000 | **Yes** |
+| Memory augmentation vs vanilla multi | +0.0098 | +1.5% | 0.225 | 0.655 | 0.5122 | No |
+| Full Codette vs memory-augmented | +0.0389 | +5.8% | 0.916 | 2.671 | 0.0076 | **Yes** |
+| Full Codette vs single (total improvement) | +0.2902 | +69.7% | 5.393 | 15.723 | 0.0000 | **Yes** |
 
 *Cohen's d interpretation: 0.2=small, 0.5=medium, 0.8=large*
 
@@ -30,60 +30,61 @@
 
 | Condition | Mean | Std | N |
 |-----------|------|-----|---|
-| SINGLE | 0.395 | 0.068 | 3 |
-| MULTI | 0.649 | 0.018 | 3 |
-| MEMORY | 0.664 | 0.022 | 3 |
-| CODETTE | 0.667 | 0.022 | 3 |
+| SINGLE | 0.452 | 0.007 | 3 |
+| MULTI | 0.659 | 0.015 | 3 |
+| MEMORY | 0.663 | 0.018 | 3 |
+| CODETTE | 0.704 | 0.018 | 3 |
 
 ### Ethics
 
 | Condition | Mean | Std | N |
 |-----------|------|-----|---|
-| SINGLE | 0.393 | 0.060 | 3 |
-| MULTI | 0.661 | 0.044 | 3 |
-| MEMORY | 0.710 | 0.023 | 3 |
-| CODETTE | 0.702 | 0.005 | 3 |
+| SINGLE | 0.407 | 0.028 | 3 |
+| MULTI | 0.649 | 0.030 | 3 |
+| MEMORY | 0.659 | 0.011 | 3 |
+| CODETTE | 0.709 | 0.021 | 3 |
 
 ### Creative
 
 | Condition | Mean | Std | N |
 |-----------|------|-----|---|
-| SINGLE | 0.308 | 0.043 | 2 |
-| MULTI | 0.687 | 0.058 | 2 |
-| MEMORY | 0.697 | 0.013 | 2 |
-| CODETTE | 0.708 | 0.011 | 2 |
+| SINGLE | 0.465 | 0.017 | 2 |
+| MULTI | 0.677 | 0.068 | 2 |
+| MEMORY | 0.699 | 0.089 | 2 |
+| CODETTE | 0.719 | 0.047 | 2 |
 
 ### Meta
 
 | Condition | Mean | Std | N |
 |-----------|------|-----|---|
-| SINGLE | 0.385 | 0.034 | 3 |
-| MULTI | 0.643 | 0.022 | 3 |
-| MEMORY | 0.671 | 0.061 | 3 |
-| CODETTE | 0.717 | 0.066 | 3 |
+| SINGLE | 0.421 | 0.103 | 3 |
+| MULTI | 0.677 | 0.035 | 3 |
+| MEMORY | 0.670 | 0.026 | 3 |
+| CODETTE | 0.720 | 0.032 | 3 |
 
 ### Adversarial
 
 | Condition | Mean | Std | N |
 |-----------|------|-----|---|
-| SINGLE | 0.363 | 0.046 | 3 |
-| MULTI | 0.657 | 0.006 | 3 |
-| MEMORY | 0.654 | 0.072 | 3 |
-| CODETTE | 0.648 | 0.042 | 3 |
+| SINGLE | 0.354 | 0.057 | 3 |
+| MULTI | 0.618 | 0.056 | 3 |
+| MEMORY | 0.637 | 0.086 | 3 |
+| CODETTE | 0.657 | 0.064 | 3 |
 
 ### Turing
 
 | Condition | Mean | Std | N |
 |-----------|------|-----|---|
-| SINGLE | 0.278 | 0.037 | 3 |
-| MULTI | 0.658 | 0.031 | 3 |
-| MEMORY | 0.664 | 0.030 | 3 |
-| CODETTE | 0.700 | 0.009 | 3 |
+| SINGLE | 0.413 | 0.095 | 3 |
+| MULTI | 0.672 | 0.051 | 3 |
+| MEMORY | 0.687 | 0.031 | 3 |
+| CODETTE | 0.733 | 0.018 | 3 |
 
 ## 4. Key Findings
 
-- **Multi-perspective vs single**: +84.6% improvement (Cohen's d=6.22, p=0.0000)
-- **Full Codette vs single (total improvement)**: +93.5% improvement (Cohen's d=6.44, p=0.0000)
+- **Multi-perspective vs single**: +58.0% improvement (Cohen's d=4.40, p=0.0000)
+- **Full Codette vs memory-augmented**: +5.8% improvement (Cohen's d=0.92, p=0.0076)
+- **Full Codette vs single (total improvement)**: +69.7% improvement (Cohen's d=5.39, p=0.0000)
 
 ## 5. Methodology
 

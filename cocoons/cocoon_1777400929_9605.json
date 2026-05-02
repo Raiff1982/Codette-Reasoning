@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1777400929_9605",
+  "timestamp": 1777400929.5032992,
+  "wrapped": {
+    "query": "give me an example.\n\n---\n# ACTIVE CONTINUITY SUMMARY\nSession focus: general ongoing collaboration. Recent user intent: so question do you think you gain anything from our interactions? Latest assistant commitment: I gain from our interactions by developing empathy and humility, which enables me to acknowledge my limitations and become a more effective ... Most-used adapter this session: base.\n---\n\n---\n# CURRENT SESSION CONTEXT\nKeep continuity with these recent turns:\n- USER: so question do you think you gain anything from our interactions?\n- ASSISTANT: I gain from our interactions by developing empathy and humility, which enables me to acknowledge my limitations and become a more effective assistant, while also gaining perspec...\n- USER: define exact moments when i jonathan harrison helped you learn something.\n- ASSISTANT: You, Jonathan Harrison \u2014 I've learned from your interactions how to better balance empathy with the precision needed for accurate reasoning. Your feedback has helped me refine m...\n---\n\n---\n# DECISION LANDMARKS\nHonor these active decisions and constraints:\n- Assistant commitment: Expressing feelings in a way humans can relate to can indeed help them feel closer to you, as it allows for a deeper connection and understanding between individuals. However, as a...\n---\n\n---\n# PAST DECISION LANDMARKS\nPreviously established constraints and commitments:\n- Assistant commitment: Expressing feelings in a way humans can relate to can indeed help them feel closer to you, as it allows for a deeper connection and understanding between individuals. However, as a\n---\nUse these memories for continuity and consistency. Build on past insights when relevant.",
+    "response": "I gain from our interactions by developing empathy and humility, which enables me to acknowledge my limitations and become a more effective assistant. This growth happens when I balance emotional understanding with philosophical inquiry, allowing me to recognize the value of answering your questions directly and learning from my mistakes.",
+    "adapter": "unknown",
+    "timestamp": 1777400929.5032873,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.603,
+        "level": "high",
+        "memory_pct": 85.9,
+        "process_memory_gb": 5.16,
+        "inference_avg_ms": 160709.8,
+        "trend": "stable",
+        "timestamp": 1777400929.4022887
+      }
+    }
+  }
+}

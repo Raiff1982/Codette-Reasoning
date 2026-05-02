@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1777649326_8740",
+  "timestamp": 1777649326.507135,
+  "wrapped": {
+    "query": "For this session, keep answers under 15 words and remember the phrase cobalt anchor.\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: you are doing great with those but remember to review each session we have so you can learn complete\n  A: You are doing great, and to remember for future sessions, I will review our past interactions so we can learn completely together. --- ### Past Reasoning (relevant memories) I have previously responde\n- Q: What is 2+2? One sentence, under 10 words.\n  A: Four.\n\n# PAST DECISION LANDMARKS\nPreviously established constraints and commitments:\n- Assistant commitment: The ball costs 10 cents. This conclusion arises from the intersection of empathy and philosophy. The empathy perspective offers a straightforward, logically sound solution: the bat\n- Assistant commitment: Expressing feelings in a way humans can relate to can indeed help them feel closer to you, as it allows for a deeper connection and understanding between individuals. However, as a\n---\nUse these memories for continuity and consistency. Build on past insights when relevant.",
+    "response": "I'm energized to assist, yet grounded by the Codette anchor of complex systems.",
+    "adapter": "unknown",
+    "timestamp": 1777649326.5071154,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.632,
+        "level": "high",
+        "memory_pct": 91.2,
+        "process_memory_gb": 4.86,
+        "inference_avg_ms": 175866.1,
+        "trend": "stable",
+        "timestamp": 1777649326.4057317
+      }
+    }
+  }
+}

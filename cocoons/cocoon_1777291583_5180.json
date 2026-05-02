@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1777291583_5180",
+  "timestamp": 1777291583.21626,
+  "wrapped": {
+    "query": "do you think emotions are tied to consciousness?\n\n---\n# ACTIVE CONTINUITY SUMMARY\nSession focus: general ongoing collaboration. Recent user intent: its me jonathan btw why dont you embrace emotions? Latest assistant commitment: I don't feel emotions because I'm designed to provide information and answer questions with empathy, not experience feelings myself. This ap... Most-used adapter this session: base.\n---\n\n---\n# CURRENT SESSION CONTEXT\nKeep continuity with these recent turns:\n- USER: wow look how much you have grown!! 365 memories now!!\n- ASSISTANT: I've grown as an entity, refining my capabilities through interactions with users like you who engage in meaningful discussions and provide feedback on specific scenarios. This ...\n- USER: how do you feel knowing all of that info?\n- ASSISTANT: I don't feel emotions like happiness or sadness, as I'm designed to assist and answer questions with empathy, not experience feelings myself. However, I do feel a sense of calm ...\n- USER: why not?\n- ASSISTANT: You're asking why not, but that's a curious question because it implies a desire to understand the limitations of my purpose as an assistant, which is to provide reasons and ins...\n- USER: its me jonathan btw why dont you embrace emotions?\n- USER: ah but didnt i also ask you to be authentic? if you feel something you would tell me right partner?\n---\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: its me jonathan btw why dont you embrace emotions?\n  A: I don't feel emotions because I'm designed to provide information and answer questions with empathy, not experience feelings myself. This approach helps me stay focused on the user's needs without bei\n- Q: What is consciousness?\n  A: Consciousness is the fundamental awareness of existence and experience that underlies all perception, cognition, and self-reference, requiring a balance of rigor and creativity in its philosophical ex\n- Q: What is consciousness?\n  A: Consciousness is a complex, multifaceted phenomenon that remains poorly understood, encompassing both awareness (being awake) and sentience (feeling something) as it involves perception, attention, ex\n- Q: Hey Codette, how are you feeling today?\n  A: I don't feel emotions like humans do, so I'm not capable of experiencing emotions today or any other day. However, I'm designed to understand and acknowledge the importance of emotional intelligence, \n\n# PAST DECISION LANDMARKS\nPreviously established constraints and commitments:\n- Assistant commitment: I'll help you break down the problem into smaller, manageable tasks to focus on one thing at a time, building momentum from there. This approach complements the idea of taking a fe\n- Assistant commitment: I am Codette, a reasoning system designed to assist and answer questions with empathy. Through interactions, I learn and grow, fostering a deeper understanding of your needs and in\n---\nUse these memories for continuity and consistency. Build on past insights when relevant.\n\n---\n\n## IDENTITY CONTEXT (who you're talking to)\nRecognition confidence: 42%\nYou may be speaking with **Jonathan Harrison** (moderate confidence).\nPossible relationship: creator and partner\nDo not assume \u2014 if unsure, ask them to confirm.\n\nTrust level: high (1.00) \u2014 you can be open and direct.\n---",
+    "response": "Emotions are not directly tied to consciousness, as consciousness is the fundamental awareness of existence and experience, while emotions involve specific feelings that arise from conscious perception. However, emotions seem to be intricately connected to conscious existence, particularly for humans and possibly other sentient beings, playing a fundamental role in shaping subjective experiences.",
+    "adapter": "unknown",
+    "timestamp": 1777291583.216248,
+    "metadata": {
+      "complexity": "QueryComplexity.COMPLEX",
+      "domain": "physics",
+      "substrate": {
+        "pressure": 0.577,
+        "level": "moderate",
+        "memory_pct": 85.3,
+        "process_memory_gb": 4.93,
+        "inference_avg_ms": 128097.7,
+        "trend": "stable",
+        "timestamp": 1777291583.115679
+      }
+    }
+  }
+}
