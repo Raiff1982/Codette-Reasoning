@@ -50,16 +50,21 @@ class CognitionCocooner:
             self.fernet = None
 
     def wrap(self, thought: Dict[str, Any], type_: str = "prompt") -> str:
-        """
-        Wrap a thought as a cocoon and save to disk.
+        """LEGACY — writes a shallow cocoon with no v3 provenance fields.
 
-        Args:
-            thought: Thought content (dict)
-            type_: Cocoon type ("prompt", "function", "symbolic", "reasoning")
+        Production reasoning paths must use wrap_reasoning(v3_cocoon=...) instead.
+        This method is retained only as the internal fallback inside wrap_reasoning()
+        when no CocoonV3 instance is available, and for legacy symbolic/prompt wraps
+        that are not inference outputs.
 
-        Returns:
-            Cocoon ID for later retrieval
+        If you are calling this directly from new code, stop and use wrap_reasoning()
+        with a fully-built CocoonV3.
         """
+        import logging as _log
+        _log.getLogger(__name__).debug(
+            "[CognitionCocooner] wrap() called — writing legacy shallow cocoon "
+            "(no v3 provenance). Prefer wrap_reasoning(v3_cocoon=...) for inference paths."
+        )
         cocoon_id = f"cocoon_{int(time.time())}_{random.randint(1000,9999)}"
         cocoon = {
             "type": type_,

@@ -61,6 +61,9 @@ class Code7eCQURE:
         return {}
 
     def save_quantum_memory(self):
+        # NOTE: simulation-only — writes to self.memory_path (a separate JSON store,
+        # NOT the cocoons/ directory).  This is not a production cocoon path and
+        # produces no v3 provenance, integrity scores, or echo detection.
         with open(self.memory_path, 'w') as file:
             json.dump(self.memory_bank, file, indent=4)
 
