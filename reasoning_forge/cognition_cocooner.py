@@ -2,7 +2,7 @@
 CognitionCocooner - Thought Encapsulation Module
 =================================================
 
-Ported from J:\TheAI\src\framework\cognition_cocooner.py
+Ported from J:/TheAI/src/framework/cognition_cocooner.py
 Original design by Jonathan Harrison (Raiffs Bits LLC)
 
 Wraps active thoughts as persistable "cocoons" with optional AES encryption.
@@ -11,6 +11,7 @@ memory anchors.
 """
 
 import json
+import logging
 import os
 import time
 import random
@@ -22,6 +23,18 @@ try:
     ENCRYPTION_AVAILABLE = True
 except ImportError:
     ENCRYPTION_AVAILABLE = False
+
+logger = logging.getLogger(__name__)
+
+# Regression alarm: counts how many times wrap_reasoning() fell back to the
+# legacy shallow path because v3_cocoon was None.  Should always be 0 in a
+# healthy production run.  Query via get_v3_fallback_count().
+_v3_missing_fallback_count: int = 0
+
+
+def get_v3_fallback_count() -> int:
+    """Return the number of times the legacy cocoon fallback fired this process lifetime."""
+    return _v3_missing_fallback_count
 
 
 class CognitionCocooner:
@@ -173,7 +186,21 @@ class CognitionCocooner:
                 json.dump(disk_payload, f, indent=2, ensure_ascii=False, default=str)
             return cocoon_id
 
-        # Legacy path — shallow metadata only
+        # Legacy path — shallow metadata only.
+        # This branch fires when the caller did not provide a CocoonV3 instance.
+        # In production that should never happen — both forge_with_debate() and
+        # _generate_with_phase6() always build and pass v3_cocoon.  If this
+        # counter increments it means a new code path was added without v3 wiring.
+        global _v3_missing_fallback_count
+        _v3_missing_fallback_count += 1
+        logger.warning(
+            "[CognitionCocooner] REGRESSION ALARM: wrap_reasoning() called without "
+            "v3_cocoon — writing legacy shallow cocoon (no provenance/integrity). "
+            "cocoon_v3_missing_fallback=%d  adapter=%r  query_snippet=%r",
+            _v3_missing_fallback_count,
+            adapter,
+            query[:80],
+        )
         thought = {
             "query": query,
             "response": response[:500],

@@ -314,6 +314,18 @@ except Exception as e:
     check("quarantine routing", False, str(e))
 
 
+# ── 6. Regression alarm: v3 fallback counter must stay at zero ───────────────
+
+print("\n[6] Regression alarm: v3_missing_fallback_count == 0")
+try:
+    from reasoning_forge.cognition_cocooner import get_v3_fallback_count
+    count = get_v3_fallback_count()
+    check("no v3_missing_fallback fires during smoke run", count == 0,
+          f"fallback fired {count} time(s) — a production write path is missing v3_cocoon=")
+except Exception as e:
+    check("v3_missing_fallback counter importable", False, str(e))
+
+
 # ── Results ──────────────────────────────────────────────────────────────────
 
 total = len(PASSED) + len(FAILED)
