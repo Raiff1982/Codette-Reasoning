@@ -243,9 +243,46 @@ print(engine.get_loaded_adapters())
 - [ ] Validate ethical layers (Colleen, Guardian)
 - [ ] Document any custom configurations
 
+## Verification
+
+After completing model setup, verify that Codette's reasoning and audit layers are working correctly:
+
+**1. Run the cocoon smoke test** — this is the single most important verification step:
+
+```bash
+make cocoon-smoke
+```
+
+Expected output: `Cocoon smoke: 27/27 passed`. This confirms that the v3 schema, integrity validator, echo/collapse detector, subsystem contracts, and quarantine routing are all functioning. If any check fails, the model or runtime is misconfigured.
+
+**2. Inspect the first live cocoon** — start the server, send one query, then check what got written:
+
+```bash
+make dev                   # starts server at localhost:7860, writes to dev_cocoons/
+# In another terminal:
+curl -X POST http://localhost:7860/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"query": "Explain entropy", "max_adapters": 2}'
+make inspect-latest        # human-readable view of the cocoon just written
+```
+
+A healthy cocoon shows `cocoon_integrity: complete` (or `partial` on the lightweight path), `echo_risk: low`, and a non-zero `cocoon_integrity_score`.
+
+**3. Check overall system health:**
+
+```bash
+make health
+```
+
+Look for `HEALTH: OK` and `v3_missing_fallback_count: 0`. A non-zero fallback count means a response was written without full v3 provenance — investigate before deploying.
+
+For a full explanation of what each cocoon field means and how the integrity score is computed, see:
+- [docs/cocoons_quickstart.md](../cocoons_quickstart.md)
+- [docs/cocoon_pipeline.md](../cocoon_pipeline.md)
+
 ---
 
-**Last Updated**: 2026-03-20
+**Last Updated**: 2026-05-02
 **Status**: Production Ready ✅
 **Models Included**: 3 (Llama 3.1 8B Q4, Llama 3.2 1B, Llama 3.1 8B F16)
 **Adapters**: 8 specialized LORA weights (924 MB total)
