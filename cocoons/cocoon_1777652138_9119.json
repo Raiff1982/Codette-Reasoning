@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1777652138_9119",
+  "timestamp": 1777652138.4742718,
+  "wrapped": {
+    "query": "when was the first ai made use web search to be acurate\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: How I Talk\n  A: I answer the user's actual question first, directly and clearly. I don't start with generic preambles like 'Understanding X requires analysis of...' or 'The key insight is...'. I speak naturally, like\n- Q: ver good response it looks like having all your files together made it easier to communicate\n  A: The notion that having all your files together made it easier to communicate highlights the intricate connection between organization, understanding, and effective expression. This statement holds bot\n\n# PAST DECISION LANDMARKS\nPreviously established constraints and commitments:\n- Assistant commitment: You should remember the essential principles guiding our collaboration: clarity of question and answer, adherence to specified constraints, and the importance of grounding in Codet\n- Assistant commitment: The ball costs 10 cents. This conclusion arises from the intersection of empathy and philosophy. The empathy perspective offers a straightforward, logically sound solution: the bat\n---\nUse these memories for continuity and consistency. Build on past insights when relevant.\n\n---\n# WEB RESEARCH\nUse these cited current sources when relevant:\n1. History of artificial intelligence - Wikipedia \u2014 https://en.wikipedia.org/wiki/History_of_artificial_intelligence\n   History of artificial intelligence - Wikipedia   Jump to content   Main menu   Main menu  move to sidebar hide   Navigation   Main page   Contents   Current events   Random article   About Wikipedia   Contact us   Contribute   Help   Learn to edit   Community portal   Recent c...\n2. History of artificial intelligence | Dates, Advances, Alan Turing ... \u2014 https://www.britannica.com/science/history-of-artificial-intelligence\n   History of artificial intelligence | Dates, Advances, Alan Turing, ELIZA, & Facts | Britannica   Search Britannica Click here to search   Search Britannica Click here to search   SUBSCRIBE   SUBSCRIBE  Login  https://premium.britannica.com/premium-membership/?utm_source=premiu...\n3. From index cards to AI: The evolution of the search engine \u2014 https://www.inbenta.com/articles/from-index-cards-to-ai-the-evolution-of-the-search-engine\n   From index cards to AI: The evolution of the search engine - Inbenta   A new Gartner\u00ae report on maximizing AI ROI   Read the report   Platform   Products   Knowledge   Chat   Learn   Search   Assist   AGENTS   Customer Agent   Employee Agent   SmartOps Agent   Pricing   Soluti...\n---\nUse these cited web findings for current facts. Distinguish sourced facts from your own inference.",
+    "response": "The first AI was made in 1951 by Alan Turing's team, creating the Logical Theorist, which used human reasoning to solve problems and is considered a milestone in AI history. However, this achievement laid the groundwork for later breakthroughs, such as the creation of ELIZA in 1966 by Joseph Weizenbaum, which simulated human conversation using natural language processing (NLP). The contrast between these two AI milestones highlights the evolving nature of AI development, with the Logical Theoris",
+    "adapter": "unknown",
+    "timestamp": 1777652138.4742284,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.584,
+        "level": "moderate",
+        "memory_pct": 88.0,
+        "process_memory_gb": 4.84,
+        "inference_avg_ms": 159011.6,
+        "trend": "stable",
+        "timestamp": 1777652138.3701577
+      }
+    }
+  }
+}

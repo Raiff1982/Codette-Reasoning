@@ -2,26 +2,6 @@
   "lessons": [
     {
       "type": "success",
-      "timestamp": 1774212269.0725973,
-      "adapter": "quantum",
-      "constraints": {
-        "max_words": 5
-      },
-      "word_count": 5,
-      "query_preview": "Explain quantum entanglement in 5 words or less."
-    },
-    {
-      "type": "success",
-      "timestamp": 1774212282.3197405,
-      "adapter": "newton",
-      "constraints": {
-        "max_words": 5
-      },
-      "word_count": 5,
-      "query_preview": "Explain quantum entanglement in 5 words or less."
-    },
-    {
-      "type": "success",
       "timestamp": 1774212644.589494,
       "adapter": "empathy",
       "constraints": {
@@ -508,7 +488,27 @@
       },
       "word_count": 10,
       "query_preview": "im not sure how that works exactly\n\n---\n# YOUR PAST REASONING (relevant memories"
+    },
+    {
+      "type": "success",
+      "timestamp": 1777649231.9217477,
+      "adapter": "empathy",
+      "constraints": {
+        "max_words": 15
+      },
+      "word_count": 15,
+      "query_preview": "For this session, keep answers under 15 words and remember the phrase cobalt anc"
+    },
+    {
+      "type": "success",
+      "timestamp": 1777649279.541358,
+      "adapter": "philosophy",
+      "constraints": {
+        "max_words": 15
+      },
+      "word_count": 14,
+      "query_preview": "For this session, keep answers under 15 words and remember the phrase cobalt anc"
     }
   ],
-  "updated_at": 1774339070.2597985
+  "updated_at": 1777649279.5417144
 }

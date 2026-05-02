@@ -1816,6 +1816,11 @@ class CodetteHandler(SimpleHTTPRequestHandler):
                 self._json_response({"query": q, "results": results})
         elif path == "/api/drift":
             self._json_response(self._build_drift_payload())
+        elif path == "/api/cocoon-audit":
+            self._handle_cocoon_audit()
+        elif path == "/api/dashboard":
+            self.path = "/dashboard.html"
+            super().do_GET()
         elif path == "/api/chat":
             # SSE endpoint for streaming
             self._handle_chat_sse(parsed)
@@ -1915,6 +1920,57 @@ class CodetteHandler(SimpleHTTPRequestHandler):
                 self._json_response({"error": str(e), "traceback": traceback.format_exc()})
         else:
             self.send_error(404, "Not found")
+
+    def _handle_cocoon_audit(self):
+        """GET /api/cocoon-audit — scan cocoon store, return aggregate integrity stats."""
+        try:
+            from reasoning_forge.cocoon_validator import CocoonValidator
+            import os as _os
+            # Use project-relative cocoons dir
+            base = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
+            cocoon_path = _os.path.join(base, "cocoons")
+            quarantine_path = _os.path.join(cocoon_path, "quarantine")
+            validator = CocoonValidator(
+                store_path=cocoon_path,
+                quarantine_path=quarantine_path,
+            )
+            stats = validator.audit_store(limit=200)
+            # Attach recent cocoon summaries (last 10)
+            import json as _json, glob as _glob
+            recent = []
+            files = sorted(
+                _glob.glob(_os.path.join(cocoon_path, "*.json")),
+                key=_os.path.getmtime,
+                reverse=True,
+            )[:10]
+            for fpath in files:
+                try:
+                    with open(fpath, encoding="utf-8") as fh:
+                        d = _json.load(fh)
+                    recent.append({
+                        "file": _os.path.basename(fpath),
+                        "timestamp": d.get("timestamp", 0),
+                        "execution_path": d.get("execution_path", d.get("type", "unknown")),
+                        "cocoon_integrity": d.get("cocoon_integrity", "unknown"),
+                        "cocoon_integrity_score": d.get("cocoon_integrity_score"),
+                        "eta_score": d.get("eta_score") or (
+                            d.get("wrapped", {}).get("metadata", {}).get("aegis_eta")
+                        ),
+                        "epsilon_value": d.get("epsilon_value"),
+                        "gamma_coherence": d.get("gamma_coherence"),
+                        "echo_risk": d.get("echo_risk", "unknown"),
+                        "active_perspectives": d.get("active_perspectives", []),
+                        "schema_version": d.get("serialization_version", d.get("schema_version", "legacy")),
+                    })
+                except Exception:
+                    continue
+            stats["recent_cocoons"] = recent
+            stats["audit_mode_active"] = bool(
+                __import__("os").environ.get("CODETTE_AUDIT_MODE", "0") == "1"
+            )
+            self._json_response(stats)
+        except Exception as e:
+            self._json_response({"error": str(e)})
 
     def _build_drift_payload(self) -> dict:
         """Collect live resonance state from the forge engine for the drift panel."""

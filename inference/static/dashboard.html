@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Codette Dev Dashboard</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --accent: #7c6af7;
+    --accent2: #4ecdc4;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --ok: #22c55e;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --radius: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; }
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; align-items: center; gap: 12px; }
+  header h1 { font-size: 18px; font-weight: 600; color: var(--accent); }
+  header .badge { font-size: 11px; padding: 2px 8px; border-radius: 12px; background: #1f2937; color: var(--muted); border: 1px solid var(--border); }
+  header .audit-on { background: #14532d; color: #4ade80; border-color: #166534; }
+  header .refresh-btn { margin-left: auto; background: var(--accent); color: #fff; border: none; border-radius: 6px; padding: 6px 14px; cursor: pointer; font-size: 13px; }
+  header .refresh-btn:hover { opacity: 0.85; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; padding: 20px 24px 0; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+  .card h3 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 8px; }
+  .card .value { font-size: 28px; font-weight: 700; }
+  .card .sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .ok { color: var(--ok); }
+  .warn { color: var(--warn); }
+  .danger { color: var(--danger); }
+  .accent { color: var(--accent); }
+  .accent2 { color: var(--accent2); }
+
+  .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 16px 24px; }
+  @media (max-width: 900px) { .panels { grid-template-columns: 1fr; } }
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+  .panel h2 { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .panel h2 .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); display: inline-block; }
+
+  /* Bar chart */
+  .bar-chart { display: flex; flex-direction: column; gap: 8px; }
+  .bar-row { display: flex; align-items: center; gap: 10px; }
+  .bar-label { width: 130px; font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-track { flex: 1; height: 14px; background: #1f2937; border-radius: 7px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 7px; transition: width 0.6s ease; }
+  .bar-val { width: 40px; text-align: right; font-size: 12px; color: var(--text); }
+
+  /* Integrity pill */
+  .pill { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+  .pill.complete { background: #14532d; color: #4ade80; }
+  .pill.partial  { background: #431407; color: #fb923c; }
+  .pill.failed   { background: #450a0a; color: #f87171; }
+  .pill.unknown  { background: #1f2937; color: var(--muted); }
+
+  /* Heatmap table */
+  .heatmap { width: 100%; border-collapse: collapse; }
+  .heatmap th { text-align: left; font-size: 11px; color: var(--muted); padding: 4px 8px; font-weight: 500; }
+  .heatmap td { padding: 5px 8px; border-top: 1px solid var(--border); font-size: 12px; }
+  .heat-bar { display: inline-block; height: 8px; border-radius: 4px; background: var(--danger); vertical-align: middle; margin-left: 8px; }
+
+  /* Recent cocoons table */
+  .full-panel { padding: 0 24px 24px; }
+  .full-panel .panel { overflow-x: auto; }
+  table.cocoons { width: 100%; border-collapse: collapse; font-size: 12px; }
+  table.cocoons th { text-align: left; padding: 6px 10px; color: var(--muted); font-size: 11px; border-bottom: 1px solid var(--border); }
+  table.cocoons td { padding: 7px 10px; border-bottom: 1px solid var(--border); }
+  table.cocoons tr:hover td { background: #1f2937; }
+  .score-bar { display: inline-block; width: 40px; height: 6px; border-radius: 3px; vertical-align: middle; margin-right: 6px; }
+
+  .empty { color: var(--muted); font-size: 13px; padding: 20px 0; text-align: center; }
+  .error-msg { color: var(--danger); font-size: 13px; padding: 12px; background: #450a0a20; border-radius: 6px; border: 1px solid #450a0a; margin: 20px 24px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⬡ Codette Dev Dashboard</h1>
+  <span class="badge" id="audit-badge">AUDIT MODE: OFF</span>
+  <span class="badge" id="schema-badge">Schema v3</span>
+  <button class="refresh-btn" onclick="load()">↻ Refresh</button>
+</header>
+
+<div id="error-box" style="display:none"></div>
+
+<!-- KPI cards -->
+<div class="grid" id="kpi-grid">
+  <div class="card"><h3>Total Cocoons</h3><div class="value accent" id="total">—</div><div class="sub" id="quarantined-sub">— quarantined</div></div>
+  <div class="card"><h3>Integrity</h3><div id="integrity-pills" class="value" style="font-size:14px;line-height:2">—</div></div>
+  <div class="card"><h3>Avg Integrity Score</h3><div class="value" id="avg-integrity">—</div><div class="sub">0.0 – 1.0</div></div>
+  <div class="card"><h3>Avg η (AEGIS)</h3><div class="value accent2" id="avg-eta">—</div><div class="sub">ethical alignment</div></div>
+  <div class="card"><h3>Avg ε (Tension)</h3><div class="value" id="avg-epsilon">—</div><div class="sub">epistemic tension</div></div>
+  <div class="card"><h3>Avg Γ (Coherence)</h3><div class="value" id="avg-gamma">—</div><div class="sub">ensemble coherence</div></div>
+</div>
+
+<!-- Two-col panels -->
+<div class="panels">
+
+  <!-- Execution path distribution -->
+  <div class="panel">
+    <h2><span class="dot"></span>Execution Paths</h2>
+    <div class="bar-chart" id="path-chart"></div>
+  </div>
+
+  <!-- Echo risk distribution -->
+  <div class="panel">
+    <h2><span class="dot" style="background:var(--warn)"></span>Echo Risk</h2>
+    <div class="bar-chart" id="echo-chart"></div>
+  </div>
+
+  <!-- Missing field heatmap -->
+  <div class="panel">
+    <h2><span class="dot" style="background:var(--danger)"></span>Missing Field Frequency</h2>
+    <div id="missing-heatmap"></div>
+  </div>
+
+  <!-- System status -->
+  <div class="panel">
+    <h2><span class="dot" style="background:var(--ok)"></span>System Status</h2>
+    <div id="system-status"></div>
+  </div>
+
+</div>
+
+<!-- Recent cocoons -->
+<div class="full-panel">
+  <div class="panel">
+    <h2><span class="dot" style="background:var(--accent2)"></span>Recent Cocoons (last 10)</h2>
+    <div id="recent-table"></div>
+  </div>
+</div>
+
+<script>
+const API = '/api/cocoon-audit';
+
+function scoreColor(s) {
+  if (s == null) return '#6b7280';
+  if (s >= 0.8) return '#22c55e';
+  if (s >= 0.5) return '#f59e0b';
+  return '#ef4444';
+}
+
+function pillHtml(status) {
+  const s = (status || 'unknown').toLowerCase();
+  return `<span class="pill ${s}">${s}</span>`;
+}
+
+function barHtml(label, count, total, color) {
+  const pct = total ? Math.round(count / total * 100) : 0;
+  return `<div class="bar-row">
+    <span class="bar-label" title="${label}">${label}</span>
+    <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+    <span class="bar-val">${count}</span>
+  </div>`;
+}
+
+function fmtScore(v) {
+  if (v == null) return '—';
+  return typeof v === 'number' ? v.toFixed(3) : v;
+}
+
+async function load() {
+  document.getElementById('error-box').style.display = 'none';
+  try {
+    const res = await fetch(API);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const d = await res.json();
+
+    // Audit badge
+    const ab = document.getElementById('audit-badge');
+    if (d.audit_mode_active) {
+      ab.textContent = 'AUDIT MODE: ON';
+      ab.classList.add('audit-on');
+    } else {
+      ab.textContent = 'AUDIT MODE: OFF';
+      ab.classList.remove('audit-on');
+    }
+
+    // KPI
+    document.getElementById('total').textContent = d.total ?? 0;
+    document.getElementById('quarantined-sub').textContent = `${d.quarantined ?? 0} quarantined`;
+    document.getElementById('avg-integrity').textContent = fmtScore(d.avg_integrity_score);
+    document.getElementById('avg-integrity').className = 'value';
+    const ai = d.avg_integrity_score;
+    if (ai != null) document.getElementById('avg-integrity').style.color = scoreColor(ai);
+
+    document.getElementById('avg-eta').textContent = fmtScore(d.avg_eta);
+    document.getElementById('avg-epsilon').textContent = fmtScore(d.avg_epsilon);
+    document.getElementById('avg-gamma').textContent = fmtScore(d.avg_gamma);
+
+    const ipills = document.getElementById('integrity-pills');
+    ipills.innerHTML = [
+      `<span style="color:#22c55e">✓ ${d.complete ?? 0} complete</span>`,
+      `<span style="color:#f59e0b">~ ${d.partial ?? 0} partial</span>`,
+      `<span style="color:#ef4444">✗ ${d.failed ?? 0} failed</span>`,
+    ].join('<br>');
+
+    // Execution paths
+    const paths = d.execution_paths || {};
+    const pathColors = {
+      forge_full: '#7c6af7',
+      adapter_lightweight: '#4ecdc4',
+      recovery_mode: '#f59e0b',
+      fallback_template: '#ef4444',
+      unknown: '#6b7280',
+    };
+    const pathTotal = Object.values(paths).reduce((a, b) => a + b, 0) || 1;
+    document.getElementById('path-chart').innerHTML =
+      Object.entries(paths).sort((a,b) => b[1]-a[1]).map(([k,v]) =>
+        barHtml(k, v, pathTotal, pathColors[k] || '#6b7280')
+      ).join('') || '<p class="empty">No data</p>';
+
+    // Echo risk
+    const echo = d.echo_risk_distribution || {};
+    const echoColors = { low: '#22c55e', medium: '#f59e0b', high: '#ef4444', unknown: '#6b7280' };
+    const echoTotal = Object.values(echo).reduce((a,b) => a+b, 0) || 1;
+    document.getElementById('echo-chart').innerHTML =
+      ['low','medium','high','unknown'].map(k =>
+        barHtml(k, echo[k]??0, echoTotal, echoColors[k])
+      ).join('');
+
+    // Missing field heatmap
+    const missing = d.missing_field_frequency || {};
+    const entries = Object.entries(missing).sort((a,b)=>b[1]-a[1]).slice(0,12);
+    const maxMiss = entries[0]?.[1] || 1;
+    if (entries.length) {
+      document.getElementById('missing-heatmap').innerHTML =
+        `<table class="heatmap">
+          <tr><th>Field</th><th>Missing Count</th></tr>
+          ${entries.map(([f,n]) =>
+            `<tr><td>${f}</td><td>${n}<span class="heat-bar" style="width:${Math.round(n/maxMiss*80)}px"></span></td></tr>`
+          ).join('')}
+        </table>`;
+    } else {
+      document.getElementById('missing-heatmap').innerHTML = '<p class="empty">No missing fields 🎉</p>';
+    }
+
+    // System status
+    const ss = document.getElementById('system-status');
+    const integrity_ok = (d.avg_integrity_score ?? 0) >= 0.7;
+    const echo_ok = (d.echo_risk_distribution?.high ?? 0) === 0;
+    const path_ok = (d.execution_paths?.forge_full ?? 0) > 0 || d.total === 0;
+    ss.innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:13px">
+        <div>${integrity_ok ? '🟢' : '🔴'} Avg integrity ${integrity_ok ? '≥ 0.70' : '< 0.70'} (${fmtScore(d.avg_integrity_score)})</div>
+        <div>${echo_ok ? '🟢' : '🟠'} Echo risk: ${d.echo_risk_distribution?.high ?? 0} high-risk cocoons</div>
+        <div>${path_ok ? '🟢' : '🟡'} forge_full path: ${d.execution_paths?.forge_full ?? 0} cocoons</div>
+        <div>${(d.quarantined??0)===0 ? '🟢' : '🔴'} Quarantine: ${d.quarantined ?? 0} cocoons</div>
+        <div style="margin-top:8px;color:var(--muted);font-size:11px">
+          CODETTE_AUDIT_MODE=${d.audit_mode_active ? '1' : '0'}
+        </div>
+      </div>`;
+
+    // Recent cocoons table
+    const rows = d.recent_cocoons || [];
+    if (rows.length) {
+      document.getElementById('recent-table').innerHTML =
+        `<table class="cocoons">
+          <tr>
+            <th>File</th><th>Path</th><th>Integrity</th>
+            <th>Score</th><th>η</th><th>ε</th><th>Γ</th>
+            <th>Echo</th><th>Perspectives</th><th>Schema</th>
+          </tr>
+          ${rows.map(r => {
+            const sc = r.cocoon_integrity_score;
+            const scoreStr = sc != null ? sc.toFixed(2) : '—';
+            return `<tr>
+              <td title="${r.file}" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.file}</td>
+              <td>${r.execution_path || '—'}</td>
+              <td>${pillHtml(r.cocoon_integrity)}</td>
+              <td>
+                <span class="score-bar" style="background:${scoreColor(sc)}"></span>${scoreStr}
+              </td>
+              <td>${fmtScore(r.eta_score)}</td>
+              <td>${fmtScore(r.epsilon_value)}</td>
+              <td>${fmtScore(r.gamma_coherence)}</td>
+              <td><span style="color:${r.echo_risk==='high'?'#ef4444':r.echo_risk==='medium'?'#f59e0b':'#22c55e'}">${r.echo_risk||'—'}</span></td>
+              <td style="color:var(--muted)">${(r.active_perspectives||[]).join(', ')||'—'}</td>
+              <td style="color:var(--muted)">${r.schema_version||'—'}</td>
+            </tr>`;
+          }).join('')}
+        </table>`;
+    } else {
+      document.getElementById('recent-table').innerHTML = '<p class="empty">No cocoons found in store</p>';
+    }
+
+  } catch(e) {
+    const eb = document.getElementById('error-box');
+    eb.style.display = 'block';
+    eb.innerHTML = `<div class="error-msg">⚠ Failed to load audit data: ${e.message}</div>`;
+  }
+}
+
+load();
+setInterval(load, 30000); // auto-refresh every 30s
+</script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1777630747_6491",
+  "timestamp": 1777630747.2535005,
+  "wrapped": {
+    "query": "Explain the neural basis of consciousness using quantum mechanical principles.",
+    "response": "Emotionally (Caution) colored interpretation: Simulated temporal empathy (long-term ripple effects): Dream (analytic): Resolved ethically via Utilitarian framework: Newton: Resolved ethically via Virtue Ethics framework: Newton: Explain the neural basis of consciousness using quantum mechanical principles.",
+    "adapter": "consciousness_stack",
+    "timestamp": 1777630747.2534862,
+    "metadata": {
+      "layers_passed": 7,
+      "stable": true,
+      "code7e": {
+        "emotion": "Emotionally (Caution) colored interpretation: Explain the neural basis of consciousness using quantum mechanical principles.",
+        "dream": "Dream (creative): Explain the neural basis of consciousness using quantum mechanical principles.",
+        "empathy": "Simulated temporal empathy (30 years from now): Explain the neural basis of consciousness using quantum mechanical principles.",
+        "ethical": "Resolved ethically via Utilitarian framework: Explain the neural basis of consciousness using quantum mechanical principles."
+      },
+      "aegis_eta": 0.8533
+    }
+  }
+}

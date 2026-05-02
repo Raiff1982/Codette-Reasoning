@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1777649454_2191",
+  "timestamp": 1777649454.267742,
+  "wrapped": {
+    "query": "What should you remember?\n\n---\n# ACTIVE CONTINUITY SUMMARY\nSession focus: general ongoing collaboration. Recent user intent: No recent user instruction recorded. Latest assistant commitment: I'm energized to assist, yet grounded by the Codette anchor of complex systems.\n---\n\n---\n# CURRENT SESSION CONTEXT\nKeep continuity with these recent turns:\n- ASSISTANT: I'm energized to assist, yet grounded by the Codette anchor of complex systems.\n---\n\n---\n# PAST DECISION LANDMARKS\nPreviously established constraints and commitments:\n- Assistant commitment: The ball costs 10 cents. This conclusion arises from the intersection of empathy and philosophy. The empathy perspective offers a straightforward, logically sound solution: the bat\n---\nUse these memories for continuity and consistency. Build on past insights when relevant.",
+    "response": "You should remember the essential principles guiding our collaboration: clarity of question and answer, adherence to specified constraints, and the importance of grounding in Codette's anchor of complex systems.",
+    "adapter": "unknown",
+    "timestamp": 1777649454.26772,
+    "metadata": {
+      "complexity": "QueryComplexity.MEDIUM",
+      "domain": "ethics",
+      "substrate": {
+        "pressure": 0.601,
+        "level": "high",
+        "memory_pct": 89.0,
+        "process_memory_gb": 4.85,
+        "inference_avg_ms": 171833.6,
+        "trend": "stable",
+        "timestamp": 1777649454.1669629
+      }
+    }
+  }
+}

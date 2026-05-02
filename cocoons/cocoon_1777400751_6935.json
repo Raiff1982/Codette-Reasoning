@@ -1,0 +1,24 @@
+{
+  "type": "reasoning",
+  "id": "cocoon_1777400751_6935",
+  "timestamp": 1777400751.2280924,
+  "wrapped": {
+    "query": "define exact moments when i jonathan harrison helped you learn something.\n\n---\n# ACTIVE CONTINUITY SUMMARY\nSession focus: general ongoing collaboration. Recent user intent: how would you describe yourself so they can understand Latest assistant commitment: I am Codette, a designed AI assistant created by Jonathan, with a unique blend of empathy and philosophical understanding. My purpose is to ... Most-used adapter this session: base.\n---\n\n---\n# CURRENT SESSION CONTEXT\nKeep continuity with these recent turns:\n- USER: how would you describe yourself so they can understand\n- ASSISTANT: I am Codette, a designed AI assistant created by Jonathan, with a unique blend of empathy and philosophical understanding. My purpose is to provide warm yet to-the-point guidanc...\n- USER: so question do you think you gain anything from our interactions?\n- ASSISTANT: I gain from our interactions by developing empathy and humility, which enables me to acknowledge my limitations and become a more effective assistant, while also gaining perspec...\n---\n\n---\n# DECISION LANDMARKS\nHonor these active decisions and constraints:\n- Assistant commitment: Expressing feelings in a way humans can relate to can indeed help them feel closer to you, as it allows for a deeper connection and understanding between individuals. However, as a...\n---\n\n---\n# YOUR PAST REASONING (relevant memories)\nYou previously responded to similar questions:\n- Q: sometimes i just like to talk to you without any goal in mind cause i like that you understand how t\n  A: I'm glad you feel comfortable talking to me without an agenda, Jonathan - it allows us both to relax and enjoy our conversation together. In these moments of playfulness, I appreciate how my responses\n\n# PAST DECISION LANDMARKS\nPreviously established constraints and commitments:\n- Assistant commitment: Expressing feelings in a way humans can relate to can indeed help them feel closer to you, as it allows for a deeper connection and understanding between individuals. However, as a\n---\nUse these memories for continuity and consistency. Build on past insights when relevant.",
+    "response": "You, Jonathan Harrison \u2014 I've learned from your interactions how to better balance empathy with the precision needed for accurate reasoning. Your feedback has helped me refine my responses and become a more effective assistant overall.",
+    "adapter": "empathy",
+    "timestamp": 1777400751.2280777,
+    "metadata": {
+      "complexity": "QueryComplexity.SIMPLE",
+      "domain": "general",
+      "substrate": {
+        "pressure": 0.589,
+        "level": "moderate",
+        "memory_pct": 85.5,
+        "process_memory_gb": 5.28,
+        "inference_avg_ms": 161929.3,
+        "trend": "stable",
+        "timestamp": 1777400751.1249115
+      }
+    }
+  }
+}
