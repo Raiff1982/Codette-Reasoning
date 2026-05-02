@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# Codette pre-push hook — runs cocoon-smoke when forge or cocoon files change.
+#
+# Install:
+#   cp .githooks/pre-push .git/hooks/pre-push
+#   chmod +x .git/hooks/pre-push
+#
+# To skip in an emergency:
+#   git push --no-verify
+#
+# The hook only fires when the push touches files under:
+#   reasoning_forge/   inference/codette_forge_bridge.py   inference/codette_server.py
+#   scripts/cocoon_smoke.py   reasoning_forge/cocoon_*.py
+
+set -euo pipefail
+
+WATCHED_PATTERNS=(
+    "reasoning_forge/"
+    "inference/codette_forge_bridge.py"
+    "inference/codette_server.py"
+    "scripts/cocoon_smoke.py"
+)
+
+# Collect files changed in this push (against the remote branch or HEAD~1)
+remote="$1"
+url="$2"
+
+changed_files=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || git diff --name-only HEAD 2>/dev/null || true)
+
+should_run=0
+for pattern in "${WATCHED_PATTERNS[@]}"; do
+    if echo "$changed_files" | grep -q "$pattern"; then
+        should_run=1
+        break
+    fi
+done
+
+if [ "$should_run" -eq 0 ]; then
+    # No relevant files changed — skip the hook
+    exit 0
+fi
+
+echo ""
+echo "  [pre-push] Forge/cocoon files changed — running make cocoon-smoke"
+echo "  (skip with: git push --no-verify)"
+echo ""
+
+if ! make cocoon-smoke; then
+    echo ""
+    echo "  [pre-push] BLOCKED: cocoon-smoke failed."
+    echo "  Fix the integrity issues above before pushing."
+    echo "  To bypass: git push --no-verify"
+    echo ""
+    exit 1
+fi
+
+echo "  [pre-push] cocoon-smoke passed."
+exit 0

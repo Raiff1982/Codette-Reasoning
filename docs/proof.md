@@ -91,6 +91,30 @@ What these show:
 - loop-resistance benchmarking
 - regression tests for trigger and continuity edge cases
 
+### Audit-First Runtime Integrity
+
+Proof artifacts:
+- [reasoning_forge/cocoon_schema_v3.py](../reasoning_forge/cocoon_schema_v3.py) — CocoonV3 schema with execution path provenance, integrity scoring, echo detection
+- [reasoning_forge/cocoon_validator.py](../reasoning_forge/cocoon_validator.py) — composite integrity scorer (0–1), quarantine routing
+- [reasoning_forge/echo_collapse_detector.py](../reasoning_forge/echo_collapse_detector.py) — token cosine similarity detecting theatrical labeling and perspective collapse
+- [reasoning_forge/subsystem_contracts.py](../reasoning_forge/subsystem_contracts.py) — TypedDicts enforcing required outputs at every subsystem boundary
+- [reasoning_forge/cognition_cocooner.py](../reasoning_forge/cognition_cocooner.py) — regression alarm (`_v3_missing_fallback_count`) if any write bypasses v3
+- [scripts/cocoon_smoke.py](../scripts/cocoon_smoke.py) — 27-check smoke test; run `make cocoon-smoke`
+- [docs/cocoon_pipeline.md](cocoon_pipeline.md) — full claims-to-code map for audit-first architecture
+
+What these show:
+- every production response writes a `CocoonV3` with `execution_path`, AEGIS framework scores, echo risk, integrity score
+- high-echo or collapsed cocoons are routed to quarantine, not the main store
+- a module-level counter + WARNING log fires if the v3 path is ever bypassed
+- `make cocoon-smoke` is the one-command CI gate: exits 1 on any regression
+
+Quick verification:
+```bash
+make cocoon-smoke          # must pass before any push touching forge/memory
+make health                # avg integrity, echo distribution, fallback count
+make inspect-latest        # human-readable view of the most recent cocoon
+```
+
 ## Runnable Evidence
 
 ### Demo
