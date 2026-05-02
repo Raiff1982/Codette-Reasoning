@@ -56,6 +56,9 @@ except Exception:
     CocoonKeyManager = None
 
 # v2.1: observability + rich cocoon schema
+# NOTE: build_cocoon (v2) is LEGACY — internal use only for memory-kernel in-memory
+# writes and v3 fallback.  New production code must use build_cocoon_v3 from
+# reasoning_forge.cocoon_schema_v3 and write via CognitionCocooner.wrap_reasoning(v3_cocoon=...).
 try:
     from reasoning_forge.reasoning_trace import ReasoningTrace, TraceEvent
     from reasoning_forge.cocoon_schema_v2 import Cocoon, build_cocoon
