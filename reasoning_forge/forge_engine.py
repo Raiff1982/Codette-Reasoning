@@ -114,6 +114,7 @@ try:
         aegis_from_raw, nexus_from_raw, guardian_from_raw, epistemic_from_report,
     )
     from reasoning_forge.drift_detector import DriftDetector, CONSECUTIVE_RISING
+    from reasoning_forge.synthesis_engine_v3 import SynthesisEngineV3, EnhancedCognitiveTrace
     _V21_AVAILABLE = True
 except Exception as _v21_err:
     _V21_AVAILABLE = False
@@ -125,9 +126,10 @@ except Exception as _v21_err:
 import os as _os
 CODETTE_AUDIT_MODE: bool = _os.environ.get("CODETTE_AUDIT_MODE", "0").strip() == "1"
 
-# Module-level shared validator and echo detector (lazy-init on first use)
+# Module-level shared validator, echo detector, and synthesis v3 (lazy-init on first use)
 _cocoon_validator: "CocoonValidator | None" = None
 _echo_detector: "EchoCollapseDetector | None" = None
+_synthesis_v3: "SynthesisEngineV3 | None" = None
 
 
 def _get_validator() -> "CocoonValidator":
@@ -148,6 +150,16 @@ def _get_echo_detector() -> "EchoCollapseDetector":
         except Exception:
             pass
     return _echo_detector
+
+
+def _get_synthesis_v3() -> "SynthesisEngineV3 | None":
+    global _synthesis_v3
+    if _synthesis_v3 is None and _V21_AVAILABLE:
+        try:
+            _synthesis_v3 = SynthesisEngineV3()
+        except Exception:
+            pass
+    return _synthesis_v3
 
 
 SYSTEM_PROMPT = (
@@ -703,6 +715,33 @@ class ForgeEngine:
             )
 
         epistemic_report = self.epistemic.full_epistemic_report(analyses, synthesized_response)
+
+        # ── Phase 7.1: Adaptive Answer Placement (SynthesisEngineV3) ─────────
+        # Applies Newtonian-First gating: low-tension queries get the verdict
+        # first; high-tension queries surface the full multi-perspective debate.
+        _v3_engine = _get_synthesis_v3()
+        _v3_trace: "EnhancedCognitiveTrace | None" = None
+        if _v3_engine and synthesized_response:
+            try:
+                _aap_epsilon = float(epistemic_report.get("tension_magnitude", 0.35))
+                _aap_gamma   = float(epistemic_report.get("ensemble_coherence",  0.72))
+                _aap_result  = _v3_engine.synthesize_adaptive(
+                    concept=concept,
+                    analyses=analyses,
+                    epsilon=_aap_epsilon,
+                    gamma=_aap_gamma,
+                    base_synthesis=synthesized_response,
+                )
+                synthesized_response = _aap_result["response"]
+                _v3_trace = _aap_result["trace"]
+                logger.debug(
+                    f"[SynthesisV3] attractor={_v3_trace.active_attractor} "
+                    f"direct={_v3_trace.direct_mode} "
+                    f"trust={_v3_trace.spectral_trust:.3f} "
+                    f"ε={_aap_epsilon:.2f}"
+                )
+            except Exception as _aap_err:
+                logger.debug(f"[SynthesisV3] skipped in _forge_single_safe: {_aap_err}")
 
         # Sycophancy scan on final synthesis (cross-turn agreement loop is intentional)
         if getattr(self, '_sycophancy_guard', None):
@@ -1547,6 +1586,47 @@ class ForgeEngine:
                 "synthesis_quality": "adequate",
                 "unresolved_tensions": [],
             })
+
+        # ── Phase 7.1: Adaptive Answer Placement (SynthesisEngineV3) ─────────
+        # Uses intent_vector epsilon/gamma (computed at Layer 2) since the full
+        # epistemic report is not separately computed in forge_with_debate.
+        _v3_engine_d = _get_synthesis_v3()
+        _v3_trace_d: "EnhancedCognitiveTrace | None" = None
+        if _v3_engine_d and synthesis and not synthesis.startswith("["):
+            try:
+                _aap_eps = float(
+                    intent_vector.get("epsilon",
+                    intent_vector.get("tension_magnitude", 0.35))
+                )
+                _aap_gam = float(
+                    intent_vector.get("gamma",
+                    intent_vector.get("ensemble_coherence", 0.72))
+                )
+                _aap_result_d = _v3_engine_d.synthesize_adaptive(
+                    concept=concept,
+                    analyses=analyses,
+                    epsilon=_aap_eps,
+                    gamma=_aap_gam,
+                    base_synthesis=synthesis,
+                )
+                synthesis = _aap_result_d["response"]
+                _v3_trace_d = _aap_result_d["trace"]
+                logger.info(
+                    f"  [SynthesisV3] attractor={_v3_trace_d.active_attractor} "
+                    f"direct={_v3_trace_d.direct_mode} "
+                    f"trust={_v3_trace_d.spectral_trust:.3f} "
+                    f"ε={_aap_eps:.2f}"
+                )
+                if _trace:
+                    _trace.record(EVENT_SYNTHESIS_RESULT, "SynthesisEngineV3", {
+                        "attractor":      _v3_trace_d.active_attractor,
+                        "direct_mode":    _v3_trace_d.direct_mode,
+                        "spectral_trust": _v3_trace_d.spectral_trust,
+                        "epsilon":        _v3_trace_d.epsilon,
+                        "gamma":          _v3_trace_d.gamma,
+                    })
+            except Exception as _aap_err:
+                logger.debug(f"[SynthesisV3] skipped in forge_with_debate: {_aap_err}")
 
         # Hallucination scan on final synthesis (reset for clean per-turn state)
         if getattr(self, '_hallucination_guard', None) and synthesis and not synthesis.startswith("["):
