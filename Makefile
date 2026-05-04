@@ -67,6 +67,20 @@ dev:
 
 # ── Lint ──────────────────────────────────────────────────────────────────────
 
+# ── Benchmarks ───────────────────────────────────────────────────────────────
+
+# Phase 7.1 AAP benchmark: directness, attractor distribution, trust, latency
+# Requires server running (make dev in another terminal)
+bench-aap:
+	python benchmarks/phase71_aap_benchmark.py
+
+bench-aap-quick:
+	python benchmarks/phase71_aap_benchmark.py --quick
+
+# Full Phase 7 benchmark (existing)
+bench-phase7:
+	python benchmarks/phase7_benchmark.py
+
 lint:
 	python -m py_compile \
 	    reasoning_forge/cocoon_schema_v3.py \
