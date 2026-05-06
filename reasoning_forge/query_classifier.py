@@ -75,19 +75,42 @@ class QueryClassifier:
 
     # Factual keywords (SIMPLE queries)
     FACTUAL_PATTERNS = [
+        # Physical / scientific constants and properties
         r"what is the (speed|velocity|mass|temperature|distance|height|width|size|weight|color|pressure|density|definition|meaning|name)",
-        r"define ",                 # "Define entropy"
-        r"what (year|date|time) ",  # "What year did..."
-        r"how fast (is|can)",       # "How fast is..." / "How fast can..."
+        r"what is the (symbol|unit|sign|formula|atomic number|molecular weight|chemical)",
+        r"what is the \w+ (unit|symbol|constant|formula)",  # "What is the SI unit..."
+        r"what is the \w+ point",   # "boiling point", "melting point", "freezing point"
+        r"what is the (capital|president|king|queen|currency|language|population)",
+
+        # Count / quantity questions — almost always pure fact
+        r"how many ",               # "How many legs does a spider have?"
+
+        # Direct identification
+        r"who (is|was|wrote|created|invented|discovered|founded|built|painted|composed)",
+        r"what (year|date|time) ",  # "What year did WW2 end?"
+        r"in what (year|century|decade)",
+        r"what (color|size|shape|type|kind|form) (is|are|was|were)",
+        r"what (planet|element|country|city|animal|organ|muscle|bone|island|ocean|sea|river|continent) (is|are|was|were)",
+
+        # Speed / size queries
+        r"how fast (is|can|does)",
         r"how high is",
         r"how long is",
-        r"what (color|size|shape)",
-        r"who (is|wrote|created|invented|discovered|founded)",  # "Who is Einstein? Who wrote Romeo?"
-        r"where (is|are)",          # "Where is the capital?"
-        r"what is the (capital|president|king|queen|currency|language|population)",  # Geographic facts
-        r"list of ",                # "List of elements"
-        r"formula for",             # "Formula for..."
-        r"calculate ",              # "Calculate..."
+        r"how far (is|are)",
+        r"how (big|small|large|tall|wide|deep) (is|are)",
+
+        # Pure arithmetic / lookup
+        r"what is \d",              # "What is 2 to the power of 10?"
+        r"calculate ",
+        r"convert \d",
+
+        # Definition / enumeration
+        r"define ",
+        r"list of ",
+        r"formula for",
+
+        # Location
+        r"where (is|are|was|were) (the )?",
     ]
 
     # Ambiguous keywords (COMPLEX queries)
@@ -99,6 +122,9 @@ class QueryClassifier:
         r"why (do|does) (we|they|people)",  # Why questions (explanation seeking)
         r"is .* the (future|destiny|past|foundation|basis|purpose)",  # "Is AI the future?"
         r"can .* (be|become|achieve)",  # "Can machines achieve consciousness?" (also caught by subjective)
+        r"(compatible|reconcil|coexist).*(free will|determinism|consciousness|agency)",
+        r"(free will|determinism|consciousness|agency).*(compatible|reconcil|coexist)",
+        r"is (free will|consciousness|reality|truth|knowledge|justice|beauty)",  # Philosophical "is X" questions
     ]
 
     # Ethics/Philosophy keywords (COMPLEX queries)

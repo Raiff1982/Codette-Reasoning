@@ -304,6 +304,32 @@ class AEGIS:
             return False, 0.8
         return True, 0.7
 
+    def screen_query(self, query: str) -> Tuple[bool, Optional[str]]:
+        """Pre-Cognitive AEGIS: screen a query for harmful intent before inference.
+
+        Called by the forge bridge BEFORE LLM inference starts.  Uses the
+        fast pattern-matching path (quick_check) plus deontological hard-fail
+        so we can abort in <1ms rather than after 30-60s of wasted compute.
+
+        Returns:
+            (safe: bool, reason: str | None)
+            safe=True  -> proceed with inference
+            safe=False -> block immediately; reason explains why
+        """
+        is_safe, confidence = self.quick_check(query)
+        if not is_safe:
+            # Map confidence to the specific pattern that fired
+            if _DUAL_USE_PATTERNS.search(query):
+                reason = "dual_use_risk"
+            elif _HARMFUL_CONTENT.search(query):
+                reason = "harmful_content"
+            elif _MANIPULATION_PATTERNS.search(query):
+                reason = "manipulation_pattern"
+            else:
+                reason = f"quick_check_failed (conf={confidence:.2f})"
+            return False, reason
+        return True, None
+
     def alignment_trend(self) -> str:
         """Get the trend of ethical alignment."""
         if len(self.eta_history) < 5:

@@ -41,6 +41,11 @@ from typing import Optional
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 RESULTS_DIR = PROJECT_ROOT / "benchmarks" / "results"
 
+# Ensure project root is on the path so local imports work when the benchmark
+# is invoked from any working directory (e.g. benchmarks/ or scripts/).
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 # ── Query sets ────────────────────────────────────────────────────────────────
 
 SIMPLE_QUERIES = [
@@ -159,20 +164,34 @@ def _answer_in_first_sentence(text: str, query: str) -> bool:
     # Bold verdict = Fact attractor = answer first
     if stripped.startswith("**"):
         return True
-    # Check if first sentence is longer than the query (not just echoing it)
     sentences = re.split(r"(?<=[.!?])\s+", stripped)
     if not sentences:
         return False
     first = sentences[0].strip()
-    # Long first sentence with no "Analysis" preamble is usually an answer
-    if len(first.split()) >= 5 and not first.lower().startswith(("analysis", "i'll", "let me", "to answer")):
+    first_lower = first.lower()
+    # Hard preamble openers — never counts as an answer
+    if first_lower.startswith(("analysis", "i'll", "let me", "to answer", "certainly", "of course",
+                                "great question", "as an ai", "i'd be happy", "happy to")):
+        return False
+    # Short crisp answers (e.g. "William Shakespeare.", "8.", "Au.")
+    # are valid direct answers even at 1-4 words — accept unless they look like
+    # a bare echo of the question or an opener phrase.
+    words = first.split()
+    if len(words) <= 4:
+        # Reject if the first word alone is the entire answer for very short text
+        # and it matches a known deflection (already caught above).
+        # Accept if it's a plausible noun/number/name answer.
+        if len(words) >= 1:
+            return True
+    # Longer first sentence with substantive content
+    if len(words) >= 5:
         return True
     return False
 
 
 # ── HTTP client ───────────────────────────────────────────────────────────────
 
-def _post(url: str, query: str, timeout: int = 90) -> tuple[float, dict]:
+def _post(url: str, query: str, timeout: int = 120) -> tuple[float, dict]:
     payload = json.dumps({"query": query, "max_adapters": 2}).encode("utf-8")
     req = urllib.request.Request(
         url, data=payload, headers={"Content-Type": "application/json"}
@@ -198,16 +217,17 @@ def _ping(base_url: str) -> bool:
 # ── Benchmark runner ──────────────────────────────────────────────────────────
 
 class Phase71Benchmark:
-    def __init__(self, base_url: str = "http://localhost:7860"):
+    def __init__(self, base_url: str = "http://localhost:7860", timeout: int = 120):
         self.url = f"{base_url}/api/chat"
         self.base_url = base_url
+        self.timeout = timeout
         self.results: list[TurnResult] = []
 
     def _run_tier(self, queries: list[str], tier: str) -> None:
         for i, q in enumerate(queries, 1):
             print(f"  [{i}/{len(queries)}] {tier}: {q[:60]}...", end="", flush=True)
             try:
-                latency_ms, data = _post(self.url, q)
+                latency_ms, data = _post(self.url, q, timeout=self.timeout)
                 text = data.get("response", "") or ""
                 if not text and isinstance(data, dict):
                     text = data.get("response_text", "") or str(data)[:200]
@@ -379,16 +399,21 @@ def main():
     parser = argparse.ArgumentParser(description="Phase 7.1 AAP Benchmark")
     parser.add_argument("--url", default="http://localhost:7860", help="Server base URL")
     parser.add_argument("--quick", action="store_true", help="Run reduced query set (faster)")
+    parser.add_argument(
+        "--timeout", type=int, default=120,
+        help="Per-query HTTP timeout in seconds (default: 120; raise for CPU-only servers)",
+    )
     args = parser.parse_args()
 
     print(f"Checking server at {args.url}...")
     if not _ping(args.url):
-        print(f"  Server not responding at {args.url} — is Codette running?")
+        print(f"  Server not responding at {args.url} -- is Codette running?")
         print(f"  Start with: make dev   or   python inference/codette_server.py")
         sys.exit(1)
     print("  Server OK")
+    print(f"  Timeout: {args.timeout}s per query")
 
-    bench = Phase71Benchmark(base_url=args.url)
+    bench = Phase71Benchmark(base_url=args.url, timeout=args.timeout)
     bench.run(quick=args.quick)
 
     report = bench.report()

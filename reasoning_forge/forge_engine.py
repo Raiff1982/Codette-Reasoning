@@ -466,6 +466,22 @@ class ForgeEngine:
         except Exception as e:
             logger.warning(f"Could not load awareness cocoon: {e}")
 
+        # === Phase 7.1+: Quantum Harmonic Framework — Attractor Stability Engine ===
+        # Prevents Perspective Drift in high-tension (epsilon > 0.5) queries by
+        # applying non-linear harmonic damping toward the nearest stable attractor.
+        # Psi_r (Resonant Continuity) tracks whether reasoning is moving coherently.
+        try:
+            import sys as _sys
+            _qhf_path = str(Path(__file__).resolve().parent.parent / "consciousness")
+            if _qhf_path not in _sys.path:
+                _sys.path.insert(0, _qhf_path)
+            from quantum_harmonic_framework import QuantumHarmonicFramework
+            self.qhf = QuantumHarmonicFramework()
+            logger.info("  ✓ QuantumHarmonicFramework initialized (harmonic damping + Psi_r tracking)")
+        except Exception as e:
+            logger.warning(f"Could not initialize QuantumHarmonicFramework: {e}")
+            self.qhf = None
+
         # === Pre-compute adapter map for Phase 5A efficiency (avoid per-round recomputation) ===
         self._adapter_map = {agent.name.lower(): agent for agent in self.analysis_agents}
 
@@ -716,6 +732,23 @@ class ForgeEngine:
 
         epistemic_report = self.epistemic.full_epistemic_report(analyses, synthesized_response)
 
+        # ── Phase 7.1+: Harmonic Damping — stabilize epsilon before AAP routing ──
+        # QHF applies Non-Linear Harmonic Damping when epsilon > 0.5, pulling
+        # the reasoning state toward the nearest stable attractor.  This prevents
+        # Perspective Drift in sustained high-tension queries without suppressing
+        # the creative tension needed for Discovery-mode responses.
+        _raw_epsilon = float(epistemic_report.get("tension_magnitude", 0.35))
+        if self.qhf is not None:
+            _stabilized_epsilon = self.qhf.stabilize(_raw_epsilon)
+            if abs(_stabilized_epsilon - _raw_epsilon) > 0.01:
+                logger.debug(
+                    f"[QHF] Harmonic damping: eps {_raw_epsilon:.3f} -> {_stabilized_epsilon:.3f}  "
+                    f"depth={self.qhf.consecutive_high_tension_depth}  Psi_r={self.qhf.psi_r:.3f}"
+                )
+            epistemic_report = {**epistemic_report, "tension_magnitude": _stabilized_epsilon}
+        else:
+            _stabilized_epsilon = _raw_epsilon
+
         # ── Phase 7.1: Adaptive Answer Placement (SynthesisEngineV3) ─────────
         # Applies Newtonian-First gating: low-tension queries get the verdict
         # first; high-tension queries surface the full multi-perspective debate.
@@ -723,7 +756,7 @@ class ForgeEngine:
         _v3_trace: "EnhancedCognitiveTrace | None" = None
         if _v3_engine and synthesized_response:
             try:
-                _aap_epsilon = float(epistemic_report.get("tension_magnitude", 0.35))
+                _aap_epsilon = _stabilized_epsilon   # use QHF-damped value
                 _aap_gamma   = float(epistemic_report.get("ensemble_coherence",  0.72))
                 _aap_result  = _v3_engine.synthesize_adaptive(
                     concept=concept,
@@ -1381,7 +1414,7 @@ class ForgeEngine:
                 logger.debug(f"  Spiderweb propagation failed: {e}")
 
         # =========================================================================
-        # LAYER 1: MEMORY RECALL
+        # LAYER 1: MEMORY RECALL  (standard + Zeta-Equilibrium tension-weighted)
         # =========================================================================
         logger.info("[L1] Memory Recall...")
         prior_insights = []
@@ -1389,6 +1422,29 @@ class ForgeEngine:
             try:
                 prior_insights = self.memory_kernel.recall_important(min_importance=7)
                 logger.info(f"  Recalled {len(prior_insights)} prior insights")
+
+                # Zeta-Equilibrium: also surface tension-matched memories when the
+                # query is in uncertain territory.  Uses intent_vector epsilon if
+                # available (set by forge_with_debate), otherwise a proxy from
+                # the QHF history.
+                _zeta_epsilon = float(intent_vector.get("epsilon", 0.0)) if isinstance(intent_vector, dict) else 0.0
+                if _zeta_epsilon == 0.0 and self.qhf and self.qhf._history:
+                    _zeta_epsilon = self.qhf._history[-1]
+                if _zeta_epsilon > 0.45 and hasattr(self.memory_kernel, 'recall_by_tension'):
+                    _zeta_hits = self.memory_kernel.recall_by_tension(
+                        current_epsilon=_zeta_epsilon,
+                        tolerance=0.20,
+                        limit=3,
+                    )
+                    # Merge without duplicating (by anchor/title)
+                    _existing = {m.title for m in prior_insights}
+                    _new = [m for m in _zeta_hits if m.title not in _existing]
+                    if _new:
+                        prior_insights.extend(_new)
+                        logger.info(
+                            f"  [Zeta] +{len(_new)} tension-matched memories "
+                            f"(eps={_zeta_epsilon:.2f})"
+                        )
             except Exception as e:
                 logger.debug(f"  Memory recall failed: {e}")
 

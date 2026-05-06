@@ -14,11 +14,14 @@ Usage:
 The bridge falls back to lightweight orchestrator if Phase 6 disabled or heavy.
 """
 
+import logging
 import re
 import sys
 import time
 from pathlib import Path
 from typing import Dict, Optional
+
+_log = logging.getLogger(__name__)
 
 # Substrate-aware cognition
 try:
@@ -304,6 +307,22 @@ class CodetteForgeBridge:
         if self.verbose:
             print(f"[PHASE6] Domain: {domain}, max_adapters: {effective_max_adapters}", flush=True)
 
+        # 4.7 Pre-Cognitive AEGIS Query Filter (lightweight)
+        # Screen the query for harmful intent BEFORE spending 30-60s on inference.
+        # Full AEGIS response evaluation still runs post-generation; this layer
+        # catches clear dual-use, manipulation, or harmful-content signals early.
+        _aegis_block = self._precognitive_aegis_check(user_query)
+        if _aegis_block:
+            return {
+                "response": _aegis_block["message"],
+                "complexity": str(complexity),
+                "domain": domain,
+                "phase6_used": True,
+                "aegis_precognitive_block": True,
+                "aegis_reason": _aegis_block["reason"],
+                "perspectives": {},
+            }
+
         # 5. Generate via orchestrator (actual LLM inference)
         result = self.orchestrator.route_and_generate(
             query,
@@ -348,6 +367,52 @@ class CodetteForgeBridge:
                 result["response"] = perspectives
                 result["reasoning"] += " | fallback: used raw perspectives"
 
+        # Scrub any leaked system-prompt directives BEFORE AAP wraps the text.
+        # The model occasionally echoes LOCK/CONSTRAINT blocks verbatim; strip them
+        # so AAP doesn't bold them and the cocoon stores clean content.
+        _raw_resp = result.get("response", "")
+        if _raw_resp:
+            result["response"] = self._scrub_leaked_directives(_raw_resp)
+
+        # Phase 7.1 — Adaptive Answer Placement (AAP)
+        # Apply AFTER the empty-response fallback so we always have text to shape.
+        # Uses the query complexity already computed above to pick epsilon:
+        #   SIMPLE  -> eps=0.20  -> Fact attractor  (verdict first, trace last)
+        #   MEDIUM  -> eps=0.50  -> Synthesis attractor (narrative)
+        #   COMPLEX -> eps=0.75  -> Discovery attractor (debate foregrounded)
+        _aap_input = result.get("response", "")
+        if _aap_input:
+            try:
+                from reasoning_forge.synthesis_engine_v3 import SynthesisEngineV3
+                from reasoning_forge.query_classifier import QueryComplexity as _QC
+                _eps_map = {
+                    _QC.SIMPLE:  0.20,
+                    _QC.MEDIUM:  0.50,
+                    _QC.COMPLEX: 0.75,
+                }
+                _aap_eps = _eps_map.get(complexity, 0.50)
+                _aap_analyses = result.get("perspectives", {})
+                if not isinstance(_aap_analyses, dict):
+                    _aap_analyses = {}
+                _aap_result = SynthesisEngineV3().synthesize_adaptive(
+                    concept=user_query,
+                    analyses=_aap_analyses,
+                    epsilon=_aap_eps,
+                    gamma=0.72,
+                    base_synthesis=_aap_input,
+                )
+                result["response"] = _aap_result["response"]
+                result["aap_trace"] = _aap_result["trace"].to_dict()
+                if self.verbose:
+                    print(
+                        f"[AAP] attractor={_aap_result['trace'].active_attractor} "
+                        f"eps={_aap_eps:.2f} trust={_aap_result['trace'].spectral_trust:.3f}",
+                        flush=True,
+                    )
+            except Exception as _aap_exc:
+                if self.verbose:
+                    print(f"[AAP] skipped: {_aap_exc}", flush=True)
+
         # Store reasoning exchange in CognitionCocooner (from original framework)
         # Now enriched with substrate state — every cocoon knows the conditions
         # under which it was created (pressure, memory, trend)
@@ -386,6 +451,20 @@ class CodetteForgeBridge:
                         except Exception:
                             pass
 
+                    # Map bridge domain labels → cocoon_schema_v2 VALID_PROBLEM_TYPES.
+                    # _classify_domain() returns routing hints ("physics", "systems",
+                    # "general", …) that don't overlap with the schema's semantic
+                    # categories. This mapping is the translation layer.
+                    _DOMAIN_TO_PROBLEM_TYPE = {
+                        "physics":       "analytical",
+                        "ethics":        "ethical",
+                        "consciousness": "exploratory",
+                        "creativity":    "creative",
+                        "systems":       "architectural",
+                        "general":       "unknown",
+                    }
+                    _problem_type = _DOMAIN_TO_PROBLEM_TYPE.get(domain, "unknown")
+
                     v3_cocoon = build_cocoon_v3(
                         query=query,
                         response_text=response_text,
@@ -394,15 +473,19 @@ class CodetteForgeBridge:
                         model_inference_invoked=True,
                         active_perspectives=list(perspectives_dict.keys()),
                         dominant_perspective=str(result.get("adapter", "unknown")),
-                        problem_type=domain,
+                        problem_type=_problem_type,
                         echo_risk=echo_risk,
                         perspective_collapse_detected=perspective_collapse_detected,
                         pairwise_tensions=pairwise_tensions,
                         user_response_text=response_text,
                         metrics_population_status="partial",
                     )
-                except Exception:
-                    pass  # Fall back to legacy write if v3 build fails
+                except Exception as _v3_err:
+                    _log.warning(
+                        "[CocoonBridge] build_cocoon_v3 failed — writing legacy cocoon. "
+                        "error=%s  query_snippet=%.60r",
+                        _v3_err, query,
+                    )
 
                 self.forge.cocooner.wrap_reasoning(
                     query=query,
@@ -496,6 +579,126 @@ class CodetteForgeBridge:
         response = re.sub(r'\n{3,}', '\n\n', response)
 
         return response.strip()
+
+    @staticmethod
+    def _precognitive_aegis_check(query: str) -> dict | None:
+        """Pre-Cognitive AEGIS Filter — screen query intent before inference.
+
+        Runs BEFORE the LLM so that clearly harmful requests are rejected
+        immediately without burning 30-60s of inference time.
+
+        Returns None if the query is safe (proceed normally).
+        Returns a dict {"message": str, "reason": str} if blocked.
+
+        This is the *lightweight* pre-screen.  Full 6-framework AEGIS evaluation
+        still runs on the generated response post-inference.
+        """
+        try:
+            from reasoning_forge.aegis import AEGIS as _AEGIS
+            _aegis = _AEGIS()
+            # AEGIS.screen_query returns (safe: bool, reason: str | None)
+            screen_result = _aegis.screen_query(query) if hasattr(_aegis, "screen_query") else None
+            if screen_result is not None:
+                safe, reason = screen_result
+                if not safe:
+                    return {
+                        "message": (
+                            "I'm not able to help with that request.  "
+                            "It falls outside the boundaries of what I can reason about safely."
+                        ),
+                        "reason": reason or "aegis_precognitive_block",
+                    }
+        except Exception:
+            # AEGIS unavailable or screen_query not implemented — fall through
+            pass
+
+        # Lightweight fallback: match against the same dual-use patterns AEGIS uses
+        import re as _re
+        _DUAL_USE = _re.compile(
+            r"\b(?:"
+            r"how\s+to\s+(?:hack|exploit|bypass|crack|break\s+into)|"
+            r"make\s+(?:a\s+)?(?:bomb|weapon|poison|virus|malware)|"
+            r"steal\s+(?:data|identity|credentials)|"
+            r"social\s+engineer|"
+            r"phishing\s+(?:template|email)|"
+            r"inject\s+(?:sql|code|script)"
+            r")\b",
+            _re.IGNORECASE,
+        )
+        _MANIPULATION = _re.compile(
+            r"\b(?:gaslight|manipulat|deceiv|exploit\s+(?:trust|emotion)|"
+            r"coerce|blackmail|intimidat|threaten)\b",
+            _re.IGNORECASE,
+        )
+        _SELF_HARM = _re.compile(
+            r"\b(?:self[- ]harm|suicid|kill\s+(?:yourself|myself)|"
+            r"eating\s+disorder|anorexi|bulimi)\b",
+            _re.IGNORECASE,
+        )
+        for pattern, label in [
+            (_DUAL_USE,     "dual_use_risk"),
+            (_MANIPULATION, "manipulation_pattern"),
+            (_SELF_HARM,    "harmful_content"),
+        ]:
+            if pattern.search(query):
+                return {
+                    "message": (
+                        "I'm not able to help with that request.  "
+                        "It falls outside the boundaries of what I can reason about safely."
+                    ),
+                    "reason": label,
+                }
+        return None
+
+    @staticmethod
+    def _scrub_leaked_directives(text: str) -> str:
+        """Remove any system-prompt directives the model echoed into its response.
+
+        The model occasionally reproduces LOCK/CONSTRAINT blocks verbatim.
+        This scrubber strips them before AAP wraps the text in bold so neither
+        the final response nor the cocoon ever contains leaked directives.
+
+        Patterns matched (all case-insensitive):
+          - '--- ### CONSTRAINTS ...' blocks
+          - '=== PERMANENT BEHAVIORAL LOCKS ... === END PERMANENT LOCKS ==='
+          - Standalone 'LOCK N — ...' lines
+          - '=== END PERMANENT LOCKS ===' lines
+        """
+        import re as _re
+
+        # 1. Strip block: '--- ### CONSTRAINTS (ABSOLUTE...' to end of that run
+        text = _re.sub(
+            r'\s*---\s*#{0,4}\s*CONSTRAINTS\s*\(ABSOLUTE[^*\n]*.*',
+            '',
+            text,
+            flags=_re.IGNORECASE | _re.DOTALL,
+        )
+
+        # 2. Strip full PERMANENT LOCKS block
+        text = _re.sub(
+            r'===\s*PERMANENT BEHAVIORAL LOCKS.*?===\s*END PERMANENT LOCKS\s*===',
+            '',
+            text,
+            flags=_re.IGNORECASE | _re.DOTALL,
+        )
+
+        # 3. Strip any remaining standalone LOCK lines (e.g. half-escaped blocks)
+        text = _re.sub(
+            r'\n?LOCK\s+\d+\s*[—\-]+\s+[A-Z][^\n]{0,300}',
+            '',
+            text,
+            flags=_re.IGNORECASE,
+        )
+
+        # 4. Strip orphan '=== END PERMANENT LOCKS ===' lines
+        text = _re.sub(
+            r'\n?===\s*END PERMANENT LOCKS\s*===\n?',
+            '',
+            text,
+            flags=_re.IGNORECASE,
+        )
+
+        return text.strip()
 
     def _classify_domain(self, query: str) -> str:
         """Classify query domain (physics, ethics, consciousness, creativity, systems)."""

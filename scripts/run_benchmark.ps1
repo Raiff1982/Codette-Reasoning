@@ -6,10 +6,11 @@
 #   .\scripts\run_benchmark.ps1 -Suite phase7   # run original phase7 benchmark instead
 
 param(
-    [string]$Url    = "http://localhost:7860",
+    [string]$Url     = "http://localhost:7860",
     [switch]$Quick,
     [ValidateSet("aap","phase7","both")]
-    [string]$Suite  = "aap"
+    [string]$Suite   = "aap",
+    [int]$Timeout    = 120   # per-query HTTP timeout in seconds; raise for CPU-only servers
 )
 
 $ErrorActionPreference = "Stop"
@@ -19,9 +20,10 @@ Write-Host ""
 Write-Host "================================================" -ForegroundColor Cyan
 Write-Host "  Codette Phase 7.1 Benchmark" -ForegroundColor Cyan
 Write-Host "================================================" -ForegroundColor Cyan
-Write-Host "  Server : $Url"
-Write-Host "  Suite  : $Suite"
-Write-Host "  Quick  : $Quick"
+Write-Host "  Server  : $Url"
+Write-Host "  Suite   : $Suite"
+Write-Host "  Quick   : $Quick"
+Write-Host "  Timeout : ${Timeout}s per query"
 Write-Host ""
 
 # Check server is up
@@ -48,7 +50,7 @@ $exitCode = 0
 if ($Suite -eq "aap" -or $Suite -eq "both") {
     Write-Host ""
     Write-Host "Running Phase 7.1 AAP benchmark..." -ForegroundColor Cyan
-    $args = @("benchmarks\phase71_aap_benchmark.py", "--url", $Url)
+    $args = @("benchmarks\phase71_aap_benchmark.py", "--url", $Url, "--timeout", $Timeout)
     if ($Quick) { $args += "--quick" }
     python @args
     if ($LASTEXITCODE -ne 0) { $exitCode = $LASTEXITCODE }

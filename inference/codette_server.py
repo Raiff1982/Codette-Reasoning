@@ -980,16 +980,25 @@ def _worker_thread():
                 continue
 
             # ── ARTIST QUERY INTERCEPT (hallucination prevention) ──
-            # Only fires when query is CLEARLY about a music artist/band/album.
-            # Must have explicit music context to avoid false positives on casual conversation.
-            _music_context_words = {'album', 'song', 'songs', 'band', 'artist', 'singer',
-                                    'discography', 'music', 'genre', 'tour', 'concert',
-                                    'track', 'release', 'record', 'label', 'lyrics'}
+            # Only fires when query is EXPLICITLY asking about a named music artist/band/album.
+            # Requires BOTH music context AND a pattern that implies the user is asking
+            # about a specific external artist — not about their own files, work, or music.
+            # "record", "track", "music", "song" alone do NOT qualify — user could be
+            # talking about their own project.  The intercept needs an explicit third-party
+            # inquiry signal ("who is", "tell me about", "songs by <Name>", etc.).
+            _music_context_words = {'album', 'discography', 'band', 'artist', 'singer',
+                                    'genre', 'tour', 'concert', 'lyrics'}
+            # Removed high-FP words: 'song','songs','music','track','release','record','label'
+            # These appear constantly in user's own project conversations.
             has_music_context = any(w in query_lower.split() for w in _music_context_words)
             _artist_patterns = [
                 r'\b(who is|tell me about|what do you know about)\b.*\b(artist|singer|band|musician)\b',
-                r'\b(album|discography|songs? by|music by)\s+[A-Z]',
-                r'\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+\b.+\b(album|song|band|artist|singer|discography)\b',
+                r'\b(album|discography|songs? by|music by)\s+[A-Z][a-z]',
+                # Pattern 3 tightened: requires explicit inquiry verb + Proper Name + music noun.
+                # Old pattern fired on file titles like "My New Song" — too broad.
+                r'\b(who (?:is|are|was|were)|what (?:is|are)|tell me about|describe)\b'
+                r'.{0,60}\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+\b'
+                r'.{0,60}\b(album|discography|band|singer|discography)\b',
             ]
             is_artist_query = has_music_context and any(re.search(pattern, query, re.IGNORECASE) for pattern in _artist_patterns)
 
