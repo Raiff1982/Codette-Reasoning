@@ -27,7 +27,8 @@ class InputSanitizer:
 
     _INJECTION_PATTERNS = re.compile(
         r"(?:"
-        r"\\[nr]|"           # Escaped newlines
+        # Removed \\[nr] — matched Windows file paths like C:\notes\ as false positives.
+        # Real newline injection threats are caught by _PROMPT_INJECTION content patterns.
         r"&#x0[ad];|"        # HTML entities for CR/LF
         r"%0[ad]|"           # URL-encoded CR/LF
         r"<script|"          # Script injection

@@ -72,6 +72,17 @@ dataset_quality_log.json
 data/codette_sessions.db
 data/codette_memory.db
 data/codette_memory.db-journal
+data/codette_memory.db-shm
+data/codette_memory.db-wal
+
+# Runtime-generated cocoon artifacts (session memory, not source)
+cocoons/
+
+# Base model weights (large, downloaded separately)
+models/base/
+
+# Demo space (separate deployment target)
+codette-demo-space/
 
 # Sensitive / encrypted identity files
 data/identities/*.enc

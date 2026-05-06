@@ -1,0 +1,33 @@
+{
+  "benchmark": "phase71_aap",
+  "timestamp": "20260504_040148",
+  "total_turns": 2,
+  "results": [
+    {
+      "query": "What is the speed of light in a vacuum?",
+      "tier": "SIMPLE",
+      "latency_ms": 43373.6,
+      "response_text": "The speed of light is approximately 299,792 kilometers per second.",
+      "response_words": 10,
+      "preamble_words": 10,
+      "answer_in_first_sentence": true,
+      "attractor_detected": "unknown",
+      "spectral_trust": 0.0,
+      "api_complexity": "QueryComplexity.SIMPLE",
+      "error": null
+    },
+    {
+      "query": "Who wrote Hamlet?",
+      "tier": "SIMPLE",
+      "latency_ms": 52927.3,
+      "response_text": "William Shakespeare. He wrote Hamlet around 1599-1602.",
+      "response_words": 7,
+      "preamble_words": 2,
+      "answer_in_first_sentence": false,
+      "attractor_detected": "unknown",
+      "spectral_trust": 0.0,
+      "api_complexity": "QueryComplexity.SIMPLE",
+      "error": null
+    }
+  ]
+}

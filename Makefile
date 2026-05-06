@@ -72,10 +72,10 @@ dev:
 # Phase 7.1 AAP benchmark: directness, attractor distribution, trust, latency
 # Requires server running (make dev in another terminal)
 bench-aap:
-	python benchmarks/phase71_aap_benchmark.py
+	python benchmarks/phase71_aap_benchmark.py --timeout $(or $(TIMEOUT),120)
 
 bench-aap-quick:
-	python benchmarks/phase71_aap_benchmark.py --quick
+	python benchmarks/phase71_aap_benchmark.py --quick --timeout $(or $(TIMEOUT),120)
 
 # Full Phase 7 benchmark (existing)
 bench-phase7:

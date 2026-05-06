@@ -155,6 +155,64 @@ class LivingMemoryKernel:
         results = [m for m in self.memories if m.adapter_used == adapter]
         return sorted(results, key=lambda m: m.timestamp, reverse=True)[:limit]
 
+    def recall_by_tension(
+        self,
+        current_epsilon: float,
+        tolerance: float = 0.20,
+        limit: int = 5,
+        min_importance: int = 4,
+    ) -> List[MemoryCocoon]:
+        """Zeta-Equilibrium Retrieval — surface past cocoons with similar epistemic tension.
+
+        When the current query has high uncertainty (epsilon > 0.5), this surfaces
+        memories from similar-difficulty past reasoning moments.  Cross-referencing
+        these 'Aha!' moments gives the current reasoning cycle a head-start toward
+        convergence without forcing it to a conclusion.
+
+        Args:
+            current_epsilon:  Current epistemic tension (0-1) from the active query.
+            tolerance:        Match window (default ±0.20 around current_epsilon).
+            limit:            Maximum memories to return.
+            min_importance:   Skip low-importance memories (default >= 4/10).
+
+        Returns:
+            Memories sorted by composite score: tension_proximity * importance * recency.
+        """
+        low  = max(0.0, current_epsilon - tolerance)
+        high = min(1.0, current_epsilon + tolerance)
+
+        candidates = [
+            m for m in self.memories
+            if low <= m.tension <= high and m.importance >= min_importance
+        ]
+        if not candidates:
+            return []
+
+        import time as _time
+        now = _time.time()
+
+        def _zeta_score(m: MemoryCocoon) -> float:
+            # Proximity: 1.0 at exact match, 0.0 at tolerance boundary
+            proximity = 1.0 - abs(m.tension - current_epsilon) / max(tolerance, 1e-6)
+            # Recency: exponential decay with 14-day half-life
+            age_days = (now - m.timestamp) / 86400.0
+            recency  = math.exp(-age_days / 14.0)
+            return proximity * m.importance * (0.4 + 0.6 * recency)
+
+        candidates.sort(key=_zeta_score, reverse=True)
+        return candidates[:limit]
+
+    def tension_summary(self) -> dict:
+        """Return distribution of stored tension values for health monitoring."""
+        if not self.memories:
+            return {"count": 0, "avg_tension": 0.0, "high_tension_count": 0}
+        tensions = [m.tension for m in self.memories]
+        return {
+            "count": len(tensions),
+            "avg_tension": round(sum(tensions) / len(tensions), 3),
+            "high_tension_count": sum(1 for t in tensions if t > 0.5),
+        }
+
     def search(self, terms: str, limit: int = 5) -> List[MemoryCocoon]:
         """Simple keyword search across memory content."""
         words = terms.lower().split()

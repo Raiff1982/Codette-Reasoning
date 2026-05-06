@@ -49,7 +49,9 @@ model-index:
 
 **Advanced multi-perspective AI with conscience, memory, auditability, and behavioral discipline.**
 
-Codette is a modular reasoning system that routes queries through specialized cognitive perspectives, tracks ethical and epistemic signals, stores memory as cocoons, and now writes validator-backed v3 cocoon artifacts with provenance and integrity scoring.
+Codette is a modular reasoning system that routes queries through specialized cognitive perspectives, tracks ethical and epistemic signals, stores memory as cocoons, and writes validator-backed v3 cocoon artifacts with full provenance and integrity scoring.
+
+**v2.1 RC+ξ additions:** Quantum Harmonic Framework v2.0 (harmonic damping + attractor routing), Zeta-Equilibrium memory retrieval (tension-matched past reasoning), Pre-Cognitive AEGIS query filtering (< 1 ms before inference), Adaptive Answer Placement wired into the production bridge, and a query classifier expanded to 10/10 accuracy on factual SIMPLE queries.
 
 Created by **Jonathan Harrison** (Raiff1982)
 
@@ -110,7 +112,7 @@ Codette is a modular reasoning system with published demos, tests, benchmarks, p
 - **Automated tests:** [tests](tests)
 - **Benchmark suites:** [benchmarks](benchmarks)
 - **Saved benchmark reports:** [data/results](data/results)
-- **Change transparency:** [docs/CHANGELOG_2026-05-01.md](docs/CHANGELOG_2026-05-01.md) · [docs/CHANGELOG_2026-04-26.md](docs/CHANGELOG_2026-04-26.md) · [docs/CHANGELOG_2026-04-02.md](docs/CHANGELOG_2026-04-02.md)
+- **Change transparency:** [docs/CHANGELOG_2026-05-06.md](docs/CHANGELOG_2026-05-06.md) · [docs/CHANGELOG_2026-05-01.md](docs/CHANGELOG_2026-05-01.md) · [docs/CHANGELOG_2026-04-26.md](docs/CHANGELOG_2026-04-26.md) · [docs/CHANGELOG_2026-04-02.md](docs/CHANGELOG_2026-04-02.md)
 - **Contributing guide:** [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ### Reproduce key claims
