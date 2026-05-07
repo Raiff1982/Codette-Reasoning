@@ -124,7 +124,15 @@ class QueryClassifier:
         r"can .* (be|become|achieve)",  # "Can machines achieve consciousness?" (also caught by subjective)
         r"(compatible|reconcil|coexist).*(free will|determinism|consciousness|agency)",
         r"(free will|determinism|consciousness|agency).*(compatible|reconcil|coexist)",
-        r"is (free will|consciousness|reality|truth|knowledge|justice|beauty)",  # Philosophical "is X" questions
+        r"is (free will|consciousness|reality|truth|knowledge|justice|beauty)",  # "Is free will..."
+        # Discovery-tier philosophical patterns not covered above:
+        r"is (\w+ )?(truth|knowledge|morality|beauty|justice|freedom|reality) (discovered|invented|constructed|relative|subjective|objective)",
+        r"(discovered|invented|constructed).{0,30}(truth|knowledge|mathematics|morality|beauty)",
+        r"(truth|knowledge|mathematics|morality|beauty).{0,30}(discovered|invented|constructed)",
+        r"how (do|should|can|must) (we|society|humanity|humans?).{0,20}(weigh|balance|reconcile|trade.?off|judge)",
+        r"(weigh|balance).{0,40}(welfare|generation|future|present|individual|collective)",
+        r"present.{0,30}(welfare|good).{0,30}(future|generation)",
+        r"future.{0,30}(generation|welfare).{0,30}(present|current)",
     ]
 
     # Ethics/Philosophy keywords (COMPLEX queries)

@@ -698,6 +698,28 @@ class CodetteForgeBridge:
             flags=_re.IGNORECASE,
         )
 
+        # 5. Strip semantic LOCK echoes — model paraphrasing lock content without
+        #    structural markers (e.g. "this behavior lock has ABSOLUTE priority over
+        #    all modes and reasoning patterns").
+        text = _re.sub(
+            r'[.\s](?:this\s+)?(?:behavior\s+)?lock\s+has\s+(?:absolute|highest|top)\s+priority[^.]*\.',
+            '',
+            text,
+            flags=_re.IGNORECASE,
+        )
+        text = _re.sub(
+            r'absolute\s+priority\s+over\s+all\s+(?:modes?|reasoning|patterns?|constraints?)[^.]*\.',
+            '',
+            text,
+            flags=_re.IGNORECASE,
+        )
+        text = _re.sub(
+            r'(?:permanent|behavioral)\s+lock[^.]{0,100}\.',
+            '',
+            text,
+            flags=_re.IGNORECASE,
+        )
+
         return text.strip()
 
     def _classify_domain(self, query: str) -> str:
