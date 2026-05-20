@@ -699,22 +699,13 @@ class CodetteForgeBridge:
         )
 
         # 5. Strip semantic LOCK echoes — model paraphrasing lock content without
-        #    structural markers (e.g. "this behavior lock has ABSOLUTE priority over
-        #    all modes and reasoning patterns").
+        #    structural markers.  Pattern is kept TIGHT to avoid false positives
+        #    on legitimate uses of "lock" in normal conversation (e.g. database
+        #    locks, behavioral lock-in, permanent lock-down in policy contexts).
+        #    Only matches the specific verbatim echo pattern confirmed in testing:
+        #    "this behavior lock has ABSOLUTE priority over all modes and reasoning patterns"
         text = _re.sub(
-            r'[.\s](?:this\s+)?(?:behavior\s+)?lock\s+has\s+(?:absolute|highest|top)\s+priority[^.]*\.',
-            '',
-            text,
-            flags=_re.IGNORECASE,
-        )
-        text = _re.sub(
-            r'absolute\s+priority\s+over\s+all\s+(?:modes?|reasoning|patterns?|constraints?)[^.]*\.',
-            '',
-            text,
-            flags=_re.IGNORECASE,
-        )
-        text = _re.sub(
-            r'(?:permanent|behavioral)\s+lock[^.]{0,100}\.',
+            r'\s*—?\s*this\s+behavior\s+lock\s+has\s+(?:absolute|highest)\s+priority\s+over\s+all[^.]{0,150}\.',
             '',
             text,
             flags=_re.IGNORECASE,
