@@ -215,8 +215,32 @@ class SynthesisEngineV3:
         return "A convergence of perspectives is required."
 
     def _format_fact(self, core_text: str, epsilon: float) -> str:
-        """Fact attractor: verdict first, metacognitive trace last."""
-        verdict = f"**{core_text}**" if not core_text.startswith("**") else core_text
+        """Fact attractor: verdict first, metacognitive trace last.
+
+        Only bolds the first sentence. Bolding the entire response breaks
+        Markdown when core_text contains inner ** markers or --- dividers.
+        """
+        import re as _re
+        text = core_text.strip()
+        if text.startswith("**"):
+            # Already formatted — don't double-wrap
+            verdict = text
+        else:
+            # Split at first sentence boundary; bold only the key fact.
+            # m.start() is the position of the first whitespace after the
+            # sentence-ending character, so text[:m.start()] gives the clean sentence.
+            m = _re.search(r"(?<=[.!?])\s+", text)
+            if m:
+                first = text[:m.start()]       # e.g. "The answer is 42."
+                rest  = " " + text[m.end():]   # e.g. " This is because..."
+            else:
+                first = text
+                rest  = ""
+            # Strip any inner ** from the first sentence before wrapping —
+            # nested bold markers break most Markdown renderers.
+            first_clean = first.replace("**", "")
+            verdict = f"**{first_clean}**{rest}"
+
         trace = (
             f"\n\n---\n*Metacognitive Trace: Low epistemic tension "
             f"(eps={epsilon:.2f}) -- Newtonian-First mode active. "
