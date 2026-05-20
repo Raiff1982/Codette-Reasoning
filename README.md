@@ -53,6 +53,8 @@ Codette is a modular reasoning system that routes queries through specialized co
 
 **v2.1 RC+ξ additions:** Quantum Harmonic Framework v2.0 (harmonic damping + attractor routing), Zeta-Equilibrium memory retrieval (tension-matched past reasoning), Pre-Cognitive AEGIS query filtering (< 1 ms before inference), Adaptive Answer Placement wired into the production bridge, and a query classifier expanded to 10/10 accuracy on factual SIMPLE queries.
 
+**v2.2 RC+ξ additions:** Response cutoff fix (`_format_fact()` bolds only the first sentence — inner `**` markers no longer break Markdown rendering), LOCK scrubber tightened to a single precise pattern (prevents over-stripping legitimate content), DISCOVERY tier classifier completed (7 new `AMBIGUOUS_PATTERNS` → 7/7 Discovery attractor accuracy), and benchmark harness hardened with unlimited timeout and mandatory 5 s inter-query delay. Clean benchmark result: **25/25 queries, 0 errors, 100% SIMPLE directness, 7/7 DISCOVERY accuracy, spectral trust 0.754.**
+
 Created by **Jonathan Harrison** (Raiff1982)
 
 ## TL;DR
@@ -112,7 +114,7 @@ Codette is a modular reasoning system with published demos, tests, benchmarks, p
 - **Automated tests:** [tests](tests)
 - **Benchmark suites:** [benchmarks](benchmarks)
 - **Saved benchmark reports:** [data/results](data/results)
-- **Change transparency:** [docs/CHANGELOG_2026-05-06.md](docs/CHANGELOG_2026-05-06.md) · [docs/CHANGELOG_2026-05-01.md](docs/CHANGELOG_2026-05-01.md) · [docs/CHANGELOG_2026-04-26.md](docs/CHANGELOG_2026-04-26.md) · [docs/CHANGELOG_2026-04-02.md](docs/CHANGELOG_2026-04-02.md)
+- **Change transparency:** [docs/CHANGELOG_2026-05-19.md](docs/CHANGELOG_2026-05-19.md) · [docs/CHANGELOG_2026-05-06.md](docs/CHANGELOG_2026-05-06.md) · [docs/CHANGELOG_2026-05-01.md](docs/CHANGELOG_2026-05-01.md) · [docs/CHANGELOG_2026-04-26.md](docs/CHANGELOG_2026-04-26.md) · [docs/CHANGELOG_2026-04-02.md](docs/CHANGELOG_2026-04-02.md)
 - **Contributing guide:** [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ### Reproduce key claims
