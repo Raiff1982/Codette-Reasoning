@@ -191,13 +191,22 @@ def _answer_in_first_sentence(text: str, query: str) -> bool:
 
 # ── HTTP client ───────────────────────────────────────────────────────────────
 
-def _post(url: str, query: str, timeout: int = 120) -> tuple[float, dict]:
+def _post(url: str, query: str, timeout: int = 0) -> tuple[float, dict]:
+    """POST a query to the server.
+
+    timeout=0 means unlimited (correct for CPU-only inference where
+    multi-perspective synthesis can legitimately take several minutes).
+    Pass a positive integer to cap at that many seconds.
+    """
     payload = json.dumps({"query": query, "max_adapters": 2}).encode("utf-8")
     req = urllib.request.Request(
         url, data=payload, headers={"Content-Type": "application/json"}
     )
     t0 = time.time()
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
+    # urllib timeout=None = unlimited; timeout=0 would mean "non-blocking" which
+    # is wrong, so we translate our sentinel 0 → None here.
+    _timeout = None if timeout == 0 else timeout
+    with urllib.request.urlopen(req, timeout=_timeout) as resp:
         body = json.loads(resp.read().decode("utf-8"))
     return (time.time() - t0) * 1000, body
 
@@ -217,14 +226,23 @@ def _ping(base_url: str) -> bool:
 # ── Benchmark runner ──────────────────────────────────────────────────────────
 
 class Phase71Benchmark:
-    def __init__(self, base_url: str = "http://localhost:7860", timeout: int = 120):
+    def __init__(
+        self,
+        base_url: str = "http://localhost:7860",
+        timeout: int = 0,
+        delay: float = 5.0,
+    ):
         self.url = f"{base_url}/api/chat"
         self.base_url = base_url
-        self.timeout = timeout
+        self.timeout = timeout   # 0 = unlimited
+        self.delay = delay       # seconds to pause between queries (isolate from live chat)
         self.results: list[TurnResult] = []
 
     def _run_tier(self, queries: list[str], tier: str) -> None:
         for i, q in enumerate(queries, 1):
+            if i > 1:
+                print(f"  (cooling down {self.delay:.0f}s...)", flush=True)
+                time.sleep(self.delay)
             print(f"  [{i}/{len(queries)}] {tier}: {q[:60]}...", end="", flush=True)
             try:
                 latency_ms, data = _post(self.url, q, timeout=self.timeout)
@@ -400,8 +418,12 @@ def main():
     parser.add_argument("--url", default="http://localhost:7860", help="Server base URL")
     parser.add_argument("--quick", action="store_true", help="Run reduced query set (faster)")
     parser.add_argument(
-        "--timeout", type=int, default=120,
-        help="Per-query HTTP timeout in seconds (default: 120; raise for CPU-only servers)",
+        "--timeout", type=int, default=0,
+        help="Per-query HTTP timeout in seconds (0 = unlimited, default for CPU reasoning servers)",
+    )
+    parser.add_argument(
+        "--delay", type=float, default=5.0,
+        help="Seconds to pause between queries (default: 5; set to 0 only in fully isolated runs)",
     )
     args = parser.parse_args()
 
@@ -411,9 +433,12 @@ def main():
         print(f"  Start with: make dev   or   python inference/codette_server.py")
         sys.exit(1)
     print("  Server OK")
-    print(f"  Timeout: {args.timeout}s per query")
+    timeout_display = f"{args.timeout}s" if args.timeout else "unlimited"
+    print(f"  Timeout: {timeout_display} per query")
+    if args.delay:
+        print(f"  Inter-query delay: {args.delay:.0f}s")
 
-    bench = Phase71Benchmark(base_url=args.url, timeout=args.timeout)
+    bench = Phase71Benchmark(base_url=args.url, timeout=args.timeout, delay=args.delay)
     bench.run(quick=args.quick)
 
     report = bench.report()
