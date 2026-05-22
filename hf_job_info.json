@@ -1,10 +1,7 @@
 {
-  "job_id": "6a0feed7b33ece92698c0127",
+  "job_id": "6a0fef88e3c0b51e1ca5d2b8",
   "status": "JobStatus(stage='RUNNING', message=None)",
-  "url": "https://huggingface.co/jobs/Raiff1982/6a0feed7b33ece92698c0127",
-  "repo": "Raiff1982/codette-lora-adapters",
-  "base_model": "Raiff1982/codette-llama-3.1-8b-merged",
-  "dataset": "constraint_tracking.jsonl",
+  "url": "https://huggingface.co/jobs/Raiff1982/6a0fef88e3c0b51e1ca5d2b8",
   "adapter": "constraint_tracker",
-  "method": "git-clone-with-auth"
+  "method": "standalone-script"
 }
