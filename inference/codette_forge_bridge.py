@@ -682,6 +682,17 @@ class CodetteForgeBridge:
             flags=_re.IGNORECASE | _re.DOTALL,
         )
 
+        # 2b. Strip a DANGLING opening LOCKS header (no closing marker) to end of
+        #     text. Voice-reinforced adapters sometimes echo just the opening
+        #     "=== PERMANENT BEHAVIORAL LOCKS (ABSOLUTE → NEVER VIOLATE) ===" and
+        #     trail off — pattern 2 only matches complete (open…close) blocks.
+        text = _re.sub(
+            r'={2,}\s*PERMANENT BEHAVIORAL LOCKS.*',
+            '',
+            text,
+            flags=_re.IGNORECASE | _re.DOTALL,
+        )
+
         # 3. Strip any remaining standalone LOCK lines (e.g. half-escaped blocks)
         text = _re.sub(
             r'\n?LOCK\s+\d+\s*[—\-]+\s+[A-Z][^\n]{0,300}',
