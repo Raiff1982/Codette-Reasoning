@@ -1,7 +1,10 @@
 {
-  "job_id": "6a0fef88e3c0b51e1ca5d2b8",
+  "job_id": "6a0ff000e3c0b51e1ca5d2c4",
   "status": "JobStatus(stage='RUNNING', message=None)",
-  "url": "https://huggingface.co/jobs/Raiff1982/6a0fef88e3c0b51e1ca5d2b8",
-  "adapter": "constraint_tracker",
-  "method": "standalone-script"
+  "url": "https://huggingface.co/jobs/Raiff1982/6a0ff000e3c0b51e1ca5d2c4",
+  "hardware": "t4-medium",
+  "cost_per_min": 0.01,
+  "estimated_total": 3.0,
+  "estimated_duration_hours": "2-3",
+  "adapter": "constraint_tracker"
 }
