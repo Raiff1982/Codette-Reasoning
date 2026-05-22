@@ -1068,7 +1068,13 @@ class CodetteOrchestrator:
                 strategy="forced",
             )
         else:
-            route = self.router.route(query, strategy=strategy,
+            # Route on the user's ACTUAL question, not the server-enriched query.
+            # The enriched blob carries injected identity/memory context saturated
+            # with philosophy/consciousness keywords, which otherwise hijacks routing
+            # (e.g. a physics question scored philosophy=16 vs newton=1). Generation
+            # still uses the full `query`; only adapter selection uses the clean one.
+            routing_query = extract_primary_user_query(query)
+            route = self.router.route(routing_query, strategy=strategy,
                                       max_adapters=max_adapters)
 
         print(f"\n  Route: {' + '.join(route.all_adapters)} "
