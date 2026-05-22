@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "codette-training"
+version = "2.2.0"
+description = "Codette LoRA training on HuggingFace Jobs"
+requires-python = ">=3.10"
+
+dependencies = [
+    "torch>=2.0.0",
+    "transformers>=4.36.0",
+    "datasets>=2.14.0",
+    "peft>=0.7.0",
+    "trl>=0.7.0",
+    "huggingface-hub>=0.19.0",
+    "bitsandbytes>=0.41.0",
+]
