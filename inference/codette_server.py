@@ -1112,6 +1112,26 @@ def _worker_thread():
                     except Exception as e:
                         print(f"  [GOVERNOR] Pre-eval skipped: {e}", flush=True)
 
+                # ── Constraint Tracking ──
+                # Detect and inject cross-turn constraints (word limits, anchors, etc.)
+                constraint_reminder = ""
+                is_first_turn = (session and len(session.messages) == 0) if session else True
+                if session and is_first_turn:
+                    try:
+                        session.detect_constraints(query, is_first_turn=True)
+                        constraint_reminder = session.get_constraint_reminder()
+                        if constraint_reminder:
+                            print(f"  [WORKER] Detected constraints: {constraint_reminder.count(chr(10))} lines", flush=True)
+                    except Exception as e:
+                        print(f"  [WORKER] Constraint detection failed (non-critical): {e}", flush=True)
+                elif session and not is_first_turn:
+                    try:
+                        constraint_reminder = session.get_constraint_reminder()
+                        if constraint_reminder:
+                            print(f"  [WORKER] Re-injecting constraints from turn 1", flush=True)
+                    except Exception as e:
+                        print(f"  [WORKER] Constraint retrieval failed (non-critical): {e}", flush=True)
+
                 # ── Memory Enrichment ──
                 # Recall relevant cocoons — budget controlled by governor
                 memory_budget = 3
@@ -1320,6 +1340,11 @@ def _worker_thread():
                 if identity_context:
                     enriched_query = (
                         enriched_query + "\n\n---\n" + identity_context + "\n---"
+                    )
+
+                if constraint_reminder:
+                    enriched_query = (
+                        constraint_reminder + enriched_query
                     )
 
                 if _forge_bridge:
@@ -1579,6 +1604,24 @@ def _worker_thread():
                     "web_used": bool(web_sources),
                     "web_search_trigger": web_search_trigger,
                 }
+
+                # ── Constraint Compliance Check ──
+                # Check if response meets detected constraints and add to memory_context
+                if session and constraint_reminder:
+                    try:
+                        compliance = session.check_constraint_compliance(response_text)
+                        if not compliance.get("compliant"):
+                            print(f"  [WORKER] Constraint violations detected: {compliance['violations']}", flush=True)
+                            # Still include the response, but flag the violation for learning
+                        session.constraints_applied += 1
+                        # Add constraint-related landmark count to memory_context
+                        if memory_context_summary["decision_landmarks_used"] == 0 and session.constraint_tracker and session.constraint_tracker.session_constraints:
+                            memory_context_summary["decision_landmarks_used"] = len(
+                                session.constraint_tracker.session_constraints.constraints
+                            )
+                    except Exception as e:
+                        print(f"  [WORKER] Constraint compliance check failed (non-critical): {e}", flush=True)
+
                 response_data["memory_context"] = memory_context_summary
 
                 # Add Phase 6 metadata (complexity, domain, ethical)
