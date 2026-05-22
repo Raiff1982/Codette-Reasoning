@@ -55,7 +55,7 @@ Codette is a modular reasoning system that routes queries through specialized co
 
 **v2.2 RC+ξ additions:** Response cutoff fix (`_format_fact()` bolds only the first sentence — inner `**` markers no longer break Markdown rendering), LOCK scrubber tightened to a single precise pattern (prevents over-stripping legitimate content), DISCOVERY tier classifier completed (7 new `AMBIGUOUS_PATTERNS` → 7/7 Discovery attractor accuracy), and benchmark harness hardened with unlimited timeout and mandatory 5 s inter-query delay. Clean benchmark result: **25/25 queries, 0 errors, 100% SIMPLE directness, 7/7 DISCOVERY accuracy, spectral trust 0.754.**
 
-**v2.3 RC+ξ additions:** Full adapter roster online (orchestrator + constraint_tracker now load as behavioral adapters — **10 total**), one-click **Full Adapter Synthesis** (◈ SYNTHESIZE ALL runs every perspective and synthesizes), a new **self-overclaiming hallucination signal** (catches grandiose self-claims and fabricated self-metrics the guard previously scored at 0% risk) with the reliability scan extended across every displayed perspective, a constraint-parser fix (ordinary negations like "no word constraint" no longer become enforced constraints), and a **voice-reinforced behavioral retrain** of all eight perspectives (each on its own reasoning dataset + distinct persona + the four locks) to harden against perspective convergence. See [docs/CHANGELOG_2026-05-22.md](docs/CHANGELOG_2026-05-22.md).
+**v2.3 RC+ξ additions:** Full adapter roster online (orchestrator + constraint_tracker now load as behavioral adapters — **10 total**), one-click **Full Adapter Synthesis** (◈ SYNTHESIZE ALL runs every perspective and synthesizes), a new **self-overclaiming hallucination signal** (catches grandiose self-claims and fabricated self-metrics the guard previously scored at 0% risk) with the reliability scan extended across every displayed perspective, a constraint-parser fix (ordinary negations like "no word constraint" no longer become enforced constraints), and a **voice-reinforced behavioral retrain** of all eight perspectives (each on its own reasoning dataset + distinct persona + the four locks) to harden against perspective convergence. The first full self-benchmark scored **82.9%** and immediately exposed a **router bug** — adapter selection was scoring the model's own injected identity/memory context instead of the user's question (a physics query scored `philosophy=16` vs `newton=1`); fixed by routing on the extracted user query. See [docs/CHANGELOG_2026-05-22.md](docs/CHANGELOG_2026-05-22.md).
 
 Created by **Jonathan Harrison** (Raiff1982)
 
@@ -536,6 +536,8 @@ Note: cocoon memory counts change over time; prefer introspection or health endp
 | Session list resilience | `list_sessions()` degrades gracefully if the project drive briefly disconnects |
 | Benchmark backend | `full_benchmark.py --backend server` scores the live llama.cpp + LoRA-hot-swap system directly |
 | Voice-reinforced retrain | All 8 perspectives retrained on their own datasets + distinct personas + the 4 locks (HF Jobs, uv) |
+| First full self-benchmark | 82.9% across 41 tests (9 categories); guard held with zero grandiosity signals |
+| Router bug fix | Adapter routing was scoring injected identity/memory context, not the question — now routes on the extracted user query |
 
 ---
 
