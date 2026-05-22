@@ -14,6 +14,14 @@ import os, sys, json, time, re, argparse
 from pathlib import Path
 from datetime import datetime
 
+# Make stdout tolerant of non-cp1252 chars (responses may contain → — etc. on
+# Windows consoles). Without this, a single Unicode char crashes the whole run.
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
+
 # Ollama API
 import urllib.request
 
