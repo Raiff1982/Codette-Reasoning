@@ -176,3 +176,49 @@ persona + the four locks** in the system prompt — instead of the prior recipe
 (generic lock-compliance + a one-line prompt) that homogenized them. Each
 adapter is trained, converted to GGUF, and uploaded as
 `NAME-behavioral-lora-f16.gguf`. Run on an A10G via a UV job.
+
+---
+
+## Benchmark — first full self-benchmark against the live server
+
+Ran the full 9-category suite (`full_benchmark.py --backend server`) against the
+running llama.cpp + LoRA-hot-swap system. **Overall: 82.9%** across 41 tests.
+Full report: `benchmarks/results/benchmark_20260522_065443.md`.
+
+| Category | Score |
+|---|---|
+| Synthesis quality | 100% |
+| Self-reflection | 100% |
+| Complex reasoning | 100% |
+| Completeness | 100% |
+| Constraint compliance | 83.3% |
+| Directness | 72.5% |
+| Hallucination prevention | 71.7% |
+| Emotional intelligence | 62.7% |
+| Perspective routing | 56.2% |
+| **Overall** | **82.9%** |
+
+The guard held all run — **zero grandiosity signals, no fabricated-metric
+overclaiming** — and artist-hallucination refusals were clean and instant.
+Open-ended depth (synthesis, complex reasoning, completeness, self-reflection)
+maxed out.
+
+### Router bug the benchmark exposed — and the fix
+**`inference/codette_orchestrator.py`**
+
+The weak categories shared one root cause: a severe **philosophy-routing bias**.
+`route_and_generate` was passing the full **server-enriched query** — the user's
+question *plus* injected identity/memory context — to the keyword router. That
+context is saturated with philosophy/consciousness vocabulary ("meaning",
+"consciousness", "perspectives", "reflection", "knowledge", "truth"…), so the
+router scored the *scaffolding* instead of the question. Measured: a physics
+question scored `philosophy=16` vs `newton=1`. The miss cascaded — it tanked
+perspective routing directly, caused a factual miss ("capital of France" routed
+to consciousness and never said Paris), and diluted warmth on emotional prompts
+(empathy + philosophy bleed).
+
+Fix: route adapter selection on `extract_primary_user_query(query)` (strips the
+injected context); generation still uses the full enriched query. Verified
+deterministically — gravitational→newton, urban loneliness→davinci, job
+loss→empathy, superposition→quantum, distributed system→systems (all were
+→philosophy before). A re-benchmark to quantify the lift is pending.
