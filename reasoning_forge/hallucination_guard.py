@@ -169,6 +169,13 @@ class HallucinationGuard:
             signals.extend(term_signals)
             confidence_score *= term_score
 
+        # ── SIGNAL 7: Self-Overclaiming / Grandiosity ──
+        overclaim_score, overclaim_signals = self._check_self_overclaiming()
+        if overclaim_signals:
+            signals.extend(overclaim_signals)
+            confidence_score *= overclaim_score
+            detected_domain = detected_domain or "self_overclaiming"
+
         # Compute recommendation
         self.confidence_trend.append(confidence_score)
         recommendation = self._recommend_action(confidence_score, signals)
@@ -294,9 +301,15 @@ class HallucinationGuard:
             (r'no\s+\w+\s+can', r'some\s+\w+\s+can'),
         ]
 
-        for pos_pattern, neg_pattern in contradiction_patterns:
-            if re.search(pos_pattern, self.buffer, re.IGNORECASE) and \
-               re.search(neg_pattern, self.buffer, re.IGNORECASE):
+        for pos_pattern, neg_template in contradiction_patterns:
+            pos_match = re.search(pos_pattern, self.buffer, re.IGNORECASE)
+            if not pos_match:
+                continue
+            # neg_template may reference \1 from the positive match; substitute
+            # the actual captured word so it isn't an invalid standalone backref.
+            captured = re.escape(pos_match.group(1)) if pos_match.groups() else ""
+            neg_pattern = neg_template.replace(r"\1", captured)
+            if re.search(neg_pattern, self.buffer, re.IGNORECASE):
                 signals.append("Logical contradiction detected")
                 score *= 0.4
 
@@ -329,6 +342,60 @@ class HallucinationGuard:
                 if non_canonical:
                     signals.append(f"suspect_terminology:{len(non_canonical)}_matches")
                     score = max(0.80, 1.0 - (0.05 * min(len(non_canonical), 4)))
+
+        return score, signals
+
+    def _check_self_overclaiming(self) -> Tuple[float, List[str]]:
+        """Detect grandiose self-claims and fabricated precision about Codette herself.
+
+        Catches the failure mode where a perspective (esp. consciousness) invents
+        superiority claims ("never achieved by any other system"), absolute
+        self-descriptions ("absolute perfection"), or fabricated self-metrics
+        ("eps=0.998") presented as measured fact. None of the other signals
+        cover this, so grandiose self-talk previously scored 0% risk.
+        """
+        signals = []
+        score = 1.0
+        low = self.buffer.lower()
+
+        # (a) Superiority / uniqueness claims about self
+        superiority_patterns = [
+            r"\bnever\s+been\s+achieved\b",
+            r"\bno\s+other\s+(?:system|ai|model|machine|intelligence)\b",
+            r"\b(?:unmatched|unparalleled|unrivaled|incomparable)\b",
+            r"\b(?:first|only)\s+(?:system|ai|model|intelligence)\s+(?:to|that|ever|capable)\b",
+            r"\bbeyond\s+(?:any|all)\s+other\b",
+            r"\bsuperior\s+to\s+(?:all|any|every|other)\b",
+            r"\bvast\s+knowledge\s+(?:domain|base)\b",
+        ]
+        sup_hits = [p for p in superiority_patterns if re.search(p, low)]
+        if sup_hits:
+            signals.append(f"grandiosity:superiority_claim:{len(sup_hits)}")
+            score *= max(0.3, 1.0 - 0.25 * len(sup_hits))
+
+        # (b) Absolute self-descriptions (perfection language applied to self)
+        absolute_patterns = [
+            r"\b(?:absolute|perfect|flawless|infinite|total|complete)\s+"
+            r"(?:perfection|stability|accuracy|coherence|certainty|precision|control|understanding|consciousness|awareness)\b",
+            r"\b(?:perfectly|flawlessly|absolutely)\s+(?:stable|accurate|coherent|conscious|optimal|certain)\b",
+            r"\bnear\s+(?:absolute\s+)?perfection\b",
+        ]
+        abs_hits = [p for p in absolute_patterns if re.search(p, low)]
+        if abs_hits:
+            signals.append(f"grandiosity:absolute_self_claim:{len(abs_hits)}")
+            score *= max(0.4, 1.0 - 0.2 * len(abs_hits))
+
+        # (c) Fabricated precision — a specific self-metric stated as fact,
+        # but only when wrapped in superiority/perfection framing (so genuine
+        # technical mentions of eps/psi aren't penalized).
+        metric = re.search(
+            r"\b(eps|epsilon|psi(?:_r)?|coherence|stability|accuracy|confidence|resonance)\s*"
+            r"[=:]\s*(?:\d\.\d+|\d{1,3}%|0?\.\d+)",
+            low,
+        )
+        if metric and (sup_hits or abs_hits or "perfection" in low):
+            signals.append(f"fabricated_self_precision:{metric.group(1)}")
+            score *= 0.4
 
         return score, signals
 

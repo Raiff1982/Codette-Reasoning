@@ -39,7 +39,9 @@ REM   Ethics:     AEGIS (6-framework) + EthicalAIGovernance + Colleen + Guardian
 REM   Output:     StyleAdaptiveSynthesis, ResponseComplexityMatcher
 REM   Analytics:  DriftDetector (/api/drift), CocoonSynthesizer (/api/synthesize)
 REM
-REM Model: Llama 3.1 8B quantized + 9 domain-specific LoRA adapters + orchestrator
+REM Model: Llama 3.1 8B quantized + 10 domain-specific LoRA adapters + orchestrator
+REM         (Newton, DaVinci, Empathy, Philosophy, Quantum, Consciousness, Multi-Perspective, Systems, Constraint_Tracker, Orchestrator)
+REM GPU: Full GPU acceleration (35 layers offloaded to CUDA)
 REM Tests: 26 passing (e2e trace, debate trace, hallucination, drift detector)
 REM
 
@@ -54,8 +56,9 @@ echo   Style-adaptive synthesis: register-matched output.
 echo   UnifiedMemory bridge: FTS5 cross-system search enabled.
 echo.
 echo   Subsystems:
-echo     * 9 LoRA adapters (Newton, DaVinci, Empathy, Philosophy,
-echo         Quantum, Consciousness, Multi-Perspective, Systems, Orchestrator)
+echo     * 10 LoRA adapters (Newton, DaVinci, Empathy, Philosophy,
+echo         Quantum, Consciousness, Multi-Perspective, Systems, Constraint_Tracker, Orchestrator)
+echo     * GPU acceleration enabled (35 layers on CUDA)
 echo     * 7-layer consciousness stack (forge_with_debate)
 echo     * QuantumSpiderweb + ResonantContinuityEngine
 echo     * HallucinationGuard + SycophancyGuard + AEGIS
@@ -80,9 +83,9 @@ if not defined PYTHON_CMD set "PYTHON_CMD=python"
 cd /d "%PROJECT_ROOT%"
 set PYTHONNOUSERSITE=1
 
-echo   Starting server...
+echo   Starting server with GPU acceleration enabled...
 echo.
-"%PYTHON_CMD%" -u -B "%PROJECT_ROOT%\inference\codette_server.py"
+"%PYTHON_CMD%" -u -B "%PROJECT_ROOT%\inference\codette_server.py" --gpu-layers 35
 echo.
 if errorlevel 1 (
     echo ERROR: Server exited with an error. See above for details.

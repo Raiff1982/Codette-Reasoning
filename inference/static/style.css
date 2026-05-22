@@ -310,6 +310,40 @@ body::after {
 
 .header-btn:hover::before { opacity: 1; }
 
+/* ── Full Synthesis Button — runs every perspective at once ── */
+.synth-btn {
+    border-color: rgba(211, 93, 255, 0.45);
+    color: var(--empathy);
+    background: linear-gradient(
+        90deg,
+        rgba(0, 240, 255, 0.06),
+        rgba(211, 93, 255, 0.10),
+        rgba(255, 77, 106, 0.06)
+    );
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.synth-btn:hover {
+    border-color: var(--empathy);
+    color: #fff;
+    background: linear-gradient(
+        90deg,
+        rgba(0, 240, 255, 0.14),
+        rgba(211, 93, 255, 0.22),
+        rgba(255, 77, 106, 0.14)
+    );
+    box-shadow: 0 0 14px rgba(211, 93, 255, 0.35),
+                inset 0 0 12px rgba(211, 93, 255, 0.10);
+    text-shadow: 0 0 8px rgba(211, 93, 255, 0.6);
+}
+
+.synth-btn:disabled,
+.synth-btn.busy {
+    opacity: 0.5;
+    cursor: progress;
+}
+
 /* ── Lab / Singularity Section ── */
 .lab-copy {
     color: var(--text-muted);
@@ -1213,6 +1247,10 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 /* Session list */
+#session-list {
+    padding-bottom: 12px;
+}
+
 .session-item {
     padding: 8px 12px;
     border-radius: var(--radius-sm);

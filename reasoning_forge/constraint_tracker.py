@@ -110,7 +110,24 @@ class ConstraintDetector:
     FORMAT_RULE_PATTERNS = [
         r"(use\s+(?:bullet\s+)?points?)",
         r"(format\s+as\s+(?:json|markdown|yaml))",
-        r"((?:no|avoid)\s+\w+)",
+        # Negated formatting rules — restricted to real formatting targets so
+        # ordinary negations ("no word constraint", "no constraints needed",
+        # "no problem", "no idea") are NOT captured as constraints.
+        r"((?:no|avoid|without|don'?t\s+use|do\s+not\s+use)\s+"
+        r"(?:bullet\s*points?|bullets?|numbered\s+lists?|lists?|markdown|json|"
+        r"yaml|xml|code\s*blocks?|headers?|headings?|emojis?|emoji|jargon|"
+        r"tables?|formatting|prose|paragraphs?))",
+    ]
+
+    # Phrases that explicitly DECLINE constraints — when present, the query is
+    # asking for NO restrictions, so we must not derive constraints from it.
+    CONSTRAINT_NEGATION_PATTERNS = [
+        r"\bno\s+(?:word|sentence|length|format(?:ting)?|character)?\s*constraints?\b",
+        r"\bno\s+constraints?\s+(?:needed|required|please)\b",
+        r"\bno\s+(?:word|character|length)\s+limit\b",
+        r"\bwithout\s+(?:any\s+)?constraints?\b",
+        r"\bignore\s+(?:the\s+|any\s+|previous\s+)?constraints?\b",
+        r"\bno\s+restrictions?\b",
     ]
 
     def detect(self, query: str, turn_num: int = 1) -> SessionConstraints:
@@ -124,6 +141,11 @@ class ConstraintDetector:
             SessionConstraints with detected constraints
         """
         sc = SessionConstraints(detected_at_turn=turn_num)
+
+        # If the user explicitly declines constraints, derive none from this turn.
+        for neg in self.CONSTRAINT_NEGATION_PATTERNS:
+            if re.search(neg, query, re.IGNORECASE):
+                return sc
 
         # Detect word limits
         for pattern in self.WORD_LIMIT_PATTERNS:

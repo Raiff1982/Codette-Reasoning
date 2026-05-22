@@ -79,12 +79,20 @@
                     <option value="consciousness">Consciousness</option>
                     <option value="multi_perspective">Multi-Perspective</option>
                     <option value="systems_architecture">Systems</option>
+                    <option value="constraint_tracker">Constraint Tracker</option>
+                    <option value="orchestrator">Orchestrator</option>
                 </select>
             </div>
             <div class="control-group">
                 <label>Perspectives:</label>
                 <input type="range" id="max-adapters" min="1" max="3" value="2" style="width:60px">
                 <span id="max-adapters-value">2</span>
+            </div>
+            <div class="control-group">
+                <button class="header-btn synth-btn" id="btn-synthesize"
+                        title="Run all reasoning perspectives at once and synthesize them into one answer">
+                    ◈ SYNTHESIZE ALL
+                </button>
             </div>
             <div class="control-group" style="margin-left:auto">
                 <label>
@@ -375,7 +383,7 @@
         </div>
 
         <!-- Recent Sessions -->
-        <div class="side-section" style="flex:1;overflow-y:auto">
+        <div class="side-section" style="flex:1;min-height:0;overflow-y:auto">
             <div class="side-section-title">Recent Sessions</div>
             <div id="session-list"></div>
         </div>

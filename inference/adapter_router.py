@@ -150,6 +150,21 @@ ADAPTER_KEYWORDS = {
             "reliability", "fault tolerant", "redundancy",
         ],
     },
+    "constraint_tracker": {
+        "strong": [
+            "constraint", "word limit", "sentence limit", "format rule",
+            "anchor phrase", "word count", "brevity", "concise",
+            "character limit", "enforce", "enforce constraint",
+            "remember constraint", "apply constraint", "follow rule",
+            "keep it brief", "limit response", "maximum words",
+        ],
+        "moderate": [
+            "limit", "restriction", "rule", "requirement", "instruction",
+            "follow", "apply", "remember", "keep", "maintain",
+            "constraint", "boundary", "threshold", "cap", "max",
+            "conciseness", "brevity", "short", "compact",
+        ],
+    },
 }
 
 # Complementary adapter pairs — when one fires, the other adds tension
@@ -162,6 +177,7 @@ COMPLEMENTARY_PAIRS = {
     "consciousness": ["philosophy", "quantum"],
     "multi_perspective": [],  # This IS the synthesis adapter
     "systems_architecture": ["davinci", "newton"],
+    "constraint_tracker": ["newton", "systems_architecture"],  # Pairs with precise/analytical perspectives
     "orchestrator": [],  # Meta-adapter: routes and coordinates, not a perspective
 }
 

@@ -115,3 +115,37 @@ desktop.ini
 
 # Research binary artifacts
 research/experiments/Codette_Quantum_Harmonic_Framework.png
+
+# ── Session throwaway: one-off HF job / conversion scripts (2026-05-22) ──
+# Ad-hoc submitters and converters — superseded by training/train_*_behavioral.py
+auto_submit_hf_job.py
+create_hf_conversion_job.py
+hf_convert_constraint_job.py
+convert_constraint_to_gguf_hf.py
+convert_constraint_safetensors_to_gguf.py
+submit.py
+submit-hf-job.ps1
+submit_job_hf_lib.py
+submit_job_uv.py
+submit_constraint_conversion_job.py
+submit_constraint_gguf_job.py
+scripts/submit_hf_job.sh
+constraint_convert.sh
+constraint_gguf_convert.sh
+constraint_gguf_convert_uv.sh
+run_convert_constraint.bat
+adapters/convert_constraint_tracker.py
+check_adapters.py
+check_safetensors.py
+test_constraint_gguf.py
+STATUS_ORCHESTRATOR_INTEGRATION.md
+SUBMIT_JOB_INSTRUCTIONS.md
+benchmark_output.txt
+
+# Downloaded base model + cloned llama.cpp (large, regenerable)
+base_model_constraint/
+base_model_constraint_convert/
+llama.cpp/
+
+# Runtime state artifacts
+hf_job_info.json

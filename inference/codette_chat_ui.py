@@ -39,6 +39,7 @@ ADAPTER_COLORS = {
     "consciousness":        "#ff70b8",
     "multi_perspective":    "#ffd040",
     "systems_architecture": "#90a0b0",
+    "constraint_tracker":   "#d884f8",
     "base":                 "#808899",
 }
 

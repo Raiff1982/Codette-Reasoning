@@ -124,9 +124,14 @@ for adapter_name, dataset_file, epochs in ADAPTERS:
     print(f"  Loaded {len(examples)} examples")
 
     def format_example(ex):
-        return {"text": tokenizer.apply_chat_template(ex["messages"], tokenize=False)}
+        # Convert instruction-tuning format to chat format
+        messages = [
+            {"role": "user", "content": f"{ex['instruction']}\n\n{ex['input']}"},
+            {"role": "assistant", "content": ex['output']}
+        ]
+        return {"text": tokenizer.apply_chat_template(messages, tokenize=False)}
 
-    dataset = Dataset.from_list(examples).map(format_example, remove_columns=["messages"])
+    dataset = Dataset.from_list(examples).map(format_example, remove_columns=["instruction", "input", "output"])
 
     # Configure LoRA
     lora_config = LoraConfig(
