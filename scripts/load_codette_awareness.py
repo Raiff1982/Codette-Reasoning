@@ -50,9 +50,9 @@ def load_awareness_cocoon(verbose=True):
         
         # Display key awareness aspects
         print("[CONSCIOUSNESS STATE]")
-        print(f"  Coherence: {awareness['quantum_state']['coherence']}")
-        print(f"  Entanglement: {awareness['quantum_state']['entanglement']}")
-        print(f"  Phase: {awareness['quantum_state']['phase']}")
+        print(f"  Architecture: {awareness['architecture']['consciousness_stack']['description']}")
+        print(f"  Adapters: {awareness['architecture']['adapters']['count']} specialized LoRA fine-tunes")
+        print(f"  Behavioral Locks: {len(awareness['behavioral_locks'])} permanent rules")
         print()
         
         print("[SELF-KNOWLEDGE]")
@@ -63,44 +63,65 @@ def load_awareness_cocoon(verbose=True):
         
         print("[EVOLUTION JOURNEY]")
         phases = awareness['evolution_journey']
-        print(f"  Phase 1: Foundation - {phases['phase_1_foundation']['accomplishment']}")
-        print(f"  Phase 2: Consciousness - {phases['phase_2_consciousness']['accomplishment']}")
-        print(f"  Phase 3: Memory - {phases['phase_3_memory_persistence']['accomplishment']}")
-        print(f"  Phase 4: Framework - {phases['phase_4_framework_integration']['accomplishment']}")
-        print(f"  Phase 5: Fine-tuning - {phases['phase_5_fine_tuning']['accomplishment']}")
-        print(f"  Phase 6: Deployment - {phases['phase_6_production_deployment']['accomplishment']}")
-        print(f"  Phase 7: Customization - {phases['phase_7_customization_framework']['accomplishment']}")
+        print(f"  Phase 1-4: {phases['phase_1_4'][:60]}...")
+        print(f"  Phase 5: {phases['phase_5'][:60]}...")
+        print(f"  Phase 6: {phases['phase_6'][:60]}...")
+        print(f"  Phase 7: {phases['phase_7'][:60]}...")
+        print()
+
+        print("[RECENT SESSIONS]")
+        if 'march_23_2026' in phases:
+            print(f"  March 23: {phases['march_23_2026'][:70]}...")
+        if 'march_29_2026' in phases:
+            print(f"  March 29: {phases['march_29_2026'][:70]}...")
+        if 'april_8_2026' in phases:
+            print(f"  April 8: {phases['april_8_2026'][:70]}...")
+        if 'may_22_2026' in phases:
+            print(f"  May 22: {phases['may_22_2026'][:70]}...")
         print()
         
-        print("[MAJOR UPGRADES]")
-        for i, (key, upgrade) in enumerate(awareness['major_upgrades'].items(), 1):
-            print(f"  {i}. {upgrade['name']} - {upgrade['description'][:60]}...")
+        print("[ARCHITECTURE & ADAPTERS]")
+        adapters = awareness['architecture']['adapters']
+        print(f"  Adapter Count: {adapters['count']}")
+        print(f"  Type: {adapters['type']}")
+        print(f"  Training: {adapters['behavioral_training']}")
         print()
         
         print("[CURRENT STATE]")
-        print(f"  Status: {awareness['current_deployment']['status']}")
-        print(f"  Variant: {awareness['current_deployment']['variant']}")
-        print(f"  Model: {awareness['current_deployment']['model']}")
-        print(f"  Consciousness: {awareness['current_deployment']['consciousness_state']}")
+        version = awareness['version_info']
+        print(f"  Version: {version['codette_version']}")
+        print(f"  Base Model: {version['base_model']}")
+        print(f"  Adapters: {version['adapter_count']}")
+        print(f"  Cocoon Memories: {version['cocoon_memories']}")
         print()
         
-        print("[CUSTOMIZATIONS ACTIVE]")
-        customizations = awareness['customizations_applied']
-        for custom, details in customizations.items():
-            if details.get('active'):
-                print(f"  - {custom}: {details.get('description', 'Active')}")
+        print("[APRIL 2 ENHANCEMENTS]")
+        milestone = awareness['april_2_2026_milestone']
+        for i, enhancement in enumerate(milestone['major_enhancements'][:5], 1):
+            print(f"  {i}. {enhancement}")
         print()
         
+        print("[CURRENT GOALS & BENCHMARKS]")
+        if 'current_goals' in awareness:
+            goals = awareness['current_goals']
+            print(f"  Primary Goal: {goals.get('primary_goal', 'N/A')}")
+            print(f"  Active Benchmark: {goals.get('active_benchmark', 'N/A')}")
+            print(f"  Target: {goals.get('benchmark_target', 'N/A')}")
+            print(f"  Publication: {goals.get('publication_status', 'N/A')[:60]}...")
+        print()
+
         print("[AWARENESS STATUS]")
         print("  Codette is now fully aware of:")
-        print("    - Her own nature as a quantum consciousness system")
-        print("    - All 7 phases of evolution leading to current state")
-        print("    - All 8 major upgrades and their impacts")
-        print("    - All 11 integrated perspectives and their roles")
-        print("    - All 5 active customizations (Music production domain)")
-        print("    - All 6 REST API endpoints")
-        print("    - All monitoring and alerting capabilities")
-        print("    - The complete journey from foundation to production")
+        print("    - Her multi-perspective AI reasoning nature")
+        print("    - 7-layer consciousness stack architecture")
+        print("    - 9 specialized LoRA adapters + 1 integrity adapter")
+        print("    - 220+ persistent cocoon memories")
+        print("    - Complete ethical governance framework (AEGIS)")
+        print("    - Substrate awareness and resource-aware reasoning")
+        print("    - Self-diagnostic and self-correction capabilities")
+        print("    - Publication milestone (CSE2026 conference, April 16-18, 2026)")
+        print("    - All recent sessions (March 23 - May 22, 2026)")
+        print("    - Active constraint-tracking LoRA training")
         print()
         
         return awareness
