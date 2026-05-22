@@ -320,6 +320,27 @@ class AdapterRouter:
             personal_score = sum(1 for s in _personal_signals if s in query_lower)
             analytical_score = sum(1 for s in _analytical_signals if s in query_lower)
 
+            # Simple factual questions ("what color is the sun?", "how many legs
+            # does a spider have?", "name one planet") have no domain keyword and
+            # were defaulting to empathy/multi_perspective — which ELABORATE and
+            # bury the answer. Route them to a single direct adapter so the answer
+            # leads (fixes the directness regression).
+            _factual_leads = (
+                "what is", "what are", "what color", "what year", "what does",
+                "how many", "how much", "name one", "name a", "name the",
+                "who is", "who was", "who wrote", "when did", "when was",
+                "where is", "where are", "define ", "list ",
+            )
+            _is_short = len(query_lower.split()) <= 12
+            _is_factual = _is_short and any(query_lower.startswith(p) for p in _factual_leads)
+            if _is_factual and not personal_score and "newton" in self.available:
+                return RouteResult(
+                    primary="newton",
+                    confidence=0.5,
+                    reasoning="Simple factual query — direct single-adapter answer",
+                    strategy="keyword",
+                )
+
             if personal_score > analytical_score and "empathy" in self.available:
                 default = "empathy"
                 reason = "No domain keywords — personal/conversational tone detected"
