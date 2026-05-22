@@ -328,13 +328,15 @@ def _set_active_session(session) -> None:
         _session = session
 
 
+_orchestrator_args = None  # Global to hold command-line args for orchestrator
+
 def _get_orchestrator():
     """Lazy-load the orchestrator (first call takes ~60s).
 
     Set CODETTE_BACKEND=ollama to use Ollama instead of llama_cpp.
     Ollama provides faster inference with proper GPU acceleration.
     """
-    global _orchestrator, _orchestrator_status, _load_error, _forge_bridge
+    global _orchestrator, _orchestrator_status, _load_error, _forge_bridge, _orchestrator_args
     if _orchestrator is not None:
         return _orchestrator
 
@@ -381,6 +383,7 @@ def _get_orchestrator():
                         CodetteOrchestrator,
                         verbose=True,
                         n_ctx=32768,
+                        n_gpu_layers=_orchestrator_args.gpu_layers if _orchestrator_args else 35,
                         memory_weighting=memory_weighting,
                     )
                     try:
@@ -812,6 +815,11 @@ def _worker_thread():
             adapter = request.get("adapter")  # None = auto-route
             max_adapters = request.get("max_adapters", 2)
             web_search_trigger = request.get("web_search_trigger", "")
+
+            # Full adapter synthesis: run every perspective and synthesize.
+            # Overrides any specific adapter/perspective-count selection.
+            if request.get("full_synthesis"):
+                adapter = "__all__"
 
             # ── SELF-INTROSPECTION INTERCEPT ──
             # When user asks about self-reflection, patterns, or what she's noticed,
@@ -1402,8 +1410,18 @@ def _worker_thread():
                 adapter_for_analysis = result.get("adapter", "base")
                 if isinstance(adapter_for_analysis, list):
                     adapter_for_analysis = adapter_for_analysis[0] if adapter_for_analysis else "base"
+                # Scan the synthesis AND each individual perspective shown to the
+                # user. Grandiosity/hallucination confined to one perspective must
+                # still lower the reliability score, since the user sees it via
+                # "Show N perspectives".
+                analysis_text = result.get("response", "")
+                _persp = result.get("perspectives")
+                if isinstance(_persp, dict) and _persp:
+                    analysis_text = analysis_text + "\n\n" + "\n\n".join(
+                        str(v) for v in _persp.values() if v
+                    )
                 reliability = _analyze_response_reliability(
-                    result.get("response", ""),
+                    analysis_text,
                     adapter_for_analysis,
                     domain=result.get("domain", "general"),
                 )
@@ -2149,6 +2167,8 @@ class CodetteHandler(SimpleHTTPRequestHandler):
         adapter = raw_adapter if raw_adapter else None
         raw_allow_web = form.getfirst("allow_web_search", "0")
         allow_web_search = str(raw_allow_web).lower() in {"1", "true", "yes", "on"}
+        raw_full_synth = form.getfirst("full_synthesis", "0")
+        full_synthesis = str(raw_full_synth).lower() in {"1", "true", "yes", "on"}
         try:
             max_adapters = int(form.getfirst("max_adapters", "2"))
         except (ValueError, TypeError):
@@ -2206,6 +2226,7 @@ class CodetteHandler(SimpleHTTPRequestHandler):
             "adapter": adapter,
             "max_adapters": max_adapters,
             "allow_web_search": allow_web_search,
+            "full_synthesis": full_synthesis,
             "file_count": len(file_contexts),
             "file_errors": file_errors,
             "has_file_context": len(file_contexts) > 0,
@@ -2226,6 +2247,7 @@ class CodetteHandler(SimpleHTTPRequestHandler):
         adapter = data.get("adapter")
         max_adapters = data.get("max_adapters", 2)
         allow_web_search = bool(data.get("allow_web_search"))
+        full_synthesis = bool(data.get("full_synthesis"))
 
         if not query:
             self._json_response({"error": "Empty query"}, 400)
@@ -2262,6 +2284,7 @@ class CodetteHandler(SimpleHTTPRequestHandler):
             "max_adapters": max_adapters,
             "allow_web_search": allow_web_search,
             "web_search_trigger": web_search_trigger,
+            "full_synthesis": full_synthesis,
         })
 
         # Wait for response (with timeout)
@@ -2291,6 +2314,7 @@ class CodetteHandler(SimpleHTTPRequestHandler):
         params = parse_qs(parsed.query)
         query = params.get("q", [""])[0]
         adapter = params.get("adapter", [None])[0]
+        full_synthesis = str(params.get("full_synthesis", ["0"])[0]).lower() in {"1", "true", "yes", "on"}
 
         if not query:
             self.send_error(400, "Missing query parameter 'q'")
@@ -2312,6 +2336,7 @@ class CodetteHandler(SimpleHTTPRequestHandler):
             "query": query,
             "adapter": adapter,
             "max_adapters": 2,
+            "full_synthesis": full_synthesis,
         })
 
         try:
@@ -2447,12 +2472,14 @@ class CodetteHandler(SimpleHTTPRequestHandler):
 
 
 def main():
-    global _session, _session_store, _worker_threads
+    global _session, _session_store, _worker_threads, _orchestrator_args
 
     parser = argparse.ArgumentParser(description="Codette Web UI")
     parser.add_argument("--port", type=int, default=7860, help="Port (default: 7860)")
     parser.add_argument("--no-browser", action="store_true", help="Don't auto-open browser")
+    parser.add_argument("--gpu-layers", type=int, default=35, help="GPU layers (0=CPU only, 35+=full GPU, default: 35)")
     args = parser.parse_args()
+    _orchestrator_args = args  # Store for use in _get_orchestrator()
 
     print("=" * 60)
     print("  CODETTE WEB UI")

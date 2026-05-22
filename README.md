@@ -55,6 +55,8 @@ Codette is a modular reasoning system that routes queries through specialized co
 
 **v2.2 RC+ξ additions:** Response cutoff fix (`_format_fact()` bolds only the first sentence — inner `**` markers no longer break Markdown rendering), LOCK scrubber tightened to a single precise pattern (prevents over-stripping legitimate content), DISCOVERY tier classifier completed (7 new `AMBIGUOUS_PATTERNS` → 7/7 Discovery attractor accuracy), and benchmark harness hardened with unlimited timeout and mandatory 5 s inter-query delay. Clean benchmark result: **25/25 queries, 0 errors, 100% SIMPLE directness, 7/7 DISCOVERY accuracy, spectral trust 0.754.**
 
+**v2.3 RC+ξ additions:** Full adapter roster online (orchestrator + constraint_tracker now load as behavioral adapters — **10 total**), one-click **Full Adapter Synthesis** (◈ SYNTHESIZE ALL runs every perspective and synthesizes), a new **self-overclaiming hallucination signal** (catches grandiose self-claims and fabricated self-metrics the guard previously scored at 0% risk) with the reliability scan extended across every displayed perspective, a constraint-parser fix (ordinary negations like "no word constraint" no longer become enforced constraints), and a **voice-reinforced behavioral retrain** of all eight perspectives (each on its own reasoning dataset + distinct persona + the four locks) to harden against perspective convergence. See [docs/CHANGELOG_2026-05-22.md](docs/CHANGELOG_2026-05-22.md).
+
 Created by **Jonathan Harrison** (Raiff1982)
 
 ## TL;DR
@@ -114,7 +116,7 @@ Codette is a modular reasoning system with published demos, tests, benchmarks, p
 - **Automated tests:** [tests](tests)
 - **Benchmark suites:** [benchmarks](benchmarks)
 - **Saved benchmark reports:** [data/results](data/results)
-- **Change transparency:** [docs/CHANGELOG_2026-05-19.md](docs/CHANGELOG_2026-05-19.md) · [docs/CHANGELOG_2026-05-06.md](docs/CHANGELOG_2026-05-06.md) · [docs/CHANGELOG_2026-05-01.md](docs/CHANGELOG_2026-05-01.md) · [docs/CHANGELOG_2026-04-26.md](docs/CHANGELOG_2026-04-26.md) · [docs/CHANGELOG_2026-04-02.md](docs/CHANGELOG_2026-04-02.md)
+- **Change transparency:** [docs/CHANGELOG_2026-05-22.md](docs/CHANGELOG_2026-05-22.md) · [docs/CHANGELOG_2026-05-19.md](docs/CHANGELOG_2026-05-19.md) · [docs/CHANGELOG_2026-05-06.md](docs/CHANGELOG_2026-05-06.md) · [docs/CHANGELOG_2026-05-01.md](docs/CHANGELOG_2026-05-01.md) · [docs/CHANGELOG_2026-04-26.md](docs/CHANGELOG_2026-04-26.md) · [docs/CHANGELOG_2026-04-02.md](docs/CHANGELOG_2026-04-02.md)
 - **Contributing guide:** [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ### Reproduce key claims
@@ -252,7 +254,7 @@ Detailed setup guidance: [docs/deployment/MODEL_SETUP.md](docs/deployment/MODEL_
 codette-clean/
 |-- inference/                    # Server & UI
 |   |-- codette_server.py         # Stdlib HTTP server with SSE streaming
-|   |-- codette_orchestrator.py   # LoRA hot-swap engine (9 adapters, <1ms switch)
+|   |-- codette_orchestrator.py   # LoRA hot-swap engine (10 adapters, <1ms switch)
 |   |-- codette_forge_bridge.py   # Phase 6/7 routing + constraint enforcement
 |   |-- self_correction.py        # Autonomous violation detection & rewrite
 |   |-- substrate_awareness.py    # Hardware-aware cognition (pressure monitoring)
@@ -525,6 +527,15 @@ Note: cocoon memory counts change over time; prefer introspection or health endp
 | Dependencies | `requirements.txt` tightened with upper bounds and unused deps removed |
 | Legacy fallback alarm | Legacy cocoon fallback now raises warnings and fails smoke tests if triggered |
 | Paper v7 | Updated paper, rebuttal, tables, and Kaggle notebook added |
+| Full adapter roster | Orchestrator + constraint_tracker now load as behavioral adapters (10 total) |
+| Full Adapter Synthesis | ◈ SYNTHESIZE ALL runs every perspective and synthesizes into one answer |
+| Self-overclaiming guard | Signal 7 flags grandiose self-claims + fabricated self-metrics; reliability scan now covers every displayed perspective |
+| Contradiction-check crash | `_check_contradictions` `\1` backreference fixed (was silently disabled on "always X" responses) |
+| Constraint negation parser | Ordinary negations ("no word constraint", "no constraints needed") no longer captured as enforced constraints (fixed a repetition loop) |
+| Synthesis voice | Perspectives framed as Codette's own first-person lenses, not external parties she quotes |
+| Session list resilience | `list_sessions()` degrades gracefully if the project drive briefly disconnects |
+| Benchmark backend | `full_benchmark.py --backend server` scores the live llama.cpp + LoRA-hot-swap system directly |
+| Voice-reinforced retrain | All 8 perspectives retrained on their own datasets + distinct personas + the 4 locks (HF Jobs, uv) |
 
 ---
 

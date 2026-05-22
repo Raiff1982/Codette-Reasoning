@@ -93,10 +93,10 @@ try:
 except ImportError:
     HAS_NEXUS = False
 
-# Agent names matching the 8 adapters
+# Agent names matching the 9 adapters
 AGENT_NAMES = [
     "newton", "davinci", "empathy", "philosophy",
-    "quantum", "consciousness", "multi_perspective", "systems_architecture"
+    "quantum", "consciousness", "multi_perspective", "systems_architecture", "constraint_tracker"
 ]
 
 # Adapter accent colors for UI
@@ -109,6 +109,7 @@ ADAPTER_COLORS = {
     "consciousness": "#e2e8f0",    # Silver/white
     "multi_perspective": "#f97316", # Amber
     "systems_architecture": "#06b6d4",  # Teal
+    "constraint_tracker": "#8b5cf6",    # Violet (constraint enforcement)
     "_base": "#94a3b8",            # Slate gray
 }
 
@@ -894,13 +895,22 @@ class SessionStore:
         return session
 
     def list_sessions(self, limit: int = 20) -> List[Dict]:
-        """List recent sessions."""
-        conn = sqlite3.connect(str(self.db_path))
-        rows = conn.execute("""
-            SELECT session_id, created_at, updated_at, title
-            FROM sessions ORDER BY updated_at DESC LIMIT ?
-        """, (limit,)).fetchall()
-        conn.close()
+        """List recent sessions.
+
+        Degrades gracefully if the database file is briefly unreachable
+        (the project lives on the J: drive, which can transiently disconnect).
+        Returning [] keeps the UI's session-list load from 500-ing on a hiccup.
+        """
+        try:
+            conn = sqlite3.connect(str(self.db_path))
+            rows = conn.execute("""
+                SELECT session_id, created_at, updated_at, title
+                FROM sessions ORDER BY updated_at DESC LIMIT ?
+            """, (limit,)).fetchall()
+            conn.close()
+        except sqlite3.OperationalError as e:
+            print(f"  [WARN] list_sessions: DB unreachable ({e}); returning empty list", flush=True)
+            return []
 
         return [
             {

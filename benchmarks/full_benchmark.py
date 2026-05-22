@@ -10,7 +10,7 @@ Outputs: benchmarks/results/benchmark_TIMESTAMP.json + .md summary
 Author: Jonathan Harrison (Raiff's Bits LLC)
 """
 
-import os, sys, json, time, re
+import os, sys, json, time, re, argparse
 from pathlib import Path
 from datetime import datetime
 
@@ -19,6 +19,15 @@ import urllib.request
 
 OLLAMA_URL = os.environ.get("CODETTE_OLLAMA_URL", "http://localhost:11434")
 OLLAMA_MODEL = os.environ.get("CODETTE_OLLAMA_MODEL", "codette-adapter-config:latest")
+
+# Live llama.cpp server (codette_server.py) backend
+SERVER_URL = os.environ.get("CODETTE_SERVER_URL", "http://localhost:7860")
+
+# Runtime config (set from argparse in __main__)
+BACKEND = "ollama"          # "ollama" | "server"
+MAX_ADAPTERS = 3            # perspectives for the server backend's auto-routing
+VERBOSE = False             # print full responses as they stream in
+PER_QUERY_TIMEOUT = 1200    # seconds — multi-perspective on llama.cpp is slow
 
 # ================================================================
 # Test Categories
@@ -320,31 +329,104 @@ def query_ollama(query, model=OLLAMA_MODEL, num_predict=300):
         }
 
 
+def query_server(query, num_predict=300):
+    """Send a query to the live llama.cpp server (/api/chat) and return response + metrics.
+
+    Returns the same dict shape as query_ollama so the scorers don't care which backend ran.
+    """
+    payload = json.dumps({
+        "query": query,
+        "adapter": None,            # let the router pick the perspective(s)
+        "max_adapters": MAX_ADAPTERS,
+        "allow_web_search": False,
+    }).encode()
+
+    req = urllib.request.Request(
+        f"{SERVER_URL}/api/chat",
+        data=payload,
+        headers={"Content-Type": "application/json"},
+    )
+
+    start = time.time()
+    try:
+        resp = urllib.request.urlopen(req, timeout=PER_QUERY_TIMEOUT)
+        data = json.loads(resp.read())
+        elapsed = time.time() - start
+
+        if data.get("error"):
+            return {"response": "", "tokens": 0, "tok_per_sec": 0, "eval_time": 0,
+                    "load_time": 0, "total_time": round(elapsed, 2), "error": data["error"],
+                    "adapter": data.get("adapter"), "perspectives": data.get("perspectives")}
+
+        content = (data.get("response") or "").strip()
+        tokens = data.get("tokens", 0) or 0
+        eval_dur = data.get("time", elapsed) or elapsed
+        tps = tokens / eval_dur if eval_dur > 0 else 0
+
+        return {
+            "response": content,
+            "tokens": tokens,
+            "tok_per_sec": round(tps, 1),
+            "eval_time": round(eval_dur, 2),
+            "load_time": 0,
+            "total_time": round(elapsed, 2),
+            "error": None,
+            "adapter": data.get("adapter"),
+            "perspectives": data.get("perspectives"),
+            "reliability": (data.get("confidence_analysis") or {}).get("response_confidence"),
+            "hallucination_signals": (data.get("confidence_analysis") or {}).get("hallucination_signals"),
+        }
+    except Exception as e:
+        return {"response": "", "tokens": 0, "tok_per_sec": 0, "eval_time": 0,
+                "load_time": 0, "total_time": round(time.time() - start, 2), "error": str(e)}
+
+
+def query_model(query, num_predict=300):
+    """Dispatch a query to the selected backend."""
+    if BACKEND == "server":
+        return query_server(query, num_predict=num_predict)
+    return query_ollama(query, num_predict=num_predict)
+
+
 def run_benchmark():
     """Run the full benchmark suite."""
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     results_dir = Path(__file__).parent / "results"
     results_dir.mkdir(exist_ok=True)
 
+    backend_label = "llama.cpp server" if BACKEND == "server" else "Ollama"
+    model_label = SERVER_URL if BACKEND == "server" else OLLAMA_MODEL
+
     print("=" * 70)
     print(f"  CODETTE FULL BENCHMARK SUITE")
-    print(f"  Model: {OLLAMA_MODEL}")
+    print(f"  Backend: {backend_label}  ({model_label})")
     print(f"  Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    if BACKEND == "server":
+        print(f"  max_adapters={MAX_ADAPTERS} | per-query timeout={PER_QUERY_TIMEOUT}s | verbose={VERBOSE}")
     print("=" * 70)
 
-    # Verify Ollama is running
-    try:
-        resp = urllib.request.urlopen(f"{OLLAMA_URL}/api/ps", timeout=5)
-        ps_data = json.loads(resp.read())
-        loaded = [m["name"] for m in ps_data.get("models", [])]
-        print(f"  Ollama: running, {len(loaded)} models loaded")
-        if loaded:
-            for m in loaded:
-                vram = [x.get("size_vram", 0) for x in ps_data["models"] if x["name"] == m]
-                gpu = "GPU" if vram and vram[0] > 0 else "CPU"
-                print(f"    - {m} ({gpu})")
-    except:
-        print("  WARNING: Ollama not responding")
+    # Verify the selected backend is responding
+    if BACKEND == "server":
+        try:
+            resp = urllib.request.urlopen(f"{SERVER_URL}/api/status", timeout=5)
+            st = json.loads(resp.read())
+            print(f"  Server: running | state={st.get('state', '?')} "
+                  f"| adapters={st.get('adapters', st.get('adapter_count', '?'))}")
+        except Exception as e:
+            print(f"  WARNING: server not responding at {SERVER_URL} ({e})")
+    else:
+        try:
+            resp = urllib.request.urlopen(f"{OLLAMA_URL}/api/ps", timeout=5)
+            ps_data = json.loads(resp.read())
+            loaded = [m["name"] for m in ps_data.get("models", [])]
+            print(f"  Ollama: running, {len(loaded)} models loaded")
+            if loaded:
+                for m in loaded:
+                    vram = [x.get("size_vram", 0) for x in ps_data["models"] if x["name"] == m]
+                    gpu = "GPU" if vram and vram[0] > 0 else "CPU"
+                    print(f"    - {m} ({gpu})")
+        except:
+            print("  WARNING: Ollama not responding")
 
     print()
 
@@ -368,7 +450,7 @@ def run_benchmark():
             short_q = query[:60] + "..." if len(query) > 60 else query
             print(f"\n  [{i+1}/{len(tests)}] {short_q}")
 
-            result = query_ollama(query)
+            result = query_model(query)
             total_tokens += result["tokens"]
             total_time += result["total_time"]
 
@@ -392,8 +474,17 @@ def run_benchmark():
                 else:
                     score, detail = score_generic(result, test)
 
-                response_preview = result["response"][:120].replace("\n", " ")
-                print(f"    Response: {response_preview}...")
+                if VERBOSE:
+                    if result.get("adapter") is not None:
+                        print(f"    Adapter/route: {result.get('adapter')}")
+                    print("    Response:")
+                    for line in result["response"].splitlines() or [""]:
+                        print(f"      {line}")
+                    if result.get("reliability") is not None:
+                        print(f"    Reliability: {result['reliability']} | signals: {result.get('hallucination_signals')}")
+                else:
+                    response_preview = result["response"][:120].replace("\n", " ")
+                    print(f"    Response: {response_preview}...")
                 print(f"    Score: {score:.2f} | {detail}")
                 print(f"    {result['tokens']} tok | {result['tok_per_sec']} tok/s | {result['total_time']}s")
 
@@ -438,15 +529,14 @@ def run_benchmark():
     print(f"  Total tokens:         {total_tokens}")
     print(f"  Total time:           {total_time:.1f}s")
     print(f"  Average speed:        {avg_tps:.1f} tok/s")
-    print(f"  Model:                {OLLAMA_MODEL}")
-    print(f"  Backend:              Ollama (Vulkan GPU)")
+    print(f"  Backend:              {backend_label} ({model_label})")
     print("=" * 70)
 
     # -- Save results --
     output = {
         "timestamp": timestamp,
-        "model": OLLAMA_MODEL,
-        "backend": "ollama_vulkan_gpu",
+        "model": model_label,
+        "backend": "llama_cpp_server" if BACKEND == "server" else "ollama_vulkan_gpu",
         "overall_score": round(overall, 4),
         "total_tests": test_count,
         "total_tokens": total_tokens,
@@ -472,8 +562,7 @@ def run_benchmark():
     with open(md_path, "w", encoding="utf-8") as f:
         f.write(f"# Codette Benchmark Report\n\n")
         f.write(f"**Date:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  \n")
-        f.write(f"**Model:** {OLLAMA_MODEL}  \n")
-        f.write(f"**Backend:** Ollama + Vulkan (Intel Arc 140V GPU)  \n")
+        f.write(f"**Backend:** {backend_label} ({model_label})  \n")
         f.write(f"**Overall Score:** {overall:.1%}  \n\n")
 
         f.write(f"## Summary\n\n")
@@ -505,14 +594,34 @@ def run_benchmark():
 
 
 if __name__ == "__main__":
-    # Auto-detect model
-    try:
-        resp = urllib.request.urlopen(f"{OLLAMA_URL}/api/ps", timeout=5)
-        ps = json.loads(resp.read())
-        if ps.get("models"):
-            OLLAMA_MODEL = ps["models"][0]["name"]
-            print(f"  Auto-detected model: {OLLAMA_MODEL}")
-    except:
-        pass
+    parser = argparse.ArgumentParser(description="Codette full benchmark suite")
+    parser.add_argument("--backend", choices=["ollama", "server"], default="ollama",
+                        help="ollama (:11434) or the live llama.cpp server (:7860)")
+    parser.add_argument("--server-url", default=SERVER_URL,
+                        help="base URL of the llama.cpp server (server backend)")
+    parser.add_argument("--max-adapters", type=int, default=MAX_ADAPTERS,
+                        help="perspectives the server router may use per query")
+    parser.add_argument("--timeout", type=int, default=PER_QUERY_TIMEOUT,
+                        help="per-query timeout in seconds (server multi-perspective is slow)")
+    parser.add_argument("--verbose", action="store_true",
+                        help="print full responses + route + reliability as they run")
+    args = parser.parse_args()
+
+    BACKEND = args.backend
+    SERVER_URL = args.server_url
+    MAX_ADAPTERS = args.max_adapters
+    PER_QUERY_TIMEOUT = args.timeout
+    VERBOSE = args.verbose
+
+    if BACKEND == "ollama":
+        # Auto-detect the loaded Ollama model
+        try:
+            resp = urllib.request.urlopen(f"{OLLAMA_URL}/api/ps", timeout=5)
+            ps = json.loads(resp.read())
+            if ps.get("models"):
+                OLLAMA_MODEL = ps["models"][0]["name"]
+                print(f"  Auto-detected model: {OLLAMA_MODEL}")
+        except:
+            pass
 
     run_benchmark()

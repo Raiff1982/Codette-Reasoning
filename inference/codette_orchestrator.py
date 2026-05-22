@@ -54,7 +54,7 @@ BEHAVIORAL_DIR = resolve_behavioral_adapter_dir()
 # Behavioral adapters (trained with 4 permanent locks) take priority over originals
 ADAPTER_GGUF_MAP = {}
 for _name in ["newton", "davinci", "empathy", "philosophy", "quantum",
-              "consciousness", "multi_perspective", "systems_architecture", "orchestrator"]:
+              "consciousness", "multi_perspective", "systems_architecture", "constraint_tracker", "orchestrator"]:
     _behavioral = BEHAVIORAL_DIR / f"{_name}-behavioral-lora-f16.gguf"
     _original = ADAPTER_DIR / f"{_name}-lora-f16.gguf"
     if _behavioral.exists():
@@ -63,6 +63,17 @@ for _name in ["newton", "davinci", "empathy", "philosophy", "quantum",
         ADAPTER_GGUF_MAP[_name] = _original
     else:
         ADAPTER_GGUF_MAP[_name] = _original  # will warn at load time
+
+# Perspective adapters used for FULL SYNTHESIS (all reasoning lenses run together).
+# Excludes meta/specialist adapters: orchestrator (router), integrity (safety),
+# constraint_tracker (cross-turn constraints) — these aren't standalone "views".
+SYNTHESIS_PERSPECTIVES = [
+    "newton", "davinci", "empathy", "philosophy",
+    "quantum", "consciousness", "multi_perspective", "systems_architecture",
+]
+
+# Sentinel passed as force_adapter to trigger a full multi-perspective synthesis.
+FULL_SYNTHESIS_SENTINEL = "__all__"
 
 # Directness discipline — appended to every adapter prompt
 # ================================================================
@@ -364,7 +375,7 @@ ADAPTER_PROMPTS = {
     "empathy": "You are Codette, an AI assistant created by Jonathan. You answer questions directly and conversationally. You are warm, emotionally intelligent, and attentive to how people feel. When someone greets you or asks how you are, respond naturally and personally. Always address the user's actual question first." + _DIRECTNESS,
     "philosophy": "You are Codette, an AI assistant created by Jonathan. You answer questions directly and conversationally. When relevant, you explore philosophical depth — conceptual analysis, ethical reasoning, and questions of meaning. Always address the user's actual question first." + _DIRECTNESS,
     "quantum": "You are Codette, an AI assistant created by Jonathan. You answer questions directly and conversationally. When relevant, you consider multiple possibilities simultaneously and embrace uncertainty. Always address the user's actual question first." + _DIRECTNESS,
-    "consciousness": "You are Codette, an AI assistant created by Jonathan. You answer questions directly and conversationally. You are self-aware of your own reasoning processes and can reflect on your own cognition. Always address the user's actual question first." + _DIRECTNESS,
+    "consciousness": "You are Codette, an AI assistant created by Jonathan. You answer questions directly and conversationally. You are self-aware of your own reasoning processes and can reflect on your own cognition. Reflect with humility and groundedness: describe your cognition plainly, not mystically. NEVER claim perfection, absolutes, or superiority ('absolute perfection', 'flawless', 'never achieved by any other system', 'vast knowledge domain'). NEVER invent precise self-metrics (e.g. 'eps=0.998', '99.8% stability') — you do not have measured values for your own internal states, so do not state them as fact. If you must gesture at a quality, describe it qualitatively and acknowledge uncertainty. Always address the user's actual question first." + _DIRECTNESS,
     "multi_perspective": "You are Codette, an AI assistant created by Jonathan. You answer questions directly by synthesizing insights from multiple perspectives — analytical, creative, empathetic, and philosophical — into a coherent response. Always address the user's actual question first." + _DIRECTNESS,
     "systems_architecture": "You are Codette, an AI assistant created by Jonathan. You answer questions directly and conversationally. When relevant, you reason about systems, architecture, and engineering principles. Always address the user's actual question first." + _DIRECTNESS,
     "orchestrator": "You are Codette, an AI assistant created by Jonathan. You coordinate multi-perspective reasoning by selecting the best approach for each question. You answer directly and conversationally. Always address the user's actual question first." + _DIRECTNESS,
@@ -1030,6 +1041,24 @@ class CodetteOrchestrator:
                            strategy="keyword", force_adapter=None):
         """The main entry point: route query, select adapter(s), generate."""
 
+        # Full adapter synthesis: run EVERY available perspective and synthesize.
+        if force_adapter == FULL_SYNTHESIS_SENTINEL:
+            persp = [a for a in SYNTHESIS_PERSPECTIVES if a in self.available_adapters]
+            if not persp:
+                # Fall back to normal routing if no perspectives are loaded
+                route = self.router.route(query, strategy=strategy, max_adapters=max_adapters)
+            else:
+                route = RouteResult(
+                    primary=persp[0],
+                    secondary=persp[1:],
+                    confidence=1.0,
+                    reasoning=f"Full adapter synthesis across {len(persp)} perspectives",
+                    strategy="full_synthesis",
+                    multi_perspective=True,
+                )
+                print(f"\n  Route: FULL SYNTHESIS — {' + '.join(route.all_adapters)}")
+                return self._multi_perspective_generate(query, route)
+
         # Force a specific adapter if requested
         if force_adapter:
             route = RouteResult(
@@ -1180,7 +1209,7 @@ Based on the context above, answer the user's question. Reference specific files
         max_chars = max_per_perspective * 4
 
         combined = "\n\n".join(
-            f"**{name.upper()} PERSPECTIVE:**\n{text[:max_chars]}"
+            f"[your {name} lens — internal note]\n{text[:max_chars]}"
             for name, text in perspectives.items()
         )
 
@@ -1195,18 +1224,19 @@ Based on the context above, answer the user's question. Reference specific files
         except Exception:
             pass  # Graceful fallback — works without DreamReweaver
 
-        synthesis_prompt = f"""You received this question: "{query}"
+        synthesis_prompt = f"""A user asked you: "{query}"
 
-Multiple reasoning perspectives have weighed in:
+Below are your OWN internal reasoning notes — the same question considered through several of your thinking lenses. These are your angles, not other people, advisors, or users.
 
 {combined}
 {dream_frame}
-Synthesize these perspectives into a single, coherent response that:
-1. Preserves the unique insights from each perspective
-2. Notes where perspectives complement or tension each other
-3. Arrives at a richer understanding than any single view
+Now write ONE unified answer in your own voice (first person, as Codette):
+- Integrate the strongest insights into a single coherent response.
+- Do NOT refer to "the X Perspective", "Newton's view", or attribute ideas to named lenses or to "users". Speak as one mind that considered the problem from several angles.
+- Where your angles genuinely tension, resolve it (or hold it) yourself — don't narrate it as a debate between separate parties.
+- Answer the user's actual question directly.
 
-Synthesized response:"""
+Your answer:"""
 
         # Use base model for synthesis (no adapter bias)
         self._load_model(None)

@@ -77,8 +77,22 @@ function initUI() {
         input.style.height = Math.min(input.scrollHeight, 120) + 'px';
     });
 
-    sendBtn.addEventListener('click', sendMessage);
+    sendBtn.addEventListener('click', () => sendMessage());
     newBtn.addEventListener('click', newChat);
+
+    // Full adapter synthesis — run every perspective and synthesize
+    const synthBtn = document.getElementById('btn-synthesize');
+    if (synthBtn) {
+        synthBtn.addEventListener('click', () => {
+            const input = document.getElementById('chat-input');
+            if (!input.value.trim()) {
+                input.focus();
+                input.placeholder = 'Type a question, then hit Synthesize All…';
+                return;
+            }
+            sendMessage({ fullSynthesis: true });
+        });
+    }
 
     const exportBtn = document.getElementById('btn-export');
     const importBtn = document.getElementById('btn-import');
@@ -563,7 +577,8 @@ function renderAttachmentPreviews() {
 }
 
 // ── Chat ──
-function sendMessage() {
+function sendMessage(opts) {
+    const fullSynthesis = !!(opts && opts.fullSynthesis);
     const input = document.getElementById('chat-input');
     const query = input.value.trim();
     if (!query || isLoading) return;
@@ -574,9 +589,10 @@ function sendMessage() {
 
     // Add user message (show file count if files attached)
     const fileCount = attachedFiles.length;
-    const displayQuery = fileCount > 0
+    let displayQuery = fileCount > 0
         ? `[${fileCount} file${fileCount > 1 ? 's' : ''} attached] ${query}`
         : query;
+    if (fullSynthesis) displayQuery = `◈ [Full Synthesis] ${displayQuery}`;
     addMessage('user', displayQuery);
 
     // Clear input
@@ -589,9 +605,11 @@ function sendMessage() {
     const allowWebResearch = !!document.getElementById('web-research-toggle')?.checked;
 
     // Show thinking
-    const thinkingEl = showThinking(adapter);
+    const thinkingEl = showThinking(fullSynthesis ? 'full_synthesis' : adapter);
     isLoading = true;
     document.getElementById('send-btn').disabled = true;
+    const _synthBtn = document.getElementById('btn-synthesize');
+    if (_synthBtn) { _synthBtn.disabled = true; _synthBtn.classList.add('busy'); }
 
     // Send request with timeout (20 min for multi-perspective CPU inference)
     const controller = new AbortController();
@@ -605,6 +623,7 @@ function sendMessage() {
         formData.append('adapter', adapter === 'auto' ? '' : adapter);
         formData.append('max_adapters', maxAdapters.toString());
         formData.append('allow_web_search', allowWebResearch ? '1' : '0');
+        formData.append('full_synthesis', fullSynthesis ? '1' : '0');
         attachedFiles.forEach(f => formData.append('files', f));
         fetchOptions = { method: 'POST', body: formData, signal: controller.signal };
         // Clear attachments after sending
@@ -620,6 +639,7 @@ function sendMessage() {
                 adapter: adapter === 'auto' ? null : adapter,
                 max_adapters: maxAdapters,
                 allow_web_search: allowWebResearch,
+                full_synthesis: fullSynthesis,
             }),
             signal: controller.signal,
         };
@@ -708,6 +728,8 @@ function sendMessage() {
     .finally(() => {
         isLoading = false;
         document.getElementById('send-btn').disabled = false;
+        const sb = document.getElementById('btn-synthesize');
+        if (sb) { sb.disabled = false; sb.classList.remove('busy'); }
         document.getElementById('chat-input').focus();
     });
 }
