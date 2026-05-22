@@ -171,8 +171,13 @@ class CodetteSession:
         self.active_continuity_summary: str = ""
         self.decision_landmarks: List[Dict[str, Any]] = []
 
+        # Constraint tracking for cross-turn persistence
+        self.constraint_tracker = None
+        self.constraints_applied: int = 0  # Count of constraints applied
+
         # Initialize subsystems
         self._init_cocoon()
+        self._init_constraint_tracking()
 
     def _init_cocoon(self):
         """Initialize Cocoon subsystems if available."""
@@ -213,6 +218,74 @@ class CodetteSession:
 
         if HAS_NEXUS:
             self.nexus = NexusSignalEngine()
+
+    def _init_constraint_tracking(self):
+        """Initialize constraint tracker for cross-turn memory."""
+        try:
+            from reasoning_forge.constraint_tracker import ConstraintTracker
+            self.constraint_tracker = ConstraintTracker()
+        except ImportError:
+            self.constraint_tracker = None
+
+    def detect_constraints(self, query: str, is_first_turn: bool = False):
+        """Detect and store constraints from user input.
+
+        Args:
+            query: User input
+            is_first_turn: Whether this is the first turn in the session
+
+        Returns:
+            SessionConstraints object with detected constraints
+        """
+        if not self.constraint_tracker:
+            return None
+
+        constraints = self.constraint_tracker.process_turn(query, is_first_turn=is_first_turn)
+
+        if constraints and constraints.constraints:
+            # Record constraint detection as a decision landmark
+            if constraints.anchor_phrases:
+                phrases = ", ".join(f'"{p}"' for p in constraints.anchor_phrases)
+                self.decision_landmarks.append({
+                    "role": "user",
+                    "label": "Constraint: anchor phrases",
+                    "summary": f"Remember: {phrases}",
+                    "timestamp": time.time(),
+                })
+
+            if constraints.word_limit:
+                self.decision_landmarks.append({
+                    "role": "user",
+                    "label": "Constraint: word limit",
+                    "summary": f"Keep responses to {constraints.word_limit} words max",
+                    "timestamp": time.time(),
+                })
+
+            if constraints.sentence_limit:
+                self.decision_landmarks.append({
+                    "role": "user",
+                    "label": "Constraint: sentence limit",
+                    "summary": f"Keep responses to {constraints.sentence_limit} sentences max",
+                    "timestamp": time.time(),
+                })
+
+        return constraints
+
+    def get_constraint_reminder(self) -> str:
+        """Get constraint reminder string for system prompt injection."""
+        if not self.constraint_tracker:
+            return ""
+        return self.constraint_tracker.get_constraint_reminder()
+
+    def check_constraint_compliance(self, response: str) -> Dict[str, Any]:
+        """Check if response meets detected constraints.
+
+        Returns:
+            Dict with compliance status and violations
+        """
+        if not self.constraint_tracker:
+            return {"compliant": True, "violations": []}
+        return self.constraint_tracker.check_constraint_compliance(response)
 
     def add_message(self, role: str, content: str, metadata: Optional[Dict] = None):
         """Add a message to the session history."""
