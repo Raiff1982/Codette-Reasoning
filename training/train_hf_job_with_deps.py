@@ -42,7 +42,7 @@ def setup_environment():
         print(f"\nWARNING: Installation had issues")
         print(f"stderr: {result.stderr[:500]}")
     else:
-        print("\n✓ All packages installed successfully!")
+        print("\nAll packages installed successfully!")
 
     # Verify critical imports
     print("\nVerifying imports...")
@@ -51,9 +51,9 @@ def setup_environment():
         import transformers
         import peft
         import datasets
-        print("✓ All critical imports successful!")
+        print("All critical imports successful!")
     except ImportError as e:
-        print(f"✗ Import verification failed: {e}")
+        print(f"Import verification failed: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
@@ -65,9 +65,38 @@ if __name__ == "__main__":
     print("Starting Constraint-Tracker LoRA Training")
     print("=" * 60 + "\n")
 
-    # Import and run training script
-    import json
-    os.environ.get("HF_TOKEN")  # Verify token is set
+    # Verify HF token
+    hf_token = os.environ.get("HF_TOKEN")
+    if not hf_token:
+        print("ERROR: HF_TOKEN environment variable not set")
+        sys.exit(1)
+
+    # Read and execute the training script directly
+    # In HF Jobs, the script is in /data/training/train_hf_job.py
+    script_paths = [
+        "/data/training/train_hf_job.py",
+        "/workspace/training/train_hf_job.py",
+        "./training/train_hf_job.py",
+    ]
+
+    script_content = None
+    script_path = None
+
+    for path in script_paths:
+        try:
+            with open(path, 'r') as f:
+                script_content = f.read()
+            script_path = path
+            print(f"Found training script: {script_path}\n")
+            break
+        except FileNotFoundError:
+            continue
+
+    if script_content is None:
+        print(f"ERROR: Could not find training script in any of:")
+        for path in script_paths:
+            print(f"  - {path}")
+        sys.exit(1)
 
     # Execute the training script
-    exec(open(__file__.replace("train_hf_job_with_deps.py", "train_hf_job.py")).read())
+    exec(script_content)
