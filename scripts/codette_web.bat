@@ -1,7 +1,13 @@
 @echo off
 setlocal
-REM Codette v2.1 RC+xi Web UI
+REM Codette v2.3 RC+xi Web UI
 REM Opens browser to http://localhost:7860
+REM
+REM v2.3 additions (May 22 2026): full 10-adapter roster (orchestrator +
+REM   constraint_tracker now load), Full Adapter Synthesis (SYNTHESIZE ALL),
+REM   self-overclaiming hallucination signal (Signal 7), voice-reinforced
+REM   behavioral retrain of all 8 perspectives, clean-query routing fix.
+REM   See docs/CHANGELOG_2026-05-22.md
 REM
 REM RC+xi FRAMEWORK (v2.1 — May 2026):
 REM   Recursive Convergence + Epistemic Tension
@@ -47,7 +53,7 @@ REM
 
 echo.
 echo ============================================================
-echo   Codette v2.1 RC+xi  --  Structurally Complete
+echo   Codette v2.3 RC+xi  --  Structurally Complete
 echo ============================================================
 echo.
 echo   All 12 trace event types wired and tested.
@@ -61,7 +67,8 @@ echo         Quantum, Consciousness, Multi-Perspective, Systems, Constraint_Trac
 echo     * GPU acceleration enabled (35 layers on CUDA)
 echo     * 7-layer consciousness stack (forge_with_debate)
 echo     * QuantumSpiderweb + ResonantContinuityEngine
-echo     * HallucinationGuard + SycophancyGuard + AEGIS
+echo     * HallucinationGuard (Signal 7: self-overclaiming) + SycophancyGuard + AEGIS
+echo     * Full Adapter Synthesis  --  SYNTHESIZE ALL (all 8 perspectives)
 echo     * LivingMemoryKernelV2 + UnifiedMemory (SQLite+FTS5)
 echo     * DriftDetector  --  GET /api/drift
 echo.
@@ -75,7 +82,9 @@ for %%I in ("%SCRIPT_DIR%..") do set "PROJECT_ROOT=%%~fI"
 set "PYTHON_CMD="
 if exist "%PROJECT_ROOT%\.venv\Scripts\python.exe" set "PYTHON_CMD=%PROJECT_ROOT%\.venv\Scripts\python.exe"
 if not defined PYTHON_CMD if exist "%PROJECT_ROOT%\.venv\bin\python" set "PYTHON_CMD=%PROJECT_ROOT%\.venv\bin\python"
-REM Prefer the Python 3.14 user install where llama_cpp/numpy are correctly built
+REM Prefer the standalone Python 3.14 install (in %LocalAppData%) — its main
+REM site-packages has the correctly-built llama_cpp/numpy. (PYTHONNOUSERSITE=1
+REM below is safe: these live in the main site-packages, not the per-user one.)
 if not defined PYTHON_CMD if exist "%LocalAppData%\Programs\Python\Python314\python.exe" set "PYTHON_CMD=%LocalAppData%\Programs\Python\Python314\python.exe"
 if not defined PYTHON_CMD if exist "%LocalAppData%\Programs\Python\Python312\python.exe" set "PYTHON_CMD=%LocalAppData%\Programs\Python\Python312\python.exe"
 if not defined PYTHON_CMD set "PYTHON_CMD=python"
