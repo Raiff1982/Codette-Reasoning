@@ -291,13 +291,21 @@ class AdapterRouter:
             score = 0.0
             matched = []
 
+            # Short alphabetic keywords ("api", "both", "good") must match on a
+            # word boundary — naive substring matching false-fires inside longer
+            # words (e.g. "api" in "cAPItal" sent "capital of France" to systems).
+            def _kw_hit(kw: str) -> bool:
+                if kw.isalpha() and len(kw) <= 4:
+                    return re.search(r"\b" + kw + r"\b", query_lower) is not None
+                return kw in query_lower
+
             for kw in keywords.get("strong", []):
-                if kw in query_lower:
+                if _kw_hit(kw):
                     score += 2.0
                     matched.append(f"+{kw}")
 
             for kw in keywords.get("moderate", []):
-                if kw in query_lower:
+                if _kw_hit(kw):
                     score += 1.0
                     matched.append(f"~{kw}")
 
@@ -333,11 +341,17 @@ class AdapterRouter:
             )
             _is_short = len(query_lower.split()) <= 12
             _is_factual = _is_short and any(query_lower.startswith(p) for p in _factual_leads)
-            if _is_factual and not personal_score and "newton" in self.available:
+            if _is_factual and not personal_score:
+                # Prefer constraint_tracker: its training is terse, answer-first,
+                # constraint-compliant output — ideal for "just state the fact".
+                # Perspective adapters (esp. newton) over-elaborate and bury the
+                # answer behind analytical framing on trivial questions.
+                _direct = ("constraint_tracker" if "constraint_tracker" in self.available
+                           else ("newton" if "newton" in self.available else None))
                 return RouteResult(
-                    primary="newton",
+                    primary=_direct,
                     confidence=0.5,
-                    reasoning="Simple factual query — direct single-adapter answer",
+                    reasoning="Simple factual query — direct, answer-first adapter",
                     strategy="keyword",
                 )
 
