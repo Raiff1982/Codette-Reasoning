@@ -141,7 +141,7 @@ test_constraint_gguf.py
 STATUS_ORCHESTRATOR_INTEGRATION.md
 SUBMIT_JOB_INSTRUCTIONS.md
 benchmark_output.txt
-
+supabase_config.py
 # Downloaded base model + cloned llama.cpp (large, regenerable)
 base_model_constraint/
 base_model_constraint_convert/
