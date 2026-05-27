@@ -872,6 +872,40 @@ class CodetteForgeBridge:
             response = re.sub(_pat, "", response, flags=re.IGNORECASE)
 
 
+        # ── Strip adapter-label meta-commentary ──────────────────────────────
+        # Synthesis sometimes includes "empathy: [reasoning]" or
+        # "philosophy: No constraints were specified..." verbatim in the output.
+        # Strip the label + the sentence that follows it.
+        _ADAPTER_NAMES = (
+            "empathy|newton|davinci|philosophy|quantum|consciousness|"
+            "multi_perspective|systems_architecture|constraint_tracker|orchestrator"
+        )
+        # Pattern: "adaptername: [sentence up to period/newline]"
+        response = re.sub(
+            rf"(?:^|\n)\s*(?:{_ADAPTER_NAMES}):\s+[^\n]{{0,300}}",
+            "", response, flags=re.IGNORECASE,
+        )
+        # "However, adaptername: ..." variant
+        response = re.sub(
+            rf"However,?\s+(?:{_ADAPTER_NAMES}):\s+[^\n]{{0,300}}",
+            "", response, flags=re.IGNORECASE,
+        )
+        # "No constraints were specified, so I'll answer..." adapter self-commentary
+        response = re.sub(
+            r"No constraints? (?:were|was) specified[^.]{0,150}\.\s*",
+            "", response, flags=re.IGNORECASE,
+        )
+        # "The user's question is clear and directly answerable" — adapter meta-note
+        response = re.sub(
+            r"(?:The )?(?:user'?s? question|this question) is (?:clear and )?directly answerable[^.]{0,120}\.\s*",
+            "", response, flags=re.IGNORECASE,
+        )
+        # "No elaborate analysis or perspective shift is needed" — adapter self-filter note
+        response = re.sub(
+            r"No elaborate (?:analysis|reasoning|perspective shift)[^.]{0,100}\.\s*",
+            "", response, flags=re.IGNORECASE,
+        )
+
         # Strip synthesis engine headers that hurt Turing naturalness
         response = re.sub(
             r"^Analysis of \*?'[^'\n]*'\*? across perspectives:\s*\n+",
