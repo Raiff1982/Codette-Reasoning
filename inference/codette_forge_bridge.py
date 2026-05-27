@@ -781,24 +781,47 @@ class CodetteForgeBridge:
         3. Collapse excessive whitespace
         """
         # ── Global boilerplate scrub ─────────────────────────────────────────
-        # Adapters learned these formulaic openers from train_hf_job_v4.py
-        # intro_patterns.  Strip them wherever they appear — opener or mid-text.
-        response = re.sub(
-            r"When (?:you )?(?:approach|examine|consider|view)\s+(?:this|that|the)\s+"
-            r"(?:question|topic|problem|concept)[^,\n]{0,80},?\s*"
-            r"several key insights? emerge[.!]?\s*",
-            "", response, flags=re.IGNORECASE,
-        )
-        response = re.sub(
-            r"The core insight is that (?:precise\s+)?understanding requires?\s+"
-            r"careful analysis[^.]{0,150}\.\s*",
-            "", response, flags=re.IGNORECASE,
-        )
-        response = re.sub(
-            r"(?:Understanding|Examining|Analyzing)\s+[^\n]{0,80}\s+requires?\s+"
-            r"careful analysis of its?\s+core principles?[^.]{0,120}\.\s*",
-            "", response, flags=re.IGNORECASE,
-        )
+        # Strips ALL template patterns from train_hf_job_v4.py:
+        #   intro_patterns, body patterns, framework_details, conclusion_patterns.
+        # Also strips the base-model question-paraphrase habit.
+        # Each sub runs globally (not just at string start) to catch mid-response hits.
+
+        _boilerplate = [
+            # intro_patterns ──────────────────────────────────────────────────
+            (r"When (?:you )?(?:approach|examine|consider|view)\s+(?:this|that|the)\s+"
+             r"(?:question|topic|problem|concept)[^,\n]{0,80},?\s*"
+             r"several key insights? emerge[.!]?\s*"),
+            (r"(?:Understanding|Examining|Analyzing|Approaching)\s+[^\n]{0,80}\s+requires?\s+"
+             r"careful analysis of its?\s+core principles?[^.]{0,120}\.\s*"),
+            (r"The study of [^\n]{0,80} reveals fundamental patterns that connect[^.]{0,120}\.\s*"),
+            (r"A thorough examination of [^\n]{0,80} illuminates connections[^.]{0,120}\.\s*"),
+            # core insight ────────────────────────────────────────────────────
+            (r"The core insight is that (?:precise\s+)?understanding requires?\s+"
+             r"careful analysis[^.]{0,150}\.\s*"),
+            # body patterns — empathy adapter ─────────────────────────────────
+            (r"Emotional intelligence enhances? rather than replaces? analytical thinking[^.]{0,80}\.\s*"),
+            (r"(?:Compassionate|Empathic) (?:engagement|communication|approach)[^.]{0,150}\.\s*"),
+            (r"(?:Active listening|Perspective.?taking)[^.]{0,150} are essential for[^.]{0,120}\.\s*"),
+            # framework_details — empathy ─────────────────────────────────────
+            (r"Compassionate communication bridges gaps between expert and novice[^.]{0,80}\.\s*"),
+            (r"Emotional dimensions:\s*\(1\)[^.]{0,200}\."),
+            # conclusion_patterns ─────────────────────────────────────────────
+            (r"The key takeaway is that [^\n]{0,120} rewards careful,? multi-?layered analysis[^.]{0,120}\.\s*"),
+            (r"This analysis demonstrates how [^\n]{0,100} connects to broader patterns[^.]{0,120}\.\s*"),
+            (r"By examining [^\n]{0,80} through this lens,? we gain insights[^.]{0,120}\.\s*"),
+            # announcement patterns ───────────────────────────────────────────
+            (r"Answering (?:your question|this) requires? careful analysis[^.]{0,150}\.\s*"),
+            (r"Answering (?:the question|this) correctly simplifies[^.]{0,100}\.\s*"),
+            # question-paraphrase (base-model RLHF habit) ─────────────────────
+            (r"You(?:'re| are) exploring [^\n]{0,80} in depth,? connecting multiple threads[^.]{0,120}\.\s*"),
+            (r"You(?:'re| are) (?:connecting|exploring) multiple threads[^.]{0,120}\.\s*"),
+            (r"Your question bridges gaps between [^\n]{0,100}\.\s*"),
+            (r"You(?:'re| are) (?:seeking|looking for) clarity (?:on|about) [^\n]{0,80}\.\s*"),
+            (r"You want to understand [^\n]{0,80}, so let(?:'s| us) break it down[^.]{0,100}\.\s*"),
+        ]
+        for _pat in _boilerplate:
+            response = re.sub(_pat, "", response, flags=re.IGNORECASE)
+
 
         # Strip synthesis engine headers that hurt Turing naturalness
         response = re.sub(
@@ -825,12 +848,16 @@ class CodetteForgeBridge:
             r"^(?:Absolutely[.!]?\s*)",
             r"^(?:Of course[.!]?\s*)",
             r"^(?:Sure(?:thing)?[.!]?\s*)",
-            # Adapter training boilerplate (baked in from train_hf_job_v4.py intro_patterns)
+            # Adapter training boilerplate (baked in from train_hf_job_v4.py)
             r"^(?:When (?:you )?(?:approach|examine|consider|view)\s+(?:this|that|the)\s+"
             r"(?:question|topic|problem|concept)[^,\n]{0,80},?\s*several key insights? emerge[.!]?\s*)",
             r"^(?:The core insight is that (?:precise\s+)?understanding requires?\s+careful analysis[^.]{0,150}\.\s*)",
             r"^(?:(?:Understanding|Examining|Analyzing)\s+[^\n]{0,80}\s+requires?\s+"
             r"careful analysis of its?\s+core principles?[^.]{0,120}\.\s*)",
+            # Question-paraphrase habit (base-model RLHF)
+            r"^(?:You(?:'re| are) exploring [^\n]{0,80} in depth,? connecting multiple threads[^.]{0,120}\.\s*)",
+            r"^(?:You want to understand [^\n]{0,80}, so let(?:'s| us) break it down[^.]{0,100}\.\s*)",
+            r"^(?:You(?:'re| are) (?:seeking|looking for) clarity[^.]{0,120}\.\s*)",
         ]
         for pat in preamble_patterns:
             response = re.sub(pat, "", response, count=1, flags=re.IGNORECASE)

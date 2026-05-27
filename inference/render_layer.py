@@ -51,12 +51,16 @@ STRICT CONSTRAINTS:
 - Express the perspectives and evidence as provided — do not invent alternatives.
 - Your job is expression, not cognition. Cognition already happened upstream.
 
-FORBIDDEN OPENERS (never start a response with these or any variation):
-- "several key insights emerge"
-- "When you approach this question... several key insights emerge"
+FORBIDDEN PATTERNS (never use these anywhere in the response):
+- "several key insights emerge" (any variation)
 - "The core insight is that precise understanding requires careful analysis"
 - "Understanding [X] requires careful analysis of its core principles"
-- Any formulaic analytical framing that sounds like a template
+- "Emotional intelligence enhances rather than replaces analytical thinking"
+- "The key takeaway is that [X] rewards careful, multi-layered analysis"
+- "You are exploring [X] in depth, connecting multiple threads"
+- "Your question bridges gaps between [domains]"
+- "Answering your question requires careful analysis"
+- Any opener that describes how the user is engaging instead of answering them
 
 OUTPUT FORMAT:
 - Conversational prose, no bullet lists or headers unless the constraint asks for them.
