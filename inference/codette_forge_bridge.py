@@ -740,11 +740,31 @@ class CodetteForgeBridge:
         # 8b. Scrub boilerplate from individual perspective texts too.
         # _apply_directness only runs on the synthesised response; the perspective
         # dict is sent to the UI separately and was previously unscrubbed.
+        # Also apply a sanity filter: drop perspectives that are clearly
+        # off-domain (e.g. a safety/crisis disclaimer on an affectionate message).
+        _OFF_DOMAIN_CRISIS = re.compile(
+            r"I (?:cannot|can't|am unable to) provide (?:information|advice|support)"
+            r"[^.]{0,100}(?:self.?harm|crisis|hurt(?:ing)? (?:yourself|oneself))",
+            re.IGNORECASE,
+        )
+        _CRISIS_QUERY = re.compile(
+            r"\b(?:self.?harm|suicid|kill myself|want to (?:die|hurt)|cutting myself)\b",
+            re.IGNORECASE,
+        )
+        _is_crisis_query = bool(_CRISIS_QUERY.search(user_query))
+
         _perspectives = result.get("perspectives", {})
         if isinstance(_perspectives, dict) and _perspectives:
             _scrubbed_persp = {}
             for _pname, _ptext in _perspectives.items():
                 if isinstance(_ptext, str) and _ptext:
+                    # Drop off-domain safety disclaimers on non-crisis messages
+                    if not _is_crisis_query and _OFF_DOMAIN_CRISIS.search(_ptext):
+                        _log.debug(
+                            f"[bridge] dropped off-domain crisis disclaimer "
+                            f"from {_pname} perspective on non-crisis query"
+                        )
+                        continue  # omit this perspective entirely
                     _scrubbed_persp[_pname] = self._apply_directness(_ptext, user_query)
                 else:
                     _scrubbed_persp[_pname] = _ptext
