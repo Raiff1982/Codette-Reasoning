@@ -1,7 +1,14 @@
 @echo off
 setlocal
-REM Codette v2.3 RC+xi Web UI
+REM Codette v2.4 RC+xi Web UI
 REM Opens browser to http://localhost:7860
+REM
+REM v2.4 additions (May 26 2026): Phase 8 render/cognition separation
+REM   (CognitionSubstrate + RenderLayer), coherence 0.572→0.700, Turing
+REM   0.413→0.820, Cohen's d=8.31, Supabase live sync (951 cocoons),
+REM   math adapter routing fix, anchor phrase recall, greeting fast-path,
+REM   comprehensive template suppression (LOCK 6+7, 18-pattern scrubber).
+REM   See docs/CHANGELOG_2026-05-26.md
 REM
 REM v2.3 additions (May 22 2026): full 10-adapter roster (orchestrator +
 REM   constraint_tracker now load), Full Adapter Synthesis (SYNTHESIZE ALL),
@@ -53,7 +60,7 @@ REM
 
 echo.
 echo ============================================================
-echo   Codette v2.3 RC+xi  --  Structurally Complete
+echo   Codette v2.4 RC+xi  --  Render/Cognition Separated
 echo ============================================================
 echo.
 echo   All 12 trace event types wired and tested.

@@ -11,7 +11,7 @@ Based on Codette_Deep_Simulation_v1.py cocoon_stability_field() equation:
 Purpose: Halt debate if system enters instability zone (gamma < 0.4,
 runaway vocabulary patterns, self-referential cascades).
 
-Recovered from: J:\codette-training-lab\new data\Codette_Deep_Simulation_v1.py
+Recovered from: J:\\codette-training-lab\\new data\\Codette_Deep_Simulation_v1.py
 """
 
 import numpy as np
@@ -19,6 +19,13 @@ from typing import Dict, List, Tuple, Optional
 import logging
 
 logger = logging.getLogger(__name__)
+
+# Use Rust hot path when available, numpy fallback otherwise
+try:
+    from codette_core import cocoon_stability_check as _rust_stability_check
+    _RUST = True
+except ImportError:
+    _RUST = False
 
 
 class CocoonStabilityField:
@@ -311,6 +318,34 @@ class CocoonStabilityField:
             return True, reason
 
         return False, ""
+
+    # Single-text energy threshold is relaxed vs multi-agent rounds.
+    # Character-code FFT of natural language always concentrates energy in
+    # low frequencies — the meaningful signal is vocabulary collapse, not
+    # raw spectral concentration.
+    SINGLE_TEXT_ENERGY_THRESHOLD = 0.999   # effectively vocab-only for single synthesis
+
+    def check_text_stable(self, text: str) -> bool:
+        """
+        Single-text stability check used by the consciousness stack L4.
+        Uses Rust FFT when available, falls back to numpy.
+        Returns True if text is stable (safe to continue).
+        Primary signal: vocabulary collapse (degenerate repetition).
+        """
+        if _RUST:
+            is_stable, _ec, _vr = _rust_stability_check(
+                text,
+                self.SINGLE_TEXT_ENERGY_THRESHOLD,
+                self.RUNAWAY_VOCABULARY_RATIO,
+            )
+            return is_stable
+
+        # numpy fallback
+        words = text.split()
+        if not words:
+            return True
+        unique_ratio = len(set(w.lower() for w in words)) / len(words)
+        return unique_ratio >= self.RUNAWAY_VOCABULARY_RATIO
 
     def get_summary(self) -> Dict:
         """Get stability history summary."""
