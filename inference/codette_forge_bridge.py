@@ -806,9 +806,14 @@ class CodetteForgeBridge:
             (r"Compassionate communication bridges gaps between expert and novice[^.]{0,80}\.\s*"),
             (r"Emotional dimensions:\s*\(1\)[^.]{0,200}\."),
             # conclusion_patterns ─────────────────────────────────────────────
-            (r"The key takeaway is that [^\n]{0,120} rewards careful,? multi-?layered analysis[^.]{0,120}\.\s*"),
+            (r"The key takeaway is that [^\n]{0,150}\.\s*"),   # broad: any "key takeaway" sentence
             (r"This analysis demonstrates how [^\n]{0,100} connects to broader patterns[^.]{0,120}\.\s*"),
             (r"By examining [^\n]{0,80} through this lens,? we gain insights[^.]{0,120}\.\s*"),
+            (r"[^\n]{0,80}rewards? deliberate thought that balances[^.]{0,100}\.\s*"),
+            # "reveals several key insights" variant ──────────────────────────
+            (r"(?:reveals?|shows?|uncovers?)\s+(?:several|multiple|key|important)\s+(?:key\s+)?insights?[^.]{0,120}\.\s*"),
+            # "thorough examination / analysis / study" openers ───────────────
+            (r"A thorough (?:examination|analysis|study) of [^\n]{0,120} (?:reveals|shows|illuminates)[^.]{0,120}\.\s*"),
             # announcement patterns ───────────────────────────────────────────
             (r"Answering (?:your question|this) requires? careful analysis[^.]{0,150}\.\s*"),
             (r"Answering (?:the question|this) correctly simplifies[^.]{0,100}\.\s*"),
@@ -1002,6 +1007,17 @@ class CodetteForgeBridge:
         # 4. Strip orphan '=== END PERMANENT LOCKS ===' lines
         text = _re.sub(
             r'\n?===\s*END PERMANENT LOCKS\s*===\n?',
+            '',
+            text,
+            flags=_re.IGNORECASE,
+        )
+
+        # 4b. Strip echoed structural section markers that the model sometimes
+        #     emits when it leaks system-prompt formatting into its response.
+        #     Covers: '=== ANSWER ===', '=== RESPONSE ===', '--- ANSWER ---',
+        #     '### ANSWER', etc.
+        text = _re.sub(
+            r'\n?(?:={2,}|-{2,}|#{1,4})\s*(?:ANSWER|RESPONSE|OUTPUT|RESULT)\s*(?:={2,}|-{2,})?\n?',
             '',
             text,
             flags=_re.IGNORECASE,
