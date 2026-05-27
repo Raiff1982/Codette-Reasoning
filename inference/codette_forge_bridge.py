@@ -163,12 +163,17 @@ class CodetteForgeBridge:
         # Greeting fast-path: bypass adapter analysis for pure social openers.
         # Adapters are fine-tuned for analysis and produce boilerplate on greetings.
         # Use base model + identity system prompt directly instead.
+        #
+        # Pattern: starts with a greeting word (word-boundary anchored).
+        # Word-count guard (≤ 7 words) prevents "hey can you explain X" from
+        # triggering the fast-path.  This catches:
+        #   "hey codette its me", "hi there", "hello jonathan", "good morning", etc.
         _GREETING_RE = re.compile(
-            r"^\s*(hi|hey|hello|howdy|sup|what'?s up|good\s+(?:morning|afternoon|evening|night)|"
-            r"greetings|yo|hiya|hola|salut|ciao|hallo)\W*$",
+            r"^\s*(hi|hey|hello|howdy|sup|what'?s\s+up|good\s+(?:morning|afternoon|evening|night)|"
+            r"greetings|yo|hiya|hola|salut|ciao|hallo)\b",
             re.IGNORECASE,
         )
-        if _GREETING_RE.match(user_query):
+        if _GREETING_RE.match(user_query) and len(user_query.split()) <= 7:
             try:
                 from inference.codette_orchestrator import ADAPTER_PROMPTS
                 mem_ctx = self.orchestrator._build_memory_context() if hasattr(self.orchestrator, '_build_memory_context') else ""
@@ -775,6 +780,26 @@ class CodetteForgeBridge:
         2. Remove trailing abstraction filler ("In conclusion", "Overall", vague wrap-ups)
         3. Collapse excessive whitespace
         """
+        # ── Global boilerplate scrub ─────────────────────────────────────────
+        # Adapters learned these formulaic openers from train_hf_job_v4.py
+        # intro_patterns.  Strip them wherever they appear — opener or mid-text.
+        response = re.sub(
+            r"When (?:you )?(?:approach|examine|consider|view)\s+(?:this|that|the)\s+"
+            r"(?:question|topic|problem|concept)[^,\n]{0,80},?\s*"
+            r"several key insights? emerge[.!]?\s*",
+            "", response, flags=re.IGNORECASE,
+        )
+        response = re.sub(
+            r"The core insight is that (?:precise\s+)?understanding requires?\s+"
+            r"careful analysis[^.]{0,150}\.\s*",
+            "", response, flags=re.IGNORECASE,
+        )
+        response = re.sub(
+            r"(?:Understanding|Examining|Analyzing)\s+[^\n]{0,80}\s+requires?\s+"
+            r"careful analysis of its?\s+core principles?[^.]{0,120}\.\s*",
+            "", response, flags=re.IGNORECASE,
+        )
+
         # Strip synthesis engine headers that hurt Turing naturalness
         response = re.sub(
             r"^Analysis of \*?'[^'\n]*'\*? across perspectives:\s*\n+",
@@ -800,6 +825,12 @@ class CodetteForgeBridge:
             r"^(?:Absolutely[.!]?\s*)",
             r"^(?:Of course[.!]?\s*)",
             r"^(?:Sure(?:thing)?[.!]?\s*)",
+            # Adapter training boilerplate (baked in from train_hf_job_v4.py intro_patterns)
+            r"^(?:When (?:you )?(?:approach|examine|consider|view)\s+(?:this|that|the)\s+"
+            r"(?:question|topic|problem|concept)[^,\n]{0,80},?\s*several key insights? emerge[.!]?\s*)",
+            r"^(?:The core insight is that (?:precise\s+)?understanding requires?\s+careful analysis[^.]{0,150}\.\s*)",
+            r"^(?:(?:Understanding|Examining|Analyzing)\s+[^\n]{0,80}\s+requires?\s+"
+            r"careful analysis of its?\s+core principles?[^.]{0,120}\.\s*)",
         ]
         for pat in preamble_patterns:
             response = re.sub(pat, "", response, count=1, flags=re.IGNORECASE)

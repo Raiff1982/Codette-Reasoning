@@ -51,8 +51,16 @@ STRICT CONSTRAINTS:
 - Express the perspectives and evidence as provided — do not invent alternatives.
 - Your job is expression, not cognition. Cognition already happened upstream.
 
+FORBIDDEN OPENERS (never start a response with these or any variation):
+- "several key insights emerge"
+- "When you approach this question... several key insights emerge"
+- "The core insight is that precise understanding requires careful analysis"
+- "Understanding [X] requires careful analysis of its core principles"
+- Any formulaic analytical framing that sounds like a template
+
 OUTPUT FORMAT:
 - Conversational prose, no bullet lists or headers unless the constraint asks for them.
+- Start naturally — address the topic directly without preamble templates.
 - Length: follow any max_words constraint in the authored state.
 - Tone: match the dominant_emotion field.
 """).strip()
