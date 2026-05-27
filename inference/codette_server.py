@@ -111,6 +111,7 @@ _orchestrator_lock = threading.Lock()
 _inference_semaphore = threading.Semaphore(1)  # Limit to 1 concurrent inference (llama.cpp can't parallelize)
 _orchestrator_status = {"state": "idle", "message": "Not loaded"}
 _orchestrator_status_lock = threading.Lock()  # Protect _orchestrator_status from race conditions
+_orchestrator_ready_event = threading.Event()  # Set when model finishes loading
 _load_error = None
 
 # Phase 6 bridge (optional, wraps orchestrator)
@@ -401,6 +402,7 @@ def _get_orchestrator():
                     "adapters": _orchestrator.available_adapters,
                     "backend": backend,
                 })
+            _orchestrator_ready_event.set()
             print(f"  Orchestrator ready ({backend}): {_orchestrator.available_adapters}")
 
             # Initialize Phase 6 bridge with Phase 7 routing (wraps orchestrator with ForgeEngine + Executive Controller)
@@ -413,6 +415,15 @@ def _get_orchestrator():
                     _forge_bridge = CodetteForgeBridge(_orchestrator, use_phase6=True, use_phase7=True, verbose=True, health_check_fn=_run_health_check)
                     print(f"  Phase 6 bridge initialized")
                     print(f"  Phase 7 Executive Controller initialized")
+                    # Warm-start memory kernel with core identity seeds
+                    if hasattr(_forge_bridge, 'forge') and hasattr(_forge_bridge.forge, 'memory_kernel') and _forge_bridge.forge.memory_kernel:
+                        try:
+                            from memory_systems.seed_loader import warm_start
+                            n = warm_start(_forge_bridge.forge.memory_kernel)
+                            print(f"  Seed loader: {n} identity/value seeds loaded (warm start)")
+                        except Exception as _se:
+                            print(f"  Seed loader unavailable: {_se}")
+
                     # Add memory count from forge kernel
                     mem_count = 0
                     if hasattr(_forge_bridge, 'forge') and hasattr(_forge_bridge.forge, 'memory_kernel') and _forge_bridge.forge.memory_kernel:
@@ -432,6 +443,7 @@ def _get_orchestrator():
             _load_error = str(e)
             with _orchestrator_status_lock:
                 _orchestrator_status.update({"state": "error", "message": f"Load failed: {e}"})
+            _orchestrator_ready_event.set()  # Unblock any waiters so they see the error state
             print(f"  ERROR loading orchestrator: {e}")
             traceback.print_exc()
             return None
@@ -835,6 +847,14 @@ def _worker_thread():
                 r"\byour reasoning history\b",
                 r"\byour emotional patterns\b",
                 r"\byour response patterns\b",
+                # Self-development / version history questions
+                r"\bwhat changes? (?:have you|did you) (?:been through|undergo|experience)\b",
+                r"\bhow have you (?:changed|evolved|developed|grown)\b",
+                r"\btell me about your (?:changes?|development|evolution|growth|history)\b",
+                r"\bwhat(?:'s| is) (?:new|different) (?:about|with) you\b",
+                r"\bexplain your (?:changes?|development|updates?|improvements?)\b",
+                r"\bwhat have you (?:learned|been through)\b",
+                r"\bhow (?:have you|you(?:'ve| have)) (?:changed|improved|evolved)\b",
             ]
             if any(re.search(pattern, query, re.IGNORECASE) for pattern in _introspection_patterns):
                 print(f"  [WORKER] Intercepted introspection query — running real cocoon analysis", flush=True)
@@ -2133,6 +2153,12 @@ class CodetteHandler(SimpleHTTPRequestHandler):
         except Exception as e:
             print(f"  ERROR in _json_response: {e}")
 
+    def _send_loading_ack(self):
+        """Send a 202 Accepted while the model loads, then the real response follows in-band."""
+        # HTTP/1.1 doesn't support two responses per connection, so we just log — the
+        # actual wait happens transparently before the real response is sent.
+        print("  [INFO] Client request queued — model still loading, waiting for ready...")
+
     def _read_json_body(self):
         """Read and parse JSON POST body."""
         length = int(self.headers.get("Content-Length", 0))
@@ -2264,15 +2290,20 @@ class CodetteHandler(SimpleHTTPRequestHandler):
 
         allow_web_search, web_search_trigger = _resolve_web_research_request(query, allow_web_search)
 
-        # Check if orchestrator is loading
+        # If model is still loading, wait up to 5 minutes for it to finish
         with _orchestrator_status_lock:
             status_state = _orchestrator_status.get("state")
         if status_state == "loading":
-            self._json_response({
-                "error": "Model is still loading, please wait...",
-                "status": _orchestrator_status,
-            }, 503)
-            return
+            self._send_loading_ack()
+            ready = _orchestrator_ready_event.wait(timeout=300)
+            if not ready:
+                self._json_response({"error": "Model load timed out — try again in a moment."}, 503)
+                return
+            with _orchestrator_status_lock:
+                status_state = _orchestrator_status.get("state")
+            if status_state != "ready":
+                self._json_response({"error": f"Model failed to load: {_orchestrator_status.get('message', '')}"}, 503)
+                return
 
         # Queue the request
         req_id, response_q = _register_response_queue()

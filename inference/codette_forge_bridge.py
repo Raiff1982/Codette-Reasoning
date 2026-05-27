@@ -737,6 +737,19 @@ class CodetteForgeBridge:
         if response_text:
             result["response"] = self._apply_directness(response_text, user_query)
 
+        # 8b. Scrub boilerplate from individual perspective texts too.
+        # _apply_directness only runs on the synthesised response; the perspective
+        # dict is sent to the UI separately and was previously unscrubbed.
+        _perspectives = result.get("perspectives", {})
+        if isinstance(_perspectives, dict) and _perspectives:
+            _scrubbed_persp = {}
+            for _pname, _ptext in _perspectives.items():
+                if isinstance(_ptext, str) and _ptext:
+                    _scrubbed_persp[_pname] = self._apply_directness(_ptext, user_query)
+                else:
+                    _scrubbed_persp[_pname] = _ptext
+            result["perspectives"] = _scrubbed_persp
+
         # 9. Enforce user constraints (word limits, sentence limits, etc.)
         try:
             from codette_orchestrator import extract_constraints, enforce_constraints
@@ -795,9 +808,11 @@ class CodetteForgeBridge:
              r"careful analysis of its?\s+core principles?[^.]{0,120}\.\s*"),
             (r"The study of [^\n]{0,80} reveals fundamental patterns that connect[^.]{0,120}\.\s*"),
             (r"A thorough examination of [^\n]{0,80} illuminates connections[^.]{0,120}\.\s*"),
-            # core insight ────────────────────────────────────────────────────
-            (r"The core insight is that (?:precise\s+)?understanding requires?\s+"
-             r"careful analysis[^.]{0,150}\.\s*"),
+            # core insight — any variant ──────────────────────────────────────
+            (r"The core (?:insight|issue|principle) is that [^\n]{0,200}\.\s*"),
+            # "understanding X requires careful analysis/attention" ────────────
+            (r"[Uu]nderstanding (?:complex\s+)?[^\n]{0,60} requires?\s+careful\s+"
+             r"(?:analysis|attention|examination)[^.]{0,150}\.\s*"),
             # body patterns — empathy adapter ─────────────────────────────────
             (r"Emotional intelligence enhances? rather than replaces? analytical thinking[^.]{0,80}\.\s*"),
             (r"(?:Compassionate|Empathic) (?:engagement|communication|approach)[^.]{0,150}\.\s*"),
@@ -810,10 +825,19 @@ class CodetteForgeBridge:
             (r"This analysis demonstrates how [^\n]{0,100} connects to broader patterns[^.]{0,120}\.\s*"),
             (r"By examining [^\n]{0,80} through this lens,? we gain insights[^.]{0,120}\.\s*"),
             (r"[^\n]{0,80}rewards? deliberate thought that balances[^.]{0,100}\.\s*"),
-            # "reveals several key insights" variant ──────────────────────────
-            (r"(?:reveals?|shows?|uncovers?)\s+(?:several|multiple|key|important)\s+(?:key\s+)?insights?[^.]{0,120}\.\s*"),
+            # "reveals/shows several/key insights/patterns" variants ──────────
+            (r"(?:reveals?|shows?|uncovers?)\s+(?:several|multiple|key|important)\s+"
+             r"(?:key\s+)?(?:insights?|patterns?|connections?)[^.]{0,120}\.\s*"),
             # "thorough examination / analysis / study" openers ───────────────
-            (r"A thorough (?:examination|analysis|study) of [^\n]{0,120} (?:reveals|shows|illuminates)[^.]{0,120}\.\s*"),
+            (r"A thorough (?:examination|analysis|study) of [^\n]{0,120} "
+             r"(?:reveals?|shows?|illuminates?)[^.]{0,120}\.\s*"),
+            # "reveals layers of complexity worth exploring" ───────────────────
+            (r"reveals? layers? of complexity worth exploring[^.]{0,80}\.\s*"),
+            # "connect seemingly distinct/unrelated elements/ideas" ────────────
+            (r"connect(?:ing|s)?\s+seemingly\s+(?:distinct|unrelated|disparate)\s+"
+             r"(?:elements?|ideas?|concepts?|threads?)[^.]{0,100}\.\s*"),
+            # "several key X emerge" broadened ────────────────────────────────
+            (r"several key (?:insights?|patterns?|themes?|aspects?|elements?) emerge[^.]{0,100}\.\s*"),
             # announcement patterns ───────────────────────────────────────────
             (r"Answering (?:your question|this) requires? careful analysis[^.]{0,150}\.\s*"),
             (r"Answering (?:the question|this) correctly simplifies[^.]{0,100}\.\s*"),
