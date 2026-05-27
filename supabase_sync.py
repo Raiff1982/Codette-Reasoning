@@ -53,18 +53,33 @@ logger = logging.getLogger(__name__)
 # ── Credential loading ────────────────────────────────────────────────────────
 
 def _load_env() -> tuple[str, str]:
-    """Return (url, key) from env vars or .env file."""
+    """Return (url, key) from env vars or .env file.
+
+    Searches several candidate paths so the module works whether it is
+    imported from the project root, from inference/, or from any subdir.
+    """
     url = os.environ.get("SUPABASE_URL", "")
     key = os.environ.get("SUPABASE_KEY", "")
     if not url or not key:
         try:
             from dotenv import load_dotenv
-            _env = os.path.join(os.path.dirname(__file__), ".env")
-            load_dotenv(_env)
+            _here = os.path.dirname(os.path.abspath(__file__))
+            _candidates = [
+                os.path.join(_here, ".env"),                  # same dir as this file
+                os.path.join(_here, "..", ".env"),            # one level up (project root)
+                os.path.join(_here, "..", "..", ".env"),      # two levels up
+                os.path.join(os.getcwd(), ".env"),            # working directory
+            ]
+            for _candidate in _candidates:
+                _candidate = os.path.normpath(_candidate)
+                if os.path.isfile(_candidate):
+                    load_dotenv(_candidate, override=False)
+                    logger.debug(f"[supabase_sync] loaded .env from {_candidate}")
+                    break
             url = os.environ.get("SUPABASE_URL", "")
             key = os.environ.get("SUPABASE_KEY", "")
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[supabase_sync] dotenv load failed: {e}")
     return url, key
 
 
