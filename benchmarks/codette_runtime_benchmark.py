@@ -737,6 +737,22 @@ def main(argv: Optional[List[str]] = None) -> int:
         return 2
 
     paths = write_runtime_reports(report, Path(args.output_dir))
+
+    # Push results to Supabase (best-effort)
+    try:
+        from supabase_sync import push_runtime_result as _push_rt
+        for case in report.get("cases", []):
+            _push_rt(
+                case_id=case.get("case_id", ""),
+                category=case.get("category", ""),
+                score=float(case.get("score", 0)),
+                passed=bool(case.get("passed", False)),
+                latency_ms=float(case.get("total_latency_ms", 0)),
+                checks=case.get("checks", {}),
+            )
+    except Exception:
+        pass
+
     summary = report["summary"]
     print(
         f"[runtime-benchmark] mean_score={summary['mean_score']:.3f} "

@@ -302,11 +302,37 @@ class CodetteSession:
         self.refresh_active_continuity_summary()
         self._capture_decision_landmark(role, content)
 
+    # Regex to detect explicit named anchors: "remember the phrase X Y Z"
+    _NAMED_ANCHOR_RE = re.compile(
+        r'\bremember\s+(?:the\s+)?(?:phrase|word|name|term|keyword)\s+(.+?)(?:[.,;]|$)',
+        re.I,
+    )
+
     def _capture_decision_landmark(self, role: str, content: str) -> None:
         """Promote explicit decisions/constraints into durable session landmarks."""
         text = str(content or "").strip().replace("\n", " ")
         if not text:
             return
+
+        # Extract explicit named anchors ("remember the phrase cobalt anchor") BEFORE
+        # the ephemeral filter so the anchor survives even when the same message also
+        # contains a word-count constraint that would otherwise discard the whole text.
+        anchor_match = self._NAMED_ANCHOR_RE.search(text)
+        if anchor_match:
+            anchor_phrase = anchor_match.group(1).strip().rstrip(".")
+            anchor_summary = f"Named anchor phrase — recall verbatim: '{anchor_phrase}'"
+            if not any(
+                d.get("summary") == anchor_summary for d in self.decision_landmarks
+            ):
+                self.decision_landmarks.append({
+                    "role": role,
+                    "label": "Named anchor phrase",
+                    "summary": anchor_summary,
+                    "timestamp": time.time(),
+                    "persisted": False,
+                })
+                self.decision_landmarks = self.decision_landmarks[-12:]
+
         if is_ephemeral_response_constraint_text(text):
             return
 

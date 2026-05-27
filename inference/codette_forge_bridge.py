@@ -97,6 +97,26 @@ class CodetteForgeBridge:
                 print(f"[WARNING] Phase 7 initialization failed: {e}")
                 self.use_phase7 = False
 
+        # ── Render/cognition separation (Phase 8) ────────────────────────
+        # CognitionSubstrate owns all reasoning; RenderLayer owns verbalization.
+        # generate_v2() uses this pipeline; generate() is unchanged.
+        self._substrate = None
+        self._render_layer = None
+        try:
+            from inference.cognition_substrate import CognitionSubstrate
+            from inference.render_layer import RenderLayer
+            self._substrate = CognitionSubstrate(
+                forge=self.forge,          # re-use already-initialised forge
+                memory=None,               # substrate will lazy-init its own memory
+                synthesizer=None,
+                synthesis_v3=None,
+            )
+            self._render_layer = RenderLayer(llm_callable=None)  # template tier until LLM callable wired
+            if self.verbose:
+                print("[PHASE8] CognitionSubstrate + RenderLayer initialized")
+        except Exception as e:
+            print(f"[INFO] Phase 8 substrate not available: {e}")
+
     def _init_phase6(self):
         """Initialize ForgeEngine with Phase 6 components."""
         if self.verbose:
@@ -139,6 +159,98 @@ class CodetteForgeBridge:
         """
         start_time = time.time()
         user_query = self._extract_primary_user_query(query)
+
+        # Greeting fast-path: bypass adapter analysis for pure social openers.
+        # Adapters are fine-tuned for analysis and produce boilerplate on greetings.
+        # Use base model + identity system prompt directly instead.
+        _GREETING_RE = re.compile(
+            r"^\s*(hi|hey|hello|howdy|sup|what'?s up|good\s+(?:morning|afternoon|evening|night)|"
+            r"greetings|yo|hiya|hola|salut|ciao|hallo)\W*$",
+            re.IGNORECASE,
+        )
+        if _GREETING_RE.match(user_query):
+            try:
+                from inference.codette_orchestrator import ADAPTER_PROMPTS
+                mem_ctx = self.orchestrator._build_memory_context() if hasattr(self.orchestrator, '_build_memory_context') else ""
+                sys_prompt = ADAPTER_PROMPTS["_base"] + mem_ctx
+                result = self.orchestrator._llm.create_chat_completion(
+                    messages=[
+                        {"role": "system", "content": sys_prompt},
+                        {"role": "user", "content": user_query},
+                    ],
+                    max_tokens=80,
+                    temperature=0.7,
+                    stop=["<|eot_id|>", "<|end_of_text|>"],
+                )
+                response = result["choices"][0]["message"]["content"].strip()
+                tokens = result.get("usage", {}).get("completion_tokens", 0)
+                elapsed = time.time() - start_time
+                return {
+                    "response": response,
+                    "adapter": "_base",
+                    "tokens": tokens,
+                    "time": elapsed,
+                    "phase6_used": True,
+                    "complexity": "GREETING",
+                    "reasoning": "Greeting fast-path — base model, no adapter analysis",
+                }
+            except Exception as _gex:
+                if self.verbose:
+                    print(f"[GREETING] Fast-path failed ({_gex}), falling through to normal routing")
+
+        # Memory/identity fast-path: adapters deflect personal-memory questions as
+        # a safety trained response ("I don't have memories"). Use base model and
+        # inject seeds explicitly in the user turn so they're impossible to ignore.
+        _MEMORY_RE = re.compile(
+            r"\b(what do you (know|remember|recall) about me|"
+            r"do you (know|remember) (who i am|me)|"
+            r"who am i( to you)?|"
+            r"what('?s| is) my name|"
+            r"have we met|"
+            r"tell me what you know about me)\b",
+            re.IGNORECASE,
+        )
+        if _MEMORY_RE.search(user_query):
+            try:
+                from inference.codette_orchestrator import ADAPTER_PROMPTS
+                kernel = getattr(self.orchestrator, '_memory_kernel', None)
+                mem_facts = []
+                if kernel and hasattr(kernel, 'memories'):
+                    for m in kernel.memories:
+                        if m.importance >= 7:
+                            mem_facts.append(m.content)
+                if mem_facts:
+                    facts_block = "\n".join(f"- {f}" for f in mem_facts[:8])
+                    user_msg = (
+                        f"{user_query}\n\n"
+                        f"[What I know from my memory right now]\n{facts_block}"
+                    )
+                else:
+                    user_msg = user_query
+                result = self.orchestrator._llm.create_chat_completion(
+                    messages=[
+                        {"role": "system", "content": ADAPTER_PROMPTS["_base"]},
+                        {"role": "user", "content": user_msg},
+                    ],
+                    max_tokens=200,
+                    temperature=0.7,
+                    stop=["<|eot_id|>", "<|end_of_text|>"],
+                )
+                response = result["choices"][0]["message"]["content"].strip()
+                tokens = result.get("usage", {}).get("completion_tokens", 0)
+                elapsed = time.time() - start_time
+                return {
+                    "response": response,
+                    "adapter": "_base",
+                    "tokens": tokens,
+                    "time": elapsed,
+                    "phase6_used": True,
+                    "complexity": "MEMORY_QUERY",
+                    "reasoning": "Memory fast-path — seeds injected as user context",
+                }
+            except Exception as _mex:
+                if self.verbose:
+                    print(f"[MEMORY] Fast-path failed ({_mex}), falling through to normal routing")
 
         # Self-diagnostic: intercept health check queries before LLM
         _health_patterns = [
@@ -259,6 +371,92 @@ class CodetteForgeBridge:
             result["phase6_used"] = False
             result["phase6_fallback_reason"] = str(e)
             return result
+
+    def generate_v2(
+        self,
+        query: str,
+        constraints: Optional[list] = None,
+        adapter: Optional[str] = None,
+        max_response_tokens: int = 512,
+    ) -> Dict:
+        """
+        Phase 8 pipeline: CognitionSubstrate → AuthoredState → RenderLayer.
+
+        The LLM is a render-only surface.  All reasoning, conclusions, and
+        evidence are authored upstream by the substrate before the LLM is
+        invoked.  This is the render/cognition separation described in the
+        Aura architecture review.
+
+        Falls back to generate() if the substrate is unavailable.
+        """
+        if self._substrate is None or self._render_layer is None:
+            _log.debug("[v2] substrate unavailable, falling back to generate()")
+            return self.generate(query, adapter=adapter, max_response_tokens=max_response_tokens)
+
+        start_time = time.time()
+        try:
+            # ── Step 1: Pure-Python cognition (no LLM) ───────────────────
+            authored = self._substrate.process(query, constraints=constraints or [])
+
+            # ── Step 2: Wire LLM callable into render layer ───────────────
+            # Build a thin lambda so RenderLayer can call the orchestrator LLM
+            # with strict verbalization constraints.
+            def _llm_verbalize(prompt: str, system: str) -> str:
+                result = self.orchestrator._llm.create_chat_completion(
+                    messages=[
+                        {"role": "system", "content": system},
+                        {"role": "user",   "content": prompt},
+                    ],
+                    max_tokens=max_response_tokens,
+                    temperature=0.6,
+                    stop=["<|eot_id|>", "<|end_of_text|>"],
+                )
+                return result["choices"][0]["message"]["content"].strip()
+
+            self._render_layer.llm_callable = _llm_verbalize
+            authored.render_tier = "llm"
+
+            # ── Step 3: Render (LLM expresses authored state only) ────────
+            response_text = self._render_layer.render(authored)
+
+            # ── Step 4: Render integrity check ───────────────────────────
+            integrity = self._render_layer.check_integrity(authored, response_text)
+            if not integrity["passed"]:
+                _log.warning(f"[v2] render integrity violations: {integrity['violations']}")
+
+            # ── Step 5: Mirror cocoon to Supabase ─────────────────────────
+            try:
+                from supabase_sync import sync_cocoon as _sync_cocoon
+                _sync_cocoon({
+                    "query":           authored.query,
+                    "response":        response_text,
+                    "adapter":         authored.strategy,
+                    "dominant_emotion": authored.dominant_emotion,
+                    "cocoon_integrity_score": authored.confidence,
+                    "version":         "v3_substrate",
+                    "metadata":        authored.metadata,
+                })
+            except Exception:
+                pass
+
+            elapsed = time.time() - start_time
+            return {
+                "response":           response_text,
+                "adapter":            authored.strategy,
+                "phase6_used":        True,
+                "phase8_substrate":   True,
+                "complexity":         "SUBSTRATE",
+                "reasoning":          f"CognitionSubstrate → {authored.strategy} → RenderLayer",
+                "authored_state":     authored.to_dict(),
+                "render_integrity":   integrity,
+                "confidence":         authored.confidence,
+                "tokens":             len(response_text.split()),
+                "time":               elapsed,
+            }
+
+        except Exception as e:
+            _log.warning(f"[v2] generate_v2 failed, falling back: {e}")
+            return self.generate(query, adapter=adapter, max_response_tokens=max_response_tokens)
 
     def _generate_with_phase6(self, query: str, max_adapters: int) -> Dict:
         """Generate using orchestrator LLM with Phase 6/7 routing and classification.
@@ -480,6 +678,18 @@ class CodetteForgeBridge:
                         user_response_text=response_text,
                         metrics_population_status="partial",
                     )
+
+                    # Score integrity immediately so it's written to disk non-zero
+                    try:
+                        import os as _os
+                        from reasoning_forge.cocoon_validator import CocoonValidator
+                        _cocoon_dir = _os.path.join(_os.path.dirname(__file__), '..', 'cocoons')
+                        _validator = CocoonValidator(store_path=_cocoon_dir)
+                        _val_result = _validator.validate(v3_cocoon)
+                        _validator.apply_result(v3_cocoon, _val_result)
+                    except Exception:
+                        pass
+
                 except Exception as _v3_err:
                     _log.warning(
                         "[CocoonBridge] build_cocoon_v3 failed — writing legacy cocoon. "
@@ -494,6 +704,22 @@ class CodetteForgeBridge:
                     metadata=cocoon_meta,
                     v3_cocoon=v3_cocoon,
                 )
+
+                # Mirror cocoon to Supabase (best-effort, non-blocking)
+                try:
+                    from supabase_sync import sync_cocoon as _sync_cocoon
+                    if v3_cocoon:
+                        _sync_cocoon(v3_cocoon)
+                    else:
+                        _sync_cocoon({
+                            "query": query,
+                            "response": response_text,
+                            "adapter": str(result.get("adapter", "unknown")),
+                            **cocoon_meta,
+                        })
+                except Exception:
+                    pass
+
             except Exception:
                 pass  # Non-critical
 
@@ -549,6 +775,20 @@ class CodetteForgeBridge:
         2. Remove trailing abstraction filler ("In conclusion", "Overall", vague wrap-ups)
         3. Collapse excessive whitespace
         """
+        # Strip synthesis engine headers that hurt Turing naturalness
+        response = re.sub(
+            r"^Analysis of \*?'[^'\n]*'\*? across perspectives:\s*\n+",
+            "", response, count=1, flags=re.IGNORECASE,
+        )
+        response = re.sub(
+            r"^\*?'[^'\n]*'\*? sits in high-tension epistemic space \([^)]*\)\.[^\n]*\n+",
+            "", response, count=1, flags=re.IGNORECASE,
+        )
+        response = re.sub(
+            r"\n\n---\n\*Metacognitive Trace:[^\*]*\*\s*$",
+            "", response, flags=re.IGNORECASE,
+        )
+
         # Strip common LLM preamble patterns
         preamble_patterns = [
             r"^(?:That(?:'s| is) (?:a |an )?(?:great|good|interesting|excellent|fantastic|wonderful|fascinating) question[.!]?\s*)",
