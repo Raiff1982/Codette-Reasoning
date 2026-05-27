@@ -328,6 +328,27 @@ class AdapterRouter:
             personal_score = sum(1 for s in _personal_signals if s in query_lower)
             analytical_score = sum(1 for s in _analytical_signals if s in query_lower)
 
+            # Arithmetic / word-problem detection — these carry $ signs, cost/price
+            # language, and numerical constraints.  Empathy elaborates and drifts;
+            # newton gives the calculation.
+            _math_signals = [
+                '$', 'cost', 'costs', 'price', 'total', 'dollars', 'cents',
+                'more than', 'less than', 'times as', 'percent', 'how much does',
+                'how much is', 'how many are', 'sum of', 'difference between',
+                'arithmetic', 'algebra',
+            ]
+            _math_score = sum(1 for s in _math_signals if s in query_lower)
+            if _math_score >= 2 and not personal_score:
+                _math_adapter = ("newton" if "newton" in self.available
+                                 else ("constraint_tracker" if "constraint_tracker" in self.available
+                                       else None))
+                return RouteResult(
+                    primary=_math_adapter,
+                    confidence=0.65,
+                    reasoning=f"Arithmetic/word-problem detected ({_math_score} math signals) — newton for calculation",
+                    strategy="keyword",
+                )
+
             # Simple factual questions ("what color is the sun?", "how many legs
             # does a spider have?", "name one planet") have no domain keyword and
             # were defaulting to empathy/multi_perspective — which ELABORATE and

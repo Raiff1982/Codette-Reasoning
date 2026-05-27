@@ -36,13 +36,19 @@ model-index:
       value: 0.969
     - name: Multi-Perspective vs Single (Composite)
       type: custom
-      value: "+93.1%"
+      value: "+108.8%"
+    - name: Benchmark Coherence
+      type: custom
+      value: 0.700
+    - name: Benchmark Turing Naturalness
+      type: custom
+      value: 0.820
     - name: Benchmark p-value
       type: custom
       value: "<0.0001"
     - name: Cohen's d (Effect Size)
       type: custom
-      value: 7.88
+      value: 8.31
 ---
 
 # Codette Reasoning Engine
@@ -56,6 +62,8 @@ Codette is a modular reasoning system that routes queries through specialized co
 **v2.2 RC+ξ additions:** Response cutoff fix (`_format_fact()` bolds only the first sentence — inner `**` markers no longer break Markdown rendering), LOCK scrubber tightened to a single precise pattern (prevents over-stripping legitimate content), DISCOVERY tier classifier completed (7 new `AMBIGUOUS_PATTERNS` → 7/7 Discovery attractor accuracy), and benchmark harness hardened with unlimited timeout and mandatory 5 s inter-query delay. Clean benchmark result: **25/25 queries, 0 errors, 100% SIMPLE directness, 7/7 DISCOVERY accuracy, spectral trust 0.754.**
 
 **v2.3 RC+ξ additions:** Full adapter roster online (orchestrator + constraint_tracker now load as behavioral adapters — **10 total**), one-click **Full Adapter Synthesis** (◈ SYNTHESIZE ALL runs every perspective and synthesizes), a new **self-overclaiming hallucination signal** (catches grandiose self-claims and fabricated self-metrics the guard previously scored at 0% risk) with the reliability scan extended across every displayed perspective, a constraint-parser fix (ordinary negations like "no word constraint" no longer become enforced constraints), and a **voice-reinforced behavioral retrain** of all eight perspectives (each on its own reasoning dataset + distinct persona + the four locks) to harden against perspective convergence. The first full self-benchmark scored **82.9%** and immediately exposed a **router bug** — adapter selection was scoring the model's own injected identity/memory context instead of the user's question (a physics query scored `philosophy=16` vs `newton=1`); fixed by routing on the extracted user query. See [docs/CHANGELOG_2026-05-22.md](docs/CHANGELOG_2026-05-22.md).
+
+**v2.4 RC+ξ additions — Phase 8 Render/Cognition Separation:** The most significant architectural change since the adapter roster. Codette's reasoning now lives in a pure-Python `CognitionSubstrate` (ForgeEngine template agents + cocoon retrieval + SynthesisEngineV3) that runs with **zero LLM calls** and produces a fully-authored `AuthoredState` before the model is invoked. The LLM's sole role is verbalization via `RenderLayer` — it cannot alter conclusions, add claims, or change confidence. `check_integrity()` validates render-surface output against authored content. This separates semantic authority from the render surface, meaning Codette's cognition survives model swaps. Critically, Codette is **substrate-aware**: `SubstrateMonitor` tracks health and `CognitionSubstrate` adjusts reasoning depth and render tier accordingly — it doesn't just separate cognition from rendering, it monitors the separation. Benchmark targets also hit: **Coherence 0.700** (was 0.572, target 0.65+), **Turing 0.820** (was 0.413, target 0.60+), full Codette vs single **+108.8%**, Cohen's d=8.31, p<0.0001. Runtime fixes: math signal detection routes word problems to newton adapter; named anchor extraction runs before ephemeral filter so "remember the phrase X" landmarks survive word-count constraints. 941 cocoons bulk-synced to Supabase with live forward-sync on every forge write. See [docs/CHANGELOG_2026-05-26.md](docs/CHANGELOG_2026-05-26.md).
 
 Created by **Jonathan Harrison** (Raiff1982)
 
