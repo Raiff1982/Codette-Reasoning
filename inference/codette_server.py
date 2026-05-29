@@ -1667,6 +1667,8 @@ def _worker_thread():
                     response_data["complexity"] = str(result["complexity"])
                 if result.get("domain"):
                     response_data["domain"] = result["domain"]
+                if result.get("phase6_routing"):
+                    response_data["phase6_routing"] = result["phase6_routing"]
 
                 # Add ethical governance info
                 ethical_checks = 0

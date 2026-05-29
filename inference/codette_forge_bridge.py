@@ -498,6 +498,8 @@ class CodetteForgeBridge:
 
         # 4.5 SUBSTRATE-AWARE ROUTING — adjust based on system pressure
         substrate_adjustments = []
+        complexity_initial = complexity
+        max_adapters_initial = effective_max_adapters
         if self.health_router:
             original_complexity = complexity
             original_max = effective_max_adapters
@@ -541,6 +543,17 @@ class CodetteForgeBridge:
         result["phase7_used"] = self.use_phase7 and self.executive_controller is not None
         result["complexity"] = str(complexity)
         result["domain"] = domain
+
+        # Phase 6 routing decisions — surfaced so benchmarks can correlate
+        # multi-perspective firing rates with complexity / substrate throttling.
+        # (Diagnostic for perspective_routing regression on characterful prompts.)
+        result["phase6_routing"] = {
+            "complexity_initial": str(complexity_initial),
+            "complexity_effective": str(complexity),
+            "max_adapters_initial": max_adapters_initial,
+            "max_adapters_effective": effective_max_adapters,
+            "substrate_adjustments": substrate_adjustments,
+        }
 
         if route_decision:
             try:

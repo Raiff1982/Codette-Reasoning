@@ -451,6 +451,7 @@ def query_server(query, num_predict=300):
             "perspectives": data.get("perspectives"),
             "reliability": (data.get("confidence_analysis") or {}).get("response_confidence"),
             "hallucination_signals": (data.get("confidence_analysis") or {}).get("hallucination_signals"),
+            "phase6_routing": data.get("phase6_routing"),
         }
     except Exception as e:
         return {"response": "", "tokens": 0, "tok_per_sec": 0, "eval_time": 0,
@@ -676,6 +677,17 @@ def run_benchmark():
                 if VERBOSE:
                     if result.get("adapter") is not None:
                         print(f"    Adapter/route: {result.get('adapter')}")
+                    p6 = result.get("phase6_routing")
+                    if p6:
+                        # Diagnostic — capture WHY multi-perspective fired or not.
+                        # Format: complexity:initial->effective | max_adapters:initial->effective | adjustments
+                        ci, ce = p6.get("complexity_initial"), p6.get("complexity_effective")
+                        mi, me = p6.get("max_adapters_initial"), p6.get("max_adapters_effective")
+                        adj = p6.get("substrate_adjustments") or []
+                        comp_str = ci if ci == ce else f"{ci} -> {ce}"
+                        maxa_str = str(mi) if mi == me else f"{mi} -> {me}"
+                        print(f"    Phase6: complexity={comp_str} | max_adapters={maxa_str}"
+                              + (f" | substrate: {'; '.join(adj)}" if adj else ""))
                     print("    Response:")
                     for line in result["response"].splitlines() or [""]:
                         print(f"      {line}")
