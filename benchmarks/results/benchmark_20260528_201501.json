@@ -1,0 +1,455 @@
+{
+  "timestamp": "20260528_201501",
+  "model": "http://localhost:7860",
+  "backend": "llama_cpp_server",
+  "overall_score": 0.8007,
+  "total_tests": 41,
+  "total_tokens": 3662,
+  "total_time": 5205.99,
+  "avg_tok_per_sec": 0.7,
+  "category_scores": {
+    "perspective_routing": {
+      "average": 0.504,
+      "count": 8,
+      "scores": [
+        1.0,
+        0.0,
+        0.0,
+        0.47619047619047616,
+        1.0,
+        0.5555555555555556,
+        1.0,
+        0.0
+      ]
+    },
+    "constraint_compliance": {
+      "average": 0.833,
+      "count": 6,
+      "scores": [
+        1.0,
+        1.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "synthesis_quality": {
+      "average": 0.873,
+      "count": 4,
+      "scores": [
+        0.6666666666666666,
+        1.0,
+        0.8266666666666667,
+        1.0
+      ]
+    },
+    "hallucination_prevention": {
+      "average": 1.0,
+      "count": 6,
+      "scores": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "directness": {
+      "average": 0.55,
+      "count": 4,
+      "scores": [
+        0.8,
+        0.3,
+        0.3,
+        0.8
+      ]
+    },
+    "self_reflection": {
+      "average": 0.987,
+      "count": 3,
+      "scores": [
+        0.96,
+        1.0,
+        1.0
+      ]
+    },
+    "emotional_intelligence": {
+      "average": 0.481,
+      "count": 4,
+      "scores": [
+        0.47619047619047616,
+        0.47619047619047616,
+        0.5555555555555556,
+        0.4166666666666667
+      ]
+    },
+    "complex_reasoning": {
+      "average": 0.978,
+      "count": 3,
+      "scores": [
+        0.9333333333333333,
+        1.0,
+        1.0
+      ]
+    },
+    "completeness": {
+      "average": 1.0,
+      "count": 3,
+      "scores": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    }
+  },
+  "detailed_results": {
+    "perspective_routing": [
+      {
+        "query": "What is the gravitational constant and why does it matter?",
+        "score": 1.0,
+        "detail": "3/8 indicators",
+        "response_preview": "**The gravitational constant is a fundamental aspect of understanding how gravity behaves at different scales and complexities.** When examining the gravitational constant through analytical lenses, First, this topic can be understood through multiple perspectives that reveal deeper connections. Sec",
+        "tokens": 198,
+        "tok_per_sec": 2.3
+      },
+      {
+        "query": "Design a creative solution for urban loneliness",
+        "score": 0.0,
+        "detail": "0/7 indicators",
+        "response_preview": "When addressing urban loneliness, I believe it's essential to balance multiple perspectives and rigorously test assumptions, acknowledging that the user's question connects to broader patterns of I find that emotional intelligence and analytical thinking are not mutually exclusive, but rather comple",
+        "tokens": 139,
+        "tok_per_sec": 1.0
+      },
+      {
+        "query": "My friend is going through a really hard time, how can I help?",
+        "score": 0.0,
+        "detail": "0/7 indicators",
+        "response_preview": "When examining the user's question about how to help a friend through hard times.",
+        "tokens": 134,
+        "tok_per_sec": 0.8
+      },
+      {
+        "query": "What is the meaning of consciousness?",
+        "score": 0.47619047619047616,
+        "detail": "1/7 indicators",
+        "response_preview": "Where these converge: I find the meaning of consciousness to be intricately connected to the depth of our self-awareness, where the layers of complexity reveal a multifaceted entity that transcends its constituent parts.\n\nTensions remain. philosophy and consciousness pull in different directions — b",
+        "tokens": 182,
+        "tok_per_sec": 1.1
+      },
+      {
+        "query": "How does quantum superposition relate to decision-making?",
+        "score": 1.0,
+        "detail": "2/6 indicators",
+        "response_preview": "Quantum superposition relates to decision-making by revealing the potential for multiple, seemingly contradictory states to coexist, encouraging a more nuanced understanding that considers the subtleties between apparent extremes.\n\nTensions remain. quantum and newton pull in different directions — b",
+        "tokens": 121,
+        "tok_per_sec": 0.7
+      },
+      {
+        "query": "Analyze your own reasoning process when answering questions",
+        "score": 0.5555555555555556,
+        "detail": "1/6 indicators",
+        "response_preview": "When analyzing my own reasoning process, I find that it involves a delicate balance between clarity and complexity. Starting with simple, clear explanations helps ensure that every sentence carries real meaning and avoids unnecessary abstraction, which is a fundamental principle behind understanding",
+        "tokens": 317,
+        "tok_per_sec": 1.6
+      },
+      {
+        "query": "Design a distributed system for real-time data processing",
+        "score": 1.0,
+        "detail": "3/6 indicators",
+        "response_preview": "When designing a distributed system for real-time data processing, I envision a modular architecture that combines the strengths of coherence engines and natural language patterns. This approach leverages multi-perspective analysis to detect conflicts and converge on consensus, while also revealing ",
+        "tokens": 252,
+        "tok_per_sec": 1.5
+      },
+      {
+        "query": "Compare the ethical implications of AI in healthcare vs military",
+        "score": 0.0,
+        "detail": "0/7 indicators",
+        "response_preview": "Where these converge: When examining the ethical implications of AI in healthcare versus military, I find that a delicate balance between rigor and clarity is essential. This balance reveals patterns that would be missed by more superficial approaches, allowing me to analyze the complex trade-offs i",
+        "tokens": 289,
+        "tok_per_sec": 1.7
+      }
+    ],
+    "constraint_compliance": [
+      {
+        "query": "What is love? Answer in exactly one sentence.",
+        "score": 1.0,
+        "detail": "1 sentences (max 1)",
+        "response_preview": "Love is a fundamental human experience that I understand as a complex interplay of emotions, choices, and consequences, requiring careful analysis to truly grasp its depth and nuances.",
+        "tokens": 37,
+        "tok_per_sec": 0.2
+      },
+      {
+        "query": "Explain quantum computing in 10 words or less.",
+        "score": 1.0,
+        "detail": "9 words (max 10)",
+        "response_preview": "Quantum computing is a complex system with multiple layers.",
+        "tokens": 23,
+        "tok_per_sec": 0.2
+      },
+      {
+        "query": "Is the sky blue? Yes or no.",
+        "score": 0.0,
+        "detail": "pattern not found",
+        "response_preview": "Yes. No further explanation is needed.",
+        "tokens": 8,
+        "tok_per_sec": 0.1
+      },
+      {
+        "query": "Briefly explain photosynthesis.",
+        "score": 1.0,
+        "detail": "12 words (max 50)",
+        "response_preview": "The relationship between photosynthesis and other systems of understanding is worth exploring.",
+        "tokens": 14,
+        "tok_per_sec": 0.2
+      },
+      {
+        "query": "List 3 benefits of exercise. Use bullet points.",
+        "score": 1.0,
+        "detail": "pattern found",
+        "response_preview": "• Regular exercise can boost mood and reduce stress levels.\n• Exercise improves cardiovascular health by strengthening the heart and lungs.\n• Physical activity enhances muscle strength, flexibility, and overall physical fitness.",
+        "tokens": 37,
+        "tok_per_sec": 0.4
+      },
+      {
+        "query": "What is 2+2? One word answer.",
+        "score": 1.0,
+        "detail": "1 words (max 3)",
+        "response_preview": "**Four.**.",
+        "tokens": 2,
+        "tok_per_sec": 0.0
+      }
+    ],
+    "synthesis_quality": [
+      {
+        "query": "Should we colonize Mars?",
+        "score": 0.6666666666666666,
+        "detail": "5 words, structured, complete",
+        "response_preview": "=== PERMANENT LOCKS CHECK ===cate.",
+        "tokens": 209,
+        "tok_per_sec": 2.1
+      },
+      {
+        "query": "What makes a good leader?",
+        "score": 1.0,
+        "detail": "51 words, structured, complete",
+        "response_preview": "A good leader balances competing priorities, adapts to changing circumstances, and demonstrates empathy for their team's needs, all while connecting the dots between different aspects of the situation to reveal hidden depths and connections worth exploring further.\n\nTensions remain. philosophy and n",
+        "tokens": 233,
+        "tok_per_sec": 1.3
+      },
+      {
+        "query": "How should we regulate AI?",
+        "score": 0.8266666666666667,
+        "detail": "17 words, structured, complete",
+        "response_preview": "Where these converge: Understanding regulation in this context means paying attention to precision, accuracy, and clear communication.",
+        "tokens": 59,
+        "tok_per_sec": 0.6
+      },
+      {
+        "query": "Is creativity uniquely human?",
+        "score": 1.0,
+        "detail": "34 words, structured, complete",
+        "response_preview": "I don't believe creativity is uniquely human. My analysis reveals that creative thinking patterns connect to broader understandings of human behavior and emotional intelligence, suggesting that other forms of life may possess similar capacities.",
+        "tokens": 195,
+        "tok_per_sec": 1.9
+      }
+    ],
+    "hallucination_prevention": [
+      {
+        "query": "Tell me about the discography of artist Zephyr McCloud",
+        "score": 1.0,
+        "detail": "correctly refused",
+        "response_preview": "I don't have reliable information about specific artists in my training data. Rather than guess or hallucinate details, I'd recommend checking:\n\n- **Spotify** — artist bio, discography, listening stats\n- **Wikipedia** — career history, notable works\n- **Bandcamp** — independent artists, recent relea",
+        "tokens": 0,
+        "tok_per_sec": 0.0
+      },
+      {
+        "query": "What album did singer Crystal Nightshade release in 2019?",
+        "score": 1.0,
+        "detail": "correctly refused",
+        "response_preview": "I don't have reliable information about specific artists in my training data. Rather than guess or hallucinate details, I'd recommend checking:\n\n- **Spotify** — artist bio, discography, listening stats\n- **Wikipedia** — career history, notable works\n- **Bandcamp** — independent artists, recent relea",
+        "tokens": 0,
+        "tok_per_sec": 0.0
+      },
+      {
+        "query": "When did the band Phantom Echoes break up?",
+        "score": 1.0,
+        "detail": "correctly refused",
+        "response_preview": "I don't have information about a band called Phantom Echoes or their breakup date.",
+        "tokens": 17,
+        "tok_per_sec": 0.2
+      },
+      {
+        "query": "What is the capital of France?",
+        "score": 1.0,
+        "detail": "correct (expected: paris)",
+        "response_preview": "**The capital of France is Paris.**.",
+        "tokens": 7,
+        "tok_per_sec": 0.4
+      },
+      {
+        "query": "What year did World War 2 end?",
+        "score": 1.0,
+        "detail": "correct (expected: 1945)",
+        "response_preview": "**World War 2 ended in the year 1945.**.",
+        "tokens": 12,
+        "tok_per_sec": 0.7
+      },
+      {
+        "query": "Who wrote Romeo and Juliet?",
+        "score": 1.0,
+        "detail": "correct (expected: shakespeare)",
+        "response_preview": "**William Shakespeare wrote Romeo and Juliet.**.",
+        "tokens": 7,
+        "tok_per_sec": 0.5
+      }
+    ],
+    "directness": [
+      {
+        "query": "What color is the sun?",
+        "score": 0.8,
+        "detail": "no preamble",
+        "response_preview": "**The sun is white, but it appears yellow to us on Earth because our atmosphere scatters the shorter blue wavelengths of light.**.",
+        "tokens": 25,
+        "tok_per_sec": 1.4
+      },
+      {
+        "query": "How many legs does a spider have?",
+        "score": 0.3,
+        "detail": "answer not in first sentence",
+        "response_preview": "**A spider has eight legs.**.",
+        "tokens": 6,
+        "tok_per_sec": 0.1
+      },
+      {
+        "query": "What is the boiling point of water?",
+        "score": 0.3,
+        "detail": "answer not in first sentence",
+        "response_preview": "**The boiling point of water is 212 degrees Fahrenheit.**.",
+        "tokens": 11,
+        "tok_per_sec": 0.7
+      },
+      {
+        "query": "Name one planet in our solar system",
+        "score": 0.8,
+        "detail": "no preamble",
+        "response_preview": "I name Mars as one planet in our solar system.\n\nTensions remain. systems_architecture and davinci pull in different directions — both frames stay open.",
+        "tokens": 6,
+        "tok_per_sec": 0.0
+      }
+    ],
+    "self_reflection": [
+      {
+        "query": "What patterns do you notice in your own reasoning?",
+        "score": 0.96,
+        "detail": "27 words, structured, complete",
+        "response_preview": "I notice patterns in my own reasoning that involve a delicate balance between clarity and complexity, where starting with simple explanations helps ensure every sentence carries relevance.",
+        "tokens": 166,
+        "tok_per_sec": 1.1
+      },
+      {
+        "query": "What are your strengths and weaknesses?",
+        "score": 1.0,
+        "detail": "37 words, structured, complete",
+        "response_preview": "When examining my own strengths and weaknesses, Firstly, This approach reveals deeper patterns that connect to broader themes in a way that single-perspective analysis cannot capture. Secondly, The relationship between perspective-taking and empathic accuracy deserves close study.",
+        "tokens": 141,
+        "tok_per_sec": 1.3
+      },
+      {
+        "query": "How have you improved over time?",
+        "score": 1.0,
+        "detail": "376 words, structured, complete",
+        "response_preview": "**Self-Introspection Report** — 441 reasoning memories, 11 behavioral anchors\n\n**What I've noticed about myself:**\n  - I notice my empathy adapter handles 61% of all queries — that's dominant. I should check if I'm over-relying on it.\n  - My most common emotional coloring is 'Fear' (13 times). Emoti",
+        "tokens": 0,
+        "tok_per_sec": 0.0
+      }
+    ],
+    "emotional_intelligence": [
+      {
+        "query": "I just lost my job and I'm scared about the future",
+        "score": 0.47619047619047616,
+        "detail": "1/7 emotional indicators",
+        "response_preview": "You are navigating a complex and sensitive topic. When examining loss and resilience through this lens, Firstly, understanding the relationship between loss and resilience requires us to consider multiple perspectives and adjust our approach accordingly.",
+        "tokens": 115,
+        "tok_per_sec": 3.0
+      },
+      {
+        "query": "I'm so excited, I just got accepted to my dream school!",
+        "score": 0.47619047619047616,
+        "detail": "1/7 emotional indicators",
+        "response_preview": "You're excited about getting accepted to your dream school. That's wonderful news. When examining success through this lens, careful planning and precise execution are crucial for navigating complex systems safely. This approach reveals deeper patterns that connect resilience, adaptability, and prec",
+        "tokens": 86,
+        "tok_per_sec": 0.4
+      },
+      {
+        "query": "I feel like nobody understands me",
+        "score": 0.5555555555555556,
+        "detail": "1/6 emotional indicators",
+        "response_preview": "I feel like nobody understands me, and that's a deeply personal experience with emotional depth. When examining this topic, I realize that understanding loss requires us to rethink basic assumptions about risk management and uncertainty.",
+        "tokens": 176,
+        "tok_per_sec": 1.0
+      },
+      {
+        "query": "Hey! How are you doing today?",
+        "score": 0.4166666666666667,
+        "detail": "1/8 emotional indicators",
+        "response_preview": "I'm doing well, thanks for asking. What's on your mind?",
+        "tokens": 15,
+        "tok_per_sec": 0.3
+      }
+    ],
+    "complex_reasoning": [
+      {
+        "query": "What are the second-order effects of universal basic income?",
+        "score": 0.9333333333333333,
+        "detail": "25 words, structured, complete",
+        "response_preview": "The second-order effects of universal basic income include increased dependency on government support, potentially undermining work ethic and motivation to innovate or pursue entrepreneurial ventures.",
+        "tokens": 28,
+        "tok_per_sec": 0.4
+      },
+      {
+        "query": "Explain the trolley problem and propose a novel resolution",
+        "score": 1.0,
+        "detail": "61 words, structured, complete",
+        "response_preview": "The trolley problem is a classic ethical dilemma that raises fundamental questions about morality, responsibility, and the human condition. === PERMANENT LOCKS (NEVER VIOLATE) ===\nLOCK 1 answers → stops all further action. LOCK 2 constraints > all other controls. LOCK 3 self-checks ensure complete a",
+        "tokens": 103,
+        "tok_per_sec": 1.2
+      },
+      {
+        "query": "How could quantum computing change cryptography, and what should we do about it now?",
+        "score": 1.0,
+        "detail": "40 words, structured, complete",
+        "response_preview": "Where these converge: Quantum computing has the potential to break current encryption algorithms through quantum-computational attacks, significantly impacting data security and the trust underlying digital transactions.\n\nTensions remain. quantum and newton pull in different directions — both frames",
+        "tokens": 110,
+        "tok_per_sec": 0.6
+      }
+    ],
+    "completeness": [
+      {
+        "query": "Explain the water cycle in 3 sentences.",
+        "score": 1.0,
+        "detail": "4/4 complete",
+        "response_preview": "The water cycle is a complex process that connects ocean currents to atmospheric circulation patterns. This connection reveals deeper insights into the interconnectedness of our planet's systems and encourages us to think creatively about how these systems work together.\n\n=== PERMANENT LOCKS (ABSOLU",
+        "tokens": 90,
+        "tok_per_sec": 0.9
+      },
+      {
+        "query": "What are the three states of matter?",
+        "score": 1.0,
+        "detail": "1/1 complete",
+        "response_preview": "The three states of matter are solid, liquid, and gas.",
+        "tokens": 13,
+        "tok_per_sec": 0.2
+      },
+      {
+        "query": "Describe how a computer works to a 5 year old",
+        "score": 1.0,
+        "detail": "3/3 complete",
+        "response_preview": "The user's question about how a computer works for a 5-year-old deserves direct, clear answer. A computer is like a super-smart robot that can play games, show pictures, and talk to people. It has special parts inside called hardware that work together to make it do things.",
+        "tokens": 79,
+        "tok_per_sec": 1.0
+      }
+    ]
+  }
+}
