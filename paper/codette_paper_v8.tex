@@ -369,16 +369,20 @@ three problems:
     language rather than structured cognitive state.
 \end{enumerate}
 
-This architectural weakness was identified independently by a practitioner
-developing a separate cognitive runtime system, who evaluated an earlier
-\codette{} release and publicly noted: \emph{``If all `cognition' is still the
-LLM then it's [just] a homebuilt character AI''}~\citep{auracf2025reddit}.
-This critique arrived without knowledge of our internal architectural analysis
-and through a different evaluative lens (practitioner deployment rather than
-formal analysis), providing independent convergent evidence that model
-coupling is a recognized problem in the open-source cognitive AI community,
-not solely a theoretical concern. Phase~8 is a direct response to both the
-formal analysis and this independent identification.
+This architectural weakness was identified by an independent practitioner
+developing a separate cognitive runtime system (\emph{Aura}), first in a
+brief public evaluation of an earlier \codette{} release: \emph{``If all
+`cognition' is still the LLM then it's [just] a homebuilt character
+AI''}~\citep{auracf2025reddit}. That public comment preceded a subsequent
+in-depth architectural review of \codette{} by the same practitioner, in
+which the model-coupling problem was analyzed formally. The consistency
+between the informal public observation and the later formal analysis ---
+arrived at from a practitioner deployment perspective rather than from
+within the \codette{} development --- provides external validation that
+model coupling is a recognized problem in the open-source cognitive AI
+community, not solely a theoretical concern internal to this project.
+Phase~8 is a direct response to both that external critique and our own
+internal analysis.
 
 Phase~8 resolves this through a strict pipeline separating all reasoning from
 all expression.
