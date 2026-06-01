@@ -149,3 +149,5 @@ llama.cpp/
 
 # Runtime state artifacts
 hf_job_info.json
+# Paper figures (tracked)
+!paper/figures/*.png
