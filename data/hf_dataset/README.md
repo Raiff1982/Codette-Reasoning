@@ -19,11 +19,11 @@ configs:
 - config_name: default
   data_files:
   - split: test
-    path: data/test.jsonl
+    path: data/test.parquet
   - split: validation
-    path: data/validation.jsonl
+    path: data/validation.parquet
   - split: train
-    path: data/train.jsonl
+    path: data/train.parquet
 ---
 
 # Dataset Card for Codette Reasoning Test
