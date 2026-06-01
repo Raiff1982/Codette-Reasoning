@@ -369,6 +369,17 @@ three problems:
     language rather than structured cognitive state.
 \end{enumerate}
 
+This architectural weakness was identified independently by a practitioner
+developing a separate cognitive runtime system, who evaluated an earlier
+\codette{} release and publicly noted: \emph{``If all `cognition' is still the
+LLM then it's [just] a homebuilt character AI''}~\citep{auracf2025reddit}.
+This critique arrived without knowledge of our internal architectural analysis
+and through a different evaluative lens (practitioner deployment rather than
+formal analysis), providing independent convergent evidence that model
+coupling is a recognized problem in the open-source cognitive AI community,
+not solely a theoretical concern. Phase~8 is a direct response to both the
+formal analysis and this independent identification.
+
 Phase~8 resolves this through a strict pipeline separating all reasoning from
 all expression.
 
@@ -879,12 +890,28 @@ On the May 2026 benchmark (17 problems, 951 cocoons):
     at 217 cocoons, large-effect significant at 951 cocoons.
 \end{enumerate}
 
+\paragraph{Community reception.}
+Following open-source release (Apache~2.0), the system received 1,800 views
+within one month via a public launch post~\citep{harrison2025codetteroom}.
+Engagement included developers building competing cognitive runtime systems
+(whose independent identification of the model-coupling problem motivated
+Phase~8, \cref{sec:phase8}), non-expert users asking architectural questions
+about the reasoning pipeline vs.\ retrieval distinction, and French-speaking
+users expressing interest in offline-first reasoning for privacy-sensitive
+use cases. These interactions provided qualitative evidence that: (a)~the
+system is accessible beyond the original author's use cases, (b)~the
+RAG~vs.~cognitive-pipeline distinction requires clearer documentation, and
+(c)~privacy-preserving local deployment is a genuine user motivation distinct
+from pure research interest.
+
 \textbf{Future work}: (1) human evaluation with inter-annotator agreement;
 (2) learning-curve analysis of memory benefit vs.\ cocoon count; (3)
 cross-model evaluation (Mistral, Gemma, Phi); (4) formal convergence proofs
 for RC+$\xi$ with explicit bounds; (5) held-out benchmark validation of Turing
 and coherence improvements; (6) render integrity strengthening via
-embedding-space faithfulness; (7) longitudinal study of strategy evolution.
+embedding-space faithfulness; (7) longitudinal study of strategy evolution;
+(8) structured user study incorporating community feedback from open-source
+deployment.
 
 The system, benchmark suite, and supporting artifacts are archived on Zenodo
 (DOI:~\href{https://doi.org/10.5281/zenodo.19359663}{10.5281/zenodo.19359663})
