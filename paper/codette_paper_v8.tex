@@ -290,8 +290,12 @@ seven functional layers:
 
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=0.95\linewidth]{architecture_real.png}
-  \caption{\codette{} layered architecture overview.}
+  \includegraphics[width=0.97\linewidth]{architecture_v8.png}
+  \caption{\codette{} v8 layered architecture. The top row shows the Phase~8
+    render/cognition pipeline (\cref{sec:phase8}): \textsc{CognitionSubstrate}
+    (zero LLM calls) produces an \textsc{AuthoredState}, which
+    \textsc{RenderLayer} expresses in natural language. The lower rows show
+    the full system layers through which every query passes.}
   \label{fig:layered-architecture}
 \end{figure}
 
@@ -698,6 +702,17 @@ CODETTE vs SINGLE (total) & +0.388 & \textbf{+108.8\%} & \textbf{8.31} & $<10^{-
 \end{tabular}
 \end{table}
 
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.97\linewidth]{v7_v8_compare.png}
+  \caption{Key metric improvements from April~2026 (v7, 217 cocoons) to
+    May~2026 (v8, 951 cocoons). Turing naturalness improves by 235\%
+    (0.245~$\to$~0.820), resolving the depth--naturalness tradeoff documented
+    in v7. Memory augmentation delta increases from 0.018 to 0.031 and
+    reaches statistical significance ($p=0.020$, $d=0.80$).}
+  \label{fig:v7v8compare}
+\end{figure}
+
 \noindent\textbf{Statistical note.} Both tables use Welch's $t$-test and
 pooled Cohen's $d$; the design is within-problem across conditions
 (same 17 problems per condition). For paired-sample inference, per-problem
@@ -724,6 +739,17 @@ scores are provided in \path{codette_benchmark_results.json} and
 \end{enumerate}
 
 \subsection{Per-Category Analysis}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.72\linewidth]{radar_v8.png}
+  \caption{Radar plot of all seven scoring dimensions by condition (May~2026,
+    $N=17$ problems). CODETTE (red) leads on Turing naturalness and coherence;
+    MULTI, MEMORY, and CODETTE cluster closely on perspective diversity and
+    reasoning depth. All three multi-perspective conditions vastly outperform
+    SINGLE (grey) across every dimension.}
+  \label{fig:radar-v8}
+\end{figure}
 
 \begin{table}[ht]
 \centering
@@ -797,8 +823,12 @@ inference latency, and GPU load. Routing adapts:
 
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=0.95\linewidth]{latency.png}
-  \caption{Latency profile from runtime benchmarking.}
+  \includegraphics[width=0.92\linewidth]{latency_v8.png}
+  \caption{Runtime benchmark latency by category (May 26, 2026). Green bars
+    indicate passing cases (score $\geq$ target); grey bars indicate warnings.
+    Valuation-reasoning queries (pre-computed graph traversal) complete in
+    $\sim$3.4~s; continuity-retention requires multi-turn context loading
+    ($\sim$412~s). Mean latency: 115.2~s; pass rate: 60\%.}
   \label{fig:latency}
 \end{figure}
 
@@ -830,9 +860,20 @@ sampled outputs and ratings will be released in anonymized form.
     tests with confidence intervals and Holm--Bonferroni correction.
   \item \textbf{Memory system at larger scale.} The MEMORY condition now shows
     significant benefit at 951 cocoons ($d=0.80$, $p=0.020$), addressing the
-    prior null result at 217 cocoons. A systematic learning-curve analysis of
-    memory benefit vs.\ cocoon count is needed to characterize the
-    relationship.
+    prior null result at 217 cocoons. \Cref{fig:memorycurve} illustrates the
+    two observed data points; a systematic learning-curve analysis is needed
+    to characterize the full relationship.
+
+    \begin{figure}[H]
+      \centering
+      \includegraphics[width=0.82\linewidth]{memory_curve.png}
+      \caption{Memory augmentation benefit ($\Delta$ composite, MEMORY $-$ MULTI)
+        vs.\ cocoon store size. Two observed data points: non-significant at
+        217 cocoons ($\Delta=+0.004$, $p=0.119$); large-effect significant at
+        951 cocoons ($\Delta=+0.031$, $p=0.020$, $d=0.80$). Curve is a
+        $\sqrt{N}$ fit for illustration; systematic study is future work.}
+      \label{fig:memorycurve}
+    \end{figure}
   \item \textbf{Template-based agents in benchmark.} Agents use template-based
     reasoning in conditions where live LLM inference is not active
     simultaneously. Future work should conduct all evaluations with full LLM
