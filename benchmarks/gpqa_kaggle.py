@@ -50,7 +50,21 @@ N_VOTES      = 3                                            # for sc3
 SEED         = 42
 MAX_NEW_TOKENS = 64
 TEMPERATURE    = 0.0  # greedy for 0shot; sc3 uses temp=0.7 per vote
-HF_TOKEN     = os.environ.get("HF_TOKEN") or get_token()
+# Load HF token — Kaggle exposes secrets via UserSecretsClient, not os.environ
+def _load_hf_token() -> str | None:
+    try:
+        from kaggle_secrets import UserSecretsClient
+        return UserSecretsClient().get_secret("HF_TOKEN")
+    except Exception:
+        pass
+    return os.environ.get("HF_TOKEN") or get_token()
+
+HF_TOKEN = _load_hf_token()
+
+# Authenticate so all HF calls use the token automatically
+if HF_TOKEN:
+    from huggingface_hub import login
+    login(token=HF_TOKEN, add_to_git_credential=False)
 
 # Domain-conditioned adapter routing for GPQA (physics/chem/bio)
 DOMAIN_ROUTER = {
