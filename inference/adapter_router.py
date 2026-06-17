@@ -42,6 +42,18 @@ ADAPTER_KEYWORDS = {
             "calculus", "derivative", "integral", "differential equation",
             "electromagnetic", "optics", "wave", "oscillation", "friction",
             "conservation", "entropy", "classical mechanics", "kinematics",
+            # Chemistry
+            "chemistry", "chemical", "reaction", "compound", "molecule",
+            "molecular", "molar mass", "moles", "stoichiometry", "concentration",
+            "acid", "base", "ph level", "equilibrium constant", "enthalpy",
+            "gibbs free energy", "electron configuration", "ion", "periodic table",
+            "oxidation", "reduction", "titration", "catalyst",
+            # Biology / biochemistry
+            "biology", "biological", "dna", "rna", "protein synthesis", "enzyme",
+            "cell membrane", "organism", "genetics", "gene expression",
+            "evolution", "metabolism", "atp", "photosynthesis", "mitosis",
+            # GPQA exam-format signals
+            "(a)", "(b)", "(c)", "(d)", "which of the following", "select the",
         ],
         "moderate": [
             "calculate", "equation", "formula", "mathematical", "proof",
@@ -182,6 +194,31 @@ COMPLEMENTARY_PAIRS = {
 }
 
 
+# Quantitative-science signals: when ≥2 are present in a query, the
+# question is almost certainly a hard-science or exam problem — empathy
+# and philosophy should not be the *primary* adapter.
+_QUANT_SCIENCE_SIGNALS = frozenset([
+    "(a)", "(b)", "(c)", "(d)",
+    "calculate", "compute", "derive", "determine the", "find the value",
+    "how many moles", "molar mass", "concentration", "stoichiometry",
+    "molecule", "molecular", "chemical reaction", "compound",
+    "enthalpy", "entropy", "equilibrium", "gibbs",
+    "dna", "rna", "protein synthesis", "enzyme",
+    "which of the following", "select the",
+])
+_QUANT_BLOCKED_PRIMARY = frozenset(["empathy", "philosophy", "consciousness"])
+
+# Bare continuation / filler prompts with no topic of their own. These should
+# resume the prior turn via conversation history, NOT default to the empathy
+# adapter (which produces praise filler when given nothing to anchor on).
+_CONTINUATION_PROMPTS = frozenset([
+    "continue", "continue please", "please continue", "continue it",
+    "go on", "go on please", "keep going", "keep writing", "carry on",
+    "more", "more please", "tell me more", "say more", "go ahead",
+    "proceed", "next", "and then", "then what", "finish it", "elaborate",
+])
+
+
 class AdapterRouter:
     """Routes queries to optimal Codette adapter(s).
 
@@ -192,6 +229,13 @@ class AdapterRouter:
     selection confidence for high-performing adapters based on
     historical coherence and conflict resolution success.
     """
+
+    # Adapters considered appropriate for no-keyword-match fallback (ordered by
+    # general conversational suitability, excluding hard-science adapters that
+    # would be out-of-register for personal/ambiguous queries).
+    _FALLBACK_POOL = [
+        "multi_perspective", "empathy", "consciousness", "davinci", "philosophy",
+    ]
 
     def __init__(self, available_adapters: Optional[List[str]] = None,
                  memory_weighting=None):
@@ -204,6 +248,37 @@ class AdapterRouter:
         """
         self.available = available_adapters or list(ADAPTER_KEYWORDS.keys())
         self.memory_weighting = memory_weighting
+        # Usage counter for diversity enforcement — track per-adapter selection
+        # counts so fallback picks the least-used adapter rather than always empathy.
+        self._usage_counts: Dict[str, int] = {a: 0 for a in self.available}
+
+    def record_use(self, adapter_name: Optional[str]) -> None:
+        """Record that an adapter was selected. Call after every route decision."""
+        if adapter_name and adapter_name in self._usage_counts:
+            self._usage_counts[adapter_name] += 1
+
+    def adapter_entropy(self) -> float:
+        """Shannon entropy of adapter usage distribution (0 = all same, higher = diverse).
+
+        Returns 0.0 until at least 3 queries have been routed.
+        """
+        import math
+        total = sum(self._usage_counts.values())
+        if total < 3:
+            return 0.0
+        entropy = 0.0
+        for count in self._usage_counts.values():
+            if count > 0:
+                p = count / total
+                entropy -= p * math.log2(p)
+        return entropy
+
+    def _least_used_fallback(self) -> Optional[str]:
+        """Pick the available fallback-pool adapter with the fewest selections."""
+        pool = [a for a in self._FALLBACK_POOL if a in self.available]
+        if not pool:
+            return None
+        return min(pool, key=lambda a: self._usage_counts.get(a, 0))
 
     def _apply_memory_boost(self, primary: str, confidence: float) -> float:
         """Apply historical performance boost to keyword router confidence.
@@ -284,6 +359,28 @@ class AdapterRouter:
         query_lower = query.lower()
         scores: Dict[str, float] = {}
 
+        # Bare continuation / filler prompts ("continue", "go on", "more") carry
+        # no topic of their own. They must NOT fall through to the empathy default
+        # below, which emits trained-in praise filler ("You've approached this with
+        # care and precision…"). Route them to a neutral elaborator and let the
+        # conversation history drive the actual continuation.
+        _cont = re.sub(r"[^a-z\s]", "", query_lower).strip()
+        if _cont in _CONTINUATION_PROMPTS or (
+            len(_cont.split()) <= 2
+            and _cont.startswith(("continue", "keep going", "go on"))
+        ):
+            _neutral = (
+                "multi_perspective" if "multi_perspective" in self.available
+                else ("orchestrator" if "orchestrator" in self.available else None)
+            )
+            return RouteResult(
+                primary=_neutral,
+                confidence=0.6,
+                reasoning="Bare continuation prompt — neutral routing (not empathy); "
+                          "conversation context leads",
+                strategy="keyword",
+            )
+
         for adapter, keywords in ADAPTER_KEYWORDS.items():
             if adapter not in self.available:
                 continue
@@ -311,6 +408,16 @@ class AdapterRouter:
 
             if score > 0:
                 scores[adapter] = score
+
+        # Quantitative-science veto: if ≥2 GPQA-style signals are present,
+        # remove soft-science adapters from primary contention so physics /
+        # chemistry / biology questions don't route to empathy or philosophy.
+        _quant_hits = sum(1 for s in _QUANT_SCIENCE_SIGNALS if s in query_lower)
+        if _quant_hits >= 2:
+            for _blocked in _QUANT_BLOCKED_PRIMARY:
+                scores.pop(_blocked, None)
+            if not scores and "newton" in self.available:
+                scores["newton"] = 1.0
 
         if not scores:
             # No domain keywords matched — pick default based on query tone
@@ -376,17 +483,28 @@ class AdapterRouter:
                     strategy="keyword",
                 )
 
-            if personal_score > analytical_score and "empathy" in self.available:
-                default = "empathy"
-                reason = "No domain keywords — personal/conversational tone detected"
-            elif analytical_score > personal_score and "multi_perspective" in self.available:
-                default = "multi_perspective"
-                reason = "No domain keywords — analytical tone detected, using multi-perspective"
-            elif "empathy" in self.available:
-                default = "empathy"
-                reason = "No domain keywords — defaulting to empathy"
+            # Diversity-aware fallback: instead of always picking empathy (which
+            # was causing 61%+ dominance), pick the least-used adapter from the
+            # fallback pool so the selection rotates across empathy/multi_perspective/
+            # consciousness/davinci/philosophy rather than concentrating on one.
+            # Tone signal still biases the pool order but entropy prevents lock-in.
+            if personal_score > analytical_score:
+                # Conversational tone — bias toward empathy but allow rotation
+                preferred = [a for a in ["empathy", "consciousness", "philosophy",
+                                          "multi_perspective", "davinci"]
+                              if a in self.available]
+                default = min(preferred, key=lambda a: self._usage_counts.get(a, 0)) if preferred else None
+                reason = "No domain keywords — conversational tone, rotating fallback (diversity-aware)"
+            elif analytical_score > personal_score:
+                preferred = [a for a in ["multi_perspective", "davinci", "philosophy",
+                                          "consciousness", "empathy"]
+                              if a in self.available]
+                default = min(preferred, key=lambda a: self._usage_counts.get(a, 0)) if preferred else None
+                reason = "No domain keywords — analytical tone, rotating fallback (diversity-aware)"
             else:
-                default = None
+                default = self._least_used_fallback()
+                reason = "No domain keywords matched — rotating least-used fallback adapter"
+            if default is None:
                 reason = "No domain keywords matched — using base model"
 
             return RouteResult(

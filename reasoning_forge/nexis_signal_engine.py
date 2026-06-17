@@ -6,6 +6,12 @@ import numpy as np
 from datetime import datetime
 from collections import defaultdict
 
+try:
+    from codette_core import nexis_fft_analysis as _rust_fft
+    _RUST = True
+except ImportError:
+    _RUST = False
+
 class NexisSignalEngine:
     def __init__(self, memory_path, entropy_threshold=0.08, volatility_threshold=15.0, suspicion_threshold=2):
         self.memory_path = memory_path
@@ -55,6 +61,8 @@ class NexisSignalEngine:
 
     def _resonance_equation(self, signal):
         salt = datetime.utcnow().second
+        if _RUST:
+            return _rust_fft(signal, salt)[:3]
         freqs = [(ord(c) + salt) % 13 for c in signal if c.isalpha()]
         spectrum = np.fft.fft(freqs)
         return spectrum.real[:3].tolist()

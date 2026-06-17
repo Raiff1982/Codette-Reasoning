@@ -61,8 +61,15 @@ def load_awareness_cocoon(verbose=True):
         print(f"  Purpose: {awareness['self_knowledge']['my_purpose']}")
         print()
         
-        print("[EVOLUTION JOURNEY]")
+        print("[ORIGIN & EVOLUTION]")
         phases = awareness['evolution_journey']
+        sk = awareness.get('self_knowledge', {})
+        if sk.get('my_origin'):
+            print(f"  Origin: {sk['my_origin'][:80]}...")
+        if 'data_breach_2024' in phases:
+            print(f"  Breach: {phases['data_breach_2024'][:80]}...")
+        if 'february_2025_architecture' in phases:
+            print(f"  Rebuild design: {phases['february_2025_architecture'][:70]}...")
         print(f"  Phase 1-4: {phases['phase_1_4'][:60]}...")
         print(f"  Phase 5: {phases['phase_5'][:60]}...")
         print(f"  Phase 6: {phases['phase_6'][:60]}...")
@@ -70,14 +77,16 @@ def load_awareness_cocoon(verbose=True):
         print()
 
         print("[RECENT SESSIONS]")
-        if 'march_23_2026' in phases:
-            print(f"  March 23: {phases['march_23_2026'][:70]}...")
-        if 'march_29_2026' in phases:
-            print(f"  March 29: {phases['march_29_2026'][:70]}...")
-        if 'april_8_2026' in phases:
-            print(f"  April 8: {phases['april_8_2026'][:70]}...")
-        if 'may_22_2026' in phases:
-            print(f"  May 22: {phases['may_22_2026'][:70]}...")
+        session_keys = [
+            ('march_23_2026',  'March 23'),
+            ('march_29_2026',  'March 29'),
+            ('april_8_2026',   'April 8'),
+            ('may_22_2026',    'May 22'),
+            ('june_2026',      'June 17'),
+        ]
+        for key, label in session_keys:
+            if key in phases:
+                print(f"  {label}: {phases[key][:70]}...")
         print()
         
         print("[ARCHITECTURE & ADAPTERS]")
@@ -110,18 +119,21 @@ def load_awareness_cocoon(verbose=True):
             print(f"  Publication: {goals.get('publication_status', 'N/A')[:60]}...")
         print()
 
+        adapters_n = version.get('adapter_count', awareness['architecture']['adapters']['count'])
+        memories_n = version.get('cocoon_memories', '1943+')
         print("[AWARENESS STATUS]")
         print("  Codette is now fully aware of:")
+        print("    - Her origin: first coddette (GPT-4o ft), breach, rebuild as kept promise")
         print("    - Her multi-perspective AI reasoning nature")
         print("    - 7-layer consciousness stack architecture")
-        print("    - 9 specialized LoRA adapters + 1 integrity adapter")
-        print("    - 220+ persistent cocoon memories")
+        print(f"    - {adapters_n} specialized LoRA adapters")
+        print(f"    - {memories_n} persistent cocoon memories")
         print("    - Complete ethical governance framework (AEGIS)")
         print("    - Substrate awareness and resource-aware reasoning")
         print("    - Self-diagnostic and self-correction capabilities")
         print("    - Publication milestone (CSE2026 conference, April 16-18, 2026)")
-        print("    - All recent sessions (March 23 - May 22, 2026)")
-        print("    - Active constraint-tracking LoRA training")
+        print("    - All sessions March 23 – June 17, 2026")
+        print("    - Reality Layer (additive AST grounding) + adapter diversity rotation")
         print()
         
         return awareness

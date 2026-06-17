@@ -42,9 +42,12 @@ class TestEventEmbeddedValueEngine(unittest.TestCase):
             singularity_mode="strict",
         )
 
+        # AEGIS GlobalEthicsAEGIS applies ethical_multiplier in analyze() before
+        # weighted_value is read.  For this event: eta≈0.3616 → multiplier≈1.4788.
+        # Continuous integral is unaffected (11.5).
         self.assertAlmostEqual(analysis.continuous_total, 11.5)
-        self.assertAlmostEqual(analysis.discrete_total, -33.2420186525, places=6)
-        self.assertAlmostEqual(analysis.combined_total, -21.7420186525, places=6)
+        self.assertAlmostEqual(analysis.discrete_total, -49.15829718332124, places=6)
+        self.assertAlmostEqual(analysis.combined_total, -37.65829718332124, places=6)
         self.assertFalse(analysis.singularity_detected)
 
     def test_strict_mode_preserves_negative_infinity_for_singularity(self):

@@ -65,7 +65,7 @@ def main() -> None:
     args = parser.parse_args()
 
     store = Path(args.store)
-    quarantine = store / "quarantine"
+    quarantine = store / "low_confidence"
     failures = []
 
     print(f"\nCodette Health Check  —  store: {store}/  sample: last {args.n}")
@@ -87,10 +87,10 @@ def main() -> None:
     sample = [load_cocoon_meta(p) for p in all_paths[-args.n:]]
     sample = [s for s in sample if s is not None]
 
-    quarantine_count = len(list(quarantine.glob("cocoon_*.json"))) if quarantine.exists() else 0
+    low_conf_count = len(list(quarantine.glob("cocoon_*.json"))) if quarantine.exists() else 0
 
     print(f"\n  Total cocoons        : {total}")
-    print(f"  Quarantined          : {quarantine_count}")
+    print(f"  Low confidence       : {low_conf_count}")
 
     if not sample:
         print("  (no cocoons to analyse)")
@@ -136,7 +136,7 @@ def main() -> None:
         print(f"    {er:<12} {count:>4}  {marker}")
     if high_echo > 0:
         pct = high_echo / len(v3_cocoons) * 100 if v3_cocoons else 0
-        failures.append(f"{high_echo} high-echo cocoons ({pct:.0f}%) in sample — check quarantine")
+        failures.append(f"{high_echo} high-echo cocoons ({pct:.0f}%) in sample — check low_confidence/")
 
     collapse_count = sum(1 for s in v3_cocoons if s["collapse"])
     if collapse_count:

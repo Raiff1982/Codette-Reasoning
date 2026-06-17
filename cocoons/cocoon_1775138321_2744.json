@@ -3,7 +3,7 @@
   "id": "cocoon_1775138321_2744",
   "timestamp": 1775138321.404545,
   "wrapped": {
-    "query": "everything ok?\n\n---\n# PAST DECISION LANDMARKS\nPreviously established constraints and commitments:\n- Assistant commitment: Remember \"cobalt anchor\" and keep answers concise under 15 words consistently throughout this session.\n---\nUse these memories for continuity and consistency. Build on past insights when relevant.",
+    "query": "everything ok?",
     "response": "Yes, all systems are functioning normally within established parameters and nominal conditions. Continuity is maintained with our \"cobalt anchor\" mode in effect for concise responses throughout this session.",
     "adapter": "davinci",
     "timestamp": 1775138321.404545,

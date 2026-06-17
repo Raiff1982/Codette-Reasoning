@@ -1,9 +1,9 @@
 """
-Cocoon Validator — Integrity scoring, required-field enforcement, quarantine.
+Cocoon Validator — Integrity scoring, required-field enforcement, confidence routing.
 
 Every cocoon write must pass through CocoonValidator before hitting disk.
 If required fields are missing the cocoon is downgraded to 'partial' or
-moved to quarantine rather than silently stored as complete.
+moved to low_confidence rather than silently stored as complete.
 
 Integrity score factors (each 0-1, weighted):
   1. Required field completion          (weight 0.35)
@@ -77,8 +77,8 @@ class ValidationResult:
     warnings: list = field(default_factory=list)
     errors: list = field(default_factory=list)
     field_scores: dict = field(default_factory=dict)
-    should_quarantine: bool = False
-    quarantine_reason: str = ""
+    needs_review: bool = False
+    review_reason: str = ""
 
     def to_dict(self) -> dict:
         return {
@@ -88,8 +88,8 @@ class ValidationResult:
             "warnings":          self.warnings,
             "errors":            self.errors,
             "field_scores":      {k: round(v, 3) for k, v in self.field_scores.items()},
-            "should_quarantine": self.should_quarantine,
-            "quarantine_reason": self.quarantine_reason,
+            "needs_review": self.needs_review,
+            "review_reason": self.review_reason,
         }
 
 
@@ -99,8 +99,8 @@ class CocoonValidator:
     Usage:
         validator = CocoonValidator()
         result = validator.validate(cocoon)
-        if result.should_quarantine:
-            validator.quarantine(cocoon, result)
+        if result.needs_review:
+            validator.store_low_confidence(cocoon, result)
         else:
             validator.write(cocoon, store_path)
     """
@@ -108,14 +108,14 @@ class CocoonValidator:
     def __init__(
         self,
         store_path: str = "cocoons",
-        quarantine_path: str = "cocoons/quarantine",
+        low_confidence_path: str = "cocoons/low_confidence",
         integrity_threshold: float = 0.4,
     ):
         self.store_path = Path(store_path)
-        self.quarantine_path = Path(quarantine_path)
+        self.low_confidence_path = Path(low_confidence_path)
         self.integrity_threshold = integrity_threshold
         self.store_path.mkdir(parents=True, exist_ok=True)
-        self.quarantine_path.mkdir(parents=True, exist_ok=True)
+        self.low_confidence_path.mkdir(parents=True, exist_ok=True)
 
     def validate(self, cocoon) -> ValidationResult:
         """Score a CocoonV3 for integrity.  Returns ValidationResult."""
@@ -221,14 +221,14 @@ class CocoonValidator:
             status = "partial"
             integrity_score = min(integrity_score, 0.4)
 
-        should_quarantine = (
+        needs_review = (
             status == "failed"
             or echo_risk == "high"
             or collapse
             or len(errors) >= 3
         )
-        quarantine_reason = (
-            "; ".join(errors[:3]) if should_quarantine else ""
+        review_reason = (
+            "; ".join(errors[:3]) if needs_review else ""
         )
 
         return ValidationResult(
@@ -238,8 +238,8 @@ class CocoonValidator:
             warnings=warnings,
             errors=errors,
             field_scores=field_scores,
-            should_quarantine=should_quarantine,
-            quarantine_reason=quarantine_reason,
+            needs_review=needs_review,
+            review_reason=review_reason,
         )
 
     def apply_result(self, cocoon, result: ValidationResult):
@@ -253,6 +253,21 @@ class CocoonValidator:
         )
         return cocoon
 
+    def store_low_confidence(self, cocoon, result: ValidationResult) -> Path:
+        """Write a low-confidence cocoon to the low_confidence path for later review."""
+        ts = int(cocoon.timestamp)
+        rand = int(cocoon.cocoon_id[-4:], 16) % 10000
+        fname = f"cocoon_v3_{ts}_{rand}.json"
+        dest = self.low_confidence_path / fname
+        payload = cocoon.to_dict()
+        payload["_validation"] = result.to_dict()
+        with open(dest, "w", encoding="utf-8") as fh:
+            json.dump(payload, fh, indent=2, ensure_ascii=False)
+        logger.debug(
+            f"[CocoonValidator] Low-confidence cocoon stored at {fname}: {result.review_reason}"
+        )
+        return dest
+
     def write(self, cocoon, filename_prefix: str = "cocoon_v3") -> Path:
         """Write validated cocoon to store_path.  Returns written path."""
         result = self.validate(cocoon)
@@ -262,25 +277,20 @@ class CocoonValidator:
         rand = int(cocoon.cocoon_id[-4:], 16) % 10000
         fname = f"{filename_prefix}_{ts}_{rand}.json"
 
-        if result.should_quarantine:
-            dest = self.quarantine_path / fname
-            logger.warning(
-                f"[CocoonValidator] Quarantining {fname}: {result.quarantine_reason}"
-            )
-        else:
-            dest = self.store_path / fname
+        if result.needs_review:
+            return self.store_low_confidence(cocoon, result)
 
+        dest = self.store_path / fname
         payload = cocoon.to_dict()
         payload["_validation"] = result.to_dict()
 
         with open(dest, "w", encoding="utf-8") as fh:
             json.dump(payload, fh, indent=2, ensure_ascii=False)
 
-        if not result.should_quarantine:
-            logger.debug(
-                f"[CocoonValidator] Wrote {fname} "
-                f"integrity={result.integrity_score:.2f} ({result.integrity_status})"
-            )
+        logger.debug(
+            f"[CocoonValidator] Wrote {fname} "
+            f"integrity={result.integrity_score:.2f} ({result.integrity_status})"
+        )
         return dest
 
     def audit_store(self, limit: int = 100) -> dict:
@@ -296,7 +306,7 @@ class CocoonValidator:
             "complete": 0,
             "partial": 0,
             "failed": 0,
-            "quarantined": len(list(self.quarantine_path.glob("*.json"))),
+            "low_confidence": len(list(self.low_confidence_path.glob("*.json"))),
             "avg_integrity_score": 0.0,
             "avg_eta": 0.0,
             "avg_epsilon": 0.0,

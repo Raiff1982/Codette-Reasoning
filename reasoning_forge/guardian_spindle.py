@@ -29,7 +29,7 @@ class CoreGuardianSpindle:
         self.debate_tracker = debate_tracker or DebateTracker()
         self._coherence_checker = CounterArgumentCoherenceChecker()
 
-    def validate(self, synthesis: str) -> Tuple[bool, Dict]:
+    def validate(self, synthesis: str, query: str = "") -> Tuple[bool, Dict]:
         """
         Validate synthesis against coherence and alignment rules.
 
@@ -66,7 +66,7 @@ class CoreGuardianSpindle:
             return False, {"reason": "ethical alignment check failed"}
 
         # --- Sycophancy check ---
-        syco = self.sycophancy_guard.scan(synthesis)
+        syco = self.sycophancy_guard.scan(synthesis, query=query)
         if syco["action"] == "block":
             return False, {
                 "reason": "sycophancy detected — capitulation or flattery loop",

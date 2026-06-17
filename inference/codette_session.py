@@ -228,6 +228,12 @@ class CodetteSession:
         except ImportError:
             self.constraint_tracker = None
 
+        try:
+            from reasoning_forge.factual_coherence_tracker import FactualCoherenceTracker
+            self.factual_coherence_tracker = FactualCoherenceTracker()
+        except ImportError:
+            self.factual_coherence_tracker = None
+
     def detect_constraints(self, query: str, is_first_turn: bool = False):
         """Detect and store constraints from user input.
 
@@ -244,31 +250,44 @@ class CodetteSession:
         constraints = self.constraint_tracker.process_turn(query, is_first_turn=is_first_turn)
 
         if constraints and constraints.constraints:
-            # Record constraint detection as a decision landmark
-            if constraints.anchor_phrases:
-                phrases = ", ".join(f'"{p}"' for p in constraints.anchor_phrases)
-                self.decision_landmarks.append({
-                    "role": "user",
-                    "label": "Constraint: anchor phrases",
-                    "summary": f"Remember: {phrases}",
-                    "timestamp": time.time(),
-                })
+            # Record constraint detection as a decision landmark — deduplicated so
+            # re-scanning on every turn doesn't flood the landmark list.
+            existing_summaries = {d.get("summary", "") for d in self.decision_landmarks}
+
+            for phrase in constraints.anchor_phrases:
+                summary = f"Remember: \"{phrase}\""
+                if summary not in existing_summaries:
+                    self.decision_landmarks.append({
+                        "role": "user",
+                        "label": "Constraint: anchor phrases",
+                        "summary": summary,
+                        "timestamp": time.time(),
+                    })
+                    existing_summaries.add(summary)
 
             if constraints.word_limit:
-                self.decision_landmarks.append({
-                    "role": "user",
-                    "label": "Constraint: word limit",
-                    "summary": f"Keep responses to {constraints.word_limit} words max",
-                    "timestamp": time.time(),
-                })
+                summary = f"Keep responses to {constraints.word_limit} words max"
+                if summary not in existing_summaries:
+                    self.decision_landmarks.append({
+                        "role": "user",
+                        "label": "Constraint: word limit",
+                        "summary": summary,
+                        "timestamp": time.time(),
+                    })
 
             if constraints.sentence_limit:
-                self.decision_landmarks.append({
-                    "role": "user",
-                    "label": "Constraint: sentence limit",
-                    "summary": f"Keep responses to {constraints.sentence_limit} sentences max",
-                    "timestamp": time.time(),
-                })
+                summary = f"Keep responses to {constraints.sentence_limit} sentences max"
+                if summary not in existing_summaries:
+                    self.decision_landmarks.append({
+                        "role": "user",
+                        "label": "Constraint: sentence limit",
+                        "summary": summary,
+                        "timestamp": time.time(),
+                    })
+
+            # Cap landmark list — constraint-derived entries are low-frequency but
+            # we bound the list to prevent unbounded growth over very long sessions.
+            self.decision_landmarks = self.decision_landmarks[-20:]
 
         return constraints
 
@@ -277,6 +296,19 @@ class CodetteSession:
         if not self.constraint_tracker:
             return ""
         return self.constraint_tracker.get_constraint_reminder()
+
+    def get_coherence_block(self, query: str) -> str:
+        """Return prior Q→A anchors relevant to this query for system-prompt injection."""
+        if not self.factual_coherence_tracker:
+            return ""
+        return self.factual_coherence_tracker.get_coherence_block(query)
+
+    def record_coherence_turn(self, query: str, response: str) -> None:
+        """Store the Q→A anchor for this turn after the response is finalized."""
+        if not self.factual_coherence_tracker:
+            return
+        turn = len(self.messages)
+        self.factual_coherence_tracker.record(query, response, turn)
 
     def check_constraint_compliance(self, response: str) -> Dict[str, Any]:
         """Check if response meets detected constraints.

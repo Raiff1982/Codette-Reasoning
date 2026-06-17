@@ -283,6 +283,27 @@ def _resolve_web_research_request(query: str, allow_web_search: bool) -> tuple[b
         return True, "toggle"
     return False, ""
 
+# Server start time (for heartbeat uptime)
+_server_start_time = time.time()
+
+def _heartbeat(interval=30):
+    """Print a periodic liveness line so the console visibly ticks even when idle."""
+    while True:
+        time.sleep(interval)
+        try:
+            up = int(time.time() - _server_start_time)
+            h, rem = divmod(up, 3600)
+            m, s = divmod(rem, 60)
+            uptime = f"{h}h{m:02d}m" if h else f"{m}m{s:02d}s"
+            state = _orchestrator_status.get("state", "?")
+            pending = _request_queue.qsize()
+            busy = getattr(_inference_semaphore, "_value", 1) == 0
+            activity = "inferring" if busy else ("queued" if pending else "idle")
+            print(f"  [{time.strftime('%H:%M:%S')}] [heartbeat] up {uptime} · "
+                  f"model={state} · {activity} · pending={pending}", flush=True)
+        except Exception:
+            pass
+
 # Request queue for thread-safe model access
 _request_queue = queue.Queue()
 _response_queues = {}  # request_id -> queue.Queue
@@ -383,7 +404,7 @@ def _get_orchestrator():
                     _fut = _pool.submit(
                         CodetteOrchestrator,
                         verbose=True,
-                        n_ctx=32768,
+                        n_ctx=_orchestrator_args.n_ctx if _orchestrator_args else 32768,
                         n_gpu_layers=_orchestrator_args.gpu_layers if _orchestrator_args else 35,
                         memory_weighting=memory_weighting,
                     )
@@ -823,7 +844,16 @@ def _worker_thread():
                 continue
 
             query = request["query"]
-            query_lower = query.lower().strip()
+            # For keyword intercepts (health check, introspection, etc.) we want
+            # to match only the user's actual message — not file content or injected
+            # memory that was prepended before the user's words.
+            # File uploads prepend "--- Attached File: ... ---\n...\n--- End ---\n\n<user msg>".
+            # Memory injection prepends blocks separated by double newlines.
+            # Taking the last double-newline-separated block gives us the raw user message.
+            _raw_user_msg = query.strip()
+            if "\n\n" in _raw_user_msg:
+                _raw_user_msg = _raw_user_msg.rsplit("\n\n", 1)[-1].strip()
+            query_lower = _raw_user_msg.lower()
             adapter = request.get("adapter")  # None = auto-route
             max_adapters = request.get("max_adapters", 2)
             web_search_trigger = request.get("web_search_trigger", "")
@@ -1089,6 +1119,36 @@ def _worker_thread():
                 # swapping the global between our multiple _get_active_session() calls.
                 session = _get_active_session()
 
+                # ── Continuation resumes the prior turn's adapter ──
+                # A bare "continue" / "go on" carries no topic. Auto-routing sends it
+                # to the empathy praise-filler default; instead, resume whichever
+                # adapter wrote the previous assistant turn so the voice/domain stays
+                # continuous. Falls through to normal auto-routing (which the router
+                # now sends to a neutral elaborator, not empathy) when there's no
+                # usable prior turn.
+                if (not adapter or adapter == "auto") and session is not None:
+                    try:
+                        from adapter_router import _CONTINUATION_PROMPTS
+                        _cont = re.sub(r"[^a-z\s]", "", query.lower()).strip()
+                        _is_continuation = _cont in _CONTINUATION_PROMPTS or (
+                            len(_cont.split()) <= 2
+                            and _cont.startswith(("continue", "keep going", "go on"))
+                        )
+                        if _is_continuation:
+                            _prev_adapter = None
+                            for _m in reversed(session.messages):
+                                if _m.get("role") == "assistant":
+                                    _prev_adapter = (_m.get("metadata") or {}).get("adapter")
+                                    break
+                            if _prev_adapter and _prev_adapter not in (
+                                "base", "uncertainty_aware", "__all__", None
+                            ):
+                                adapter = _prev_adapter
+                                print(f"  [WORKER] Continuation prompt — resuming prior "
+                                      f"adapter: {adapter}", flush=True)
+                    except Exception as _ce:
+                        print(f"  [WORKER] Continuation resume skipped: {_ce}", flush=True)
+
                 # ── Identity Recognition ──
                 # Recognize WHO is talking and inject relationship context
                 identity_context = ""
@@ -1144,21 +1204,34 @@ def _worker_thread():
                 # Detect and inject cross-turn constraints (word limits, anchors, etc.)
                 constraint_reminder = ""
                 is_first_turn = (session and len(session.messages) == 0) if session else True
-                if session and is_first_turn:
+                if session:
                     try:
-                        session.detect_constraints(query, is_first_turn=True)
+                        # Scan every turn — mid-session anchors are merged, not discarded
+                        session.detect_constraints(query, is_first_turn=is_first_turn)
                         constraint_reminder = session.get_constraint_reminder()
                         if constraint_reminder:
-                            print(f"  [WORKER] Detected constraints: {constraint_reminder.count(chr(10))} lines", flush=True)
+                            verb = "Detected" if is_first_turn else "Active"
+                            print(f"  [WORKER] {verb} constraints: {constraint_reminder.count(chr(10))} lines", flush=True)
                     except Exception as e:
                         print(f"  [WORKER] Constraint detection failed (non-critical): {e}", flush=True)
-                elif session and not is_first_turn:
+
+                # ── Coherence Anchors ──
+                # Retrieve prior Q→A anchors for similar questions before generation.
+                # SKIPPED for benchmark/exam-style queries: GPQA questions share
+                # vocabulary ("calculate", "energy", "magnitude") so anchors from
+                # one question leak into the next and corrupt independent answers.
+                _is_benchmark_query = bool(
+                    re.search(r'What is the correct answer to this question', query)
+                    or len(re.findall(r'^\([ABCD]\)', query, re.MULTILINE)) >= 3
+                )
+                coherence_block = ""
+                if session and not _is_benchmark_query:
                     try:
-                        constraint_reminder = session.get_constraint_reminder()
-                        if constraint_reminder:
-                            print(f"  [WORKER] Re-injecting constraints from turn 1", flush=True)
+                        coherence_block = session.get_coherence_block(query)
+                        if coherence_block:
+                            print(f"  [WORKER] Coherence anchors injected: {coherence_block.count(chr(10))} lines", flush=True)
                     except Exception as e:
-                        print(f"  [WORKER] Constraint retrieval failed (non-critical): {e}", flush=True)
+                        print(f"  [WORKER] Coherence block failed (non-critical): {e}", flush=True)
 
                 # ── Memory Enrichment ──
                 # Recall relevant cocoons — budget controlled by governor
@@ -1370,27 +1443,55 @@ def _worker_thread():
                         enriched_query + "\n\n---\n" + identity_context + "\n---"
                     )
 
+                if coherence_block:
+                    enriched_query = coherence_block + enriched_query
+
                 if constraint_reminder:
                     enriched_query = (
                         constraint_reminder + enriched_query
                     )
 
-                if _forge_bridge:
-                    print(f"  [WORKER] Using forge bridge (Phase 6/7)", flush=True)
-                    gov_mem_budget = governor_decision.memory_budget if governor_decision else 3
-                    gov_max_tokens = governor_decision.max_response_tokens if governor_decision else 512
-                    result = _forge_bridge.generate(
-                        enriched_query, adapter=adapter, max_adapters=max_adapters,
-                        memory_budget=gov_mem_budget, max_response_tokens=gov_max_tokens,
-                    )
-                else:
-                    print(f"  [WORKER] Using direct orchestrator", flush=True)
-                    result = orch.route_and_generate(
-                        enriched_query,
-                        max_adapters=max_adapters,
-                        strategy="keyword",
-                        force_adapter=adapter if adapter and adapter != "auto" else None,
-                    )
+                # Per-request memory telemetry — measures true generation cost
+                # (transient peak + retained delta) for capacity planning.
+                _mem_tracker = None
+                try:
+                    from utilities.memory_telemetry import MemoryTracker
+                    _mem_tracker = MemoryTracker("generation", sample_interval=0.25)
+                    _mem_tracker.__enter__()
+                except Exception:
+                    _mem_tracker = None
+
+                try:
+                    if _forge_bridge:
+                        print(f"  [WORKER] Using forge bridge (Phase 6/7)", flush=True)
+                        gov_mem_budget = governor_decision.memory_budget if governor_decision else 3
+                        gov_max_tokens = governor_decision.max_response_tokens if governor_decision else 512
+                        result = _forge_bridge.generate(
+                            enriched_query, adapter=adapter, max_adapters=max_adapters,
+                            memory_budget=gov_mem_budget, max_response_tokens=gov_max_tokens,
+                        )
+                    else:
+                        print(f"  [WORKER] Using direct orchestrator", flush=True)
+                        result = orch.route_and_generate(
+                            enriched_query,
+                            max_adapters=max_adapters,
+                            strategy="keyword",
+                            force_adapter=adapter if adapter and adapter != "auto" else None,
+                        )
+                finally:
+                    if _mem_tracker is not None:
+                        try:
+                            _mem_tracker.__exit__(None, None, None)
+                            print(f"  [MEMORY] {_mem_tracker.report()}", flush=True)
+                        except Exception:
+                            _mem_tracker = None
+
+                if _mem_tracker is not None:
+                    try:
+                        result["memory_telemetry"] = _mem_tracker.to_dict()
+                    except Exception:
+                        pass
+
                 print(f"  [WORKER] Got result: response={len(result.get('response',''))} chars, adapter={result.get('adapter','?')}", flush=True)
 
                 # ── Post-generation Hallucination Check ──
@@ -1488,6 +1589,19 @@ def _worker_thread():
                             "adapter": result.get("adapter", "base"),
                             "tokens": result.get("tokens", 0),
                         })
+
+                        # Record Q→A anchor for cross-turn coherence.
+                        # Gate on response length — greetings and one-liners
+                        # ("Hello!", "Sure, go ahead") are not useful anchors.
+                        # Benchmark queries are never recorded: each exam
+                        # question is independent and anchoring them
+                        # cross-contaminates later questions.
+                        try:
+                            _resp_text = result.get("response", "")
+                            if len(_resp_text) > 60 and not _is_benchmark_query:
+                                session.record_coherence_turn(query, _resp_text)
+                        except Exception:
+                            pass
 
                         # Update cocoon state (spiderweb, coherence, attractors, glyphs, etc.)
                         adapter_name = result.get("adapter", "base")
@@ -1748,10 +1862,11 @@ class CodetteHandler(SimpleHTTPRequestHandler):
         super().__init__(*args, directory=static_dir, **kwargs)
 
     def log_message(self, format, *args):
-        """Quieter logging — skip static file requests."""
+        """Log every request; tag static assets so they're distinguishable from API traffic."""
         msg = format % args
-        if not any(ext in msg for ext in [".css", ".js", ".ico", ".png", ".woff"]):
-            print(f"  [{time.strftime('%H:%M:%S')}] {msg}")
+        is_static = any(ext in msg for ext in [".css", ".js", ".ico", ".png", ".woff"])
+        tag = "static" if is_static else "  http"
+        print(f"  [{time.strftime('%H:%M:%S')}] [{tag}] {msg}", flush=True)
 
     def do_GET(self):
         parsed = urlparse(self.path)
@@ -2511,6 +2626,9 @@ def main():
     parser.add_argument("--port", type=int, default=7860, help="Port (default: 7860)")
     parser.add_argument("--no-browser", action="store_true", help="Don't auto-open browser")
     parser.add_argument("--gpu-layers", type=int, default=35, help="GPU layers (0=CPU only, 35+=full GPU, default: 35)")
+    parser.add_argument("--n-ctx", type=int, default=int(os.environ.get("CODETTE_N_CTX", "8192")),
+                        help="Context window size (default: 8192 — safe for 8GB UMA GPUs like Intel Arc; "
+                             "raise to 32768 on hardware with more VRAM, or set CODETTE_N_CTX)")
     args = parser.parse_args()
     _orchestrator_args = args  # Store for use in _get_orchestrator()
 
@@ -2546,6 +2664,10 @@ def main():
     health_monitor = threading.Thread(target=_monitor_worker_health, daemon=True, name="health-monitor")
     health_monitor.start()
     print(f"  Started worker health monitor thread")
+
+    # Start heartbeat thread so the console ticks even when idle
+    threading.Thread(target=_heartbeat, daemon=True, name="heartbeat").start()
+    print(f"  Started heartbeat thread (liveness line every 30s)")
 
     # Start server FIRST so browser can connect immediately
     server = ThreadingHTTPServer(("127.0.0.1", args.port), CodetteHandler)

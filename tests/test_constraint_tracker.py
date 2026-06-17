@@ -153,6 +153,92 @@ def test_constraint_serialization():
     print(f"[PASS] Deserialized from dict: word_limit={restored.word_limit}")
 
 
+def test_anchor_survives_unrelated_turns():
+    """Anchor set on turn 2 must still be present after many unrelated turns."""
+    tracker = ConstraintTracker()
+
+    # Turn 1: no constraints
+    tracker.process_turn("Tell me about recursion.", is_first_turn=True)
+
+    # Turn 2: set anchor
+    tracker.process_turn("Remember the phrase cobalt anchor.", is_first_turn=False)
+
+    # Turns 3–10: unrelated queries
+    for _ in range(8):
+        tracker.process_turn("What is the weather like today?", is_first_turn=False)
+
+    reminder = tracker.get_constraint_reminder()
+    assert reminder != "", "Anchor should still be set after 8 unrelated turns"
+    assert "cobalt anchor" in reminder.lower()
+    print(f"[PASS] Anchor survives 8 unrelated turns")
+
+
+def test_short_query_fast_path():
+    """Very short queries that can't contain anchors skip detection (fast-path)."""
+    tracker = ConstraintTracker()
+    # Set an anchor on turn 1
+    tracker.process_turn("Remember the phrase delta echo.", is_first_turn=True)
+
+    # Short greeting-style queries should not clobber or reset the anchor
+    for q in ["hi", "ok", "yes", "sure", "no", "thanks"]:
+        tracker.process_turn(q, is_first_turn=False)
+
+    reminder = tracker.get_constraint_reminder()
+    assert "delta echo" in reminder.lower(), f"Short queries clobbered anchor: {reminder}"
+    print(f"[PASS] Short queries don't clobber existing anchor")
+
+
+def test_anchor_accumulates_across_turns():
+    """Multiple anchors set across different turns are all preserved."""
+    tracker = ConstraintTracker()
+
+    tracker.process_turn("Remember the phrase alpha wave.", is_first_turn=True)
+    tracker.process_turn("Also remember the phrase beta pulse.", is_first_turn=False)
+    tracker.process_turn("What time is it?", is_first_turn=False)
+
+    sc = tracker.session_constraints
+    reminder = tracker.get_constraint_reminder()
+    assert any("alpha wave" in p for p in sc.anchor_phrases), f"alpha wave missing: {sc.anchor_phrases}"
+    assert any("beta pulse" in p for p in sc.anchor_phrases), f"beta pulse missing: {sc.anchor_phrases}"
+    assert "alpha wave" in reminder.lower()
+    assert "beta pulse" in reminder.lower()
+    print(f"[PASS] Both anchors accumulated: {sc.anchor_phrases}")
+
+
+def test_informal_anchor_phrases():
+    """Informal phrasings — don't forget, keep in mind, call it — set anchors."""
+    detector = ConstraintDetector()
+
+    cases = [
+        ("Don't forget the phrase cobalt anchor.", ["cobalt anchor"]),
+        ("Keep in mind the phrase silver thread.", ["silver thread"]),
+        ("Call it quantum drift.", ["quantum drift"]),
+        ("Refer to it as deep resonance.", ["deep resonance"]),
+        # Without 'phrase' qualifier — still works
+        ("Don't forget cobalt anchor.", ["cobalt anchor"]),
+        ("Keep in mind silver thread.", ["silver thread"]),
+    ]
+    for query, expected in cases:
+        sc = detector.detect(query, turn_num=1)
+        for phrase in expected:
+            assert any(phrase in p for p in sc.anchor_phrases), \
+                f"Expected '{phrase}' in anchors for: {query!r}\n  got: {sc.anchor_phrases}"
+        print(f"[PASS] Informal anchor: {query!r} -> {sc.anchor_phrases}")
+
+
+def test_informal_anchor_mid_session():
+    """Informal anchors set mid-session are accumulated correctly."""
+    tracker = ConstraintTracker()
+    tracker.process_turn("Tell me about machine learning.", is_first_turn=True)
+    tracker.process_turn("Don't forget the phrase gradient descent.", is_first_turn=False)
+    tracker.process_turn("Also, keep in mind backpropagation.", is_first_turn=False)
+
+    reminder = tracker.get_constraint_reminder()
+    assert "gradient descent" in reminder.lower(), f"gradient descent missing: {reminder}"
+    assert "backpropagation" in reminder.lower(), f"backpropagation missing: {reminder}"
+    print(f"[PASS] Informal mid-session anchors accumulated")
+
+
 def main():
     """Run all tests."""
     print("=" * 60)
@@ -167,6 +253,11 @@ def main():
         ("Constraint Reminder", test_constraint_reminder),
         ("Full Constraint Tracker", test_constraint_tracker),
         ("Serialization", test_constraint_serialization),
+        ("Anchor Survives Unrelated Turns", test_anchor_survives_unrelated_turns),
+        ("Short Query Fast-Path", test_short_query_fast_path),
+        ("Anchor Accumulates Across Turns", test_anchor_accumulates_across_turns),
+        ("Informal Anchor Phrases", test_informal_anchor_phrases),
+        ("Informal Anchor Mid-Session", test_informal_anchor_mid_session),
     ]
 
     passed = 0

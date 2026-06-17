@@ -54,7 +54,7 @@ REM   Analytics:  DriftDetector (/api/drift), CocoonSynthesizer (/api/synthesize
 REM
 REM Model: Llama 3.1 8B quantized + 10 domain-specific LoRA adapters + orchestrator
 REM         (Newton, DaVinci, Empathy, Philosophy, Quantum, Consciousness, Multi-Perspective, Systems, Constraint_Tracker, Orchestrator)
-REM GPU: Full GPU acceleration (35 layers offloaded to CUDA)
+REM GPU: GPU acceleration via Vulkan (35 layers offloaded to Intel Arc 140V, 8GB UMA)
 REM Tests: 26 passing (e2e trace, debate trace, hallucination, drift detector)
 REM
 
@@ -71,7 +71,7 @@ echo.
 echo   Subsystems:
 echo     * 10 LoRA adapters (Newton, DaVinci, Empathy, Philosophy,
 echo         Quantum, Consciousness, Multi-Perspective, Systems, Constraint_Tracker, Orchestrator)
-echo     * GPU acceleration enabled (35 layers on CUDA)
+echo     * GPU acceleration enabled (35 layers on Vulkan / Intel Arc)
 echo     * 7-layer consciousness stack (forge_with_debate)
 echo     * QuantumSpiderweb + ResonantContinuityEngine
 echo     * HallucinationGuard (Signal 7: self-overclaiming) + SycophancyGuard + AEGIS

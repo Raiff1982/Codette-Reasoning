@@ -105,6 +105,13 @@ class ConstraintDetector:
         # anchor/key phrase with colon (matches multi-word phrases)
         r"anchor\s*(?:phrase|word|term)?\s*:\s*([a-z][a-z\s]*?)(?:\s*\.|\s*$)",
         r"(?:key\s+phrase):\s+([a-z][a-z\s]*?)(?:\s*\.|\s*$)",
+        # ── Informal phrasings ──────────────────────────────────────────
+        # "don't forget X" / "don't forget the phrase X"
+        r"don'?t\s+forget\s+(?:the\s+(?:phrase|word|term)\s+)?['\"]?([a-z][a-z\s]+?)['\"]?(?:[.,;]|\s+and\s+|\s*$)",
+        # "keep in mind X" / "keep in mind the phrase X"
+        r"keep\s+in\s+mind\s+(?:the\s+(?:phrase|word|term)\s+)?['\"]?([a-z][a-z\s]+?)['\"]?(?:[.,;]|\s+and\s+|\s*$)",
+        # "call it/this X" / "refer to it/this as X"
+        r"(?:call\s+(?:it|this)\s+|refer\s+to\s+(?:it|this)\s+as\s+)['\"]?([a-z][a-z\s]+?)['\"]?(?:[.,;]|\s+and\s+|\s*$)",
     ]
 
     FORMAT_RULE_PATTERNS = [
@@ -276,6 +283,10 @@ class ConstraintTracker:
     def process_turn(self, query: str, is_first_turn: bool = False) -> SessionConstraints:
         """Process a turn and detect/retrieve constraints.
 
+        Always scans the current query for new constraints. On the first turn the
+        session constraints are replaced; on subsequent turns newly-found anchors,
+        limits, and format rules are merged in without clobbering what was already set.
+
         Args:
             query: User input
             is_first_turn: Whether this is the first turn (resets constraints)
@@ -286,10 +297,47 @@ class ConstraintTracker:
         self.turn_count += 1
 
         if is_first_turn:
-            # First turn: detect new constraints
+            # First turn: full reset — detect fresh from this query
             self.session_constraints = self.detector.detect(query, turn_num=1)
+        else:
+            # Fast-path: skip regex work entirely when the query has no constraint
+            # keywords. "What is the weather?" never contains anchors or limits —
+            # the keyword scan is O(n) and avoids 20+ regex compilations per turn.
+            _CONSTRAINT_SIGNALS = (
+                'remember', 'anchor', 'phrase', 'keyword', 'keep', 'limit',
+                'word', 'sentence', 'format', 'avoid', 'under', 'within', 'maximum',
+                'forget', 'note', 'call', 'refer',
+            )
+            q_lower = query.lower()
+            if not any(kw in q_lower for kw in _CONSTRAINT_SIGNALS):
+                return self.session_constraints or SessionConstraints()
+
+            # Mid-session: detect new constraints and merge (never clobber existing)
+            new_sc = self.detector.detect(query, turn_num=self.turn_count)
+            if new_sc.constraints:
+                if not self.session_constraints:
+                    self.session_constraints = new_sc
+                else:
+                    self._merge_into(new_sc)
 
         return self.session_constraints or SessionConstraints()
+
+    def _merge_into(self, new_sc: SessionConstraints) -> None:
+        """Merge new_sc into self.session_constraints without overwriting set values."""
+        sc = self.session_constraints
+        for c in new_sc.constraints:
+            if c.kind == "anchor_phrase" and c.value not in sc.anchor_phrases:
+                sc.anchor_phrases.append(c.value)
+                sc.constraints.append(c)
+            elif c.kind == "word_limit" and sc.word_limit is None:
+                sc.word_limit = c.value
+                sc.constraints.append(c)
+            elif c.kind == "sentence_limit" and sc.sentence_limit is None:
+                sc.sentence_limit = c.value
+                sc.constraints.append(c)
+            elif c.kind == "format_rule" and c.value not in sc.format_rules:
+                sc.format_rules.append(c.value)
+                sc.constraints.append(c)
 
     def get_constraint_reminder(self) -> str:
         """Get the constraint reminder to inject into system prompt."""

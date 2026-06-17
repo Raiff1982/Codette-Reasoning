@@ -1,0 +1,9 @@
+{
+  "job_id": "6a2fad6a871c005b5352d3b4",
+  "status": "JobStatus(stage='RUNNING', message=None)",
+  "url": "https://huggingface.co/jobs/Raiff1982/6a2fad6a871c005b5352d3b4",
+  "output_repo": "Raiff1982/codette-lora-adapters",
+  "adapter_path": "empathy_v2",
+  "flavor": "a10g-large",
+  "script": "training/train_empathy_uv.py"
+}

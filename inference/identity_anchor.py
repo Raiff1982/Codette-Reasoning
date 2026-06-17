@@ -206,6 +206,7 @@ class IdentityAnchor:
 
         # Current session identity
         self.current_user: Optional[str] = None
+        self._session_start: float = time.time()
 
     def _init_encryption(self):
         """
@@ -342,8 +343,10 @@ class IdentityAnchor:
     # ── Confidence thresholds ──
     CONFIDENCE_THRESHOLD = 0.4      # Min confidence to accept recognition
     CONFIDENCE_HIGH = 0.8           # High confidence — full context injection
-    CONFIDENCE_DECAY_RATE = 0.02    # Per-minute decay when no reinforcement
-    CONFIDENCE_DECAY_MAX = 0.5      # Max decay (floor = initial - this)
+    CONFIDENCE_DECAY_RATE = 0.005   # Per-minute decay when no reinforcement
+                                    # (was 0.02 — caused 92%→50% drift in 30 min)
+    CONFIDENCE_DECAY_MAX = 0.12     # Max decay applied in a single recognize() call
+    SESSION_DECAY_GRACE = 45        # Minutes before permanent identities start decaying
     REINFORCEMENT_BOOST = 0.15      # Boost per signal match
     CONTRADICTION_PENALTY = 0.3     # Penalty for detected contradiction
 
@@ -428,10 +431,16 @@ class IdentityAnchor:
         # ── Step 4: Apply time-based confidence decay ──
         if self.current_user and self.current_user in self.identities:
             identity = self.identities[self.current_user]
-            time_since_reinforcement = (now - identity.last_reinforcement) / 60  # minutes
-            decay = min(self.CONFIDENCE_DECAY_MAX,
-                       time_since_reinforcement * self.CONFIDENCE_DECAY_RATE)
-            identity.recognition_confidence = max(0, identity.recognition_confidence - decay)
+            # Permanent identities (e.g. Jonathan) are protected from decay
+            # during the session grace window — no signal ≠ wrong person.
+            session_age_minutes = (now - self._session_start) / 60
+            is_permanent = getattr(identity, "permanent", False)
+            skip_decay = is_permanent and session_age_minutes < self.SESSION_DECAY_GRACE
+            if not skip_decay:
+                time_since_reinforcement = (now - identity.last_reinforcement) / 60
+                decay = min(self.CONFIDENCE_DECAY_MAX,
+                           time_since_reinforcement * self.CONFIDENCE_DECAY_RATE)
+                identity.recognition_confidence = max(0, identity.recognition_confidence - decay)
 
         # ── Step 5: Select best candidate (if any) ──
         if candidates:

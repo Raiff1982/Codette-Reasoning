@@ -36,6 +36,7 @@ from codette_tools import (
     ToolRegistry, parse_tool_calls, strip_tool_calls, has_tool_calls,
     build_tool_system_prompt,
 )
+from reality_layer import extract_artifact_facts, format_facts_block
 
 # Tool system
 _tool_registry = ToolRegistry()
@@ -614,21 +615,101 @@ class CodetteOrchestrator:
         print(f"  Loading base model (one-time)...", flush=True)
         print(f"    GPU layers: {self.n_gpu_layers} (0=CPU only, 35+=full GPU offload)", flush=True)
         start = time.time()
-        # use_mmap=False is required for LoRA hot-swap compatibility
-        self._llm = Llama(
-            model_path=str(BASE_GGUF),
-            n_ctx=self.n_ctx,
-            n_gpu_layers=self.n_gpu_layers,
-            verbose=False,
-            use_mmap=False,
-        )
-        elapsed = time.time() - start
-        print(f"  Base model loaded in {elapsed:.1f}s")
+        # use_mmap=False is required for LoRA hot-swap compatibility.
+        # CODETTE_MLOCK=1 pins model weights in physical RAM so the OS can't
+        # page them out between requests (measured 2.4GB eviction churn on a
+        # 93%-utilized machine). Only enable when ~6GB RAM is actually free,
+        # otherwise the lock fails or starves the rest of the system.
+        _use_mlock = os.environ.get("CODETTE_MLOCK", "0") == "1"
+        if _use_mlock:
+            print("    Memory lock: ENABLED (weights pinned in RAM)", flush=True)
+        # Context-size fallback ladder. A large KV cache can fail to allocate on
+        # memory-constrained or shared-memory (UMA) GPUs — e.g. the Intel Arc 140V
+        # (8GB UMA), where n_ctx=32768 raises "Failed to create llama_context".
+        # Step down until one succeeds so the model always loads instead of
+        # hard-failing, and record the context that actually worked so downstream
+        # token-budget math (see _build_synthesis) stays correct.
+        _ctx_candidates = [self.n_ctx] + [
+            c for c in (8192, 4096, 2048) if c < self.n_ctx
+        ]
 
-        # Check if GPU was actually used
-        gpu_used = self.n_gpu_layers > 0
-        if gpu_used:
-            print(f"  ✓ GPU acceleration ENABLED ({self.n_gpu_layers} layers offloaded)", flush=True)
+        # ── Optional memory/speed optimizations (opt-in, build-dependent) ──
+        # On a memory-constrained UMA GPU the KV cache and attention buffers are
+        # what tip the process into swap-paging (the real cause of multi-minute
+        # inference). These flags shrink/accelerate that, but flash attention and
+        # KV quantization need llama.cpp build support (spotty on Vulkan), so they
+        # are OFF by default and fall back gracefully if they fail to load.
+        #   CODETTE_FLASH_ATTN=1      → flash attention (lossless: less KV mem + faster)
+        #   CODETTE_KV_QUANT=q8_0     → quantize KV cache (q8_0 ~halves KV; mildly lossy)
+        _flash = os.environ.get("CODETTE_FLASH_ATTN", "0") == "1"
+        _kv = os.environ.get("CODETTE_KV_QUANT", "").lower()
+        _kv_type = {"f16": 1, "q8_0": 8, "q4_0": 2, "q4_1": 3}.get(_kv)
+
+        # Most-aggressive config first, then progressively plainer fallbacks, so a
+        # build lacking flash-attn/KV-quant still loads with today's behavior.
+        _opt_configs = []
+        if _flash and _kv_type is not None:
+            _opt_configs.append({"flash_attn": True, "type_k": _kv_type, "type_v": _kv_type})
+        if _flash:
+            _opt_configs.append({"flash_attn": True})
+        if _kv_type is not None:
+            _opt_configs.append({"type_k": _kv_type, "type_v": _kv_type})
+        _opt_configs.append({})  # baseline — unchanged default behavior
+
+        last_err = None
+        self._llm = None
+        for _opt in _opt_configs:
+            for _ctx in _ctx_candidates:
+                try:
+                    self._llm = Llama(
+                        model_path=str(BASE_GGUF),
+                        n_ctx=_ctx,
+                        n_gpu_layers=self.n_gpu_layers,
+                        verbose=False,
+                        use_mmap=False,
+                        use_mlock=_use_mlock,
+                        **_opt,
+                    )
+                    if _ctx != self.n_ctx:
+                        print(f"  ⚠ Context {self.n_ctx} failed to allocate; "
+                              f"loaded with n_ctx={_ctx} instead", flush=True)
+                        self.n_ctx = _ctx
+                    _applied = ([k for k in ("flash_attn",) if _opt.get(k)]
+                                + ([f"kv={_kv}"] if "type_k" in _opt else []))
+                    print(f"    Load opts: {', '.join(_applied) or 'baseline'}", flush=True)
+                    last_err = None
+                    break
+                except Exception as e:
+                    last_err = e
+                    print(f"    load failed (opts={_opt or 'baseline'}, n_ctx={_ctx}): {e}", flush=True)
+            if self._llm is not None:
+                break
+        if self._llm is None and last_err is not None:
+            raise last_err
+        elapsed = time.time() - start
+        print(f"  Base model loaded in {elapsed:.1f}s (n_ctx={self.n_ctx})")
+
+        # Verify GPU is ACTUALLY available, not just requested. A CPU-only
+        # llama-cpp-python build silently ignores n_gpu_layers, so the previous
+        # "n_gpu_layers > 0" check falsely reported GPU acceleration even during
+        # pure-CPU inference (the real cause of 1-3 tok/s on this box).
+        # NOTE: llama_print_system_info() only reports CPU features on modern
+        # llama.cpp, so detect a real GPU backend by the presence of its compiled
+        # backend library (ggml-vulkan/cuda/hip/sycl/metal) shipped in llama_cpp/lib.
+        try:
+            import llama_cpp as _L
+            _libdir = os.path.join(os.path.dirname(_L.__file__), "lib")
+            _libs = os.listdir(_libdir) if os.path.isdir(_libdir) else []
+        except Exception:
+            _libs = []
+        _gpu_libs = sorted({f for f in _libs if any(g in f.lower() for g in
+                     ("ggml-vulkan", "ggml-cuda", "ggml-hip", "ggml-sycl", "ggml-metal"))})
+        _has_gpu_backend = bool(_gpu_libs)
+        if self.n_gpu_layers > 0 and _has_gpu_backend:
+            print(f"  ✓ GPU acceleration ENABLED ({self.n_gpu_layers} layers; backend: {', '.join(_gpu_libs)})", flush=True)
+        elif self.n_gpu_layers > 0 and not _has_gpu_backend:
+            print(f"  ⚠ GPU REQUESTED but llama-cpp-python is a CPU-ONLY build "
+                  f"(no ggml-vulkan/cuda/sycl backend lib) — running on CPU; n_gpu_layers is a no-op.", flush=True)
         else:
             print(f"  ⚠ CPU mode (GPU disabled)", flush=True)
 
@@ -945,24 +1026,31 @@ class CodetteOrchestrator:
 
         Only trigger tools for questions about the project itself, not for
         general domain questions like 'How does gravity work?'.
+
+        Important: the query may be memory-enriched (injected cocoon text prepended).
+        We extract only the raw user portion — the last sentence-block after a blank
+        line — to avoid false triggers from injected memory that mentions 'training'
+        or 'server' in historical context.
         """
-        q = query.lower()
+        # Extract raw user query: take only the final paragraph if memory was injected.
+        # Memory injections are prepended with a blank-line separator, so the user's
+        # actual words appear after the last double-newline block.
+        raw = query.strip()
+        if "\n\n" in raw:
+            raw = raw.rsplit("\n\n", 1)[-1].strip()
 
-        # Must mention the project/codebase context explicitly
-        project_anchors = [
-            "codette", "this project", "the project", "the codebase",
-            "this repo", "the repo", "our code", "the code",
-            "show me the", "read the file", "read file",
-            "what files", "which files", "list files",
-        ]
-        has_project_context = any(anchor in q for anchor in project_anchors)
+        q = raw.lower()
 
-        # Specific code/project keywords (only trigger WITH project context)
-        code_keywords = [
-            "pipeline", "config", "adapter", "dataset", "directory",
-            "folder", "source", "script", "implementation",
-            "server", "forge", "spiderweb", "cocoon",
-        ]
+        # Short conversational messages can't be codebase queries
+        if len(q.split()) < 6:
+            return False
+
+        # Greeting / social openers — never need tools
+        greeting_words = {"hey", "hi", "hello", "thanks", "thank", "ok", "okay",
+                          "great", "nice", "cool", "awesome", "good", "sounds"}
+        first_word = q.split()[0] if q.split() else ""
+        if first_word in greeting_words:
+            return False
 
         # Strong triggers that always mean "look at the codebase"
         strong_triggers = [
@@ -971,9 +1059,24 @@ class CodetteOrchestrator:
             "project structure", "project summary", "file structure",
             "what files", "which files", "list files",
         ]
-
         if any(t in q for t in strong_triggers):
             return True
+
+        # Must mention the project/codebase context explicitly
+        project_anchors = [
+            "this project", "the project", "the codebase",
+            "this repo", "the repo", "our code", "the code",
+            "show me the", "read the file", "read file",
+            "what files", "which files", "list files",
+        ]
+        has_project_context = any(anchor in q for anchor in project_anchors)
+
+        # Specific code/project keywords (only trigger WITH explicit project context)
+        code_keywords = [
+            "pipeline", "config", "adapter", "dataset", "directory",
+            "folder", "source", "script", "implementation",
+            "server", "forge", "spiderweb", "cocoon",
+        ]
 
         if has_project_context and any(kw in q for kw in code_keywords):
             return True
@@ -1040,14 +1143,19 @@ class CodetteOrchestrator:
             auto_lookups.append(("list_files", ["reasoning_forge/"]))
             auto_lookups.append(("read_file", ["reasoning_forge/epistemic_metrics.py", 1, 40]))
 
-        # If no specific match, do a code search
+        # Fallback code search only if no specific match AND query looks code-specific
+        # (avoid firing on greetings or conversational messages that passed _needs_tools)
         if not auto_lookups:
-            # Extract key terms for search
-            skip = {"show", "me", "the", "what", "is", "how", "does", "where",
-                    "can", "you", "tell", "about", "look", "at", "find", "check"}
-            terms = [w for w in q.split() if w not in skip and len(w) > 2]
-            if terms:
-                auto_lookups.append(("search_code", [terms[0]]))
+            code_search_indicators = [
+                "function", "class", "method", "module", "import", "def ",
+                "error", "bug", "fix", "implement", "refactor", "test",
+            ]
+            if any(ind in q for ind in code_search_indicators):
+                skip = {"show", "me", "the", "what", "is", "how", "does", "where",
+                        "can", "you", "tell", "about", "look", "at", "find", "check"}
+                terms = [w for w in q.split() if w not in skip and len(w) > 3]
+                if terms:
+                    auto_lookups.append(("search_code", [terms[0]]))
 
         auto_lookups = self._dedupe_tool_lookups(auto_lookups)
 
@@ -1102,10 +1210,15 @@ class CodetteOrchestrator:
             route = self.router.route(routing_query, strategy=strategy,
                                       max_adapters=max_adapters)
 
+        # Record usage for diversity tracking (all adapters in this route)
+        for _a in route.all_adapters:
+            self.router.record_use(_a)
+
         print(f"\n  Route: {' + '.join(route.all_adapters)} "
               f"(conf={route.confidence:.2f}, {route.strategy})")
         if self.verbose:
             print(f"  Reason: {route.reasoning}")
+            print(f"  Entropy: {self.router.adapter_entropy():.3f}")
 
         # Multi-perspective first (most important routing decision)
         if route.multi_perspective and len(route.all_adapters) > 1:
@@ -1177,13 +1290,39 @@ Based on the context above, answer the user's question. Reference specific files
         total_tokens = 0
         total_time = 0
 
+        # REALITY LAYER: if the query references a real local file, extract
+        # verified facts (classes/functions/line counts) and hand them to
+        # every adapter alongside the question, instead of letting them
+        # free-associate off the question's wording alone.
+        #
+        # Scan only the raw user message — injected memory/continuity text
+        # may contain filenames from previous turns and would cause false grounding.
+        _raw_for_reality = query.strip()
+        if "\n\n" in _raw_for_reality:
+            _raw_for_reality = _raw_for_reality.rsplit("\n\n", 1)[-1].strip()
+
+        facts = None
+        facts_block = None
+        try:
+            facts = extract_artifact_facts(_raw_for_reality)
+            if facts:
+                facts_block = format_facts_block(facts)
+                if self.verbose:
+                    print(f"  [REALITY] Grounded on {facts.path} "
+                          f"({len(facts.classes)} classes, {len(facts.functions)} functions)")
+        except Exception as e:
+            if self.verbose:
+                print(f"  [REALITY] extraction error (non-fatal): {e}")
+
+        gen_query = f"{query}\n\n{facts_block}" if facts_block else query
+
         for adapter_name in route.all_adapters:
             if adapter_name not in self.available_adapters:
                 print(f"  [{adapter_name}] SKIPPED (not available)")
                 continue
 
             start = time.time()
-            text, tokens, _tool_log = self.generate(query, adapter_name,
+            text, tokens, _tool_log = self.generate(gen_query, adapter_name,
                                                      enable_tools=False)
             elapsed = time.time() - start
             tps = tokens / elapsed if elapsed > 0 else 0
@@ -1266,6 +1405,7 @@ Now write ONE unified answer in your own voice (first person, as Codette):
 - Do NOT refer to "the X Perspective", "Newton's view", or attribute ideas to named lenses or to "users". Speak as one mind that considered the problem from several angles.
 - Where your angles genuinely tension, resolve it (or hold it) yourself — don't narrate it as a debate between separate parties.
 - Answer the user's actual question directly.
+- Verified file facts were injected above. Where a lens's claims are consistent with those facts, trust and use them. Where they diverge, anchor to what the facts actually show.
 
 Your answer:"""
 

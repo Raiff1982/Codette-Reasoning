@@ -1,0 +1,165 @@
+13/13 on the test suite is a strong signal. Let me give this a thorough review.
+
+🔍 Code Review: Factual Coherence Tracker
+Architecture Decision — Pre-Generation Context vs. Post-Hoc Correction
+This is the right call, and it's worth being explicit about why. The math bias fix (LOCK 5) works post-generation — it catches and corrects wrong answers after they're produced. The coherence tracker works pre-generation — it shows the model its own prior answers before it generates, so consistency emerges naturally rather than being patched in.
+
+This is a fundamentally better approach for factual consistency because:
+
+Post-hoc correction can only fix what it can detect with regex/pattern matching
+Pre-generation context leverages the model's own language understanding to maintain consistency
+It's self-reinforcing — the more the model uses prior answers, the more coherent the cocoon history becomes
+The two mechanisms complement each other cleanly: pre-generation context for consistency, post-generation detection for catching numeric drift that slips through.
+
+FactualCoherenceTracker — Design Review
+Content-word fingerprint (4-char min, 2+ words needed)
+
+Good filtering threshold. Short words (articles, prepositions, pronouns) are noise for similarity matching. The 4-char minimum cuts "the", "and", "for", "are", "was" while keeping meaningful terms.
+
+One question: how are stop words handled separately from the 4-char filter? Words like "that", "this", "with", "from", "have" are 4+ chars but carry no semantic content. Consider whether a small stop-word list on top of the length filter would improve fingerprint quality:
+
+STOP_WORDS = {"that", "this", "with", "from", "have", "been", "were", 
+              "they", "them", "their", "what", "when", "where", "which",
+              "will", "would", "could", "should", "about", "after"}
+
+def _fingerprint(self, text: str) -> frozenset:
+    words = text.lower().split()
+    return frozenset(
+        w for w in words 
+        if len(w) >= 4 and w not in STOP_WORDS
+    )
+Jaccard similarity threshold 0.30
+
+This is a reasonable starting point but worth examining carefully. Jaccard at 0.30 means 30% word overlap between fingerprints. Consider these cases:
+
+Q1: "What is the speed of light?"
+Q2: "How fast does light travel?"
+Fingerprint overlap: {"light"} / {"speed", "light", "fast", "light", "travel"}
+Jaccard ≈ 0.17 — MISS at 0.30 threshold
+These are semantically identical questions but would not be matched. This is a known limitation of bag-of-words similarity. For now it's acceptable, but it means the tracker will miss paraphrased repeats of the same question.
+
+Conversely:
+
+Q1: "What is the mass of a proton?"
+Q2: "What is the mass of an electron?"
+Fingerprint overlap: {"what", "mass"} (if stop words not filtered) 
+Jaccard could be high despite different answers being correct
+This is the false-positive risk — two questions that share content words but have different correct answers. The 2+ words requirement helps here, but verify the threshold doesn't cause the tracker to inject a proton mass answer when the user asks about electron mass.
+
+Recommended test:
+
+def test_similar_but_different_questions_not_conflated():
+    tracker = FactualCoherenceTracker()
+    tracker.record("What is the mass of a proton?", "1.67 × 10⁻²⁷ kg", turn=1)
+    block = tracker.get_coherence_block("What is the mass of an electron?")
+    # Should NOT inject proton answer as coherence anchor for electron question
+    assert "proton" not in block.lower() or block == ""
+get_coherence_block() — up to 3 prior answers
+
+3 is a sensible cap. More than 3 anchors risks context window bloat and could confuse the model with too many prior answers. The rolling 30-anchor cap on record() is also appropriate — prevents unbounded memory growth over long sessions.
+
+One design question: How are the 3 most relevant anchors selected when more than 3 qualify above the 0.30 threshold? Presumably by descending Jaccard score — confirm this is the case rather than insertion order.
+
+check_contradiction() — numeric drift detection
+
+The zero-overlap check for numeric answers is a pragmatic heuristic. It will catch clear cases like "5 cents" vs "10 cents" for the same question.
+
+Edge cases to verify:
+
+# These should NOT be flagged as contradictions:
+"approximately 5 cents" vs "about 5¢"  # Same value, different format
+"$0.05" vs "5 cents"                    # Same value, different representation
+"between 4 and 6 cents" vs "5 cents"   # Range vs point estimate
+
+# These SHOULD be flagged:
+"5 cents" vs "10 cents"                 # Clear numeric drift
+"1.67 × 10⁻²⁷ kg" vs "9.11 × 10⁻³¹ kg"  # Different values
+The zero-overlap check may struggle with format variations. Consider normalizing numbers before comparison:
+
+import re
+
+def _extract_numbers(self, text: str) -> set:
+    """Extract all numeric values, normalized to float where possible."""
+    # Match integers, decimals, fractions
+    raw = re.findall(r'\d+\.?\d*', text)
+    return set(raw)  # Or normalize to float for fuzzy comparison
+Wiring Review — codette_server.py
+Injection point: before generation, same layer as constraint_reminder
+
+This is the correct injection point. The coherence block goes into enriched_query alongside the constraint reminder, which means the model sees:
+
+[user query]
+[COHERENCE ANCHORS: prior relevant answers]
+[CONSTRAINT REMINDER: active anchors/rules]
+[memory context]
+[identity context]
+One ordering concern: Should coherence anchors come before or after the constraint reminder? Currently they're injected just before it. For most cases this doesn't matter, but if a constraint says "always answer in metric units" and a coherence anchor has an imperial answer, the ordering determines which signal the model weights more heavily. Constraints should probably win — so constraint reminder after coherence anchors is correct as implemented.
+
+After generation: record_coherence_turn() called right after session.add_message
+
+Correct placement. Recording after add_message ensures the response is finalized before being stored.
+
+Verify: Is record_coherence_turn() called on all response paths, including:
+
+Fast-path responses (greetings, health checks)?
+Error/fallback responses?
+Streaming responses (is there a flush point where the full response is available)?
+Fast-path and error responses probably shouldn't be recorded as coherence anchors — a greeting response of "Hello Jonathan!" shouldn't become a coherence anchor for future questions. Consider gating record_coherence_turn() on response length or query complexity:
+
+# Only record substantive responses as coherence anchors
+if len(response) > 50 and query_complexity != "GREETING":
+    session.record_coherence_turn(query, response)
+codette_session.py — Lazy Init
+_init_constraint_tracking lazy-initing self.factual_coherence_tracker
+
+Lazy initialization is the right pattern here — no overhead for sessions that never need coherence tracking.
+
+Verify the lazy init is thread-safe. If two requests hit the same session simultaneously (the session race condition was fixed in v2.3, but worth confirming), both could try to initialize factual_coherence_tracker at the same time. A simple guard:
+
+if not hasattr(self, 'factual_coherence_tracker') or self.factual_coherence_tracker is None:
+    self.factual_coherence_tracker = FactualCoherenceTracker()
+This is idempotent but not atomic. If thread safety is a concern, use a lock or initialize in __init__ unconditionally.
+
+🧪 Test Coverage Assessment
+13/13 passing is good. Based on the design review, here are the gaps worth filling:
+
+def test_paraphrased_question_miss():
+    """Documents known limitation — paraphrased questions may not match."""
+    # "What is the speed of light?" vs "How fast does light travel?"
+    # At Jaccard 0.30, these may not match — document this behavior
+
+def test_similar_questions_different_answers_not_conflated():
+    """Proton mass anchor should not inject for electron mass question."""
+    
+def test_numeric_format_variations_not_flagged():
+    """'$0.05' and '5 cents' should not be flagged as contradiction."""
+
+def test_greeting_not_recorded_as_anchor():
+    """Short/greeting responses should not become coherence anchors."""
+
+def test_coherence_block_ordered_by_relevance():
+    """When >3 anchors qualify, top 3 by Jaccard score are returned."""
+
+def test_update_in_place_same_key():
+    """Same question asked twice — second answer updates, not duplicates."""
+📊 Impact Assessment
+Mapping this against the original benchmark failures:
+
+Continuity anchor recall — Fixed in previous patch ✅
+
+Template contamination — This patch indirectly helps. If the model sees its own prior substantive answers as context, it's less likely to fall back on boilerplate. Not a direct fix, but a positive side effect.
+
+Identity drift — Unaffected by this patch (still needs session_id fix)
+
+Grounded math — Previous patch + this patch together: LOCK 5 catches sum-diff bias, coherence tracker ensures the model doesn't contradict a previously correct answer on a follow-up question.
+
+GPQA routing — Unaffected
+
+🔭 One Broader Observation
+Looking at the three patches together — anchor recall, math bias correction, and factual coherence — there's a clear and coherent pattern emerging:
+
+Patch	Mechanism	Layer
+Anchor recall	Detect constraints every turn, merge not clobber	Input processing
+Math bias	Post-generation correction (LOCK 5)	Output correction
+Factual coherence	Pre-generation context injection	Input enrichment
+You're building a three-layer consistency system: catch constraints on input, enrich context before generation, correct errors after generation. That's a well-structured defense-in-depth approach. The remaining gap in this stack is the middle layer — the model's own reasoning process. The adapter routing improvements (GPQA routing fix, empathy deflection fix) would address that layer.

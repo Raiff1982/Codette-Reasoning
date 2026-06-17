@@ -87,10 +87,112 @@ def detect_violations(response: str, constraints: dict) -> List[str]:
     return violations
 
 
-def universal_self_check(response: str) -> Tuple[str, List[str]]:
+def _extract_sum_diff_problem(query: str) -> Optional[Tuple[float, float, float]]:
+    """Extract (total, diff, correct_answer) from sum-difference word problem queries.
+
+    Pattern: 'A and B cost $S total. A costs $D more than B.'
+    Correct answer: B = (S - D) / 2
+    Returns None if no matching pattern is found.
+    """
+    q = query.lower()
+
+    # Require BOTH a sum signal AND a difference signal to avoid false positives
+    # on simple addition ("3 apples and 5 oranges, how many total?").
+    has_sum = bool(re.search(
+        r'\b(together|total|combined|in total|in all|altogether)\b', q
+    ))
+    has_diff = bool(re.search(
+        r'\bmore\s+than\b|\bdifference\b|\bextra\b|\bcosts?\s+\$?[\d].*more\b', q
+    ))
+    if not (has_sum and has_diff):
+        return None
+
+    # Must also involve a cost/price context
+    if not re.search(r'\$[\d]|cost|price|pay|worth|dollar|cent', q):
+        return None
+
+    # Extract "D more than" (the difference)
+    more_match = re.search(r'\$?([\d]+(?:\.\d+)?)\s+(?:dollar[s]?\s+)?more\b', q)
+    if not more_match:
+        return None
+    diff = float(more_match.group(1))
+
+    # All monetary amounts in query
+    all_amounts = [float(m) for m in re.findall(r'\$?([\d]+(?:\.\d+)?)\b', q)]
+
+    # Total must be strictly greater than diff
+    candidates = [a for a in all_amounts if a > diff + 0.001]
+    if not candidates:
+        return None
+    total = max(candidates)
+
+    correct = round((total - diff) / 2, 4)
+    if correct <= 0:
+        return None
+
+    return (total, diff, correct)
+
+
+def _check_sum_diff_bias(query: str, response: str) -> Tuple[str, List[str]]:
+    """Detect and correct the sum-difference cognitive bias in word problem responses.
+
+    Intuitive (wrong) answer: S - D
+    Correct answer:           (S - D) / 2
+    """
+    issues: List[str] = []
+
+    result = _extract_sum_diff_problem(query)
+    if result is None:
+        return response, issues
+
+    total, diff, correct = result
+    biased = round(total - diff, 4)
+
+    correct_cents = int(round(correct * 100))
+    biased_cents = int(round(biased * 100))
+
+    resp_lower = response.lower()
+
+    # Representations of the correct answer — if already present, nothing to do
+    correct_strs = [
+        f"${correct:.2f}", f"{correct_cents} cent",
+        f"{correct_cents}¢", str(correct_cents),
+    ]
+    if any(s.lower() in resp_lower for s in correct_strs):
+        return response, issues
+
+    # Representations of the biased answer — in priority order for replacement
+    biased_strs = [
+        f"${biased:.2f}", f"{biased_cents} cents",
+        f"{biased_cents} cent", f"{biased_cents}¢",
+    ]
+    has_bias = any(s.lower() in resp_lower for s in biased_strs)
+    if not has_bias:
+        return response, issues
+
+    # Replace ALL occurrences — longest match first to avoid partial replacement.
+    # All mentions of the biased answer in the response are wrong; leave none standing.
+    for bs in sorted(biased_strs, key=len, reverse=True):
+        pat = re.compile(re.escape(bs), re.IGNORECASE)
+        if pat.search(response):
+            replacement = f"{correct_cents} cents" if "cent" in bs.lower() else f"${correct:.2f}"
+            corrected, n = pat.subn(replacement, response)  # count=0 → replace all
+            if n:
+                issues.append(
+                    f"ARITHMETIC_FIX: sum-diff bias corrected "
+                    f"({n}× '{bs}' → '{replacement}'; "
+                    f"algebra: ({total}-{diff})/2={correct})"
+                )
+                return corrected, issues
+
+    return response, issues
+
+
+def universal_self_check(response: str, query: str = "") -> Tuple[str, List[str]]:
     """PERMANENT LOCK enforcement — runs on EVERY response, not just constrained ones.
 
     Enforces Lock 1 (Answer→Stop), Lock 3 (self-check), Lock 4 (no incomplete outputs).
+    When query is provided, also applies arithmetic bias detection (Lock 5).
     Returns (cleaned_response, issues_found).
     """
     issues = []
@@ -171,23 +273,25 @@ def universal_self_check(response: str) -> Tuple[str, List[str]]:
                 cleaned += '.'
             issues.append(f"LOCK1_TRIM: Removed {len(sentences) - cut_at} drift sentence(s)")
 
-    # LOCK 1 softcap: Unconstrained responses shouldn't over-talk
-    # If more than 60 words with no explicit constraints, trim to last complete
-    # sentence within ~60 words. This enforces "Answer → Stop" as DEFAULT behavior.
+    # LOCK 1 softcap: Safety net against runaway output.
+    # Codette may answer at whatever length the response needs; this only trims
+    # genuinely excessive responses to the last complete sentence within the cap.
+    # Set high so it rarely triggers — it's a guardrail, not a style limit.
+    SOFTCAP_WORDS = 1000
     words = cleaned.split()
-    if len(words) > 60:
+    if len(words) > SOFTCAP_WORDS:
         sentences = re.split(r'(?<=[.!?])\s+', cleaned.strip())
         sentences = [s for s in sentences if s.strip()]
         fitted = []
         wc = 0
         for s in sentences:
             sw = len(s.split())
-            if wc + sw <= 60:
+            if wc + sw <= SOFTCAP_WORDS:
                 fitted.append(s)
                 wc += sw
             else:
-                # Allow one more sentence if we're close and it's short
-                if wc >= 30 and sw <= 15:
+                # Allow one more sentence if we're close and it's reasonably short
+                if wc >= SOFTCAP_WORDS // 2 and sw <= 40:
                     fitted.append(s)
                 break
         if fitted and len(fitted) < len(sentences):
@@ -200,6 +304,12 @@ def universal_self_check(response: str) -> Tuple[str, List[str]]:
     if cleaned and cleaned[-1] not in '.!?"\')\u2019':
         cleaned += '.'
         issues.append("LOCK4_FIX: Final punctuation check")
+
+    # LOCK 5: Arithmetic bias check \u2014 sum-difference word problems
+    # Only runs when the query is provided (caller opt-in).
+    if query:
+        cleaned, arith_issues = _check_sum_diff_bias(query, cleaned)
+        issues.extend(arith_issues)
 
     return cleaned, issues
 
@@ -236,7 +346,7 @@ def build_correction_prompt(original_response: str, violations: List[str],
 # 2. PERSISTENT BEHAVIOR MEMORY
 # ================================================================
 
-_BEHAVIOR_MEMORY_FILE = "cocoons/behavior_memory.json"
+_BEHAVIOR_MEMORY_FILE = Path(__file__).resolve().parent.parent / "cocoons" / "behavior_memory.json"
 
 
 class BehaviorMemory:

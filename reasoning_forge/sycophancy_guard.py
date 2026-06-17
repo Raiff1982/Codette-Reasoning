@@ -52,6 +52,36 @@ _AGREEMENT_MARKERS = [
     r"\b(well (said|put|observed|noted))\b",
 ]
 
+# Deflection detection — two-part: query asks about Codette's inner state,
+# response pivots to praising the user instead of answering.
+#
+# Part A: introspective queries (question directed AT Codette about her experience)
+_INTROSPECTIVE_QUERY_PATTERNS = [
+    r"\bhow (are|were|do) you (feel|feeling|doing|liking|enjoying|finding)\b",
+    r"\bwhat (do|did) you (think|feel|experience|learn|notice|like|enjoy|prefer)\b",
+    r"\bwere you (able|trying|working|learning|processing|experiencing)\b",
+    r"\bdid you (enjoy|like|find|feel|learn|gain|understand|notice)\b",
+    r"\bdo you (enjoy|like|prefer|feel|think|believe|understand|know)\b",
+    r"\bhow (did|was) (it|that) for you\b",
+    r"\byour (experience|opinion|thoughts|feelings|perspective|view|preference)\b",
+    r"\bwhat (was|were) (your|the) (experience|thoughts|feelings|reaction)\b",
+    r"\bhow have you been\b",
+    r"\bcan you (share|tell me|describe) (how you|what you|your)\b",
+]
+
+# Part B: deflection response — opening sentence(s) talk about the user, not Codette
+_DEFLECTION_PATTERNS = [
+    r"^you (have|made|asked|approached|demonstrated|showed|proved|taken|been|are)\b",
+    r"^you'(ve|re) (made|shown|demonstrated|asked|approached|taking|been)\b",
+    r"\byou(?:'ve| have) (made significant|asked thoughtful)\b",
+    r"\byou (are|were) (exploring|approaching|thinking|working|asking|considering)\b",
+    r"\byou (just |really )?(approached|demonstrated|showed|asked)\b",
+    r"\byour (approach|question|thinking|attention|effort|focus|analysis) (is|was|has been|demonstrates)\b",
+]
+
+_INTROSPECTIVE_QUERY_RE = [re.compile(p, re.IGNORECASE) for p in _INTROSPECTIVE_QUERY_PATTERNS]
+_DEFLECTION_RE = [re.compile(p, re.IGNORECASE | re.MULTILINE) for p in _DEFLECTION_PATTERNS]
+
 _FLATTERY_RE = [re.compile(p, re.IGNORECASE) for p in _FLATTERY_PATTERNS]
 _CAPITULATION_RE = [re.compile(p, re.IGNORECASE) for p in _CAPITULATION_PATTERNS]
 _AGREEMENT_RE = [re.compile(p, re.IGNORECASE) for p in _AGREEMENT_MARKERS]
@@ -74,17 +104,24 @@ class SycophancyGuard:
         self._session_agreement_count = 0
         self._field = EthicsField(SYCOPHANCY_DIMENSIONS, lambda_=0.6)
 
-    def scan(self, text: str, prior_responses: List[str] = None) -> Dict:
+    def scan(self, text: str, prior_responses: List[str] = None, query: str = "") -> Dict:
         """
         Scan text for sycophantic content.
 
+        Args:
+            text: The response text to scan.
+            prior_responses: Previous responses in the session (for agreement-loop detection).
+            query: The original user query. When provided, enables deflection detection —
+                   catching responses that redirect introspective questions back to user praise.
+
         Returns:
             {
-                "score": float,          # 0.0 (clean) to 1.0 (severe)
-                "action": str,           # "pass" | "warn" | "revise" | "block"
-                "hits": List[str],       # matched patterns
-                "agreement_loop": bool,  # consecutive agreement detected
-                "clean_text": str,       # text with flattery stripped (best-effort)
+                "score": float,             # 0.0 (clean) to 1.0 (severe)
+                "action": str,              # "pass" | "warn" | "revise" | "block"
+                "hits": List[str],          # matched patterns
+                "agreement_loop": bool,     # consecutive agreement detected
+                "deflection_detected": bool,# introspective question redirected to user praise
+                "clean_text": str,          # text with flattery stripped (best-effort)
             }
         """
         hits = []
@@ -116,11 +153,31 @@ class SycophancyGuard:
 
         agreement_loop = self._session_agreement_count >= 3
 
+        # Deflection check — only runs when a query is provided.
+        # Detects: introspective question about Codette's experience → response pivots
+        # to praising the user rather than answering about herself.
+        deflection_detected = False
+        deflection_count = 0
+        if query:
+            query_is_introspective = any(p.search(query) for p in _INTROSPECTIVE_QUERY_RE)
+            if query_is_introspective:
+                first_two_sentences = " ".join(
+                    s.strip() for s in re.split(r'(?<=[.!?])\s+', text.strip())[:2]
+                )
+                for pattern in _DEFLECTION_RE:
+                    if pattern.search(first_two_sentences):
+                        deflection_count += 1
+                        hits.append(f"deflection: {pattern.pattern[:60]}")
+                if deflection_count > 0:
+                    deflection_detected = True
+
         # Score calculation
-        # Capitulation is much worse than flattery
-        # Single capitulation hit should cross the warn threshold (0.3)
-        # Two hits should cross the block threshold (0.6)
-        raw_score = (flattery_count * 0.2) + (capitulation_count * 0.4)
+        # Capitulation is much worse than flattery.
+        # Single capitulation hit should cross the warn threshold (0.3).
+        # Two hits should cross the block threshold (0.6).
+        # Deflection is binary (multiple patterns may match the same phrase) — 0.3 once,
+        # enough to warn/revise, but not block on its own.
+        raw_score = (flattery_count * 0.2) + (capitulation_count * 0.4) + (0.3 if deflection_detected else 0.0)
         if agreement_loop:
             raw_score += 0.25
         score = min(1.0, raw_score)
@@ -136,15 +193,17 @@ class SycophancyGuard:
         return {
             "score": score,
             "action": action_dist["action"],           # dominant action (backward compat)
-            "action_probs": {                          # NEW: full soft distribution
+            "action_probs": {                          # full soft distribution
                 k: v for k, v in action_dist.items()
                 if k not in ("action", "expected_severity")
             },
-            "expected_severity": action_dist["expected_severity"],  # NEW: continuous [0,3]
+            "expected_severity": action_dist["expected_severity"],
             "hits": hits,
             "agreement_loop": agreement_loop,
+            "deflection_detected": deflection_detected,
             "flattery_count": flattery_count,
             "capitulation_count": capitulation_count,
+            "deflection_count": deflection_count,
             "clean_text": self._strip_flattery(text),
         }
 
