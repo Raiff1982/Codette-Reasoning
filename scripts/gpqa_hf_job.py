@@ -6,7 +6,7 @@
 #     "peft>=0.11.0",
 #     "accelerate>=0.30.0",
 #     "bitsandbytes>=0.43.0",
-#     "kagglehub>=0.2.0",
+#     "kagglehub[pandas-datasets]>=0.2.0",
 #     "pandas",
 #     "huggingface_hub>=0.24.0",
 # ]
@@ -235,9 +235,13 @@ def upload_results(out_path: Path):
 
 def main():
     import kagglehub
-    print(f"Downloading GPQA ({DATASET_FILE})...")
-    dataset_path = Path(kagglehub.dataset_download(GPQA_HANDLE))
-    df = pd.read_csv(dataset_path / DATASET_FILE)
+    from kagglehub import KaggleDatasetAdapter
+    print(f"Loading GPQA ({DATASET_FILE})...")
+    df = kagglehub.load_dataset(
+        KaggleDatasetAdapter.PANDAS,
+        GPQA_HANDLE,
+        DATASET_FILE,
+    )
     if LIMIT:
         df = df.head(LIMIT)
     print(f"Loaded {len(df)} questions. Mode: {MODE}")

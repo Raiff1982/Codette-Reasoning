@@ -25,7 +25,8 @@ Modes:
 import subprocess, sys
 subprocess.check_call([sys.executable, "-m", "pip", "install", "-q",
     "torch", "transformers>=4.44.0", "peft>=0.11.0", "accelerate>=0.30.0",
-    "bitsandbytes>=0.43.0", "kagglehub", "pandas", "huggingface_hub>=0.24.0",
+    "bitsandbytes>=0.43.0", "kagglehub[pandas-datasets]", "pandas",
+    "huggingface_hub>=0.24.0",
 ])
 
 # ── Imports ──────────────────────────────────────────────────────────────────
@@ -332,9 +333,13 @@ def save_results(outputs: list[dict], mode: str) -> Path:
 
 def main():
     import kagglehub
-    print(f"Downloading GPQA ({DATASET_FILE})...")
-    dataset_path = Path(kagglehub.dataset_download(GPQA_HANDLE))
-    df = pd.read_csv(dataset_path / DATASET_FILE)
+    from kagglehub import KaggleDatasetAdapter
+    print(f"Loading GPQA ({DATASET_FILE})...")
+    df = kagglehub.load_dataset(
+        KaggleDatasetAdapter.PANDAS,
+        GPQA_HANDLE,
+        DATASET_FILE,
+    )
     print(f"Loaded {len(df)} questions.")
 
     base_model, tok = load_base_model()
