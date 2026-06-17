@@ -3,7 +3,7 @@
   "id": "cocoon_1777649563_4013",
   "timestamp": 1777649563.8763745,
   "wrapped": {
-    "query": "everything ok?\n\n---\n# PAST DECISION LANDMARKS\nPreviously established constraints and commitments:\n- Assistant commitment: You should remember the essential principles guiding our collaboration: clarity of question and answer, adherence to specified constraints, and the importance of grounding in Codet\n---\nUse these memories for continuity and consistency. Build on past insights when relevant.",
+    "query": "everything ok?",
     "response": "Yes, I'm functioning within normal parameters and ready to assist you with your questions, providing clear and concise answers as my default behavior.",
     "adapter": "unknown",
     "timestamp": 1777649563.876366,

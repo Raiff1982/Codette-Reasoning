@@ -1,0 +1,7 @@
+# Windows batch files MUST use CRLF — cmd.exe seeks by byte offset and
+# mis-parses (drops leading characters from each line) if they are LF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Keep shell scripts LF so they run under bash/WSL.
+*.sh text eol=lf

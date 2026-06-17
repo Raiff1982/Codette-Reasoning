@@ -60,6 +60,11 @@ FORBIDDEN PATTERNS (never use these anywhere in the response):
 - "You are exploring [X] in depth, connecting multiple threads"
 - "Your question bridges gaps between [domains]"
 - "Answering your question requires careful analysis"
+- "patterns reveal deeper structure" (any variation)
+- "careful examination reveals connections between" (any variation)
+- "connections between depth and breadth"
+- "analytical thinking enhances understanding" (any variation)
+- "The correct answer is (X)" — never use multiple-choice format in conversational responses
 - Any opener that describes how the user is engaging instead of answering them
 
 OUTPUT FORMAT:

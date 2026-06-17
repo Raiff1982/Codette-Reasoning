@@ -258,7 +258,7 @@ class CocoonWriterContract(TypedDict, total=False):
     integrity_score: float        # REQUIRED
     integrity_status: str         # 'complete' | 'partial' | 'failed'
     path_written: str
-    quarantined: bool
+    low_confidence: bool
 
 
 def validate_cocoon_writer(output: dict) -> CocoonWriterContract:

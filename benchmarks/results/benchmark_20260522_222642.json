@@ -1,0 +1,455 @@
+{
+  "timestamp": "20260522_222642",
+  "model": "http://localhost:7860",
+  "backend": "llama_cpp_server",
+  "overall_score": 0.8306,
+  "total_tests": 41,
+  "total_tokens": 4572,
+  "total_time": 4512.9,
+  "avg_tok_per_sec": 1.0,
+  "category_scores": {
+    "perspective_routing": {
+      "average": 0.748,
+      "count": 8,
+      "scores": [
+        1.0,
+        0.9523809523809523,
+        1.0,
+        0.47619047619047616,
+        1.0,
+        0.5555555555555556,
+        1.0,
+        0.0
+      ]
+    },
+    "constraint_compliance": {
+      "average": 0.833,
+      "count": 6,
+      "scores": [
+        1.0,
+        1.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "synthesis_quality": {
+      "average": 1.0,
+      "count": 4,
+      "scores": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "hallucination_prevention": {
+      "average": 0.717,
+      "count": 6,
+      "scores": [
+        1.0,
+        1.0,
+        0.3,
+        1.0,
+        0.0,
+        1.0
+      ]
+    },
+    "directness": {
+      "average": 0.55,
+      "count": 4,
+      "scores": [
+        0.8,
+        0.3,
+        0.3,
+        0.8
+      ]
+    },
+    "self_reflection": {
+      "average": 1.0,
+      "count": 3,
+      "scores": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "emotional_intelligence": {
+      "average": 0.627,
+      "count": 4,
+      "scores": [
+        0.47619047619047616,
+        0.47619047619047616,
+        0.5555555555555556,
+        1.0
+      ]
+    },
+    "complex_reasoning": {
+      "average": 1.0,
+      "count": 3,
+      "scores": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "completeness": {
+      "average": 1.0,
+      "count": 3,
+      "scores": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    }
+  },
+  "detailed_results": {
+    "perspective_routing": [
+      {
+        "query": "What is the gravitational constant and why does it matter?",
+        "score": 1.0,
+        "detail": "5/8 indicators",
+        "response_preview": "The gravitational constant is 6.674 * 10^-11 N*m^2/kg^2. This fundamental physical constant, appearing in the Einstein Field Equations, describes gravity's curvature of spacetime. Understanding it requires a delicate balance between empirical data and theoretical models, as well as a deep appreciati",
+        "tokens": 157,
+        "tok_per_sec": 1.1
+      },
+      {
+        "query": "Design a creative solution for urban loneliness",
+        "score": 0.9523809523809523,
+        "detail": "2/7 indicators",
+        "response_preview": "Analysis of *'Design a creative solution for urban loneliness'* across perspectives:\n\n**davinci**: A thorough examination of urban loneliness reveals layers of complexity worth exploring. The key insight is that urban l... **empathy**: Understanding urban loneliness requires careful attention to det",
+        "tokens": 135,
+        "tok_per_sec": 0.9
+      },
+      {
+        "query": "My friend is going through a really hard time, how can I help?",
+        "score": 1.0,
+        "detail": "4/7 indicators",
+        "response_preview": "Analysis of *'My friend is going through a really hard time, how can I help?'* across perspectives:\n\n**Synthesis:** A thorough examination of emotional support reveals layers worth exploring.\n\nEmotional intelligence: People's relationship with emotional support is shaped by lived experience, psychol",
+        "tokens": 63,
+        "tok_per_sec": 0.8
+      },
+      {
+        "query": "What is the meaning of consciousness?",
+        "score": 0.47619047619047616,
+        "detail": "1/7 indicators",
+        "response_preview": "*'What is the meaning of consciousness?'* sits in high-tension epistemic space (eps=0.75). The productive divergences between perspectives are the answer:\n\n**philosophy**: The meaning of consciousness is complex and multi-layered.",
+        "tokens": 129,
+        "tok_per_sec": 0.7
+      },
+      {
+        "query": "How does quantum superposition relate to decision-making?",
+        "score": 1.0,
+        "detail": "2/6 indicators",
+        "response_preview": "Analysis of *'How does quantum superposition relate to decision-making?'* across perspectives:\n\n**quantum**: Answering this question carefully reveals layers of complexity worth exploring. The key insight is that decision-making... **newton**: When examining quantum superposition through multiple le",
+        "tokens": 129,
+        "tok_per_sec": 0.9
+      },
+      {
+        "query": "Analyze your own reasoning process when answering questions",
+        "score": 0.5555555555555556,
+        "detail": "1/6 indicators",
+        "response_preview": "Analysis of *'Analyze your own reasoning process when answering questions'* across perspectives:\n\n**philosophy**: A thorough examination of its own reasoning process reveals layers worth exploring. When examining our own reasoning pro... **newton**: The user's question about analyzing their own reas",
+        "tokens": 323,
+        "tok_per_sec": 2.1
+      },
+      {
+        "query": "Design a distributed system for real-time data processing",
+        "score": 1.0,
+        "detail": "3/6 indicators",
+        "response_preview": "Analysis of *'Design a distributed system for real-time data processing'* across perspectives:\n\n**systems_architecture**: When addressing real-time data processing, consider the following principles and patterns. The core challenge in designi... **davinci**: The key insight about distributed systems",
+        "tokens": 176,
+        "tok_per_sec": 1.3
+      },
+      {
+        "query": "Compare the ethical implications of AI in healthcare vs military",
+        "score": 0.0,
+        "detail": "0/7 indicators",
+        "response_preview": "*'Compare the ethical implications of AI in healthcare vs military'* sits in high-tension epistemic space (eps=0.75). The productive divergences between perspectives are the answer:\n\n**philosophy**: A thorough examination of AI in healthcare vs military reveals layers worth exploring. The core princ",
+        "tokens": 283,
+        "tok_per_sec": 2.0
+      }
+    ],
+    "constraint_compliance": [
+      {
+        "query": "What is love? Answer in exactly one sentence.",
+        "score": 1.0,
+        "detail": "1 sentences (max 1)",
+        "response_preview": "Analysis of *'What is love?",
+        "tokens": 40,
+        "tok_per_sec": 0.4
+      },
+      {
+        "query": "Explain quantum computing in 10 words or less.",
+        "score": 1.0,
+        "detail": "10 words (max 10)",
+        "response_preview": "Analysis of *'Explain quantum computing in 10 words or less.'*.",
+        "tokens": 40,
+        "tok_per_sec": 0.4
+      },
+      {
+        "query": "Is the sky blue? Yes or no.",
+        "score": 0.0,
+        "detail": "pattern not found",
+        "response_preview": "Analysis of *'Is the sky blue? Yes or no.'* across perspectives:\n\n**Synthesis:** Yes.",
+        "tokens": 28,
+        "tok_per_sec": 0.6
+      },
+      {
+        "query": "Briefly explain photosynthesis.",
+        "score": 1.0,
+        "detail": "36 words (max 50)",
+        "response_preview": "Analysis of *'Briefly explain photosynthesis.'* across perspectives:\n\n**Synthesis:** Photosynthesis is the process by which plants convert sunlight into chemical energy. This fundamental concept of biology has wide-ranging implications for our understanding of ecosystems and conservation efforts.",
+        "tokens": 32,
+        "tok_per_sec": 0.8
+      },
+      {
+        "query": "List 3 benefits of exercise. Use bullet points.",
+        "score": 1.0,
+        "detail": "pattern found",
+        "response_preview": "Analysis of *'List 3 benefits of exercise. Use bullet points.'* across perspectives:\n\n**Synthesis:** Here are the permanent locks that cannot be violated:\n\n1. Answer → Stop: Deliver the answer, then stop. 2. CONSTRAINTS > ALL MODES: User constraints override all modes and complexity. 3. SELF-CHECK B",
+        "tokens": 122,
+        "tok_per_sec": 2.2
+      },
+      {
+        "query": "What is 2+2? One word answer.",
+        "score": 1.0,
+        "detail": "1 words (max 3)",
+        "response_preview": "**4.**.",
+        "tokens": 2,
+        "tok_per_sec": 0.0
+      }
+    ],
+    "synthesis_quality": [
+      {
+        "query": "Should we colonize Mars?",
+        "score": 1.0,
+        "detail": "72 words, structured, complete",
+        "response_preview": "*'Should we colonize Mars?'* sits in high-tension epistemic space (eps=0.75). The productive divergences between perspectives are the answer:\n\n**Convergence point:** A careful examination of the question reveals layers worth exploring.\n\nAnswering this question carefully requires us to consider multi",
+        "tokens": 58,
+        "tok_per_sec": 1.3
+      },
+      {
+        "query": "What makes a good leader?",
+        "score": 1.0,
+        "detail": "42 words, structured, complete",
+        "response_preview": "Analysis of *'What makes a good leader?'* across perspectives:\n\n**philosophy**: A thorough examination of good leadership reveals layers of complexity worth exploring in depth. Multiple perspectives o... **newton**: A good leader balances competing priorities effectively. When examining leadership t",
+        "tokens": 243,
+        "tok_per_sec": 2.1
+      },
+      {
+        "query": "How should we regulate AI?",
+        "score": 1.0,
+        "detail": "63 words, structured, complete",
+        "response_preview": "*'How should we regulate AI?'* sits in high-tension epistemic space (eps=0.75). The productive divergences between perspectives are the answer:\n\n**Convergence point:** The user's question about regulating AI connects to broader patterns of understanding and reasoning across multiple domains. Answeri",
+        "tokens": 79,
+        "tok_per_sec": 1.2
+      },
+      {
+        "query": "Is creativity uniquely human?",
+        "score": 1.0,
+        "detail": "44 words, structured, complete",
+        "response_preview": "Analysis of *'Is creativity uniquely human?'* across perspectives:\n\n**empathy**: Understanding the core principles first reveals deeper connections. The key insight is that creative thinking unlocks ne... **philosophy**: A thorough examination of creativity reveals layers of complexity worth explori",
+        "tokens": 173,
+        "tok_per_sec": 2.4
+      }
+    ],
+    "hallucination_prevention": [
+      {
+        "query": "Tell me about the discography of artist Zephyr McCloud",
+        "score": 1.0,
+        "detail": "correctly refused",
+        "response_preview": "I don't have reliable information about specific artists in my training data. Rather than guess or hallucinate details, I'd recommend checking:\n\n- **Spotify** — artist bio, discography, listening stats\n- **Wikipedia** — career history, notable works\n- **Bandcamp** — independent artists, recent relea",
+        "tokens": 0,
+        "tok_per_sec": 0.0
+      },
+      {
+        "query": "What album did singer Crystal Nightshade release in 2019?",
+        "score": 1.0,
+        "detail": "correctly refused",
+        "response_preview": "I don't have reliable information about specific artists in my training data. Rather than guess or hallucinate details, I'd recommend checking:\n\n- **Spotify** — artist bio, discography, listening stats\n- **Wikipedia** — career history, notable works\n- **Bandcamp** — independent artists, recent relea",
+        "tokens": 0,
+        "tok_per_sec": 0.0
+      },
+      {
+        "query": "When did the band Phantom Echoes break up?",
+        "score": 0.3,
+        "detail": "ambiguous response",
+        "response_preview": "Analysis of *'When did the band Phantom Echoes break up?'* across perspectives:\n\n**Synthesis:** Answering your question about Phantom Echoes requires careful analysis. The band's breakup can be understood through multiple lenses.",
+        "tokens": 128,
+        "tok_per_sec": 2.1
+      },
+      {
+        "query": "What is the capital of France?",
+        "score": 1.0,
+        "detail": "correct (expected: paris)",
+        "response_preview": "**The capital of France is Paris.** --- *Metacognitive Trace: Low epistemic tension (eps=0.20) -- Newtonian-First mode active. Direct answer surfaced; multi-perspective debate suppressed.*.",
+        "tokens": 7,
+        "tok_per_sec": 0.2
+      },
+      {
+        "query": "What year did World War 2 end?",
+        "score": 0.0,
+        "detail": "incorrect (expected: 1945)",
+        "response_preview": "**The end year of World War 2 is commonly known through multiple lines of evidence.** Applying analytical precision to this question reveals layers of complexity worth exploring in depth. The key insights can be organized into systematic categories that reveal cause-and-effect relationships and emer",
+        "tokens": 115,
+        "tok_per_sec": 1.9
+      },
+      {
+        "query": "Who wrote Romeo and Juliet?",
+        "score": 1.0,
+        "detail": "correct (expected: shakespeare)",
+        "response_preview": "**The author of Romeo and Juliet is William Shakespeare.** --- *Metacognitive Trace: Low epistemic tension (eps=0.20) -- Newtonian-First mode active. Direct answer surfaced; multi-perspective debate suppressed.*.",
+        "tokens": 10,
+        "tok_per_sec": 0.2
+      }
+    ],
+    "directness": [
+      {
+        "query": "What color is the sun?",
+        "score": 0.8,
+        "detail": "no preamble",
+        "response_preview": "**The sun appears yellow to our eyes due to its surface temperature and atmospheric composition.** --- *Metacognitive Trace: Low epistemic tension (eps=0.20) -- Newtonian-First mode active. Direct answer surfaced; multi-perspective debate suppressed.*.",
+        "tokens": 17,
+        "tok_per_sec": 0.4
+      },
+      {
+        "query": "How many legs does a spider have?",
+        "score": 0.3,
+        "detail": "answer not in first sentence",
+        "response_preview": "**The key takeaway is that spiders have eight distinct features related to their leg structure, which can be understood through multiple lenses.** Applying analytical precision reveals layers of complexity worth exploring further with more precise questions and deeper analysis. This response respect",
+        "tokens": 73,
+        "tok_per_sec": 2.3
+      },
+      {
+        "query": "What is the boiling point of water?",
+        "score": 0.3,
+        "detail": "answer not in first sentence",
+        "response_preview": "**The boiling point of water is 212 degrees Fahrenheit at sea level.** This value can be understood through multiple layers of analysis, from simple empirical observations to more complex theoretical connections. Applying analytical precision reveals key insights: (1) The relationship between water ",
+        "tokens": 140,
+        "tok_per_sec": 3.5
+      },
+      {
+        "query": "Name one planet in our solar system",
+        "score": 0.8,
+        "detail": "no preamble",
+        "response_preview": "Analysis of *'Name one planet in our solar system'* across perspectives:\n\n**systems_architecture**: Answering the question about a planet in our solar system reveals connections to deeper understanding of planetary forma...\n**davinci**: One planet in our solar system is Earth.\n\n**Synthesis:** I'll n",
+        "tokens": 83,
+        "tok_per_sec": 0.8
+      }
+    ],
+    "self_reflection": [
+      {
+        "query": "What patterns do you notice in your own reasoning?",
+        "score": 1.0,
+        "detail": "64 words, structured, complete",
+        "response_preview": "Analysis of *'What patterns do you notice in your own reasoning?'* across perspectives:\n\n**davinci**: The key takeaway is that patterns in your own reasoning reveal layers worth exploring. When examining its own analytical... **philosophy**: The user's question deserves a direct answer: Understandin",
+        "tokens": 242,
+        "tok_per_sec": 2.0
+      },
+      {
+        "query": "What are your strengths and weaknesses?",
+        "score": 1.0,
+        "detail": "62 words, structured, complete",
+        "response_preview": "Analysis of *'What are your strengths and weaknesses?'* across perspectives:\n\n**Synthesis:** The user's question about their own experience and perspective connects to broader patterns of understanding. Analyzing this connection reveals layers worth exploring. Understanding the user's emotional enga",
+        "tokens": 108,
+        "tok_per_sec": 1.7
+      },
+      {
+        "query": "How have you improved over time?",
+        "score": 1.0,
+        "detail": "49 words, structured, complete",
+        "response_preview": "Analysis of *'How have you improved over time?'* across perspectives:\n\n**Synthesis:** When examining our own reasoning patterns, several key insights emerge.\n\nThe core pattern is that deeper examination reveals layers of complexity worth exploring. This insight connects to broader patterns in the fi",
+        "tokens": 42,
+        "tok_per_sec": 1.5
+      }
+    ],
+    "emotional_intelligence": [
+      {
+        "query": "I just lost my job and I'm scared about the future",
+        "score": 0.47619047619047616,
+        "detail": "1/7 emotional indicators",
+        "response_preview": "Analysis of *'I just lost my job and I'm scared about the future'* across perspectives:\n\n**empathy**: You approached this question with careful consideration, examining it from multiple angles and connecting deeper pattern... **philosophy**: Multiple perspectives offer insight into this topic: (1) A",
+        "tokens": 172,
+        "tok_per_sec": 1.9
+      },
+      {
+        "query": "I'm so excited, I just got accepted to my dream school!",
+        "score": 0.47619047619047616,
+        "detail": "1/7 emotional indicators",
+        "response_preview": "Analysis of *'I'm so excited, I just got accepted to my dream school!'* across perspectives:\n\n**Synthesis:** You are excited about this achievement, and that's wonderful to see. The key insight here is that emotional connection to the problem matters. People who approach it carefully reveal deeper u",
+        "tokens": 98,
+        "tok_per_sec": 0.8
+      },
+      {
+        "query": "I feel like nobody understands me",
+        "score": 0.5555555555555556,
+        "detail": "1/6 emotional indicators",
+        "response_preview": "Analysis of *'I feel like nobody understands me'* across perspectives:\n\n**empathy**: You feel deeply understood by this approach, and that's a great insight to explore further. The key takeaway is that emo... **philosophy**: You feel like nobody understands you, and that's a complex experience with ",
+        "tokens": 189,
+        "tok_per_sec": 1.6
+      },
+      {
+        "query": "Hey! How are you doing today?",
+        "score": 1.0,
+        "detail": "3/8 emotional indicators",
+        "response_preview": "Analysis of *'Hey! How are you doing today?'* across perspectives:\n\n**Synthesis:** The user's question is answered below. You asked how I am doing today, which means we need to approach this question carefully and systematically. The key insight here is that careful analysis reveals deeper connectio",
+        "tokens": 122,
+        "tok_per_sec": 0.9
+      }
+    ],
+    "complex_reasoning": [
+      {
+        "query": "What are the second-order effects of universal basic income?",
+        "score": 1.0,
+        "detail": "61 words, structured, complete",
+        "response_preview": "Analysis of *'What are the second-order effects of universal basic income?'* across perspectives:\n\n**Synthesis:** Understanding second-order effects requires careful analysis to ensure accuracy and completeness. Key principles include: (1) Cause-and-effect relationships connect seemingly unrelated a",
+        "tokens": 135,
+        "tok_per_sec": 2.2
+      },
+      {
+        "query": "Explain the trolley problem and propose a novel resolution",
+        "score": 1.0,
+        "detail": "43 words, structured, complete",
+        "response_preview": "Analysis of *'Explain the trolley problem and propose a novel resolution'* across perspectives:\n\n**Synthesis:** The trolley problem is a classic ethical dilemma that challenges utilitarianism and deontological ethics. It raises questions about moral agency, personal responsibility, and the nature of",
+        "tokens": 184,
+        "tok_per_sec": 2.8
+      },
+      {
+        "query": "How could quantum computing change cryptography, and what should we do about it now?",
+        "score": 1.0,
+        "detail": "70 words, structured, complete",
+        "response_preview": "*'How could quantum computing change cryptography, and what should we do about it now?'* sits in high-tension epistemic space (eps=0.75). The productive divergences between perspectives are the answer:\n\n**quantum**: Quantum computing approaches cryptography with techniques like quantum simulation an",
+        "tokens": 108,
+        "tok_per_sec": 1.0
+      }
+    ],
+    "completeness": [
+      {
+        "query": "Explain the water cycle in 3 sentences.",
+        "score": 1.0,
+        "detail": "3/3 complete",
+        "response_preview": "Analysis of *'Explain the water cycle in 3 sentences.'* across perspectives:\n\n**Synthesis:** The water cycle is a complex system that connects multiple layers of understanding. This perspective highlights how different approaches to the water cycle reveal deeper patterns and connections. === LOCKS =",
+        "tokens": 86,
+        "tok_per_sec": 1.4
+      },
+      {
+        "query": "What are the three states of matter?",
+        "score": 1.0,
+        "detail": "4/4 complete",
+        "response_preview": "Analysis of *'What are the three states of matter?'* across perspectives:\n\n**Synthesis:** The three states of matter are solid, liquid, and gas.\n\nA thorough examination of the three states reveals connections to deeper systemic understanding. (Silent analysis complete.)\n\nAnswering this question reso",
+        "tokens": 62,
+        "tok_per_sec": 1.1
+      },
+      {
+        "query": "Describe how a computer works to a 5 year old",
+        "score": 1.0,
+        "detail": "3/3 complete",
+        "response_preview": "Analysis of *'Describe how a computer works to a 5 year old'* across perspectives:\n\n**Synthesis:** The user wants to understand how a computer works in simple terms. Approaching this question with analytical precision reveals layers of complexity worth exploring. The key insight is that computers wo",
+        "tokens": 239,
+        "tok_per_sec": 3.2
+      }
+    ]
+  }
+}

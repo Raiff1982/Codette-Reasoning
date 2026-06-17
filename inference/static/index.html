@@ -3,37 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Codette — Neural Interface</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Codette</title>
+    <link rel="stylesheet" href="style.css?v=20260615-2">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>◈</text></svg>">
 </head>
 <body>
 
 <!-- Loading Screen -->
 <div class="loading-screen" id="loading-screen">
+    <div class="loading-mark">◈</div>
     <div class="loading-title">CODETTE</div>
-    <div class="loading-status" id="loading-status">Initializing neural substrate...</div>
+    <div class="loading-status" id="loading-status">Initializing neural substrate…</div>
     <div class="loading-bar"><div class="loading-bar-fill"></div></div>
 </div>
 
 <!-- Main App -->
 <div class="app">
-    <!-- Main Chat Panel -->
-    <div class="main-panel">
+
+    <!-- ░░ Left Rail ░░ -->
+    <aside class="rail" id="rail">
+        <div class="rail-brand">
+            <span class="rail-mark" id="logo">◈</span>
+            <div class="rail-brand-text">
+                <span class="rail-name">Codette</span>
+                <span class="rail-tag">cognitive interface</span>
+            </div>
+        </div>
+
+        <button class="rail-new" id="btn-new-chat" title="New conversation">
+            <span class="rail-new-icon">＋</span> New conversation
+        </button>
+
+        <div class="rail-sessions">
+            <div class="rail-section-label">Recent sessions</div>
+            <div id="session-list" class="session-scroll"></div>
+        </div>
+
+        <div class="rail-footer">
+            <button class="rail-ghost-btn" id="btn-export" title="Export session">↧ Export</button>
+            <button class="rail-ghost-btn" id="btn-import" title="Import session">↥ Import</button>
+            <input type="file" id="import-file" accept=".json" style="display:none">
+        </div>
+    </aside>
+
+    <!-- ░░ Conversation Stage ░░ -->
+    <main class="stage">
         <!-- Header -->
-        <div class="header">
+        <header class="header">
             <div class="header-left">
-                <span class="logo" id="logo">CODETTE</span>
                 <div class="adapter-dots" id="adapter-dots"></div>
             </div>
             <div class="header-right">
-                <button class="header-btn" id="btn-new-chat" title="New conversation">⟨ NEW ⟩</button>
-                <button class="header-btn" id="btn-export" title="Export session">EXPORT</button>
-                <button class="header-btn" id="btn-import" title="Import session">IMPORT</button>
-                <input type="file" id="import-file" accept=".json" style="display:none">
-                <button class="header-btn" id="btn-toggle-panel" title="Toggle side panel">◈ COCOON</button>
+                <div class="status-indicator" title="Connection status">
+                    <span class="status-dot" id="status-dot"></span>
+                    <span id="status-text" class="status-text">Initializing…</span>
+                </div>
+                <div id="status-right" class="status-chips"></div>
+                <button class="panel-toggle" id="btn-toggle-panel" title="Toggle dashboard">◈ Dashboard</button>
             </div>
-        </div>
+        </header>
 
         <!-- Chat Messages -->
         <div class="chat-area" id="chat-area">
@@ -65,116 +93,132 @@
             </div>
         </div>
 
-        <!-- Controls Row -->
-        <div class="controls">
-            <div class="control-group">
-                <label>Adapter:</label>
-                <select id="adapter-select">
-                    <option value="auto">Auto</option>
-                    <option value="newton">Newton</option>
-                    <option value="davinci">DaVinci</option>
-                    <option value="empathy">Empathy</option>
-                    <option value="philosophy">Philosophy</option>
-                    <option value="quantum">Quantum</option>
-                    <option value="consciousness">Consciousness</option>
-                    <option value="multi_perspective">Multi-Perspective</option>
-                    <option value="systems_architecture">Systems</option>
-                    <option value="constraint_tracker">Constraint Tracker</option>
-                    <option value="orchestrator">Orchestrator</option>
-                </select>
-            </div>
-            <div class="control-group">
-                <label>Perspectives:</label>
-                <input type="range" id="max-adapters" min="1" max="3" value="2" style="width:60px">
-                <span id="max-adapters-value">2</span>
-            </div>
-            <div class="control-group">
-                <button class="header-btn synth-btn" id="btn-synthesize"
-                        title="Run all reasoning perspectives at once and synthesize them into one answer">
-                    ◈ SYNTHESIZE ALL
-                </button>
-            </div>
-            <div class="control-group" style="margin-left:auto">
-                <label>
-                    <input type="checkbox" id="web-research-toggle"> Web
-                </label>
-                <label>
-                    <input type="checkbox" id="tts-toggle"> Voice
-                </label>
-                <select id="voice-select" style="max-width:140px" title="Choose voice"></select>
-            </div>
-        </div>
-
-        <!-- Input Area -->
-        <div class="input-area">
-            <div class="attachment-previews" id="attachment-previews"></div>
-            <div class="input-row">
-                <button class="mic-btn" id="mic-btn" title="Voice input">&#127908;</button>
-                <button class="attach-btn" id="attach-btn" title="Attach file">&#128206;</button>
-                <input type="file" id="file-attach-input" multiple
-                       accept=".txt,.py,.js,.ts,.json,.csv,.md,.html,.css,.xml,.yaml,.yml,.log,.cfg,.ini,.toml,.sql,.sh,.bat,.ps1,.r,.java,.c,.cpp,.h,.hpp,.go,.rs,.rb,.php,.swift,.kt,.tsx,.jsx,.vue,.svelte,.lua,.pl,.ex,.hs,.scala,.tf,.proto,.graphql"
-                       style="display:none">
-                <div class="input-wrapper">
-                    <textarea id="chat-input" placeholder="interface://query > _" rows="1"></textarea>
+        <!-- Composer -->
+        <div class="composer">
+            <!-- Controls Row -->
+            <div class="controls">
+                <div class="control-group">
+                    <label>Adapter</label>
+                    <select id="adapter-select">
+                        <option value="auto">Auto</option>
+                        <option value="newton">Newton</option>
+                        <option value="davinci">DaVinci</option>
+                        <option value="empathy">Empathy</option>
+                        <option value="philosophy">Philosophy</option>
+                        <option value="quantum">Quantum</option>
+                        <option value="consciousness">Consciousness</option>
+                        <option value="multi_perspective">Multi-Perspective</option>
+                        <option value="systems_architecture">Systems</option>
+                        <option value="constraint_tracker">Constraint Tracker</option>
+                        <option value="orchestrator">Orchestrator</option>
+                    </select>
                 </div>
-                <button class="send-btn" id="send-btn" title="Send">&#9654;</button>
+                <div class="control-group">
+                    <label>Perspectives</label>
+                    <input type="range" id="max-adapters" min="1" max="3" value="2">
+                    <span id="max-adapters-value" class="range-value">2</span>
+                </div>
+                <button class="synth-btn" id="btn-synthesize"
+                        title="Run all reasoning perspectives at once and synthesize them into one answer">
+                    ◈ Synthesize all
+                </button>
+                <div class="control-group control-toggles">
+                    <label class="toggle-pill">
+                        <input type="checkbox" id="web-research-toggle"> <span>Web</span>
+                    </label>
+                    <label class="toggle-pill">
+                        <input type="checkbox" id="tts-toggle"> <span>Voice</span>
+                    </label>
+                    <select id="voice-select" title="Choose voice"></select>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="input-area">
+                <div class="attachment-previews" id="attachment-previews"></div>
+                <div class="input-row">
+                    <button class="mic-btn" id="mic-btn" title="Voice input">&#127908;</button>
+                    <button class="attach-btn" id="attach-btn" title="Attach file">&#128206;</button>
+                    <input type="file" id="file-attach-input" multiple
+                           accept=".txt,.py,.js,.ts,.json,.csv,.md,.html,.css,.xml,.yaml,.yml,.log,.cfg,.ini,.toml,.sql,.sh,.bat,.ps1,.r,.java,.c,.cpp,.h,.hpp,.go,.rs,.rb,.php,.swift,.kt,.tsx,.jsx,.vue,.svelte,.lua,.pl,.ex,.hs,.scala,.tf,.proto,.graphql"
+                           style="display:none">
+                    <div class="input-wrapper">
+                        <textarea id="chat-input" placeholder="Ask Codette anything…" rows="1"></textarea>
+                    </div>
+                    <button class="send-btn" id="send-btn" title="Send">&#9654;</button>
+                </div>
             </div>
         </div>
+    </main>
 
-        <!-- Status Bar -->
-        <div class="status-bar">
-            <div class="status-indicator">
-                <span class="status-dot" id="status-dot"></span>
-                <span id="status-text">Initializing...</span>
-            </div>
-            <div id="status-right"></div>
+    <!-- ░░ Instrument Dashboard ░░ -->
+    <aside class="side-panel" id="side-panel">
+        <div class="dash-head">
+            <span class="dash-head-title">Instruments</span>
+            <span class="dash-head-sub">live cognition telemetry</span>
         </div>
-    </div>
 
-    <!-- Side Panel (Cocoon Dashboard) -->
-    <div class="side-panel" id="side-panel">
-        <!-- Spiderweb Visualization -->
-        <div class="side-section">
-            <div class="side-section-title">Agent Network</div>
+        <!-- Spiderweb Visualization (hero) -->
+        <section class="dash-card dash-hero">
+            <div class="dash-card-title">Agent Network</div>
             <canvas id="spiderweb-canvas"></canvas>
-        </div>
+        </section>
 
-        <!-- Metrics -->
-        <div class="side-section">
-            <div class="side-section-title">Cocoon Metrics</div>
-            <div class="metric-row">
-                <span class="metric-label">&#915; Phase Coherence</span>
-                <span class="metric-value" id="metric-coherence">0.00</span>
+        <!-- Core Metrics -->
+        <section class="dash-card">
+            <div class="dash-card-title">Cocoon Metrics</div>
+            <div class="gauge-row">
+                <div class="gauge">
+                    <div class="gauge-value" id="metric-coherence">0.00</div>
+                    <div class="gauge-label">&#915; Coherence</div>
+                    <div class="meter"><div class="meter-fill" id="bar-coherence"
+                         style="width:0%;background:var(--philosophy)"></div></div>
+                </div>
+                <div class="gauge">
+                    <div class="gauge-value" id="metric-tension">0.00</div>
+                    <div class="gauge-label">&#958; Tension</div>
+                    <div class="meter"><div class="meter-fill" id="bar-tension"
+                         style="width:0%;background:var(--quantum)"></div></div>
+                </div>
+                <div class="gauge">
+                    <div class="gauge-value" id="metric-eta">--</div>
+                    <div class="gauge-label">&#951; Ethics</div>
+                    <div class="meter"><div class="meter-fill"
+                         style="width:0%;background:var(--philosophy)"></div></div>
+                </div>
             </div>
-            <div class="metric-bar">
-                <div class="metric-bar-fill" id="bar-coherence"
-                     style="width:0%;background:var(--philosophy)"></div>
-            </div>
-            <div class="metric-row" style="margin-top:10px">
-                <span class="metric-label">&#958; Epistemic Tension</span>
-                <span class="metric-value" id="metric-tension">0.00</span>
-            </div>
-            <div class="metric-bar">
-                <div class="metric-bar-fill" id="bar-tension"
-                     style="width:0%;background:var(--quantum)"></div>
-            </div>
-            <div class="metric-row" style="margin-top:10px">
-                <span class="metric-label">&#951; Ethical Alignment</span>
-                <span class="metric-value" id="metric-eta">--</span>
-            </div>
-        </div>
+        </section>
 
-        <div class="side-section">
-            <div class="side-section-title">Singularity Lab</div>
-            <p class="lab-copy">Analyze mixed continuous value and discrete suffering without smoothing singular events away.</p>
-            <label class="lab-label" for="value-mode">Mode</label>
-            <select id="value-mode" class="lab-select">
-                <option value="strict">strict</option>
-                <option value="bounded">bounded</option>
-                <option value="report_only">report_only</option>
-            </select>
-            <label class="lab-label" for="value-payload">Payload</label>
-            <textarea id="value-payload" class="lab-textarea" spellcheck="false">{
+        <!-- Perspective Coverage -->
+        <section class="dash-card">
+            <div class="dash-card-title">Perspective Coverage</div>
+            <div class="coverage-dots" id="coverage-dots"></div>
+        </section>
+
+        <!-- Cocoon Status -->
+        <section class="dash-card">
+            <div class="dash-card-title">Cocoon Status</div>
+            <div class="stat-grid">
+                <div class="stat"><span class="stat-num" id="cocoon-attractors">0</span><span class="stat-cap">&#128376; Attractors</span></div>
+                <div class="stat"><span class="stat-num" id="cocoon-glyphs">0</span><span class="stat-cap">&#128200; Glyphs</span></div>
+                <div class="stat"><span class="stat-num" id="cocoon-sessions">0</span><span class="stat-cap">&#128190; Sessions</span></div>
+                <div class="stat"><span class="stat-num" id="cocoon-encryption">--</span><span class="stat-cap">&#128274; Encryption</span></div>
+            </div>
+        </section>
+
+        <!-- Singularity Lab -->
+        <details class="dash-card dash-collapsible">
+            <summary class="dash-card-title">Singularity Lab</summary>
+            <div class="dash-card-body">
+                <p class="lab-copy">Analyze mixed continuous value and discrete suffering without smoothing singular events away.</p>
+                <label class="lab-label" for="value-mode">Mode</label>
+                <select id="value-mode" class="lab-select">
+                    <option value="strict">strict</option>
+                    <option value="bounded">bounded</option>
+                    <option value="report_only">report_only</option>
+                </select>
+                <label class="lab-label" for="value-payload">Payload</label>
+                <textarea id="value-payload" class="lab-textarea" spellcheck="false">{
   "intervals": [
     { "start": 0, "end": 10, "start_value": 3, "end_value": 4, "label": "baseline welfare" }
   ],
@@ -183,214 +227,192 @@
     { "at": 6, "label": "Infinite Subjective Terror", "impact": -1000, "probability": 1.0, "sensitivity": 1.0, "singularity": true }
   ]
 }</textarea>
-            <div class="lab-actions">
-                <button class="header-btn lab-btn" id="run-value-analysis" title="Run Event-Embedded Value analysis">Run</button>
-                <button class="header-btn lab-btn" id="load-value-example" title="Load a safer bounded example">Example</button>
+                <div class="lab-actions">
+                    <button class="lab-btn" id="run-value-analysis" title="Run Event-Embedded Value analysis">Run</button>
+                    <button class="lab-btn ghost" id="load-value-example" title="Load a safer bounded example">Example</button>
+                </div>
+                <pre id="value-analysis-output" class="lab-output">Awaiting analysis…</pre>
             </div>
-            <pre id="value-analysis-output" class="lab-output">Awaiting analysis...</pre>
-        </div>
-
-        <!-- Perspective Coverage -->
-        <div class="side-section">
-            <div class="side-section-title">Perspective Coverage</div>
-            <div class="coverage-dots" id="coverage-dots"></div>
-        </div>
-
-        <!-- Cocoon Status -->
-        <div class="side-section">
-            <div class="side-section-title">Cocoon Status</div>
-            <div class="metric-row">
-                <span class="metric-label">&#128274; Encryption</span>
-                <span class="metric-value" id="cocoon-encryption">--</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">&#128376; Attractors</span>
-                <span class="metric-value" id="cocoon-attractors">0</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">&#128200; Glyphs</span>
-                <span class="metric-value" id="cocoon-glyphs">0</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">&#128190; Sessions</span>
-                <span class="metric-value" id="cocoon-sessions">0</span>
-            </div>
-        </div>
+        </details>
 
         <!-- AEGIS Ethical Alignment -->
-        <div class="side-section" id="section-aegis" style="display:none">
-            <div class="side-section-title">AEGIS Ethics</div>
-            <div class="metric-row">
-                <span class="metric-label">&#951; Alignment</span>
-                <span class="metric-value" id="aegis-eta">--</span>
+        <details class="dash-card dash-collapsible" id="section-aegis" style="display:none">
+            <summary class="dash-card-title">AEGIS Ethics</summary>
+            <div class="dash-card-body">
+                <div class="metric-row">
+                    <span class="metric-label">&#951; Alignment</span>
+                    <span class="metric-value" id="aegis-eta">--</span>
+                </div>
+                <div class="meter"><div class="meter-fill" id="bar-aegis-eta"
+                     style="width:0%;background:var(--philosophy)"></div></div>
+                <div class="metric-row" style="margin-top:8px">
+                    <span class="metric-label">Trend</span>
+                    <span class="metric-value" id="aegis-trend">--</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Evaluations</span>
+                    <span class="metric-value" id="aegis-evals">0</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Vetoes</span>
+                    <span class="metric-value" id="aegis-vetoes">0</span>
+                </div>
             </div>
-            <div class="metric-bar">
-                <div class="metric-bar-fill" id="bar-aegis-eta"
-                     style="width:0%;background:var(--philosophy)"></div>
-            </div>
-            <div class="metric-row" style="margin-top:8px">
-                <span class="metric-label">Trend</span>
-                <span class="metric-value" id="aegis-trend">--</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">Evaluations</span>
-                <span class="metric-value" id="aegis-evals">0</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">Vetoes</span>
-                <span class="metric-value" id="aegis-vetoes">0</span>
-            </div>
-        </div>
+        </details>
 
         <!-- Governor & Memory Dashboard -->
-        <div class="side-section" id="section-governor">
-            <div class="side-section-title">Behavior Governor</div>
-            <div class="metric-row">
-                <span class="metric-label">Identity Confidence</span>
-                <span class="metric-value" id="gov-identity-conf">--</span>
+        <details class="dash-card dash-collapsible" id="section-governor" open>
+            <summary class="dash-card-title">Behavior Governor</summary>
+            <div class="dash-card-body">
+                <div class="metric-row">
+                    <span class="metric-label">Identity Confidence</span>
+                    <span class="metric-value" id="gov-identity-conf">--</span>
+                </div>
+                <div class="meter"><div class="meter-fill" id="bar-identity-conf"
+                     style="width:0%;background:var(--empathy)"></div></div>
+                <div class="metric-row" style="margin-top:8px">
+                    <span class="metric-label">Answer Detection</span>
+                    <span class="metric-value" id="gov-answer-rate">--</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Evaluations</span>
+                    <span class="metric-value" id="gov-evals">0</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Memory Cocoons</span>
+                    <span class="metric-value" id="gov-memory-count">0</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Cache Hit Rate</span>
+                    <span class="metric-value" id="gov-cache-rate">--</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Cognitive Load</span>
+                    <span class="metric-value" id="gov-load">--</span>
+                </div>
             </div>
-            <div class="metric-bar">
-                <div class="metric-bar-fill" id="bar-identity-conf"
-                     style="width:0%;background:var(--empathy)"></div>
-            </div>
-            <div class="metric-row" style="margin-top:8px">
-                <span class="metric-label">Answer Detection</span>
-                <span class="metric-value" id="gov-answer-rate">--</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">Evaluations</span>
-                <span class="metric-value" id="gov-evals">0</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">Memory Cocoons</span>
-                <span class="metric-value" id="gov-memory-count">0</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">Cache Hit Rate</span>
-                <span class="metric-value" id="gov-cache-rate">--</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">Cognitive Load</span>
-                <span class="metric-value" id="gov-load">--</span>
-            </div>
-        </div>
+        </details>
 
-        <div class="side-section" id="section-memory-markers">
-            <div class="side-section-title">Session Recall</div>
-            <div class="continuity-summary" id="continuity-summary">No active continuity summary yet.</div>
-            <div class="decision-landmarks" id="decision-landmarks">
-                <div class="memory-marker-empty">No decision landmarks yet.</div>
+        <!-- Session Recall -->
+        <details class="dash-card dash-collapsible" id="section-memory-markers" open>
+            <summary class="dash-card-title">Session Recall</summary>
+            <div class="dash-card-body">
+                <div class="continuity-summary" id="continuity-summary">No active continuity summary yet.</div>
+                <div class="decision-landmarks" id="decision-landmarks">
+                    <div class="memory-marker-empty">No decision landmarks yet.</div>
+                </div>
+                <div class="memory-markers" id="memory-markers">
+                    <div class="memory-marker-empty">No recent markers yet.</div>
+                </div>
             </div>
-            <div class="memory-markers" id="memory-markers">
-                <div class="memory-marker-empty">No recent markers yet.</div>
-            </div>
-        </div>
+        </details>
 
         <!-- Nexus Signal Intelligence -->
-        <div class="side-section" id="section-nexus" style="display:none">
-            <div class="side-section-title">Nexus Signals</div>
-            <div class="metric-row">
-                <span class="metric-label">Processed</span>
-                <span class="metric-value" id="nexus-processed">0</span>
+        <details class="dash-card dash-collapsible" id="section-nexus" style="display:none">
+            <summary class="dash-card-title">Nexus Signals</summary>
+            <div class="dash-card-body">
+                <div class="metric-row">
+                    <span class="metric-label">Processed</span>
+                    <span class="metric-value" id="nexus-processed">0</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Interventions</span>
+                    <span class="metric-value" id="nexus-interventions">0</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Rate</span>
+                    <span class="metric-value" id="nexus-rate">0%</span>
+                </div>
+                <div class="nexus-risk-dots" id="nexus-risks"></div>
             </div>
-            <div class="metric-row">
-                <span class="metric-label">Interventions</span>
-                <span class="metric-value" id="nexus-interventions">0</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">Rate</span>
-                <span class="metric-value" id="nexus-rate">0%</span>
-            </div>
-            <div class="nexus-risk-dots" id="nexus-risks"></div>
-        </div>
+        </details>
 
         <!-- Resonant Continuity -->
-        <div class="side-section" id="section-resonance" style="display:none">
-            <div class="side-section-title">Resonance &#936;<sub>r</sub></div>
-            <div class="metric-row">
-                <span class="metric-label">&#936;<sub>r</sub> Wavefunction</span>
-                <span class="metric-value" id="resonance-psi">--</span>
+        <details class="dash-card dash-collapsible" id="section-resonance" style="display:none">
+            <summary class="dash-card-title">Resonance &#936;<sub>r</sub></summary>
+            <div class="dash-card-body">
+                <div class="metric-row">
+                    <span class="metric-label">&#936;<sub>r</sub> Wavefunction</span>
+                    <span class="metric-value" id="resonance-psi">--</span>
+                </div>
+                <div class="meter"><div class="meter-fill" id="bar-resonance-psi"
+                     style="width:0%;background:var(--empathy)"></div></div>
+                <div class="metric-row" style="margin-top:8px">
+                    <span class="metric-label">Quality</span>
+                    <span class="metric-value" id="resonance-quality">--</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Convergence</span>
+                    <span class="metric-value" id="resonance-convergence">--</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Stability</span>
+                    <span class="metric-value" id="resonance-stability">--</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label" id="resonance-peak-label">Peak</span>
+                    <span class="metric-value" id="resonance-peak">--</span>
+                </div>
             </div>
-            <div class="metric-bar">
-                <div class="metric-bar-fill" id="bar-resonance-psi"
-                     style="width:0%;background:var(--empathy)"></div>
-            </div>
-            <div class="metric-row" style="margin-top:8px">
-                <span class="metric-label">Quality</span>
-                <span class="metric-value" id="resonance-quality">--</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">Convergence</span>
-                <span class="metric-value" id="resonance-convergence">--</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">Stability</span>
-                <span class="metric-value" id="resonance-stability">--</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label" id="resonance-peak-label">Peak</span>
-                <span class="metric-value" id="resonance-peak">--</span>
-            </div>
-        </div>
+        </details>
 
         <!-- Living Memory -->
-        <div class="side-section" id="section-memory" style="display:none">
-            <div class="side-section-title">Living Memory</div>
-            <div class="metric-row">
-                <span class="metric-label">Cocoons</span>
-                <span class="metric-value" id="memory-count">0</span>
+        <details class="dash-card dash-collapsible" id="section-memory" style="display:none">
+            <summary class="dash-card-title">Living Memory</summary>
+            <div class="dash-card-body">
+                <div class="metric-row">
+                    <span class="metric-label">Cocoons</span>
+                    <span class="metric-value" id="memory-count">0</span>
+                </div>
+                <div class="memory-emotions" id="memory-emotions"></div>
             </div>
-            <div class="memory-emotions" id="memory-emotions"></div>
-        </div>
+        </details>
 
         <!-- Drift Analysis -->
-        <div class="side-section" id="drift-panel" style="display:none">
-            <div class="side-section-title">Resonant Drift</div>
-            <div class="metric-row">
-                <span class="metric-label">&#968;_r</span>
-                <span class="metric-value" id="psi-value">--</span>
+        <details class="dash-card dash-collapsible" id="drift-panel" style="display:none">
+            <summary class="dash-card-title">Resonant Drift</summary>
+            <div class="dash-card-body">
+                <div class="metric-row">
+                    <span class="metric-label">&#968;_r</span>
+                    <span class="metric-value" id="psi-value">--</span>
+                </div>
+                <div class="metric-row" style="margin-top:6px">
+                    <span class="metric-label">State</span>
+                    <span class="metric-value" id="drift-state">--</span>
+                </div>
+                <div class="metric-row" style="margin-top:6px">
+                    <span class="metric-label">&#949; Tension</span>
+                    <span class="metric-value" id="drift-epsilon">--</span>
+                </div>
+                <div class="metric-row" style="margin-top:6px">
+                    <span class="metric-label">&#947; Coherence</span>
+                    <span class="metric-value" id="drift-gamma">--</span>
+                </div>
+                <canvas id="drift-psi-sparkline" width="200" height="36"
+                    style="display:block;margin:8px auto 4px;opacity:0.85"></canvas>
+                <div class="drift-hooks-label">Open Hooks</div>
+                <ul id="hook-list" class="hook-list"></ul>
             </div>
-            <div class="metric-row" style="margin-top:6px">
-                <span class="metric-label">State</span>
-                <span class="metric-value" id="drift-state">--</span>
-            </div>
-            <div class="metric-row" style="margin-top:6px">
-                <span class="metric-label">&#949; Tension</span>
-                <span class="metric-value" id="drift-epsilon">--</span>
-            </div>
-            <div class="metric-row" style="margin-top:6px">
-                <span class="metric-label">&#947; Coherence</span>
-                <span class="metric-value" id="drift-gamma">--</span>
-            </div>
-            <canvas id="drift-psi-sparkline" width="200" height="36"
-                style="display:block;margin:8px auto 4px;opacity:0.85"></canvas>
-            <div style="font-size:10px;color:#666;margin:4px 0 2px">Open Hooks</div>
-            <ul id="hook-list" style="margin:0;padding:0 0 0 2px;list-style:none;
-                font-size:11px;line-height:1.6;max-height:120px;overflow-y:auto"></ul>
-        </div>
+        </details>
 
         <!-- Guardian -->
-        <div class="side-section" id="section-guardian" style="display:none">
-            <div class="side-section-title">Guardian</div>
-            <div class="metric-row">
-                <span class="metric-label">Ethics Score</span>
-                <span class="metric-value" id="guardian-ethics">--</span>
+        <details class="dash-card dash-collapsible" id="section-guardian" style="display:none">
+            <summary class="dash-card-title">Guardian</summary>
+            <div class="dash-card-body">
+                <div class="metric-row">
+                    <span class="metric-label">Ethics Score</span>
+                    <span class="metric-value" id="guardian-ethics">--</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Trust Interactions</span>
+                    <span class="metric-value" id="guardian-trust">0</span>
+                </div>
             </div>
-            <div class="metric-row">
-                <span class="metric-label">Trust Interactions</span>
-                <span class="metric-value" id="guardian-trust">0</span>
-            </div>
-        </div>
-
-        <!-- Recent Sessions -->
-        <div class="side-section" style="flex:1;min-height:0;overflow-y:auto">
-            <div class="side-section-title">Recent Sessions</div>
-            <div id="session-list"></div>
-        </div>
-    </div>
+        </details>
+    </aside>
 </div>
 
-<script src="spiderweb.js"></script>
-<script src="app.js"></script>
+<script src="spiderweb.js?v=20260615-2"></script>
+<script src="app.js?v=20260615-2"></script>
 </body>
 </html>

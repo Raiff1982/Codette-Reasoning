@@ -779,11 +779,11 @@ class ForgeEngine:
         # Sycophancy scan on final synthesis (cross-turn agreement loop is intentional)
         if getattr(self, '_sycophancy_guard', None):
             try:
-                _syco = self._sycophancy_guard.scan(synthesized_response)
+                _syco = self._sycophancy_guard.scan(synthesized_response, query=concept)
                 if _syco["action"] in ("revise", "block"):
                     logger.warning(
                         f"[SycophancyGuard] action={_syco['action']} score={_syco['score']:.2f} "
-                        f"hits={len(_syco['hits'])}"
+                        f"hits={len(_syco['hits'])} deflection={_syco.get('deflection_detected', False)}"
                     )
                     if _syco["action"] == "revise":
                         synthesized_response = _syco["clean_text"] or synthesized_response
@@ -868,7 +868,7 @@ class ForgeEngine:
 
         if getattr(self, 'guardian', None):
             try:
-                valid, details = self.guardian.validate(synthesized_response)
+                valid, details = self.guardian.validate(synthesized_response, query=concept)
                 if not valid:
                     logger.warning(f"[forge_single_safe] Guardian warning: {details}")
                 safety_notes['guardian_valid'] = valid
@@ -1710,10 +1710,11 @@ class ForgeEngine:
         # Sycophancy scan on final synthesis
         if getattr(self, '_sycophancy_guard', None) and synthesis:
             try:
-                _syco = self._sycophancy_guard.scan(synthesis)
+                _syco = self._sycophancy_guard.scan(synthesis, query=concept)
                 if _syco["action"] in ("revise", "block"):
                     logger.warning(
-                        f"[SycophancyGuard] action={_syco['action']} score={_syco['score']:.2f}"
+                        f"[SycophancyGuard] action={_syco['action']} score={_syco['score']:.2f} "
+                        f"deflection={_syco.get('deflection_detected', False)}"
                     )
                     if _syco["action"] == "revise":
                         synthesis = _syco["clean_text"] or synthesis
@@ -1902,7 +1903,7 @@ class ForgeEngine:
         guardian_details = {}
         if hasattr(self, 'guardian') and self.guardian:
             try:
-                guardian_valid, guardian_details = self.guardian.validate(synthesis)
+                guardian_valid, guardian_details = self.guardian.validate(synthesis, query=concept)
                 logger.info(f"  Guardian validation: {'✓ pass' if guardian_valid else '✗ reject'}")
                 logger.info(f"  Details: {guardian_details}")
             except Exception as e:

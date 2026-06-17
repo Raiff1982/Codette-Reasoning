@@ -681,8 +681,51 @@ class CodetteForgeBridge:
                     }
                     _problem_type = _DOMAIN_TO_PROBLEM_TYPE.get(domain, "unknown")
 
+                    # Derive metrics from available runtime data rather than
+                    # leaving them as schema defaults (which produce identical
+                    # values across every lightweight cocoon).
+                    _epsilon = (
+                        sum(pairwise_tensions.values()) / len(pairwise_tensions)
+                        if pairwise_tensions else 0.35
+                    )
+                    _gamma = round(max(0.0, min(1.0, 1.0 - _epsilon)), 4)
+                    _epsilon = round(_epsilon, 4)
+
+                    _complexity_to_importance = {
+                        "simple": 2.0, "low": 2.0,
+                        "medium": 5.0, "moderate": 5.0,
+                        "complex": 8.0, "high": 8.0,
+                    }
+                    _importance = _complexity_to_importance.get(
+                        str(complexity).lower(), 5.0
+                    )
+
+                    _text_lower = response_text.lower()
+                    _valence = "curiosity"
+                    _valence_map = [
+                        ("gratitude",    ["thank", "grateful", "appreciat"]),
+                        ("trust",        ["trust", "reliable", "consistent", "honest"]),
+                        ("determination",["determin", "persist", "resolv", "commit"]),
+                        ("empathy",      ["feel", "empathy", "compassion", "human", "relat"]),
+                        ("fear",         ["danger", "risk", "threat", "unsafe", "harm"]),
+                        ("frustration",  ["frustrat", "disappoint", "fail", "error", "wrong"]),
+                        ("confusion",    ["confus", "unclear", "uncertain", "ambiguous"]),
+                        ("surprise",     ["unexpect", "surpris", "sudden", "unusual"]),
+                        ("joy",          ["joy", "excit", "celebrat", "delight", "happy"]),
+                        ("awe",          ["awe", "profound", "vast", "extraordinary", "amazing"]),
+                        ("insight",      ["insight", "reveal", "clarif", "discover", "understand"]),
+                        ("curiosity",    ["question", "wonder", "curious", "how", "why"]),
+                    ]
+                    for _v, _keywords in _valence_map:
+                        if any(kw in _text_lower for kw in _keywords):
+                            _valence = _v
+                            break
+
                     v3_cocoon = build_cocoon_v3(
-                        query=query,
+                        # user_query, not query: the enriched query contains
+                        # injected context blocks (continuity summary, coherence
+                        # anchors, constraints) that pollute the cocoon record.
+                        query=user_query,
                         response_text=response_text,
                         response_summary=response_text[:200],
                         execution_path="adapter_lightweight",
@@ -694,6 +737,10 @@ class CodetteForgeBridge:
                         perspective_collapse_detected=perspective_collapse_detected,
                         pairwise_tensions=pairwise_tensions,
                         user_response_text=response_text,
+                        emotional_valence=_valence,
+                        importance_score=_importance,
+                        epsilon_value=_epsilon,
+                        gamma_coherence=_gamma,
                         metrics_population_status="partial",
                     )
 
@@ -716,7 +763,7 @@ class CodetteForgeBridge:
                     )
 
                 self.forge.cocooner.wrap_reasoning(
-                    query=query,
+                    query=user_query,
                     response=response_text,
                     adapter=str(result.get("adapter", "unknown")),
                     metadata=cocoon_meta,
@@ -730,7 +777,7 @@ class CodetteForgeBridge:
                         _sync_cocoon(v3_cocoon)
                     else:
                         _sync_cocoon({
-                            "query": query,
+                            "query": user_query,
                             "response": response_text,
                             "adapter": str(result.get("adapter", "unknown")),
                             **cocoon_meta,
@@ -796,7 +843,7 @@ class CodetteForgeBridge:
         # 10. PERMANENT LOCKS: Universal self-check on EVERY response
         try:
             from self_correction import universal_self_check
-            result["response"], lock_issues = universal_self_check(result["response"])
+            result["response"], lock_issues = universal_self_check(result["response"], query=user_query)
             if lock_issues:
                 result["lock_fixes"] = lock_issues
         except ImportError:
@@ -810,12 +857,32 @@ class CodetteForgeBridge:
 
     @staticmethod
     def _extract_primary_user_query(query: str) -> str:
-        """Strip server-injected memory sections before intent-sensitive routing."""
+        """Strip server-injected context before intent-sensitive routing/storage.
+
+        Injected blocks come in two shapes:
+          - PREPENDED: [COHERENCE ANCHORS ...] / [SESSION CONSTRAINTS] headers
+            followed by "- ..." bullet lines, ending at a non-bullet line.
+          - APPENDED: "\\n\\n---\\n# SECTION" memory/continuity sections.
+        Both must be removed so cocoons store the user's actual words.
+        """
         if not query:
             return ""
+
+        # Strip prepended bracketed blocks (may stack: coherence + constraints)
+        _block_re = re.compile(
+            r"^\[(?:COHERENCE ANCHORS|SESSION CONSTRAINTS)[^\]\n]*\]\s*\n"
+            r"(?:- [^\n]*\n)*\n*",
+        )
+        prev = None
+        while prev != query:
+            prev = query
+            query = _block_re.sub("", query, count=1)
+
+        # Strip appended memory sections
         sentinel = "\n\n---\n"
         if sentinel in query:
-            return query.split(sentinel, 1)[0].strip()
+            query = query.split(sentinel, 1)[0]
+
         return query.strip()
 
     def _apply_directness(self, response: str, query: str) -> str:
@@ -880,10 +947,33 @@ class CodetteForgeBridge:
             (r"Your question bridges gaps between [^\n]{0,100}\.\s*"),
             (r"You(?:'re| are) (?:seeking|looking for) clarity (?:on|about) [^\n]{0,80}\.\s*"),
             (r"You want to understand [^\n]{0,80}, so let(?:'s| us) break it down[^.]{0,100}\.\s*"),
+            # "patterns reveal deeper structure" — empathy/philosophy bleed ───────
+            (r"[^\n]{0,60}patterns? reveal(?:s|ed)? (?:deeper|more|richer|underlying) structure[^.]{0,100}\.\s*"),
+            # "careful examination reveals connections" ───────────────────────────
+            (r"[Cc]areful (?:examination|analysis|attention|review) reveals? (?:connections?|relationships?|patterns?|insights?)[^.]{0,120}\.\s*"),
+            # "depth and breadth" filler ──────────────────────────────────────────
+            (r"[^\n.]{0,40}connections? between depth and breadth[^.]{0,80}\.\s*"),
+            # "analytical thinking enhances understanding" ────────────────────────
+            (r"(?:analytical|critical|deeper|careful) thinking (?:enhances?|improves?|strengthens?|deepens?) (?:understanding|analysis|insight|comprehension)[^.]{0,80}\.\s*"),
+            # "reveals deeper/broader insights into X" ───────────────────────────
+            (r"reveals? (?:deeper|broader|richer|more complex) insights? into[^.]{0,100}\.\s*"),
+            # "precision matters in analysis" / "patterns reveal structure" filler ─
+            (r"[Pp]recision (?:matters?|is (?:crucial|important|key)) (?:in|for|when) (?:analysis|reasoning|understanding)[^.]{0,80}\.\s*"),
+            # "examining X through multiple lenses" ──────────────────────────────
+            (r"[Ee]xamining [^\n]{0,60} through (?:multiple|these|several) (?:lenses?|perspectives?|frameworks?)[^.]{0,120}\.\s*"),
         ]
         for _pat in _boilerplate:
             response = re.sub(_pat, "", response, flags=re.IGNORECASE)
 
+        # ── GPQA context bleed ───────────────────────────────────────────────
+        # After running the GPQA benchmark the model has "The correct answer is (X)"
+        # baked into its recent context. Strip that format from conversational
+        # responses where the query contains no multiple-choice options.
+        if not re.search(r'\([ABCD]\)', query or ""):
+            response = re.sub(
+                r'^The correct answer is \(?[ABCD]\)?[^.]{0,200}\.\s*',
+                "", response, flags=re.IGNORECASE,
+            )
 
         # ── Strip adapter-label meta-commentary ──────────────────────────────
         # Synthesis sometimes includes "empathy: [reasoning]" or
@@ -969,10 +1059,109 @@ class CodetteForgeBridge:
         for pat in trailing_patterns:
             response = re.sub(pat, "", response, count=1, flags=re.IGNORECASE)
 
+        # ── Template-density sentence filter ─────────────────────────────────
+        # The regex scrub above only catches exact phrasings; trained-in
+        # templates regenerate with varied wording ("show several layers of
+        # complexity", "yields valuable insights", "multiple angles of
+        # analysis").  Instead of pattern whack-a-mole, score each sentence
+        # for template-marker density and drop sentences that are mostly
+        # filler.  Markers that appear in the user's own query are exempt —
+        # if Jonathan asks about "conflict resolution engines", sentences
+        # discussing them are content, not contamination.
+        response = self._strip_template_sentences(response, query)
+
         # Collapse excessive whitespace (more than 2 newlines)
         response = re.sub(r'\n{3,}', '\n\n', response)
 
         return response.strip()
+
+    # Template marker FAMILIES (regex). The synthetic training templates
+    # regenerate with varied wording ("revealing insights" -> "revealing new
+    # insights", "layers of complexity" -> "deeper layers of understanding"),
+    # so exact substrings lose the arms race. Each regex matches a family of
+    # phrasings; individually weak, 2+ in one sentence = boilerplate.
+    _TEMPLATE_MARKER_PATTERNS = [re.compile(p, re.IGNORECASE) for p in (
+        r"patterns? of understanding",
+        r"reveal(?:ing|s|ed)?\s+(?:\w+\s+)?insights?",          # revealing (new) insights
+        r"(?:deeper|several|multiple|new)\s+layers?\s+of\s+\w+", # layers of complexity/understanding
+        r"each layer of (?:examination|analysis|understanding)",
+        r"multi-?layered (?:approach|analysis|understanding)e?s?",
+        r"core principles?",
+        r"deeper (?:structure|meaning|understanding)s?",
+        r"broader (?:themes?|patterns?|implications?)",
+        r"multiple (?:angles?|perspectives?|lenses?|viewpoints?)",
+        r"valuable insights?",
+        r"worth exploring",
+        r"key (?:observation|takeaway|insight)s?",
+        r"careful (?:examination|analysis|approach|consideration)",
+        r"in conjunction with other perspectives?",
+        r"more complete (?:answers?|understanding|picture)",
+        r"insight generators?",
+        r"insights? emerge",
+        r"fundamental (?:patterns?|principles?)",
+        r"seemingly straightforward",
+        r"requires? (?:attention|examination) from",
+        r"requires? us to (?:examine|consider|explore)",
+        r"angles? of analysis",
+        r"(?:domains?|fields?|areas?) intersect",
+        r"enrich(?:es|ing)? each other",
+        r"connect(?:s|ing)? directly to",
+        r"demonstrates? how different",
+        r"essential for (?:\w+\s+)?understanding",
+        r"(?:this|the) (?:example|case|pattern) illustrates",
+        r"your \w+ (?:approach|question|thinking|engagement) (?:to [\w\s]{1,25} )?is (?:noteworthy|commendable|admirable|insightful|impressive)",
+        r"productive exchange",
+        r"prevent gridlock",
+        r"mediation pathways?",
+        r"detect impasses?",
+        r"conflict resolution engines?",
+        r"epistemic tension",
+        r"perspectives? converge",
+        r"synthesis reveals?",
+    )]
+
+    # Honest fallback when an entire response is template filler.  A canned
+    # admission beats six sentences of trained-in word salad reaching the user.
+    _FULL_CONTAMINATION_FALLBACK = (
+        "I started generating an answer but caught myself producing filler "
+        "instead of substance. Could you give me a bit more to anchor on — "
+        "a specific aspect or example you want me to address?"
+    )
+
+    def _strip_template_sentences(self, response: str, query: str) -> str:
+        """Drop sentences with >= 2 template markers (density-based scrub).
+
+        Markers present in the user's query are exempted so genuine answers
+        about those topics survive.  If EVERY sentence is template-dense the
+        response carries no information at all — replace it with an honest
+        fallback rather than letting word salad through.
+        """
+        q_text = query or ""
+        # Markers that fire on the user's own query are exempt
+        active_markers = [p for p in self._TEMPLATE_MARKER_PATTERNS
+                          if not p.search(q_text)]
+
+        sentences = re.split(r'(?<=[.!?])\s+', response)
+        if len(sentences) <= 1:
+            return response
+
+        kept = []
+        dropped = 0
+        for sent in sentences:
+            hits = sum(1 for p in active_markers if p.search(sent))
+            if hits >= 2:
+                dropped += 1
+                continue
+            kept.append(sent)
+
+        if not kept:
+            # Fully contaminated — zero informational content survived.
+            print(f"  [SCRUB] FULL template contamination: all {dropped} "
+                  f"sentences dropped, using honest fallback", flush=True)
+            return self._FULL_CONTAMINATION_FALLBACK
+        if dropped and self.verbose:
+            print(f"  [SCRUB] Dropped {dropped} template-dense sentence(s)")
+        return " ".join(kept)
 
     @staticmethod
     def _precognitive_aegis_check(query: str) -> dict | None:
@@ -1136,7 +1325,18 @@ class CodetteForgeBridge:
         # Domain keywords
         domains = {
             "physics": ["force", "energy", "velocity", "gravity", "motion", "light", "speed",
-                       "particle", "entropy", "time arrow", "quantum", "physics"],
+                       "particle", "entropy", "time arrow", "quantum", "physics",
+                       "thermodynamics", "electromagnetic", "mechanics", "kinematics",
+                       "friction", "momentum", "oscillation", "wave"],
+            "chemistry": ["chemistry", "chemical", "reaction", "compound", "molecule",
+                         "molecular", "moles", "stoichiometry", "concentration",
+                         "acid", "base", "equilibrium", "enthalpy", "entropy",
+                         "gibbs", "electron", "ion", "periodic", "element",
+                         "oxidation", "reduction", "titration", "catalyst", "bond"],
+            "biology": ["biology", "biological", "dna", "rna", "protein", "enzyme",
+                       "cell", "organism", "gene", "genetics", "evolution",
+                       "metabolism", "atp", "photosynthesis", "mitosis",
+                       "bacteria", "virus", "species", "ecology", "anatomy"],
             "ethics": ["moral", "right", "wrong", "should", "ethical", "justice", "fair",
                       "duty", "consequence", "utilitarian", "virtue", "ethics", "lie", "save"],
             "consciousness": ["conscious", "awareness", "qualia", "mind", "experience",

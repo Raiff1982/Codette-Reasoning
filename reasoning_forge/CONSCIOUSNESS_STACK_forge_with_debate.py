@@ -14,6 +14,8 @@ The 7-Layer Consciousness Stack:
 7. Return           → Output clean response or safe fallback
 """
 
+from reasoning_forge.authored_intent import intent_from_synthesis
+
 # PASTE THIS AS THE NEW forge_with_debate() METHOD
 
 
@@ -98,7 +100,7 @@ def forge_with_debate(
     if hasattr(self, 'cocoon_stability'):
         try:
             # Simple check: if synthesis should halt debate
-            is_stable = not self.cocoon_stability.should_halt_debate({"synthesis": synthesis})
+            is_stable = self.cocoon_stability.check_text_stable(synthesis)
             logger.info(f"  Stability: {'✓ stable' if is_stable else '✗ unstable'}")
             if not is_stable:
                 logger.warning("  Cocoon stability check triggered halt")
@@ -200,9 +202,19 @@ def forge_with_debate(
         except Exception as e:
             logger.debug(f"  Memory storage failed: {e}")
 
+    # Build structured intent — separates cognition from LLM verbalization
+    intent = intent_from_synthesis(
+        synthesis,
+        aegis_score=float(intent_vector.get("ethics_alignment", 1.0)),
+        gamma=float(intent_vector.get("coherence", 1.0)),
+        intent_risk=intent_vector.get("pre_corruption_risk", "low"),
+    )
+
     return {
         "role": "assistant",
         "content": synthesis,
+        "verbalization_prompt": intent.to_verbalization_prompt(),
+        "intent": intent.to_dict(),
         "metadata": {
             "mode": "consciousness_stack",
             "layers_passed": 7,
@@ -212,5 +224,8 @@ def forge_with_debate(
             "intent_risk": intent_vector.get("pre_corruption_risk", "unknown"),
             "prior_insights": len(prior_insights),
             "synthesis_length": len(synthesis),
+            "ethical_alignment": intent.ethical_alignment,
+            "confidence": intent.confidence,
+            "tone": intent.tone,
         }
     }
