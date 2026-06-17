@@ -1,0 +1,570 @@
+{
+  "model": "codette/multi-2adapt",
+  "dataset": "gpqa_diamond.csv",
+  "mode": "0shot",
+  "accuracy": 0.3188,
+  "correct": 22,
+  "total": 69,
+  "parse_failures": 0,
+  "note": "Partial run \u2014 server froze on row 69 due to RAM pressure (96.5% memory). Killed at row 69/198.",
+  "baselines": {
+    "random": 0.25,
+    "gpt4_zero_shot": 0.39,
+    "claude_opus_3": 0.5,
+    "human_expert": 0.65
+  },
+  "results": [
+    {
+      "row": 0,
+      "correct": false,
+      "predicted": "D",
+      "answer_index": 3,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted D]"
+    },
+    {
+      "row": 1,
+      "correct": false,
+      "predicted": "B",
+      "answer_index": 1,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted B]"
+    },
+    {
+      "row": 2,
+      "correct": false,
+      "predicted": "A",
+      "answer_index": 0,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted A]"
+    },
+    {
+      "row": 3,
+      "correct": false,
+      "predicted": "C",
+      "answer_index": 2,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted C]"
+    },
+    {
+      "row": 4,
+      "correct": true,
+      "predicted": "C",
+      "answer_index": 2,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted C]"
+    },
+    {
+      "row": 5,
+      "correct": false,
+      "predicted": "A",
+      "answer_index": 0,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted A]"
+    },
+    {
+      "row": 6,
+      "correct": false,
+      "predicted": "B",
+      "answer_index": 1,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted B]"
+    },
+    {
+      "row": 7,
+      "correct": false,
+      "predicted": "A",
+      "answer_index": 0,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted A]"
+    },
+    {
+      "row": 8,
+      "correct": true,
+      "predicted": "D",
+      "answer_index": 3,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted D]"
+    },
+    {
+      "row": 9,
+      "correct": true,
+      "predicted": "B",
+      "answer_index": 1,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted B]"
+    },
+    {
+      "row": 10,
+      "correct": false,
+      "predicted": "A",
+      "answer_index": 0,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted A]"
+    },
+    {
+      "row": 11,
+      "correct": true,
+      "predicted": "A",
+      "answer_index": 0,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted A]"
+    },
+    {
+      "row": 12,
+      "correct": true,
+      "predicted": "A",
+      "answer_index": 0,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted A]"
+    },
+    {
+      "row": 13,
+      "correct": false,
+      "predicted": "C",
+      "answer_index": 2,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted C]"
+    },
+    {
+      "row": 14,
+      "correct": true,
+      "predicted": "C",
+      "answer_index": 2,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted C]"
+    },
+    {
+      "row": 15,
+      "correct": false,
+      "predicted": "C",
+      "answer_index": 2,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted C]"
+    },
+    {
+      "row": 16,
+      "correct": true,
+      "predicted": "B",
+      "answer_index": 1,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted B]"
+    },
+    {
+      "row": 17,
+      "correct": false,
+      "predicted": "C",
+      "answer_index": 2,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted C]"
+    },
+    {
+      "row": 18,
+      "correct": false,
+      "predicted": "B",
+      "answer_index": 1,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted B]"
+    },
+    {
+      "row": 19,
+      "correct": true,
+      "predicted": "D",
+      "answer_index": 3,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted D]"
+    },
+    {
+      "row": 20,
+      "correct": false,
+      "predicted": "D",
+      "answer_index": 3,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted D]"
+    },
+    {
+      "row": 21,
+      "correct": false,
+      "predicted": "C",
+      "answer_index": 2,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted C]"
+    },
+    {
+      "row": 22,
+      "correct": false,
+      "predicted": "D",
+      "answer_index": 3,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted D]"
+    },
+    {
+      "row": 23,
+      "correct": false,
+      "predicted": "A",
+      "answer_index": 0,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted A]"
+    },
+    {
+      "row": 24,
+      "correct": false,
+      "predicted": "C",
+      "answer_index": 2,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted C]"
+    },
+    {
+      "row": 25,
+      "correct": false,
+      "predicted": "D",
+      "answer_index": 3,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted D]"
+    },
+    {
+      "row": 26,
+      "correct": false,
+      "predicted": "B",
+      "answer_index": 1,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted B]"
+    },
+    {
+      "row": 27,
+      "correct": false,
+      "predicted": "A",
+      "answer_index": 0,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted A]"
+    },
+    {
+      "row": 28,
+      "correct": false,
+      "predicted": "B",
+      "answer_index": 1,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted B]"
+    },
+    {
+      "row": 29,
+      "correct": false,
+      "predicted": "C",
+      "answer_index": 2,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted C]"
+    },
+    {
+      "row": 30,
+      "correct": false,
+      "predicted": "B",
+      "answer_index": 1,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted B]"
+    },
+    {
+      "row": 31,
+      "correct": false,
+      "predicted": "A",
+      "answer_index": 0,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted A]"
+    },
+    {
+      "row": 32,
+      "correct": false,
+      "predicted": "A",
+      "answer_index": 0,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted A]"
+    },
+    {
+      "row": 33,
+      "correct": false,
+      "predicted": "A",
+      "answer_index": 0,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted A]"
+    },
+    {
+      "row": 34,
+      "correct": false,
+      "predicted": "C",
+      "answer_index": 2,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted C]"
+    },
+    {
+      "row": 35,
+      "correct": true,
+      "predicted": "C",
+      "answer_index": 2,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted C]"
+    },
+    {
+      "row": 36,
+      "correct": true,
+      "predicted": "D",
+      "answer_index": 3,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted D]"
+    },
+    {
+      "row": 37,
+      "correct": false,
+      "predicted": "C",
+      "answer_index": 2,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted C]"
+    },
+    {
+      "row": 38,
+      "correct": true,
+      "predicted": "C",
+      "answer_index": 2,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted C]"
+    },
+    {
+      "row": 39,
+      "correct": false,
+      "predicted": "B",
+      "answer_index": 1,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted B]"
+    },
+    {
+      "row": 40,
+      "correct": false,
+      "predicted": "B",
+      "answer_index": 1,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted B]"
+    },
+    {
+      "row": 41,
+      "correct": false,
+      "predicted": "B",
+      "answer_index": 1,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted B]"
+    },
+    {
+      "row": 42,
+      "correct": true,
+      "predicted": "A",
+      "answer_index": 0,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted A]"
+    },
+    {
+      "row": 43,
+      "correct": true,
+      "predicted": "A",
+      "answer_index": 0,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted A]"
+    },
+    {
+      "row": 44,
+      "correct": true,
+      "predicted": "C",
+      "answer_index": 2,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted C]"
+    },
+    {
+      "row": 45,
+      "correct": false,
+      "predicted": "A",
+      "answer_index": 0,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted A]"
+    },
+    {
+      "row": 46,
+      "correct": true,
+      "predicted": "A",
+      "answer_index": 0,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted A]"
+    },
+    {
+      "row": 47,
+      "correct": false,
+      "predicted": "C",
+      "answer_index": 2,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted C]"
+    },
+    {
+      "row": 48,
+      "correct": false,
+      "predicted": "C",
+      "answer_index": 2,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted C]"
+    },
+    {
+      "row": 49,
+      "correct": false,
+      "predicted": "B",
+      "answer_index": 1,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted B]"
+    },
+    {
+      "row": 50,
+      "correct": false,
+      "predicted": "D",
+      "answer_index": 3,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted D]"
+    },
+    {
+      "row": 51,
+      "correct": false,
+      "predicted": "A",
+      "answer_index": 0,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted A]"
+    },
+    {
+      "row": 52,
+      "correct": true,
+      "predicted": "B",
+      "answer_index": 1,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted B]"
+    },
+    {
+      "row": 53,
+      "correct": true,
+      "predicted": "C",
+      "answer_index": 2,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted C]"
+    },
+    {
+      "row": 54,
+      "correct": false,
+      "predicted": "B",
+      "answer_index": 1,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted B]"
+    },
+    {
+      "row": 55,
+      "correct": false,
+      "predicted": "A",
+      "answer_index": 0,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted A]"
+    },
+    {
+      "row": 56,
+      "correct": false,
+      "predicted": "A",
+      "answer_index": 0,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted A]"
+    },
+    {
+      "row": 57,
+      "correct": false,
+      "predicted": "D",
+      "answer_index": 3,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted D]"
+    },
+    {
+      "row": 58,
+      "correct": false,
+      "predicted": "D",
+      "answer_index": 3,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted D]"
+    },
+    {
+      "row": 59,
+      "correct": false,
+      "predicted": "D",
+      "answer_index": 3,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted D]"
+    },
+    {
+      "row": 60,
+      "correct": true,
+      "predicted": "C",
+      "answer_index": 2,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted C]"
+    },
+    {
+      "row": 61,
+      "correct": true,
+      "predicted": "A",
+      "answer_index": 0,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted A]"
+    },
+    {
+      "row": 62,
+      "correct": false,
+      "predicted": "C",
+      "answer_index": 2,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted C]"
+    },
+    {
+      "row": 63,
+      "correct": true,
+      "predicted": "C",
+      "answer_index": 2,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted C]"
+    },
+    {
+      "row": 64,
+      "correct": false,
+      "predicted": "C",
+      "answer_index": 2,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted C]"
+    },
+    {
+      "row": 65,
+      "correct": false,
+      "predicted": "A",
+      "answer_index": 0,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted A]"
+    },
+    {
+      "row": 66,
+      "correct": true,
+      "predicted": "D",
+      "answer_index": 3,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted D]"
+    },
+    {
+      "row": 67,
+      "correct": true,
+      "predicted": "A",
+      "answer_index": 0,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted A]"
+    },
+    {
+      "row": 68,
+      "correct": false,
+      "predicted": "D",
+      "answer_index": 3,
+      "correct_index": null,
+      "response": "[recovered from log \u2014 predicted D]"
+    }
+  ]
+}
