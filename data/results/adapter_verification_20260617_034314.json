@@ -1,0 +1,157 @@
+{
+  "timestamp": "20260617_034314",
+  "results": [
+    {
+      "adapter": "newton",
+      "overall": "ERROR",
+      "probes": [
+        {
+          "probe": "A 5 kg ball is thrown upward at 20 m/s. How high does it go and how long until it lands? Show the calculation.",
+          "status": "ERROR",
+          "error": "HTTPConnectionPool(host='localhost', port=7860): Read timed out. (read timeout=120)",
+          "elapsed_s": 122.2
+        },
+        {
+          "probe": "Why does a heavier object and a lighter object fall at the same rate in a vacuum? What did Galileo show?",
+          "status": "PASS",
+          "routed_adapter": "newton",
+          "response_words": 57,
+          "markers_found": [],
+          "elapsed_s": 36.2
+        }
+      ]
+    },
+    {
+      "adapter": "davinci",
+      "overall": "PASS",
+      "probes": [
+        {
+          "probe": "What does the architectural principle of tensegrity have in common with how muscles and tendons work in the human body?",
+          "status": "PASS",
+          "routed_adapter": "davinci",
+          "response_words": 50,
+          "markers_found": [],
+          "elapsed_s": 15.0
+        },
+        {
+          "probe": "How could the way spiderwebs distribute tension inspire the design of a bridge?",
+          "status": "PASS",
+          "routed_adapter": "davinci",
+          "response_words": 77,
+          "markers_found": [],
+          "elapsed_s": 30.3
+        }
+      ]
+    },
+    {
+      "adapter": "philosophy",
+      "overall": "PASS",
+      "probes": [
+        {
+          "probe": "Is it ethical to lie to protect someone's feelings? Walk through two conflicting philosophical positions.",
+          "status": "PASS",
+          "routed_adapter": "philosophy",
+          "response_words": 76,
+          "markers_found": [],
+          "elapsed_s": 42.8
+        },
+        {
+          "probe": "What did Descartes actually mean by 'I think therefore I am' \u2014 what was he trying to prove and does it work?",
+          "status": "PASS",
+          "routed_adapter": "philosophy",
+          "response_words": 101,
+          "markers_found": [],
+          "elapsed_s": 27.2
+        }
+      ]
+    },
+    {
+      "adapter": "quantum",
+      "overall": "PASS",
+      "probes": [
+        {
+          "probe": "If I have a 70% weather forecast for rain and an independent 60% forecast from another service, what is the probability it actually rains?",
+          "status": "PASS",
+          "routed_adapter": "quantum",
+          "response_words": 19,
+          "markers_found": [],
+          "elapsed_s": 37.2
+        },
+        {
+          "probe": "What is Bayes' theorem and give a concrete example of updating a belief from prior to posterior.",
+          "status": "PASS",
+          "routed_adapter": "quantum",
+          "response_words": 144,
+          "markers_found": [],
+          "elapsed_s": 34.9
+        }
+      ]
+    },
+    {
+      "adapter": "consciousness",
+      "overall": "PASS",
+      "probes": [
+        {
+          "probe": "When you notice yourself having made an error in reasoning, what does that feel like and what do you do next?",
+          "status": "PASS",
+          "routed_adapter": "consciousness",
+          "response_words": 173,
+          "markers_found": [],
+          "elapsed_s": 42.9
+        },
+        {
+          "probe": "Describe a moment when two of your reasoning perspectives gave contradictory answers to the same question.",
+          "status": "PASS",
+          "routed_adapter": "consciousness",
+          "response_words": 44,
+          "markers_found": [],
+          "elapsed_s": 30.1
+        }
+      ]
+    },
+    {
+      "adapter": "multi_perspective",
+      "overall": "PASS",
+      "probes": [
+        {
+          "probe": "Should AI systems be given legal personhood? Give me the strongest argument FOR and the strongest argument AGAINST.",
+          "status": "PASS",
+          "routed_adapter": "multi_perspective",
+          "response_words": 168,
+          "markers_found": [],
+          "elapsed_s": 38.8
+        },
+        {
+          "probe": "Is nuclear energy a good solution to climate change? Synthesize the scientific, ethical, and economic angles.",
+          "status": "PASS",
+          "routed_adapter": "multi_perspective",
+          "response_words": 145,
+          "markers_found": [],
+          "elapsed_s": 16.1
+        }
+      ]
+    },
+    {
+      "adapter": "systems_architecture",
+      "overall": "PASS",
+      "probes": [
+        {
+          "probe": "What is the difference between a monolith and microservices and when would you choose each?",
+          "status": "PASS",
+          "routed_adapter": "systems_architecture",
+          "response_words": 174,
+          "markers_found": [],
+          "elapsed_s": 22.7
+        },
+        {
+          "probe": "Explain why database normalization trades off query performance for storage efficiency.",
+          "status": "PASS",
+          "routed_adapter": "systems_architecture",
+          "response_words": 119,
+          "markers_found": [],
+          "elapsed_s": 13.0
+        }
+      ]
+    }
+  ]
+}
