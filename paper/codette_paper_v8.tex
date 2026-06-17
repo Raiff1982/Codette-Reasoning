@@ -729,7 +729,7 @@ scores are provided in \path{codette_benchmark_results.json} and
 \subsubsection{Key Findings}
 
 \begin{enumerate}[nosep]
-  \item \textbf{Total improvement: +108.8\%} (from +93.5\% in April 2026).
+  \item \textbf{Total improvement: +108.8\%} (from +93.5\% in April 2026~\citep{harrison2026kaggleagi}).
     CODETTE composite $0.357 \to 0.744$, Cohen's $d=8.31$.
   \item \textbf{Memory augmentation now significant.} In April 2026,
     MEMORY~vs.~MULTI was non-significant ($p=0.119$). In May 2026,
@@ -970,7 +970,7 @@ sampled outputs and ratings will be released in anonymized form.
     simultaneously. Future work should conduct all evaluations with full LLM
     inference across all conditions.
   \item \textbf{Depth--naturalness tradeoff (substantially resolved).} The
-    April 2026 paper documented this as an open problem. In v8, CODETTE Turing
+    April 2026 Kaggle submission~\citep{harrison2026kaggleagi} documented this as an open problem. In v8, CODETTE Turing
     naturalness improves from 0.245 to 0.820 without sacrificing composite
     score. The tradeoff appears tractable through deliberate
     response-structure engineering. Single benchmark suite validation on
@@ -1156,7 +1156,8 @@ Turing (3)         & $0.388\pm0.032$ & $0.709\pm0.041$ & $0.749\pm0.053$ & $0.75
 \label{app:v7-results}
 
 For longitudinal comparison, the April 2026 (v7) benchmark results
-(timestamp: \texttt{2026-04-08T20:59:44}, 217 cocoons) are reproduced here:
+(timestamp: \texttt{2026-04-08T20:59:44}, 217 cocoons) are reproduced here.
+These results were submitted as the Kaggle AGI measurement competition writeup~\citep{harrison2026kaggleagi}, where the RC+$\xi$ formalism and the Inverse Nuance Trap were first formally described.
 
 \begin{table}[ht]
 \centering

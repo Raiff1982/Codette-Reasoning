@@ -388,6 +388,23 @@
         "title": "codette pack",
         "type": "dataset",
         "platform": "Kaggle Datasets"
+      },
+      "agi_competition_writeup": {
+        "url": "https://kaggle.com/competitions/kaggle-measuring-agi/writeups/codette-rc-diagnostic-suite",
+        "title": "Codette RC+ Diagnostic Suite: Measuring Metacognitive Strategy Evolution in AI Systems",
+        "competition": "kaggle-measuring-agi",
+        "track": "Metacognition",
+        "date": "April 2026",
+        "local_copy": "J:\\codette-clean\\paper\\kaggle_writeup.md",
+        "key_contributions": {
+          "rc_xi_formalism": "First formal description of RC+xi (Recursive Convergence + Epistemic Tension) as a convergent dynamical system: Psi(t+1) = Psi(t) + alpha*nabla_Coherence - beta*xi(t)*nabla_Tension",
+          "inverse_nuance_trap": "Named and defined the Inverse Nuance Trap: models that sound most human-like often perform worst on underlying logical convergence; RLHF training inadvertently selects against genuine metacognition",
+          "17_problem_benchmark": "Formalized the 17-problem benchmark across 6 categories with 7-dimension scoring (reasoning depth, perspective diversity, coherence, ethical coverage, novelty, factual grounding, Turing naturalness)",
+          "4_condition_comparison": "SINGLE/MULTI/MEMORY/CODETTE ablation isolating contribution of each architectural component",
+          "april_2026_results": "CODETTE composite 0.689 (+93.5% vs single baseline), Cohen's d=7.88, p<0.0001",
+          "cocoon_synthesizer_finding": "4 discovered strategy types (Resonant Tension Cycling, Compression-Resonance Bridging, Emergent Boundary Walking, Temporal Depth Stacking) from 217 cocoons generalize across domains"
+        },
+        "significance": "Jonathan entered the Kaggle AGI measurement competition as an independent solo researcher. The submission formalized the mathematical framework that underpins all of Codette's benchmark evaluation methodology."
       }
     },
     "research_square": {
