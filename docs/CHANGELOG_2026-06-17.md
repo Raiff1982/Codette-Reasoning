@@ -102,6 +102,27 @@ inference contamination fixes, and reboot reliability.
 - Fix: `_BEHAVIOR_MEMORY_FILE = Path(__file__).resolve().parent.parent / "cocoons"
   / "behavior_memory.json"` — always resolves to project root regardless of cwd.
 
+### Kaggle Competition Writeup Citation (`paper/codette_paper_v8.tex`, `paper/references.bib`)
+- Added `@misc{harrison2026kaggleagi}` bib entry for the RC+ξ competition writeup
+  submitted to `kaggle-measuring-agi` (April 2026, local copy: `paper/kaggle_writeup.md`).
+- Added citations at three locations in the paper:
+  1. Key Findings — "+93.5% in April 2026" now cites the competition writeup
+  2. Limitations — depth–naturalness tradeoff attribution ("first named in the April 2026
+     Kaggle submission")
+  3. Appendix — archived April 2026 results section notes the writeup is the formal
+     first description of the RC+ξ formalism and Inverse Nuance Trap
+- Updated `codette_project_awareness.json` with full writeup record including
+  RC+ξ formalism origin and Inverse Nuance Trap naming.
+
+### Maze Crawler Competition Documented (`cocoons/codette_project_awareness.json`)
+- Discovered `MazegameCompKaggle/` directory: Jonathan entered a second Kaggle competition
+  (Maze Crawler game AI, final submission deadline June 16, 2026 — yesterday).
+- Bot name: **Codette Crawler v2 — Multi-Perspective Maze Bot** with 5 reasoning perspectives
+  (Survival, Economy, Exploration, Infrastructure, Mining) — direct application of Codette's
+  heterogeneous multi-perspective synthesis to strategic game AI.
+- Final leaderboard evaluation runs July 17–30, 2026.
+- Documented in awareness cocoon under `published_ecosystem > kaggle > maze_crawler_competition`.
+
 ---
 
 ## Notes

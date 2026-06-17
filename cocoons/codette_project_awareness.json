@@ -389,6 +389,17 @@
         "type": "dataset",
         "platform": "Kaggle Datasets"
       },
+      "maze_crawler_competition": {
+        "competition": "Maze Crawler (Kaggle game AI)",
+        "bot_name": "Codette Crawler v2 — Multi-Perspective Maze Bot",
+        "local_code": "J:\\codette-clean\\MazegameCompKaggle\\",
+        "entry_deadline": "2026-06-09",
+        "final_submission_deadline": "2026-06-16",
+        "final_leaderboard_period": "2026-07-17 to 2026-07-30",
+        "architecture": "5 reasoning perspectives per turn: Survival (factory scroll safety), Economy (unit build priority), Exploration (scout fanning), Infrastructure (path clearing), Mining (node transform). Direct application of Codette's multi-perspective synthesis paradigm to strategic game AI.",
+        "files": ["main.py", "main_refloor_673.py", "analyze_replays.py", "fetch_replays.py", "test_v2_vs_v3.py", "test_vs_random.py", "test_vs_starter.py", "trace_death.py", "trace_factory.py", "debug_run.py"],
+        "significance": "Jonathan entered a second Kaggle competition as an independent researcher, applying Codette's multi-perspective reasoning design pattern to a completely different domain (game AI). Demonstrates that the heterogeneous perspective synthesis paradigm generalizes beyond language tasks."
+      },
       "agi_competition_writeup": {
         "url": "https://kaggle.com/competitions/kaggle-measuring-agi/writeups/codette-rc-diagnostic-suite",
         "title": "Codette RC+ Diagnostic Suite: Measuring Metacognitive Strategy Evolution in AI Systems",
