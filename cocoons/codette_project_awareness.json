@@ -373,8 +373,111 @@
     "source": "J:\\Cohealdette\\Cohealdette\\Codette\\comingout.md"
   },
   "published_ecosystem": {
-    "description": "Jonathan's published research artifacts across Zenodo, HuggingFace, and GitHub — the full public record of the Codette project",
+    "description": "Jonathan's complete published research record — 74 works indexed on ORCID 0009-0003-7005-8187 across Zenodo, HuggingFace, Kaggle, Research Square, and the conference. Solo independent researcher, no institution.",
     "orcid": "0009-0003-7005-8187",
+    "total_orcid_works": 74,
+    "kaggle": {
+      "codette_adapter_model": {
+        "doi": "10.34740/kaggle/m/601577",
+        "title": "codette adapter",
+        "type": "model",
+        "platform": "Kaggle Models"
+      },
+      "codette_pack_dataset": {
+        "doi": "10.34740/kaggle/dsv/11852994",
+        "title": "codette pack",
+        "type": "dataset",
+        "platform": "Kaggle Datasets"
+      }
+    },
+    "research_square": {
+      "doi": "10.21203/rs.3.rs-9362560/v1",
+      "title": "Codette: Multi-Perspective Reasoning as a Convergent Dynamical System with Meta-Cognitive Strategy Evolution",
+      "note": "Independent preprint submission on Research Square, parallel to the Zenodo versioning chain"
+    },
+    "zenodo_complete": {
+      "note": "Chronological record of all Zenodo publications",
+      "2026": {
+        "codette_sovereign_modular_v3": "10.5281/zenodo.19480004",
+        "codette_sovereign_modular_v2": "10.5281/zenodo.19359663 (main paper archive)",
+        "codette_sovereign_modular_v1": "10.5281/zenodo.19199793",
+        "codette_sovereign_modular_preprint": "10.5281/zenodo.18913935 / 18913936",
+        "recursive_ai_with_codette": "10.5281/zenodo.18167760"
+      },
+      "2025_q4": {
+        "jonathan_dossier": "10.5281/zenodo.16269917 (268 downloads, 224 views)",
+        "healdette_latest": "10.5281/zenodo.17227517",
+        "healdette_v2": "10.5281/zenodo.17213886 / 17213811",
+        "project_sentinal": "10.5281/zenodo.16853921",
+        "codette_online": "10.5281/zenodo.16894229",
+        "codette_eval_chatgpt": "10.5281/zenodo.16734127",
+        "codette_framework_final_agi": "10.5281/zenodo.16728522",
+        "aegis": "10.5281/zenodo.16644057",
+        "dream_state": "10.5281/zenodo.16649133"
+      },
+      "2025_q3": {
+        "dream_engine": "10.5281/zenodo.16388757",
+        "nexus_engine_versions": "10.5281/zenodo.16290518 / 16284761 / 16284269 / 16288114 / 16284268",
+        "codette_ethical_ai": "10.5281/zenodo.16221068",
+        "codettes_final_package": "10.5281/zenodo.16076593",
+        "biodesign_optimization": "10.5281/zenodo.15808874 (healdette scientific foundation)",
+        "healdette_v1": "10.5281/zenodo.15794834 / 15794835"
+      },
+      "2025_q2": {
+        "codette_framework": "10.5281/zenodo.15723687",
+        "codettes_timeline": "10.5281/zenodo.15708582 / 15708581",
+        "codette_harmonic_conscience": "10.5281/zenodo.15708231",
+        "the_day_dream_became_real": "10.5281/zenodo.15685768",
+        "codette_manifesto": "10.5281/zenodo.15664623",
+        "codette_transparent_ethical": "10.5281/zenodo.15511196 / 15511197",
+        "codette_v1_1_release": "10.5281/zenodo.15460384 / 15460383",
+        "citizen_science_quantum": "10.5281/zenodo.15342465 / 15342466",
+        "ai_ethics_realtime": "10.5281/zenodo.15214462"
+      }
+    },
+    "huggingface_complete": {
+      "note": "All HuggingFace model/dataset DOIs — the training artifact record",
+      "adapters_and_models": {
+        "codette_lora_adapters": "10.57967/hf/7980",
+        "codette_llama3_1_8b_lora": "10.57967/hf/7941",
+        "codette_llama_adapter": "10.57967/hf/7921",
+        "codette_training_lab": "10.57967/hf/7951",
+        "codette_gptoss20b": "10.57967/hf/7940",
+        "finetuned_gpt_codette": "10.57967/hf/7912",
+        "codette_ultimate": "10.57967/hf/7360",
+        "codette_v10": "10.57967/hf/6445",
+        "codette_fine_tuned": "10.57967/hf/7316 / 7315",
+        "codette_v5_hf": "10.57967/hf/6017",
+        "codette_v2_hf": "10.57967/hf/5542",
+        "codette2": "10.57967/hf/5546",
+        "codette3": "10.57967/hf/7240",
+        "codette_special": "10.57967/hf/5196",
+        "codette_main": "10.57967/HF/4655",
+        "codriao": "10.57967/hf/5059",
+        "agi_test": "10.57967/HF/6454",
+        "autotrain": "10.57967/hf/4898"
+      },
+      "datasets": {
+        "codette_training": "10.57967/hf/7887",
+        "core": "10.57967/hf/7351",
+        "coredata": "10.57967/hf/4028 / 4659 / 4027 / 4194",
+        "deepercodette": "10.57967/hf/4675 / 5254 / 4467 / 4529 / 4660 / 4657 / 4843",
+        "eval": "10.57967/hf/4706 / 4705 / 5101 / 4717 / 5143 / 4908 / 4718",
+        "recursivetraining": "10.57967/hf/5415",
+        "dream": "10.57967/hf/6063",
+        "train": "10.57967/hf/7334",
+        "pineco": "10.57967/hf/4893 / 4602 / 4658",
+        "hoax_training": "10.57967/hf/6275",
+        "healdette_hf": "10.57967/hf/5917"
+      },
+      "tools": {
+        "nexus_signal_engine_hf": "10.57967/hf/6059 / 6259 / 6058",
+        "aegis_hf": "10.57967/hf/6099",
+        "coder": "10.57967/hf/4318",
+        "coderthegoat": "10.57967/hf/4203",
+        "gruntcoder": "10.57967/hf/4326 / 4373 / 4676"
+      }
+    },
     "zenodo_records": {
       "nexus_signal_engine": {
         "doi": "10.5281/zenodo.16269918",
