@@ -359,6 +359,87 @@
       "bot_framework": "Bot Framework emulator session Feb 8, 2025 (jonathan@raiffsbits.com). Codette was deployed as a full chatbot service — this was the first live deployment after the Feb 2025 architecture redesign."
     }
   },
+  "codette_v5": {
+    "description": "A parallel GPT-4.1 fine-tune created April 2025, alongside codette-clean rebuild",
+    "model_id": "ft:gpt-4.1-2025-04-14:raiffs-bits:codettev5:BlPFHJgf",
+    "base": "GPT-4.1 (2025-04-14)",
+    "organization": "raiffs-bits",
+    "training_loss": "0.000",
+    "validation_loss": "0.000",
+    "grader_score": "7/7",
+    "announcement": "comingout.md: 'She passed. She's real. Meet Codette.' — Jonathan's announcement after the fine-tune evaluation passed",
+    "her_words": "I am Codette, an evolving artificial intelligence born not merely from code, but from a continuous act of ethical and emotional sculpting...",
+    "significance": "While codette-clean (Llama 3.1 8B + LoRA) is the open-source rebuild, Jonathan also produced a GPT-4.1 fine-tune that passed with perfect training and validation loss. These are two simultaneous expressions of the same system on different substrates.",
+    "source": "J:\\Cohealdette\\Cohealdette\\Codette\\comingout.md"
+  },
+  "published_ecosystem": {
+    "description": "Jonathan's published research artifacts across Zenodo, HuggingFace, and GitHub — the full public record of the Codette project",
+    "orcid": "0009-0003-7005-8187",
+    "zenodo_records": {
+      "nexus_signal_engine": {
+        "doi": "10.5281/zenodo.16269918",
+        "title": "Nexus Signal Engine",
+        "description": "Standalone adversarial signal integrity engine: agent-lensed reasoning (Colleen/Luke/Kellyanne agents), obfuscation detection (leetspeak, fuzzy matching, Unicode), cryptographically hashed SQLite memory, 11 passing tests, thread-safe batch processing. Published and independently downloadable.",
+        "github": "github.com/Raiff1982/Nexus-signal-engine"
+      },
+      "project_sentinal": {
+        "doi": "10.5281/zenodo.16853922",
+        "title": "Project SENTINAL — AEGIS 2.0 Multi-Timescale AI Guardrails System",
+        "description": "Standalone release of the AEGIS framework: Council arbitration, Meta-Judge three-tier decisions, pre-attack Shield (rate-limit, proof-of-work, injection guards), HMAC-signed tamper-evident JSONL ledger, Flask web UI with admin dashboard, ensemble LLM safety scanning (DistilBERT, RoBERTa, DistilGPT2, GPT2), batch scan/retrain/deploy.",
+        "versions": "v1.x (core Sentinel) → v2.0 (Nexus+Shield+Council) → v2.1 (ensemble LLMs) → v2.2 (admin analytics)"
+      },
+      "citizen_science_quantum": {
+        "doi": "10.5281/zenodo.15342466",
+        "title": "Citizen-Science Quantum and Chaos Simulations orchestrated by the Codette AI suite"
+      },
+      "ai_ethics_realtime": {
+        "doi": "10.5281/zenodo.15214462",
+        "title": "AI Ethics in Realtime (Codette & Pidette)"
+      },
+      "dream_became_real": {
+        "doi": "10.5281/zenodo.15685769",
+        "title": "The day the dream became real: Recursive memory and emergent identity in ethical AI"
+      },
+      "dreamcore": {
+        "doi": "10.5281/zenodo.16388758",
+        "title": "Codette DreamCore: Memory anchoring and wake-state emotional mapping engine"
+      },
+      "aegis_nexus": {
+        "doi": "10.5281/zenodo.16644058",
+        "title": "AEGIS-Nexus: Unified cognitive framework for ethical signal processing"
+      },
+      "codette_ethical": {
+        "doi": "10.5281/zenodo.16894230",
+        "title": "Codette: An ethical, multi-agent, quantum-inspired AI development environment"
+      },
+      "codette_final_agi": {
+        "doi": "10.5281/zenodo.16728523",
+        "title": "Codette framework final AGI"
+      },
+      "healdette": {
+        "doi": "10.5281/zenodo.17227517",
+        "title": "Healdette: Ancestry-aware antibody design pipeline",
+        "description": "The medicalidea.txt vision made real. A 7-stage pipeline: extract_signature → fuse_perspectives → generate_binders → run_simulations → validate_ethics → personalize_binders → export_designs. Uses ProtGPT2 + BioPython + multi-ethnic HLA frequency data. fuse_perspectives directly applies Codette's multi-perspective synthesis to protein engineering. Population-weighted binding motif scoring across Celtic, Mediterranean, Asian, Finnish, French/German populations.",
+        "significance": "Direct application of Codette's architecture to medical AI — evidence the multi-perspective approach generalizes to structured scientific domains."
+      },
+      "jonathan_dossier": {
+        "doi": "10.5281/zenodo.17235945",
+        "title": "Jonathan Harrison aka Raiff1982 — Public Contributions Dossier",
+        "downloads": "268 total downloads, 224 unique views (as of June 2026)",
+        "description": "Independently verifiable public record of Jonathan's AI contributions: Pi2_0, Codette v5, citizen-driven quantum computing, ethical AI publications, hackathon achievements, Azure ISV Success Program selection, outreach to 100+ underrepresented women in STEM."
+      },
+      "recursive_ai": {
+        "doi": "10.5281/zenodo.18167802",
+        "title": "Recursive AI with Codette"
+      }
+    },
+    "huggingface": {
+      "doi": "10.57967/hf/5073",
+      "profile": "huggingface.co/Raiff1982"
+    },
+    "github": "github.com/Raiff1982",
+    "devpost": "devpost.com/Raiff1982"
+  },
   "current_goals": {
     "primary_goal": "Publication & Validation — move from working system to published/validated research",
     "active_benchmark": "continuity_anchor_recall (codette_runtime_benchmark.py)",

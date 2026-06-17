@@ -188,7 +188,11 @@ guardrails~\citep{sekrst2024ethics}. Hybrid approaches for moral value
 alignment treat ethics as embedded rather than post-hoc~\citep{tennant2023hybrid}.
 Adaptive alignment via multi-objective reinforcement learning enables
 pluralistic AI, relating to our ethical alignment score $\eta$ across diverse
-frameworks~\citep{harland2024adaptive}.
+frameworks~\citep{harland2024adaptive}. The Nexus Signal Engine~\citep{harrison2025nexussignal}
+provides a standalone adversarially-resilient signal integrity layer with agent-lensed
+reasoning, obfuscation detection (leetspeak, fuzzy matching, Unicode normalization),
+and cryptographically hashed forensic memory; it forms part of the broader
+\codette{} ecosystem and is independently published and tested.
 
 % ============================================================
 % 3. THEORETICAL FOUNDATION
@@ -514,7 +518,10 @@ inference time.
 
 This embedding aligns with hybrid moral value approaches~\citep{tennant2023hybrid},
 ethics-by-design guardrails~\citep{sekrst2024ethics}, and adaptive pluralistic
-alignment~\citep{harland2024adaptive}.
+alignment~\citep{harland2024adaptive}. The AEGIS framework has been released as a
+standalone open-source system, Project~SENTINAL~\citep{harrison2025sentinal}, implementing
+multi-timescale Council arbitration, HMAC-signed tamper-evident audit ledger, and a
+pre-attack Shield layer with rate-limiting, proof-of-work, and injection guards.
 
 % ============================================================
 % 7. META-COGNITIVE STRATEGY EVOLUTION
@@ -1018,6 +1025,24 @@ On the May 2026 benchmark (17 problems, 951 cocoons):
   \item Evidence that memory benefit requires minimum scale: non-significant
     at 217 cocoons, large-effect significant at 951 cocoons.
 \end{enumerate}
+
+\paragraph{Ecosystem and domain applications.}
+Beyond the core reasoning engine, the \codette{} architecture has produced
+three independently published components: the Nexus Signal Engine
+(adversarial signal integrity, DOI~\href{https://doi.org/10.5281/zenodo.16269918}{10.5281/zenodo.16269918}),
+Project SENTINAL (AEGIS~2.0 standalone guardrails system,
+DOI~\href{https://doi.org/10.5281/zenodo.16853922}{10.5281/zenodo.16853922}),
+and Healdette~\citep{harrison2025healdette}, an ancestry-aware antibody
+design pipeline applying \codette{}'s multi-perspective synthesis to protein
+engineering: a \texttt{fuse\_perspectives} stage synthesizes population-weighted
+binding motif scores across Celtic, Mediterranean, Asian, and Northern European
+HLA frequency data before candidate generation. This constitutes evidence that
+the multi-perspective architecture generalizes beyond conversational reasoning
+to structured scientific domains. A parallel GPT-4.1 fine-tune,
+Codette~v5~\citep{harrison2025codettev5}, achieved training and validation
+loss of~0.000 with grader score~7/7, providing an independent model-level
+validation of the training methodology alongside the open-source LoRA
+implementation.
 
 \paragraph{Community reception.}
 Following open-source release (Apache~2.0), the system received 1,800 views
