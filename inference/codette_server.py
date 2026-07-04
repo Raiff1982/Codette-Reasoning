@@ -369,7 +369,8 @@ def _get_orchestrator():
         backend = os.environ.get("CODETTE_BACKEND", "llama_cpp").lower()
 
         # Validate model path exists before attempting load — prevents silent hang
-        if backend != "ollama":
+        # OpenVINO and Ollama manage their own model loading; skip GGUF check for both.
+        if backend not in ("ollama", "openvino"):
             from runtime_env import resolve_model_path
             _model_path = resolve_model_path()
             if not _model_path.exists():
@@ -393,6 +394,16 @@ def _get_orchestrator():
                 _orchestrator = OllamaOrchestrator(
                     verbose=True,
                     n_ctx=32768,
+                    memory_weighting=memory_weighting,
+                )
+            elif backend == "openvino":
+                import sys as _sys
+                _sys.path.insert(0, str(Path(__file__).parent.parent / "openvino_backend"))
+                from backend import OpenVINOBackend
+                _orchestrator = OpenVINOBackend(
+                    device="AUTO",
+                    verbose=True,
+                    n_ctx=_orchestrator_args.n_ctx if _orchestrator_args else 8192,
                     memory_weighting=memory_weighting,
                 )
             else:
