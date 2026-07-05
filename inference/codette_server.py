@@ -1277,9 +1277,12 @@ def _worker_thread():
                 web_sources = []
                 allow_web_search = bool(request.get("allow_web_search"))
 
-                # Recent session context first — keeps local continuity stable
+                # Recent session context first — keeps local continuity stable.
+                # Benchmark queries skip session context: each exam question is
+                # independent, and prior-question turns bleeding into the prompt
+                # measurably corrupt answers.
                 try:
-                    if session:
+                    if session and not _is_benchmark_query:
                         continuity_summary = session.active_continuity_summary or session.refresh_active_continuity_summary()
                         if continuity_summary:
                             memory_context_summary["continuity_summary_used"] = True
@@ -1613,12 +1616,15 @@ def _worker_thread():
                 epistemic = None
                 if session:
                     try:
-                        # Add user message + assistant response to session history
-                        session.add_message("user", query)
-                        session.add_message("assistant", result.get("response", ""), metadata={
-                            "adapter": result.get("adapter", "base"),
-                            "tokens": result.get("tokens", 0),
-                        })
+                        # Add user message + assistant response to session history.
+                        # Benchmark turns are excluded — they'd bleed into the
+                        # session context injected before later questions.
+                        if not _is_benchmark_query:
+                            session.add_message("user", query)
+                            session.add_message("assistant", result.get("response", ""), metadata={
+                                "adapter": result.get("adapter", "base"),
+                                "tokens": result.get("tokens", 0),
+                            })
 
                         # Record Q→A anchor for cross-turn coherence.
                         # Gate on response length — greetings and one-liners

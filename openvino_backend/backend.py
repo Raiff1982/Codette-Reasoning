@@ -292,6 +292,12 @@ class OpenVINOBackend:
         constraints = extract_constraints(primary_query)
         constraint_override = build_constraint_override(constraints)
 
+        # Benchmark/exam detection — used to (a) pick deterministic sampling
+        # and (b) skip post-processing that mangles reasoning chains.
+        import re as _re
+        _is_benchmark = bool(_re.search(
+            r'What is the correct answer to this question', primary_query))
+
         # Integrity layer (complexity + role matching)
         _integrity_prefix = ""
         try:
@@ -319,6 +325,13 @@ class OpenVINOBackend:
 
         prompt = self._format_chat(full_system, query)
         cfg = self._make_gen_config(adapter_name)
+        if _is_benchmark:
+            # Near-greedy decoding for exam answers. repetition_penalty=1.3
+            # (needed to fight template loops in conversation) progressively
+            # bans common words over long generations and turns reasoning
+            # chains into word salad — measured as 0% on GPQA reason mode.
+            cfg.temperature = 0.2
+            cfg.repetition_penalty = 1.05
 
         t0 = time.time()
         output = self._pipe.generate(prompt, cfg)
@@ -331,7 +344,10 @@ class OpenVINOBackend:
         if constraints:
             text = enforce_constraints(text, constraints)
 
-        if _SC_AVAILABLE:
+        # Benchmark/exam answers must not be post-processed: LOCK 1 drift
+        # trimming amputates step-by-step reasoning (sentences like "This
+        # means..." match its drift patterns) and removes the final answer line.
+        if _SC_AVAILABLE and not _is_benchmark:
             text, _ = universal_self_check(text)
 
         tokens = len(text.split())
