@@ -175,7 +175,7 @@ class CodetteForgeBridge:
         )
         if _GREETING_RE.match(user_query) and len(user_query.split()) <= 7:
             try:
-                from inference.codette_orchestrator import ADAPTER_PROMPTS
+                from codette_shared import ADAPTER_PROMPTS
                 mem_ctx = self.orchestrator._build_memory_context() if hasattr(self.orchestrator, '_build_memory_context') else ""
                 sys_prompt = ADAPTER_PROMPTS["_base"] + mem_ctx
                 result = self.orchestrator._llm.create_chat_completion(
@@ -217,7 +217,7 @@ class CodetteForgeBridge:
         )
         if _MEMORY_RE.search(user_query):
             try:
-                from inference.codette_orchestrator import ADAPTER_PROMPTS
+                from codette_shared import ADAPTER_PROMPTS
                 kernel = getattr(self.orchestrator, '_memory_kernel', None)
                 mem_facts = []
                 if kernel and hasattr(kernel, 'memories'):
