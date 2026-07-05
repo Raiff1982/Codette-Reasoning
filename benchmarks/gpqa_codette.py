@@ -46,7 +46,13 @@ RESULTS_DIR = Path(__file__).parent.parent / "data" / "results"
 # Codette PROMPT — drop-in replacement for the Kaggle notebook's PROMPT()
 # ---------------------------------------------------------------------------
 
-def make_prompt_fn(port: int, full_synthesis: bool = False, max_adapters: int = 2):
+def make_prompt_fn(port: int, full_synthesis: bool = False, max_adapters: int = 2,
+                   tok_stats: list | None = None):
+    """
+    tok_stats: optional list to accumulate (tokens, elapsed_s) tuples per call.
+    After the run, compute mean tok/s with:
+        mean_tps = sum(t for _, t_s, t in ...) / total_s
+    """
     url = CODETTE_URL_TEMPLATE.format(port=port)
 
     def PROMPT(full_model_name: str, messages: list[dict], **_ignored_params):
@@ -58,6 +64,7 @@ def make_prompt_fn(port: int, full_synthesis: bool = False, max_adapters: int = 
             "",
         )
 
+        t0 = time.time()
         try:
             resp = requests.post(
                 url,
@@ -73,6 +80,7 @@ def make_prompt_fn(port: int, full_synthesis: bool = False, max_adapters: int = 
             print(f"\n[ERROR] Cannot connect to Codette server at {url}")
             print("Start it with:  python inference/codette_server.py")
             sys.exit(1)
+        wall_s = time.time() - t0
 
         data = resp.json()
 
@@ -80,7 +88,15 @@ def make_prompt_fn(port: int, full_synthesis: bool = False, max_adapters: int = 
             raise RuntimeError(f"Codette server error: {data['error']}")
 
         text = data.get("response") or data.get("text") or str(data)
-        print("Success!")
+        tokens = data.get("tokens", 0) or 0
+        server_s = data.get("time", 0) or wall_s
+
+        tps = tokens / server_s if server_s > 0 else 0
+        print(f"Success! ({tokens} tok, {tps:.1f} tok/s, {server_s:.1f}s)")
+
+        if tok_stats is not None:
+            tok_stats.append((tokens, server_s, tps))
+
         return text
 
     return PROMPT
@@ -381,6 +397,8 @@ def main():
                         help=f"Codette server port (default: {CODETTE_PORT})")
     parser.add_argument("--limit", type=int, default=None,
                         help="Max questions to run (omit for all)")
+    parser.add_argument("--offset", type=int, default=0,
+                        help="Skip the first N questions (for batched runs)")
     parser.add_argument("--seed", type=int, default=42,
                         help="Random seed for answer shuffling")
     parser.add_argument("--full-synthesis", action="store_true",
@@ -405,6 +423,9 @@ def main():
 
     # Load dataset
     dataset = load_dataset(args.dataset)
+    if args.offset:
+        dataset = dataset.iloc[args.offset:].reset_index(drop=True)
+        print(f"Skipped first {args.offset} questions (offset mode).")
     if args.limit:
         dataset = dataset.head(args.limit)
         print(f"Limited to {args.limit} questions.")
@@ -415,7 +436,9 @@ def main():
         cot_df = load_dataset("chain_of_thought_examples.csv")
 
     # Build PROMPT and prompt-fn
-    PROMPT = make_prompt_fn(port=args.port, full_synthesis=args.full_synthesis, max_adapters=args.max_adapters)
+    tok_stats: list = []
+    PROMPT = make_prompt_fn(port=args.port, full_synthesis=args.full_synthesis,
+                            max_adapters=args.max_adapters, tok_stats=tok_stats)
     model_name = f"codette/{'full-synthesis' if args.full_synthesis else f'multi-{args.max_adapters}adapt'}"
 
     if args.mode in ("0shot", "sc3"):
@@ -477,6 +500,21 @@ def main():
     # Save and print
     out_path = save_results(all_outputs, args.mode, args.dataset)
     print_summary(all_outputs, args.mode)
+
+    # tok/s summary
+    if tok_stats:
+        total_tok = sum(t for t, _, _ in tok_stats)
+        total_s   = sum(s for _, s, _ in tok_stats)
+        mean_tps  = total_tok / total_s if total_s > 0 else 0
+        per_call  = [tps for _, _, tps in tok_stats if tps > 0]
+        med_tps   = sorted(per_call)[len(per_call) // 2] if per_call else 0
+        print(f"\n── Throughput ──────────────────────────────────")
+        print(f"  Total tokens : {total_tok:,}")
+        print(f"  Total time   : {total_s:.1f}s")
+        print(f"  Mean tok/s   : {mean_tps:.2f}")
+        print(f"  Median tok/s : {med_tps:.2f}")
+        print(f"  Calls logged : {len(tok_stats)}")
+
     print(f"\nFull results saved to: {out_path}")
 
 
