@@ -371,7 +371,14 @@ def _get_orchestrator():
         if _orchestrator is not None:
             return _orchestrator
 
-        backend = os.environ.get("CODETTE_BACKEND", "llama_cpp").lower()
+        def _auto_detect_backend() -> str:
+            # If the OV model exists on disk, prefer it — no env var needed.
+            _ov_dir = Path(__file__).resolve().parent.parent / "openvino_backend" / "llama-3.1-8b-instruct-int4"
+            if (_ov_dir / "openvino_model.xml").exists():
+                return "openvino"
+            return "llama_cpp"
+
+        backend = os.environ.get("CODETTE_BACKEND", _auto_detect_backend()).lower()
         print(f"  [BACKEND] using backend={backend!r} (CODETTE_BACKEND={os.environ.get('CODETTE_BACKEND')!r})", flush=True)
         print(f"  [BACKEND] server __file__={Path(__file__).resolve()}", flush=True)
 
