@@ -450,7 +450,7 @@ class OpenVINOBackend:
     # ── Synthesis ──────────────────────────────────────────────────────────────
 
     def _synthesize(self, query: str, perspectives: dict) -> str:
-        from codette_orchestrator import ADAPTER_PROMPTS
+        from codette_shared import ADAPTER_PROMPTS
         combined = "\n\n".join(
             f"[your {name} lens — internal note]\n{text[:1200]}"
             for name, text in perspectives.items()
