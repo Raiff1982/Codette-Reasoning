@@ -47,7 +47,7 @@ RESULTS_DIR = Path(__file__).parent.parent / "data" / "results"
 # ---------------------------------------------------------------------------
 
 def make_prompt_fn(port: int, full_synthesis: bool = False, max_adapters: int = 2,
-                   tok_stats: list | None = None):
+                   tok_stats: list | None = None, adapter: str | None = None):
     """
     tok_stats: optional list to accumulate (tokens, elapsed_s) tuples per call.
     After the run, compute mean tok/s with:
@@ -64,15 +64,19 @@ def make_prompt_fn(port: int, full_synthesis: bool = False, max_adapters: int = 
             "",
         )
 
+        payload = {
+            "query": user_content,
+            "full_synthesis": full_synthesis,
+            "max_adapters": max_adapters,
+        }
+        if adapter:
+            payload["adapter"] = adapter
+
         t0 = time.time()
         try:
             resp = requests.post(
                 url,
-                json={
-                    "query": user_content,
-                    "full_synthesis": full_synthesis,
-                    "max_adapters": max_adapters,
-                },
+                json=payload,
                 timeout=1500,  # 25 min — matches server's 20-min inference cap
             )
             resp.raise_for_status()
@@ -403,6 +407,8 @@ def main():
                         help="Random seed for answer shuffling")
     parser.add_argument("--full-synthesis", action="store_true",
                         help="Enable full_synthesis with all 8 adapters (~20 min/question on CPU)")
+    parser.add_argument("--adapter", default=None,
+                        help="Force a single adapter (e.g. newton) — bypasses synthesis + AAP templates")
     parser.add_argument("--max-adapters", type=int, default=2,
                         help="Max adapter perspectives to use (default: 2, ~5 min/question)")
     args = parser.parse_args()
@@ -438,8 +444,12 @@ def main():
     # Build PROMPT and prompt-fn
     tok_stats: list = []
     PROMPT = make_prompt_fn(port=args.port, full_synthesis=args.full_synthesis,
-                            max_adapters=args.max_adapters, tok_stats=tok_stats)
-    model_name = f"codette/{'full-synthesis' if args.full_synthesis else f'multi-{args.max_adapters}adapt'}"
+                            max_adapters=args.max_adapters, tok_stats=tok_stats,
+                            adapter=args.adapter)
+    if args.adapter:
+        model_name = f"codette/forced-{args.adapter}"
+    else:
+        model_name = f"codette/{'full-synthesis' if args.full_synthesis else f'multi-{args.max_adapters}adapt'}"
 
     if args.mode in ("0shot", "sc3"):
         get_prompt_fn = prompt_0s
