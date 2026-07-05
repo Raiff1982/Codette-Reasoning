@@ -974,8 +974,12 @@ class CodetteOrchestrator:
             if self.verbose:
                 print(f"  [CONSTRAINTS] Post-enforcement applied: {constraints}")
 
-        # PERMANENT LOCKS: Universal self-check on EVERY response (constrained or not)
-        if SELF_CORRECTION_AVAILABLE:
+        # PERMANENT LOCKS: Universal self-check on EVERY response (constrained or not).
+        # EXCEPT benchmark/exam answers: LOCK 1 drift trimming amputates
+        # step-by-step reasoning and can remove the final answer line.
+        _is_benchmark_answer = bool(re.search(
+            r'What is the correct answer to this question', primary_query))
+        if SELF_CORRECTION_AVAILABLE and not _is_benchmark_answer:
             clean_text, lock_issues = universal_self_check(clean_text)
             if lock_issues and self.verbose:
                 print(f"  [LOCKS] Applied: {lock_issues}")
