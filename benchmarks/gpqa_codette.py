@@ -157,6 +157,23 @@ def prompt_0s(example: Example) -> str:
     )
 
 
+def prompt_reason(example: Example) -> str:
+    """Reason-then-answer: let the model think BEFORE committing to a letter.
+
+    The answer-only 0-shot format forces the model to solve the problem in a
+    single forward pass — near chance for an 8B model on GPQA. Here reasoning
+    tokens come first and the final line carries the answer, parsed with
+    parse_final_answer (last match wins).
+    """
+    return (
+        base_prompt(example)
+        + "\n\nWork through this problem step by step, showing your reasoning."
+        " Consider each choice and eliminate the ones that are wrong."
+        ' After your reasoning, end your response with this exact line:\n'
+        '"The correct answer is (X)" where X is A, B, C, or D.'
+    )
+
+
 def get_CoT_examples(cot_df: pd.DataFrame, with_explanations: bool = True) -> str:
     output = ""
     for row in cot_df.itertuples():
@@ -223,18 +240,44 @@ def parse_sampled_response(response: str) -> str | None:
     return None
 
 
+def parse_final_answer(response: str) -> str | None:
+    """Parse for reason-then-answer mode: the LAST answer declaration wins.
+
+    Reasoning text mentions letters constantly ('choice (B) fails because...'),
+    so first-match parsing would grab an eliminated option. The model is
+    instructed to END with the answer line, so search from the end.
+    """
+    patterns = [
+        r"(?:correct )?answer is \(?([ABCD])\)?",
+        r"Answer:\s*\(?([ABCD])\)?",
+        r"final answer.*?\(?([ABCD])\)?",
+    ]
+    for pattern in patterns:
+        matches = re.findall(pattern, response, re.IGNORECASE)
+        valid = [m.upper() for m in matches if m.upper() in LETTER_TO_INDEX]
+        if valid:
+            return valid[-1]
+    # Fallback: last parenthesized letter anywhere
+    matches = re.findall(r"\(([ABCD])\)", response, re.IGNORECASE)
+    valid = [m.upper() for m in matches if m.upper() in LETTER_TO_INDEX]
+    if valid:
+        return valid[-1]
+    return None
+
+
 def run_gpqa_task(
     prompt_fn: Callable,
     model_name: str,
     data_row: dict,
     get_prompt_fn: Callable[[Example], str],
     PROMPT,
+    parse_fn: Callable[[str], str | None] = parse_sampled_response,
 ) -> dict:
     example = prepare_example(data_row)
     prompt = get_prompt_fn(example)
 
     response = PROMPT(model_name, [{"role": "user", "content": prompt}])
-    answer_abcd = parse_sampled_response(response)
+    answer_abcd = parse_fn(response)
     answer_int = LETTER_TO_INDEX.get(answer_abcd) if answer_abcd else None
 
     return {
@@ -393,7 +436,7 @@ def print_summary(outputs: list[dict], mode: str):
 
 def main():
     parser = argparse.ArgumentParser(description="Run Codette against GPQA benchmark")
-    parser.add_argument("--mode", choices=["0shot", "cot", "sc3"], default="0shot",
+    parser.add_argument("--mode", choices=["0shot", "cot", "sc3", "reason"], default="0shot",
                         help="Prompting mode: 0shot, cot (5-shot CoT), sc3 (self-consistency 3-vote)")
     parser.add_argument("--dataset", default="gpqa_mini.csv",
                         help="CSV file to use: gpqa_mini.csv (default) or gpqa_diamond.csv")
@@ -453,8 +496,13 @@ def main():
 
     if args.mode in ("0shot", "sc3"):
         get_prompt_fn = prompt_0s
+        parse_fn = parse_sampled_response
+    elif args.mode == "reason":
+        get_prompt_fn = prompt_reason
+        parse_fn = parse_final_answer
     else:
         get_prompt_fn = lambda ex: prompt_5s_CoT(ex, cot_df)
+        parse_fn = parse_sampled_response
 
     # Run benchmark
     print(f"\nRunning GPQA [{args.mode}] on {len(dataset)} questions...\n")
@@ -481,6 +529,7 @@ def main():
                     data_row=row.to_dict(),
                     get_prompt_fn=get_prompt_fn,
                     PROMPT=PROMPT,
+                    parse_fn=parse_fn,
                 )
                 consensus_tag = ""
 
