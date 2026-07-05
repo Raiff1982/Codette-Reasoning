@@ -181,22 +181,32 @@ class OpenVINOBackend:
         return list(self._adapter_paths.keys())
 
     def _load_pipeline(self):
+        import traceback as _tb
         import openvino_genai as ov_genai
         self._ov = ov_genai
 
+        print(f"[OV] MODEL_DIR={MODEL_DIR}", flush=True)
+        print(f"[OV] MODEL_DIR exists={MODEL_DIR.exists()}", flush=True)
         print(f"[OV] Loading {MODEL_DIR.name} on {self.device}...", flush=True)
         t0 = time.time()
         try:
             self._pipe = ov_genai.LLMPipeline(str(MODEL_DIR), self.device)
         except Exception as e:
+            print(f"[OV] {self.device} load FAILED: {e}", flush=True)
+            _tb.print_exc()
             if self.device != "CPU":
-                print(f"[OV] {self.device} failed ({e}), retrying CPU...")
-                self._pipe = ov_genai.LLMPipeline(str(MODEL_DIR), "CPU")
-                self.device = "CPU"
+                print(f"[OV] Retrying on CPU...", flush=True)
+                try:
+                    self._pipe = ov_genai.LLMPipeline(str(MODEL_DIR), "CPU")
+                    self.device = "CPU"
+                except Exception as e2:
+                    print(f"[OV] CPU load also FAILED: {e2}", flush=True)
+                    _tb.print_exc()
+                    raise
             else:
                 raise
 
-        print(f"[OV] Loaded in {time.time()-t0:.1f}s on {self.device}")
+        print(f"[OV] Loaded in {time.time()-t0:.1f}s on {self.device}", flush=True)
         self._llm = _LLMShim(self._pipe, self._format_chat, GEN_CONFIG)
 
     # ── Memory kernel (Phase 6 compatibility) ─────────────────────────────────
@@ -265,7 +275,7 @@ class OpenVINOBackend:
         Signature matches CodetteOrchestrator.generate() so forge bridge
         and server code works without modification.
         """
-        from codette_orchestrator import (
+        from codette_shared import (
             ADAPTER_PROMPTS, extract_primary_user_query, extract_constraints,
             build_constraint_override, enforce_constraints,
         )
@@ -338,7 +348,7 @@ class OpenVINOBackend:
                            force_adapter: Optional[str] = None) -> dict:
         """Route and generate.  Return dict matches CodetteOrchestrator output."""
         from adapter_router import RouteResult
-        from codette_orchestrator import (
+        from codette_shared import (
             SYNTHESIS_PERSPECTIVES, FULL_SYNTHESIS_SENTINEL,
             extract_primary_user_query, ADAPTER_PROMPTS,
         )
