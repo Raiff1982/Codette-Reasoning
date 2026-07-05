@@ -367,6 +367,8 @@ def _get_orchestrator():
             return _orchestrator
 
         backend = os.environ.get("CODETTE_BACKEND", "llama_cpp").lower()
+        print(f"  [BACKEND] using backend={backend!r} (CODETTE_BACKEND={os.environ.get('CODETTE_BACKEND')!r})", flush=True)
+        print(f"  [BACKEND] server __file__={Path(__file__).resolve()}", flush=True)
 
         # Validate model path exists before attempting load — prevents silent hang
         # OpenVINO and Ollama manage their own model loading; skip GGUF check for both.
