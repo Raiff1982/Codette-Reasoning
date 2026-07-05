@@ -632,8 +632,13 @@ class CodetteForgeBridge:
         # Store reasoning exchange in CognitionCocooner (from original framework)
         # Now enriched with substrate state — every cocoon knows the conditions
         # under which it was created (pressure, memory, trend)
+        # Benchmark/exam queries are never cocooned — they poison future recall.
+        _is_benchmark = bool(
+            re.search(r'What is the correct answer to this question', user_query)
+            or len(re.findall(r'^\([ABCD]\)', user_query, re.MULTILINE)) >= 3
+        )
         response_text = result.get("response", "")
-        if response_text and self.forge and hasattr(self.forge, 'cocooner') and self.forge.cocooner:
+        if response_text and not _is_benchmark and self.forge and hasattr(self.forge, 'cocooner') and self.forge.cocooner:
             try:
                 cocoon_meta = {"complexity": str(complexity), "domain": domain}
                 if substrate_adjustments:

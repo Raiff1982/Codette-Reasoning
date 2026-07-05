@@ -1330,11 +1330,15 @@ def _worker_thread():
                 try:
                     # Use UnifiedMemory (SQLite + FTS5) when available,
                     # fall back to CognitionCocooner (JSON scan)
+                    # Benchmark queries skip recall entirely — each exam question
+                    # is independent; recalled fragments contaminate the answer.
                     relevant_cocoons = []
                     value_analysis_cocoons = []
                     decision_landmark_cocoons = []
                     web_research_cocoons = []
-                    if _unified_memory:
+                    if _is_benchmark_query:
+                        recall_source = "skipped_benchmark"
+                    elif _unified_memory:
                         relevant_cocoons = _unified_memory.recall_relevant(query, max_results=memory_budget)
                         value_analysis_cocoons = _unified_memory.recall_value_analyses(query, max_results=max(1, min(2, memory_budget)))
                         decision_landmark_cocoons = _unified_memory.recall_by_domain("decision_landmark", limit=max(1, min(2, memory_budget)))
@@ -1657,8 +1661,10 @@ def _worker_thread():
                         print(f"  [WORKER] Session update failed (non-critical): {e}", flush=True)
 
                 # ── Store in Unified Memory ──
-                # Every response goes to SQLite for future FTS5 recall
-                if _unified_memory:
+                # Every response goes to SQLite for future FTS5 recall.
+                # Benchmark/exam queries are NEVER stored: they poison recall
+                # (GPQA fragments were leaking into unrelated answers).
+                if _unified_memory and not _is_benchmark_query:
                     try:
                         if session:
                             for landmark in session.get_recent_decision_landmarks(max_items=3):
