@@ -863,8 +863,6 @@ def _worker_thread():
         try:
             orch = _get_orchestrator()
             if orch is None:
-                print(f"  [WORKER] orch is None — _load_error={_load_error!r}", flush=True)
-                import traceback as _tb; _tb.print_stack()
                 try:
                     response_q.put({"error": _load_error or "Model failed to load"})
                 except (queue.Full, RuntimeError) as e:
