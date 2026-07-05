@@ -10,8 +10,8 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-INFERENCE_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = Path(os.environ.get("CODETTE_PROJECT_ROOT", str(Path(__file__).resolve().parent.parent)))
+INFERENCE_DIR = PROJECT_ROOT / "inference"
 
 DEFAULT_MODEL_FILENAME = "Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf"
 

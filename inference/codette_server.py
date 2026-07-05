@@ -19,6 +19,11 @@ Architecture:
 
 import os, sys, json, time, threading, queue, argparse, webbrowser, traceback, re, uuid
 from pathlib import Path
+
+# Pin PROJECT_ROOT to THIS server file's parent — must happen before any
+# runtime_env import so that whichever copy of runtime_env.py Python finds
+# on sys.path (main repo vs. git worktree) uses the same anchor.
+os.environ.setdefault("CODETTE_PROJECT_ROOT", str(Path(__file__).resolve().parent.parent))
 from http.server import HTTPServer, SimpleHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 from io import BytesIO
