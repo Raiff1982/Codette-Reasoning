@@ -160,6 +160,18 @@ class CodetteForgeBridge:
         start_time = time.time()
         user_query = self._extract_primary_user_query(query)
 
+        # ── State Engine v8: input-side sycophancy pressure (log-only) ──
+        # The existing SycophancyGuard scans OUTPUT; this scores incoming
+        # flattery/agreement pressure so the integrity layer can hold ground
+        # before generation instead of cleaning up after capitulation.
+        try:
+            from reasoning_forge.state_engine_v8 import score_input_sycophancy
+            _in_syco = score_input_sycophancy(user_query)
+            if _in_syco >= 0.35:
+                print(f"[INPUT-SYCO] pressure={_in_syco:.2f} — user pushing for agreement", flush=True)
+        except Exception:
+            pass
+
         # Greeting fast-path: bypass adapter analysis for pure social openers.
         # Adapters are fine-tuned for analysis and produce boilerplate on greetings.
         # Use base model + identity system prompt directly instead.
@@ -628,6 +640,35 @@ class CodetteForgeBridge:
             except Exception as _aap_exc:
                 if self.verbose:
                     print(f"[AAP] skipped: {_aap_exc}", flush=True)
+
+        # ── State Engine v8 (spec: docs/specs/state_engine_v8_spec.py) ──
+        # Log-only instrumentation; no behavior changes.
+        try:
+            from reasoning_forge.state_engine_v8 import (
+                verify_render_fidelity, tension_from_texts,
+            )
+            # (a) Render fidelity: did AAP/rendering preserve the substrate's
+            # actual conclusion? Uses the pre-AAP response as authored truth.
+            if _aap_input and result.get("response") and result["response"] != _aap_input:
+                _authored_head = _aap_input[:300]
+                _ok, _overlap = verify_render_fidelity(result["response"], _authored_head)
+                result["render_fidelity"] = {"compliant": _ok, "overlap": round(_overlap, 4)}
+                if not _ok:
+                    print(f"[RENDER-AUDIT] FAIL overlap={_overlap:.2%} — rendered text lost the substrate conclusion", flush=True)
+                elif self.verbose:
+                    print(f"[RENDER-AUDIT] ok overlap={_overlap:.2%}", flush=True)
+
+            # (b) Measured epistemic tension: variance of REAL perspective
+            # responses around their mean (spec formula over TF vectors).
+            _persp = result.get("perspectives")
+            if isinstance(_persp, dict) and len(_persp) >= 2:
+                _xi, _gamma = tension_from_texts(_persp)
+                result["measured_tension"] = round(_xi, 4)
+                result["measured_coherence"] = round(_gamma, 4)
+                print(f"[TENSION] xi={_xi:.4f} gamma={_gamma:.4f} over {len(_persp)} perspectives (measured, not simulated)", flush=True)
+        except Exception as _v8_exc:
+            if self.verbose:
+                print(f"[STATE-V8] skipped: {_v8_exc}", flush=True)
 
         # Store reasoning exchange in CognitionCocooner (from original framework)
         # Now enriched with substrate state — every cocoon knows the conditions
