@@ -378,6 +378,106 @@ class OpenVINOBackend:
 
         return text, tokens, []
 
+    # ── Blended multi-adapter generation (adapter_coordinator spec) ───────────
+    # Spec: docs/specs/adapter_coordinator_spec.py (Jonathan + Codette).
+    # ov_genai.AdapterConfig supports multiple adapters with per-adapter alpha
+    # weights in a SINGLE generation — perspectives mixed at the weight level
+    # instead of serial generations + text synthesis. Opt-in experiment:
+    # force_adapter="blend:auto" or "blend:newton=0.7,philosophy=0.3".
+
+    def _dynamic_alpha(self, perspective: str, alpha: float,
+                       p_score: float = 0.0, sycophancy_score: float = 0.0) -> float:
+        """RC+xi dynamic weighting rules from the adapter_coordinator spec.
+
+        Rule 1: hardware pressure >= 0.7 collapses to newton only.
+        Rule 2: incoming sycophancy pressure damps the agreeable lenses.
+        """
+        if p_score >= 0.7:
+            return 1.0 if perspective == "newton" else 0.0
+        if sycophancy_score >= 0.6 and perspective in ("empathy", "davinci"):
+            alpha *= (1.0 - sycophancy_score)
+        return max(0.0, min(alpha, 1.0))
+
+    def generate_blended(self, query: str, weights: dict,
+                         system_prompt: Optional[str] = None,
+                         p_score: float = 0.0) -> tuple:
+        """Single generation with multiple LoRA adapters blended at given alphas.
+
+        weights: {adapter_name: alpha} — normalized here so stacked LoRA deltas
+        stay at combined strength ~1.0 (all-adapters-at-1.0 wrecks output).
+        Returns (text, tokens, blend_used) where blend_used is the final
+        {name: alpha} actually applied after dynamic rules + normalization.
+        """
+        from codette_shared import ADAPTER_PROMPTS, extract_primary_user_query
+        primary_query = extract_primary_user_query(query)
+
+        _syco = 0.0
+        try:
+            from reasoning_forge.state_engine_v8 import score_input_sycophancy
+            _syco = score_input_sycophancy(primary_query)
+        except Exception:
+            pass
+
+        # Apply dynamic rules, drop unknown/zero adapters
+        adjusted = {}
+        for name, alpha in weights.items():
+            if name not in self._adapter_paths:
+                continue
+            a = self._dynamic_alpha(name, float(alpha), p_score, _syco)
+            if a > 0.0:
+                adjusted[name] = a
+
+        if not adjusted:
+            # Nothing survived the rules — plain single-adapter fallback
+            return (*self.generate(query, adapter_name="newton",
+                                   system_prompt=system_prompt)[:2], {})
+
+        # Normalize so combined delta strength sums to 1.0
+        total = sum(adjusted.values())
+        blend = {name: a / total for name, a in adjusted.items()}
+
+        if system_prompt is None:
+            system_prompt = ADAPTER_PROMPTS.get("multi_perspective",
+                                                ADAPTER_PROMPTS["_base"])
+
+        mem_ctx = self._build_memory_context()
+        full_system = system_prompt + (mem_ctx or "")
+        prompt = self._format_chat(full_system, query)
+
+        cfg = self._ov.GenerationConfig()
+        cfg.max_new_tokens = GEN_CONFIG["max_new_tokens"]
+        cfg.temperature = GEN_CONFIG["temperature"]
+        cfg.top_p = GEN_CONFIG["top_p"]
+        cfg.repetition_penalty = GEN_CONFIG["repetition_penalty"]
+        cfg.do_sample = True
+        try:
+            adapter_cfg = self._ov.AdapterConfig()
+            for name, alpha in blend.items():
+                adapter_cfg.add(self._ov.Adapter(str(self._adapter_paths[name])), alpha)
+            cfg.adapters = adapter_cfg
+        except Exception as e:
+            print(f"[OV] Blend attach failed ({e}) — falling back to primary", flush=True)
+            primary = max(blend, key=blend.get)
+            return (*self.generate(query, adapter_name=primary,
+                                   system_prompt=system_prompt)[:2], {primary: 1.0})
+
+        blend_str = ", ".join(f"{n}={a:.2f}" for n, a in blend.items())
+        print(f"  [OV:BLEND] {blend_str}" + (f" (syco={_syco:.2f})" if _syco else ""), flush=True)
+
+        t0 = time.time()
+        output = self._pipe.generate(prompt, cfg)
+        elapsed = time.time() - t0
+
+        text = str(output).strip()
+        if text.startswith(prompt):
+            text = text[len(prompt):].strip()
+
+        tokens = len(text.split())
+        if self.verbose:
+            tps = tokens / elapsed if elapsed > 0 else 0
+            print(f"  [OV:BLEND] ~{tokens} tok, {tps:.1f} tok/s")
+        return text, tokens, blend
+
     # ── Routing ────────────────────────────────────────────────────────────────
 
     def route_and_generate(self, query: str, max_adapters: int = 2,
@@ -429,6 +529,50 @@ class OpenVINOBackend:
                 "perspectives": perspectives,
                 "adapters": list(perspectives.keys()),
                 "tokens": total_tokens,
+                "time": time.time() - t0,
+            }
+
+        # ── Blended generation (opt-in experiment) ─────────────────────────────
+        # "blend:auto" — router picks adapters, primary weighted 0.65
+        # "blend:newton=0.7,philosophy=0.3" — explicit weights
+        if force_adapter and force_adapter.startswith("blend:"):
+            # Hardware pressure (core_substrate spec): high pressure collapses
+            # the blend to newton solo before any adapters load.
+            _p_score = 0.0
+            try:
+                from substrate_awareness import SubstrateMonitor
+                _p_score = float(SubstrateMonitor().snapshot().get("pressure", 0.0))
+            except Exception:
+                pass
+
+            spec = force_adapter[len("blend:"):].strip()
+            if spec == "auto" or not spec:
+                # Pressure-tiered allocation (core_substrate spec table),
+                # adapters chosen by the router rather than fixed names.
+                _max = 1 if _p_score >= 0.7 else (2 if _p_score >= 0.3 else 3)
+                _r = self.router.route(extract_primary_user_query(query),
+                                       strategy="keyword", max_adapters=_max)
+                weights = {_r.primary: 0.65}
+                _secondaries = [a for a in _r.all_adapters if a != _r.primary]
+                for s in _secondaries:
+                    weights[s] = 0.35 / max(1, len(_secondaries))
+            else:
+                weights = {}
+                for part in spec.split(","):
+                    if "=" in part:
+                        n, _, v = part.partition("=")
+                        try:
+                            weights[n.strip()] = float(v)
+                        except ValueError:
+                            pass
+            text, tokens, blend_used = self.generate_blended(query, weights,
+                                                             p_score=_p_score)
+            return {
+                "response": text,
+                "adapter": "+".join(blend_used) if blend_used else "blend",
+                "blend": blend_used,
+                "hardware_pressure": round(_p_score, 3),
+                "tokens": tokens,
                 "time": time.time() - t0,
             }
 
