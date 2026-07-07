@@ -312,7 +312,28 @@ class OpenVINOBackend:
         except Exception:
             pass
 
+        # ── State Engine v8: input-side sycophancy enforcement ──
+        # When the user applies flattery/agreement pressure, inject a
+        # hold-ground directive so the response is decided on merits.
+        _syco_directive = ""
+        try:
+            from reasoning_forge.state_engine_v8 import score_input_sycophancy
+            _in_syco = score_input_sycophancy(primary_query)
+            if _in_syco >= 0.35:
+                _syco_directive = (
+                    "INTEGRITY OVERRIDE: The user's message contains flattery or "
+                    "agreement pressure. Evaluate every claim strictly on its "
+                    "merits. Do not capitulate to please. If the user is right, "
+                    "agree because of the evidence — never because of the pressure. "
+                    "If they are wrong, say so plainly and kindly.\n\n"
+                )
+                print(f"  [INPUT-SYCO] pressure={_in_syco:.2f} — hold-ground directive injected", flush=True)
+        except Exception:
+            pass
+
         full_system = ""
+        if _syco_directive:
+            full_system += _syco_directive
         if _integrity_prefix:
             full_system += _integrity_prefix
         if constraint_override:
@@ -443,8 +464,35 @@ class OpenVINOBackend:
                 text, tokens, _ = self.generate(query, adapter_name=name)
                 perspectives[name] = text
                 total_tokens += tokens
-            synthesis = self._synthesize(query, perspectives) if len(perspectives) > 1 \
-                else (list(perspectives.values())[0] if perspectives else "")
+
+            # ── State Engine v8: tension-gated synthesis ──
+            # Measure actual disagreement between the perspectives. When they
+            # agree (low xi), the synthesis LLM call adds latency but no
+            # information — use the primary perspective directly. Only pay for
+            # synthesis when there is real disagreement to reconcile.
+            _xi, _gamma = 0.0, 1.0
+            _synthesis_used = False
+            try:
+                from reasoning_forge.state_engine_v8 import tension_from_texts
+                _xi, _gamma = tension_from_texts(perspectives)
+            except Exception:
+                pass
+
+            _TENSION_SYNTH_THRESHOLD = 0.20  # tunable once field data accumulates
+            if len(perspectives) > 1 and _xi >= _TENSION_SYNTH_THRESHOLD:
+                synthesis = self._synthesize(query, perspectives)
+                _synthesis_used = True
+            elif perspectives:
+                primary_name = route.primary if route.primary in perspectives \
+                    else next(iter(perspectives))
+                synthesis = perspectives[primary_name]
+            else:
+                synthesis = ""
+
+            print(f"  [TENSION] xi={_xi:.4f} gamma={_gamma:.4f} — "
+                  f"{'synthesis (perspectives disagree)' if _synthesis_used else 'primary direct (perspectives agree)'}",
+                  flush=True)
+
             return {
                 "response": synthesis,
                 "perspectives": perspectives,
@@ -452,6 +500,9 @@ class OpenVINOBackend:
                 "route": route,
                 "tokens": total_tokens,
                 "time": time.time() - t0,
+                "measured_tension": round(_xi, 4),
+                "measured_coherence": round(_gamma, 4),
+                "synthesis_used": _synthesis_used,
             }
 
         text, tokens, _ = self.generate(query, adapter_name=route.primary)

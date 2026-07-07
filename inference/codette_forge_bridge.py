@@ -618,10 +618,27 @@ class CodetteForgeBridge:
                     _QC.MEDIUM:  0.50,
                     _QC.COMPLEX: 0.75,
                 }
-                _aap_eps = _eps_map.get(complexity, 0.50)
                 _aap_analyses = result.get("perspectives", {})
                 if not isinstance(_aap_analyses, dict):
                     _aap_analyses = {}
+
+                # ── State Engine v8: epsilon = MEASURED tension when available ──
+                # The complexity buckets are a guess about disagreement; the
+                # measured xi over the actual perspective texts is the real thing.
+                _aap_eps = None
+                if result.get("measured_tension") is not None:
+                    _aap_eps = min(0.95, max(0.05, float(result["measured_tension"])))
+                elif len(_aap_analyses) >= 2:
+                    try:
+                        from reasoning_forge.state_engine_v8 import tension_from_texts
+                        _xi_b, _gamma_b = tension_from_texts(_aap_analyses)
+                        result["measured_tension"] = round(_xi_b, 4)
+                        result["measured_coherence"] = round(_gamma_b, 4)
+                        _aap_eps = min(0.95, max(0.05, _xi_b))
+                    except Exception:
+                        _aap_eps = None
+                if _aap_eps is None:
+                    _aap_eps = _eps_map.get(complexity, 0.50)
                 _aap_result = SynthesisEngineV3().synthesize_adaptive(
                     concept=user_query,
                     analyses=_aap_analyses,
@@ -641,31 +658,23 @@ class CodetteForgeBridge:
                 if self.verbose:
                     print(f"[AAP] skipped: {_aap_exc}", flush=True)
 
-        # ── State Engine v8 (spec: docs/specs/state_engine_v8_spec.py) ──
-        # Log-only instrumentation; no behavior changes.
+        # ── State Engine v8: render-fidelity ENFORCEMENT ──
+        # (spec: docs/specs/state_engine_v8_spec.py)
+        # The pre-AAP substrate response is authored truth. If the rendered
+        # (post-AAP) text lost its conclusion, the render does not ship —
+        # revert to the substrate's own words.
         try:
-            from reasoning_forge.state_engine_v8 import (
-                verify_render_fidelity, tension_from_texts,
-            )
-            # (a) Render fidelity: did AAP/rendering preserve the substrate's
-            # actual conclusion? Uses the pre-AAP response as authored truth.
+            from reasoning_forge.state_engine_v8 import verify_render_fidelity
             if _aap_input and result.get("response") and result["response"] != _aap_input:
                 _authored_head = _aap_input[:300]
                 _ok, _overlap = verify_render_fidelity(result["response"], _authored_head)
                 result["render_fidelity"] = {"compliant": _ok, "overlap": round(_overlap, 4)}
                 if not _ok:
-                    print(f"[RENDER-AUDIT] FAIL overlap={_overlap:.2%} — rendered text lost the substrate conclusion", flush=True)
+                    print(f"[RENDER-AUDIT] ENFORCED overlap={_overlap:.2%} — render lost the substrate conclusion, reverting to authored response", flush=True)
+                    result["response"] = _aap_input
+                    result["render_fidelity"]["enforced"] = True
                 elif self.verbose:
                     print(f"[RENDER-AUDIT] ok overlap={_overlap:.2%}", flush=True)
-
-            # (b) Measured epistemic tension: variance of REAL perspective
-            # responses around their mean (spec formula over TF vectors).
-            _persp = result.get("perspectives")
-            if isinstance(_persp, dict) and len(_persp) >= 2:
-                _xi, _gamma = tension_from_texts(_persp)
-                result["measured_tension"] = round(_xi, 4)
-                result["measured_coherence"] = round(_gamma, 4)
-                print(f"[TENSION] xi={_xi:.4f} gamma={_gamma:.4f} over {len(_persp)} perspectives (measured, not simulated)", flush=True)
         except Exception as _v8_exc:
             if self.verbose:
                 print(f"[STATE-V8] skipped: {_v8_exc}", flush=True)

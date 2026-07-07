@@ -1814,6 +1814,15 @@ def _worker_thread():
 
                 response_data["memory_context"] = memory_context_summary
 
+                # State Engine v8 signals (measured tension, render fidelity)
+                if result.get("measured_tension") is not None:
+                    response_data["measured_tension"] = result["measured_tension"]
+                    response_data["measured_coherence"] = result.get("measured_coherence")
+                if result.get("synthesis_used") is not None:
+                    response_data["synthesis_used"] = result["synthesis_used"]
+                if result.get("render_fidelity"):
+                    response_data["render_fidelity"] = result["render_fidelity"]
+
                 # Add Phase 6 metadata (complexity, domain, ethical)
                 if result.get("complexity"):
                     response_data["complexity"] = str(result["complexity"])
