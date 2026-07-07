@@ -7,8 +7,13 @@ Usage:
     python scripts/reboot_codette.py --port 7860      # custom port (default 7860)
     python scripts/reboot_codette.py --dry-run        # show what would happen, no action
 
-The server takes ~80s to load the model on first start. This script waits up
-to 180s for /api/health to confirm she's ready, then prints her status.
+The OpenVINO backend takes ~2 min on first GPU load (Arc kernel compile;
+cached loads ~20s). This script waits up to 300s for /api/health to confirm
+she's ready, then prints her status.
+
+Kills ALL codette_server processes before starting — not just the port owner.
+Stale instances that never bound the port still hold the GPU and deadlock
+the new server (root cause of every "she isn't starting" incident).
 """
 
 import argparse
@@ -27,13 +32,19 @@ SERVER_SCRIPT = ROOT / "inference" / "codette_server.py"
 LOW_CONF_DIR = ROOT / "inference" / "cocoons" / "low_confidence"
 ALT_LOW_CONF_DIR = ROOT / "cocoons" / "low_confidence"
 
-HEALTH_TIMEOUT = 180   # seconds to wait for server to come up
+HEALTH_TIMEOUT = 300   # seconds to wait for server (OV first GPU load ~2 min)
 HEALTH_INTERVAL = 5    # polling interval
 
 
 def find_server_pid(port: int) -> list[int]:
-    """Find PIDs of codette_server.py processes bound to port."""
-    pids = []
+    """Find PIDs of ALL codette_server.py processes — port owners AND zombies.
+
+    Stale instances that never bound the port still hold the GPU/model and
+    deadlock any new server, so netstat alone is not enough.
+    """
+    pids = set()
+
+    # 1. Whoever owns the port
     try:
         result = subprocess.run(
             ["netstat", "-ano"],
@@ -44,12 +55,32 @@ def find_server_pid(port: int) -> list[int]:
                 parts = line.strip().split()
                 if parts:
                     try:
-                        pids.append(int(parts[-1]))
+                        pids.add(int(parts[-1]))
                     except ValueError:
                         pass
     except Exception:
         pass
-    return list(set(pids))
+
+    # 2. Any python process running codette_server.py (zombie pileup guard)
+    if sys.platform == "win32":
+        try:
+            result = subprocess.run(
+                ["powershell", "-NoProfile", "-Command",
+                 "Get-CimInstance Win32_Process -Filter \"Name like 'python%'\" | "
+                 "Where-Object { $_.CommandLine -like '*codette_server*' } | "
+                 "Select-Object -ExpandProperty ProcessId"],
+                capture_output=True, text=True, timeout=20
+            )
+            for token in result.stdout.split():
+                try:
+                    pids.add(int(token))
+                except ValueError:
+                    pass
+        except Exception:
+            pass
+
+    pids.discard(os.getpid())  # never kill ourselves
+    return sorted(pids)
 
 
 def kill_server(pids: list[int], dry_run: bool = False):
@@ -88,9 +119,22 @@ def clear_low_confidence(dry_run: bool = False):
                 f.unlink()
 
 
+def _pick_python() -> str:
+    """Prefer openvino_env (OV backend), then .venv, then whoever ran us."""
+    candidates = [
+        ROOT / "openvino_env" / "Scripts" / "python.exe",
+        ROOT / ".venv" / "Scripts" / "python.exe",
+        ROOT / ".venv" / "bin" / "python",
+    ]
+    for c in candidates:
+        if c.exists():
+            return str(c)
+    return sys.executable
+
+
 def start_server(port: int, dry_run: bool = False) -> subprocess.Popen | None:
     """Launch codette_server.py in a new visible console window."""
-    python = sys.executable
+    python = _pick_python()
     cmd = [python, str(SERVER_SCRIPT), "--port", str(port)]
     print(f"  Starting: {' '.join(cmd)}")
     if dry_run:
