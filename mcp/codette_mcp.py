@@ -43,6 +43,13 @@ SERVER_INFO = {"name": "codette", "version": "1.0.0"}
 # Auto-launch: boot the full Codette server (orchestrator + model) on demand.
 # ---------------------------------------------------------------------------
 _REPO_ROOT = Path(__file__).resolve().parent.parent
+# Git-worktree guard: if this bridge is running from a worktree copy
+# (.claude/worktrees/<name>/), launching THAT copy's server boots stale
+# code that grabs port 7860 and blocks the real server. Walk up to the
+# primary repo instead.
+_parts = _REPO_ROOT.parts
+if ".claude" in _parts and "worktrees" in _parts:
+    _REPO_ROOT = Path(*_parts[:_parts.index(".claude")])
 _SERVER_DIR = _REPO_ROOT / "inference"
 _SERVER_SCRIPT = _SERVER_DIR / "codette_server.py"
 _AUTOLAUNCH = os.environ.get("CODETTE_AUTOLAUNCH", "1") == "1"
@@ -98,8 +105,17 @@ def ensure_server() -> None:
     else:
         kwargs["start_new_session"] = True
 
+    # Prefer the OpenVINO env's python (required for the OV backend);
+    # fall back to whatever runs this bridge.
+    _py = sys.executable
+    for _cand in (_REPO_ROOT / "openvino_env" / "Scripts" / "python.exe",
+                  _REPO_ROOT / ".venv" / "Scripts" / "python.exe"):
+        if _cand.exists():
+            _py = str(_cand)
+            break
+
     _server_proc = subprocess.Popen(
-        [sys.executable, str(_SERVER_SCRIPT),
+        [_py, str(_SERVER_SCRIPT),
          "--no-browser", "--port", str(port), "--n-ctx", _LAUNCH_N_CTX],
         **kwargs,
     )
