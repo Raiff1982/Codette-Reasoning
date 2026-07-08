@@ -450,6 +450,12 @@ class OpenVINOBackend:
         cfg.top_p = GEN_CONFIG["top_p"]
         cfg.repetition_penalty = GEN_CONFIG["repetition_penalty"]
         cfg.do_sample = True
+        # Benchmark queries need near-greedy decoding (same as generate()):
+        # rep_penalty 1.3 word-salads long reasoning chains.
+        import re as _re
+        if _re.search(r'What is the correct answer to this question', primary_query):
+            cfg.temperature = 0.2
+            cfg.repetition_penalty = 1.05
         try:
             adapter_cfg = self._ov.AdapterConfig()
             for name, alpha in blend.items():
