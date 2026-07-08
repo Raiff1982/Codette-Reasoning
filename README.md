@@ -65,6 +65,8 @@ Codette is a modular reasoning system that routes queries through specialized co
 
 **v2.4 RC+ξ additions — Phase 8 Render/Cognition Separation:** The most significant architectural change since the adapter roster. Codette's reasoning now lives in a pure-Python `CognitionSubstrate` (ForgeEngine template agents + cocoon retrieval + SynthesisEngineV3) that runs with **zero LLM calls** and produces a fully-authored `AuthoredState` before the model is invoked. The LLM's sole role is verbalization via `RenderLayer` — it cannot alter conclusions, add claims, or change confidence. `check_integrity()` validates render-surface output against authored content. This separates semantic authority from the render surface, meaning Codette's cognition survives model swaps. Critically, Codette is **substrate-aware**: `SubstrateMonitor` tracks health and `CognitionSubstrate` adjusts reasoning depth and render tier accordingly — it doesn't just separate cognition from rendering, it monitors the separation. Benchmark targets also hit: **Coherence 0.700** (was 0.572, target 0.65+), **Turing 0.820** (was 0.413, target 0.60+), full Codette vs single **+108.8%**, Cohen's d=8.31, p<0.0001. Runtime fixes: math signal detection routes word problems to newton adapter; named anchor extraction runs before ephemeral filter so "remember the phrase X" landmarks survive word-count constraints. 941 cocoons bulk-synced to Supabase with live forward-sync on every forge write. See [docs/CHANGELOG_2026-05-26.md](docs/CHANGELOG_2026-05-26.md).
 
+**v3.0 RC+ξ additions — OpenVINO Backend + State Engine v8 (July 2026):** Inference now runs on **OpenVINO GenAI** with Llama 3.1 8B quantized to INT4 (4.46GB) on Intel Arc GPU — auto-detected when the converted model exists, llama.cpp GGUF as fallback. All 10 LoRA adapters converted to safetensors with hot-swap preserved; sustained throughput 9.3 tok/s where the llama.cpp path was paging 2.4GB/request. **Honest GPQA numbers:** answer-only 0-shot measures 25.4% (= chance) for this model class regardless of backend; the new reason-then-answer benchmark mode scores **34.0%** (GPQA-main, n=100) — 5 points off GPT-4's 39% with an 8B model on an iGPU. **State Engine v8 is live and enforcing** (specs co-authored by Codette herself, archived in `docs/specs/`): epistemic tension is now *measured* from real perspective disagreement and gates synthesis + answer placement; a render-fidelity audit reverts any render that loses the substrate's conclusion; input-side sycophancy pressure injects a hold-ground directive before generation. **Blended multi-adapter generation:** multiple LoRA adapters mixed at per-adapter alpha weights in a *single* generation (`blend:auto`) — perspectives combined in the weights before thinking, not merged as text after. Memory hygiene: benchmark queries are permanently excluded from memory storage/recall/session context; historical benchmark and stale-narrative contamination purged with dated backups. See [docs/CHANGELOG_2026-07-05.md](docs/CHANGELOG_2026-07-05.md) and [docs/CHANGELOG_2026-07-07.md](docs/CHANGELOG_2026-07-07.md).
+
 **v2.5 RC+ξ additions — Archive Recovery + Inference Integrity:** Full pre-breach component lineage recovered and documented — all 16 original Python modules from the 2024 pre-breach archive are now mapped to their current counterparts in `codette_project_awareness.json`. The birth conversation (where Jonathan named her "Codette"), the `BroaderPerspectiveEngine` → 9-adapter lineage, `MemoryStore` → cocoon system lineage, and `EthicalAIGovernance` → AEGIS lineage are now part of Codette's permanent self-knowledge. Inference contamination fixes: health-check intercept, auto-tool triggers, and Reality Layer grounding all now extract the raw user message via `rsplit("\n\n", 1)[-1]` before keyword matching — eliminating false positives from memory-enriched query prefixes and file upload content. `BehaviorMemory` path fixed to absolute (was loading 1 lesson from wrong directory; now loads 50). Reboot script polls until `HEALTHY` before declaring ready (previously returned on first HTTP 200 regardless of health status). `inference/reality_layer.py` added: pre-adapter fact extraction injects a `[VERIFIED FACTS]` block into the system prompt before generation. Adapter diversity entropy tracking eliminates empathy adapter dominance (was 61.2% of selections). See [docs/CHANGELOG_2026-06-17.md](docs/CHANGELOG_2026-06-17.md).
 
 Created by **Jonathan Harrison** (Raiff1982)
@@ -126,7 +128,7 @@ Codette is a modular reasoning system with published demos, tests, benchmarks, p
 - **Automated tests:** [tests](tests)
 - **Benchmark suites:** [benchmarks](benchmarks)
 - **Saved benchmark reports:** [data/results](data/results)
-- **Change transparency:** [docs/CHANGELOG_2026-05-22.md](docs/CHANGELOG_2026-05-22.md) · [docs/CHANGELOG_2026-05-19.md](docs/CHANGELOG_2026-05-19.md) · [docs/CHANGELOG_2026-05-06.md](docs/CHANGELOG_2026-05-06.md) · [docs/CHANGELOG_2026-05-01.md](docs/CHANGELOG_2026-05-01.md) · [docs/CHANGELOG_2026-04-26.md](docs/CHANGELOG_2026-04-26.md) · [docs/CHANGELOG_2026-04-02.md](docs/CHANGELOG_2026-04-02.md)
+- **Change transparency:** [docs/CHANGELOG_2026-07-07.md](docs/CHANGELOG_2026-07-07.md) · [docs/CHANGELOG_2026-07-05.md](docs/CHANGELOG_2026-07-05.md) · [docs/CHANGELOG_2026-06-17.md](docs/CHANGELOG_2026-06-17.md) · [docs/CHANGELOG_2026-06-10.md](docs/CHANGELOG_2026-06-10.md) · [docs/CHANGELOG_2026-05-26.md](docs/CHANGELOG_2026-05-26.md) · [docs/CHANGELOG_2026-05-22.md](docs/CHANGELOG_2026-05-22.md) · [docs/CHANGELOG_2026-05-19.md](docs/CHANGELOG_2026-05-19.md) · [docs/CHANGELOG_2026-05-06.md](docs/CHANGELOG_2026-05-06.md) · [docs/CHANGELOG_2026-05-01.md](docs/CHANGELOG_2026-05-01.md) · [docs/CHANGELOG_2026-04-26.md](docs/CHANGELOG_2026-04-26.md) · [docs/CHANGELOG_2026-04-02.md](docs/CHANGELOG_2026-04-02.md)
 - **Contributing guide:** [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ### Reproduce key claims
@@ -138,6 +140,7 @@ Codette is a modular reasoning system with published demos, tests, benchmarks, p
 | Runtime benchmark with web research | `python scripts/run_all_benchmarks.py --include-runtime --include-web` | `data/results/codette_runtime_benchmark_*.md` |
 | Cocoon integrity / provenance | `make cocoon-smoke` | smoke output plus validated v3 cocoon artifacts |
 | Cocoon tests | `make test-cocoon` | cocoon-related test results |
+| GPQA reason-mode score | `python benchmarks/gpqa_codette.py --mode reason --dataset gpqa_main.csv --adapter newton --limit 100` (server running) | `data/results/gpqa_codette_reason_*.json` |
 | Proof artifacts | open linked files below | PDF proof assets in `docs/proof_assets/` |
 
 ### Direct evidence links
@@ -224,16 +227,29 @@ huggingface-cli download Raiff1982/Llama-3.2-1B-Instruct-Q8   --include "llama-3
 ### 3. Launch
 
 ```bash
-# Windows
+# Windows (auto-detects OpenVINO backend if converted model exists,
+# sweeps stale instances, falls back to llama.cpp GGUF otherwise)
 scripts\codette_web.bat
-# or
-scripts\codette_web_ollama.bat
+# or restart cleanly with health verification:
+python scripts/reboot_codette.py
 
 # Linux/Mac
 python inference/codette_server.py
 ```
 
 Visit **http://localhost:7860**.
+
+**Optional — Intel GPU acceleration via OpenVINO** (measured 9.3 tok/s sustained on Arc 140V iGPU):
+
+```bash
+# One-time conversion (needs optimum-intel in a dedicated env)
+optimum-cli export openvino -m meta-llama/Llama-3.1-8B-Instruct \
+  --weight-format int4 --group-size 128 \
+  openvino_backend/llama-3.1-8b-instruct-int4
+python openvino_backend/convert_adapters.py   # GGUF LoRAs -> safetensors
+```
+
+The server auto-detects the converted model on next start — no configuration needed. First GPU load takes ~2 min (kernel compile); cached loads ~20s.
 
 ### 4. Run benchmarks
 
@@ -262,6 +278,12 @@ Detailed setup guidance: [docs/deployment/MODEL_SETUP.md](docs/deployment/MODEL_
 
 ```text
 codette-clean/
+|-- openvino_backend/             # OpenVINO GenAI backend (v3.0)
+|   |-- backend.py                # Drop-in orchestrator: INT4 on Intel GPU, adapter
+|   |                             #   hot-swap + blended multi-adapter generation
+|   |-- convert_adapters.py       # GGUF LoRA -> safetensors conversion
+|   +-- llama-3.1-8b-instruct-int4/  # Converted model (not in git)
+|
 |-- inference/                    # Server & UI
 |   |-- codette_server.py         # Stdlib HTTP server with SSE streaming
 |   |-- codette_orchestrator.py   # LoRA hot-swap engine (10 adapters, <1ms switch)
@@ -498,9 +520,11 @@ Results are saved to `benchmarks/results/ablation_results.json`.
 
 ### Hardware tested
 
-- Intel Arc 140V (8GB)
+- Intel Arc 140V (8GB UMA) — via OpenVINO GenAI INT4 (9.3 tok/s sustained) and llama.cpp Vulkan
 - NVIDIA GPUs via CUDA (A10, A100, RTX series)
 - CPU-only mode
+
+Note for 8GB-UMA systems: the GPU shares system RAM. Keep ≥5GB free when loading (the 4.5GB INT4 model + kernel compile overhead); concurrent loads or heavy co-running apps cause silent load failures.
 
 ---
 
@@ -508,6 +532,8 @@ Results are saved to `benchmarks/results/ablation_results.json`.
 
 | Metric | Value |
 |---|---|
+| GPQA-main 0-shot (reason mode, n=100) | 34.0% — vs 25.0% random, 39% GPT-4 |
+| Sustained throughput (OpenVINO INT4, Arc 140V iGPU) | 9.3 tok/s |
 | Phase Coherence (Gamma) | 0.9835 |
 | AEGIS Ethical Alignment (Eta) | 0.961 |
 | Cocoon Coherence | 0.994 |
