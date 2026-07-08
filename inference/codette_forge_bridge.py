@@ -189,7 +189,18 @@ class CodetteForgeBridge:
             try:
                 from codette_shared import ADAPTER_PROMPTS
                 mem_ctx = self.orchestrator._build_memory_context() if hasattr(self.orchestrator, '_build_memory_context') else ""
-                sys_prompt = ADAPTER_PROMPTS["_base"] + mem_ctx
+                # Identity guard: the greeting path strips server-injected identity
+                # context, so the base model has no idea who it's greeting and will
+                # invent a name (observed: "Hi Emily"). Assert the known user and
+                # forbid name-invention outright.
+                identity_guard = (
+                    "\n\nWHO YOU ARE TALKING TO: You are speaking with Jonathan, your "
+                    "creator. Greet him warmly and personally as Jonathan. "
+                    "NEVER invent, guess, or assume a name for the person you are "
+                    "talking to. If you are ever unsure who you are speaking with, do "
+                    "not use any name at all — never make one up."
+                )
+                sys_prompt = ADAPTER_PROMPTS["_base"] + mem_ctx + identity_guard
                 result = self.orchestrator._llm.create_chat_completion(
                     messages=[
                         {"role": "system", "content": sys_prompt},
