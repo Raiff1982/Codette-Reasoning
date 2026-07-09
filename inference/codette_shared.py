@@ -141,6 +141,10 @@ ADAPTER_PROMPTS = {
     ),
 }
 
+# newton-star (STaR self-taught reasoning adapter) uses the newton persona so
+# the A/B against newton isolates the adapter weights, not the prompt.
+ADAPTER_PROMPTS["newton-star"] = ADAPTER_PROMPTS["newton"]
+
 # ── Synthesis config ──────────────────────────────────────────────────────────
 
 SYNTHESIS_PERSPECTIVES = [
