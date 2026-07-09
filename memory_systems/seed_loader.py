@@ -30,6 +30,7 @@ CORE_SEEDS = [
     "cocoon_identity.json",
     "cocoon_current_state.json",
     "cocoon_jonathan.json",
+    "cocoon_stephen.json",
     "cocoon_honesty.json",
     "cocoon_perspectives.json",
     "cocoon_conversation.json",
