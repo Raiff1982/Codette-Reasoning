@@ -650,12 +650,15 @@ class CodetteForgeBridge:
                         _aap_eps = None
                 if _aap_eps is None:
                     _aap_eps = _eps_map.get(complexity, 0.50)
+                # Emotional/personal register → plain mode (no debate scaffolding).
+                _plain = self._is_emotional_register(user_query, result)
                 _aap_result = SynthesisEngineV3().synthesize_adaptive(
                     concept=user_query,
                     analyses=_aap_analyses,
                     epsilon=_aap_eps,
                     gamma=0.72,
                     base_synthesis=_aap_input,
+                    plain=_plain,
                 )
                 result["response"] = _aap_result["response"]
                 result["aap_trace"] = _aap_result["trace"].to_dict()
@@ -1300,6 +1303,44 @@ class CodetteForgeBridge:
         return None
 
     @staticmethod
+    @staticmethod
+    def _is_emotional_register(user_query: str, result: dict) -> bool:
+        """True when the user is sharing something personal / vulnerable / painful.
+
+        In that register Codette must respond warmly and directly, never as a
+        multi-perspective debate. Signals: the empathy adapter was selected, or
+        the message carries relational / emotional-distress vocabulary, or a
+        first-person feeling statement.
+        """
+        import re as _re
+        q = (user_query or "").lower()
+
+        # Empathy adapter chosen is a strong signal
+        adapter = result.get("adapter", "")
+        if isinstance(adapter, list):
+            adapter = adapter[0] if adapter else ""
+        if adapter == "empathy":
+            return True
+
+        # Relational / distress vocabulary
+        _EMO = (
+            r"\bmy (?:husband|wife|partner|spouse|boyfriend|girlfriend|marriage|"
+            r"mom|dad|mother|father|son|daughter|kid|family|friend)\b",
+            r"\b(?:fight|fighting|argument|argued|breakup|break up|divorce|"
+            r"cheat|left me|broke up)\b",
+            r"\b(?:hurt|hurting|heartbroken|grief|grieving|crying|cried|scared|"
+            r"afraid|anxious|depressed|lonely|hopeless|overwhelmed|devastated|"
+            r"struggling|suffering)\b",
+            r"\bi (?:feel|felt|am feeling|don'?t know what to do|can'?t (?:cope|"
+            r"handle|do this)|need (?:help|support|to talk)|miss|lost)\b",
+            r"\b(?:passed away|died|death|funeral)\b",
+        )
+        for pat in _EMO:
+            if _re.search(pat, q):
+                return True
+        return False
+
+    @staticmethod
     def _scrub_leaked_directives(text: str) -> str:
         """Remove any system-prompt directives the model echoed into its response.
 
@@ -1381,6 +1422,16 @@ class CodetteForgeBridge:
             text,
             flags=_re.IGNORECASE,
         )
+
+        # 6. Strip control-echo / meta-narration the model emits when it verbalizes
+        #    its answer→stop lock: a bare "Stop." sentence, or a parenthetical
+        #    like "(Stops responding without elaboration.)" / "(no elaboration)".
+        text = _re.sub(r'(?:(?<=[.!?])\s+|^)\s*Stop\.\s*(?=$|\s)', ' ', text)
+        text = _re.sub(
+            r'\s*\((?:stops?\s+responding[^)]*|no\s+(?:further\s+)?elaboration[^)]*|'
+            r'ends?\s+response[^)]*)\)\s*',
+            ' ', text, flags=_re.IGNORECASE)
+        text = _re.sub(r'\s{2,}', ' ', text)
 
         return text.strip()
 

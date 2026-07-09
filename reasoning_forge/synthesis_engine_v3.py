@@ -103,6 +103,7 @@ class SynthesisEngineV3:
         gamma: float,
         base_synthesis: str = "",
         trust_engine: Optional[Any] = None,
+        plain: bool = False,
     ) -> Dict[str, Any]:
         """
         Apply Adaptive Answer Placement to an already-synthesized response.
@@ -120,11 +121,27 @@ class SynthesisEngineV3:
         Returns:
             {"response": str, "trace": EnhancedCognitiveTrace}
         """
-        attractor = self._classify_attractor(epsilon)
-        is_direct = attractor == "Fact"
-
         # Use base synthesis if provided; otherwise derive from analyses
         core_text = base_synthesis.strip() if base_synthesis.strip() else self._derive_core(analyses)
+
+        # ── Plain register (emotional / personal / vulnerable conversation) ──
+        # When someone shares grief, fear, or a personal crisis, foregrounding a
+        # multi-perspective *debate* — verdict-bolding, "Tensions remain.
+        # empathy and philosophy pull in different directions" — is cold and
+        # dignity-violating. Return the warm response as-is, scrubbed of any
+        # debate artifacts that leaked in from an earlier synthesis pass.
+        if plain:
+            final_response = self._strip_debate_artifacts(core_text)
+            return {
+                "response": final_response,
+                "trace": EnhancedCognitiveTrace(
+                    epsilon=epsilon, gamma=gamma, direct_mode=True,
+                    spectral_trust=1.0, active_attractor="Plain",
+                ),
+            }
+
+        attractor = self._classify_attractor(epsilon)
+        is_direct = attractor == "Fact"
 
         if is_direct:
             final_response = self._format_fact(core_text, epsilon)
@@ -309,3 +326,20 @@ class SynthesisEngineV3:
             # here — lines starting with * are counted as list items by the scorer.
             return f"Tensions remain. {names[0]} and {names[-1]} pull in different directions — both frames stay open."
         return ""
+
+    @staticmethod
+    def _strip_debate_artifacts(text: str) -> str:
+        """Remove debate-scaffolding phrases that have no place in an emotional
+        or personal reply (they read as cold and clinical there)."""
+        import re as _re
+        # "Tensions remain. X and Y pull in different directions — both frames stay open."
+        text = _re.sub(
+            r'\s*Tensions remain\.\s*\w+\s+and\s+\w+\s+pull in different directions[^.]*\.',
+            '', text, flags=_re.IGNORECASE)
+        # "Where these converge: ..." lead-in
+        text = _re.sub(r'\s*Where these converge:\s*', ' ', text, flags=_re.IGNORECASE)
+        # Bare "Stop." control-echo and meta-narration of the answer→stop lock
+        text = _re.sub(r'\s*\bStop\.\s*', ' ', text)
+        text = _re.sub(r'\s*\((?:Stops? responding[^)]*|no elaboration[^)]*)\)\s*',
+                       ' ', text, flags=_re.IGNORECASE)
+        return _re.sub(r'\s{2,}', ' ', text).strip()
