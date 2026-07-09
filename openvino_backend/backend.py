@@ -43,6 +43,7 @@ ADAPTER_NAMES = [
     "newton", "davinci", "empathy", "philosophy", "quantum",
     "consciousness", "multi_perspective", "systems_architecture",
     "constraint_tracker", "orchestrator",
+    "newton-star",   # STaR self-taught reasoning (2026-07-09) — A/B vs newton
 ]
 
 GEN_CONFIG = {
