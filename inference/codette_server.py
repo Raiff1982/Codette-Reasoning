@@ -1823,6 +1823,23 @@ def _worker_thread():
                 if result.get("render_fidelity"):
                     response_data["render_fidelity"] = result["render_fidelity"]
 
+                # ── LiveCognitionState — the RC+ξ AuthoredState from REAL signals ──
+                # Jonathan's CodetteEngine pipeline, made live: every metric here is
+                # a measured production quantity (never np.random), each tagged with
+                # its fidelity status. The object emits ONLY active-production signals.
+                try:
+                    from reasoning_forge.live_cognition_state import assemble_live_state
+                    _cog = assemble_live_state(_raw_user_msg, result)
+                    response_data["cognition_state"] = _cog.to_dict()
+                    if _cog.metrics:
+                        _m = _cog.metrics
+                        print(f"  [COGNITION] ξ={_m.get('epistemic_tension','—')} "
+                              f"Γ={_m.get('coherence_index','—')} "
+                              f"fidelity={_m.get('render_fidelity','—')} "
+                              f"P={_m.get('hardware_pressure','—')} (all measured)", flush=True)
+                except Exception as _cog_e:
+                    print(f"  [COGNITION] skipped: {_cog_e}", flush=True)
+
                 # Add Phase 6 metadata (complexity, domain, ethical)
                 if result.get("complexity"):
                     response_data["complexity"] = str(result["complexity"])
