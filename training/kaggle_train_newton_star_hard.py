@@ -116,6 +116,21 @@ try:
     trainer = SFTTrainer(processing_class=tok, **trainer_kwargs)
 except TypeError:
     trainer = SFTTrainer(tokenizer=tok, **trainer_kwargs)
+
+# The merged base's config.json says torch_dtype=bfloat16, so PEFT creates
+# LoRA weights in bf16 — and the fp16 GradScaler's unscale kernel is not
+# implemented for bf16 on T4 (NotImplementedError at first grad clip).
+# Standard QLoRA recipe: trainable params in fp32; stray bf16 buffers -> fp16.
+_n_cast = 0
+for _p in trainer.model.parameters():
+    if _p.dtype == torch.bfloat16:
+        _p.data = _p.data.to(torch.float32 if _p.requires_grad else torch.float16)
+        _n_cast += 1
+for _b in trainer.model.buffers():
+    if _b.dtype == torch.bfloat16:
+        _b.data = _b.data.to(torch.float16)
+        _n_cast += 1
+print(f"cast {_n_cast} bf16 tensors (trainables->fp32, rest->fp16)")
 print("Training newton-star-hard on 350 MMLU-Pro STEM reasoning chains...")
 trainer.train()
 trainer.push_to_hub()
