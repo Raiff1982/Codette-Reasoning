@@ -62,9 +62,17 @@ ds = load_dataset("Raiff1982/codette-training-data",
 split = ds.train_test_split(test_size=0.05, seed=42)
 print(f"train={len(split['train'])} eval={len(split['test'])}")
 
-tok = AutoTokenizer.from_pretrained(BASE)
+# The base repo's tokenizer_config.json names a transformers-v5-only class
+# ("TokenizersBackend"); with transformers 4.x pinned, AutoTokenizer rejects
+# it. PreTrainedTokenizerFast loads tokenizer.json directly, class name unseen.
+try:
+    tok = AutoTokenizer.from_pretrained(BASE)
+except ValueError:
+    from transformers import PreTrainedTokenizerFast
+    tok = PreTrainedTokenizerFast.from_pretrained(BASE)
 if tok.pad_token is None:
     tok.pad_token = tok.eos_token
+assert tok.chat_template, "chat template missing after tokenizer fallback"
 
 # fp16 compute: T4/P100 do not support bf16
 bnb = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4",
