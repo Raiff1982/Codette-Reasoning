@@ -23,11 +23,15 @@ repo — the live `newton` adapter is never touched.
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
-# ── Deps (Kaggle image has transformers/torch; these may be missing) ──
+# ── Deps — PIN transformers <5. Kaggle ships transformers v5, whose new
+# parallel loader materializes fp16 tensors concurrently BEFORE bnb
+# quantization: load peak ~14.25GB OOMs a 14.56GB T4 (fit fine on 24GB
+# A10G). The 4.x loader quantizes shard-by-shard with a low peak.
+# Pip resolves a matching older trl automatically.
 import subprocess, sys
 subprocess.run([sys.executable, "-m", "pip", "install", "-q",
-                "trl>=0.12.0", "peft>=0.7.0", "bitsandbytes", "accelerate",
-                "datasets", "transformers>=4.44.0"], check=True)
+                "transformers>=4.46,<5", "trl>=0.12.0", "peft>=0.7.0",
+                "bitsandbytes", "accelerate", "datasets"], check=True)
 
 import torch
 from datasets import load_dataset
@@ -75,33 +79,43 @@ model = AutoModelForCausalLM.from_pretrained(
     BASE, quantization_config=bnb, torch_dtype=torch.float16,
     device_map={"": 0}, use_cache=False)
 
-trainer = SFTTrainer(
+# Version-tolerant config: newer trl uses max_length, older uses
+# max_seq_length; newer SFTTrainer takes processing_class, older tokenizer.
+cfg_kwargs = dict(
+    output_dir="newton-star-hard",
+    push_to_hub=True,
+    hub_model_id=OUT,
+    num_train_epochs=3,
+    per_device_train_batch_size=1,     # T4 is smaller than A10G
+    gradient_accumulation_steps=8,
+    learning_rate=1e-4,
+    warmup_ratio=0.03,
+    logging_steps=10,
+    eval_strategy="steps",
+    eval_steps=20,
+    save_strategy="epoch",
+    fp16=True,                          # not bf16 — T4/P100
+    gradient_checkpointing=True,
+    report_to="none",
+)
+try:
+    args = SFTConfig(max_length=1536, **cfg_kwargs)
+except TypeError:
+    args = SFTConfig(max_seq_length=1536, **cfg_kwargs)
+
+trainer_kwargs = dict(
     model=model,
     train_dataset=split["train"],
     eval_dataset=split["test"],
     peft_config=LoraConfig(r=16, lora_alpha=32, lora_dropout=0.05,
                            target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
                            task_type="CAUSAL_LM"),
-    processing_class=tok,
-    args=SFTConfig(
-        output_dir="newton-star-hard",
-        push_to_hub=True,
-        hub_model_id=OUT,
-        num_train_epochs=3,
-        per_device_train_batch_size=1,     # T4 is smaller than A10G
-        gradient_accumulation_steps=8,
-        learning_rate=1e-4,
-        warmup_ratio=0.03,
-        logging_steps=10,
-        eval_strategy="steps",
-        eval_steps=20,
-        save_strategy="epoch",
-        fp16=True,                          # not bf16 — T4/P100
-        max_length=1536,
-        gradient_checkpointing=True,
-        report_to="none",
-    ),
+    args=args,
 )
+try:
+    trainer = SFTTrainer(processing_class=tok, **trainer_kwargs)
+except TypeError:
+    trainer = SFTTrainer(tokenizer=tok, **trainer_kwargs)
 print("Training newton-star-hard on 350 MMLU-Pro STEM reasoning chains...")
 trainer.train()
 trainer.push_to_hub()
