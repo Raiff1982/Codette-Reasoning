@@ -60,9 +60,14 @@ if tok.pad_token is None:
 bnb = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4",
                          bnb_4bit_compute_dtype=torch.float16,
                          bnb_4bit_use_double_quant=True)
+# device_map={"": 0} — pin the whole model to GPU 0. With "auto" on T4 x2,
+# accelerate splits the model across GPUs and wraps forward in a
+# functools.partial, which crashes TRL's chunked-CE lm_head patcher
+# (AttributeError: 'functools.partial' object has no attribute '__func__').
+# A 4-bit 8B (~5.5GB) fits comfortably in one T4's 16GB.
 model = AutoModelForCausalLM.from_pretrained(
     BASE, quantization_config=bnb, torch_dtype=torch.float16,
-    device_map="auto", use_cache=False)
+    device_map={"": 0}, use_cache=False)
 
 trainer = SFTTrainer(
     model=model,
