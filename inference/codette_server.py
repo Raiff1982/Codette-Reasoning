@@ -1823,6 +1823,21 @@ def _worker_thread():
                 if result.get("render_fidelity"):
                     response_data["render_fidelity"] = result["render_fidelity"]
 
+                # ── AEGIS η — 6-framework heuristic evaluation of the FINAL response ──
+                # Pure-heuristic (no LLM), cheap enough for every turn. Persistent
+                # instance so η is a genuine EMA across the session (eta_history).
+                # Scoring telemetry only — output revision remains dormant.
+                try:
+                    global _aegis_live
+                    if "_aegis_live" not in globals() or _aegis_live is None:
+                        from reasoning_forge.aegis import AEGIS
+                        _aegis_live = AEGIS()
+                    _ae = _aegis_live.evaluate(result.get("response", ""), context=query)
+                    result["aegis_alignment"] = _ae.get("eta")
+                    result["aegis_vetoed"] = bool(_ae.get("vetoed", False))
+                except Exception as _ae_e:
+                    print(f"  [AEGIS] live eval skipped: {_ae_e}", flush=True)
+
                 # ── LiveCognitionState — the RC+ξ AuthoredState from REAL signals ──
                 # Jonathan's CodetteEngine pipeline, made live: every metric here is
                 # a measured production quantity (never np.random), each tagged with
@@ -1835,6 +1850,8 @@ def _worker_thread():
                         _m = _cog.metrics
                         print(f"  [COGNITION] ξ={_m.get('epistemic_tension','—')} "
                               f"Γ={_m.get('coherence_index','—')} "
+                              f"η={_m.get('aegis_alignment','—')} "
+                              f"σ={_m.get('sycophancy_score','—')} "
                               f"fidelity={_m.get('render_fidelity','—')} "
                               f"P={_m.get('hardware_pressure','—')} (all measured)", flush=True)
                 except Exception as _cog_e:
