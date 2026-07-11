@@ -16,13 +16,19 @@ instead of bf16 (T4/P100 have no bf16 support). Output goes to a separate
 repo — the live `newton` adapter is never touched.
 """
 
+# ── MUST be first: hide GPU 1 before torch loads ──────────────────────
+# With both T4s visible, HF Trainer wraps the model in DataParallel and
+# replicates it onto cuda:1 while the 4-bit weights stay on cuda:0 ->
+# "Expected all tensors to be on the same device". One T4 is plenty.
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+
 # ── Deps (Kaggle image has transformers/torch; these may be missing) ──
 import subprocess, sys
 subprocess.run([sys.executable, "-m", "pip", "install", "-q",
                 "trl>=0.12.0", "peft>=0.7.0", "bitsandbytes", "accelerate",
                 "datasets", "transformers>=4.44.0"], check=True)
 
-import os
 import torch
 from datasets import load_dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
