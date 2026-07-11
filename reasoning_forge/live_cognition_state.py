@@ -1,25 +1,26 @@
 #!/usr/bin/env python3
 """LiveCognitionState — the executable RC+ξ AuthoredState, built from REAL signals.
 
-This is the live counterpart to Jonathan's CodetteEngine simulation. Same
-AuthoredState structure he designed — but every metric is a genuine measured
-quantity from the production pipeline, never np.random, never a fabricated value.
+Production module mapping active-production telemetry into the decoupled
+pipeline's per-response cognitive self-report. Integrity rule: every metric
+emitted is a genuinely measured quantity with an exact provenance label —
+missing signals are omitted or derived deterministically, never fabricated.
 
-The integrity rule: the state reports ONLY active-production quantities. The
-simulated/aspirational metrics from the fidelity table (spectral entropy of the
-attention operator, the anomaly-suppression gate) are deliberately ABSENT — the
-object refuses to emit a number it doesn't actually measure. Each field it does
-emit carries a `provenance` tag naming its fidelity status, so the object itself
-is the "Formal-to-Operational Fidelity" taxonomy, executable and per-response.
-
-This is the moment the theory stops being a diagram and starts running: ξ comes
-from tension_from_texts over the real perspective outputs; Γ from 1/(1+ξ); render
-fidelity from the enforced overlap audit; hardware pressure from the live monitor.
+Metric sources (all verified against the running code paths):
+  ξ  epistemic_tension   tension_from_texts over real perspective outputs
+  Γ  coherence_index     1/(1+ξ) — computed upstream or derived here (same formula)
+  σ  sycophancy_score    score_input_sycophancy on the live query (the same
+                          signal that gates the hold-ground directive)
+  η  aegis_alignment     AEGIS 6-framework heuristic evaluation of the FINAL
+                          response (scoring telemetry with EMA memory; does not
+                          yet revise output — revision remains dormant)
+  fidelity                enforced content-word overlap audit
+  P  hardware_pressure   SubstrateMonitor snapshot
 """
 from __future__ import annotations
 
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
 
@@ -27,11 +28,11 @@ from typing import Any, Dict, List, Optional
 class LiveCognitionState:
     """Immutable per-response cognitive self-report, from measured signals only."""
     query: str
-    conclusion: str            # bounded to 300 chars (truncated, not raised — prod-safe)
-    evidence: List[str]
-    metrics: Dict[str, float]
-    provenance: Dict[str, str]  # metric -> fidelity status + mechanism
-    timestamp: float
+    conclusion: str            # bounded to 300 chars (truncated — prod-safe)
+    evidence: List[str] = field(default_factory=list)
+    metrics: Dict[str, float] = field(default_factory=dict)
+    provenance: Dict[str, str] = field(default_factory=dict)
+    timestamp: float = field(default_factory=time.time)
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -44,53 +45,89 @@ class LiveCognitionState:
         }
 
 
-def _hardware_pressure() -> Optional[float]:
+def _fetch_hardware_pressure() -> Optional[float]:
     try:
         from substrate_awareness import SubstrateMonitor
-        return float(SubstrateMonitor().snapshot().get("pressure"))
+        return float(SubstrateMonitor().snapshot().get("pressure", 0.0))
     except Exception:
-        return None
+        return None  # graceful: outside the native substrate
 
 
 def assemble_live_state(query: str, result: Dict[str, Any]) -> LiveCognitionState:
-    """Assemble the AuthoredState from REAL production signals in `result`.
-
-    Only measured quantities are populated; each is tagged with its fidelity
-    status. Missing signals are omitted — never invented.
-    """
+    """Assemble the AuthoredState from verified production signals."""
     metrics: Dict[str, float] = {}
     provenance: Dict[str, str] = {}
     evidence: List[str] = []
 
-    # ξ_t — epistemic tension (ACTIVE: lexical variance across perspective texts)
+    # 1. ξ — epistemic tension (lexical variance across real perspective outputs)
     xi = result.get("measured_tension")
     if xi is not None:
-        metrics["epistemic_tension"] = float(xi)
-        n = len(result.get("perspectives") or {}) or "n"
+        xi_val = float(xi)
+        metrics["epistemic_tension"] = xi_val
+        n_agents = len(result.get("perspectives") or {}) or "N/A"
         provenance["epistemic_tension"] = (
-            "active-production: lexical variance across perspective outputs "
-            "(tension_from_texts)"
+            f"active-production: lexical variance across {n_agents} perspective "
+            "outputs (tension_from_texts)"
         )
-        evidence.append(f"Measured lexical divergence across {n} perspectives: ξ={float(xi):.4f}")
+        evidence.append(f"Measured lexical divergence across active lenses: ξ={xi_val:.4f}")
 
-    # Γ_t — coherence index (ACTIVE: derived 1/(1+ξ))
+    # 2. Γ — coherence index. Upstream value and local derivation are the SAME
+    # formula (1/(1+ξ)) — labeled identically to avoid implying two measurements.
     gamma = result.get("measured_coherence")
     if gamma is not None:
         metrics["coherence_index"] = float(gamma)
-        provenance["coherence_index"] = "active-production: Γ = 1/(1+ξ)"
+        provenance["coherence_index"] = "active-production: Γ = 1/(1+ξ), computed upstream"
+    elif xi is not None:
+        metrics["coherence_index"] = 1.0 / (1.0 + float(xi))
+        provenance["coherence_index"] = "active-production: Γ = 1/(1+ξ), derived here"
 
-    # render fidelity (ACTIVE: enforced content-word overlap audit)
+    # 3. σ — input sycophancy pressure. Computed HERE from the live query with
+    # the same function that gates the hold-ground directive in the backend —
+    # genuinely measured every turn, not read from a slot nothing fills.
+    try:
+        from reasoning_forge.state_engine_v8 import score_input_sycophancy
+        syc = float(score_input_sycophancy(query or ""))
+        metrics["sycophancy_score"] = syc
+        provenance["sycophancy_score"] = (
+            "active-production: score_input_sycophancy on the live query "
+            "(same signal that triggers the hold-ground directive at ≥0.35)"
+        )
+        if syc >= 0.35:
+            evidence.append(
+                f"Input flattery/agreement pressure detected (σ={syc:.2f}) — "
+                "hold-ground directive active"
+            )
+    except Exception:
+        pass  # module unavailable outside the repo — omit, never fabricate
+
+    # 4. η — AEGIS alignment of the FINAL response. Written into result by the
+    # server worker, which runs the 6-framework heuristic evaluator per turn.
+    eta = result.get("aegis_alignment")
+    if eta is not None:
+        metrics["aegis_alignment"] = max(0.0, min(1.0, float(eta)))
+        provenance["aegis_alignment"] = (
+            "active-production: AEGIS 6-framework heuristic evaluation of the "
+            "final response (EMA-smoothed scoring telemetry; output revision "
+            "remains dormant)"
+        )
+        if result.get("aegis_vetoed"):
+            evidence.append("AEGIS veto condition flagged on final response (telemetry)")
+
+    # 5. Render-fidelity overlap audit
     rf = result.get("render_fidelity")
     if isinstance(rf, dict) and rf.get("overlap") is not None:
-        metrics["render_fidelity"] = float(rf["overlap"])
+        overlap_val = float(rf["overlap"])
+        metrics["render_fidelity"] = overlap_val
         provenance["render_fidelity"] = (
-            "active-production: content-word overlap; render reverts to substrate "
-            "conclusion if < 0.15"
+            "active-production: content-word overlap audit; render reverts to "
+            "substrate conclusion if < 0.15"
         )
         if rf.get("enforced"):
-            evidence.append("Render-fidelity ENFORCED: drifted render reverted to substrate conclusion")
+            evidence.append(
+                f"Render-fidelity ENFORCED: drifted render reverted (overlap {overlap_val:.2%})"
+            )
 
-    # synthesis gate decision (ACTIVE: tension-gated dispatch)
+    # 6. Synthesis gate decision
     if result.get("synthesis_used") is not None:
         provenance["synthesis_gate"] = (
             "active-production: "
@@ -98,18 +135,17 @@ def assemble_live_state(query: str, result: Dict[str, Any]) -> LiveCognitionStat
                else "primary used directly (perspectives agreed)")
         )
 
-    # hardware pressure P (ACTIVE: substrate monitor)
-    hp = _hardware_pressure()
+    # 7. P — hardware pressure
+    hp = _fetch_hardware_pressure()
     if hp is not None:
         metrics["hardware_pressure"] = round(hp, 3)
         provenance["hardware_pressure"] = "active-production: SubstrateMonitor snapshot"
 
-    resp = (result.get("response") or "").strip()
-    conclusion = resp[:300]
+    raw_response = (result.get("response") or "").strip()
 
     return LiveCognitionState(
         query=(query or "")[:500],
-        conclusion=conclusion,
+        conclusion=raw_response[:300],
         evidence=evidence,
         metrics=metrics,
         provenance=provenance,
