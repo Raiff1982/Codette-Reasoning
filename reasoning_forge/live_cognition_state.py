@@ -135,6 +135,24 @@ def assemble_live_state(query: str, result: Dict[str, Any]) -> LiveCognitionStat
                else "primary used directly (perspectives agreed)")
         )
 
+    # 6b. Web coherence — Phase 2 graph corroboration of Γ over the SAME
+    # perspective outputs (distance-based, active-production). Mode-tagged so
+    # semantic vs lexical basis is never ambiguous. Corroborates, never replaces.
+    wc = result.get("web_coherence")
+    if wc is not None:
+        metrics["web_coherence"] = float(wc)
+        _mode = result.get("web_mode", "lexical")
+        provenance["web_coherence"] = (
+            f"active-production: perspective-web Γ=1/(1+ξ) over pairwise "
+            f"{_mode} distance across {result.get('web_tension') is not None and len(result.get('perspectives') or {}) or 'N/A'} perspectives"
+        )
+        _flat = metrics.get("coherence_index")
+        if _flat is not None:
+            evidence.append(
+                f"Graph coherence {float(wc):.3f} vs flat Γ {float(_flat):.3f} "
+                f"(Δ={abs(float(wc)-float(_flat)):.3f}, {_mode} basis)"
+            )
+
     # 7. P — hardware pressure
     hp = _fetch_hardware_pressure()
     if hp is not None:
