@@ -355,6 +355,26 @@ def _set_active_session(session) -> None:
         _session = session
 
 
+# Per-session spectral-glyph trackers (Phase 3): each holds a persistent web
+# accumulating per-perspective tension history across a conversation, so FFT
+# glyphs form over real turns. Keyed by session_id.
+_glyph_trackers = {}
+_glyph_lock = threading.Lock()
+
+
+def _get_glyph_tracker(session_id: str, embedder):
+    with _glyph_lock:
+        t = _glyph_trackers.get(session_id)
+        if t is None:
+            from reasoning_forge.perspective_web import SessionGlyphTracker
+            t = SessionGlyphTracker(embedder=embedder)
+            _glyph_trackers[session_id] = t
+            # Cap registry so long-running servers don't accumulate sessions.
+            if len(_glyph_trackers) > 64:
+                _glyph_trackers.pop(next(iter(_glyph_trackers)))
+        return t
+
+
 _orchestrator_args = None  # Global to hold command-line args for orchestrator
 
 def _get_orchestrator():
@@ -1877,6 +1897,26 @@ def _worker_thread():
                         )
                 except Exception as _opt_e:
                     print(f"  [OPTIMIZER] shadow skipped: {_opt_e}", flush=True)
+
+                # Phase 3 — per-session spectral glyphs over REAL conversation
+                # tension history. Uses the same semantic embedder as the web;
+                # a glyph forms once a perspective has accumulated enough
+                # structured divergence across turns (never fabricated early).
+                try:
+                    _persp = result.get("perspectives") or {}
+                    if isinstance(_persp, dict) and len(_persp) >= 2 and session is not None:
+                        from inference.semantic_embedder import get_semantic_embedder
+                        _g_tracker = _get_glyph_tracker(
+                            getattr(session, "session_id", "default"),
+                            get_semantic_embedder())
+                        _g_res = _g_tracker.observe_turn(_persp)
+                        if _g_res.get("glyphs"):
+                            response_data["glyphs"] = _g_res["glyphs"]
+                            print(f"  [GLYPH] formed {list(_g_res['glyphs'].keys())} "
+                                  f"(turn {_g_res.get('turn')}, "
+                                  f"{len(_g_tracker.web.glyphs)} total this session)", flush=True)
+                except Exception as _g_e:
+                    print(f"  [GLYPH] skipped: {_g_e}", flush=True)
 
                 # Add Phase 6 metadata (complexity, domain, ethical)
                 if result.get("complexity"):
