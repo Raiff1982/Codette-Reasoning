@@ -80,7 +80,26 @@ Honest-naming pass on both modules: class names kept (Codette brand), but
 overclaiming *math* labels corrected (Planck-Orbital → sum-of-squares, "128D" →
 the actual 5D summaries, Boltzmann → the revert-only hill-climb it is).
 
+## Real semantic embedder — the web goes SEMANTIC
+
+Wired the unlock that turns the perspective web from lexical to real
+meaning-space distance.
+
+- `inference/semantic_embedder.py` — loads all-MiniLM-L6-v2 (384-d) via
+  `optimum.intel` as OpenVINO IR, mean-pools + L2-normalizes. Runs on **CPU**
+  by default (`CODETTE_EMBED_DEVICE` overrides) so it doesn't contend with the
+  INT4 LLM for the Arc iGPU's shared UMA memory. Lazy singleton; first call
+  exports HF→OV and caches to `models/minilm-ov` (gitignored, regenerable) —
+  ~34s first export, ~8s cached reload.
+- Wired into `codette_forge_bridge` Phase-2: `web_coherence` in
+  LiveCognitionState is now **semantic in production**. Graceful fallback to
+  lexical if the model can't load (offline/no cache) — never fabricates.
+- Verified: semantic mode separates agreement (Γ0.849) from disagreement
+  (Γ0.754), cleaner than lexical (0.764/0.680), because it reads meaning not
+  shared vocabulary. Also enriches the real Γ/ξ the shadow optimizer watches.
+
 ## Next
 
-- Wire a real embedder into the OV path so the web runs semantic, not lexical.
 - Review the shadow-optimizer log over real turns before any `CODETTE_OPTIMIZER_LIVE=1`.
+- Wire `SessionGlyphTracker` (Phase 3) into per-session server state so glyphs
+  form over real conversations (mechanism proven; server-session plumbing left).
