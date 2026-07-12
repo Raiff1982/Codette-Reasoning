@@ -1,0 +1,12 @@
+{
+  "spearman_flat_vs_web": 0.4538483462086552,
+  "q2": {
+    "flat_a": 1.0950000000000002,
+    "flat_b": 0.284765625,
+    "cluster_a": 4,
+    "cluster_b": 4,
+    "separates": false
+  },
+  "verdict": "FLAT WAS ENOUGH \u2014 web \u03be is redundant with flat \u03be and attractors add no separation here. Keep the flat metric; the graph is decoration in lexical/production mode. (Legit negative result.)",
+  "note": "lexical/vector mode; semantic mode may change Q1 redundancy"
+}

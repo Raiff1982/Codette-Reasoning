@@ -495,7 +495,13 @@ class QuantumSpiderweb:
         """
         attractors: List[Dict[str, Any]] = []
         assigned: Set[str] = set()
-        node_items = [(nid, n.state.to_array()) for nid, n in self.nodes.items()]
+        # Cluster in REAL space: use the embedding when present (Phase 2), else
+        # fall back to the 5D summary coords. Without this, embedding-only nodes
+        # all share the default summary vector and collapse into one cluster.
+        node_items = [
+            (nid, n.state.embedding if n.state.embedding is not None else n.state.to_array())
+            for nid, n in self.nodes.items()
+        ]
 
         for nid, arr in node_items:
             if nid in assigned:
