@@ -1895,23 +1895,32 @@ def _worker_thread():
                 # (logprob uncertainty) is wired separately — it touches the
                 # generation hot path GPQA reproducibility depends on.
                 try:
-                    global _subsystem
+                    global _subsystem, _manifold
                     if "_subsystem" not in globals() or _subsystem is None:
-                        from reasoning_forge.codette_subsystem_upgrade import CodetteSubsystemUpgrade
+                        from reasoning_forge.codette_subsystem_upgrade import (
+                            CodetteSubsystemUpgrade, ForgeManifoldEngine)
                         _subsystem = CodetteSubsystemUpgrade(enforce_veto=False)  # SHADOW
+                        _manifold = ForgeManifoldEngine()
                     _persp = result.get("perspectives") or {}
                     _eta = result.get("aegis_alignment")
-                    # Task 2/3: real ξ trajectory + convergence over REAL embeddings.
+                    # Task 2/3: real ξ + convergence + synthesis biases over REAL
+                    # embeddings. Biases are SHADOW — computed and surfaced, NOT yet
+                    # applied to synthesis weights (they'd change how she reasons;
+                    # observe first, flip live only once proven to sharpen not skew).
                     if isinstance(_persp, dict) and len(_persp) >= 2:
                         from inference.semantic_embedder import get_semantic_embedder
                         _emb = get_semantic_embedder()
                         if _emb is not None:
                             import numpy as _np
-                            _states = [_np.asarray(_emb.embed_claim(t)) for t in _persp.values() if t and t.strip()]
+                            _names = [n for n, t in _persp.items() if t and t.strip()]
+                            _states = [_np.asarray(_emb.embed_claim(_persp[n])) for n in _names]
                             if len(_states) >= 2:
-                                _xi_m, _conv = _subsystem.compute_manifold_evolution(_states, eta=_eta)
-                                result["subsystem_xi"] = round(float(_xi_m), 4)
-                                result["converging"] = bool(_conv)
+                                _mo = _manifold.update_manifold(_states, eta=_eta)
+                                result["subsystem_xi"] = round(float(_mo["xi_t"]), 4)
+                                result["converging"] = bool(_mo["converging"])
+                                # shadow: what synthesis weights WOULD become
+                                result["synth_bias_shadow"] = {
+                                    n: round(w, 3) for n, w in zip(_names, _mo["synthesis_weights"])}
                     # Task 5: AEGIS veto enforcement — SHADOW. Uses AEGIS's own
                     # per-framework scores; logs would-blocks, enforces nothing.
                     _fw = {k: v.get("score", 0.0) for k, v in (result.get("aegis_frameworks") or {}).items()}
