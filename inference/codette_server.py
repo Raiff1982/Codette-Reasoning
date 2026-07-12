@@ -1858,6 +1858,29 @@ def _worker_thread():
                 except Exception as _ae_e:
                     print(f"  [AEGIS] live eval skipped: {_ae_e}", flush=True)
 
+                # Backfill measured signals from the FINAL perspectives. On some
+                # paths (e.g. full_synthesis) perspectives are attached to result
+                # after the bridge's early tension block, leaving measured_tension /
+                # web_coherence null. Recompute here from the settled result so
+                # cognition, optimizer, and glyphs all see consistent real signals.
+                try:
+                    _fp = result.get("perspectives") or {}
+                    if isinstance(_fp, dict) and len(_fp) >= 2 and result.get("measured_tension") is None:
+                        from reasoning_forge.state_engine_v8 import tension_from_texts
+                        _xi_s, _gamma_s = tension_from_texts(_fp)
+                        result["measured_tension"] = round(_xi_s, 4)
+                        result["measured_coherence"] = round(_gamma_s, 4)
+                    if isinstance(_fp, dict) and len(_fp) >= 2 and result.get("web_coherence") is None:
+                        from reasoning_forge.perspective_web import build_web_from_perspectives
+                        from inference.semantic_embedder import get_semantic_embedder
+                        _wb, _ws = build_web_from_perspectives(_fp, embedder=get_semantic_embedder())
+                        if _ws.get("web_coherence") is not None:
+                            result["web_coherence"] = _ws["web_coherence"]
+                            result["web_tension"] = _ws["web_tension"]
+                            result["web_mode"] = _ws["web_mode"]
+                except Exception as _bf_e:
+                    print(f"  [SIGNALS] backfill skipped: {_bf_e}", flush=True)
+
                 # ── LiveCognitionState — the RC+ξ AuthoredState from REAL signals ──
                 # Jonathan's CodetteEngine pipeline, made live: every metric here is
                 # a measured production quantity (never np.random), each tagged with
