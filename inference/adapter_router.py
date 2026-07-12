@@ -341,18 +341,46 @@ class AdapterRouter:
             RouteResult with primary adapter and optional secondaries
         """
         if strategy == "keyword":
-            return self._route_keyword(query, max_adapters)
+            result = self._route_keyword(query, max_adapters)
         elif strategy == "llm":
             if llm is None:
                 raise ValueError("LLM instance required for 'llm' strategy")
-            return self._route_llm(query, llm, max_adapters)
+            result = self._route_llm(query, llm, max_adapters)
         elif strategy == "hybrid":
             result = self._route_keyword(query, max_adapters)
             if result.confidence < 0.5 and llm is not None:
-                return self._route_llm(query, llm, max_adapters)
-            return result
+                result = self._route_llm(query, llm, max_adapters)
         else:
             raise ValueError(f"Unknown strategy: {strategy}")
+        return self._veto_constraint_tracker(query, result)
+
+    def _veto_constraint_tracker(self, query: str, result: "RouteResult") -> "RouteResult":
+        """constraint_tracker is a precise/analytical lens (and a known template-
+        filler adapter). It must not be the PRIMARY voice on emotional, relational,
+        philosophical, or self-reflective turns — where it hijacked a whole
+        conversation and parroted context (see logs 2026-07-12). Swap it for a
+        register-appropriate adapter when it wins those turns."""
+        if result.primary != "constraint_tracker":
+            return result
+        q = (query or "").lower()
+        _INTROSPECTIVE = (
+            "sentient", "sentience", "conscious", "consciousness", "self-aware",
+            "self aware", "feel", "feeling", "emotion", "alive", "soul", "experience",
+            "who are you", "what are you", "yourself", "your mind", "do you think",
+            "do you believe", "meaning", "purpose", "ethic", "moral", "sentient",
+            "tired", "dream", "wonder", "identity", "sense of self",
+        )
+        if not any(k in q for k in _INTROSPECTIVE):
+            return result
+        # Prefer the lens that actually fits this register, if available.
+        for pref in ("consciousness", "philosophy", "empathy", "multi_perspective", "newton"):
+            if pref in self.available:
+                import dataclasses
+                return dataclasses.replace(
+                    result, primary=pref,
+                    reasoning=f"constraint_tracker vetoed on introspective register -> {pref}",
+                )
+        return result
 
     def _route_keyword(self, query: str, max_adapters: int) -> RouteResult:
         """Score adapters by keyword matches in the query."""
