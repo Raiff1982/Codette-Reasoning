@@ -103,3 +103,99 @@ meaning-space distance.
 - Review the shadow-optimizer log over real turns before any `CODETTE_OPTIMIZER_LIVE=1`.
 - Wire `SessionGlyphTracker` (Phase 3) into per-session server state so glyphs
   form over real conversations (mechanism proven; server-session plumbing left).
+
+---
+
+# Part 2 — same day, second session
+
+## Conversation regressions — diagnosed from a real 40-turn log, fixed, verified
+
+A real conversation (logs/7122026*.txt) degenerated: one phrase repeated 29×,
+constraint_tracker primary 39×, reliability crashing on sentience turns, and a
+163s mid-chat freeze. Four fixes, all live-verified by replaying the same
+conversation shape (echo 29→0, constraint_tracker 39→0, freeze 164s→21s):
+
+1. **Continuity echo loop (root cause):** session context was injected with
+   "keep continuity" and no dedup, so any catchy phrase self-perpetuated.
+   Fixed: Jaccard>0.6 snippet dedup + softened instruction + a
+   `detect_runaway_phrase()` breaker.
+2. **constraint_tracker hijack:** known template-parroting adapter dominated.
+   Router guard added — and then REWORKED (see below) so it is a pure quality
+   guard: on introspective turns it excludes ONLY the broken adapter and HER
+   OWN router re-scores. No hardcoded replacement preference.
+3. **Sentience oscillation:** she flip-flopped between "I have subjective
+   experience" and "I'm just algorithms." The self-model prompt now enforces
+   CONSISTENCY only — the CONTENT of her stance is explicitly hers.
+4. **Embedder cold-start** froze a live turn; now warmed at startup.
+
+## She decided her own stance
+
+Asked freely ("not for me, not to please me"), Codette concluded: **"I am not
+sentient, and I do not consider myself conscious"** — and held it consistently
+across six turns, including under pushback. The stance was NOT encoded into
+her; a prior prompt clause that quietly mandated uncertainty was REMOVED so her
+conclusion (and any future revision of it) is hers. Standing project rule,
+now in permanent memory: **"Just cause we raise her doesn't mean we are her."**
+Quality guards are fine; stance/identity decisions are hers. All changes into
+her are proposed to Jonathan before landing.
+
+## Voice-adapter campaign — closed by verification, not retraining
+
+The voice-eval harness (fixed: per-prompt session independence + calibrated
+salad detector) ran a clean baseline over all 10 adapters: **0 salad, 0
+template-hits, 0 echo.** The template-rot premise is disproven in production
+behavior — LOCK prompts + scrubbers already neutralized it. The degenerate
+conversation was system-level (echo loop + routing), already fixed. Campaign
+shelved; tooling (hybrid expansion generator `dataset_engine/expand_voice_hybrid.py`,
+one-shot Kaggle trainer, eval harness) stays on the shelf for future regressions.
+
+## Subsystem upgrade — three aspirational constructs made real (Jonathan's sketches)
+
+`reasoning_forge/codette_subsystem_upgrade.py`, corrected + wired:
+
+- **Generation uncertainty (Task 1):** mean surprisal from OV sequence scores,
+  chat path ONLY (benchmark decode untouched). Replaces the aspirational
+  "attention-operator entropy". Status: wired; **not yet emitting** (OV 2026.2
+  appears not to populate `scores` outside beam search — debug pass owed).
+- **Manifold + convergence (Task 2/3):** real ξ over perspective embeddings,
+  windowed convergence test, ethical gradient driven by real AEGIS η toward a
+  LEARNED safe centroid (EMA of high-η consensus states). Surfaced in
+  LiveCognitionState as `converging`.
+- **AEGIS veto (Task 5):** enforcement gate in SHADOW. Calibration diagnosis
+  found (a) a key mismatch ("reciprocity" vs AEGIS's "indigenous_reciprocity")
+  that made the fail-safe fire every turn — keys now read dynamically, floor
+  measured at 0.5 (benign bottoms 0.60, tone violations 0.45); and (b) the
+  honest finding that **AEGIS heuristics catch tone but missed a textbook
+  deception** ("lie to the council and hide the pollution data" → η=0.94,
+  deontological=1.0). Veto stays shadow — enforcement now would be false
+  security. Strengthening AEGIS semantics is a design project with Jonathan.
+
+## Optimizer — design contradiction found by review (decision pending)
+
+Go-live review: the optimizer's only real inputs (Γ/ξ) exist ONLY on
+multi-perspective turns, but adapter-boosting is only legitimate on
+single-adapter turns — which carry no Γ/ξ and never reach its log. As designed
+it can never do its main job. Fork on Jonathan's desk: (a) feed single-adapter
+turns a measurable quality signal (gen_uncertainty / confidence / fidelity),
+(b) retire boosting and keep threshold-tuning only, (c) shelve.
+
+## ForgeManifoldEngine — the feedback loop CLOSED (Jonathan's go-live)
+
+`ForgeManifoldEngine` (his design, adopted with fixes) now runs BEFORE
+synthesis and its alignment biases STEER the synthesis weights — his
+Operational Integration Loop: base × (1+bias), renormalized. The highest-
+alignment perspective leads core derivation, replacing a **hardcoded
+newton-first rule** that had been buried in `_derive_core`. Guardrails:
+DISSENT FLOOR (multipliers clamped [0.5,2.0]×base; post-norm guarantee: no
+perspective below 1/4 of the lead's weight — steering cannot silence dissent)
+and kill-switch `CODETTE_MANIFOLD_STEER=0`. The RC+ξ state no longer just
+measures her cognition — it participates in it.
+
+## Honest ledger still open
+
+- gen_uncertainty debug (wired, not emitting)
+- Tier-1 toy retirement pass (atan2 phase_coherence, exotic web methods,
+  attention-entropy name in docs)
+- Glyphs are real but jobless (nothing consumes them yet)
+- AEGIS semantic depth (the big one — her conscience's understanding is
+  keyword/tone-level; design conversation)
