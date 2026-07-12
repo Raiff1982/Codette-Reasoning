@@ -45,6 +45,7 @@ ADAPTER_NAMES = [
     "constraint_tracker", "orchestrator",
     "newton-star",   # STaR self-taught reasoning (2026-07-09) — A/B vs newton
     "newton-star-hard",  # STaR v2, MMLU-Pro STEM data (2026-07-11) — A/B vs newton
+    "newton-star-r",     # STaR v3, COMPLETE method: keep-correct + rationalization (2026-07-11)
 ]
 
 # repetition_penalty history: 1.3 was set to fight template loops, but it
