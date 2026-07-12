@@ -491,6 +491,18 @@ def _get_orchestrator():
                         except Exception as _se:
                             print(f"  Seed loader unavailable: {_se}")
 
+                    # Warm the semantic embedder off the critical path so the first
+                    # synthesis turn never eats the ~30-160s cold export mid-chat
+                    # (froze a live turn for 163s in the 2026-07-12 session).
+                    def _warm_embedder():
+                        try:
+                            from inference.semantic_embedder import get_semantic_embedder
+                            get_semantic_embedder()
+                        except Exception as _we:
+                            print(f"  [EMBED] warmup skipped: {_we}", flush=True)
+                    threading.Thread(target=_warm_embedder, daemon=True,
+                                     name="embed-warmup").start()
+
                     # Add memory count from forge kernel
                     mem_count = 0
                     if hasattr(_forge_bridge, 'forge') and hasattr(_forge_bridge.forge, 'memory_kernel') and _forge_bridge.forge.memory_kernel:
@@ -1322,12 +1334,30 @@ def _worker_thread():
                             memory_context_summary["session_markers_used"] = marker_count
                             enriched_query = (
                                 enriched_query + "\n\n---\n"
-                                "# CURRENT SESSION CONTEXT\n"
-                                "Keep continuity with these recent turns:\n"
+                                "# CURRENT SESSION CONTEXT (for reference only)\n"
+                                "These are recent turns, for factual continuity ONLY. "
+                                "Do NOT repeat their wording — write a fresh response in "
+                                "your own words that moves the conversation forward:\n"
                                 f"{session_context}\n"
                                 "---"
                             )
                             print(f"  [WORKER] Injected {marker_count} session memory markers", flush=True)
+
+                        # Runaway-phrase breaker: if one sentence keeps recurring
+                        # across recent assistant turns, tell the model explicitly
+                        # to stop repeating it (belt-and-suspenders with the dedup
+                        # in build_prompt_context).
+                        try:
+                            _echo = session.detect_runaway_phrase(min_repeats=3)
+                            if _echo:
+                                enriched_query += (
+                                    "\n\n[ANTI-ECHO] You have repeated this phrase too "
+                                    f"many times: \"{_echo}\". Do NOT use it again. "
+                                    "Say something genuinely new."
+                                )
+                                print(f"  [WORKER] Anti-echo: suppressing runaway phrase", flush=True)
+                        except Exception:
+                            pass
                         landmarks = session.get_recent_decision_landmarks(max_items=3)
                         landmarks = [
                             item for item in landmarks

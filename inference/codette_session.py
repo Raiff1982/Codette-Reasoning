@@ -472,7 +472,18 @@ class CodetteSession:
         if current_turn and len(turns) < max_turns:
             turns.append(list(reversed(current_turn)))
 
+        # Anti-echo dedup: a phrase repeated across recent assistant turns must
+        # NOT be re-injected each turn — that is exactly what turns a catchy line
+        # into a runaway echo ("keep continuity" then parrots it forever). Skip a
+        # snippet whose normalized token set overlaps an already-included one by
+        # >60% (Jaccard), so a repeated phrase appears at most once.
+        def _norm_tokens(text: str) -> set:
+            return {w for w in ''.join(
+                c if c.isalnum() or c.isspace() else ' ' for c in text.lower()
+            ).split() if len(w) > 2}
+
         snippets = []
+        seen_token_sets: list = []
         used = 0
         for turn in reversed(turns):
             for msg in turn:
@@ -482,6 +493,18 @@ class CodetteSession:
                     continue
                 if is_ephemeral_response_constraint_text(content):
                     continue
+                toks = _norm_tokens(content)
+                if toks:
+                    dup = False
+                    for prev in seen_token_sets:
+                        inter = len(toks & prev)
+                        union = len(toks | prev) or 1
+                        if inter / union > 0.6:
+                            dup = True
+                            break
+                    if dup:
+                        continue
+                    seen_token_sets.append(toks)
                 if len(content) > 180:
                     content = content[:177] + "..."
                 line = f"- {role}: {content}"
@@ -493,6 +516,34 @@ class CodetteSession:
                 break
 
         return "\n".join(snippets)
+
+    def detect_runaway_phrase(self, min_repeats: int = 3, lookback: int = 12) -> Optional[str]:
+        """Return a sentence that recurs across recent ASSISTANT turns (a runaway
+        echo), or None. Used to inject an explicit stop-repeating directive."""
+        from collections import Counter
+        counts: "Counter[str]" = Counter()
+        display: Dict[str, str] = {}
+        seen_msgs = 0
+        for msg in reversed(self.messages):
+            if msg.get("role") != "assistant":
+                continue
+            seen_msgs += 1
+            if seen_msgs > lookback:
+                break
+            text = str(msg.get("content", ""))
+            for raw in text.replace("!", ".").replace("?", ".").split("."):
+                s = raw.strip()
+                if len(s.split()) < 5:  # ignore trivially short fragments
+                    continue
+                key = ''.join(c for c in s.lower() if c.isalnum() or c.isspace()).strip()
+                key = ' '.join(key.split())
+                if key:
+                    counts[key] += 1
+                    display.setdefault(key, s)
+        if not counts:
+            return None
+        top, n = counts.most_common(1)[0]
+        return display[top] if n >= min_repeats else None
 
     def get_recent_memory_markers(self, max_items: int = 4) -> List[Dict[str, Any]]:
         """Expose a small, UI-safe slice of recent session memory."""
