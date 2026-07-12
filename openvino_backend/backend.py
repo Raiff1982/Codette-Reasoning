@@ -47,11 +47,19 @@ ADAPTER_NAMES = [
     "newton-star-hard",  # STaR v2, MMLU-Pro STEM data (2026-07-11) — A/B vs newton
 ]
 
+# repetition_penalty history: 1.3 was set to fight template loops, but it
+# progressively bans common words over long generations — measured degeneration
+# into word salad past ~150-200 tokens (zeroed GPQA reason mode; produced a
+# 2,794-token 6%-reliability self-description in live chat on 2026-07-11).
+# Template loops are now handled by LOCK prompts + scrubbers + v8 guards, so
+# 1.1 (standard for Llama) is safe. Chat generations are also capped at 600
+# new tokens; benchmark reasoning keeps 2048 via its own near-greedy override.
 GEN_CONFIG = {
-    "max_new_tokens": 2048,
+    "max_new_tokens": 2048,        # benchmark/reasoning ceiling
+    "chat_max_new_tokens": 600,    # per-generation cap for conversational turns
     "temperature": 0.7,
     "top_p": 0.9,
-    "repetition_penalty": 1.3,
+    "repetition_penalty": 1.1,
 }
 
 SYNTHESIS_PERSPECTIVES = [
@@ -349,12 +357,14 @@ class OpenVINOBackend:
         prompt = self._format_chat(full_system, query)
         cfg = self._make_gen_config(adapter_name)
         if _is_benchmark:
-            # Near-greedy decoding for exam answers. repetition_penalty=1.3
-            # (needed to fight template loops in conversation) progressively
-            # bans common words over long generations and turns reasoning
-            # chains into word salad — measured as 0% on GPQA reason mode.
+            # Near-greedy decoding for exam answers; full 2048-token ceiling
+            # so long reasoning chains can complete.
             cfg.temperature = 0.2
             cfg.repetition_penalty = 1.05
+        else:
+            # Conversational turn: cap length so a runaway generation can't
+            # eat minutes (observed: 2,794-token degenerate self-description).
+            cfg.max_new_tokens = GEN_CONFIG.get("chat_max_new_tokens", 600)
 
         t0 = time.time()
         output = self._pipe.generate(prompt, cfg)
@@ -452,12 +462,14 @@ class OpenVINOBackend:
         cfg.top_p = GEN_CONFIG["top_p"]
         cfg.repetition_penalty = GEN_CONFIG["repetition_penalty"]
         cfg.do_sample = True
-        # Benchmark queries need near-greedy decoding (same as generate()):
-        # rep_penalty 1.3 word-salads long reasoning chains.
+        # Benchmark queries get near-greedy decoding + full ceiling; chat
+        # blends get the conversational length cap.
         import re as _re
         if _re.search(r'What is the correct answer to this question', primary_query):
             cfg.temperature = 0.2
             cfg.repetition_penalty = 1.05
+        else:
+            cfg.max_new_tokens = GEN_CONFIG.get("chat_max_new_tokens", 600)
         try:
             adapter_cfg = self._ov.AdapterConfig()
             for name, alpha in blend.items():
