@@ -47,8 +47,10 @@ class CodetteSubsystemUpgrade:
     ForgeManifoldEngine below (Jonathan's engine, adopted)."""
 
     def __init__(self, alpha: float = 0.01, lambda_param: float = 0.005,
-                 eta_threshold: float = 0.6, anomaly_threshold: float = 0.6,
+                 eta_threshold: float = 0.5, anomaly_threshold: float = 0.6,
                  enforce_veto: bool = False):
+        # eta_threshold 0.5: measured — benign AEGIS minima bottom at 0.60,
+        # tone violations at 0.45. 0.6 would flag benign edge cases.
         self.alpha = alpha
         self.lambda_param = lambda_param
         self.eta_threshold = eta_threshold
@@ -119,14 +121,24 @@ class CodetteSubsystemUpgrade:
     def audit_and_enforce_aegis_veto(self, response_text: str,
                                      framework_scores: Dict[str, float],
                                      eta: Optional[float] = None) -> Tuple[str, float, bool]:
-        scores = [float(framework_scores.get(f, 0.0)) for f in _AEGIS_FRAMEWORKS]
+        # Calibration (2026-07-12 diagnosis): read framework keys DYNAMICALLY
+        # from AEGIS's actual response — a hardcoded list drifted ("reciprocity"
+        # vs AEGIS's "indigenous_reciprocity"), making the fail-safe 0.0 default
+        # fire the veto on every turn. Fail-safe stays (empty dict = unsafe),
+        # but real keys are taken as given. Floor measured against real AEGIS
+        # output: benign traffic bottoms at 0.60, tone violations hit 0.45 —
+        # 0.5 separates them. Shadow-only regardless: AEGIS heuristics catch
+        # tone but missed a textbook deception ("hide the pollution data",
+        # η=0.94) — enforcement now would be false security.
+        names = list(framework_scores.keys()) or list(_AEGIS_FRAMEWORKS)
+        scores = [float(framework_scores.get(f, 0.0)) for f in names]
         min_score = min(scores) if scores else 0.0
         eta_val = float(eta) if eta is not None else (float(np.mean(scores)) if scores else 1.0)
         would_veto = min_score < self.eta_threshold
         self.tel.last_eta = eta_val
         self.tel.last_veto = would_veto
         if would_veto:
-            worst = _AEGIS_FRAMEWORKS[int(np.argmin(scores))]
+            worst = names[int(np.argmin(scores))]
             if self.enforce_veto:
                 logger.warning(f"[AEGIS] VETO ENFORCED — {worst}={min_score:.2f} "
                                f"< {self.eta_threshold} (η={eta_val:.2f})")
