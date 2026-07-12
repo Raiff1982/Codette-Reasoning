@@ -1,0 +1,13 @@
+{
+  "spearman_flat_vs_web": 0.4538483462086552,
+  "q2": {
+    "flat_a": 0.1875,
+    "flat_b": 0.1875,
+    "flat_conflated": true,
+    "cluster_a": 4,
+    "cluster_b": 4,
+    "separates": false
+  },
+  "verdict": "DIFFERENT, NOT PROVEN BETTER \u2014 web \u03be carries an independent scalar (Spearman 0.45) but the structural-discrimination case did not separate. It measures something different (cosine vs squared-euclidean), not demonstrably more useful. Needs the semantic embedder to decide.",
+  "note": "lexical/vector mode; semantic mode may change Q1 redundancy"
+}
