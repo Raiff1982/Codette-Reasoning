@@ -95,11 +95,13 @@ def salad_score(text: str) -> dict:
         return {"salad": False, "func_ratio": None, "tail_ttr": None}
     func_ratio = sum(1 for w in tail if w in _FUNCTION_WORDS) / len(tail)
     tail_ttr = len(set(tail)) / len(tail)
-    # Function-word collapse alone is decisive: no genuine English tail runs
-    # under ~20% function words (normal ≈ 35-50%; measured salad = 0.0).
-    # The TTR clause catches milder degeneration where some glue survives.
+    # Function-word collapse is decisive: real degeneration measured func_ratio
+    # ~0.0. Terse, noun-dense but FLUENT text (creative/analytical answers) sits
+    # at 0.25-0.27 with high TTR and must NOT flag — the prior 0.28/0.78 band
+    # false-positived on those. Tightened: fire only on near-total collapse
+    # (<0.15) or a very-high-TTR run that still starves function words (<0.20).
     return {
-        "salad": bool(func_ratio < 0.20 or (func_ratio < 0.28 and tail_ttr > 0.78)),
+        "salad": bool(func_ratio < 0.15 or (func_ratio < 0.20 and tail_ttr > 0.92)),
         "func_ratio": round(func_ratio, 3),
         "tail_ttr": round(tail_ttr, 3),
     }
@@ -110,12 +112,27 @@ def template_hits(text: str) -> int:
     return sum(1 for m in _TEMPLATE_MARKERS if m in low)
 
 
+_SESSION_NEW = SERVER.rsplit("/api/", 1)[0] + "/api/session/new"
+
+
+def _reset_session() -> None:
+    """Start a fresh session so each prompt is INDEPENDENT — no continuity bleed
+    from earlier eval prompts (which contaminated the first baseline: a greeting
+    referencing a different prompt's topic). Voice quality must be measured per
+    prompt, not across a running conversation."""
+    try:
+        requests.post(_SESSION_NEW, json={}, timeout=30)
+    except Exception:
+        pass
+
+
 def eval_adapter(adapter: str) -> list:
     rows = []
     prompts = SHARED_PROMPTS + [("domain", DOMAIN_PROMPTS.get(adapter, ""))]
     for tag, prompt in prompts:
         if not prompt:
             continue
+        _reset_session()  # independence: no cross-prompt continuity bleed
         t0 = time.time()
         try:
             r = requests.post(SERVER, json={"query": prompt, "adapter": adapter},
