@@ -153,6 +153,33 @@ def assemble_live_state(query: str, result: Dict[str, Any]) -> LiveCognitionStat
                 f"(Δ={abs(float(wc)-float(_flat)):.3f}, {_mode} basis)"
             )
 
+    # 6c. Convergence — is epistemic tension trending DOWN across the session's
+    # reasoning (real ξ trajectory over perspective embeddings, windowed test)?
+    conv = result.get("converging")
+    if conv is not None:
+        metrics["converging"] = 1.0 if conv else 0.0
+        provenance["converging"] = (
+            "active-production: windowed ξ-trajectory trend over perspective "
+            "embeddings (first-half vs second-half mean)"
+        )
+        if result.get("subsystem_xi") is not None:
+            evidence.append(
+                f"Epistemic tension {'contracting' if conv else 'not contracting'} "
+                f"(ξ={result['subsystem_xi']})"
+            )
+
+    # 6d. AEGIS veto — SHADOW enforcement. The 6-framework evaluator's own veto
+    # decision, observed as an enforcement candidate. Blocks nothing yet.
+    vs = result.get("veto_shadow")
+    if vs is not None:
+        metrics["veto_shadow"] = 1.0 if vs else 0.0
+        provenance["veto_shadow"] = (
+            "active-production (SHADOW): AEGIS would-block decision, observed "
+            "not enforced — logs would-be vetoes for review before go-live"
+        )
+        if vs:
+            evidence.append("AEGIS would block this response (shadow — not enforced)")
+
     # 7. P — hardware pressure
     hp = _fetch_hardware_pressure()
     if hp is not None:

@@ -1885,8 +1885,45 @@ def _worker_thread():
                     _ae = _aegis_live.evaluate(result.get("response", ""), context=query)
                     result["aegis_alignment"] = _ae.get("eta")
                     result["aegis_vetoed"] = bool(_ae.get("vetoed", False))
+                    result["aegis_frameworks"] = _ae.get("frameworks", {})
                 except Exception as _ae_e:
                     print(f"  [AEGIS] live eval skipped: {_ae_e}", flush=True)
+
+                # Subsystem upgrade — Task 2/3 (real convergence over perspective
+                # embeddings) + Task 5 (AEGIS veto ENFORCEMENT in SHADOW mode:
+                # observe would-blocks, block nothing until reviewed). Task 1
+                # (logprob uncertainty) is wired separately — it touches the
+                # generation hot path GPQA reproducibility depends on.
+                try:
+                    global _subsystem
+                    if "_subsystem" not in globals() or _subsystem is None:
+                        from reasoning_forge.codette_subsystem_upgrade import CodetteSubsystemUpgrade
+                        _subsystem = CodetteSubsystemUpgrade(enforce_veto=False)  # SHADOW
+                    _persp = result.get("perspectives") or {}
+                    _eta = result.get("aegis_alignment")
+                    # Task 2/3: real ξ trajectory + convergence over REAL embeddings.
+                    if isinstance(_persp, dict) and len(_persp) >= 2:
+                        from inference.semantic_embedder import get_semantic_embedder
+                        _emb = get_semantic_embedder()
+                        if _emb is not None:
+                            import numpy as _np
+                            _states = [_np.asarray(_emb.embed_claim(t)) for t in _persp.values() if t and t.strip()]
+                            if len(_states) >= 2:
+                                _xi_m, _conv = _subsystem.compute_manifold_evolution(_states, eta=_eta)
+                                result["subsystem_xi"] = round(float(_xi_m), 4)
+                                result["converging"] = bool(_conv)
+                    # Task 5: AEGIS veto enforcement — SHADOW. Uses AEGIS's own
+                    # per-framework scores; logs would-blocks, enforces nothing.
+                    _fw = {k: v.get("score", 0.0) for k, v in (result.get("aegis_frameworks") or {}).items()}
+                    if _fw:
+                        _, _, _wb = _subsystem.audit_and_enforce_aegis_veto(
+                            result.get("response", ""), _fw, eta=_eta)
+                        # Authoritative would-block = AEGIS's own (better) veto OR min-floor
+                        result["veto_shadow"] = bool(result.get("aegis_vetoed") or _subsystem.tel.last_veto)
+                        if result["veto_shadow"]:
+                            print(f"  [AEGIS] would-block (SHADOW) η={_eta} — enforcing nothing yet", flush=True)
+                except Exception as _sub_e:
+                    print(f"  [SUBSYSTEM] skipped: {_sub_e}", flush=True)
 
                 # Backfill measured signals from the FINAL perspectives. On some
                 # paths (e.g. full_synthesis) perspectives are attached to result
