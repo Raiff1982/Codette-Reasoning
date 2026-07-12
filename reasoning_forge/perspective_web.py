@@ -208,6 +208,73 @@ def build_web_from_perspectives(
 
 
 # ---------------------------------------------------------------------------
+# Phase 3 — spectral identity glyphs over a conversation's tension history
+# ---------------------------------------------------------------------------
+
+class SessionGlyphTracker:
+    """Per-conversation accumulator of each perspective's divergence-from-consensus
+    over time, forming FFT 'glyphs' — spectral signatures of a lens's dissent
+    rhythm. Novel bit: spectral analysis of per-perspective epistemic-tension
+    time-series. A stable glyph means a perspective diverges in a consistent,
+    structured way across the conversation rather than randomly.
+
+    Dimension-agnostic: each turn contributes ONE scalar per perspective (its
+    mean pairwise distance to the others this turn), so lexical vocab drift
+    between turns is irrelevant. Holds a persistent web across turns and reuses
+    the tested QuantumSpiderweb.form_glyph FFT path.
+    """
+
+    def __init__(self, embedder=None, glyph_components: int = 8, max_history: int = 50):
+        self.embedder = embedder
+        self.web = QuantumSpiderweb(glyph_components=glyph_components, max_history=max_history)
+        self.turns = 0
+
+    def _turn_vectors(self, texts: Dict[str, str]) -> Dict[str, np.ndarray]:
+        if self.embedder is not None:
+            return {n: np.asarray(self.embedder.embed_claim(t), dtype=np.float64)
+                    for n, t in texts.items()}
+        return _lexical_dense_vectors(texts)
+
+    @staticmethod
+    def _cos_tension(a: np.ndarray, b: np.ndarray) -> float:
+        na, nb = np.linalg.norm(a), np.linalg.norm(b)
+        if na < 1e-8 or nb < 1e-8:
+            return 0.5
+        cos = max(-1.0, min(1.0, float(np.dot(a, b) / (na * nb))))
+        return (1.0 - cos) / 2.0
+
+    def observe_turn(self, perspective_texts: Dict[str, str]) -> Dict[str, Any]:
+        """Record one conversational turn; return per-perspective ξ this turn and
+        any glyphs formed (once enough history has accumulated)."""
+        texts = {n: t for n, t in perspective_texts.items() if t and t.strip()}
+        if len(texts) < 2:
+            return {"turn_tension": {}, "glyphs": {}}
+        self.turns += 1
+        vecs = self._turn_vectors(texts)
+
+        per_persp: Dict[str, float] = {}
+        names = list(vecs.keys())
+        for n in names:
+            others = [self._cos_tension(vecs[n], vecs[m]) for m in names if m != n]
+            per_persp[n] = float(sum(others) / len(others)) if others else 0.0
+
+        glyphs: Dict[str, Any] = {}
+        for n, xi in per_persp.items():
+            if n not in self.web.nodes:
+                self.web.add_node(n)
+            self.web.nodes[n].tension_history.append(xi)
+            if len(self.web.nodes[n].tension_history) > self.web.max_history:
+                self.web.nodes[n].tension_history.pop(0)
+            g = self.web.form_glyph(n)  # returns None until enough history + stable
+            if g is not None:
+                glyphs[n] = {"glyph_id": g.glyph_id, "stability": g.stability_score}
+
+        return {"turn": self.turns,
+                "turn_tension": {k: round(v, 4) for k, v in per_persp.items()},
+                "glyphs": glyphs}
+
+
+# ---------------------------------------------------------------------------
 # QuantumSpiderweb Cognitive Engine Core Execution System
 # ---------------------------------------------------------------------------
 
