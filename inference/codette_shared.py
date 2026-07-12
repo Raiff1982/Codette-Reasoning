@@ -145,6 +145,7 @@ ADAPTER_PROMPTS = {
 # the A/B against newton isolates the adapter weights, not the prompt.
 ADAPTER_PROMPTS["newton-star"] = ADAPTER_PROMPTS["newton"]
 ADAPTER_PROMPTS["newton-star-hard"] = ADAPTER_PROMPTS["newton"]
+ADAPTER_PROMPTS["newton-star-r"] = ADAPTER_PROMPTS["newton"]
 
 # ── Synthesis config ──────────────────────────────────────────────────────────
 
