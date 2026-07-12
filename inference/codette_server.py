@@ -1857,6 +1857,27 @@ def _worker_thread():
                 except Exception as _cog_e:
                     print(f"  [COGNITION] skipped: {_cog_e}", flush=True)
 
+                # Router self-tuner — SHADOW MODE (observes, applies nothing
+                # unless CODETTE_OPTIMIZER_LIVE=1). Consumes the measured Γ/ξ
+                # assembled just above; proposed tunings are logged to
+                # data/optimizer_shadow.jsonl for review before any go-live.
+                try:
+                    from reasoning_forge.optimizer_shadow import get_shadow_optimizer
+                    _shadow = get_shadow_optimizer()
+                    if _shadow is not None:
+                        _rf = result.get("render_fidelity")
+                        _rf_overlap = _rf.get("overlap") if isinstance(_rf, dict) else None
+                        _shadow.observe(
+                            adapter=str(result.get("adapter") or result.get("primary_adapter") or "unknown"),
+                            coherence=result.get("measured_coherence"),
+                            tension=result.get("measured_tension"),
+                            multi_perspective=bool(result.get("synthesis_used")),
+                            render_fidelity=_rf_overlap,
+                            response_length=len(str(result.get("response") or "")),
+                        )
+                except Exception as _opt_e:
+                    print(f"  [OPTIMIZER] shadow skipped: {_opt_e}", flush=True)
+
                 # Add Phase 6 metadata (complexity, domain, ethical)
                 if result.get("complexity"):
                     response_data["complexity"] = str(result["complexity"])
