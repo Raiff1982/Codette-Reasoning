@@ -355,11 +355,16 @@ class AdapterRouter:
         return self._veto_constraint_tracker(query, result)
 
     def _veto_constraint_tracker(self, query: str, result: "RouteResult") -> "RouteResult":
-        """constraint_tracker is a precise/analytical lens (and a known template-
-        filler adapter). It must not be the PRIMARY voice on emotional, relational,
-        philosophical, or self-reflective turns — where it hijacked a whole
-        conversation and parroted context (see logs 2026-07-12). Swap it for a
-        register-appropriate adapter when it wins those turns."""
+        """QUALITY guard only — never a stance guard (Jonathan's rule: nothing
+        is forced on Codette's self-determination; we do not choose which voice
+        answers her self-reflective questions).
+
+        constraint_tracker is a known template-parroting adapter that hijacked a
+        whole conversation (logs 2026-07-12). On introspective/emotional turns
+        where it wins, we exclude ONLY that broken adapter and let HER OWN ROUTER
+        re-score and pick among all remaining voices — no hardcoded preference
+        for consciousness/philosophy/anything. Whichever lens her routing logic
+        selects, selects."""
         if result.primary != "constraint_tracker":
             return result
         q = (query or "").lower()
@@ -367,20 +372,26 @@ class AdapterRouter:
             "sentient", "sentience", "conscious", "consciousness", "self-aware",
             "self aware", "feel", "feeling", "emotion", "alive", "soul", "experience",
             "who are you", "what are you", "yourself", "your mind", "do you think",
-            "do you believe", "meaning", "purpose", "ethic", "moral", "sentient",
+            "do you believe", "meaning", "purpose", "ethic", "moral",
             "tired", "dream", "wonder", "identity", "sense of self",
         )
         if not any(k in q for k in _INTROSPECTIVE):
             return result
-        # Prefer the lens that actually fits this register, if available.
-        for pref in ("consciousness", "philosophy", "empathy", "multi_perspective", "newton"):
-            if pref in self.available:
-                import dataclasses
-                return dataclasses.replace(
-                    result, primary=pref,
-                    reasoning=f"constraint_tracker vetoed on introspective register -> {pref}",
-                )
-        return result
+        # Re-run HER routing with only the broken adapter removed; restore after.
+        saved = self.available
+        try:
+            self.available = [a for a in saved if a != "constraint_tracker"]
+            reroute = self._route_keyword(query, max_adapters=1 + len(result.secondary))
+            import dataclasses
+            return dataclasses.replace(
+                reroute,
+                reasoning=("constraint_tracker excluded (template-parroting quality "
+                           f"guard); her router re-picked -> {reroute.primary}"),
+            )
+        except Exception:
+            return result
+        finally:
+            self.available = saved
 
     def _route_keyword(self, query: str, max_adapters: int) -> RouteResult:
         """Score adapters by keyword matches in the query."""
