@@ -366,10 +366,39 @@ class OpenVINOBackend:
             # Conversational turn: cap length so a runaway generation can't
             # eat minutes (observed: 2,794-token degenerate self-description).
             cfg.max_new_tokens = GEN_CONFIG.get("chat_max_new_tokens", 600)
+            # Task 1 (uncertainty): request sequence scores on CHAT turns only.
+            # The benchmark path is untouched — GPQA reproducibility depends on
+            # its exact decode config. This OV version exposes sequence-level
+            # cumulative logprob (output.scores), not per-token logprobs; mean
+            # surprisal = -score/len(tokens) is the real uncertainty signal.
+            try:
+                cfg.logprobs = 1
+            except Exception:
+                pass
 
         t0 = time.time()
         output = self._pipe.generate(prompt, cfg)
         elapsed = time.time() - t0
+
+        # Real generation-uncertainty telemetry (chat only, observation only).
+        self.last_uncertainty = None
+        if not _is_benchmark:
+            try:
+                _scores = getattr(output, "scores", None)
+                _n_tok = None
+                try:
+                    _n_tok = int(output.perf_metrics.get_num_generated_tokens())
+                except Exception:
+                    pass
+                if _scores and _n_tok:
+                    _mean_lp = float(_scores[0]) / max(1, _n_tok)  # mean logprob/token
+                    from reasoning_forge.codette_subsystem_upgrade import CodetteSubsystemUpgrade
+                    if not hasattr(self, "_uncert"):
+                        self._uncert = CodetteSubsystemUpgrade()
+                    self.last_uncertainty = self._uncert.calculate_uncertainty_from_logprobs(
+                        [_mean_lp] * 1)  # mean surprisal path (per-token not exposed)
+            except Exception:
+                self.last_uncertainty = None
 
         text = str(output).strip()
         if text.startswith(prompt):

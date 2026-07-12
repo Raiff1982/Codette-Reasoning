@@ -1903,6 +1903,16 @@ def _worker_thread():
                         _manifold = ForgeManifoldEngine()
                     _persp = result.get("perspectives") or {}
                     _eta = result.get("aegis_alignment")
+                    # Task 1: generation uncertainty (mean surprisal from OV
+                    # sequence scores, chat turns only — benchmark path untouched).
+                    try:
+                        _orch = _get_orchestrator()
+                        _unc = getattr(_orch, "last_uncertainty", None)
+                        if _unc and _unc.get("uncertainty_score") is not None:
+                            result["gen_uncertainty"] = round(float(_unc["uncertainty_score"]), 4)
+                            result["gen_anomaly"] = bool(_unc.get("anomaly_gate_triggered"))
+                    except Exception:
+                        pass
                     # Task 2/3: real ξ + convergence + synthesis biases over REAL
                     # embeddings. Biases are SHADOW — computed and surfaced, NOT yet
                     # applied to synthesis weights (they'd change how she reasons;
@@ -1921,6 +1931,22 @@ def _worker_thread():
                                 # shadow: what synthesis weights WOULD become
                                 result["synth_bias_shadow"] = {
                                     n: round(w, 3) for n, w in zip(_names, _mo["synthesis_weights"])}
+                                # Persist for #2's go-live review (observation only)
+                                try:
+                                    import json as _json, time as _time
+                                    from pathlib import Path as _P
+                                    _sp = _P(__file__).resolve().parent.parent / "data" / "synth_bias_shadow.jsonl"
+                                    _sp.parent.mkdir(parents=True, exist_ok=True)
+                                    with _sp.open("a", encoding="utf-8") as _f:
+                                        _f.write(_json.dumps({
+                                            "ts": _time.time(),
+                                            "weights": result["synth_bias_shadow"],
+                                            "xi": result["subsystem_xi"],
+                                            "converging": result["converging"],
+                                            "eta": _eta,
+                                        }) + "\n")
+                                except Exception:
+                                    pass
                     # Task 5: AEGIS veto enforcement — SHADOW. Uses AEGIS's own
                     # per-framework scores; logs would-blocks, enforces nothing.
                     _fw = {k: v.get("score", 0.0) for k, v in (result.get("aegis_frameworks") or {}).items()}

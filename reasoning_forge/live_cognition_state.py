@@ -153,6 +153,22 @@ def assemble_live_state(query: str, result: Dict[str, Any]) -> LiveCognitionStat
                 f"(Δ={abs(float(wc)-float(_flat)):.3f}, {_mode} basis)"
             )
 
+    # 6b2. Generation uncertainty — mean surprisal from OV sequence scores
+    # (chat turns only; the benchmark decode path is untouched). Replaces the
+    # aspirational "attention-operator entropy" with a real measured signal.
+    gu = result.get("gen_uncertainty")
+    if gu is not None:
+        metrics["gen_uncertainty"] = float(gu)
+        provenance["gen_uncertainty"] = (
+            "active-production: mean surprisal from OV sequence logprob "
+            "(chat path only; per-token logprobs not exposed by this OV version)"
+        )
+        if result.get("gen_anomaly"):
+            evidence.append(
+                f"Generation uncertainty elevated ({float(gu):.2f}) — treat "
+                "factual specifics in this response with extra care"
+            )
+
     # 6c. Convergence — is epistemic tension trending DOWN across the session's
     # reasoning (real ξ trajectory over perspective embeddings, windowed test)?
     conv = result.get("converging")
