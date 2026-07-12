@@ -648,6 +648,21 @@ class CodetteForgeBridge:
                         _aap_eps = min(0.95, max(0.05, _xi_b))
                     except Exception:
                         _aap_eps = None
+
+                # ── Phase 2: perspective web — graph coherence over the SAME
+                # real perspective outputs, as a corroborating signal. Lexical
+                # mode in production (no .encode() backend); semantic when a
+                # real embedder is wired. Never fabricates: omitted if <2 texts.
+                if len(_aap_analyses) >= 2:
+                    try:
+                        from reasoning_forge.perspective_web import build_web_from_perspectives
+                        _web, _wsig = build_web_from_perspectives(_aap_analyses, embedder=None)
+                        if _wsig.get("web_coherence") is not None:
+                            result["web_coherence"] = _wsig["web_coherence"]
+                            result["web_tension"] = _wsig["web_tension"]
+                            result["web_mode"] = _wsig["web_mode"]
+                    except Exception:
+                        pass
                 if _aap_eps is None:
                     _aap_eps = _eps_map.get(complexity, 0.50)
                 # Emotional/personal register → plain mode (no debate scaffolding).

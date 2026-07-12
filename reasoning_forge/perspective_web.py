@@ -140,6 +140,74 @@ class PropagationResult:
 
 
 # ---------------------------------------------------------------------------
+# Phase 2 — build a REAL web from live perspective outputs
+# ---------------------------------------------------------------------------
+
+def _lexical_dense_vectors(perspective_texts: Dict[str, str]) -> Dict[str, np.ndarray]:
+    """Dense L2-normalized TF vectors over a vocabulary SHARED across the given
+    perspectives — same lexical basis as state_engine_v8.tension_from_texts, so
+    cosine distance here matches the ξ the system already trusts. Used when no
+    real semantic embedder is available in the environment (production today)."""
+    from reasoning_forge.state_engine_v8 import _tf_vector
+    sparse = {name: _tf_vector(t) for name, t in perspective_texts.items() if t and t.strip()}
+    vocab = sorted({k for v in sparse.values() for k in v})
+    idx = {w: i for i, w in enumerate(vocab)}
+    out: Dict[str, np.ndarray] = {}
+    for name, vec in sparse.items():
+        arr = np.zeros(len(vocab), dtype=np.float64)
+        for w, val in vec.items():
+            arr[idx[w]] = val
+        out[name] = arr
+    return out
+
+
+def build_web_from_perspectives(
+    perspective_texts: Dict[str, str],
+    embedder=None,
+) -> Tuple["QuantumSpiderweb", Dict[str, Any]]:
+    """Build a fully-connected perspective web from real per-turn outputs.
+
+    embedder: a SemanticTensionEngine (real .encode()) → semantic mode.
+              None → lexical mode (dense TF vectors, shared vocab).
+
+    Returns (web, signals) where signals carries REAL, distance-based metrics:
+      web_tension    mean pairwise (1-cos)/2 across perspectives, [0,1]
+      web_coherence  1/(1+web_tension) — same Γ formula the system uses
+      web_mode       "semantic" | "lexical" (honest provenance)
+      n_perspectives count of nodes with content
+    Distance-based coherence is active-production (NOT the atan2 phase_coherence,
+    which stays interpretive). Two perspectives are the minimum for a signal.
+    """
+    web = QuantumSpiderweb()
+    texts = {n: t for n, t in perspective_texts.items() if t and t.strip()}
+    mode = "semantic" if embedder is not None else "lexical"
+
+    if embedder is not None:
+        for name, txt in texts.items():
+            web.add_node(name, NodeState.from_text(txt, embedder))
+    else:
+        for name, vec in _lexical_dense_vectors(texts).items():
+            web.add_node(name, NodeState(embedding=vec))
+
+    web.build_from_agents(list(web.nodes.keys()))
+
+    nodes = list(web.nodes.values())
+    pairs = [(nodes[i], nodes[j]) for i in range(len(nodes)) for j in range(i + 1, len(nodes))]
+    if not pairs:
+        return web, {"web_tension": None, "web_coherence": None,
+                     "web_mode": mode, "n_perspectives": len(nodes)}
+
+    web_tension = sum(a.state.tension_with(b.state) for a, b in pairs) / len(pairs)
+    signals = {
+        "web_tension": round(float(web_tension), 4),
+        "web_coherence": round(1.0 / (1.0 + float(web_tension)), 4),
+        "web_mode": mode,
+        "n_perspectives": len(nodes),
+    }
+    return web, signals
+
+
+# ---------------------------------------------------------------------------
 # QuantumSpiderweb Cognitive Engine Core Execution System
 # ---------------------------------------------------------------------------
 
