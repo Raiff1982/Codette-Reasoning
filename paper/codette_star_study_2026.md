@@ -1,10 +1,13 @@
 ---
 title: "Self-Taught Reasoning Does Not Self-Improve: A Controlled Four-Arm STaR Study on a Sovereign 8B Model, with an Honest Account of the Formal–Operational Gap"
 authors: "Jonathan Harrison"
+orcid: "0009-0003-7005-8187"
 affiliations: "Raiff's Bits LLC (independent)"
 date: 2026-07-11
 tags: [star, self-taught-reasoning, gpqa, lora, negative-results, reproducibility, llama-3.1, openvino]
 ---
+
+*Jonathan Harrison — ORCID [0009-0003-7005-8187](https://orcid.org/0009-0003-7005-8187) — Raiff's Bits LLC (independent)*
 
 # Abstract
 
