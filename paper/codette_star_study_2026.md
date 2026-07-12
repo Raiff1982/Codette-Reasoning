@@ -18,7 +18,7 @@ This paper does three unfashionable things. First, it reports a **negative resul
 
 # 2. System
 
-**Codette** is a multi-perspective reasoning architecture over Llama 3.1 8B: ten LoRA "perspective" adapters (analytical, creative, empathetic, philosophical, etc.) hot-swapped per query via `openvino_genai.AdapterConfig`, with routing, ethical governance (AEGIS, a six-framework heuristic evaluator), persistent "cocoon" memory, and a render-fidelity audit that reverts any output that drifts from the substrate's conclusion (<15% content-word overlap). Inference runs INT4 on an Intel Arc 140V iGPU at ~9.3 tok/s sustained.
+**Codette** is a multi-perspective reasoning architecture over Llama 3.1 8B (formal dynamical-systems treatment in Harrison, 2026b [8]): ten LoRA "perspective" adapters (analytical, creative, empathetic, philosophical, etc.) hot-swapped per query via `openvino_genai.AdapterConfig`, with routing, ethical governance (AEGIS, a six-framework heuristic evaluator), persistent "cocoon" memory, and a render-fidelity audit that reverts any output that drifts from the substrate's conclusion (<15% content-word overlap). Inference runs INT4 on an Intel Arc 140V iGPU at ~9.3 tok/s sustained.
 
 **LiveCognitionState.** Every response emits an immutable self-report assembled exclusively from measured signals: epistemic tension ξ (lexical variance across the active perspectives' outputs), coherence Γ = 1/(1+ξ), input-sycophancy pressure σ (the same signal that triggers a hold-ground directive), ethical alignment η (AEGIS EMA over the session), render fidelity, and hardware pressure. Each field carries a provenance tag naming its mechanism. The integrity invariant is structural: **signals that are not measured are omitted, never fabricated** — a bare greeting, generating no multi-perspective disagreement, emits no ξ.
 
@@ -86,3 +86,4 @@ On a sovereign 8B system with a decimal-reproducible benchmark, keep-correct sel
 5. Dettmers, T., et al. — *QLoRA: Efficient Finetuning of Quantized LLMs.* 2023.
 6. Grattafiori, A., et al. — *The Llama 3 Herd of Models.* 2024.
 7. Harrison, J. — *Codette: A Sovereign Modular Cognitive Architecture for Ethical Multi-Agent AI.* CSE2026; DOI 10.5281/zenodo.18913936.
+8. Harrison, J. — *Codette: Multi-Perspective Reasoning as a Convergent Dynamical System with Meta-Cognitive Strategy Evolution.* Research Square preprint, 2026. DOI 10.21203/rs.3.rs-9362560/v1.
