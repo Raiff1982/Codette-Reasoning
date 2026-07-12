@@ -709,7 +709,10 @@ class CodetteForgeBridge:
                                 result["synth_weights_applied"] = _mw
                                 if _os.environ.get("CODETTE_MANIFOLD_STEER", "1") != "0":
                                     _manifold_weights = _mw
-                    except Exception:
+                                print(f"[MANIFOLD] weights={_mw} xi={_mo['xi_t']:.3f} "
+                                      f"steering={'ON' if _manifold_weights else 'shadow'}", flush=True)
+                    except Exception as _mf_e:
+                        print(f"[MANIFOLD] skipped: {type(_mf_e).__name__}: {_mf_e}", flush=True)
                         _manifold_weights = None
 
                 _aap_result = SynthesisEngineV3().synthesize_adaptive(

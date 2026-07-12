@@ -1872,6 +1872,8 @@ def _worker_thread():
                     response_data["synthesis_used"] = result["synthesis_used"]
                 if result.get("render_fidelity"):
                     response_data["render_fidelity"] = result["render_fidelity"]
+                if result.get("synth_weights_applied"):
+                    response_data["synth_weights_applied"] = result["synth_weights_applied"]
 
                 # ── AEGIS η — 6-framework heuristic evaluation of the FINAL response ──
                 # Pure-heuristic (no LLM), cheap enough for every turn. Persistent
