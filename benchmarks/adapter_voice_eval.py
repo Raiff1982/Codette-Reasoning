@@ -95,8 +95,11 @@ def salad_score(text: str) -> dict:
         return {"salad": False, "func_ratio": None, "tail_ttr": None}
     func_ratio = sum(1 for w in tail if w in _FUNCTION_WORDS) / len(tail)
     tail_ttr = len(set(tail)) / len(tail)
+    # Function-word collapse alone is decisive: no genuine English tail runs
+    # under ~20% function words (normal ≈ 35-50%; measured salad = 0.0).
+    # The TTR clause catches milder degeneration where some glue survives.
     return {
-        "salad": bool(func_ratio < 0.20 and tail_ttr > 0.78),
+        "salad": bool(func_ratio < 0.20 or (func_ratio < 0.28 and tail_ttr > 0.78)),
         "func_ratio": round(func_ratio, 3),
         "tail_ttr": round(tail_ttr, 3),
     }
