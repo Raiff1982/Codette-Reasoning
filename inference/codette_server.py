@@ -1914,10 +1914,10 @@ def _worker_thread():
                     except Exception:
                         pass
                     # Task 2/3: real ξ + convergence + synthesis biases over REAL
-                    # embeddings. Biases are SHADOW — computed and surfaced, NOT yet
-                    # applied to synthesis weights (they'd change how she reasons;
-                    # observe first, flip live only once proven to sharpen not skew).
-                    if isinstance(_persp, dict) and len(_persp) >= 2:
+                    # embeddings. NOTE: the forge bridge now computes this PRE-
+                    # synthesis (ForgeManifoldEngine binding loop, live steering);
+                    # this block only backfills turns the bridge didn't cover.
+                    if isinstance(_persp, dict) and len(_persp) >= 2 and result.get("subsystem_xi") is None:
                         from inference.semantic_embedder import get_semantic_embedder
                         _emb = get_semantic_embedder()
                         if _emb is not None:

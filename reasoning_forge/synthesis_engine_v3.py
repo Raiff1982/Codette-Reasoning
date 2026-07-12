@@ -104,6 +104,7 @@ class SynthesisEngineV3:
         base_synthesis: str = "",
         trust_engine: Optional[Any] = None,
         plain: bool = False,
+        weights: Optional[Dict[str, float]] = None,
     ) -> Dict[str, Any]:
         """
         Apply Adaptive Answer Placement to an already-synthesized response.
@@ -117,12 +118,16 @@ class SynthesisEngineV3:
                             If empty, builds from analyses directly.
             trust_engine:   Optional -- any object with score_text_resonance(text)->dict.
                             Defaults to self (text-based resonance check).
+            weights:        Optional manifold synthesis weights {name: w}, sum≈1
+                            (ForgeManifoldEngine binding loop). When given, the
+                            highest-alignment perspective leads core derivation —
+                            replacing the old hardcoded newton-first rule.
 
         Returns:
             {"response": str, "trace": EnhancedCognitiveTrace}
         """
         # Use base synthesis if provided; otherwise derive from analyses
-        core_text = base_synthesis.strip() if base_synthesis.strip() else self._derive_core(analyses)
+        core_text = base_synthesis.strip() if base_synthesis.strip() else self._derive_core(analyses, weights)
 
         # ── Plain register (emotional / personal / vulnerable conversation) ──
         # When someone shares grief, fear, or a personal crisis, foregrounding a
@@ -218,8 +223,21 @@ class SynthesisEngineV3:
             return "Discovery"
         return "Synthesis"
 
-    def _derive_core(self, analyses: Dict[str, str]) -> str:
-        """Extract the Newtonian truth from analyses when no base synthesis exists."""
+    def _derive_core(self, analyses: Dict[str, str],
+                     weights: Optional[Dict[str, float]] = None) -> str:
+        """Derive the core claim when no base synthesis exists.
+
+        With manifold weights (ForgeManifoldEngine binding loop): the highest-
+        alignment perspective leads — a MEASURED choice replacing the old
+        hardcoded newton-first rule. Without weights: legacy behavior.
+        """
+        if weights:
+            ranked = [n for n, _ in sorted(weights.items(), key=lambda kv: -kv[1])
+                      if analyses.get(n, "").strip()]
+            if ranked:
+                lead = analyses[ranked[0]].strip()
+                sentences = re.split(r"(?<=[.!?])\s+", lead)
+                return sentences[0] if sentences else lead[:200]
         newton_out = analyses.get("Newton") or analyses.get("newton") or ""
         if newton_out:
             sentences = re.split(r"(?<=[.!?])\s+", newton_out.strip())
