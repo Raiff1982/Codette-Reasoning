@@ -1910,8 +1910,14 @@ def _worker_thread():
                     if _shadow is not None:
                         _rf = result.get("render_fidelity")
                         _rf_overlap = _rf.get("overlap") if isinstance(_rf, dict) else None
+                        # Honest adapter label: synthesis turns aren't attributable
+                        # to one adapter, so label them "synthesis" (the optimizer
+                        # skips adapter-boosting for non-attributable labels).
+                        _adapter_lbl = str(result.get("adapter") or result.get("primary_adapter") or "")
+                        if not _adapter_lbl:
+                            _adapter_lbl = "synthesis" if result.get("synthesis_used") else "unknown"
                         _shadow.observe(
-                            adapter=str(result.get("adapter") or result.get("primary_adapter") or "unknown"),
+                            adapter=_adapter_lbl,
                             coherence=result.get("measured_coherence"),
                             tension=result.get("measured_tension"),
                             multi_perspective=bool(result.get("synthesis_used")),

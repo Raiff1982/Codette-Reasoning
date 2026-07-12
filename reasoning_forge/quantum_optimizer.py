@@ -258,9 +258,15 @@ class QuantumOptimizer:
             self.state.multi_perspective_threshold = new_val
 
         elif len(recent) >= 5:
-            # Evaluate localized performances to award incremental adapter boosting rewards
+            # Award incremental boosts only to ATTRIBUTABLE adapters. Synthesis
+            # turns aren't produced by one adapter, so they carry a non-
+            # attributable label ("synthesis"/"unknown") and are excluded — else
+            # the optimizer boosts a phantom channel (caught in shadow review).
+            _NON_ATTRIBUTABLE = {"synthesis", "unknown", ""}
             adapter_scores: Dict[str, List[float]] = {}
             for s in recent:
+                if s.adapter in _NON_ATTRIBUTABLE:
+                    continue
                 q = self._compute_quality(s)
                 adapter_scores.setdefault(s.adapter, []).append(q)
 
