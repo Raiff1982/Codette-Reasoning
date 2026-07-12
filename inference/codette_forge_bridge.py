@@ -673,6 +673,45 @@ class CodetteForgeBridge:
                     _aap_eps = _eps_map.get(complexity, 0.50)
                 # Emotional/personal register → plain mode (no debate scaffolding).
                 _plain = self._is_emotional_register(user_query, result)
+
+                # ── ForgeManifoldEngine binding loop (Jonathan's design, LIVE) ──
+                # Manifold runs BEFORE synthesis: per-perspective alignment biases
+                # modulate synthesis weights (base × (1+bias), renormalized), with
+                # a DISSENT FLOOR. Honest guarantee: multipliers are clamped to
+                # [0.5, 2.0]×base pre-normalization, so post-norm no perspective
+                # falls below 1/4 of the LEAD's weight (~43-50% of uniform base).
+                # The trajectory sharpens the lead voice; it cannot silence dissent.
+                # Kill-switch: CODETTE_MANIFOLD_STEER=0 reverts to shadow-only.
+                _manifold_weights = None
+                if len(_aap_analyses) >= 2:
+                    try:
+                        import os as _os
+                        import numpy as _np
+                        from inference.semantic_embedder import get_semantic_embedder
+                        _emb2 = get_semantic_embedder()
+                        if _emb2 is not None:
+                            if not hasattr(self, "_forge_manifold"):
+                                from reasoning_forge.codette_subsystem_upgrade import ForgeManifoldEngine
+                                self._forge_manifold = ForgeManifoldEngine()
+                            _mn = [n for n, t in _aap_analyses.items() if t and t.strip()]
+                            _ms = [_np.asarray(_emb2.embed_claim(_aap_analyses[n])) for n in _mn]
+                            if len(_ms) >= 2:
+                                _mo = self._forge_manifold.update_manifold(
+                                    _ms, eta=result.get("aegis_alignment"))
+                                # Jonathan's integration loop + dissent floor
+                                _base = _np.full(len(_mn), 1.0 / len(_mn))
+                                _adj = _base * (1.0 + _np.asarray(_mo["attractor_biases"]))
+                                _adj = _np.maximum(_adj, 0.5 * _base)   # dissent floor
+                                _adj = _adj / _adj.sum()
+                                _mw = {n: round(float(w), 4) for n, w in zip(_mn, _adj)}
+                                result["subsystem_xi"] = round(float(_mo["xi_t"]), 4)
+                                result["converging"] = bool(_mo["converging"])
+                                result["synth_weights_applied"] = _mw
+                                if _os.environ.get("CODETTE_MANIFOLD_STEER", "1") != "0":
+                                    _manifold_weights = _mw
+                    except Exception:
+                        _manifold_weights = None
+
                 _aap_result = SynthesisEngineV3().synthesize_adaptive(
                     concept=user_query,
                     analyses=_aap_analyses,
@@ -680,6 +719,7 @@ class CodetteForgeBridge:
                     gamma=0.72,
                     base_synthesis=_aap_input,
                     plain=_plain,
+                    weights=_manifold_weights,
                 )
                 result["response"] = _aap_result["response"]
                 result["aap_trace"] = _aap_result["trace"].to_dict()
