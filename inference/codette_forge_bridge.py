@@ -656,7 +656,13 @@ class CodetteForgeBridge:
                 if len(_aap_analyses) >= 2:
                     try:
                         from reasoning_forge.perspective_web import build_web_from_perspectives
-                        _web, _wsig = build_web_from_perspectives(_aap_analyses, embedder=None)
+                        # Real embedder → SEMANTIC mode; None → lexical fallback.
+                        try:
+                            from inference.semantic_embedder import get_semantic_embedder
+                            _embedder = get_semantic_embedder()
+                        except Exception:
+                            _embedder = None
+                        _web, _wsig = build_web_from_perspectives(_aap_analyses, embedder=_embedder)
                         if _wsig.get("web_coherence") is not None:
                             result["web_coherence"] = _wsig["web_coherence"]
                             result["web_tension"] = _wsig["web_tension"]

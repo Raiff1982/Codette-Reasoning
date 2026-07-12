@@ -151,3 +151,6 @@ llama.cpp/
 hf_job_info.json
 # Paper figures (tracked)
 !paper/figures/*.png
+
+# Auto-exported OV embedder (regenerable on first run)
+models/minilm-ov/
