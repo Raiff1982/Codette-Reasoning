@@ -682,6 +682,8 @@ function sendMessage(opts) {
             memory_context: data.memory_context,
             trust_tags: data.trust_tags,
             confidence_analysis: data.confidence_analysis,
+            cognition_state: data.cognition_state,
+            synth_weights_applied: data.synth_weights_applied,
         });
 
         // Update memory count from response
@@ -865,6 +867,35 @@ function addMessage(role, content, meta = {}) {
             const reliability = meta.confidence_analysis;
             const halRisk = Math.round((1 - (reliability.hallucination_confidence || 1.0)) * 100);
             html += `<div class="tools-badge">Reliability ${(reliability.response_confidence * 100).toFixed(0)}% | hallucination risk ${halRisk}%</div>`;
+        }
+
+        // Live cognition badge — measured-only signals (omitted when not measured)
+        if (meta.cognition_state && meta.cognition_state.metrics) {
+            const cm = meta.cognition_state.metrics;
+            const parts = [];
+            if (cm.epistemic_tension !== undefined) parts.push(`ξ ${cm.epistemic_tension.toFixed(2)}`);
+            if (cm.coherence_index !== undefined) parts.push(`Γ ${cm.coherence_index.toFixed(2)}`);
+            if (cm.web_coherence !== undefined) parts.push(`webΓ ${cm.web_coherence.toFixed(2)}`);
+            if (cm.aegis_alignment !== undefined) parts.push(`η ${cm.aegis_alignment.toFixed(2)}`);
+            if (cm.gen_uncertainty !== undefined) parts.push(`u ${cm.gen_uncertainty.toFixed(2)}`);
+            if (cm.converging !== undefined) parts.push(cm.converging ? 'converging ↓' : 'exploring ↑');
+            if (cm.veto_shadow !== undefined && cm.veto_shadow > 0) parts.push('⚠ ethics-flag (shadow)');
+            if (parts.length > 0) {
+                html += `<div class="tools-badge cognition-badge" title="LiveCognitionState — every value measured, never fabricated">🧬 ${parts.join(' · ')}</div>`;
+            }
+        }
+
+        // Manifold synthesis weights — which voices led this steered synthesis
+        if (meta.synth_weights_applied && Object.keys(meta.synth_weights_applied).length > 1) {
+            const entries = Object.entries(meta.synth_weights_applied).sort((a, b) => b[1] - a[1]);
+            const bars = entries.map(([name, w]) => {
+                const pct = Math.round(w * 100);
+                return `<div class="weight-row"><span class="weight-name">${escapeHtml(name)}</span>` +
+                       `<span class="weight-track"><span class="weight-fill" style="width:${Math.min(100, pct * 2.5)}%"></span></span>` +
+                       `<span class="weight-pct">${pct}%</span></div>`;
+            }).join('');
+            html += `<div class="manifold-weights" title="ForgeManifoldEngine — alignment-steered synthesis weights (dissent floor: no voice below ¼ of the lead)">` +
+                    `<div class="weights-title">🧭 voice weighting (manifold-steered)</div>${bars}</div>`;
         }
 
         if (meta.web_sources && meta.web_sources.length > 0) {
