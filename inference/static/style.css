@@ -726,3 +726,18 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border: none;
     .welcome-grid { grid-template-columns: 1fr; }
     .control-toggles { margin-left: 0; }
 }
+
+/* ── Live cognition badge + manifold weight bars (v3.3) ─────────────────── */
+.cognition-badge { opacity: 0.85; letter-spacing: 0.02em; }
+.manifold-weights {
+    margin-top: 6px; padding: 8px 10px; border-radius: 8px;
+    background: rgba(120, 140, 255, 0.07); border: 1px solid rgba(120, 140, 255, 0.18);
+    font-size: 0.78rem;
+}
+.weights-title { opacity: 0.75; margin-bottom: 5px; font-weight: 600; }
+.weight-row { display: flex; align-items: center; gap: 8px; margin: 2px 0; }
+.weight-name { width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; opacity: 0.9; }
+.weight-track { flex: 1; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.08); overflow: hidden; }
+.weight-fill { display: block; height: 100%; border-radius: 3px;
+    background: linear-gradient(90deg, #7c8cff, #4ecdc4); }
+.weight-pct { width: 34px; text-align: right; opacity: 0.75; font-variant-numeric: tabular-nums; }
