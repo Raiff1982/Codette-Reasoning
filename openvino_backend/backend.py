@@ -712,10 +712,50 @@ class OpenVINOBackend:
 
     def _synthesize(self, query: str, perspectives: dict) -> str:
         from codette_shared import ADAPTER_PROMPTS
-        combined = "\n\n".join(
-            f"[your {name} lens — internal note]\n{text[:1200]}"
-            for name, text in perspectives.items()
-        )
+
+        # ForgeManifoldEngine binding loop for the FULL-SYNTHESIS path (parity
+        # with the bridge's adaptive path). Manifold weights order the lenses
+        # (highest-alignment read first) and scale each lens's excerpt budget,
+        # with a DISSENT FLOOR (>=0.5x base — a lens is never cut out, only
+        # de-emphasized). Kill-switch: CODETTE_MANIFOLD_STEER=0. Falls back to
+        # equal treatment if the embedder is unavailable.
+        self.last_synth_weights = None
+        items = [(n, t) for n, t in perspectives.items() if t and t.strip()]
+        weights = None
+        if len(items) >= 2 and os.environ.get("CODETTE_MANIFOLD_STEER", "1") != "0":
+            try:
+                import numpy as _np
+                from inference.semantic_embedder import get_semantic_embedder
+                _emb = get_semantic_embedder()
+                if _emb is not None:
+                    if not hasattr(self, "_forge_manifold"):
+                        from reasoning_forge.codette_subsystem_upgrade import ForgeManifoldEngine
+                        self._forge_manifold = ForgeManifoldEngine()
+                    _states = [_np.asarray(_emb.embed_claim(t)) for _, t in items]
+                    _mo = self._forge_manifold.update_manifold(_states, eta=None)
+                    _base = _np.full(len(items), 1.0 / len(items))
+                    _adj = _np.maximum(_base * (1.0 + _np.asarray(_mo["attractor_biases"])),
+                                       0.5 * _base)
+                    _adj = _adj / _adj.sum()
+                    weights = {items[i][0]: float(_adj[i]) for i in range(len(items))}
+                    self.last_synth_weights = {n: round(w, 4) for n, w in weights.items()}
+            except Exception:
+                weights = None
+
+        if weights:
+            items.sort(key=lambda it: -weights[it[0]])              # lead voice first
+            base_budget = 1200
+            parts = []
+            for name, text in items:
+                budget = int(base_budget * min(2.0, max(0.5, weights[name] * len(items))))
+                parts.append(f"[your {name} lens — internal note]\n{text[:budget]}")
+            combined = "\n\n".join(parts)
+        else:
+            combined = "\n\n".join(
+                f"[your {name} lens — internal note]\n{text[:1200]}"
+                for name, text in items
+            )
+
         synthesis_prompt = (
             f'A user asked: "{query}"\n\n'
             "Below are your own internal reasoning notes from several thinking lenses:\n\n"
