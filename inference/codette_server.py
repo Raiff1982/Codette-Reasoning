@@ -1913,6 +1913,13 @@ def _worker_thread():
                         if _unc and _unc.get("uncertainty_score") is not None:
                             result["gen_uncertainty"] = round(float(_unc["uncertainty_score"]), 4)
                             result["gen_anomaly"] = bool(_unc.get("anomaly_gate_triggered"))
+                        # Full-synthesis path (backend._synthesize) stashes its
+                        # manifold weights here — surface them if the bridge's
+                        # adaptive path didn't already set them.
+                        if not result.get("synth_weights_applied"):
+                            _bw = getattr(_orch, "last_synth_weights", None)
+                            if _bw:
+                                result["synth_weights_applied"] = _bw
                     except Exception:
                         pass
                     # Task 2/3: real ξ + convergence + synthesis biases over REAL
