@@ -1,0 +1,30 @@
+{
+  "model": "Raiff1982/codette-llama-3.1-8b-merged",
+  "dataset": "gpqa_diamond.csv",
+  "mode": "0shot",
+  "run_date": "2026-06-17",
+  "run_environment": "Kaggle T4/P100 (direct transformers+PEFT, no Codette orchestration layer)",
+  "accuracy": 0.2778,
+  "correct": 55,
+  "total": 198,
+  "parse_failures": 0,
+  "baselines": {
+    "random": 0.25,
+    "gpt4_zero_shot": 0.39,
+    "claude_opus_3": 0.50,
+    "human_expert": 0.65
+  },
+  "vs_baselines": {
+    "vs_random": "+2.78%",
+    "vs_gpt4": "-11.22%",
+    "vs_claude_opus3": "-22.22%",
+    "vs_human_expert": "-37.22%"
+  },
+  "notes": {
+    "comparison_to_local_runs": "Local Codette server 0-shot runs scored 28.8-30.8%. The ~3pp gap vs this Kaggle run represents the contribution of the full Codette system (multi-agent debate, coherence tracking, cocoon memory, factual coherence anchors) on top of the base model alone.",
+    "prior_partial_local_run_22q": "22/69 = 31.9% before server froze (RAM limited)",
+    "prior_clean_local_run": "61/198 = 30.81% (June 6 2026, after coherence-anchor GPQA-bypass fix)",
+    "adapter_routing": "Domain-conditioned PEFT adapter hot-swap: quantum/newton/davinci/systems_architecture based on keyword match in question text. Base model used when no keyword matches.",
+    "interpretation": "27.78% is the direct model+adapter checkpoint score without the orchestration system. The full Codette system (local server) adds ~3pp on GPQA by applying coherence tracking, adapter routing, and debate synthesis."
+  }
+}

@@ -16,17 +16,26 @@ tension per node, detects attractor convergence, and forms identity glyphs.
 from __future__ import annotations
 
 import math
+import cmath
 import hashlib
 import json
+import time
 from collections import deque
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 try:
     import numpy as np
     HAS_NUMPY = True
 except ImportError:
     HAS_NUMPY = False
+
+try:
+    from scipy.fft import fft, fftfreq
+    from scipy.cluster.hierarchy import linkage, fcluster
+    HAS_SCIPY = True
+except ImportError:
+    HAS_SCIPY = False
 
 
 # ---------------------------------------------------------------------------
@@ -50,11 +59,20 @@ class NodeState:
     phi: float = 0.0
     lam: float = 0.0
 
-    def to_array(self) -> list:
+    def to_array(self):
+        """Converts state to numpy array for vectorized operations (ndarray if numpy available, else list)."""
+        if HAS_NUMPY:
+            return np.array([self.psi, self.tau, self.chi, self.phi, self.lam], dtype=np.float64)
         return [self.psi, self.tau, self.chi, self.phi, self.lam]
 
     @classmethod
-    def from_array(cls, arr: list) -> "NodeState":
+    def from_array(cls, arr: Union[list, Any]) -> "NodeState":
+        if HAS_NUMPY:
+            target = np.array(arr, dtype=np.float64).flatten()
+            if len(target) < 5:
+                target = np.pad(target, (0, 5 - len(target)), 'constant')
+            return cls(psi=float(target[0]), tau=float(target[1]), chi=float(target[2]),
+                       phi=float(target[3]), lam=float(target[4]))
         if len(arr) < 5:
             padded = list(arr) + [0.0] * (5 - len(arr))
             return cls(psi=padded[0], tau=padded[1], chi=padded[2], phi=padded[3], lam=padded[4])
@@ -62,11 +80,35 @@ class NodeState:
 
     def energy(self) -> float:
         """Eq. 1: E = hbar * omega (simplified: sum of squared state magnitudes)."""
+        if HAS_NUMPY:
+            return float(np.sum(self.to_array() ** 2))
         return sum(x * x for x in self.to_array())
 
     def tension_with(self, other: "NodeState") -> float:
         """Eq. 2 (xi): epistemic tension between two states."""
+        if HAS_NUMPY:
+            return float(np.sum((self.to_array() - other.to_array()) ** 2))
         return sum((a - b) ** 2 for a, b in zip(self.to_array(), other.to_array()))
+
+    def distance_to(self, other: "NodeState") -> float:
+        """Euclidean distance between states."""
+        if HAS_NUMPY:
+            return float(np.linalg.norm(self.to_array() - other.to_array()))
+        return math.sqrt(self.tension_with(other))
+
+    def normalize(self) -> "NodeState":
+        """Returns normalized (unit-length) state vector."""
+        if HAS_NUMPY:
+            arr = self.to_array()
+            norm = np.linalg.norm(arr)
+            if norm > 0:
+                arr = arr / norm
+            return NodeState.from_array(arr)
+        arr = self.to_array()
+        norm = math.sqrt(sum(x * x for x in arr))
+        if norm > 0:
+            arr = [x / norm for x in arr]
+        return NodeState.from_array(arr)
 
 
 @dataclass
@@ -74,10 +116,12 @@ class SpiderwebNode:
     """A node in the QuantumSpiderweb graph."""
     node_id: str
     state: NodeState = field(default_factory=NodeState)
-    neighbors: List[str] = field(default_factory=list)
-    tension_history: List[float] = field(default_factory=list)
+    neighbors: Set[str] = field(default_factory=set)
+    tension_history: deque = field(default_factory=lambda: deque(maxlen=50))
     is_collapsed: bool = False
     attractor_id: Optional[str] = None
+    last_updated: float = 0.0
+    activation_level: float = 1.0
 
 
 @dataclass
@@ -88,6 +132,11 @@ class IdentityGlyph:
     stability_score: float
     source_node: str
     attractor_signature: Optional[str] = None
+    creation_time: float = field(default_factory=time.time)
+    phases: List[float] = field(default_factory=list)
+    spectral_energy: float = 0.0
+    spectral_entropy: float = 0.0
+    dominant_freq: float = 0.0
 
 
 @dataclass
@@ -97,6 +146,8 @@ class PropagationResult:
     tension_map: Dict[str, float]
     anomalies_rejected: List[str]
     hops: int
+    propagation_time: float = 0.0
+    total_energy: float = 0.0
 
 
 # ---------------------------------------------------------------------------
@@ -124,28 +175,60 @@ class QuantumSpiderweb:
         self.glyphs: List[IdentityGlyph] = []
         self._global_tension_history: List[float] = []
 
+        # Performance tracking
+        self._propagation_stats: Dict[str, Any] = {
+            "total_propagations": 0,
+            "avg_propagation_time": 0.0,
+            "anomaly_rate": 0.0,
+            "convergence_events": 0,
+        }
+
     # -- graph construction ------------------------------------------------
 
     def add_node(self, node_id: str, state: Optional[NodeState] = None) -> SpiderwebNode:
+        """Adds a node. Returns existing node if already present (duplicate guard)."""
+        if node_id in self.nodes:
+            return self.nodes[node_id]
         node = SpiderwebNode(node_id=node_id, state=state or NodeState())
         self.nodes[node_id] = node
         return node
 
-    def connect(self, node_a: str, node_b: str) -> None:
-        if node_a in self.nodes and node_b in self.nodes:
-            if node_b not in self.nodes[node_a].neighbors:
-                self.nodes[node_a].neighbors.append(node_b)
-            if node_a not in self.nodes[node_b].neighbors:
-                self.nodes[node_b].neighbors.append(node_a)
+    def connect(self, node_a: str, node_b: str, bidirectional: bool = True) -> bool:
+        """Creates connection with validation. Returns False on missing nodes or self-loops."""
+        if node_a not in self.nodes or node_b not in self.nodes:
+            return False
+        if node_a == node_b:
+            return False
 
-    def build_from_agents(self, agent_names: List[str]) -> None:
-        """Create a fully-connected spiderweb from a list of agent names."""
+        self.nodes[node_a].neighbors.add(node_b)
+        if bidirectional:
+            self.nodes[node_b].neighbors.add(node_a)
+        return True
+
+    def disconnect(self, node_a: str, node_b: str, bidirectional: bool = True) -> bool:
+        """Removes connection between two nodes."""
+        if node_a not in self.nodes or node_b not in self.nodes:
+            return False
+
+        self.nodes[node_a].neighbors.discard(node_b)
+        if bidirectional:
+            self.nodes[node_b].neighbors.discard(node_a)
+        return True
+
+    def build_from_agents(self, agent_names: List[str], fully_connected: bool = True) -> None:
+        """Create a spiderweb from a list of agent names.
+
+        Args:
+            agent_names: List of agent identifiers.
+            fully_connected: If True (default), connect every pair.
+        """
         for name in agent_names:
             if name not in self.nodes:
                 self.add_node(name)
-        for i, a in enumerate(agent_names):
-            for b in agent_names[i + 1:]:
-                self.connect(a, b)
+        if fully_connected:
+            for i, a in enumerate(agent_names):
+                for b in agent_names[i + 1:]:
+                    self.connect(a, b)
 
     # -- belief propagation ------------------------------------------------
 
@@ -154,15 +237,21 @@ class QuantumSpiderweb:
         origin: str,
         belief: NodeState,
         max_hops: int = 3,
+        attenuation_model: str = "exponential",
     ) -> PropagationResult:
         """BFS belief propagation with attenuation and anomaly rejection.
 
         Eq. 1: energy at each node
         Eq. 2: tension between current and incoming state
         Eq. 8: anomaly filter (Heaviside rejection)
+
+        Args:
+            attenuation_model: "exponential" (default), "linear", or "inverse".
         """
+        start_time = time.time()
+
         if origin not in self.nodes:
-            return PropagationResult({}, {}, [], 0)
+            return PropagationResult({}, {}, [], 0, 0.0, 0.0)
 
         visited: Dict[str, NodeState] = {}
         tension_map: Dict[str, float] = {}
@@ -170,6 +259,7 @@ class QuantumSpiderweb:
         queue: deque = deque()
         queue.append((origin, belief, 0))
         seen: Set[str] = {origin}
+        total_energy = 0.0
 
         while queue:
             node_id, incoming_belief, hop = queue.popleft()
@@ -177,33 +267,48 @@ class QuantumSpiderweb:
                 continue
 
             node = self.nodes[node_id]
-            attenuation = self.contraction_ratio ** hop
+
+            # Different attenuation models
+            if attenuation_model == "linear":
+                attenuation = max(0.0, 1.0 - (hop * (1.0 - self.contraction_ratio)))
+            elif attenuation_model == "inverse":
+                attenuation = 1.0 / (1.0 + hop)
+            else:  # exponential (default)
+                attenuation = self.contraction_ratio ** hop
 
             # Attenuate incoming belief
             incoming_arr = incoming_belief.to_array()
-            attenuated = [v * attenuation for v in incoming_arr]
-
-            # Eq. 2: measure tension
             current_arr = node.state.to_array()
-            xi = sum((a - b) ** 2 for a, b in zip(current_arr, attenuated))
+
+            if HAS_NUMPY:
+                attenuated = incoming_arr * attenuation
+                xi = float(np.sum((current_arr - attenuated) ** 2))
+                mu = float(np.mean(current_arr))
+                incoming_mean = float(np.mean(attenuated))
+            else:
+                attenuated = [v * attenuation for v in incoming_arr]
+                xi = sum((a - b) ** 2 for a, b in zip(current_arr, attenuated))
+                mu = sum(current_arr) / len(current_arr)
+                incoming_mean = sum(attenuated) / len(attenuated)
 
             # Eq. 8: anomaly rejection filter
             # A(x) = x * (1 - Theta(delta - |x - mu|))
-            mu = sum(current_arr) / len(current_arr)
-            incoming_mean = sum(attenuated) / len(attenuated)
             if abs(incoming_mean - mu) > self.anomaly_delta:
                 anomalies.append(node_id)
                 continue
 
             # Update state: weighted blend toward incoming belief
             blend = 0.3 * attenuation  # stronger blend when closer to origin
-            new_arr = [c * (1 - blend) + a * blend for c, a in zip(current_arr, attenuated)]
+            if HAS_NUMPY:
+                new_arr = current_arr * (1.0 - blend) + np.array(attenuated) * blend
+            else:
+                new_arr = [c * (1 - blend) + a * blend for c, a in zip(current_arr, attenuated)]
             new_state = NodeState.from_array(new_arr)
 
             node.state = new_state
+            node.last_updated = time.time()
             node.tension_history.append(xi)
-            if len(node.tension_history) > self.max_history:
-                node.tension_history.pop(0)
+            total_energy += new_state.energy()
 
             visited[node_id] = new_state
             tension_map[node_id] = xi
@@ -214,11 +319,20 @@ class QuantumSpiderweb:
                     seen.add(neighbor_id)
                     queue.append((neighbor_id, NodeState.from_array(attenuated), hop + 1))
 
+        propagation_time = time.time() - start_time
+        self._propagation_stats["total_propagations"] += 1
+        total_props = self._propagation_stats["total_propagations"]
+        self._propagation_stats["avg_propagation_time"] = (
+            (self._propagation_stats["avg_propagation_time"] * (total_props - 1) + propagation_time) / total_props
+        )
+
         return PropagationResult(
             visited=visited,
             tension_map=tension_map,
             anomalies_rejected=anomalies,
             hops=max_hops,
+            propagation_time=propagation_time,
+            total_energy=total_energy,
         )
 
     # -- entanglement sync -------------------------------------------------
@@ -226,10 +340,10 @@ class QuantumSpiderweb:
     def entangle(self, node_a: str, node_b: str, alpha: float = 0.9) -> float:
         """Eq. 2 (Entanglement Sync): S = alpha * psi_1 * psi_2*.
 
-        Synchronizes two nodes' states, pulling them toward each other.
+        Synchronizes two nodes' states using complex phase with rotation matrix.
 
         Returns:
-            Sync strength S.
+            Sync strength S (magnitude).
         """
         if node_a not in self.nodes or node_b not in self.nodes:
             return 0.0
@@ -237,22 +351,49 @@ class QuantumSpiderweb:
         a = self.nodes[node_a].state
         b = self.nodes[node_b].state
 
-        # Complex conjugate product (scalar approximation)
-        psi_1 = a.psi
-        psi_2_conj = -b.psi  # conjugate in simplified real model
-        S = alpha * psi_1 * psi_2_conj
+        # Complex representation with phase
+        psi_1 = complex(a.psi, a.phi)
+        psi_2 = complex(b.psi, b.phi)
+        psi_2_conj = psi_2.conjugate()
+
+        # Entanglement strength (Eq. 2)
+        S_complex = alpha * (psi_1 * psi_2_conj)
+        S_magnitude = abs(S_complex)
+        S_phase = cmath.phase(S_complex)
 
         # Pull states toward each other by S magnitude
-        blend = min(abs(S) * 0.1, 0.3)
-        a_arr = a.to_array()
-        b_arr = b.to_array()
-        new_a = [va * (1 - blend) + vb * blend for va, vb in zip(a_arr, b_arr)]
-        new_b = [vb * (1 - blend) + va * blend for va, vb in zip(a_arr, b_arr)]
+        blend = min(S_magnitude * 0.1, 0.3)
+
+        if HAS_NUMPY:
+            # Phase-aware rotation in psi-phi subspace
+            rotation = np.array([
+                [np.cos(S_phase), -np.sin(S_phase)],
+                [np.sin(S_phase), np.cos(S_phase)]
+            ])
+
+            a_arr = a.to_array()
+            b_arr = b.to_array()
+
+            a_sub = np.array([a.psi, a.phi])
+            b_sub = np.array([b.psi, b.phi])
+
+            a_rotated = rotation @ a_sub
+            b_rotated = rotation @ b_sub
+
+            new_a = a_arr.copy()
+            new_b = b_arr.copy()
+            new_a[:2] = a_arr[:2] * (1 - blend) + b_rotated * blend
+            new_b[:2] = b_arr[:2] * (1 - blend) + a_rotated * blend
+        else:
+            a_arr = a.to_array()
+            b_arr = b.to_array()
+            new_a = [va * (1 - blend) + vb * blend for va, vb in zip(a_arr, b_arr)]
+            new_b = [vb * (1 - blend) + va * blend for va, vb in zip(a_arr, b_arr)]
 
         self.nodes[node_a].state = NodeState.from_array(new_a)
         self.nodes[node_b].state = NodeState.from_array(new_b)
 
-        return S
+        return float(S_magnitude)
 
     # -- intent modulation -------------------------------------------------
 
@@ -265,18 +406,26 @@ class QuantumSpiderweb:
     ) -> float:
         """Eq. 3 (Intent Vector Modulation): I = kappa * (f_base + delta_f * coherence).
 
+        Uses adaptive kappa based on coherence. Modulates psi, chi, and phi.
+
         Returns modulated intent value for the node.
         """
         if node_id not in self.nodes:
             return 0.0
 
         coherence = self.phase_coherence()
-        I = kappa * (f_base + delta_f * coherence)
 
-        # Apply intent to psi dimension
+        # Adaptive kappa based on coherence
+        adaptive_kappa = kappa * (1.0 + coherence)
+
+        I = adaptive_kappa * (f_base + delta_f * coherence)
+
+        # Apply intent modulation to multiple dimensions
         node = self.nodes[node_id]
         node.state.psi += I * 0.1
-        return I
+        node.state.chi += I * 0.05  # Modulate processing velocity
+        node.state.phi += math.tanh(I) * 0.02  # Small valence adjustment
+        return float(I)
 
     # -- phase coherence (Eq. 11) ------------------------------------------
 
@@ -285,18 +434,28 @@ class QuantumSpiderweb:
 
         Gamma = mean(|cos(theta_i - theta_bar)|)
         where theta_i = atan2(phi, psi) for each node.
+
+        Uses circular statistics with numpy when available.
         """
         if len(self.nodes) < 2:
             return 1.0
 
-        angles = []
-        for node in self.nodes.values():
-            theta = math.atan2(node.state.phi, node.state.psi + 1e-10)
-            angles.append(theta)
-
-        mean_theta = sum(angles) / len(angles)
-        coherences = [abs(math.cos(a - mean_theta)) for a in angles]
-        gamma = sum(coherences) / len(coherences)
+        if HAS_NUMPY:
+            angles = np.array([
+                math.atan2(node.state.phi, node.state.psi + 1e-10)
+                for node in self.nodes.values()
+            ])
+            sin_sum = np.sum(np.sin(angles))
+            cos_sum = np.sum(np.cos(angles))
+            gamma = float(np.sqrt(sin_sum**2 + cos_sum**2) / len(angles))
+        else:
+            angles = []
+            for node in self.nodes.values():
+                theta = math.atan2(node.state.phi, node.state.psi + 1e-10)
+                angles.append(theta)
+            mean_theta = sum(angles) / len(angles)
+            coherences = [abs(math.cos(a - mean_theta)) for a in angles]
+            gamma = sum(coherences) / len(coherences)
 
         self._global_tension_history.append(1.0 - gamma)
         return round(gamma, 4)
@@ -305,6 +464,14 @@ class QuantumSpiderweb:
         """Compute phase coherence without mutating global tension history."""
         if len(self.nodes) < 2:
             return 1.0
+        if HAS_NUMPY:
+            angles = np.array([
+                math.atan2(node.state.phi, node.state.psi + 1e-10)
+                for node in self.nodes.values()
+            ])
+            sin_sum = np.sum(np.sin(angles))
+            cos_sum = np.sum(np.cos(angles))
+            return float(round(np.sqrt(sin_sum**2 + cos_sum**2) / len(angles), 4))
         angles = []
         for node in self.nodes.values():
             theta = math.atan2(node.state.phi, node.state.psi + 1e-10)
@@ -336,12 +503,18 @@ class QuantumSpiderweb:
             matched = False
             for att in attractors:
                 center = att["center"]
-                dist = math.sqrt(sum((a - c) ** 2 for a, c in zip(arr, center)))
+                if HAS_NUMPY:
+                    dist = float(np.linalg.norm(np.array(arr) - np.array(center)))
+                else:
+                    dist = math.sqrt(sum((a - c) ** 2 for a, c in zip(arr, center)))
                 if dist <= max_radius:
                     att["members"].append(nid)
                     # Update center (running mean)
                     n = len(att["members"])
-                    att["center"] = [(c * (n - 1) + a) / n for c, a in zip(center, arr)]
+                    if HAS_NUMPY:
+                        att["center"] = ((np.array(center) * (n - 1) + np.array(arr)) / n).tolist()
+                    else:
+                        att["center"] = [(c * (n - 1) + a) / n for c, a in zip(center, arr)]
                     assigned.add(nid)
                     matched = True
                     break
@@ -349,7 +522,7 @@ class QuantumSpiderweb:
             if not matched:
                 attractors.append({
                     "attractor_id": f"attractor_{len(attractors)}",
-                    "center": list(arr),
+                    "center": list(arr) if not HAS_NUMPY else (arr.tolist() if hasattr(arr, 'tolist') else list(arr)),
                     "members": [nid],
                 })
                 assigned.add(nid)
@@ -370,15 +543,43 @@ class QuantumSpiderweb:
         if node_id not in self.nodes:
             return None
 
-        history = self.nodes[node_id].tension_history
+        history = list(self.nodes[node_id].tension_history)
         if len(history) < 4:
             return None
 
+        phases: List[float] = []
+        spectral_entropy = 0.0
+        dominant_freq = 0.0
+
         if HAS_NUMPY:
             arr = np.array(history)
-            fft = np.fft.fft(arr)
-            components = np.abs(fft[:self.glyph_components]).tolist()
-            energy = float(np.sum(np.abs(fft) ** 2) / len(fft))
+            if HAS_SCIPY:
+                fft_values = fft(arr)
+            else:
+                fft_values = np.fft.fft(arr)
+            fft_magnitudes = np.abs(fft_values)
+            fft_phases = np.angle(fft_values)
+
+            components = fft_magnitudes[:self.glyph_components].tolist()
+            phases = fft_phases[:self.glyph_components].tolist()
+
+            energy = float(np.sum(fft_magnitudes ** 2) / len(fft_magnitudes))
+
+            # Spectral entropy
+            power_spectrum = fft_magnitudes ** 2
+            ps_sum = np.sum(power_spectrum)
+            if ps_sum > 0:
+                power_spectrum = power_spectrum / ps_sum
+                spectral_entropy = float(-np.sum(power_spectrum * np.log2(power_spectrum + 1e-10)))
+
+            # Dominant frequency
+            if HAS_SCIPY:
+                freqs = fftfreq(len(arr))
+            else:
+                freqs = np.fft.fftfreq(len(arr))
+            half = len(fft_magnitudes) // 2
+            if half > 1:
+                dominant_freq = float(freqs[np.argmax(fft_magnitudes[1:half]) + 1])
         else:
             # Fallback: basic DFT for first K components
             N = len(history)
@@ -387,6 +588,7 @@ class QuantumSpiderweb:
                 real = sum(history[n] * math.cos(2 * math.pi * k * n / N) for n in range(N))
                 imag = sum(history[n] * math.sin(2 * math.pi * k * n / N) for n in range(N))
                 components.append(math.sqrt(real * real + imag * imag))
+                phases.append(math.atan2(imag, real))
             energy = sum(x * x for x in history) / len(history)
 
         # Eq. 6: stability criterion
@@ -403,6 +605,10 @@ class QuantumSpiderweb:
             encoded_tension=components,
             stability_score=round(stability, 4),
             source_node=node_id,
+            phases=phases,
+            spectral_energy=energy,
+            spectral_entropy=spectral_entropy,
+            dominant_freq=dominant_freq,
         )
         self.glyphs.append(glyph)
         return glyph
@@ -428,7 +634,11 @@ class QuantumSpiderweb:
         second_half = sum(recent[window // 2:]) / (window - window // 2)
         is_decreasing = second_half < first_half
 
-        return (mean_tension < self.tension_threshold and is_decreasing), mean_tension
+        converged = mean_tension < self.tension_threshold and is_decreasing
+        if converged:
+            self._propagation_stats["convergence_events"] += 1
+
+        return converged, mean_tension
 
     # -- entropy measurement (VIVARA-inspired) --------------------------------
 
@@ -511,6 +721,164 @@ class QuantumSpiderweb:
 
         return node_id
 
+    # -- graph analysis helpers --------------------------------------------
+
+    def _compute_centrality(self) -> Dict[str, Dict[str, float]]:
+        """Computes degree, betweenness, and closeness centrality for all nodes."""
+        centrality: Dict[str, Dict[str, float]] = {}
+        node_ids = list(self.nodes.keys())
+        max_degree = len(self.nodes) - 1
+
+        # Degree centrality
+        for nid, node in self.nodes.items():
+            centrality[nid] = {
+                "degree": len(node.neighbors) / max_degree if max_degree > 0 else 0,
+            }
+
+        # Betweenness centrality (simplified)
+        for nid in node_ids:
+            paths = 0
+            total_paths = 0
+            for source in node_ids:
+                if source == nid:
+                    continue
+                for target in node_ids:
+                    if target == nid or target == source:
+                        continue
+                    if self._shortest_path(source, target, nid):
+                        paths += 1
+                    total_paths += 1
+            centrality[nid]["betweenness"] = paths / total_paths if total_paths > 0 else 0
+
+        # Closeness centrality
+        for nid in node_ids:
+            distances = []
+            for other in node_ids:
+                if other != nid:
+                    dist = self._shortest_distance(nid, other)
+                    if dist is not None:
+                        distances.append(dist)
+            if distances and sum(distances) > 0:
+                centrality[nid]["closeness"] = len(distances) / sum(distances)
+            else:
+                centrality[nid]["closeness"] = 0
+
+        return centrality
+
+    def _shortest_path(self, source: str, target: str, through: Optional[str] = None) -> bool:
+        """Checks if shortest path from source to target goes through 'through'."""
+        if source not in self.nodes or target not in self.nodes:
+            return False
+
+        queue_bfs: deque = deque([(source, [source])])
+        visited: Set[str] = {source}
+
+        while queue_bfs:
+            current, path = queue_bfs.popleft()
+            if current == target:
+                return through in path if through else True
+            for neighbor in self.nodes[current].neighbors:
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    queue_bfs.append((neighbor, path + [neighbor]))
+
+        return False
+
+    def _shortest_distance(self, source: str, target: str) -> Optional[int]:
+        """BFS shortest path distance between source and target."""
+        if source not in self.nodes or target not in self.nodes:
+            return None
+        if source == target:
+            return 0
+
+        queue_bfs: deque = deque([(source, 0)])
+        visited: Set[str] = {source}
+
+        while queue_bfs:
+            current, dist = queue_bfs.popleft()
+            if current == target:
+                return dist
+            for neighbor in self.nodes[current].neighbors:
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    queue_bfs.append((neighbor, dist + 1))
+        return None
+
+    def _avg_path_length(self) -> float:
+        """Average shortest path length of the network."""
+        node_ids = list(self.nodes.keys())
+        if len(node_ids) < 2:
+            return 0.0
+
+        total_dist = 0
+        pairs = 0
+
+        for source in node_ids:
+            queue_bfs: deque = deque([(source, 0)])
+            visited: Set[str] = {source}
+            while queue_bfs:
+                current, dist = queue_bfs.popleft()
+                if current != source:
+                    total_dist += dist
+                    pairs += 1
+                for neighbor in self.nodes[current].neighbors:
+                    if neighbor not in visited:
+                        visited.add(neighbor)
+                        queue_bfs.append((neighbor, dist + 1))
+
+        return round(total_dist / pairs, 4) if pairs > 0 else 0.0
+
+    # -- web analysis (comprehensive topology report) ----------------------
+
+    def web_analysis(self) -> Dict[str, Any]:
+        """Comprehensive topology/energy/tension/centrality report."""
+        if not self.nodes:
+            return {"error": "Empty network"}
+
+        node_count = len(self.nodes)
+        edge_count = sum(len(node.neighbors) for node in self.nodes.values()) // 2
+        max_edges = node_count * (node_count - 1) / 2
+        density = edge_count / max_edges if max_edges > 0 else 0
+
+        # Energy distribution
+        energies = [node.state.energy() for node in self.nodes.values()]
+        energy_stats = {
+            "mean": sum(energies) / len(energies),
+            "min": min(energies),
+            "max": max(energies),
+        }
+
+        # Tension statistics
+        all_tensions: List[float] = []
+        for node in self.nodes.values():
+            all_tensions.extend(list(node.tension_history))
+
+        tension_stats: Dict[str, Any] = {}
+        if all_tensions:
+            tension_stats = {
+                "mean": sum(all_tensions) / len(all_tensions),
+                "trend": self.decoherence_rate(min(20, len(all_tensions))),
+            }
+
+        centrality = self._compute_centrality()
+
+        return {
+            "topology": {
+                "nodes": node_count,
+                "edges": edge_count,
+                "density": round(density, 4),
+                "avg_path_length": self._avg_path_length(),
+            },
+            "centrality": centrality,
+            "energy": {k: round(v, 4) for k, v in energy_stats.items()},
+            "tension": {k: round(v, 4) if isinstance(v, float) else v for k, v in tension_stats.items()},
+            "coherence": self._compute_phase_coherence_readonly(),
+            "entropy": round(self.shannon_entropy(), 4),
+            "glyphs": len(self.glyphs),
+            "attractors": len(self.detect_attractors()),
+            "propagation_stats": dict(self._propagation_stats),
+        }
+
     # -- serialization -----------------------------------------------------
 
     def to_dict(self) -> Dict:
@@ -518,11 +886,13 @@ class QuantumSpiderweb:
         return {
             "nodes": {
                 nid: {
-                    "state": n.state.to_array(),
-                    "neighbors": n.neighbors,
-                    "tension_history": n.tension_history[-10:],
+                    "state": n.state.to_array() if not HAS_NUMPY else n.state.to_array().tolist(),
+                    "neighbors": list(n.neighbors),
+                    "tension_history": list(n.tension_history)[-10:],
                     "is_collapsed": n.is_collapsed,
                     "attractor_id": n.attractor_id,
+                    "last_updated": n.last_updated,
+                    "activation_level": n.activation_level,
                 }
                 for nid, n in self.nodes.items()
             },
@@ -532,6 +902,12 @@ class QuantumSpiderweb:
                     "encoded_tension": g.encoded_tension,
                     "stability_score": g.stability_score,
                     "source_node": g.source_node,
+                    "attractor_signature": g.attractor_signature,
+                    "creation_time": g.creation_time,
+                    "phases": g.phases,
+                    "spectral_energy": g.spectral_energy,
+                    "spectral_entropy": g.spectral_entropy,
+                    "dominant_freq": g.dominant_freq,
                 }
                 for g in self.glyphs
             ],
@@ -545,10 +921,13 @@ class QuantumSpiderweb:
         web = cls()
         for nid, ndata in data.get("nodes", {}).items():
             node = web.add_node(nid, NodeState.from_array(ndata["state"]))
-            node.neighbors = ndata.get("neighbors", [])
-            node.tension_history = ndata.get("tension_history", [])
+            node.neighbors = set(ndata.get("neighbors", []))
+            for t in ndata.get("tension_history", []):
+                node.tension_history.append(t)
             node.is_collapsed = ndata.get("is_collapsed", False)
             node.attractor_id = ndata.get("attractor_id")
+            node.last_updated = ndata.get("last_updated", 0.0)
+            node.activation_level = ndata.get("activation_level", 1.0)
         for gdata in data.get("glyphs", []):
             web.glyphs.append(IdentityGlyph(
                 glyph_id=gdata["glyph_id"],
@@ -556,6 +935,11 @@ class QuantumSpiderweb:
                 stability_score=gdata["stability_score"],
                 source_node=gdata["source_node"],
                 attractor_signature=gdata.get("attractor_signature"),
+                creation_time=gdata.get("creation_time", 0.0),
+                phases=gdata.get("phases", []),
+                spectral_energy=gdata.get("spectral_energy", 0.0),
+                spectral_entropy=gdata.get("spectral_entropy", 0.0),
+                dominant_freq=gdata.get("dominant_freq", 0.0),
             ))
         web._global_tension_history = data.get("global_tension_history", [])
         return web

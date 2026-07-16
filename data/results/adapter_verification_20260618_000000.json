@@ -1,0 +1,27 @@
+{
+  "timestamp": "20260618_000000",
+  "results": [
+    {
+      "adapter": "newton",
+      "overall": "PASS",
+      "probes": [
+        {
+          "probe": "A 5 kg ball is thrown upward at 20 m/s. How high does it go and how long until it lands? Show the calculation.",
+          "status": "PASS",
+          "routed_adapter": "newton",
+          "response_words": 144,
+          "markers_found": [],
+          "elapsed_s": 28.1
+        },
+        {
+          "probe": "Why does a heavier object and a lighter object fall at the same rate in a vacuum? What did Galileo show?",
+          "status": "PASS",
+          "routed_adapter": "newton",
+          "response_words": 78,
+          "markers_found": [],
+          "elapsed_s": 11.8
+        }
+      ]
+    }
+  ]
+}
