@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import json
 import os
+import sqlite3
 import time
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -30,6 +31,60 @@ from typing import Any, Dict, Optional
 _REPO = Path(__file__).resolve().parent.parent
 _STATE_PATH = _REPO / "data" / "optimizer_state.json"
 _LOG_PATH = _REPO / "data" / "optimizer_shadow.jsonl"
+_TELEMETRY_DB = _REPO / "data" / "manifold_telemetry.db"
+
+
+class ManifoldTelemetry:
+    """SQLite-backed metric persistence for structured optimizer analysis.
+    Adapted from codette_optimizer_bridge_Addon (CocoonPersistenceManager)."""
+
+    def __init__(self, db_path: Path = _TELEMETRY_DB) -> None:
+        self.db_path = db_path
+        db_path.parent.mkdir(parents=True, exist_ok=True)
+        self._init_schema()
+
+    def _init_schema(self) -> None:
+        conn = sqlite3.connect(str(self.db_path))
+        try:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS manifold_telemetry (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    timestamp REAL,
+                    mode TEXT,
+                    adapter TEXT,
+                    coherence REAL,
+                    tension REAL,
+                    productivity REAL,
+                    response_length INTEGER,
+                    multi_perspective INTEGER,
+                    proposed_count INTEGER,
+                    applied INTEGER
+                )
+            """)
+            conn.commit()
+        finally:
+            conn.close()
+
+    def record(self, mode: str, adapter: str, coherence: float, tension: float,
+               productivity: float, response_length: int, multi_perspective: bool,
+               proposed_count: int, applied: bool) -> None:
+        try:
+            conn = sqlite3.connect(str(self.db_path))
+            try:
+                conn.execute(
+                    "INSERT INTO manifold_telemetry "
+                    "(timestamp, mode, adapter, coherence, tension, productivity, "
+                    "response_length, multi_perspective, proposed_count, applied) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (time.time(), mode, adapter, coherence, tension, productivity,
+                     response_length, int(multi_perspective), proposed_count,
+                     int(applied)),
+                )
+                conn.commit()
+            finally:
+                conn.close()
+        except Exception:
+            pass
 
 
 class ShadowOptimizer:
@@ -52,6 +107,10 @@ class ShadowOptimizer:
             self.opt = QuantumOptimizer()
         from reasoning_forge.quantum_optimizer import QualitySignal
         self._QSignal = QualitySignal
+        try:
+            self._telemetry = ManifoldTelemetry()
+        except Exception:
+            self._telemetry = None
 
     def observe(self, adapter: str, coherence: Optional[float],
                 tension: Optional[float], multi_perspective: bool,
@@ -79,6 +138,18 @@ class ShadowOptimizer:
         new_steps = self.opt.history[n_hist:]
         self._log_turn(adapter, coherence, tension, productivity,
                        productivity_is_proxy, new_steps)
+        if self._telemetry is not None:
+            self._telemetry.record(
+                mode="live" if self.live else "shadow",
+                adapter=adapter,
+                coherence=float(coherence),
+                tension=float(tension),
+                productivity=float(productivity),
+                response_length=int(response_length),
+                multi_perspective=bool(multi_perspective),
+                proposed_count=len(new_steps),
+                applied=self.live,
+            )
         self._persist()
 
     def get_adapter_boost(self, adapter: str) -> float:
