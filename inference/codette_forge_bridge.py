@@ -619,7 +619,14 @@ class CodetteForgeBridge:
         #   SIMPLE  -> eps=0.20  -> Fact attractor  (verdict first, trace last)
         #   MEDIUM  -> eps=0.50  -> Synthesis attractor (narrative)
         #   COMPLEX -> eps=0.75  -> Discovery attractor (debate foregrounded)
+        # Ablation kill-switch (Phase 0): CODETTE_AAP=0 ships the substrate
+        # response unshaped for a measurement run. Default ON.
+        import os as _aap_os
         _aap_input = result.get("response", "")
+        if _aap_input and _aap_os.environ.get("CODETTE_AAP", "1") == "0":
+            if self.verbose:
+                print("[AAP] disabled via CODETTE_AAP=0 (ablation)", flush=True)
+            _aap_input = ""
         if _aap_input:
             try:
                 from reasoning_forge.synthesis_engine_v3 import SynthesisEngineV3

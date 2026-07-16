@@ -3,9 +3,13 @@
 
 No llama_cpp dependency — safe to import from any environment.
 """
+import os as _os
 import re as _re
 
 # ── Permanent behavioral locks ────────────────────────────────────────────────
+# Ablation kill-switch (Phase 0): CODETTE_LOCKS=0 removes the LOCK block from
+# every adapter prompt for a measurement run. Default is ON — this is a
+# benchmark toggle, not a behavior change.
 
 _PERMANENT_LOCKS = (
     "\n\n=== PERMANENT BEHAVIORAL LOCKS (ABSOLUTE — NEVER VIOLATE) ===\n"
@@ -53,6 +57,9 @@ _PERMANENT_LOCKS = (
     "what they already know. Skip them entirely and answer directly.\n"
     "=== END PERMANENT LOCKS ===\n\n"
 )
+
+if _os.environ.get("CODETTE_LOCKS", "1") == "0":
+    _PERMANENT_LOCKS = ""
 
 _DIRECTNESS = (
     _PERMANENT_LOCKS +
