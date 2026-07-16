@@ -97,10 +97,13 @@ class CodetteRuntimePipeline:
         manifold_data = {}
         synthesis_weights = None
         if node_embeddings and np is not None:
-            logprobs = [-float(np.random.uniform(0.1, 1.8)) for _ in range(50)]
-            uncertainty_report = self.upgrade_layer.calculate_uncertainty_from_logprobs(
-                logprobs
-            )
+            real_uncertainty = getattr(self.engine, "last_uncertainty", None)
+            if real_uncertainty is not None:
+                uncertainty_report = real_uncertainty
+            else:
+                uncertainty_report = self.upgrade_layer.calculate_uncertainty_from_logprobs(
+                    [-0.5]
+                )
 
             manifold_data = self.manifold_engine.update_manifold(
                 node_embeddings, eta=0.85
