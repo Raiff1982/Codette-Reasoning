@@ -12,9 +12,10 @@ import math
 import cmath
 import hashlib
 import json
+import time
 from collections import deque
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Set, Tuple, Any
+from typing import Dict, List, Optional, Set, Tuple, Any, Union
 
 import numpy as np
 from scipy.fft import fft
@@ -114,8 +115,8 @@ class SpiderwebNode:
     """Internal State representation structure tracking persistent processing agent paths."""
     node_id: str
     state: NodeState = field(default_factory=NodeState)
-    neighbors: List[str] = field(default_factory=list)
-    tension_history: List[float] = field(default_factory=list)
+    neighbors: Set[str] = field(default_factory=set)
+    tension_history: deque = field(default_factory=lambda: deque(maxlen=50))
     is_collapsed: bool = False
     attractor_id: Optional[str] = None
 
@@ -137,6 +138,7 @@ class PropagationResult:
     tension_map: Dict[str, float]
     anomalies_rejected: List[str]
     hops: int
+    propagation_time: float = 0.0
 
 
 # ---------------------------------------------------------------------------
@@ -228,6 +230,7 @@ class SessionGlyphTracker:
         self.embedder = embedder
         self.web = QuantumSpiderweb(glyph_components=glyph_components, max_history=max_history)
         self.turns = 0
+        self._perspective_vectors: Dict[str, np.ndarray] = {}
 
     def _turn_vectors(self, texts: Dict[str, str]) -> Dict[str, np.ndarray]:
         if self.embedder is not None:
@@ -251,6 +254,7 @@ class SessionGlyphTracker:
             return {"turn_tension": {}, "glyphs": {}}
         self.turns += 1
         vecs = self._turn_vectors(texts)
+        self._perspective_vectors.update(vecs)
 
         per_persp: Dict[str, float] = {}
         names = list(vecs.keys())
@@ -262,9 +266,7 @@ class SessionGlyphTracker:
         for n, xi in per_persp.items():
             if n not in self.web.nodes:
                 self.web.add_node(n)
-            self.web.nodes[n].tension_history.append(xi)
-            if len(self.web.nodes[n].tension_history) > self.web.max_history:
-                self.web.nodes[n].tension_history.pop(0)
+            self.web.nodes[n].tension_history.append(xi)  # deque(maxlen) handles truncation
             g = self.web.form_glyph(n)  # returns None until enough history + stable
             if g is not None:
                 glyphs[n] = {"glyph_id": g.glyph_id, "stability": g.stability_score}
@@ -313,10 +315,8 @@ class QuantumSpiderweb:
     def connect(self, node_a: str, node_b: str) -> None:
         """Creates symmetrical quantum entangling communication channels across topology space."""
         if node_a in self.nodes and node_b in self.nodes:
-            if node_b not in self.nodes[node_a].neighbors:
-                self.nodes[node_a].neighbors.append(node_b)
-            if node_a not in self.nodes[node_b].neighbors:
-                self.nodes[node_b].neighbors.append(node_a)
+            self.nodes[node_a].neighbors.add(node_b)
+            self.nodes[node_b].neighbors.add(node_a)
 
     def build_from_agents(self, agent_names: List[str]) -> None:
         """Initializes full multi-agent multi-perspective meshed matrices automatically."""
@@ -344,8 +344,10 @@ class QuantumSpiderweb:
         - Equation 8 Integration: Anomaly Exclusion Filter:
           A(x) = x * (1.0 - Theta(delta - |x - mu|))
         """
+        start_time = time.time()
+
         if origin not in self.nodes:
-            return PropagationResult({}, {}, [], 0)
+            return PropagationResult({}, {}, [], 0, 0.0)
 
         visited: Dict[str, NodeState] = {}
         tension_map: Dict[str, float] = {}
@@ -363,7 +365,14 @@ class QuantumSpiderweb:
             attenuated_arr = incoming_belief.to_array() * attenuation
 
             current_arr = node.state.to_array()
-            xi = float(np.sum(np.square(current_arr - attenuated_arr)))
+
+            # Propagate real embeddings when both sides carry them
+            new_embedding = None
+            if incoming_belief.embedding is not None and node.state.embedding is not None:
+                new_embedding = node.state.embedding * (1.0 - (0.3 * attenuation)) + (incoming_belief.embedding * attenuation * 0.3)
+                xi = float(node.state.tension_with(NodeState(embedding=incoming_belief.embedding)))
+            else:
+                xi = float(np.sum(np.square(current_arr - attenuated_arr)))
 
             # Direct mathematical virtualization of Equation 8 (Heaviside Gate Operator Function)
             mu = float(np.mean(current_arr))
@@ -376,11 +385,10 @@ class QuantumSpiderweb:
             blend = 0.3 * attenuation
             new_arr = current_arr * (1.0 - blend) + attenuated_arr * blend
             new_state = NodeState.from_array(new_arr)
+            new_state.embedding = new_embedding
 
             node.state = new_state
             node.tension_history.append(xi)
-            if len(node.tension_history) > self.max_history:
-                node.tension_history.pop(0)
 
             visited[node_id] = new_state
             tension_map[node_id] = xi
@@ -388,13 +396,18 @@ class QuantumSpiderweb:
             for neighbor_id in node.neighbors:
                 if neighbor_id not in seen:
                     seen.add(neighbor_id)
-                    queue.append((neighbor_id, NodeState.from_array(attenuated_arr), hop + 1))
+                    next_belief = NodeState.from_array(attenuated_arr)
+                    if incoming_belief.embedding is not None:
+                        next_belief.embedding = incoming_belief.embedding * attenuation
+                    queue.append((neighbor_id, next_belief, hop + 1))
 
+        propagation_time = time.time() - start_time
         return PropagationResult(
             visited=visited,
             tension_map=tension_map,
             anomalies_rejected=anomalies,
             hops=max_hops,
+            propagation_time=propagation_time,
         )
 
     # -- Mathematical Integration Systems (Equations 2 & 3 Matrices) --------
@@ -666,8 +679,8 @@ class QuantumSpiderweb:
             "nodes": {
                 nid: {
                     "state": n.state.to_array().tolist(),
-                    "neighbors": n.neighbors,
-                    "tension_history": n.tension_history[-10:],
+                    "neighbors": list(n.neighbors),
+                    "tension_history": list(n.tension_history)[-10:],
                     "is_collapsed": n.is_collapsed,
                     "attractor_id": n.attractor_id,
                 }
@@ -693,8 +706,8 @@ class QuantumSpiderweb:
         web = cls()
         for nid, ndata in data.get("nodes", {}).items():
             node = web.add_node(nid, NodeState.from_array(ndata["state"]))
-            node.neighbors = list(ndata.get("neighbors", []))
-            node.tension_history = list(ndata.get("tension_history", []))
+            node.neighbors = set(ndata.get("neighbors", []))
+            node.tension_history = deque(ndata.get("tension_history", []), maxlen=web.max_history)
             node.is_collapsed = bool(ndata.get("is_collapsed", False))
             node.attractor_id = ndata.get("attractor_id")
             
