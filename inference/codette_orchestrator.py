@@ -1263,6 +1263,7 @@ Based on the context above, answer the user's question. Reference specific files
         return {
             "response": text,
             "adapter": route.primary,
+            "synthesis_used": False,
             "route": route,
             "tokens": tokens,
             "time": elapsed,
@@ -1282,6 +1283,7 @@ Based on the context above, answer the user's question. Reference specific files
         return {
             "response": text,
             "adapter": route.primary,
+            "synthesis_used": False,
             "route": route,
             "tokens": tokens,
             "time": elapsed,
@@ -1363,7 +1365,9 @@ Based on the context above, answer the user's question. Reference specific files
         return {
             "response": synthesis,
             "perspectives": perspectives,
+            "adapter": route.primary,
             "adapters": list(perspectives.keys()),
+            "synthesis_used": len(perspectives) > 1,
             "route": route,
             "tokens": total_tokens,
             "time": total_time,

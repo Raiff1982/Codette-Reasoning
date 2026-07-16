@@ -6,7 +6,7 @@ torch>=2.1.0,<3.0.0
 torchvision>=0.16.0,<1.0.0
 
 # HuggingFace stack — LoRA training pipeline
-transformers>=4.40.0,<5.0.0
+transformers>=4.52.0,<5.0.0
 peft>=0.10.0,<1.0.0
 trl>=0.8.0,<1.0.0
 datasets>=2.18.0,<3.0.0
@@ -31,6 +31,6 @@ pydantic>=2.0.0,<3.0.0
 vaderSentiment>=3.3.2,<4.0.0
 
 # Gradio (demo space UI only — not required for server)
-gradio>=4.0.0,<5.0.0
+gradio>=5.34.0,<6.0.0
 
 # SQLite FTS5 is built into Python's standard library sqlite3 (no extra install needed)
