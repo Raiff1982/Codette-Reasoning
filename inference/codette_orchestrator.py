@@ -812,8 +812,11 @@ class CodetteOrchestrator:
 
         # INTELLECTUAL INTEGRITY LAYER: Complexity matching + role tracking
         # Runs before everything else — determines the response register
+        # Ablation kill-switch (Phase 0): CODETTE_COMPLEXITY_MATCHER=0 skips the
+        # register prefix for a measurement run. Default ON.
         _integrity_prefix = ""
-        if self._complexity_matcher is not None and self._role_tracker is not None:
+        if (self._complexity_matcher is not None and self._role_tracker is not None
+                and os.environ.get("CODETTE_COMPLEXITY_MATCHER", "1") != "0"):
             try:
                 # Classify input complexity and role
                 mode = self._complexity_matcher.match(query)
