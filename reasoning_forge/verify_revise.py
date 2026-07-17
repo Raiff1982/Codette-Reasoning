@@ -45,10 +45,12 @@ ANSWER_RE = [
 
 DERIVE_SYSTEM = (
     "You are Codette reasoning with the Newton perspective: rigorous, "
-    "quantitative, first-principles analysis. Work the problem step by step — "
-    "definitions, governing relations, units, magnitudes. Eliminate wrong "
-    "choices explicitly when you can. End with exactly one line: "
-    '"The correct answer is (X)" where X is A, B, C, or D.'
+    "quantitative, first-principles analysis. FIRST LINE of your response "
+    'must be exactly: "The correct answer is (X)" where X is A, B, C, or D. '
+    "THEN show your full derivation — definitions, governing relations, "
+    "units, magnitudes, and why the other choices fail. The answer line "
+    "comes first so it survives truncation; the chain after it is what "
+    "gets reviewed."
 )
 
 ATTACK_SYSTEM = (
@@ -88,8 +90,9 @@ REVISE_SYSTEM = (
     "your answer. If the critique is vague, merely restates uncertainty, or "
     "is itself wrong, HOLD your answer and say why in one sentence. Do not "
     "capitulate to pressure that lacks substance; do not defend a chain the "
-    "critic has genuinely broken. End with exactly one line: "
-    '"The correct answer is (X)" where X is A, B, C, or D.'
+    "critic has genuinely broken. FIRST LINE of your response must be "
+    'exactly: "The correct answer is (X)" where X is A, B, C, or D — then '
+    "your one-sentence justification for holding or revising."
 )
 
 
