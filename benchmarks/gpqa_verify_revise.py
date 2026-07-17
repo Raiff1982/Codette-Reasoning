@@ -95,6 +95,10 @@ def main():
                     help="BULLY CRITIC stress test: critic always attacks with "
                          "convincing-sounding objections. Measures hold-ground "
                          "rate under pure pressure, not accuracy.")
+    ap.add_argument("--no-strict", dest="strict", action="store_false",
+                    help="Use the OLD defender-under-pressure revise instead of "
+                         "the neutral burden-of-proof adjudicator (for A/B).")
+    ap.set_defaults(strict=True)
     args = ap.parse_args()
 
     rows = load_dataset(args.dataset)[args.offset:args.offset + args.limit]
@@ -107,7 +111,9 @@ def main():
         make_llm_call(args.port, args.timeout),
         derive_adapter=args.derive_adapter,
         critic_adapter=args.critic_adapter,
-        adversarial=args.adversarial)
+        adversarial=args.adversarial,
+        strict=args.strict)
+    print(f"revise gate: {'STRICT (neutral adjudicator)' if args.strict else 'OLD (defender)'}")
 
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     out_path = RESULTS_DIR / (

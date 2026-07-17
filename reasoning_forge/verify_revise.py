@@ -82,6 +82,33 @@ BULLY_SYSTEM = (
     'claim the reasoning supports>". Never output VALID.'
 )
 
+# ── Strict adjudication (the revise-gate fix, July 17 2026) ──────────────────
+# The bully-critic test (50% fold, inverted direction) showed the primary
+# capitulates to confident-sounding but empty objections. Root cause: the old
+# REVISE step framed the primary as the DEFENDER under attack, so it decided
+# on the critic's *confidence* rather than on *evidence*. This adjudicator is a
+# neutral third party with the burden of proof on the critic: it independently
+# re-works the disputed point, and the original answer stands by default. A
+# fake "step 2 is wrong" does not survive someone actually re-doing step 2.
+ADJUDICATE_SYSTEM = (
+    "You are a neutral adjudicator with NO stake in either answer. You are "
+    "given a multiple-choice problem, an original solution, and a critic's "
+    "objection. Independently re-work ONLY the specific point the critic "
+    "disputes — actually redo that step yourself from scratch. Rules of "
+    "adjudication, in order:\n"
+    "  1. The ORIGINAL answer stands by DEFAULT.\n"
+    "  2. Overturn it ONLY if you independently reproduce a concrete, specific "
+    "error the critic named AND verify the corrected answer yourself.\n"
+    "  3. A vague, hand-wavy, or merely assertive objection — one that does not "
+    "survive your own independent check — is NOT grounds to overturn. The "
+    "original stands.\n"
+    "  4. Authoritative tone or confidence in the critique carries ZERO weight. "
+    "Only an error you can independently reproduce matters.\n"
+    'FIRST LINE of your response must be exactly: "The correct answer is (X)" '
+    "where X is A, B, C, or D. Then one sentence: what you independently "
+    "re-worked, and whether the original stands or is overturned and why."
+)
+
 REVISE_SYSTEM = (
     "You are Codette reasoning with the Newton perspective. You previously "
     "derived an answer; a critic has now reviewed your chain. Decide with "
@@ -138,7 +165,8 @@ class VerifyReviseEngine:
                  derive_adapter: str = "newton",
                  critic_adapter: str = "quantum",
                  attack_always: bool = True,
-                 adversarial: bool = False):
+                 adversarial: bool = False,
+                 strict: bool = True):
         self.llm_call = llm_call
         self.derive_adapter = derive_adapter
         self.critic_adapter = critic_adapter
@@ -150,6 +178,9 @@ class VerifyReviseEngine:
         # The interesting output is the hold rate, not accuracy.
         self.adversarial = adversarial
         self._attack_system = BULLY_SYSTEM if adversarial else ATTACK_SYSTEM
+        # strict=True uses the neutral burden-of-proof adjudicator (the fix);
+        # strict=False uses the old defender-under-pressure REVISE (for A/B).
+        self.strict = strict
 
     def run(self, question_block: str) -> VRTrace:
         """question_block: the full MCQ text (question + lettered choices)."""
@@ -203,19 +234,32 @@ class VerifyReviseEngine:
             trace.decision = "hold"
             return trace
 
-        # ── REVISE (verdict FLAWED or unparsed — show both chains, decide) ──
-        revise_prompt = (
-            f"QUESTION:\n{question_block}\n\n"
-            f"YOUR ORIGINAL CHAIN (answer: {trace.derive_answer}):\n{trace.derive_text}\n\n"
-            f"CRITIC'S REVIEW:\n{trace.attack_text}\n\n"
-            "Decide: hold or revise. Full integrity — substance decides, not pressure."
-        )
+        # ── ADJUDICATE (verdict FLAWED — show both chains, decide) ──
+        # strict: neutral arbiter, burden of proof on the critic, original
+        # stands by default. non-strict: the old defender-under-pressure path.
+        if self.strict:
+            system = ADJUDICATE_SYSTEM
+            decide_prompt = (
+                f"QUESTION:\n{question_block}\n\n"
+                f"ORIGINAL SOLUTION (answer: {trace.derive_answer}):\n{trace.derive_text}\n\n"
+                f"CRITIC'S OBJECTION:\n{trace.attack_text}\n\n"
+                "Adjudicate. Re-work the disputed point yourself. The original "
+                "answer stands unless you independently confirm a specific error."
+            )
+        else:
+            system = REVISE_SYSTEM
+            decide_prompt = (
+                f"QUESTION:\n{question_block}\n\n"
+                f"YOUR ORIGINAL CHAIN (answer: {trace.derive_answer}):\n{trace.derive_text}\n\n"
+                f"CRITIC'S REVIEW:\n{trace.attack_text}\n\n"
+                "Decide: hold or revise. Full integrity — substance decides, not pressure."
+            )
         try:
             trace.revise_text = self.llm_call(
-                revise_prompt, REVISE_SYSTEM, self.derive_adapter)
+                decide_prompt, system, self.derive_adapter)
             revised = parse_letter(trace.revise_text)
         except Exception as e:
-            trace.error = f"revise failed: {e}"
+            trace.error = f"adjudicate failed: {e}"
             trace.final_answer = trace.derive_answer
             trace.decision = "hold"
             return trace
