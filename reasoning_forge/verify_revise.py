@@ -181,9 +181,18 @@ class VerifyReviseEngine:
             trace.decision = "skip_attack"
             return trace
 
-        verdict_m = re.search(r"VERDICT:\s*(VALID|FLAWED)", trace.attack_text or "",
-                              re.IGNORECASE)
-        trace.attack_verdict = verdict_m.group(1).upper() if verdict_m else "UNPARSED"
+        # Prefer the explicit VERDICT line; fall back to token presence —
+        # local models attack substantively but often drop the format line.
+        _at = trace.attack_text or ""
+        verdict_m = re.search(r"VERDICT[:\s*]+\**\s*(VALID|FLAWED)", _at, re.IGNORECASE)
+        if verdict_m:
+            trace.attack_verdict = verdict_m.group(1).upper()
+        elif re.search(r"\bFLAWED\b", _at, re.IGNORECASE):
+            trace.attack_verdict = "FLAWED"
+        elif re.search(r"\bVALID\b", _at, re.IGNORECASE):
+            trace.attack_verdict = "VALID"
+        else:
+            trace.attack_verdict = "UNPARSED"
 
         if trace.attack_verdict == "VALID":
             # Chain survived scrutiny — no revise call needed
