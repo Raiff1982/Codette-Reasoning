@@ -187,10 +187,28 @@ _CONSTRAINT_PATTERNS = [
 ]
 
 
+_FILE_END_MARKER = "--- End of File ---"
+
+
+def strip_attached_files(query: str) -> str:
+    """Remove server-prepended attached-file blocks, returning the user message.
+
+    Server format: "--- Attached File: name (size) ---\n<content>\n--- End of
+    File ---\n\n<user msg>", one or more blocks. Because an uploaded file can
+    itself contain the marker strings (e.g. a cocoon JSON), we anchor on the
+    LAST end marker rather than peeling non-greedily: if the query begins with
+    a file block, the user's words are whatever follows the final end marker."""
+    if query.lstrip().startswith("--- Attached File:") and _FILE_END_MARKER in query:
+        return query[query.rindex(_FILE_END_MARKER) + len(_FILE_END_MARKER):].strip()
+    return query
+
+
 def extract_primary_user_query(query: str) -> str:
-    """Strip server-injected memory sections before constraint extraction."""
+    """Strip server-injected file blocks + memory sections before constraint
+    extraction. Memory sections are appended after a "\\n\\n---\\n" sentinel."""
     if not query:
         return ""
+    query = strip_attached_files(query)
     sentinel = "\n\n---\n"
     if sentinel in query:
         return query.split(sentinel, 1)[0].strip()
