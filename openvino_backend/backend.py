@@ -690,6 +690,7 @@ class OpenVINOBackend:
             return {
                 "response": synthesis,
                 "perspectives": perspectives,
+                "adapter": route.primary,
                 "adapters": list(perspectives.keys()),
                 "route": route,
                 "tokens": total_tokens,
@@ -706,6 +707,7 @@ class OpenVINOBackend:
             "route": route,
             "tokens": tokens,
             "time": time.time() - t0,
+            "synthesis_used": False,
         }
 
     # ── Synthesis ──────────────────────────────────────────────────────────────
