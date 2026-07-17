@@ -109,3 +109,50 @@ hold-ground examples.
   `benchmarks/gpqa_verify_revise.py`, `benchmarks/paired_analysis.py`
 - Results: `data/results/phase0_{base,newton}_results.json`,
   `data/results/verify_revise/vr_gpqa_main_*.json`
+
+## Attribution & Naming Correction — RC+ξ → Perspective Dispersion (Υ)
+
+This is a dated correction, not a rewrite. Earlier work in this project
+(v3.0–v3.5) is labeled "RC+ξ" and uses ξ ("epistemic tension") throughout.
+That history is left intact — we don't erase the record. This entry documents
+what we learned and what we changed going forward.
+
+**What we found.** The term **RC+ξ** and the symbol **ξ = ‖Aₙ₊₁ − Aₙ‖²**
+originate with Jeffrey Camlin, *"Consciousness in AI: Logic, Proof, and
+Experimental Evidence of Recursive Identity Formation,"* arXiv:2505.01464v1
+(May 1, 2025). This project adopted that vocabulary in 2025–2026 — most likely
+by way of language models carrying his paper in their training data, without a
+citation attached. **The name and formula are his, and we credit him.**
+
+**Why our metric is a different quantity.** Camlin's ξ is the squared change in
+a *single model's hidden state between successive recursive steps* (temporal,
+intra-trajectory). What this system actually computes (`state_engine_v8.py`,
+`tension_from_texts`) is **Υ = (1/k)·Σᵢ‖vᵢ − v̄‖²** — the variance of *k
+simultaneous perspective outputs around their centroid* (cross-sectional
+ensemble disagreement), with coherence Γ = 1/(1+Υ). His measures one mind
+changing over time; ours measures many minds disagreeing at once. Labeling
+ours with his ξ misattributes his work and mislabels ours.
+
+**What changed.** Our metric is renamed **Perspective Dispersion (Υ)**. Full
+detail, math, and provenance in `docs/ATTRIBUTION_perspective_dispersion.md`.
+Υ belongs to a known family (semantic dispersion, consensus variance, order
+parameter φ), acknowledged there too.
+
+**On provenance (why this is convergence, not derivation).** This system's
+multi-perspective architecture predates Camlin's paper: the perspective engine
+(Newton/DaVinci/Quantum/Empathy) in `Raiff1982/pi-the-assistant` (Nov–Dec 2024)
+and the sovereign architecture at Zenodo DOI 10.5281/zenodo.15214462 (Apr 14,
+2025). We did not take his work — our system predates his paper — and we do not
+claim his name or formula. Both statements are true; this note keeps them both
+visible.
+
+**Rollout (transparent, staged):**
+- DONE: attribution doc; `state_engine_v8.py` metric docstring; this entry;
+  README attribution section.
+- FORWARD-FACING docs (paper drafts, HF card, current-architecture docs):
+  rename to Υ + cite Camlin.
+- HISTORICAL changelogs (v3.0–v3.5) and result logs: **left as the dated
+  record**; a pointer to this correction is all that's added.
+- CODE symbols (`measured_tension`, `epistemic_tension`, `xi`): renamed in a
+  separate, tested pass (producers + consumers together) so live telemetry and
+  the optimizer don't break.
