@@ -18,6 +18,7 @@ attribution correction is ready regardless of what the reviewers ask.
 | `02_summary_of_changes.md` | Itemized list of all edits | Attach to resubmission |
 | `03_response_to_reviewers_TEMPLATE.md` | Point-by-point response scaffold | Fill in once reviewer comments arrive |
 | `04_provenance_statement.md` | Independent-development timeline w/ DOIs | Supporting doc / supplementary |
+| `05_point_by_point_changes.md` | Exact before→after for every edit | Attach to resubmission; verifies each change |
 | `../REVISION_camlin_attribution.md` | Exact manuscript edits (BibTeX, change-map, drafted text) | While editing the .tex source |
 
 ## Timing decision (yours to make)
