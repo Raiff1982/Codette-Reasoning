@@ -84,13 +84,19 @@ def _sq_distance(a: Dict[str, float], b: Dict[str, float]) -> float:
 
 
 def tension_from_texts(perspective_texts: Dict[str, str]) -> Tuple[float, float]:
-    """Spec formula: xi = mean squared distance of attractors from their mean.
+    """Perspective Dispersion (Υ): mean squared distance of the perspective
+    vectors from their centroid — how much the perspectives disagreed on this
+    query. Returns (Υ, Γ) with coherence Γ = 1 / (1 + Υ).
 
-    Attractors here are the REAL perspective responses (vectorized), so xi
-    measures how much the perspectives actually disagreed on this query.
-    Returns (tension, coherence) with coherence = 1 / (1 + tension).
+    Υ ranges ~0 (identical responses) to ~2 (fully disjoint vocabulary).
 
-    xi ranges ~0 (identical responses) to ~2 (fully disjoint vocabulary).
+    NAMING: this quantity was previously labeled "epistemic tension ξ" after
+    the RC+ξ framework. That name/formalism belongs to Camlin (arXiv:2505.01464,
+    ξ = ‖Aₙ₊₁−Aₙ‖², a successive-hidden-state difference — a DIFFERENT quantity).
+    Ours is an ensemble variance of simultaneous perspective outputs, renamed
+    Perspective Dispersion (Υ). See docs/ATTRIBUTION_perspective_dispersion.md.
+    (Return tuple name kept for now to avoid breaking callers; a full symbol
+    rename is a separate, tested pass.)
     """
     vectors = [
         _tf_vector(t) for t in perspective_texts.values()
