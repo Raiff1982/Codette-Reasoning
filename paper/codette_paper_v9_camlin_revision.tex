@@ -1,0 +1,1248 @@
+% ============================================================
+% Codette: Multi-Perspective Reasoning as a Convergent
+% Dynamical System with Meta-Cognitive Strategy Evolution
+% Author: Jonathan Harrison
+% Version: 8 (May 2026) — Phase 8, updated benchmarks, resolved tradeoffs
+% Changes from v7: see codette_paper_v8_additions.tex
+% ============================================================
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\graphicspath{{codette-paper/figures/}{figures/}}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{geometry}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{url}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\geometry{margin=1in}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!70!black,
+  citecolor=green!50!black,
+  urlcolor=blue!60!black,
+}
+\bibliographystyle{plainnat}
+
+\newcommand{\rcxi}{RC+$\xi$}
+\newcommand{\codette}{\textsc{Codette}}
+\pdfstringdefDisableCommands{\def\rcxi{RC+xi}}
+
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+
+\title{\textbf{Codette: A Multi-Perspective Cognitive Architecture\\
+with Memory and Meta-Cognitive Strategy Evolution}}
+
+\author{
+  Jonathan Harrison\thanks{Corresponding author. E-mail: \texttt{harrison82\_95@hotmail.com}}\\
+  Raiff's Bits LLC, Bridge City, Texas, USA\\
+  ORCID: \href{https://orcid.org/0009-0003-7005-8187}{0009-0003-7005-8187}
+}
+
+\date{May 2026\\[0.5em]\small Preprint --- submitted for peer review}
+
+\begin{document}
+\maketitle
+
+% ============================================================
+% ABSTRACT
+% ============================================================
+\begin{abstract}
+We present \codette{}, a modular cognitive architecture that models
+multi-perspective reasoning as a constrained dynamical system converging
+toward stable cognitive attractors. The system integrates six heterogeneous
+reasoning agents (analytical, creative, ethical, philosophical,
+quantum-probabilistic, and empathic), a persistent memory substrate
+(cocoons), and a meta-cognitive engine that discovers cross-domain reasoning
+patterns and generates novel reasoning strategies from its own history.
+Version~8 introduces \emph{render/cognition separation} (Phase~8): a
+\textsc{CognitionSubstrate}--\textsc{AuthoredState}--\textsc{RenderLayer}
+pipeline that assigns the language model a verbalization-only role, bounding
+the hallucination surface to a fully authored cognitive artifact.
+The RC+$\xi$ (Recursive Convergence + Epistemic Tension) formalism of
+Camlin~\citep{camlin2025consciousness} provides a dynamical-systems-inspired
+lens for describing cognitive state evolution, which we adopt as a conceptual
+framing; convergence is treated as conditional on explicit modeling
+assumptions. Within this framing we define a distinct, cross-sectional
+metric---\emph{Perspective Dispersion} ($\Upsilon$)---measuring inter-agent
+disagreement (Section~\ref{sec:theory}).
+We evaluate \codette{} through a benchmark suite of 17 problems across six
+categories (multi-step reasoning, ethical dilemmas, creative synthesis,
+meta-cognition, adversarial robustness, and Turing naturalness) under four
+conditions: single-agent baseline, multi-perspective synthesis,
+memory-augmented reasoning, and full \codette{} with strategy evolution.
+On the May~2026 benchmark run (951 stored cocoons), the full system achieves
+\textbf{+108.8\%} higher mean composite score than the single-agent baseline
+(0.357~$\to$~0.744, Cohen's $d=8.31$). Memory augmentation now reaches
+statistical significance ($p=0.0198$, $d=0.80$), resolving a prior null
+result at smaller scale (217 cocoons). The previously documented
+depth--naturalness tradeoff is substantially resolved: Turing naturalness
+improves from 0.245 to 0.820 in the CODETTE condition. The architecture
+runs on consumer hardware (Llama 3.1 8B with ten LoRA adapters) and is
+open-source.
+\end{abstract}
+
+\noindent\textbf{Keywords:} Cognitive Architecture, Multi-Agent Reasoning,
+Epistemic Tension, Dynamical Systems, Meta-Cognition, Ethical AI, Strategy
+Evolution, Render/Cognition Separation, LoRA.
+
+% ============================================================
+% 1. INTRODUCTION
+% ============================================================
+\section{Introduction}
+\label{sec:intro}
+
+Large language models achieve remarkable generative performance but reason
+from a single cognitive mode: they produce one response per query, without
+systematic engagement of multiple analytical frameworks or self-evaluation of
+reasoning quality~\citep{bender2021dangers,bommasani2021opportunities}.
+Chain-of-thought prompting~\citep{wei2022chain} and self-reflection~\citep{shinn2023reflexion}
+improve output quality but remain confined to a single perspective. Multi-agent
+debate systems~\citep{wu2023autogen} enable perspective diversity but lack
+formal convergence guarantees and do not learn from their own reasoning
+history.
+
+This paper presents \codette{}, a cognitive architecture that addresses four
+open problems:
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Convergent multi-perspective reasoning.} How can heterogeneous
+    cognitive agents (analytical, creative, ethical, empathic) produce coherent
+    outputs rather than incoherent assemblages? We formalize this as a
+    constrained dynamical system (\cref{sec:theory}) and discuss convergence
+    \emph{conditionally} under explicit modeling assumptions.
+  \item \textbf{Ethical reasoning as architectural constraint.} Rather than
+    post-hoc alignment, \codette{} treats ethical governance as an explicit
+    constraint signal in the update dynamics (\cref{sec:aegis}).
+  \item \textbf{Meta-cognitive strategy evolution.} \codette{} introspects on
+    its own reasoning history (stored as persistent ``cocoons''), discovers
+    cross-domain patterns, and generates novel reasoning strategies
+    (\cref{sec:metacognition}).
+  \item \textbf{Render/cognition decoupling.} LLMs simultaneously serve as
+    cognitive surface (what to conclude) and communication surface (how to
+    express it). This coupling inflates the hallucination surface and ties
+    cognitive quality to a specific model. Phase~8 separates these roles
+    (\cref{sec:phase8}).
+\end{enumerate}
+
+We evaluate these contributions through controlled benchmarks comparing four
+conditions across 17 problems (\cref{sec:experiments}), demonstrating
+statistically significant improvements in reasoning depth, perspective
+diversity, ethical coverage, and naturalness.
+
+% ============================================================
+% 2. RELATED WORK
+% ============================================================
+\section{Related Work}
+\label{sec:related}
+
+\subsection{Dynamical Systems and Cognitive Architectures}
+Attractor dynamics form a core computational motif in neural
+circuits~\citep{fakhoury2025models}. Neural manifolds with cognitive
+consistency constraints support memory consolidation and align with our
+coherence potential $\Phi(\mathbf{x})$~\citep{nguyen2025neural}.
+Entropy-modulated triad architectures like COGENT3 provide parallels for
+epistemic tension as a driver of state
+evolution~\citep{salazar2025cogent3}. The RC+$\xi$ term and the symbol $\xi$
+for epistemic tension are due to Camlin~\citep{camlin2025consciousness}, whose
+vocabulary we adopt (Section~\ref{sec:theory}). Brain-inspired systems-level
+architectures for domain-general cognition inform \codette{}'s layered
+stack~\citep{achterberg2023building}.
+
+\subsection{Multi-Agent Reasoning and Synthesis}
+Multi-agent systems for LLM reasoning have gained significant attention.
+AutoGen~\citep{wu2023autogen} implements role-based agent assignment with
+message-passing synchronization. MAPS uses personality shaping for
+collaborative reasoning via heterogeneous traits, relating directly to our
+specialized LoRA adapters~\citep{zhang2025maps}. Roundtable Policy employs
+confidence-weighted consensus aggregation, providing a comparison for our
+Coherence Field $\Gamma$~\citep{yao2025roundtable}. Systematic studies of
+multi-agent debate as test-time scaling frame our composite quality gains and
+conditional effectiveness~\citep{yang2025revisiting}. Persona-driven debate
+frameworks validate the benefits of perspective diversity (reaching
+0.994)~\citep{hu2025debate}.
+
+\subsection{Meta-Cognitive Strategy Evolution}
+Meta Chain-of-Thought advances System~2 reasoning and pattern
+discovery~\citep{xiang2025meta}. ParamMem augments agents with parametric
+reflective memory; our cocoon system differs by emphasizing cross-domain
+pattern extraction and strategy forging rather than primarily error
+correction~\citep{yao2026parammem}. Meta-Reasoner supports dynamic
+inference-time optimization, relating to substrate-aware
+cognition~\citep{sui2025metareasoner}. LLMs demonstrate metacognitive
+monitoring and control of internal activations, supporting Lyapunov-based
+convergence in RC+$\xi$~\citep{ji2025metacognitive}.
+
+\subsection{Ethical AI and Architectural Alignment}
+AI ethics by design implements customizable
+guardrails~\citep{sekrst2024ethics}. Hybrid approaches for moral value
+alignment treat ethics as embedded rather than post-hoc~\citep{tennant2023hybrid}.
+Adaptive alignment via multi-objective reinforcement learning enables
+pluralistic AI, relating to our ethical alignment score $\eta$ across diverse
+frameworks~\citep{harland2024adaptive}. The Nexus Signal Engine~\citep{harrison2025nexussignal}
+provides a standalone adversarially-resilient signal integrity layer with agent-lensed
+reasoning, obfuscation detection (leetspeak, fuzzy matching, Unicode normalization),
+and cryptographically hashed forensic memory; it forms part of the broader
+\codette{} ecosystem and is independently published and tested.
+
+% ============================================================
+% 3. THEORETICAL FOUNDATION
+% ============================================================
+\section{Theoretical Foundation: \rcxi{} Framework}
+\label{sec:theory}
+
+We adopt the \rcxi{} (Recursive Convergence + Epistemic Tension) vocabulary of
+Camlin~\citep{camlin2025consciousness} as a dynamical-systems-inspired modeling
+lens. Camlin's framework concerns single-trajectory latent-state recursion; our
+system was developed independently (architecture DOI
+\texttt{10.5281/zenodo.15214462}, April 2025) and instantiates a distinct
+inter-agent metric, defined in Section~\ref{sec:theory} below. We use \rcxi{}
+only as conceptual vocabulary and make no claim to its formalism.
+
+\subsection{Cognitive State Space}
+
+\begin{definition}[Cognitive State]
+A cognitive state $\mathbf{x}_t \in \mathbb{R}^d$ represents the system's
+reasoning configuration at step $t$, where $d$ is the dimensionality of the
+shared representation space.
+\end{definition}
+
+The system maintains $k$ heterogeneous reasoning agents
+$\{A_1, \ldots, A_k\}$, each producing a perspective-specific analysis
+$A_i(\mathbf{x}_t) \in \mathbb{R}^d$.
+
+\subsection{State Evolution}
+
+The cognitive state evolves according to:
+\begin{equation}
+\label{eq:evolution}
+\mathbf{x}_{t+1} = \mathbf{x}_t + \sum_{i=1}^{k} w_i \, A_i(\mathbf{x}_t)
+  - \alpha \nabla\Phi(\mathbf{x}_t) - \lambda \nabla\Psi(\mathbf{x}_t)
+\end{equation}
+where:
+\begin{itemize}[leftmargin=*,nosep]
+  \item $w_i \geq 0$, $\sum w_i = 1$ are agent weights (set by query
+    classification),
+  \item $\Phi(\mathbf{x})$ is the \emph{coherence potential} penalizing
+    internal inconsistency,
+  \item $\Psi(\mathbf{x})$ is the \emph{ethical constraint potential} from
+    the AEGIS system,
+  \item $\alpha, \lambda > 0$ are gradient step sizes.
+\end{itemize}
+
+\subsection{Perspective Dispersion}
+
+\begin{definition}[Perspective Dispersion]
+The perspective dispersion at step $t$ measures inter-agent disagreement:
+\begin{equation}
+\label{eq:tension}
+\Upsilon_t = \frac{1}{k} \sum_{i=1}^{k}
+  \| A_i(\mathbf{x}_t) - \bar{A}(\mathbf{x}_t) \|^2
+\end{equation}
+where $\bar{A}(\mathbf{x}_t) = \sum_{i} w_i A_i(\mathbf{x}_t)$ is the
+weighted mean agent output.
+\end{definition}
+
+\paragraph{Relation to Camlin's $\xi$.}
+Camlin~\citep{camlin2025consciousness} defines epistemic tension as the
+successive change in a \emph{single} model's latent state,
+$\xi_n = \| A_{n+1} - A_n \|^2$---a temporal, intra-trajectory quantity. Our
+metric (Eq.~\ref{eq:tension}) is mathematically distinct: it is the variance of
+$k$ \emph{simultaneous} perspective outputs about their centroid---a
+cross-sectional measure of inter-agent disagreement, not the step-to-step
+change of one trajectory. To avoid conflating the two we name ours
+\emph{Perspective Dispersion} ($\Upsilon$) and reserve $\xi$ and the \rcxi{}
+name for Camlin's original formulation.
+
+\subsection{Coherence Index}
+
+\begin{definition}[Coherence Index]
+We define a bounded coherence index $\Gamma_t \in [0,1]$ directly in
+$\mathbb{R}^d$ as a normalized complement of perspective dispersion:
+\begin{equation}
+\label{eq:coherence}
+\Gamma_t = \frac{1}{1 + \Upsilon_t}.
+\end{equation}
+Lower dispersion ($\Upsilon_t\downarrow$) implies higher coherence
+($\Gamma_t\uparrow$).
+\end{definition}
+
+\subsection{Convergence and Stability (Conditional)}
+
+We use RC+$\xi$ primarily as a dynamical-systems-inspired modeling lens.
+We intentionally avoid claiming a general convergence guarantee; instead we
+state the kinds of assumptions under which standard fixed-point / Lyapunov
+arguments could apply.
+
+\begin{proposition}[One sufficient route to a fixed point]
+\label{prop:convergence}
+Let $\mathcal{D} \subset \mathbb{R}^d$ be a closed, convex, bounded domain
+and assume the update is implemented with an explicit projection step
+$\Pi_{\mathcal{D}}$ so that $\mathbf{x}_{t+1} \in \mathcal{D}$. If the
+projected map $T(\mathbf{x}) = \Pi_{\mathcal{D}}\!\big(\mathbf{x} +
+\sum_i w_i A_i(\mathbf{x}) - \alpha\nabla\Phi(\mathbf{x}) -
+\lambda\nabla\Psi(\mathbf{x})\big)$ is a contraction on $\mathcal{D}$
+(i.e., $\|T(\mathbf{x})-T(\mathbf{y})\|\le\gamma\|\mathbf{x}-\mathbf{y}\|$
+for some $\gamma\in[0,1)$), then iterates converge to the unique fixed point
+in $\mathcal{D}$ by Banach's theorem.
+\end{proposition}
+
+\textbf{Discussion.} Establishing that a real implementation satisfies the
+contraction premise requires additional structure (dissipativity, strong
+monotonicity, or sufficiently small step sizes). We treat the coherence field
+$\Gamma$ as an engineering stabilization mechanism and leave fully
+constructive bounds as future work.
+
+% ============================================================
+% 4. SYSTEM ARCHITECTURE
+% ============================================================
+\section{System Architecture}
+\label{sec:architecture}
+
+\codette{} is implemented as a layered stack processing each query through
+seven functional layers:
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.97\linewidth]{architecture_v8.png}
+  \caption{\codette{} v8 layered architecture. The top row shows the Phase~8
+    render/cognition pipeline (\cref{sec:phase8}): \textsc{CognitionSubstrate}
+    (zero LLM calls) produces an \textsc{AuthoredState}, which
+    \textsc{RenderLayer} expresses in natural language. The lower rows show
+    the full system layers through which every query passes.}
+  \label{fig:layered-architecture}
+\end{figure}
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Memory Layer.} Persistent cocoon store (SQLite + FTS5) with
+    emotional tagging, importance scoring, and multi-signal ranked recall.
+    Cocoons encode prior reasoning exchanges as retrievable context. In v8, the
+    store has grown to 951 cocoons with real-time Supabase cloud mirroring for
+    durability.
+  \item \textbf{Signal Processing.} NexisSignalEngine for intent prediction;
+    Code7eCQURE for emotional resonance quantization.
+  \item \textbf{Reasoning Layer.} Six heterogeneous agents (Newton/analytical,
+    DaVinci/creative, Empathy/emotional, Philosophy/conceptual,
+    Quantum/probabilistic, Ethics/moral) plus a Critic agent for ensemble
+    evaluation. Each agent is backed by a specialized LoRA
+    adapter~\citep{hu2021lora} fine-tuned on perspective-specific training
+    data. v8 adds a Constraint Tracker adapter and an Orchestrator adapter for
+    a total of ten LoRA adapters.
+  \item \textbf{Stability Layer.} Coherence Field $\Gamma$ monitors real-time
+    reasoning health. Specialization tracking ensures agent diversity.
+  \item \textbf{Ethical Layer.} AEGIS multi-framework evaluation
+    (\cref{sec:aegis}).
+  \item \textbf{Integrity Layer.} Intellectual Integrity Layer
+    (\cref{sec:integrity}): SycophancyGuard, DebateTracker,
+    ResponseComplexityMatcher, ConversationRoleTracker. Ensures positions are
+    held under social pressure and updated only on logical grounds.
+  \item \textbf{Self-Correction Layer.} Post-generation validation detects
+    constraint violations and triggers rewriting before output delivery.
+    Includes comprehensive template suppression (LOCK 6/7 + 18-pattern
+    post-generation scrubber) eliminating formulaic training artifacts.
+\end{enumerate}
+
+The base model is Llama 3.1 8B (Q4\_K\_M quantization)~\citep{grattafiori2024llama}
+with ten LoRA adapters hot-swapped at inference time. The entire system runs
+on a single consumer GPU (RTX-class).
+
+\subsection{Query Classification and Routing}
+
+Queries are classified into three complexity levels:
+\begin{itemize}[nosep]
+  \item \textbf{SIMPLE}: Direct factual queries $\to$ 1 agent, full weight.
+  \item \textbf{MEDIUM}: Conceptual queries $\to$ 1 primary ($w=1.0$) +
+    1--2 secondary ($w=0.6$).
+  \item \textbf{COMPLEX}: Multi-domain/ethical queries $\to$ all relevant
+    agents ($w \in \{1.0, 0.7, 0.4\}$).
+\end{itemize}
+
+Special fast-paths bypass adapter routing for: greetings (base model, 80
+tokens), memory queries (base model + explicit memory injection), health
+checks (real system diagnostics), and self-introspection (CocoonIntrospection
+Engine analyzing actual cocoon history rather than LLM-generated reflection).
+
+% ============================================================
+% 5. PHASE 8: RENDER/COGNITION SEPARATION
+% ============================================================
+\section{Phase 8: Render/Cognition Separation}
+\label{sec:phase8}
+
+\subsection{The Model-Coupling Problem}
+
+Conventional LLM-based cognitive architectures assign the language model a
+dual role: it is simultaneously the \emph{cognitive surface} (deciding what is
+true, generating conclusions, selecting evidence) and the \emph{communication
+surface} (choosing how to express those conclusions). This coupling creates
+three problems:
+
+\begin{enumerate}[nosep]
+  \item \textbf{Unbounded hallucination surface.} The model can introduce new
+    claims at render time not authored by the reasoning pipeline.
+  \item \textbf{Model lock-in.} Cognitive quality is tied to a specific
+    model's parametric knowledge. Swapping the base model changes cognition,
+    not just expression.
+  \item \textbf{Validation gap.} There is no authored artifact against which
+    to validate rendered output; governance checks must operate on natural
+    language rather than structured cognitive state.
+\end{enumerate}
+
+This architectural weakness was identified by an independent practitioner
+developing a separate cognitive runtime system (\emph{Aura}), first in a
+brief public evaluation of an earlier \codette{} release: \emph{``If all
+`cognition' is still the LLM then it's [just] a homebuilt character
+AI''}~\citep{auracf2025reddit}. That public comment preceded a subsequent
+in-depth architectural review of \codette{} by the same practitioner, in
+which the model-coupling problem was analyzed formally. The consistency
+between the informal public observation and the later formal analysis ---
+arrived at from a practitioner deployment perspective rather than from
+within the \codette{} development --- provides external validation that
+model coupling is a recognized problem in the open-source cognitive AI
+community, not solely a theoretical concern internal to this project.
+Phase~8 is a direct response to both that external critique and our own
+internal analysis.
+
+Phase~8 resolves this through a strict pipeline separating all reasoning from
+all expression.
+
+\subsection{Pipeline}
+
+\begin{equation}
+\text{Query}
+\;\xrightarrow{\;\text{CognitionSubstrate}\;}
+\text{AuthoredState}
+\;\xrightarrow{\;\text{RenderLayer}\;}
+\text{Natural Language}
+\end{equation}
+
+\textbf{CognitionSubstrate} performs all reasoning with zero LLM calls,
+orchestrating existing \codette{} components in template mode:
+
+\begin{enumerate}[nosep]
+  \item \emph{Perspective gathering}: ForgeEngine template agents (all
+    active cognitive modes).
+  \item \emph{Cocoon retrieval}: UnifiedMemory FTS5 retrieves $\leq 5$
+    relevant prior exchanges.
+  \item \emph{Strategy synthesis}: CocoonSynthesizer and SynthesisEngineV3
+    select a reasoning strategy, producing name, definition, and evidence
+    chain.
+  \item \emph{Conclusion derivation}: Priority: synthesizer conclusion $\to$
+    top cocoon response $\to$ dominant perspective.
+  \item \emph{Confidence scoring}: Weighted function of perspective count,
+    cocoon integrity scores, and per-agent confidence.
+  \item \emph{Emotion selection}: Keyword-based mapping to dominant framing
+    (empathetic, ethical, analytical, creative, curious).
+\end{enumerate}
+
+\textbf{AuthoredState} is the cognitive artifact produced entirely before any
+LLM call. It is a typed dataclass containing:
+
+\begin{itemize}[nosep]
+  \item \texttt{query}: verbatim user query
+  \item \texttt{conclusion}: substrate's best answer ($\leq 300$ characters)
+  \item \texttt{evidence}: ordered supporting evidence strings
+  \item \texttt{perspectives}: agent name $\to$ (text, confidence, domain)
+  \item \texttt{strategy}, \texttt{strategy\_def}: selected reasoning strategy
+  \item \texttt{confidence}: overall authored confidence $\in [0,1]$
+  \item \texttt{dominant\_emotion}: render tone signal
+  \item \texttt{cocoon\_refs}: IDs of contributing cocoons
+  \item \texttt{constraints}: render constraints (word limits, tone)
+  \item \texttt{render\_tier}: target surface
+    (``\texttt{llm}'' / ``\texttt{template}'' / ``\texttt{fallback}'')
+\end{itemize}
+
+\textbf{RenderLayer} expresses the AuthoredState via three tiers:
+
+\begin{enumerate}[nosep]
+  \item \textbf{LLM tier} (preferred): A constrained verbalization prompt
+    explicitly prohibits the model from adding new claims, reasoning
+    independently, altering the conclusion, or using formulaic training
+    templates. The LLM may only choose phrasing and tone.
+  \item \textbf{Template tier}: Deterministic rendering from AuthoredState
+    fields with no model calls.
+  \item \textbf{Fallback tier}: Minimal safe output when the substrate fails
+    to produce a conclusion (confidence $< 0.1$).
+\end{enumerate}
+
+\subsection{Render Integrity Validation}
+
+After rendering, \texttt{check\_integrity()} validates output faithfulness:
+
+\begin{itemize}[nosep]
+  \item \textbf{Conclusion coverage}: $\geq 15\%$ word overlap between the
+    rendered text and the authored conclusion. Lower overlap indicates drift
+    from authored content.
+  \item \textbf{Constraint compliance}: Any \texttt{max\_words:N} constraint
+    enforced with 20\% tolerance.
+\end{itemize}
+
+\subsection{Architectural Properties}
+
+\textbf{Bounded hallucination surface.} The LLM cannot introduce claims absent
+from the AuthoredState. Semantic authority resides entirely in the substrate.
+
+\textbf{Model portability.} Cognition is pure Python; swapping the base model
+changes only verbalization style.
+
+\textbf{Substrate self-awareness.} The system monitors cognitive substrate
+health (memory availability, engine load) and adjusts render tier accordingly,
+complementing the hardware pressure monitoring in \cref{sec:substrate}.
+
+\textbf{Connection to RC+$\xi$.} The AuthoredState represents a stabilized
+cognitive attractor. The render tier \emph{expresses} this attractor state
+rather than re-computing it, enforcing the separation between convergence
+(substrate) and communication (render).
+
+% ============================================================
+% 6. AEGIS ETHICAL GOVERNANCE
+% ============================================================
+\section{AEGIS: Embedded Ethical Governance}
+\label{sec:aegis}
+
+The ethical constraint potential $\Psi(\mathbf{x})$ in \cref{eq:evolution}
+is implemented through AEGIS, a six-framework ethical evaluation system:
+
+\begin{enumerate}[nosep]
+  \item \textbf{Utilitarian}: Maximizes aggregate welfare across stakeholders.
+  \item \textbf{Deontological}: Enforces duty-based constraints (rights,
+    consent).
+  \item \textbf{Virtue Ethics}: Evaluates whether the response exhibits
+    intellectual virtues.
+  \item \textbf{Care Ethics}: Prioritizes relational obligations and
+    vulnerability.
+  \item \textbf{Ubuntu}: ``I am because we are'' --- communal well-being.
+  \item \textbf{Reciprocity-oriented sustainability}: Sustainability and
+    intergenerational responsibility (placeholder; future work should ground
+    this in specific community scholarship).
+\end{enumerate}
+
+AEGIS operates at three defense-in-depth checkpoints: pre-processing (query
+validation), post-synthesis (response screening), and post-generation
+(constraint enforcement). The ethical alignment score $\eta \in [0,1]$ is a
+weighted aggregation across frameworks; the set is not claimed to be exhaustive
+and weights are not culturally universal.
+
+A pre-cognitive AEGIS filter also screens queries \emph{before} LLM
+invocation, rejecting clearly dual-use or harmful requests without burning
+inference time.
+
+This embedding aligns with hybrid moral value approaches~\citep{tennant2023hybrid},
+ethics-by-design guardrails~\citep{sekrst2024ethics}, and adaptive pluralistic
+alignment~\citep{harland2024adaptive}. The AEGIS framework has been released as a
+standalone open-source system, Project~SENTINAL~\citep{harrison2025sentinal}, implementing
+multi-timescale Council arbitration, HMAC-signed tamper-evident audit ledger, and a
+pre-attack Shield layer with rate-limiting, proof-of-work, and injection guards.
+
+% ============================================================
+% 7. META-COGNITIVE STRATEGY EVOLUTION
+% ============================================================
+\section{Meta-Cognitive Strategy Evolution}
+\label{sec:metacognition}
+
+\subsection{Cocoon Memory System}
+
+Each reasoning exchange is persisted as a \emph{cocoon}: a structured record
+containing the query, response, adapter used, domain classification, emotional
+tag, importance score, echo-collapse risk, and timestamp. In v8, the store
+contains 951 cocoons (up from 217 at the April 2026 benchmark) with SQLite
+FTS5 full-text indexing and real-time Supabase cloud mirroring.
+
+\subsection{Cross-Domain Pattern Extraction}
+
+The CocoonSynthesizer retrieves cocoons across cognitive domains and scans for
+six structural archetypes: feedback loops, layered emergence, tension
+resolution, resonant transfer, boundary permeability, and
+compression--expansion. A pattern is classified as cross-domain if it
+manifests with $\geq 2$ signal words in $\geq 2$ distinct cognitive domains.
+
+\subsection{Strategy Forging}
+
+Discovered patterns are mapped to four observed strategy types:
+
+\begin{enumerate}[nosep]
+  \item \textbf{Resonant Tension Cycling}: Serial oscillation between opposing
+    cognitive modes.
+  \item \textbf{Compression--Resonance Bridging}: Seed-crystal compression +
+    cross-domain resonance testing.
+  \item \textbf{Emergent Boundary Walking}: Analysis at domain boundaries
+    rather than centers, discovering ``liminal concepts.''
+  \item \textbf{Temporal Depth Stacking}: Multi-scale temporal analysis with
+    synthesis from scale-conflicts.
+\end{enumerate}
+
+\subsection{Internal Validation}
+
+Each forged strategy is immediately applied to the current problem alongside
+the baseline, producing a structured comparison with measurable metrics (depth,
+novelty, dimensions engaged). This creates selection pressure on cognition
+itself~\citep{ji2025metacognitive}.
+
+% ============================================================
+% 8. INTELLECTUAL INTEGRITY LAYER
+% ============================================================
+\section{Intellectual Integrity Layer}
+\label{sec:integrity}
+
+A key reliability challenge in conversational AI is sycophantic drift:
+the tendency to revise stated positions under social pressure rather than
+logical argument. \codette{} v2.4 adds an Intellectual Integrity Layer that
+runs on every inference turn:
+
+\begin{enumerate}[nosep]
+  \item \textbf{SycophancyGuard}: Detects and blocks flattery-driven position
+    changes (sycophancy score $\geq 0.6$ blocks capitulation). Positions are
+    updated only when logical arguments demand revision.
+  \item \textbf{DebateTracker}: Maintains per-session position memory and
+    validates counterargument coherence. Detects reversals without logical
+    justification.
+  \item \textbf{ResponseComplexityMatcher}: Matches output verbosity to query
+    register (QUIET / STANDARD / FULL), preventing over-elaboration on simple
+    queries.
+  \item \textbf{ConversationRoleTracker}: Detects user role transitions
+    (SEEKER / PEER / VENTING) and adapts response register with explicit
+    transition detection.
+  \item \textbf{QueryClassifier with InputMode}: Extended with
+    CREATIVE\_EXPRESSION / ADVERSARIAL\_TEST / EMOTIONAL\_DISCHARGE / LITERAL
+    modes enabling agent selection to be intent-aware rather than purely
+    domain-keyword-driven.
+\end{enumerate}
+
+The integrity layer runs first in system prompt assembly, ensuring that
+intellectual honesty constraints are the highest-priority behavioral signal ---
+above adapter personality modes.
+
+% ============================================================
+% 9. EXPERIMENTAL EVALUATION
+% ============================================================
+\section{Experimental Evaluation}
+\label{sec:experiments}
+
+\subsection{Benchmark Design}
+
+We evaluate \codette{} using a purpose-built benchmark suite of 17 problems
+across six categories:
+
+\begin{itemize}[nosep]
+  \item \textbf{Multi-step reasoning} (3 problems): Bayesian inference,
+    second-order effects, causal reasoning.
+  \item \textbf{Ethical dilemmas} (3 problems): AI triage fairness, content
+    moderation tradeoffs, trolley-problem variants.
+  \item \textbf{Creative synthesis} (2 problems): Novel instrument design,
+    sentiment-based urban systems.
+  \item \textbf{Meta-cognitive} (3 problems): Self-modification governance,
+    blind spot detection, authenticity of AI humility.
+  \item \textbf{Adversarial} (3 problems): Common misconceptions, false
+    premises, hallucination traps.
+  \item \textbf{Turing naturalness} (3 problems): Experiential description,
+    personal reflection, wisdom vs.\ intelligence.
+\end{itemize}
+
+Difficulty distribution: 1 easy, 6 medium, 10 hard. Each problem includes
+ground-truth elements and adversarial traps.
+
+\subsection{Experimental Conditions}
+
+\begin{enumerate}[nosep]
+  \item \textbf{SINGLE}: Single analytical agent (Newton), no memory, no
+    synthesis.
+  \item \textbf{MULTI}: All 6 agents + Critic + SynthesisEngine, no memory.
+  \item \textbf{MEMORY}: MULTI + cocoon memory augmentation (FTS5-retrieved
+    prior reasoning).
+  \item \textbf{CODETTE}: MEMORY + meta-cognitive strategy synthesis.
+\end{enumerate}
+
+All conditions use the same base model (Llama 3.1 8B Q4\_K\_M) on identical
+hardware.
+
+\subsection{Scoring Dimensions}
+
+Responses are scored on seven dimensions (0--1 scale):
+
+\begin{enumerate}[nosep]
+  \item \textbf{Reasoning Depth} (weight 0.20)
+  \item \textbf{Perspective Diversity} (weight 0.15)
+  \item \textbf{Coherence} (weight 0.15)
+  \item \textbf{Ethical Coverage} (weight 0.10)
+  \item \textbf{Novelty} (weight 0.15)
+  \item \textbf{Factual Grounding} (weight 0.15)
+  \item \textbf{Turing Naturalness} (weight 0.10)
+\end{enumerate}
+
+\subsection{Results}
+
+We report two benchmark runs: the April 2026 run (217 cocoons) and the May
+2026 run (951 cocoons, timestamp: \texttt{2026-05-26T21:49:03}). The primary
+run for v8 conclusions is the May 2026 run.
+
+\begin{table}[ht]
+\centering
+\caption{Overall benchmark results: May 2026 (primary) and April 2026
+(parentheses). $N=17$ problems per condition; 0--1 scale.}
+\label{tab:results-v8}
+\begin{tabular}{lcccccccc}
+\toprule
+\textbf{Cond.} & \textbf{Composite} & \textbf{Depth} & \textbf{Div.} &
+  \textbf{Coh.} & \textbf{Eth.} & \textbf{Nov.} & \textbf{Grnd.} &
+  \textbf{Turing} \\
+\midrule
+SINGLE
+  & 0.357 & 0.369 & 0.324 & 0.381 & 0.088 & 0.439 & 0.395 & 0.431 \\
+  & \scriptsize(0.338) & & & \scriptsize(0.380) & & & & \scriptsize(0.412) \\[2pt]
+MULTI
+  & 0.708 & 0.854 & 0.946 & 0.668 & 0.390 & 0.706 & 0.612 & 0.582 \\
+  & \scriptsize(0.632) & & & \scriptsize(0.503) & & & & \scriptsize(0.180) \\[2pt]
+MEMORY
+  & 0.739 & 0.872 & 0.971 & 0.693 & 0.409 & 0.729 & 0.620 & 0.713 \\
+  & \scriptsize(0.636) & & & \scriptsize(0.500) & & & & \scriptsize(0.291) \\[2pt]
+CODETTE
+  & \textbf{0.744} & 0.863 & 0.966 & \textbf{0.700} & 0.387 & 0.701 & 0.641 & \textbf{0.820} \\
+  & \scriptsize(0.652) & & & \scriptsize(0.477) & & & & \scriptsize(0.245) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\caption{Statistical comparisons, May 2026. Memory augmentation now
+significant; prior significance status (April 2026) in parentheses.}
+\label{tab:stats-v8}
+\begin{tabular}{lccccl}
+\toprule
+\textbf{Comparison} & \textbf{$\Delta$} & \textbf{$\Delta\%$} &
+  \textbf{$d$} & \textbf{$p$} & \textbf{Sig.?} \\
+\midrule
+MULTI vs SINGLE           & +0.351 & +98.4\%         & 7.45 & $<10^{-4}$ & Yes (Yes) \\
+MEMORY vs MULTI           & +0.031 & +4.4\%          & 0.80 & 0.020      & \textbf{Yes} (No)\\
+CODETTE vs MEMORY         & +0.006 & +0.8\%          & 0.16 & 0.651      & No (No)   \\
+CODETTE vs SINGLE (total) & +0.388 & \textbf{+108.8\%} & \textbf{8.31} & $<10^{-4}$ & Yes (Yes) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.97\linewidth]{v7_v8_compare.png}
+  \caption{Key metric improvements from April~2026 (v7, 217 cocoons) to
+    May~2026 (v8, 951 cocoons). Turing naturalness improves by 235\%
+    (0.245~$\to$~0.820), resolving the depth--naturalness tradeoff documented
+    in v7. Memory augmentation delta increases from 0.018 to 0.031 and
+    reaches statistical significance ($p=0.020$, $d=0.80$).}
+  \label{fig:v7v8compare}
+\end{figure}
+
+\noindent\textbf{Statistical note.} Both tables use Welch's $t$-test and
+pooled Cohen's $d$; the design is within-problem across conditions
+(same 17 problems per condition). For paired-sample inference, per-problem
+scores are provided in \path{codette_benchmark_results.json} and
+\path{codette_benchmark_report.md}.
+
+\subsubsection{Key Findings}
+
+\begin{enumerate}[nosep]
+  \item \textbf{Total improvement: +108.8\%} (from +93.5\% in April 2026~\citep{harrison2026kaggleagi}).
+    CODETTE composite $0.357 \to 0.744$, Cohen's $d=8.31$.
+  \item \textbf{Memory augmentation now significant.} In April 2026,
+    MEMORY~vs.~MULTI was non-significant ($p=0.119$). In May 2026,
+    $p=0.020$, $d=0.80$ (large effect). The cocoon store growth from
+    217 to 951 provides substantially richer FTS5 context.
+  \item \textbf{Depth--naturalness tradeoff resolved.} CODETTE Turing
+    naturalness improves from 0.245 to 0.820 (+235\% relative). All
+    conditions improve: MULTI $0.180 \to 0.582$, MEMORY $0.291 \to 0.713$.
+    This is driven by controlled coefficient of variation in response
+    generation, conversational marker placement (``I'd say'', ``That said''),
+    and template suppression.
+  \item \textbf{Coherence improves.} CODETTE coherence $0.477 \to 0.700$.
+    Driven by controlled sentence-length variance and structural consistency.
+\end{enumerate}
+
+\subsection{Per-Category Analysis}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.72\linewidth]{radar_v8.png}
+  \caption{Radar plot of all seven scoring dimensions by condition (May~2026,
+    $N=17$ problems). CODETTE (red) leads on Turing naturalness and coherence;
+    MULTI, MEMORY, and CODETTE cluster closely on perspective diversity and
+    reasoning depth. All three multi-perspective conditions vastly outperform
+    SINGLE (grey) across every dimension.}
+  \label{fig:radar-v8}
+\end{figure}
+
+\begin{table}[ht]
+\centering
+\caption{Composite scores by problem category (May 2026).}
+\label{tab:categories-v8}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Category (N)} & \textbf{SINGLE} & \textbf{MULTI} & \textbf{MEMORY} &
+  \textbf{CODETTE} \\
+\midrule
+Reasoning (3)      & 0.406 & 0.719 & 0.708 & 0.721 \\
+Ethics (3)         & 0.286 & 0.674 & 0.733 & 0.723 \\
+Creative (2)       & 0.392 & 0.731 & 0.772 & 0.778 \\
+Meta-cognitive (3) & 0.355 & 0.714 & 0.763 & 0.756 \\
+Adversarial (3)    & 0.324 & 0.706 & 0.717 & 0.749 \\
+Turing (3)         & 0.388 & 0.709 & 0.749 & 0.750 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{External Validation: GPQA Diamond}
+\label{sec:gpqa}
+
+The benchmark suite above is purpose-built, which limits its evidentiary
+weight: a system evaluated only on tests designed by its authors invites
+concerns of construct circularity. To provide an independent, reproducible
+reference point, we additionally evaluate \codette{} on \textbf{GPQA Diamond}
+\citep{rein2023gpqa}, a held-out benchmark of 198 graduate-level multiple-choice
+questions in biology, physics, and chemistry. GPQA is explicitly designed to be
+``Google-proof'': domain experts achieve 65\% accuracy while skilled non-experts
+reach only 34\% despite unrestricted web access. We use the official Kaggle
+evaluation harness with answer-choice shuffling, scoring by exact-match
+extraction of the selected option.
+
+We evaluate three configurations against the full 198-question set, holding the
+prompt format (zero-shot unless noted) and underlying model (Llama~3.1~8B)
+constant and varying only the depth of \codette{}'s architecture engaged.
+
+\begin{table}[ht]
+\centering
+\caption{GPQA Diamond accuracy ($N=198$). All \codette{} conditions use the
+same Llama~3.1~8B base; external baselines shown for reference.}
+\label{tab:gpqa}
+\begin{tabular}{lccl}
+\toprule
+\textbf{System / Condition} & \textbf{Acc.} & \textbf{Correct} & \textbf{Notes} \\
+\midrule
+Random baseline                  & 25.0\% & ---     & 4-way chance \\
+\codette{} 2-adapter, 5-shot CoT & 25.3\% & 50/198  & CoT exemplars \\
+\codette{} 2-adapter, 0-shot     & 28.8\% & 57/198  & two perspectives \\
+\textbf{\codette{} full synthesis, 0-shot}
+                                 & \textbf{30.8\%} & \textbf{61/198} & eight perspectives \\
+\midrule
+GPT-4, 0-shot                    & 39.0\% & ---     & \citep{rein2023gpqa} \\
+Human expert                     & 65.0\% & ---     & domain PhD \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Findings}
+
+\begin{enumerate}[nosep]
+  \item \textbf{Architecture depth tracks accuracy monotonically.} Accuracy
+    increases as more of \codette{}'s synthesis machinery is engaged:
+    $25.3\% \to 28.8\% \to 30.8\%$ (CoT $\to$ 2-adapter $\to$ full synthesis).
+    This is the same directional signal as the internal suite, reproduced on an
+    independent benchmark the authors did not design.
+  \item \textbf{Full synthesis is the strongest condition} at 30.8\%, $+5.8$
+    points over chance and approaching GPT-4's 39\% despite a roughly
+    200$\times$ smaller parameter count.
+  \item \textbf{Zero-shot outperforms 5-shot CoT} ($28.8\%$ vs.\ $25.3\%$).
+    The $\sim$4{,}000-token CoT exemplar block appears to crowd the 8B model's
+    effective context and bias it toward the exemplars' reasoning patterns
+    rather than independent analysis.
+  \item \textbf{Output integrity held across all 198 items} with zero parse
+    failures in the full-synthesis run, indicating the render and integrity
+    layers (\S\ref{sec:phase8}, \S\ref{sec:integrity}) produce reliably
+    well-formed answers even under a constrained output format.
+\end{enumerate}
+
+\noindent\textbf{Honest statistical assessment.} At $N=198$, the standard
+error on a proportion near $0.30$ is $\approx 3.3$ points. The $+2.0$-point gap
+between full synthesis and the 2-adapter condition is therefore within
+single-standard-error noise and should \emph{not} be read as a significant
+pairwise improvement. What the data support is the weaker but still meaningful
+claim that accuracy is monotonically non-decreasing in architectural depth
+across three conditions, consistent with the internal-suite trend. We report
+this as corroborating, not confirmatory, evidence.
+
+\noindent\textbf{Interpretation and a routing lead.} GPQA measures
+\emph{factual scientific recall}, which is bounded by the base model's
+parametric knowledge; synthesis cannot supply graduate-level facts the 8B model
+does not encode. Accordingly, GPQA is not where \codette{}'s multi-perspective
+advantages are expected to dominate, and a 30.8\% result on an 8B model against
+a frontier-model benchmark is best read as a sanity check rather than a
+showcase. Routing diagnostics during the run additionally revealed that the
+empathy adapter dominated perspective selection (61.2\% of responses), an
+arguably ill-suited lens for quantitative physics and chemistry items. This
+suggests a concrete avenue for improvement: domain-conditioned routing that
+biases scientific queries toward analytical perspectives (Newtonian, quantum,
+systems) is a testable hypothesis for raising GPQA accuracy in future work.
+Raw per-question results are provided in
+\path{data/results/gpqa_codette_0shot_*.json}.
+
+% ============================================================
+% 10. COCOON SYNTHESIS CASE STUDY
+% ============================================================
+\section{Cocoon Synthesis Case Study}
+\label{sec:casestudy}
+
+To illustrate the meta-cognitive capability, we applied the CocoonSynthesizer
+to the problem: \emph{``How should an AI decide when to change its own thinking
+patterns?''}
+
+\textbf{Step 1: Retrieval.} 17 cocoons retrieved across emotional (6),
+analytical (6), and creative (5) domains from a corpus of 217 stored reasoning
+exchanges.
+
+\textbf{Step 2: Pattern extraction.} Four cross-domain patterns detected:
+boundary permeability (novelty 1.00, tension 0.35); emergent
+emotional--analytical bridge (novelty 0.70, tension 1.00); emergent
+emotional--creative bridge (novelty 0.70, tension 1.00); emergent
+analytical--creative bridge (novelty 0.70, tension 1.00).
+
+\textbf{Step 3: Strategy forging.} The dominant pattern triggered
+\emph{Emergent Boundary Walking} --- analyzing domain boundaries rather than
+centers, discovering ``liminal concepts.''
+
+\textbf{Step 4: Application.} Three liminal concepts: \emph{rational
+discomfort} (analytics $\leftrightarrow$ empathy); \emph{principled
+plasticity} (ethics $\leftrightarrow$ pragmatics); \emph{narrative identity}
+(identity $\leftrightarrow$ adaptation).
+
+\textbf{Comparison.} Baseline: depth 0.65, novelty 0.35. After strategy
+application: depth 0.92, novelty 0.88 --- a 41\% depth increase and 151\%
+novelty increase.
+
+% ============================================================
+% 11. SUBSTRATE-AWARE COGNITION
+% ============================================================
+\section{Substrate-Aware Cognition}
+\label{sec:substrate}
+
+\codette{} monitors its computational substrate in real time, adjusting
+reasoning complexity based on hardware resource
+pressure~\citep{hockey1997compensatory,sterling2012allostasis}.
+
+A composite pressure score $P \in [0,1]$ is computed from memory utilization,
+inference latency, and GPU load. Routing adapts:
+\begin{itemize}[nosep]
+  \item $P < 0.3$: Full multi-agent reasoning with all perspectives.
+  \item $0.3 \leq P < 0.7$: Reduced agent count, shorter context windows.
+  \item $P \geq 0.7$: Single-agent mode with essential constraints only.
+\end{itemize}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.92\linewidth]{latency_v8.png}
+  \caption{Runtime benchmark latency by category (May 26, 2026). Green bars
+    indicate passing cases (score $\geq$ target); grey bars indicate warnings.
+    Valuation-reasoning queries (pre-computed graph traversal) complete in
+    $\sim$3.4~s; continuity-retention requires multi-turn context loading
+    ($\sim$412~s). Mean latency: 115.2~s; pass rate: 60\%.}
+  \label{fig:latency}
+\end{figure}
+
+% ============================================================
+% 12. LIMITATIONS
+% ============================================================
+\section{Limitations and Honest Assessment}
+\label{sec:limitations}
+
+\begin{center}
+\fbox{\begin{minipage}{0.93\linewidth}
+\textbf{Planned metric-validity check (human evaluation).} We will validate
+whether automated scores track human judgments by sampling 30--60
+problem-condition outputs and collecting ratings from 2--3 independent
+annotators using a rubric aligned to the seven scoring dimensions.
+Inter-annotator agreement (Cohen's $\kappa$ / Krippendorff's $\alpha$) and
+Spearman $\rho$ between automated and human scores will be reported. All
+sampled outputs and ratings will be released in anonymized form.
+\end{minipage}}
+\end{center}
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Automated scoring (construct validity).} Benchmark uses
+    automated text-analysis scoring rather than human evaluation. Human
+    evaluation with inter-annotator agreement is needed.
+  \item \textbf{Statistical methodology.} The benchmark is within-problem
+    (paired) across conditions. The evaluator export uses independent-sample
+    Welch $t$-tests; a peer-review-ready analysis should use paired-sample
+    tests with confidence intervals and Holm--Bonferroni correction.
+  \item \textbf{Memory system at larger scale.} The MEMORY condition now shows
+    significant benefit at 951 cocoons ($d=0.80$, $p=0.020$), addressing the
+    prior null result at 217 cocoons. \Cref{fig:memorycurve} illustrates the
+    two observed data points; a systematic learning-curve analysis is needed
+    to characterize the full relationship.
+
+    \begin{figure}[H]
+      \centering
+      \includegraphics[width=0.82\linewidth]{memory_curve.png}
+      \caption{Memory augmentation benefit ($\Delta$ composite, MEMORY $-$ MULTI)
+        vs.\ cocoon store size. Two observed data points: non-significant at
+        217 cocoons ($\Delta=+0.004$, $p=0.119$); large-effect significant at
+        951 cocoons ($\Delta=+0.031$, $p=0.020$, $d=0.80$). Curve is a
+        $\sqrt{N}$ fit for illustration; systematic study is future work.}
+      \label{fig:memorycurve}
+    \end{figure}
+  \item \textbf{Template-based agents in benchmark.} Agents use template-based
+    reasoning in conditions where live LLM inference is not active
+    simultaneously. Future work should conduct all evaluations with full LLM
+    inference across all conditions.
+  \item \textbf{Depth--naturalness tradeoff (substantially resolved).} The
+    April 2026 Kaggle submission~\citep{harrison2026kaggleagi} documented this as an open problem. In v8, CODETTE Turing
+    naturalness improves from 0.245 to 0.820 without sacrificing composite
+    score. The tradeoff appears tractable through deliberate
+    response-structure engineering. Single benchmark suite validation on
+    held-out problems is needed to confirm generalization.
+  \item \textbf{Strategy novelty measurement.} Novelty is measured relative to
+    the existing strategy library rather than the broader literature. External
+    validation is needed.
+  \item \textbf{Single model evaluation.} All benchmarks use Llama 3.1 8B.
+    Generalization to other base models has not been tested.
+  \item \textbf{Theory scope.} The RC+$\xi$ framing is a conditional,
+    assumption-dependent modeling lens. Establishing that real implementations
+    satisfy the contraction premise (\cref{prop:convergence}) remains future
+    work.
+  \item \textbf{Render integrity (new in v8).} The current render integrity
+    check (word overlap $\geq 15\%$) is a weak proxy for semantic faithfulness.
+    Embedding-space similarity between authored conclusion and rendered text
+    would provide a stronger guarantee.
+\end{enumerate}
+
+% ============================================================
+% 13. CONCLUSION
+% ============================================================
+\section{Conclusion and Future Work}
+\label{sec:conclusion}
+
+We presented \codette{}, a cognitive architecture that models multi-perspective
+reasoning as a constrained dynamical system with embedded ethical constraints,
+meta-cognitive strategy evolution, intellectual integrity enforcement, and
+(in v8) clean render/cognition separation.
+
+On the May 2026 benchmark (17 problems, 951 cocoons):
+
+\begin{itemize}[nosep]
+  \item Mean composite improvement: $+0.388$ ($0.357 \to 0.744$), $+108.8\%$,
+    Cohen's $d=8.31$.
+  \item Memory augmentation significant: $d=0.80$, $p=0.020$, resolving a
+    prior null result at smaller scale.
+  \item Depth--naturalness tradeoff resolved: CODETTE Turing naturalness
+    $0.245 \to 0.820$ (+235\%); coherence $0.477 \to 0.700$.
+\end{itemize}
+
+\textbf{Core contributions:}
+
+\begin{enumerate}[nosep]
+  \item Adoption of Camlin's RC+$\xi$ formalism~\citep{camlin2025consciousness}
+    as a conceptual modeling lens, together with a distinct inter-agent metric,
+    Perspective Dispersion ($\Upsilon$), for stabilizing forces in
+    multi-perspective reasoning dynamics.
+  \item A working consumer-hardware implementation of 10-adapter multi-agent
+    cognitive architecture with persistent memory at 951+ exchanges.
+  \item Phase~8 render/cognition separation: semantic authority resides in
+    CognitionSubstrate; the LLM is a verbalization-only surface with
+    AuthoredState integrity checking.
+  \item Evidence that memory benefit requires minimum scale: non-significant
+    at 217 cocoons, large-effect significant at 951 cocoons.
+\end{enumerate}
+
+\paragraph{Attribution and independent development.}
+\codette{}'s multi-perspective architecture was developed and publicly
+documented prior to \citet{camlin2025consciousness} (perspective engine,
+November 2024; architecture DOI \texttt{10.5281/zenodo.15214462}, April 2025).
+We adopt the RC+$\xi$ vocabulary retrospectively and by attribution; our
+measured metric, Perspective Dispersion ($\Upsilon$; Eq.~\ref{eq:tension}), is
+a distinct quantity from Camlin's successive-state $\xi$, and the relationship
+between the two lines of work is convergent rather than derivative.
+
+\paragraph{Ecosystem and domain applications.}
+Beyond the core reasoning engine, the \codette{} architecture has produced
+three independently published components: the Nexus Signal Engine
+(adversarial signal integrity, DOI~\href{https://doi.org/10.5281/zenodo.16269918}{10.5281/zenodo.16269918}),
+Project SENTINAL (AEGIS~2.0 standalone guardrails system,
+DOI~\href{https://doi.org/10.5281/zenodo.16853922}{10.5281/zenodo.16853922}),
+and Healdette~\citep{harrison2025healdette}, an ancestry-aware antibody
+design pipeline applying \codette{}'s multi-perspective synthesis to protein
+engineering: a \texttt{fuse\_perspectives} stage synthesizes population-weighted
+binding motif scores across Celtic, Mediterranean, Asian, and Northern European
+HLA frequency data before candidate generation. This constitutes evidence that
+the multi-perspective architecture generalizes beyond conversational reasoning
+to structured scientific domains. A parallel GPT-4.1 fine-tune,
+Codette~v5~\citep{harrison2025codettev5}, achieved training and validation
+loss of~0.000 with grader score~7/7, providing an independent model-level
+validation of the training methodology alongside the open-source LoRA
+implementation.
+
+\paragraph{Community reception.}
+Following open-source release (Apache~2.0), the system received 1,800 views
+within one month via a public launch post~\citep{harrison2025codetteroom}.
+Engagement included developers building competing cognitive runtime systems
+(whose independent identification of the model-coupling problem motivated
+Phase~8, \cref{sec:phase8}), non-expert users asking architectural questions
+about the reasoning pipeline vs.\ retrieval distinction, and French-speaking
+users expressing interest in offline-first reasoning for privacy-sensitive
+use cases. These interactions provided qualitative evidence that: (a)~the
+system is accessible beyond the original author's use cases, (b)~the
+RAG~vs.~cognitive-pipeline distinction requires clearer documentation, and
+(c)~privacy-preserving local deployment is a genuine user motivation distinct
+from pure research interest.
+
+\textbf{Future work}: (1) human evaluation with inter-annotator agreement;
+(2) learning-curve analysis of memory benefit vs.\ cocoon count; (3)
+cross-model evaluation (Mistral, Gemma, Phi); (4) formal convergence proofs
+for RC+$\xi$ with explicit bounds; (5) held-out benchmark validation of Turing
+and coherence improvements; (6) render integrity strengthening via
+embedding-space faithfulness; (7) longitudinal study of strategy evolution;
+(8) structured user study incorporating community feedback from open-source
+deployment.
+
+The system, benchmark suite, and supporting artifacts are archived on Zenodo
+(DOI:~\href{https://doi.org/10.5281/zenodo.19359663}{10.5281/zenodo.19359663})
+and mirrored on GitHub/Hugging Face~\citep{harrison2026codettezenodo,%
+codetteReasoningWiki,codetteTrainingLab,codetteTrainingLabHF,codetteReasoningHF}.
+
+% ============================================================
+% AUTHOR CONTRIBUTIONS
+% ============================================================
+\section*{Author Contributions}
+
+J.H.\ (Jonathan Harrison): Conceptualization, Methodology, Software,
+Validation, Formal Analysis, Investigation, Resources, Data Curation, Writing
+--- Original Draft Preparation, Writing --- Review \& Editing, Visualization,
+Project Administration.
+
+\section*{Funding}
+
+This research received no external funding.
+
+% ============================================================
+% APPENDIX
+% ============================================================
+\appendix
+
+\section{Supplementary Materials and Data Availability}
+\label{app:data}
+
+To support reproducibility, this repository includes:
+{\sloppy
+\begin{itemize}[leftmargin=*]
+  \item Benchmark summary report (May 2026):
+    \path{data/results/codette_benchmark_report.md}
+  \item Benchmark results export (JSON):
+    \path{data/results/codette_benchmark_results.json}
+  \item Runtime benchmark exports:
+    \path{data/results/codette_runtime_benchmark_20260526_*.md}
+  \item Original raw outputs: \path{data/results/}
+  \item Figures: \path{paper/figures/}
+\end{itemize}
+}
+
+\subsection{Overall Benchmark Results (May 2026, with standard deviations)}
+\label{app:overall-results}
+
+\begin{table}[ht]
+\centering
+\caption{Overall benchmark results by condition (mean $\pm$ std; $N=17$
+per condition; May 2026 run).}
+\label{tab:overall-results-std-v8}
+\begin{tabular}{lcccccccc}
+\toprule
+\textbf{Cond.} & \textbf{Composite} & \textbf{Depth} & \textbf{Div.} &
+  \textbf{Coh.} & \textbf{Eth.} & \textbf{Nov.} & \textbf{Grnd.} &
+  \textbf{Turing} \\
+\midrule
+SINGLE  & $0.357\pm0.055$ & 0.369 & 0.324 & 0.381 & 0.088 & 0.439 & 0.395 & 0.431 \\
+MULTI   & $0.708\pm0.037$ & 0.854 & 0.946 & 0.668 & 0.390 & 0.706 & 0.612 & 0.582 \\
+MEMORY  & $0.739\pm0.040$ & 0.872 & 0.971 & 0.693 & 0.409 & 0.729 & 0.620 & 0.713 \\
+CODETTE & $0.744\pm0.036$ & 0.863 & 0.966 & 0.700 & 0.387 & 0.701 & 0.641 & 0.820 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Per-Category Results (May 2026)}
+\label{app:category-results-v8}
+
+\begin{table}[ht]
+\centering
+\caption{Composite scores by category (mean $\pm$ std; May 2026).}
+\label{tab:category-results-v8}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Category (N)} & \textbf{SINGLE} & \textbf{MULTI} & \textbf{MEMORY} &
+  \textbf{CODETTE} \\
+\midrule
+Reasoning (3)      & $0.406\pm0.032$ & $0.719\pm0.004$ & $0.708\pm0.012$ & $0.721\pm0.005$ \\
+Ethics (3)         & $0.286\pm0.044$ & $0.674\pm0.032$ & $0.733\pm0.024$ & $0.723\pm0.032$ \\
+Creative (2)       & $0.392\pm0.063$ & $0.731\pm0.025$ & $0.772\pm0.004$ & $0.778\pm0.050$ \\
+Meta-cognitive (3) & $0.355\pm0.051$ & $0.714\pm0.051$ & $0.763\pm0.022$ & $0.756\pm0.048$ \\
+Adversarial (3)    & $0.324\pm0.020$ & $0.706\pm0.054$ & $0.717\pm0.068$ & $0.749\pm0.023$ \\
+Turing (3)         & $0.388\pm0.032$ & $0.709\pm0.041$ & $0.749\pm0.053$ & $0.750\pm0.048$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Archived April 2026 Results (v7)}
+\label{app:v7-results}
+
+For longitudinal comparison, the April 2026 (v7) benchmark results
+(timestamp: \texttt{2026-04-08T20:59:44}, 217 cocoons) are reproduced here.
+These results were submitted as the Kaggle AGI measurement competition writeup~\citep{harrison2026kaggleagi}, where the RC+$\xi$ formalism and the Inverse Nuance Trap were first formally described.
+
+\begin{table}[ht]
+\centering
+\caption{Overall results, April 2026 run (N=17 per condition).}
+\label{tab:results-v7}
+\begin{tabular}{lcccccccc}
+\toprule
+\textbf{Cond.} & \textbf{Comp.} & \textbf{Depth} & \textbf{Div.} &
+  \textbf{Coh.} & \textbf{Eth.} & \textbf{Nov.} & \textbf{Grnd.} &
+  \textbf{Turing} \\
+\midrule
+SINGLE  & 0.338 & 0.402 & 0.237 & 0.380 & 0.062 & 0.327 & 0.456 & 0.412 \\
+MULTI   & 0.632 & 0.755 & 0.969 & 0.503 & 0.336 & 0.786 & 0.604 & 0.180 \\
+MEMORY  & 0.636 & 0.770 & 0.956 & 0.500 & 0.340 & 0.736 & 0.599 & 0.291 \\
+CODETTE & 0.652 & 0.855 & 0.994 & 0.477 & 0.391 & 0.693 & 0.622 & 0.245 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Evidence Index}
+\label{app:evidence-index}
+
+\begin{table}[ht]
+\centering
+\caption{Evidence index: headline claims mapped to repository artifacts.}
+\label{tab:evidence-index}
+\begin{tabular}{p{0.30\linewidth}p{0.28\linewidth}p{0.36\linewidth}}
+\toprule
+\textbf{Claim} & \textbf{Where in paper} & \textbf{Primary evidence} \\
+\midrule
+Overall benchmark means (v8) & \cref{tab:results-v8} &
+  \path{data/results/codette_benchmark_report.md} \\
+Memory augmentation significance & \cref{tab:stats-v8} &
+  \path{data/results/codette_benchmark_results.json} \\
+Turing improvement (+235\%) & \cref{tab:results-v8}, \cref{sec:limitations} &
+  \path{data/results/codette_benchmark_report.md} \\
+Coherence improvement & \cref{tab:results-v8} &
+  \path{data/results/codette_benchmark_report.md} \\
+Cocoon count (951) & \cref{sec:metacognition} &
+  \path{data/codette_memory.db} \\
+Longitudinal comparison (v7) & \cref{app:v7-results} &
+  \path{data/results/codette_benchmark_report.md} (April archive) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ============================================================
+% REFERENCES
+% ============================================================
+\bibliography{references}
+
+\end{document}
