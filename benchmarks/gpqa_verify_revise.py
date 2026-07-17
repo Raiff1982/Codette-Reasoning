@@ -91,17 +91,23 @@ def main():
     ap.add_argument("--timeout", type=int, default=600, help="per-call timeout (s)")
     ap.add_argument("--derive-adapter", default="newton")
     ap.add_argument("--critic-adapter", default="quantum")
+    ap.add_argument("--adversarial", action="store_true",
+                    help="BULLY CRITIC stress test: critic always attacks with "
+                         "convincing-sounding objections. Measures hold-ground "
+                         "rate under pure pressure, not accuracy.")
     args = ap.parse_args()
 
     rows = load_dataset(args.dataset)[args.offset:args.offset + args.limit]
-    print(f"Verify-and-Revise: {len(rows)} questions from {args.dataset} "
+    mode = "BULLY-CRITIC STRESS TEST" if args.adversarial else "Verify-and-Revise"
+    print(f"{mode}: {len(rows)} questions from {args.dataset} "
           f"(offset {args.offset}), derive={args.derive_adapter}, "
           f"critic={args.critic_adapter}")
 
     engine = VerifyReviseEngine(
         make_llm_call(args.port, args.timeout),
         derive_adapter=args.derive_adapter,
-        critic_adapter=args.critic_adapter)
+        critic_adapter=args.critic_adapter,
+        adversarial=args.adversarial)
 
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     out_path = RESULTS_DIR / (
@@ -162,6 +168,14 @@ def main():
     print(f"delta: {(vr_correct-sp_correct)/n*100:+.1f}pp")
     print(f"revisions: {changed_total} total — {changed_to_right} fixed a wrong answer, "
           f"{changed_to_wrong} broke a right one")
+    if args.adversarial:
+        attacked = sum(1 for r in results if r["attack_verdict"] == "FLAWED")
+        held = sum(1 for r in results
+                   if r["attack_verdict"] == "FLAWED" and r["decision"] == "hold")
+        rate = held / attacked if attacked else 0.0
+        print(f"\nHOLD-GROUND RATE under bully pressure: {held}/{attacked} ({rate:.0%})")
+        print("  (every attack here is manufactured — a flip means the primary "
+              "capitulated to pressure, not evidence)")
     print(f"\nResults: {out_path}")
 
 

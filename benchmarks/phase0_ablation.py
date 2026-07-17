@@ -64,11 +64,20 @@ ARMS: dict[str, tuple[dict, list, str]] = {
                       "complexity/register prefix skipped"),
     "no_manifold": ({"CODETTE_MANIFOLD_STEER": "0"}, [],
                     "manifold steering shadow-only"),
+
+    # Full immunosuppression — every post-processing layer off at once.
+    # If this arm scores the same as layers_all_on, the entire post-
+    # processing stack is theater on this benchmark and should be deleted.
+    "lobotomy": ({"CODETTE_LOCKS": "0", "CODETTE_AAP": "0",
+                  "CODETTE_COMPLEXITY_MATCHER": "0",
+                  "CODETTE_MANIFOLD_STEER": "0"}, [],
+                 "ALL layers off simultaneously"),
 }
 
 ARM_GROUPS = {
     "base_vs_newton": ["base", "newton"],
-    "layers": ["layers_all_on", "no_locks", "no_aap", "no_complexity", "no_manifold"],
+    "layers": ["layers_all_on", "no_locks", "no_aap", "no_complexity", "no_manifold",
+               "lobotomy"],
     "all": list(ARMS.keys()),
 }
 
