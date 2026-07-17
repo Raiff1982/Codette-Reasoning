@@ -1008,6 +1008,14 @@ class CodetteForgeBridge:
         if not query:
             return ""
 
+        # Attached-file blocks the server prepends as
+        # "--- Attached File: name (size) ---\n<content>\n--- End of File ---\n\n"
+        # (uploaded code/docs were polluting cocoon queries — the dream cycle
+        #  caught 29 contaminated cocoons in one week, July 17 2026). Anchored
+        # on the LAST end marker so nested markers in an uploaded file are safe.
+        from codette_shared import strip_attached_files
+        query = strip_attached_files(query)
+
         # Strip prepended bracketed blocks (may stack: coherence + constraints)
         _block_re = re.compile(
             r"^\[(?:COHERENCE ANCHORS|SESSION CONSTRAINTS)[^\]\n]*\]\s*\n"
