@@ -154,9 +154,16 @@ print(f"\nLoading base: {BASE_MODEL}")
 bnb = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4",
                          bnb_4bit_compute_dtype=torch.bfloat16,
                          bnb_4bit_use_double_quant=True)
-tok = AutoTokenizer.from_pretrained(BASE_MODEL, token=HF_TOKEN)
+# Merged repo's tokenizer_config declares a v5-only class name; fall back
+# to PreTrainedTokenizerFast on transformers <5 (same fix as the trainer).
+try:
+    tok = AutoTokenizer.from_pretrained(BASE_MODEL, token=HF_TOKEN)
+except ValueError:
+    from transformers import PreTrainedTokenizerFast
+    tok = PreTrainedTokenizerFast.from_pretrained(BASE_MODEL, token=HF_TOKEN)
 if tok.pad_token is None:
     tok.pad_token = tok.eos_token
+assert tok.chat_template, "chat template missing from tokenizer"
 base_model = AutoModelForCausalLM.from_pretrained(
     BASE_MODEL, quantization_config=bnb, device_map="auto",
     torch_dtype=torch.bfloat16, token=HF_TOKEN)
