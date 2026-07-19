@@ -271,10 +271,134 @@ class HealthAwareRouter:
 
         return adjusted_complexity, adjusted_max, adjustments
 
+    # ── Degradation composition policy (Phase 0 experiment, default OFF) ──────
+    #
+    # adjust_routing() above degrades by COUNT only: critical caps to 1 adapter,
+    # high caps to 2. It does not say WHICH perspective survives — that is left
+    # to keyword score in adapter_router._route_keyword(), where the survivor is
+    # simply ranked[0].
+    #
+    # This policy makes the survivor explicit. It encodes a falsifiable claim:
+    # that analytical and architectural perspectives are the load-bearing ones
+    # when headroom runs out. That claim may be wrong, which is why this is
+    # measurable rather than assumed.
+    #
+    # It is a TIE-BREAKER, not an override. Only candidates the router already
+    # scored as plausible (within PLAUSIBILITY_BAND of the top score) are
+    # reordered. A decisive keyword match still wins, so an emotional query
+    # under pressure does not get hijacked by an analytical adapter.
+    #
+    # Modes via CODETTE_DEGRADATION_POLICY:
+    #   "off"    (default) — no effect, current behavior
+    #   "shadow"           — logs what it would have changed, applies nothing
+    #   "on"               — applies the reordering
+    #
+    # A/B "keyword picks the survivor" vs "priority picks the survivor" through
+    # benchmarks/phase0_ablation.py. A null result is informative here.
+
+    DEGRADATION_PRIORITY = (
+        "newton",
+        "systems_architecture",
+        "orchestrator",
+        "multi_perspective",
+        "quantum",
+        "philosophy",
+        "davinci",
+        "consciousness",
+        "empathy",
+    )
+
+    PLAUSIBILITY_BAND = 0.7   # candidates scoring >= 70% of top are reorderable
+
+    @classmethod
+    def apply_degradation_policy(
+        cls,
+        ranked: list,
+        level: str,
+        max_adapters: int,
+        band: float = None,
+    ) -> Tuple[list, list]:
+        """Reorder plausible candidates by degradation priority under pressure.
+
+        Args:
+            ranked: [(adapter_name, score), ...] sorted by score descending,
+                    as produced by adapter_router._route_keyword.
+            level:  substrate pressure level from SubstrateMonitor.snapshot().
+            max_adapters: post-degradation adapter cap.
+            band:   plausibility band override (defaults to PLAUSIBILITY_BAND).
+
+        Returns:
+            (reordered_ranked, notes) — notes is a list of human-readable
+            strings describing any change, empty if nothing moved.
+        """
+        notes = []
+
+        # Policy only engages when the substrate is actually forcing a cut.
+        if level not in ("high", "critical"):
+            return ranked, notes
+        if not ranked or len(ranked) < 2 or max_adapters >= len(ranked):
+            return ranked, notes
+
+        band = cls.PLAUSIBILITY_BAND if band is None else band
+        top_score = ranked[0][1]
+        if top_score <= 0:
+            return ranked, notes
+
+        cutoff = top_score * band
+        contenders = [(a, s) for a, s in ranked if s >= cutoff]
+        rest = [(a, s) for a, s in ranked if s < cutoff]
+
+        # A decisive winner (nobody else within the band) is left alone.
+        if len(contenders) < 2:
+            return ranked, notes
+
+        def priority_rank(item):
+            name = item[0]
+            try:
+                return cls.DEGRADATION_PRIORITY.index(name)
+            except ValueError:
+                return len(cls.DEGRADATION_PRIORITY)   # unknown adapters last
+
+        # Stable sort: equal priority preserves the router's original ordering.
+        reordered = sorted(contenders, key=priority_rank) + rest
+
+        if reordered[0][0] != ranked[0][0]:
+            notes.append(
+                f"degradation policy: survivor {ranked[0][0]} -> {reordered[0][0]} "
+                f"(level={level}, max_adapters={max_adapters}, "
+                f"contenders={[a for a, _ in contenders]})"
+            )
+
+        return reordered, notes
+
+    def degradation_policy_mode(self) -> str:
+        """Read the policy mode. Defaults to 'off' on unset or bad values."""
+        mode = os.environ.get("CODETTE_DEGRADATION_POLICY", "off").strip().lower()
+        return mode if mode in ("off", "shadow", "on") else "off"
+
+    def select_under_pressure(self, ranked: list, max_adapters: int) -> Tuple[list, list]:
+        """Apply the degradation policy according to the configured mode.
+
+        Returns (ranked_to_use, notes). In 'shadow' mode the notes describe the
+        divergence but the original ordering is returned unchanged.
+        """
+        mode = self.degradation_policy_mode()
+        if mode == "off":
+            return ranked, []
+
+        level = self.monitor.snapshot()["level"]
+        reordered, notes = self.apply_degradation_policy(ranked, level, max_adapters)
+
+        if mode == "shadow":
+            return ranked, [f"[SHADOW] {n}" for n in notes]
+        return reordered, notes
+
     def rank_adapters(self, candidates: list) -> list:
         """Re-rank adapter candidates based on health scores.
 
         Adapters with more constraint violations get ranked lower.
+
+        NOTE: currently unwired — no caller in inference/ or reasoning_forge/.
         """
         health = self.monitor.get_adapter_health()
         if not health:
