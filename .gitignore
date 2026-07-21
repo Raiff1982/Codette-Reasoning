@@ -154,3 +154,4 @@ hf_job_info.json
 
 # Auto-exported OV embedder (regenerable on first run)
 models/minilm-ov/
+"results.zip"  
