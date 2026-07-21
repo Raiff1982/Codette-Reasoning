@@ -100,6 +100,20 @@ class _FieldStorage:
 from runtime_env import bootstrap_environment, resolve_model_path
 from web_search import query_benefits_from_web_research, query_requests_web_research
 
+# AEGIS Protection Layers & Metrics Engine
+try:
+    import sys as _sys
+    from pathlib import Path as _Path
+    _protection_layer_path = str(_Path(__file__).parent.parent / "Protection_Layer")
+    if _protection_layer_path not in _sys.path:
+        _sys.path.insert(0, _protection_layer_path)
+    from aegis_metrics_engine import AEGISMetricsEngine
+    from aegis_forge_integration import AEGISForgeIntegration
+except Exception as _aegis_import_err:
+    print(f"  WARNING: AEGIS protection layers unavailable: {_aegis_import_err}")
+    AEGISMetricsEngine = None
+    AEGISForgeIntegration = None
+
 bootstrap_environment()
 try:
     sys.stdout.reconfigure(line_buffering=True)
@@ -122,6 +136,11 @@ _load_error = None
 # Phase 6 bridge (optional, wraps orchestrator)
 _forge_bridge = None
 _use_phase6 = True  # ENABLED: Foundation restoration (memory kernel + stability field) wrapped in ForgeEngine + Phase 7 routing
+
+# AEGIS Metrics Engine (protection layer metrics & healing log)
+_aegis_metrics_engine = None
+_aegis_forge_integration = None
+_aegis_metrics_lock = threading.Lock()
 
 # Current session
 _session: CodetteSession = None
@@ -482,6 +501,21 @@ def _get_orchestrator():
                     _forge_bridge = CodetteForgeBridge(_orchestrator, use_phase6=True, use_phase7=True, verbose=True, health_check_fn=_run_health_check)
                     print(f"  Phase 6 bridge initialized")
                     print(f"  Phase 7 Executive Controller initialized")
+                    
+                    # Initialize AEGIS Metrics Engine
+                    global _aegis_metrics_engine, _aegis_forge_integration
+                    if AEGISMetricsEngine and AEGISForgeIntegration:
+                        try:
+                            with _aegis_metrics_lock:
+                                db_path = str(Path(__file__).parent.parent / "aegis_metrics.db")
+                                _aegis_metrics_engine = AEGISMetricsEngine(db_path=db_path)
+                                _aegis_forge_integration = AEGISForgeIntegration(_forge_bridge, _aegis_metrics_engine)
+                            print(f"  AEGIS Protection Layers initialized (metrics db: {db_path})")
+                        except Exception as _metrics_err:
+                            print(f"  AEGIS Metrics Engine failed: {_metrics_err}")
+                            _aegis_metrics_engine = None
+                            _aegis_forge_integration = None
+                    
                     # Warm-start memory kernel with core identity seeds
                     if hasattr(_forge_bridge, 'forge') and hasattr(_forge_bridge.forge, 'memory_kernel') and _forge_bridge.forge.memory_kernel:
                         try:
@@ -2307,6 +2341,39 @@ class CodetteHandler(SimpleHTTPRequestHandler):
             self._json_response(self._build_drift_payload())
         elif path == "/api/cocoon-audit":
             self._handle_cocoon_audit()
+        elif path == "/api/aegis/stats":
+            # AEGIS metrics statistics (forge calls, healing rates, overlap %)
+            if _aegis_metrics_engine:
+                try:
+                    hours = int(parse_qs(parsed.query).get("hours", ["24"])[0])
+                    stats = _aegis_metrics_engine.get_statistics(hours=hours)
+                    self._json_response(stats)
+                except Exception as e:
+                    self._json_response({"error": str(e)})
+            else:
+                self._json_response({"error": "AEGIS metrics engine not initialized"})
+        elif path == "/api/aegis/recent-events":
+            # Recent forge execution logs with validation results
+            if _aegis_metrics_engine:
+                try:
+                    limit = int(parse_qs(parsed.query).get("limit", ["50"])[0])
+                    events = _aegis_metrics_engine.get_recent_events(limit=limit)
+                    self._json_response({"events": events})
+                except Exception as e:
+                    self._json_response({"error": str(e)})
+            else:
+                self._json_response({"error": "AEGIS metrics engine not initialized"})
+        elif path == "/api/aegis/healing-log":
+            # Healing events from Layer 5 with timestamps and reasons
+            if _aegis_metrics_engine:
+                try:
+                    limit = int(parse_qs(parsed.query).get("limit", ["50"])[0])
+                    healing = _aegis_metrics_engine.get_healing_log(limit=limit)
+                    self._json_response({"healing_events": healing})
+                except Exception as e:
+                    self._json_response({"error": str(e)})
+            else:
+                self._json_response({"error": "AEGIS metrics engine not initialized"})
         elif path == "/api/dashboard":
             self.path = "/dashboard.html"
             super().do_GET()

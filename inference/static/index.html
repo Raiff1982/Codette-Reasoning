@@ -60,6 +60,7 @@
                 </div>
                 <div id="status-right" class="status-chips"></div>
                 <button class="panel-toggle" id="btn-toggle-panel" title="Toggle dashboard">◈ Dashboard</button>
+                <button class="panel-toggle" onclick="showAegisMetrics()" title="Protection layer metrics">🛡️ AEGIS</button>
             </div>
         </header>
 
@@ -411,6 +412,154 @@
         </details>
     </aside>
 </div>
+
+<!-- AEGIS Metrics Dashboard Tab -->
+<div id="aegis-metrics-tab" style="display:none; padding: 20px;">
+  <div style="max-width: 1400px; margin: 0 auto;">
+    
+    <!-- Header -->
+    <div style="margin-bottom: 30px; padding: 20px; background: rgba(74, 158, 255, 0.1); border-left: 4px solid #4a9eff; border-radius: 8px;">
+      <h2 style="font-size: 2em; color: #4a9eff; margin-bottom: 10px;">🛡️ AEGIS Protection Layers</h2>
+      <p style="color: #a0a0a0;">Real-time monitoring of ForgeEngine safeguards</p>
+    </div>
+
+    <!-- Metrics Grid -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px;">
+      
+      <div style="background: rgba(74, 158, 255, 0.1); border: 1px solid rgba(74, 158, 255, 0.3); border-radius: 12px; padding: 20px;">
+        <div style="font-size: 0.85em; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">Forge Calls (24h)</div>
+        <div id="aegis-forge-calls" style="font-size: 2.5em; font-weight: bold; color: #4a9eff;">-</div>
+        <div style="font-size: 0.8em; color: #707080;">Total executions</div>
+      </div>
+
+      <div style="background: rgba(74, 158, 255, 0.1); border: 1px solid rgba(74, 158, 255, 0.3); border-radius: 12px; padding: 20px;">
+        <div style="font-size: 0.85em; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">Valid Cycles</div>
+        <div id="aegis-valid-calls" style="font-size: 2.5em; font-weight: bold; color: #10b981;">-</div>
+        <div style="font-size: 0.8em; color: #707080;"><span id="aegis-valid-rate">-</span>% success</div>
+      </div>
+
+      <div style="background: rgba(74, 158, 255, 0.1); border: 1px solid rgba(74, 158, 255, 0.3); border-radius: 12px; padding: 20px;">
+        <div style="font-size: 0.85em; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">Rejection Rate</div>
+        <div id="aegis-rejection-rate" style="font-size: 2.5em; font-weight: bold; color: #ef4444;">-</div>
+        <div style="font-size: 0.8em; color: #707080;"><span id="aegis-rejected-count">-</span> rejected</div>
+      </div>
+
+      <div style="background: rgba(74, 158, 255, 0.1); border: 1px solid rgba(74, 158, 255, 0.3); border-radius: 12px; padding: 20px;">
+        <div style="font-size: 0.85em; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">Layer 5 Healings</div>
+        <div id="aegis-healing-count" style="font-size: 2.5em; font-weight: bold; color: #a78bfa;">-</div>
+        <div style="font-size: 0.8em; color: #707080;"><span id="aegis-healing-rate">-</span>% rate</div>
+      </div>
+
+      <div style="background: rgba(74, 158, 255, 0.1); border: 1px solid rgba(74, 158, 255, 0.3); border-radius: 12px; padding: 20px;">
+        <div style="font-size: 0.85em; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">Avg Overlap</div>
+        <div id="aegis-avg-overlap" style="font-size: 2.5em; font-weight: bold; color: #f59e0b;">-</div>
+        <div style="font-size: 0.8em; color: #707080;">Layer 6 validation</div>
+      </div>
+
+      <div style="background: rgba(74, 158, 255, 0.1); border: 1px solid rgba(74, 158, 255, 0.3); border-radius: 12px; padding: 20px;">
+        <div style="font-size: 0.85em; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">Total Latency</div>
+        <div id="aegis-total-latency" style="font-size: 2.5em; font-weight: bold; color: #06b6d4;">-</div>
+        <div style="font-size: 0.8em; color: #707080;">Average per cycle</div>
+      </div>
+
+    </div>
+
+    <!-- Recent Healing Events -->
+    <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 20px; margin-bottom: 30px;">
+      <h3 style="font-size: 1.3em; margin-bottom: 20px; color: #4a9eff; border-bottom: 2px solid rgba(74, 158, 255, 0.3); padding-bottom: 10px;">✨ Recent Healing Events</h3>
+      <div id="aegis-healing-log" style="max-height: 400px; overflow-y: auto;">
+        <p style="color: #a0a0a0; text-align: center;">Loading...</p>
+      </div>
+    </div>
+
+    <!-- Recent Executions -->
+    <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 20px;">
+      <h3 style="font-size: 1.3em; margin-bottom: 20px; color: #4a9eff; border-bottom: 2px solid rgba(74, 158, 255, 0.3); padding-bottom: 10px;">📊 Recent Forge Executions</h3>
+      <div id="aegis-recent-events" style="max-height: 400px; overflow-y: auto;">
+        <p style="color: #a0a0a0; text-align: center;">Loading...</p>
+      </div>
+    </div>
+
+    <!-- Updated timestamp -->
+    <div style="text-align: center; margin-top: 20px; padding: 20px; color: #707080; font-size: 0.9em;">
+      Last updated: <span id="aegis-last-update">-</span>
+    </div>
+
+  </div>
+</div>
+
+<style>
+  .aegis-table { width: 100%; border-collapse: collapse; background: rgba(255, 255, 255, 0.02); }
+  .aegis-table thead { background: rgba(74, 158, 255, 0.1); }
+  .aegis-table th { text-align: left; padding: 12px; color: #4a9eff; font-weight: 600; border-bottom: 1px solid rgba(74, 158, 255, 0.2); }
+  .aegis-table td { padding: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+  .aegis-table tr:hover { background: rgba(74, 158, 255, 0.05); }
+  .aegis-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.8em; font-weight: 600; }
+  .aegis-badge-success { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.5); }
+  .aegis-badge-failed { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.5); }
+  .aegis-badge-healing { background: rgba(167, 139, 250, 0.2); color: #a78bfa; border: 1px solid rgba(167, 139, 250, 0.5); }
+</style>
+
+<script>
+  const AEGIS_STATS_POLL = 5000; const AEGIS_EVENTS_POLL = 10000;
+  async function loadAegisStats() {
+    try {
+      const response = await fetch('/api/aegis/stats?hours=24');
+      const stats = await response.json();
+      document.getElementById('aegis-forge-calls').textContent = stats.total_forge_calls || 0;
+      document.getElementById('aegis-valid-calls').textContent = stats.valid_calls || 0;
+      document.getElementById('aegis-valid-rate').textContent = Math.round(100 - (stats.rejection_rate || 0));
+      document.getElementById('aegis-rejection-rate').textContent = ((stats.rejection_rate || 0).toFixed(1)) + '%';
+      document.getElementById('aegis-rejected-count').textContent = stats.invalid_calls || 0;
+      document.getElementById('aegis-healing-count').textContent = stats.layer5_healing_applied || 0;
+      document.getElementById('aegis-healing-rate').textContent = Math.round(stats.healing_rate || 0);
+      document.getElementById('aegis-avg-overlap').textContent = ((stats.avg_overlap_percentage || 0).toFixed(1)) + '%';
+      document.getElementById('aegis-total-latency').textContent = ((stats.avg_timings?.total_ms || 0).toFixed(0)) + 'ms';
+      document.getElementById('aegis-last-update').textContent = new Date().toLocaleTimeString();
+    } catch (e) { console.error('AEGIS stats error:', e); }
+  }
+  async function loadAegisHealingLog() {
+    try {
+      const response = await fetch('/api/aegis/healing-log?limit=15');
+      const data = await response.json();
+      let html = '<table class="aegis-table"><thead><tr><th>Time</th><th>Concept</th><th>Action</th><th>Magnitude</th><th>Reason</th></tr></thead><tbody>';
+      data.healing_events.forEach(e => {
+        html += '<tr><td style="font-size: 0.85em; color: #a0a0a0;">' + e.timestamp + '</td><td>' + e.concept.substring(0, 40) + '</td><td><span class="aegis-badge aegis-badge-healing">' + e.action + '</span></td><td style="font-size: 0.85em;">' + e.magnitude.toFixed(3) + '</td><td style="font-size: 0.85em; color: #a0a0a0;">' + e.reason.substring(0, 50) + '</td></tr>';
+      });
+      html += '</tbody></table>';
+      if (data.healing_events.length === 0) html = '<p style="text-align: center; color: #a0a0a0;">No healing events</p>';
+      document.getElementById('aegis-healing-log').innerHTML = html;
+    } catch (e) { console.error('Healing log error:', e); }
+  }
+  async function loadAegisRecentEvents() {
+    try {
+      const response = await fetch('/api/aegis/recent-events?limit=15');
+      const data = await response.json();
+      let html = '<table class="aegis-table"><thead><tr><th>Time</th><th>Concept</th><th>Healing</th><th>Overlap</th><th>Status</th></tr></thead><tbody>';
+      data.events.forEach(e => {
+        const t = new Date(e.timestamp * 1000).toLocaleTimeString();
+        const h = e.healing_action && e.healing_action !== 'none' ? '<span class="aegis-badge aegis-badge-healing">' + e.healing_action + '</span>' : '-';
+        const s = e.valid ? '<span class="aegis-badge aegis-badge-success">✓ Valid</span>' : '<span class="aegis-badge aegis-badge-failed">✗ Failed</span>';
+        html += '<tr><td style="font-size: 0.85em; color: #a0a0a0;">' + t + '</td><td>' + e.concept.substring(0, 40) + '</td><td>' + h + '</td><td style="text-align: right;">' + (e.overlap_percentage || 0).toFixed(1) + '%</td><td>' + s + '</td></tr>';
+      });
+      html += '</tbody></table>';
+      if (data.events.length === 0) html = '<p style="text-align: center; color: #a0a0a0;">No executions yet</p>';
+      document.getElementById('aegis-recent-events').innerHTML = html;
+    } catch (e) { console.error('Events error:', e); }
+  }
+  loadAegisStats(); loadAegisHealingLog(); loadAegisRecentEvents();
+  setInterval(loadAegisStats, AEGIS_STATS_POLL);
+  setInterval(loadAegisHealingLog, AEGIS_EVENTS_POLL);
+  setInterval(loadAegisRecentEvents, AEGIS_EVENTS_POLL);
+  window.showAegisMetrics = function() {
+    const tab = document.getElementById('aegis-metrics-tab');
+    if (tab) {
+      tab.style.display = 'block';
+      const allTabs = document.querySelectorAll('[id$="-tab"]');
+      allTabs.forEach(t => { if (t.id !== 'aegis-metrics-tab') t.style.display = 'none'; });
+    }
+  };
+</script>
 
 <script src="spiderweb.js?v=20260615-2"></script>
 <script src="app.js?v=20260615-2"></script>
