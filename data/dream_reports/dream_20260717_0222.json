@@ -1,0 +1,155 @@
+{
+  "generated": "2026-07-17T02:22:57.495278",
+  "cocoons_reviewed": 712,
+  "groups": 637,
+  "contradiction_candidates": [
+    {
+      "a": "cocoon_1783996504_8847.json",
+      "b": "cocoon_1783997556_7582.json",
+      "query_a": "--- Attached File: codette_tools.py (24.9 KB) ---\n#!/usr/bin/env python3\r\n\"\"\"Codette Tool System — Safe Local Tool Execution & High-Performa",
+      "query_b": "#!/usr/bin/env python3\r\n\"\"\"Cod\" -> A: <tool>solve_cycle_double_cover(n_vertices=6, target_cycles=231, max_states=50000000)</tool>. Tensions ",
+      "reasons": [
+        "leading numbers differ: 6 vs 10"
+      ]
+    },
+    {
+      "a": "cocoon_1783996504_8847.json",
+      "b": "cocoon_1784013114_5352.json",
+      "query_a": "--- Attached File: codette_tools.py (24.9 KB) ---\n#!/usr/bin/env python3\r\n\"\"\"Codette Tool System — Safe Local Tool Execution & High-Performa",
+      "query_b": "--- Attached File: codette_tools.py (24.9 KB) ---\n#!/usr/bin/env python3\r\n\"\"\"Codette Tool System — Safe Local Tool Execution & High-Performa",
+      "reasons": [
+        "leading numbers differ: 6 vs 10"
+      ]
+    },
+    {
+      "a": "cocoon_1783996504_8847.json",
+      "b": "cocoon_1784014364_8097.json",
+      "query_a": "--- Attached File: codette_tools.py (24.9 KB) ---\n#!/usr/bin/env python3\r\n\"\"\"Codette Tool System — Safe Local Tool Execution & High-Performa",
+      "query_b": "#!/usr/bin/env python3\n\"\"\"Codette Tool System — Safe Local Tool Execution & High-Performance Graph Solvers\n\nGives Codette the ability to rea",
+      "reasons": [
+        "leading numbers differ: 6 vs 10"
+      ]
+    },
+    {
+      "a": "cocoon_1783996504_8847.json",
+      "b": "cocoon_1784015263_8992.json",
+      "query_a": "--- Attached File: codette_tools.py (24.9 KB) ---\n#!/usr/bin/env python3\r\n\"\"\"Codette Tool System — Safe Local Tool Execution & High-Performa",
+      "query_b": "--- Attached File: codette_tools.py (25.3 KB) ---\n#!/usr/bin/env python3\r\n\"\"\"Codette Tool System — Safe Local Tool Execution & High-Performa",
+      "reasons": [
+        "leading numbers differ: 6 vs 10"
+      ]
+    },
+    {
+      "a": "cocoon_1783997200_7255.json",
+      "b": "cocoon_1783998160_9607.json",
+      "query_a": "[21:43:36] [  http] \"GET /api/session HTTP/1.1\" 200 -\n  [21:43:36] [  http] \"GET /api/sessions HTTP/1.1\" 200 -\n  [21:43:36] [  http] \"GET /a",
+      "query_b": "[21:43:36] [  http] \"GET\" -> A: **Here's the straightforward answer: The graph with ten layers indeed shows a total of 9010 cycles executed,",
+      "reasons": [
+        "leading numbers differ: 9010 vs 231"
+      ]
+    },
+    {
+      "a": "cocoon_1783998278_4188.json",
+      "b": "cocoon_1784013002_4768.json",
+      "query_a": "In our codebase, execute the cycle double cover solver pipeline on a graph with 10 vertices",
+      "query_b": "In our codebase, execute the cycle double cover solver pipeline on a graph with 10 vertices",
+      "reasons": [
+        "leading numbers differ: 231 vs 10"
+      ]
+    }
+  ],
+  "summary": {
+    "top_themes": [
+      [
+        "not",
+        82
+      ],
+      [
+        "like",
+        73
+      ],
+      [
+        "codette",
+        69
+      ],
+      [
+        "see",
+        64
+      ],
+      [
+        "all",
+        63
+      ],
+      [
+        "thats",
+        60
+      ],
+      [
+        "have",
+        60
+      ],
+      [
+        "about",
+        59
+      ],
+      [
+        "now",
+        48
+      ],
+      [
+        "one",
+        48
+      ],
+      [
+        "know",
+        46
+      ],
+      [
+        "time",
+        46
+      ]
+    ],
+    "adapter_usage": [
+      [
+        "base",
+        316
+      ],
+      [
+        "unknown",
+        194
+      ],
+      [
+        "multi_perspective",
+        59
+      ],
+      [
+        "empathy",
+        49
+      ],
+      [
+        "consciousness",
+        40
+      ],
+      [
+        "davinci",
+        37
+      ],
+      [
+        "philosophy",
+        16
+      ],
+      [
+        "constraint_tracker",
+        1
+      ]
+    ],
+    "low_coherence_count": 10,
+    "flagged_count": 0,
+    "already_marked_contradictions": 0,
+    "lessons": [
+      "6 candidate contradiction(s) need review — same-topic answers diverged.",
+      "10 turn(s) ran at coherence < 0.5 — inspect what those queries had in common.",
+      "Most-revisited topic (5 turns): \"--- Attached File: codette_tools.py (24.9 KB) ---\n#!/usr/bin/env python3\r\n\"\"\"Codette Tool System — S\" — recurring themes are candidates for memory distillation."
+    ]
+  }
+}

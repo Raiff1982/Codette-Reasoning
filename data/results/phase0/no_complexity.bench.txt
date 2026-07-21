@@ -1,0 +1,140 @@
+Checking Codette server at http://localhost:7860/api/chat ... reachable.
+Downloading GPQA dataset (gpqa_main.csv) from Kaggle Hub...
+Loaded 448 questions from gpqa_main.csv
+Limited to 50 questions.
+
+Running GPQA [reason] on 50 questions...
+
+Prompting Codette (codette/multi-2adapt)... Success! (450 tok, 9.3 tok/s, 48.5s)
+  Row   0  correct=False  predicted=B  running=0/1 (0%)
+Prompting Codette (codette/multi-2adapt)... Success! (713 tok, 9.0 tok/s, 79.5s)
+  Row   1  correct=True  predicted=A  running=1/2 (50%)
+Prompting Codette (codette/multi-2adapt)... Success! (194 tok, 8.1 tok/s, 24.0s)
+  Row   2  correct=False  predicted=A  running=1/3 (33%)
+Prompting Codette (codette/multi-2adapt)... Success! (240 tok, 5.6 tok/s, 42.6s)
+  Row   3  correct=True  predicted=D  running=2/4 (50%)
+Prompting Codette (codette/multi-2adapt)... Success! (490 tok, 10.5 tok/s, 46.9s)
+  Row   4  correct=False  predicted=A  running=2/5 (40%)
+Prompting Codette (codette/multi-2adapt)... Success! (805 tok, 7.5 tok/s, 108.0s)
+  Row   5  correct=True  predicted=B  running=3/6 (50%)
+Prompting Codette (codette/multi-2adapt)... Success! (393 tok, 9.0 tok/s, 43.7s)
+  Row   6  correct=False  predicted=A  running=3/7 (43%)
+Prompting Codette (codette/multi-2adapt)... Success! (686 tok, 5.0 tok/s, 137.8s)
+  Row   7  correct=False  predicted=A  running=3/8 (38%)
+Prompting Codette (codette/multi-2adapt)... Success! (699 tok, 10.7 tok/s, 65.2s)
+  Row   8  correct=False  predicted=A  running=3/9 (33%)
+Prompting Codette (codette/multi-2adapt)... Success! (542 tok, 6.4 tok/s, 84.4s)
+  Row   9  correct=True  predicted=B  running=4/10 (40%)
+Prompting Codette (codette/multi-2adapt)... Success! (517 tok, 9.6 tok/s, 53.7s)
+  Row  10  correct=True  predicted=C  running=5/11 (45%)
+Prompting Codette (codette/multi-2adapt)... Success! (1333 tok, 7.4 tok/s, 179.6s)
+  [PARSE FAIL] Raw response: '**To find the minimum volume of the acid required, we need to calculate the number of moles of Fe(OH)3 present in 0.1 g.** The molar mass of Fe(OH)3 is approximately 87.86 g/mol. First, we calculate the number of moles of Fe(OH)3: moles = mass / molar mass\nmoles = 0.1 g / 87.86 g/mol\nmoles ≈ 0.00114'
+  Row  11  correct=False  predicted=None  running=5/12 (42%)
+Prompting Codette (codette/multi-2adapt)... Success! (390 tok, 3.6 tok/s, 109.1s)
+  [PARSE FAIL] Raw response: '**To find the eigenvector of the quantum mechanical operator $\\vec{P}$, we first need to construct the operator $\\vec{P}$ itself.** We are given the components $P_x$, $P_y$, and $P_z$: $$P_x =\\frac{\\hbar}{2}\\begin{pmatrix} 0 & 1\\\\ 1 & 0\\end{pmatrix},$$\n$$P_y =\\frac{\\hbar}{2}\\begin{pmatrix} 0 & -i\\\\ '
+  Row  12  correct=False  predicted=None  running=5/13 (38%)
+Prompting Codette (codette/multi-2adapt)... Success! (865 tok, 7.2 tok/s, 119.7s)
+  Row  13  correct=False  predicted=A  running=5/14 (36%)
+Prompting Codette (codette/multi-2adapt)... Success! (729 tok, 12.0 tok/s, 60.8s)
+  [PARSE FAIL] Raw response: "**To solve this problem, let's analyze the given data and choices step by step.** First, we need to understand the concept of genetic map units (m.u.) and recombination frequencies. The genetic map units represent the physical distance between two genes on a chromosome, and the recombination frequen"
+  Row  14  correct=False  predicted=None  running=5/15 (33%)
+Prompting Codette (codette/multi-2adapt)... Success! (553 tok, 8.9 tok/s, 62.0s)
+  Row  15  correct=True  predicted=A  running=6/16 (38%)
+Prompting Codette (codette/multi-2adapt)... Success! (860 tok, 3.7 tok/s, 230.8s)
+  [PARSE FAIL] Raw response: '**To find the energy of gamma-rays that would be annihilated by photons from the Cosmic Microwave Background (CMB) radiation, we need to consider the process $\\gamma\\gamma\\rightarrow e^{+}e^{-}$.** First, we calculate the energy of the CMB photons. Given that the average photon energy of the CMB is '
+  Row  16  correct=False  predicted=None  running=6/17 (35%)
+Prompting Codette (codette/multi-2adapt)... Success! (743 tok, 10.6 tok/s, 70.4s)
+  [PARSE FAIL] Raw response: "**To determine which conclusion is correct, let's analyze the given information step by step.** 1. We know that at least one of the genes G1, G2, or G3 is a transcription factor acting upstream of another gene(s). 2. The results of the experiment show that the double-mutant g1g2 has 0% resistance to"
+  Row  17  correct=False  predicted=None  running=6/18 (33%)
+Prompting Codette (codette/multi-2adapt)... Success! (740 tok, 10.1 tok/s, 73.4s)
+  Row  18  correct=False  predicted=D  running=6/19 (32%)
+Prompting Codette (codette/multi-2adapt)... Success! (299 tok, 7.4 tok/s, 40.2s)
+  Row  19  correct=True  predicted=D  running=7/20 (35%)
+Prompting Codette (codette/multi-2adapt)... Success! (474 tok, 11.0 tok/s, 43.0s)
+  Row  20  correct=False  predicted=D  running=7/21 (33%)
+Prompting Codette (codette/multi-2adapt)... Success! (839 tok, 10.0 tok/s, 83.8s)
+  Row  21  correct=False  predicted=D  running=7/22 (32%)
+Prompting Codette (codette/multi-2adapt)... Success! (625 tok, 8.6 tok/s, 73.0s)
+  Row  22  correct=True  predicted=B  running=8/23 (35%)
+Prompting Codette (codette/multi-2adapt)... Success! (1417 tok, 7.6 tok/s, 187.1s)
+  Row  23  correct=False  predicted=A  running=8/24 (33%)
+Prompting Codette (codette/multi-2adapt)... Success! (1625 tok, 8.1 tok/s, 200.2s)
+  Row  24  correct=False  predicted=A  running=8/25 (32%)
+Prompting Codette (codette/multi-2adapt)... Success! (530 tok, 10.9 tok/s, 48.6s)
+  Row  25  correct=False  predicted=A  running=8/26 (31%)
+Prompting Codette (codette/multi-2adapt)... Success! (689 tok, 5.1 tok/s, 134.8s)
+  Row  26  correct=True  predicted=A  running=9/27 (33%)
+Prompting Codette (codette/multi-2adapt)... Success! (662 tok, 11.9 tok/s, 55.5s)
+  Row  27  correct=False  predicted=D  running=9/28 (32%)
+Prompting Codette (codette/multi-2adapt)... Success! (417 tok, 8.3 tok/s, 50.5s)
+  Row  28  correct=True  predicted=A  running=10/29 (34%)
+Prompting Codette (codette/multi-2adapt)... Success! (730 tok, 11.2 tok/s, 65.3s)
+  Row  29  correct=False  predicted=B  running=10/30 (33%)
+Prompting Codette (codette/multi-2adapt)... Success! (603 tok, 9.7 tok/s, 62.4s)
+  [PARSE FAIL] Raw response: "To find the incorrect statement, let's analyze each option step by step. A) SARS-CoV-2 ORF3a has the ability to trigger caspase-8 activation/cleavage, without affecting the expression levels of Bcl-2. Caspase-8 activation is recognized as a characteristic feature of the extrinsic apoptotic pathway v"
+  Row  30  correct=False  predicted=None  running=10/31 (32%)
+Prompting Codette (codette/multi-2adapt)... Success! (711 tok, 12.4 tok/s, 57.4s)
+  Row  31  correct=True  predicted=B  running=11/32 (34%)
+Prompting Codette (codette/multi-2adapt)... Success! (745 tok, 8.8 tok/s, 84.5s)
+  Row  32  correct=True  predicted=D  running=12/33 (36%)
+Prompting Codette (codette/multi-2adapt)... Success! (442 tok, 9.5 tok/s, 46.4s)
+  Row  33  correct=False  predicted=A  running=12/34 (35%)
+Prompting Codette (codette/multi-2adapt)... Success! (949 tok, 7.9 tok/s, 119.8s)
+  Row  34  correct=False  predicted=A  running=12/35 (34%)
+Prompting Codette (codette/multi-2adapt)... Success! (296 tok, 11.0 tok/s, 26.9s)
+  Row  35  correct=True  predicted=C  running=13/36 (36%)
+Prompting Codette (codette/multi-2adapt)... Success! (487 tok, 9.9 tok/s, 49.3s)
+  Row  36  correct=False  predicted=C  running=13/37 (35%)
+Prompting Codette (codette/multi-2adapt)... Success! (400 tok, 8.2 tok/s, 48.7s)
+  Row  37  correct=False  predicted=A  running=13/38 (34%)
+Prompting Codette (codette/multi-2adapt)... Success! (662 tok, 10.6 tok/s, 62.3s)
+  Row  38  correct=False  predicted=D  running=13/39 (33%)
+Prompting Codette (codette/multi-2adapt)... Success! (401 tok, 11.7 tok/s, 34.1s)
+  Row  39  correct=True  predicted=A  running=14/40 (35%)
+Prompting Codette (codette/multi-2adapt)... Success! (250 tok, 6.8 tok/s, 37.0s)
+  Row  40  correct=False  predicted=B  running=14/41 (34%)
+Prompting Codette (codette/multi-2adapt)... Success! (581 tok, 9.2 tok/s, 63.2s)
+  Row  41  correct=False  predicted=A  running=14/42 (33%)
+Prompting Codette (codette/multi-2adapt)... Success! (479 tok, 12.0 tok/s, 39.9s)
+  Row  42  correct=True  predicted=A  running=15/43 (35%)
+Prompting Codette (codette/multi-2adapt)... Success! (541 tok, 11.1 tok/s, 48.5s)
+  [PARSE FAIL] Raw response: "To determine the effect of v-FLIP expression in the host cell, let's analyze the given information step by step. First, v-FLIP proteins contain two death effector domains (DED), which are also found in some initiator caspases, such as pro-caspase-8.\n\nConfidence note: parts of this answer may be unce"
+  Row  43  correct=False  predicted=None  running=15/44 (34%)
+Prompting Codette (codette/multi-2adapt)... Success! (585 tok, 8.3 tok/s, 70.3s)
+  Row  44  correct=False  predicted=B  running=15/45 (33%)
+Prompting Codette (codette/multi-2adapt)... Success! (879 tok, 9.4 tok/s, 93.9s)
+  Row  45  correct=False  predicted=B  running=15/46 (33%)
+Prompting Codette (codette/multi-2adapt)... Success! (369 tok, 6.2 tok/s, 59.6s)
+  Row  46  correct=False  predicted=D  running=15/47 (32%)
+Prompting Codette (codette/multi-2adapt)... Success! (449 tok, 10.5 tok/s, 42.8s)
+  Row  47  correct=True  predicted=D  running=16/48 (33%)
+Prompting Codette (codette/multi-2adapt)... Success! (399 tok, 8.9 tok/s, 44.9s)
+  Row  48  correct=False  predicted=B  running=16/49 (33%)
+Prompting Codette (codette/multi-2adapt)... Success! (568 tok, 9.0 tok/s, 63.3s)
+  Row  49  correct=False  predicted=D  running=16/50 (32%)
+
+============================================================
+  Codette GPQA Results  (REASON mode)
+============================================================
+  Questions:      50
+  Correct:        16
+  Parse failures: 7
+  Accuracy:       32.0%
+
+  Baselines:
+    Random         25.0%
+    GPT-4 0-shot   39.0%
+    Claude Opus 3  50.0%
+    Human expert   65.0%
+
+  vs GPT-4:  -7.0%
+============================================================
+
+── Throughput ──────────────────────────────────
+  Total tokens : 31,045
+  Total time   : 3777.6s
+  Mean tok/s   : 8.22
+  Median tok/s : 8.98
+  Calls logged : 50
+
+Full results saved to: J:\codette-clean\data\results\gpqa_codette_reason_20260717_053459.json

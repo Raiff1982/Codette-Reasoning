@@ -1,0 +1,10 @@
+{
+  "job_id": "6a33104d5ff0a6cf94fa08de",
+  "url": "https://huggingface.co/jobs/Raiff1982/6a33104d5ff0a6cf94fa08de",
+  "adapters": [
+    "quantum",
+    "multi_perspective",
+    "newton"
+  ],
+  "version": "v3"
+}

@@ -1,0 +1,69 @@
+This is BibTeX, Version 0.99e
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: codette_paper_v8.aux
+Reallocating 'name_of_file' (item size: 1) to 9 items.
+The style file: plainnat.bst
+Reallocating 'name_of_file' (item size: 1) to 11 items.
+Database file #1: references.bib
+Warning--I didn't find a database entry for "fakhoury2025models"
+Warning--I didn't find a database entry for "nguyen2025neural"
+Warning--I didn't find a database entry for "salazar2025cogent3"
+Warning--I didn't find a database entry for "achterberg2023building"
+Warning--I didn't find a database entry for "zhang2025maps"
+Warning--I didn't find a database entry for "yao2025roundtable"
+Warning--I didn't find a database entry for "yang2025revisiting"
+Warning--I didn't find a database entry for "hu2025debate"
+Warning--I didn't find a database entry for "xiang2025meta"
+Warning--I didn't find a database entry for "yao2026parammem"
+Warning--I didn't find a database entry for "sui2025metareasoner"
+Warning--I didn't find a database entry for "ji2025metacognitive"
+Warning--I didn't find a database entry for "sekrst2024ethics"
+Warning--I didn't find a database entry for "tennant2023hybrid"
+Warning--I didn't find a database entry for "harland2024adaptive"
+Warning--I didn't find a database entry for "harrison2026codettezenodo"
+Warning--I didn't find a database entry for "codetteReasoningWiki"
+Warning--I didn't find a database entry for "codetteTrainingLab"
+Warning--I didn't find a database entry for "codetteTrainingLabHF"
+Warning--I didn't find a database entry for "codetteReasoningHF"
+You've used 12 entries,
+            2773 wiz_defined-function locations,
+            679 strings with 8127 characters,
+and the built_in function-call counts, 6236 in all, are:
+= -- 505
+> -- 502
+< -- 7
++ -- 171
+- -- 159
+* -- 508
+:= -- 1002
+add.period$ -- 41
+call.type$ -- 12
+change.case$ -- 86
+chr.to.int$ -- 12
+cite$ -- 24
+duplicate$ -- 253
+empty$ -- 439
+format.name$ -- 173
+if$ -- 1275
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 10
+newline$ -- 73
+num.names$ -- 48
+pop$ -- 192
+preamble$ -- 1
+purify$ -- 74
+quote$ -- 0
+skip$ -- 209
+stack$ -- 0
+substring$ -- 91
+swap$ -- 27
+text.length$ -- 1
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 132
+warning$ -- 0
+while$ -- 43
+width$ -- 0
+write$ -- 164
+(There were 20 warnings)

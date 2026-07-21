@@ -1,0 +1,127 @@
+#!/usr/bin/env python3
+"""
+Codette Micro-Sandbox Engine (AEGIS Reachability Gate)
+Enforces security by physical reachability restriction rather than permissions.
+"""
+
+import os
+import sys
+import subprocess
+import argparse
+import tempfile
+from pathlib import Path
+
+# Sensitive paths on host that MUST NEVER be mounted or visible
+FORBIDDEN_HOST_PATHS = [
+    Path.home() / ".ssh",
+    Path.home() / ".aws",
+    Path.home() / ".gnupg",
+    Path.home() / ".config",
+    Path.home() / ".azure",
+    Path.home() / ".kube",
+    Path.home() / ".password-store",
+]
+
+# Env vars to scrub out completely
+SENSITIVE_ENV_VARS = [
+    "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_SESSION_TOKEN",
+    "AZURE_CLIENT_SECRET", "GITHUB_TOKEN", "GH_TOKEN",
+    "SSH_AUTH_SOCK", "GPG_AGENT_INFO"
+]
+
+def sanitize_environment() -> dict:
+    """Scrobs ambient host credentials from environment variables."""
+    clean_env = {}
+    for key, value in os.environ.items():
+        if key not in SENSITIVE_ENV_VARS and not any(k in key.upper() for k in ["SECRET", "PASSWORD", "PRIVATE_KEY"]):
+            clean_env[key] = value
+    return clean_env
+
+def run_sandboxed(target_dir: str, agent_cmd: list, allow_network: bool = False, scoped_token: str = None):
+    target_path = Path(target_dir).resolve()
+
+    # Safety Check: Never run sandbox on host Home directory or Root
+    if target_path == Path.home() or target_path == Path("/"):
+        print("[ERROR] Safety Gate Tripped: Cannot run agent on host Home or Root directory!", file=sys.stderr)
+        print("Reason: Access is reachability. Keep the reachability footprint small.", file=sys.stderr)
+        sys.exit(1)
+
+    if not target_path.exists():
+        print(f"[ERROR] Target path does not exist: {target_path}", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"🔒 [Codette Guard] Isolating reachability boundary to: {target_path}")
+
+    # Build Docker run parameters enforcing hard boundaries
+    docker_cmd = [
+        "docker", "run", "--rm", "-it",
+        "--cap-drop=ALL",              # Drop all Linux capabilities
+        "--security-opt=no-new-privileges",
+        "--workdir", "/workspace",
+        "-v", f"{target_path}:/workspace:rw",  # Mount ONLY the target folder
+        "--read-only",                        # Read-only root filesystem
+        "--tmpfs", "/tmp:rw,noexec,nosuid",   # Ephemeral temporary workspace
+    ]
+
+    # Network isolation flag
+    if not allow_network:
+        docker_cmd.extend(["--network", "none"])
+        print("🌐 Network: DISABLED (Isolated sandbox)")
+    else:
+        print("🌐 Network: ENABLED (Ensure agent token is strictly scoped)")
+
+    # Pass scoped token if explicitly provided
+    if scoped_token:
+        docker_cmd.extend(["-e", f"SCOPED_API_TOKEN={scoped_token}"])
+
+    # Base container image with python/git pre-installed
+    docker_cmd.append("python:3.11-slim")
+
+    # Command to run inside container
+    docker_cmd.extend(agent_cmd if agent_cmd else ["/bin/bash"])
+
+    clean_env = sanitize_environment()
+
+    try:
+        subprocess.run(docker_cmd, env=clean_env, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"[!] Sandbox process exited with code {e.returncode}")
+    except FileNotFoundError:
+        print("[!] Docker binary not found. Ensure Docker is installed and running.", file=sys.stderr)
+
+def main():
+    parser = argparse.ArgumentParser(description="Codette Small-Footprint Agent Defense System")
+    parser.add_argument("--dir", "-d", default=".", help="Target project directory to isolate (default: current dir)")
+    parser.add_argument("--allow-network", action="store_true", help="Allow container network access")
+    parser.add_argument("--token", help="Scoped API token to explicitly pass into the box")
+    parser.add_argument("cmd", nargs=argparse.REMAINDER, help="Agent command to execute inside box")
+
+    args = parser.parse_args()
+    
+    # Strip '--' from remainder if present
+    cmd = args.cmd
+    if cmd and cmd[0] == "--":
+        cmd = cmd[1:]
+
+    run_sandboxed(
+        target_dir=args.dir,
+        agent_cmd=cmd,
+        allow_network=args.allow_network,
+        scoped_token=args.token
+    )
+
+if __name__ == "__main__":
+    main()
+	
+	
+	
+	
+	
+	
+	
+	
+	B. Deployment & Usage GuideMake the script executable:Bashchmod +x codette_sandbox.py
+Run an Agent in a Strictly Bounded Box:
+Isolate execution to ./my-app-repo without network access or host key access:  Bash./codette_sandbox.py --dir ./my-app-repo -- python3 -m agent_entrypoint
+Run with Scoped Network Access:
+If the agent requires model API access, pass a single scoped token into an isolated workspace:  Bash./codette_sandbox.py --dir ./my-app-repo --allow-network --token "sk-scoped-12345"

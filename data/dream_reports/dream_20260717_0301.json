@@ -1,0 +1,159 @@
+{
+  "generated": "2026-07-17T03:01:08.075541",
+  "cocoons_reviewed": 721,
+  "groups": 645,
+  "contradiction_candidates": [
+    {
+      "a": "cocoon_1779786785_5013.json",
+      "b": "cocoon_1779788110_6926.json",
+      "query_a": "here",
+      "query_b": "here you go",
+      "reasons": [
+        "leading numbers differ: 0.5 vs 2026"
+      ]
+    },
+    {
+      "a": "cocoon_1779786785_5013.json",
+      "b": "cocoon_1783996504_8847.json",
+      "query_a": "here",
+      "query_b": "here you go",
+      "reasons": [
+        "leading numbers differ: 0.5 vs 6"
+      ]
+    },
+    {
+      "a": "cocoon_1779788110_6926.json",
+      "b": "cocoon_1783996504_8847.json",
+      "query_a": "here you go",
+      "query_b": "here you go",
+      "reasons": [
+        "leading numbers differ: 2026 vs 6"
+      ]
+    },
+    {
+      "a": "cocoon_1779427449_1355.json",
+      "b": "cocoon_1784151791_9028.json",
+      "query_a": "here is the results",
+      "query_b": "here are the results from your tests",
+      "reasons": [
+        "leading numbers differ: 4.4 vs 29"
+      ]
+    },
+    {
+      "a": "cocoon_1783997200_7255.json",
+      "b": "cocoon_1783998160_9607.json",
+      "query_a": "[21:43:36] [  http] \"GET /api/session HTTP/1.1\" 200 -\n  [21:43:36] [  http] \"GET /api/sessions HTTP/1.1\" 200 -\n  [21:43:36] [  http] \"GET /a",
+      "query_b": "[21:43:36] [  http] \"GET\" -> A: **Here's the straightforward answer: The graph with ten layers indeed shows a total of 9010 cycles executed,",
+      "reasons": [
+        "leading numbers differ: 9010 vs 231"
+      ]
+    },
+    {
+      "a": "cocoon_1783998278_4188.json",
+      "b": "cocoon_1784013002_4768.json",
+      "query_a": "In our codebase, execute the cycle double cover solver pipeline on a graph with 10 vertices",
+      "query_b": "In our codebase, execute the cycle double cover solver pipeline on a graph with 10 vertices",
+      "reasons": [
+        "leading numbers differ: 231 vs 10"
+      ]
+    }
+  ],
+  "summary": {
+    "top_themes": [
+      [
+        "like",
+        67
+      ],
+      [
+        "not",
+        67
+      ],
+      [
+        "see",
+        60
+      ],
+      [
+        "thats",
+        59
+      ],
+      [
+        "have",
+        58
+      ],
+      [
+        "codette",
+        53
+      ],
+      [
+        "about",
+        52
+      ],
+      [
+        "all",
+        50
+      ],
+      [
+        "now",
+        45
+      ],
+      [
+        "just",
+        43
+      ],
+      [
+        "know",
+        42
+      ],
+      [
+        "one",
+        42
+      ]
+    ],
+    "adapter_usage": [
+      [
+        "base",
+        316
+      ],
+      [
+        "unknown",
+        201
+      ],
+      [
+        "multi_perspective",
+        59
+      ],
+      [
+        "empathy",
+        49
+      ],
+      [
+        "consciousness",
+        40
+      ],
+      [
+        "davinci",
+        37
+      ],
+      [
+        "philosophy",
+        16
+      ],
+      [
+        "newton",
+        2
+      ],
+      [
+        "constraint_tracker",
+        1
+      ]
+    ],
+    "low_coherence_count": 10,
+    "flagged_count": 0,
+    "already_marked_contradictions": 0,
+    "lessons": [
+      "6 candidate contradiction(s) need review — same-topic answers diverged.",
+      "10 turn(s) ran at coherence < 0.5 — inspect what those queries had in common.",
+      "Most-revisited topic (8 turns): \"here is the file\" — recurring themes are candidates for memory distillation."
+    ]
+  }
+}

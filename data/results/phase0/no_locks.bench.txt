@@ -1,0 +1,146 @@
+Checking Codette server at http://localhost:7860/api/chat ... reachable.
+Downloading GPQA dataset (gpqa_main.csv) from Kaggle Hub...
+Loaded 448 questions from gpqa_main.csv
+Limited to 50 questions.
+
+Running GPQA [reason] on 50 questions...
+
+Prompting Codette (codette/multi-2adapt)... Success! (524 tok, 9.9 tok/s, 53.0s)
+  Row   0  correct=False  predicted=B  running=0/1 (0%)
+Prompting Codette (codette/multi-2adapt)... Success! (863 tok, 8.5 tok/s, 101.2s)
+  Row   1  correct=False  predicted=B  running=0/2 (0%)
+Prompting Codette (codette/multi-2adapt)... Success! (244 tok, 8.9 tok/s, 27.3s)
+  Row   2  correct=False  predicted=C  running=0/3 (0%)
+Prompting Codette (codette/multi-2adapt)... Success! (443 tok, 7.8 tok/s, 56.9s)
+  Row   3  correct=False  predicted=A  running=0/4 (0%)
+Prompting Codette (codette/multi-2adapt)... Success! (630 tok, 9.9 tok/s, 63.6s)
+  Row   4  correct=False  predicted=B  running=0/5 (0%)
+Prompting Codette (codette/multi-2adapt)... Success! (411 tok, 8.4 tok/s, 48.7s)
+  [PARSE FAIL] Raw response: '**To find the area of the pseudosphere, we need to understand that the given metric represents a surface of constant negative curvature.** The formula provided is for the square of the differential area element, which is given by $ds^2 =\\frac{32}{(4-x^2-y^2)}(dx^2 + dy^2)$. The pseudosphere of radiu'
+  Row   5  correct=False  predicted=None  running=0/6 (0%)
+Prompting Codette (codette/multi-2adapt)... Success! (381 tok, 10.7 tok/s, 35.5s)
+  Row   6  correct=False  predicted=C  running=0/7 (0%)
+Prompting Codette (codette/multi-2adapt)... Success! (622 tok, 2.3 tok/s, 273.4s)
+  [PARSE FAIL] Raw response: "**Let's break down the problem step by step.** We're given a spin-half particle in a linear superposition of its spin-up and spin-down states:\\(|\\psi\\rangle = 0.5|\\uparrow\\rangle +\\frac{\\sqrt{3}}{2}|\\downarrow\\rangle\\). First, we need to find the matrix representation of the operator\\(10\\sigma_z + 5"
+  Row   7  correct=False  predicted=None  running=0/8 (0%)
+Prompting Codette (codette/multi-2adapt)... Success! (545 tok, 10.8 tok/s, 50.4s)
+  Row   8  correct=False  predicted=C  running=0/9 (0%)
+Prompting Codette (codette/multi-2adapt)... Success! (436 tok, 4.4 tok/s, 98.5s)
+  Row   9  correct=False  predicted=C  running=0/10 (0%)
+Prompting Codette (codette/multi-2adapt)... Success! (517 tok, 10.9 tok/s, 47.5s)
+  Row  10  correct=False  predicted=B  running=0/11 (0%)
+Prompting Codette (codette/multi-2adapt)... Success! (1537 tok, 9.0 tok/s, 170.1s)
+  Row  11  correct=False  predicted=D  running=0/12 (0%)
+Prompting Codette (codette/multi-2adapt)... Success! (403 tok, 6.2 tok/s, 65.5s)
+  [PARSE FAIL] Raw response: '**The given quantum mechanical operator $\\vec{P}$ has components $P_x$, $P_y$, and $P_z$, which can be represented as matrices.** To find the eigenvector corresponding to the eigenvalue $+\\hbar/2$, we need to solve the equation $\\vec{P}\\cdot\\vec{v} = +\\hbar/2\\vec{v}$, where $\\vec{v}$ is the eigenvec'
+  Row  12  correct=False  predicted=None  running=0/13 (0%)
+Prompting Codette (codette/multi-2adapt)... Success! (801 tok, 8.9 tok/s, 89.7s)
+  [PARSE FAIL] Raw response: '**To find the energy spectrum, we need to start by writing down the Schrödinger equation for a particle moving in two dimensions in the given potential.** The time-independent Schrödinger equation is: −ℏ²/2m ∇²ψ(r,θ) = [1/2 kr² + 3/2 kr² cos²(θ)]ψ(r,θ) Since the potential depends only on r and θ, we'
+  Row  13  correct=False  predicted=None  running=0/14 (0%)
+Prompting Codette (codette/multi-2adapt)... Success! (701 tok, 13.1 tok/s, 53.3s)
+  [PARSE FAIL] Raw response: "**Let's break down the problem step by step.** The genetic map shows the linkage between three genes: V, CV, and CT. The map units (m.u.) indicate the distance between these genes. We're given the following map: V - - CT - CV We're also given the recombination frequencies between these genes: V -> C"
+  Row  14  correct=False  predicted=None  running=0/15 (0%)
+Prompting Codette (codette/multi-2adapt)... Success! (512 tok, 12.2 tok/s, 41.9s)
+  Row  15  correct=False  predicted=D  running=0/16 (0%)
+Prompting Codette (codette/multi-2adapt)... Success! (1157 tok, 3.8 tok/s, 306.3s)
+  [PARSE FAIL] Raw response: "Let's break down the problem step by step. First, we need to calculate the energy of the CMB photon in Joules. Given that the average photon energy of the CMB is $10^{-3} eV$, and using the conversion factor $1 eV = 1.602\\times 10^{-19} J$, we get: \\[ E_{CMB} = 10^{-3} eV\\times 1.602\\times 10^{-19} "
+  Row  16  correct=False  predicted=None  running=0/17 (0%)
+Prompting Codette (codette/multi-2adapt)... Success! (655 tok, 11.6 tok/s, 56.4s)
+  [PARSE FAIL] Raw response: "**Let's break down the experiment step by step.** The key information is that the double-mutant g1g2 shows 0% resistance, which means it's more susceptible to anthracnose than the wild-type. This suggests that G2 is likely involved in a pathway that counteracts the effect of G1, making G1's effect o"
+  Row  17  correct=False  predicted=None  running=0/18 (0%)
+Prompting Codette (codette/multi-2adapt)... Success! (457 tok, 11.5 tok/s, 39.6s)
+  Row  18  correct=False  predicted=C  running=0/19 (0%)
+Prompting Codette (codette/multi-2adapt)... Success! (456 tok, 9.9 tok/s, 46.2s)
+  Row  19  correct=True  predicted=D  running=1/20 (5%)
+Prompting Codette (codette/multi-2adapt)... Success! (603 tok, 13.4 tok/s, 44.8s)
+  Row  20  correct=False  predicted=B  running=1/21 (5%)
+Prompting Codette (codette/multi-2adapt)... Success! (713 tok, 12.0 tok/s, 59.4s)
+  Row  21  correct=True  predicted=B  running=2/22 (9%)
+Prompting Codette (codette/multi-2adapt)... Success! (660 tok, 6.8 tok/s, 97.3s)
+  Row  22  correct=False  predicted=C  running=2/23 (9%)
+Prompting Codette (codette/multi-2adapt)... Success! (592 tok, 11.6 tok/s, 51.2s)
+  [PARSE FAIL] Raw response: "**To solve this problem, let's break it down step by step.** First, we need to understand the concept of contact angle and its relation to the surface properties. The contact angle is a measure of the wettability of a liquid on a solid surface. A higher contact angle indicates a more hydrophobic (wa"
+  Row  23  correct=False  predicted=None  running=2/24 (8%)
+Prompting Codette (codette/multi-2adapt)... Success! (1617 tok, 8.9 tok/s, 182.1s)
+  Row  24  correct=False  predicted=B  running=2/25 (8%)
+Prompting Codette (codette/multi-2adapt)... Success! (530 tok, 10.6 tok/s, 50.0s)
+  Row  25  correct=False  predicted=A  running=2/26 (8%)
+Prompting Codette (codette/multi-2adapt)... Success! (569 tok, 4.3 tok/s, 131.3s)
+  Row  26  correct=True  predicted=A  running=3/27 (11%)
+Prompting Codette (codette/multi-2adapt)... Success! (318 tok, 8.1 tok/s, 39.4s)
+  Row  27  correct=True  predicted=B  running=4/28 (14%)
+Prompting Codette (codette/multi-2adapt)... Success! (458 tok, 8.9 tok/s, 51.5s)
+  Row  28  correct=False  predicted=D  running=4/29 (14%)
+Prompting Codette (codette/multi-2adapt)... Success! (543 tok, 11.9 tok/s, 45.8s)
+  Row  29  correct=True  predicted=D  running=5/30 (17%)
+Prompting Codette (codette/multi-2adapt)... Success! (574 tok, 6.8 tok/s, 85.0s)
+  Row  30  correct=False  predicted=A  running=5/31 (16%)
+Prompting Codette (codette/multi-2adapt)... Success! (639 tok, 7.4 tok/s, 85.9s)
+  [PARSE FAIL] Raw response: "**To determine the cause of gene silencing at the locus of interest, we need to consider the role of epigenetic mechanisms in regulating gene expression.** Epigenetic modifications can silence genes without altering the DNA sequence itself. Let's analyze each option: A) Overexpressing the Ras oncoge"
+  Row  31  correct=False  predicted=None  running=5/32 (16%)
+Prompting Codette (codette/multi-2adapt)... Success! (876 tok, 10.2 tok/s, 85.9s)
+  Row  32  correct=True  predicted=D  running=6/33 (18%)
+Prompting Codette (codette/multi-2adapt)... Success! (730 tok, 12.6 tok/s, 57.8s)
+  [PARSE FAIL] Raw response: "**To find the ratio of the number of stars with inclination angles in the range of 45 to 90 degrees to those with inclinations in the range of 0 to 45 degrees, let's break down the problem step by step.** First, we're assuming that stellar inclinations follow an isotropic distribution. This means th"
+  Row  33  correct=False  predicted=None  running=6/34 (18%)
+Prompting Codette (codette/multi-2adapt)... Success! (747 tok, 6.7 tok/s, 112.0s)
+  Row  34  correct=False  predicted=A  running=6/35 (17%)
+Prompting Codette (codette/multi-2adapt)... Success! (293 tok, 12.7 tok/s, 23.1s)
+  Row  35  correct=True  predicted=C  running=7/36 (19%)
+Prompting Codette (codette/multi-2adapt)... Success! (617 tok, 11.3 tok/s, 54.7s)
+  Row  36  correct=False  predicted=C  running=7/37 (19%)
+Prompting Codette (codette/multi-2adapt)... Success! (422 tok, 9.5 tok/s, 44.4s)
+  Row  37  correct=False  predicted=A  running=7/38 (18%)
+Prompting Codette (codette/multi-2adapt)... Success! (1620 tok, 10.8 tok/s, 149.9s)
+  [PARSE FAIL] Raw response: "**To determine which planet has the highest probability of transiting, we need to consider the factors that affect the transit probability.** The transit probability depends on the ratio of the planet's radius to the star's radius and the inclination of the planet's orbit. Given that both planets ha"
+  Row  38  correct=False  predicted=None  running=7/39 (18%)
+Prompting Codette (codette/multi-2adapt)... Success! (370 tok, 11.6 tok/s, 31.9s)
+  Row  39  correct=False  predicted=B  running=7/40 (18%)
+Prompting Codette (codette/multi-2adapt)... Success! (244 tok, 7.5 tok/s, 32.6s)
+  Row  40  correct=False  predicted=C  running=7/41 (17%)
+Prompting Codette (codette/multi-2adapt)... Success! (589 tok, 10.7 tok/s, 55.3s)
+  Row  41  correct=False  predicted=A  running=7/42 (17%)
+Prompting Codette (codette/multi-2adapt)... Success! (509 tok, 13.8 tok/s, 36.8s)
+  [PARSE FAIL] Raw response: '**Let\'s break down the concept step by step.** The phrase "opening up the operator" suggests that we\'re looking at a mathematical representation, specifically a quantum field theory operator, and wanting to understand its underlying structure or the physics it represents at a more fundamental level.'
+  Row  42  correct=False  predicted=None  running=7/43 (16%)
+Prompting Codette (codette/multi-2adapt)... Success! (445 tok, 12.8 tok/s, 34.8s)
+  Row  43  correct=True  predicted=A  running=8/44 (18%)
+Prompting Codette (codette/multi-2adapt)... Success! (536 tok, 6.0 tok/s, 89.4s)
+  Row  44  correct=False  predicted=A  running=8/45 (18%)
+Prompting Codette (codette/multi-2adapt)... Success! (1025 tok, 9.7 tok/s, 105.2s)
+  [PARSE FAIL] Raw response: '**To find the concentration of calcium ions in the solution, we need to consider the dissociation of the Ca-EDTA complex.** The dissociation constant (KCa-EDTA) is given as 5 x 10^10. The Ca-EDTA complex can be represented as Ca(EDTA)^-. The dissociation reaction is: Ca(EDTA)^- ⇌ Ca^2+ + EDTA^2- Sin'
+  Row  45  correct=False  predicted=None  running=8/46 (17%)
+Prompting Codette (codette/multi-2adapt)... Success! (374 tok, 10.5 tok/s, 35.7s)
+  Row  46  correct=False  predicted=D  running=8/47 (17%)
+Prompting Codette (codette/multi-2adapt)... Success! (511 tok, 11.5 tok/s, 44.4s)
+  Row  47  correct=False  predicted=A  running=8/48 (17%)
+Prompting Codette (codette/multi-2adapt)... Success! (353 tok, 9.0 tok/s, 39.0s)
+  Row  48  correct=False  predicted=D  running=8/49 (16%)
+Prompting Codette (codette/multi-2adapt)... Success! (651 tok, 10.3 tok/s, 63.2s)
+  Row  49  correct=False  predicted=D  running=8/50 (16%)
+
+============================================================
+  Codette GPQA Results  (REASON mode)
+============================================================
+  Questions:      50
+  Correct:        8
+  Parse failures: 13
+  Accuracy:       16.0%
+
+  Baselines:
+    Random         25.0%
+    GPT-4 0-shot   39.0%
+    Claude Opus 3  50.0%
+    Human expert   65.0%
+
+  vs GPT-4:  -23.0%
+============================================================
+
+── Throughput ──────────────────────────────────
+  Total tokens : 31,023
+  Total time   : 3744.7s
+  Mean tok/s   : 8.28
+  Median tok/s : 9.90
+  Calls logged : 50
+
+Full results saved to: J:\codette-clean\data\results\gpqa_codette_reason_20260717_031403.json

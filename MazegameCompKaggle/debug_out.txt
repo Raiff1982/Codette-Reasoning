@@ -1,0 +1,7 @@
+DBG2 step=143 crit=False nwall=False canj=False urg=True fb_cd=0 socc=False safe=8 fe=858
+DBG2 step=144 crit=False nwall=False canj=False urg=True fb_cd=0 socc=False safe=9 fe=857
+DBG2 step=145 crit=False nwall=False canj=False urg=True fb_cd=0 socc=False safe=9 fe=856
+DBG2 step=146 crit=False nwall=False canj=False urg=True fb_cd=0 socc=False safe=10 fe=855
+DBG2 step=147 crit=False nwall=False canj=False urg=True fb_cd=0 socc=False safe=10 fe=854
+DBG2 step=148 crit=False nwall=False canj=False urg=True fb_cd=0 socc=False safe=11 fe=853
+DBG2 step=149 crit=False nwall=False canj=False urg=True fb_cd=0 socc=False safe=11 fe=852

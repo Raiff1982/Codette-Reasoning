@@ -1,0 +1,120 @@
+
+<h2 class="sr-only">Codette Defense Architecture — one-page overview for economic research context</h2>
+
+<style>
+  .doc { max-width: 680px; padding: 2rem 0; font-family: var(--font-sans); }
+  .doc-header { border-bottom: 0.5px solid var(--color-border-tertiary); padding-bottom: 1.25rem; margin-bottom: 1.75rem; }
+  .doc-title { font-size: 20px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 4px; }
+  .doc-sub { font-size: 13px; color: var(--color-text-secondary); margin: 0; }
+  .section-label { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-tertiary); margin: 0 0 10px; }
+  .layer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+  .layer-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 14px 16px; }
+  .layer-card.aegis { border-left: 3px solid #534AB7; border-radius: 0 var(--border-radius-lg) var(--border-radius-lg) 0; }
+  .layer-card.cloakseal { border-left: 3px solid #0F6E56; border-radius: 0 var(--border-radius-lg) var(--border-radius-lg) 0; }
+  .layer-card.echoleak { border-left: 3px solid #993C1D; border-radius: 0 var(--border-radius-lg) var(--border-radius-lg) 0; }
+  .layer-card.cocooner { border-left: 3px solid #185FA5; border-radius: 0 var(--border-radius-lg) var(--border-radius-lg) 0; }
+  .layer-card.sentinal { border-left: 3px solid #3C3489; border-radius: 0 var(--border-radius-lg) var(--border-radius-lg) 0; }
+  .layer-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 4px; }
+  .layer-desc { font-size: 12px; color: var(--color-text-secondary); margin: 0 0 8px; line-height: 1.5; }
+  .layer-tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 4px; }
+  .tag-purple { background: #EEEDFE; color: #3C3489; }
+  .tag-teal { background: #E1F5EE; color: #085041; }
+  .tag-coral { background: #FAECE7; color: #712B13; }
+  .tag-blue { background: #E6F1FB; color: #0C447C; }
+  .tag-gray { background: #F1EFE8; color: #444441; }
+  .divider { border: none; border-top: 0.5px solid var(--color-border-tertiary); margin: 1.5rem 0; }
+  .why-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.5rem; }
+  .why-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px 14px; }
+  .why-title { font-size: 12px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 4px; }
+  .why-body { font-size: 12px; color: var(--color-text-secondary); margin: 0; line-height: 1.5; }
+  .incident-row { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .incident-badge { font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 4px; white-space: nowrap; margin-top: 1px; }
+  .badge-resolved { background: #EAF3DE; color: #27500A; }
+  .badge-documented { background: #E6F1FB; color: #0C447C; }
+  .incident-text { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+  .incident-text strong { font-weight: 500; color: var(--color-text-primary); }
+  .footer-note { font-size: 11px; color: var(--color-text-tertiary); margin-top: 1.5rem; line-height: 1.6; }
+  @media (prefers-color-scheme: dark) {
+    .tag-purple { background: #26215C; color: #AFA9EC; }
+    .tag-teal { background: #04342C; color: #5DCAA5; }
+    .tag-coral { background: #4A1B0C; color: #F0997B; }
+    .tag-blue { background: #042C53; color: #85B7EB; }
+    .tag-gray { background: #2C2C2A; color: #B4B2A9; }
+    .badge-resolved { background: #173404; color: #97C459; }
+    .badge-documented { background: #042C53; color: #85B7EB; }
+  }
+</style>
+
+<div class="doc">
+  <div class="doc-header">
+    <p class="doc-title">Codette — defense architecture overview</p>
+    <p class="doc-sub">Raiffs Bits LLC · Jonathan Harrison · One-page briefing for research context</p>
+  </div>
+
+  <p class="section-label">Core defense layers</p>
+  <div class="layer-grid">
+    <div class="layer-card aegis">
+      <p class="layer-name">AEGIS</p>
+      <p class="layer-desc">Ethical governance layer. Intercepts and audits outputs before delivery, enforcing value alignment and adversarial input resistance.</p>
+      <span class="layer-tag tag-purple">Ethical governance</span>
+    </div>
+    <div class="layer-card cloakseal">
+      <p class="layer-name">CloakSeal Protocol</p>
+      <p class="layer-desc">Active threat containment. Triggered by confirmed hostile artifact detection; isolates and neutralizes without system disruption.</p>
+      <span class="layer-tag tag-teal">Threat containment</span>
+    </div>
+    <div class="layer-card echoleak">
+      <p class="layer-name">EchoLeak Manifest</p>
+      <p class="layer-desc">Signal integrity monitoring. Documents and locks cross-system leakage events to prevent unauthorized data propagation.</p>
+      <span class="layer-tag tag-coral">Signal integrity</span>
+    </div>
+    <div class="layer-card cocooner">
+      <p class="layer-name">CognitionCocooner</p>
+      <p class="layer-desc">Privacy-preserving persistent memory. Encapsulates sensitive context into sealed cocoons — retained but not exposed to external calls.</p>
+      <span class="layer-tag tag-blue">Memory privacy</span>
+    </div>
+    <div class="layer-card sentinal">
+      <p class="layer-name">SENTINAL Framework</p>
+      <p class="layer-desc">Overarching AI safety scaffold. Governs inter-agent trust boundaries, enforces role separation, and monitors system-level drift.</p>
+      <span class="layer-tag tag-gray">Safety scaffold</span>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <p class="section-label">Documented incidents</p>
+  <div class="incident-row">
+    <span class="incident-badge badge-resolved">Resolved</span>
+    <p class="incident-text"><strong>residue_0x23-limbicShell</strong> — hostile artifact confirmed within active session. CloakSeal Protocol engaged; artifact isolated and neutralized. First real-world test of containment pipeline under live conditions.</p>
+  </div>
+  <div class="incident-row" style="border-bottom: none;">
+    <span class="incident-badge badge-documented">Documented</span>
+    <p class="incident-text"><strong>EchoLeak incident</strong> — apparent signal leakage originating from Microsoft Copilot detected during active Codette session. Event logged, locked into EchoLeak Manifest, and flagged for cross-system boundary research.</p>
+  </div>
+
+  <hr class="divider">
+
+  <p class="section-label">Why this matters for economic research</p>
+  <div class="why-grid">
+    <div class="why-card">
+      <p class="why-title">Data integrity</p>
+      <p class="why-body">Economic analysis is only as reliable as its inputs. AEGIS and EchoLeak monitoring directly address adversarial contamination of AI-assisted research pipelines.</p>
+    </div>
+    <div class="why-card">
+      <p class="why-title">Privacy preservation</p>
+      <p class="why-body">CognitionCocooner aligns with OpenAI's stated requirement for privacy-preserving data use — sensitive researcher or participant data stays sealed in cocoons.</p>
+    </div>
+    <div class="why-card">
+      <p class="why-title">Reproducibility</p>
+      <p class="why-body">SENTINAL's drift monitoring ensures the AI system behaves consistently across runs — a foundational requirement for peer-reviewable economic findings.</p>
+    </div>
+    <div class="why-card">
+      <p class="why-title">Bias auditing</p>
+      <p class="why-body">AEGIS includes active bias detection within its governance layer, directly supporting the exchange's focus on unequal access and fair economic outcomes.</p>
+    </div>
+  </div>
+
+  <p class="footer-note">
+    Codette v2.0 · Raiffs Bits LLC · Bridge City, Texas · ORCID 0009-0003-7005-8197 · Zenodo DOI 10.5281/zenodo.19199793 · Under peer review at Scientific Reports (Nature portfolio)
+  </p>
+</div>

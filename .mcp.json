@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "codette": {
+      "command": "python",
+      "args": ["mcp/codette_mcp.py"],
+      "env": {
+        "CODETTE_BASE_URL": "http://127.0.0.1:7860"
+      }
+    }
+  }
+}

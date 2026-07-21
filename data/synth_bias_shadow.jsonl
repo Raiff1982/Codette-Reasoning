@@ -1,0 +1,89 @@
+{"ts": 1783896798.7942586, "weights": {"philosophy": 0.5, "newton": 0.5}, "xi": 0.0, "converging": false, "eta": 0.8511}
+{"ts": 1783896847.2854, "weights": {"newton": 0.128, "davinci": 0.128, "empathy": 0.101, "philosophy": 0.128, "quantum": 0.128, "consciousness": 0.128, "multi_perspective": 0.128, "systems_architecture": 0.128}, "xi": 0.1181, "converging": false, "eta": 0.89}
+{"ts": 1783951037.162814, "weights": {"newton": 0.125, "davinci": 0.125, "empathy": 0.127, "philosophy": 0.126, "quantum": 0.128, "consciousness": 0.124, "multi_perspective": 0.121, "systems_architecture": 0.124}, "xi": 0.241, "converging": false, "eta": 0.8531}
+{"ts": 1784013392.8019269, "weights": {"newton": 0.126, "davinci": 0.126, "empathy": 0.124, "philosophy": 0.12, "quantum": 0.126, "consciousness": 0.126, "multi_perspective": 0.126, "systems_architecture": 0.125}, "xi": 0.0517, "converging": false, "eta": 0.9752}
+{"ts": 1784179028.4336953, "weights": {"newton": 0.114, "davinci": 0.128, "empathy": 0.127, "philosophy": 0.128, "quantum": 0.127, "consciousness": 0.127, "multi_perspective": 0.125, "systems_architecture": 0.125}, "xi": 0.177, "converging": false, "eta": 0.9794}
+{"ts": 1784181022.4243166, "weights": {"newton": 0.125, "davinci": 0.126, "empathy": 0.122, "philosophy": 0.126, "quantum": 0.125, "consciousness": 0.123, "multi_perspective": 0.126, "systems_architecture": 0.126}, "xi": 0.1767, "converging": false, "eta": 0.9619}
+{"ts": 1784181796.5400372, "weights": {"newton": 0.123, "davinci": 0.127, "empathy": 0.127, "philosophy": 0.123, "quantum": 0.126, "consciousness": 0.124, "multi_perspective": 0.119, "systems_architecture": 0.13}, "xi": 0.3029, "converging": false, "eta": 0.9685}
+{"ts": 1784259951.7541518, "weights": {"systems_architecture": 0.5, "davinci": 0.5}, "xi": 0.0303, "converging": false, "eta": 0.8521}
+{"ts": 1784276605.4758492, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0555, "converging": false, "eta": 0.9518}
+{"ts": 1784276798.519054, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0301, "converging": false, "eta": 0.9619}
+{"ts": 1784276867.9904974, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.1433, "converging": false, "eta": 0.9558}
+{"ts": 1784276958.5154917, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0706, "converging": false, "eta": 0.9601}
+{"ts": 1784277010.1719122, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0761, "converging": false, "eta": 0.9653}
+{"ts": 1784277182.5116918, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0153, "converging": true, "eta": 0.9668}
+{"ts": 1784277416.3620958, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0438, "converging": true, "eta": 0.9696}
+{"ts": 1784277484.3759322, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.009, "converging": true, "eta": 0.972}
+{"ts": 1784277554.4464173, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0218, "converging": true, "eta": 0.9715}
+{"ts": 1784277889.6419811, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.1706, "converging": false, "eta": 0.9564}
+{"ts": 1784277991.332805, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.1179, "converging": false, "eta": 0.9617}
+{"ts": 1784278148.9835286, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0168, "converging": false, "eta": 0.9674}
+{"ts": 1784278204.8472621, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0778, "converging": false, "eta": 0.9693}
+{"ts": 1784278304.8879611, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0749, "converging": true, "eta": 0.9635}
+{"ts": 1784278382.04829, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.04, "converging": true, "eta": 0.9655}
+{"ts": 1784278574.243495, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0578, "converging": true, "eta": 0.968}
+{"ts": 1784278756.297983, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0394, "converging": true, "eta": 0.9697}
+{"ts": 1784278806.2684727, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0651, "converging": true, "eta": 0.9699}
+{"ts": 1784278946.5048106, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.079, "converging": false, "eta": 0.97}
+{"ts": 1784279004.4246705, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0669, "converging": false, "eta": 0.9722}
+{"ts": 1784279058.8882878, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.049, "converging": false, "eta": 0.9727}
+{"ts": 1784279129.599363, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0822, "converging": false, "eta": 0.9719}
+{"ts": 1784279200.3547292, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.05, "converging": true, "eta": 0.9714}
+{"ts": 1784279261.1889355, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0328, "converging": true, "eta": 0.9721}
+{"ts": 1784279343.441817, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0527, "converging": true, "eta": 0.9716}
+{"ts": 1784279387.7683067, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0403, "converging": true, "eta": 0.9712}
+{"ts": 1784279511.0681484, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0259, "converging": true, "eta": 0.9553}
+{"ts": 1784279601.5105252, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0294, "converging": true, "eta": 0.9653}
+{"ts": 1784279658.4174669, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0661, "converging": true, "eta": 0.9678}
+{"ts": 1784279730.1522195, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0424, "converging": false, "eta": 0.9686}
+{"ts": 1784279888.2916756, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.027, "converging": false, "eta": 0.9738}
+{"ts": 1784279931.0086257, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0692, "converging": false, "eta": 0.9727}
+{"ts": 1784279982.1249793, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.027, "converging": true, "eta": 0.9731}
+{"ts": 1784280055.8881032, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0639, "converging": false, "eta": 0.9723}
+{"ts": 1784280153.9630933, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0202, "converging": true, "eta": 0.9727}
+{"ts": 1784280264.8943582, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0259, "converging": true, "eta": 0.9725}
+{"ts": 1784280313.2959304, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0475, "converging": true, "eta": 0.9718}
+{"ts": 1784280382.6207595, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.1336, "converging": false, "eta": 0.9713}
+{"ts": 1784288880.1306026, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0902, "converging": false, "eta": 0.9413}
+{"ts": 1784288938.050602, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0449, "converging": false, "eta": 0.9521}
+{"ts": 1784289300.1836224, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.1151, "converging": false, "eta": 0.9614}
+{"ts": 1784289358.0140662, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0706, "converging": false, "eta": 0.9564}
+{"ts": 1784289450.7237244, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0435, "converging": false, "eta": 0.9606}
+{"ts": 1784289510.090576, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.058, "converging": true, "eta": 0.9657}
+{"ts": 1784289700.9350996, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0142, "converging": true, "eta": 0.9593}
+{"ts": 1784289907.4734795, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0465, "converging": true, "eta": 0.9656}
+{"ts": 1784289979.965924, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0858, "converging": true, "eta": 0.967}
+{"ts": 1784290036.3756635, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0288, "converging": false, "eta": 0.9702}
+{"ts": 1784290292.0198584, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.1714, "converging": false, "eta": 0.9702}
+{"ts": 1784290367.3187063, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.097, "converging": false, "eta": 0.9714}
+{"ts": 1784290488.4386597, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0231, "converging": false, "eta": 0.9714}
+{"ts": 1784290558.523941, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0729, "converging": true, "eta": 0.9733}
+{"ts": 1784290648.1344342, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.1482, "converging": true, "eta": 0.9746}
+{"ts": 1784290763.1594708, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0469, "converging": true, "eta": 0.9733}
+{"ts": 1784290819.9837077, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0826, "converging": false, "eta": 0.9746}
+{"ts": 1784291023.484855, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.1201, "converging": false, "eta": 0.9733}
+{"ts": 1784291083.630599, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0716, "converging": false, "eta": 0.9724}
+{"ts": 1784291267.6480703, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0489, "converging": true, "eta": 0.9717}
+{"ts": 1784291314.179175, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.101, "converging": true, "eta": 0.9713}
+{"ts": 1784291368.2528434, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0163, "converging": true, "eta": 0.9732}
+{"ts": 1784291417.9163635, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0486, "converging": true, "eta": 0.9723}
+{"ts": 1784291509.0139167, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0964, "converging": true, "eta": 0.9717}
+{"ts": 1784291568.5062523, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0454, "converging": false, "eta": 0.9734}
+{"ts": 1784291664.6672676, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.033, "converging": false, "eta": 0.9725}
+{"ts": 1784291731.7054386, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0399, "converging": true, "eta": 0.9718}
+{"ts": 1784291861.89849, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.151, "converging": false, "eta": 0.9644}
+{"ts": 1784291954.8992364, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0701, "converging": false, "eta": 0.9698}
+{"ts": 1784292004.5986195, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0972, "converging": false, "eta": 0.9721}
+{"ts": 1784292172.8969984, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.1785, "converging": false, "eta": 0.9715}
+{"ts": 1784292314.3326733, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0473, "converging": false, "eta": 0.9719}
+{"ts": 1784292357.5779757, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0555, "converging": true, "eta": 0.9735}
+{"ts": 1784292399.063011, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0332, "converging": true, "eta": 0.9737}
+{"ts": 1784292497.9050584, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.1098, "converging": true, "eta": 0.9727}
+{"ts": 1784292608.4433062, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0462, "converging": true, "eta": 0.972}
+{"ts": 1784292698.1854546, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0979, "converging": false, "eta": 0.965}
+{"ts": 1784292742.1097245, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0197, "converging": true, "eta": 0.9666}
+{"ts": 1784292812.299034, "weights": {"newton": 0.5, "quantum": 0.5}, "xi": 0.0769, "converging": false, "eta": 0.9677}
+{"ts": 1784556129.2320924, "weights": {"newton": 0.126, "davinci": 0.123, "empathy": 0.127, "philosophy": 0.127, "quantum": 0.127, "consciousness": 0.122, "multi_perspective": 0.122, "systems_architecture": 0.125}, "xi": 0.1857, "converging": false, "eta": 0.9157}
+{"ts": 1784556884.4576812, "weights": {"newton": 0.12, "davinci": 0.127, "empathy": 0.127, "philosophy": 0.125, "quantum": 0.123, "consciousness": 0.125, "multi_perspective": 0.129, "systems_architecture": 0.124}, "xi": 0.2414, "converging": false, "eta": 0.9342}
+{"ts": 1784557304.9956179, "weights": {"newton": 0.129, "davinci": 0.127, "empathy": 0.123, "philosophy": 0.116, "quantum": 0.129, "consciousness": 0.127, "multi_perspective": 0.126, "systems_architecture": 0.123}, "xi": 0.2191, "converging": false, "eta": 0.946}
+{"ts": 1784557734.1171172, "weights": {"newton": 0.123, "davinci": 0.129, "empathy": 0.126, "philosophy": 0.121, "quantum": 0.124, "consciousness": 0.124, "multi_perspective": 0.128, "systems_architecture": 0.124}, "xi": 0.3799, "converging": false, "eta": 0.9544}
