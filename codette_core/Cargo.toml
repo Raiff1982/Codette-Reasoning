@@ -8,7 +8,7 @@ name = "codette_core"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = { version = "0.24", features = ["extension-module", "abi3-py311"] }
+pyo3 = { version = "0.29", features = ["extension-module", "abi3-py311"] }
 rustfft = "6.1"
 ndarray = "0.15"
 
