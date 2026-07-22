@@ -3,7 +3,7 @@
 **Jonathan Harrison**  
 Independent researcher  
 harrison82_95@hotmail.com  
-Zenodo DOI: https://doi.org/10.5281/zenodo.21482400  
+Zenodo DOI: https://doi.org/10.5281/zenodo.21482710  
 Date: 2026-07-21
 
 ---
@@ -273,7 +273,7 @@ This project's multi-perspective architecture predates and is independent of Cam
 
 All source code is available at: https://github.com/Raiff1982/Codette-Reasoning  
 HuggingFace model hub: https://huggingface.co/Raiff1982/Codette-Reasoning  
-This paper: https://doi.org/10.5281/zenodo.21482400  
+This paper: https://doi.org/10.5281/zenodo.21482710  
 Previous Zenodo archive: https://doi.org/10.5281/zenodo.15214462
 
 Key files for this paper:
