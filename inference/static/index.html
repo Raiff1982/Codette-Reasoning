@@ -417,7 +417,10 @@
 <!-- AEGIS Metrics Dashboard Tab -->
 <div id="aegis-metrics-tab" style="display:none; padding: 20px;">
   <div style="max-width: 1400px; margin: 0 auto;">
-    
+
+    <!-- Back button -->
+    <button onclick="showMainStage()" style="margin-bottom: 20px; padding: 8px 18px; background: rgba(74,158,255,0.15); border: 1px solid rgba(74,158,255,0.4); border-radius: 8px; color: #4a9eff; cursor: pointer; font-size: 0.9em;">← Back to Chat</button>
+
     <!-- Header -->
     <div style="margin-bottom: 30px; padding: 20px; background: rgba(74, 158, 255, 0.1); border-left: 4px solid #4a9eff; border-radius: 8px;">
       <h2 style="font-size: 2em; color: #4a9eff; margin-bottom: 10px;">🛡️ AEGIS Protection Layers</h2>
@@ -492,6 +495,9 @@
 <!-- TimeTravelLens Dashboard Tab -->
 <div id="time-travel-tab" style="display:none; padding: 20px;">
   <div style="max-width: 1200px; margin: 0 auto;">
+
+    <!-- Back button -->
+    <button onclick="showMainStage()" style="margin-bottom: 20px; padding: 8px 18px; background: rgba(167,139,250,0.15); border: 1px solid rgba(167,139,250,0.4); border-radius: 8px; color: #a78bfa; cursor: pointer; font-size: 0.9em;">← Back to Chat</button>
 
     <!-- Header -->
     <div style="margin-bottom: 30px; padding: 20px; background: rgba(167,139,250,0.1); border-left: 4px solid #a78bfa; border-radius: 8px;">
@@ -636,14 +642,6 @@
   setInterval(loadAegisStats, AEGIS_STATS_POLL);
   setInterval(loadAegisHealingLog, AEGIS_EVENTS_POLL);
   setInterval(loadAegisRecentEvents, AEGIS_EVENTS_POLL);
-  window.showAegisMetrics = function() {
-    const tab = document.getElementById('aegis-metrics-tab');
-    if (tab) {
-      tab.style.display = 'block';
-      const allTabs = document.querySelectorAll('[id$="-tab"]');
-      allTabs.forEach(t => { if (t.id !== 'aegis-metrics-tab') t.style.display = 'none'; });
-    }
-  };
 </script>
 
 <script>
@@ -651,17 +649,22 @@
   let _lastTTData = null;
 
   function showTimeTravelLens() {
-    const allTabs = document.querySelectorAll('[id$="-tab"]');
-    allTabs.forEach(t => { t.style.display = 'none'; });
+    document.querySelector('main.stage').style.display = 'none';
+    document.querySelectorAll('[id$="-tab"]').forEach(t => { t.style.display = 'none'; });
     const tab = document.getElementById('time-travel-tab');
     if (tab) { tab.style.display = 'block'; loadTimeTravelData(); }
   }
 
   window.showAegisMetrics = function() {
-    const allTabs = document.querySelectorAll('[id$="-tab"]');
-    allTabs.forEach(t => { t.style.display = 'none'; });
+    document.querySelector('main.stage').style.display = 'none';
+    document.querySelectorAll('[id$="-tab"]').forEach(t => { t.style.display = 'none'; });
     const tab = document.getElementById('aegis-metrics-tab');
     if (tab) tab.style.display = 'block';
+  };
+
+  window.showMainStage = function() {
+    document.querySelector('main.stage').style.display = '';
+    document.querySelectorAll('[id$="-tab"]').forEach(t => { t.style.display = 'none'; });
   };
 
   async function loadTimeTravelData() {
