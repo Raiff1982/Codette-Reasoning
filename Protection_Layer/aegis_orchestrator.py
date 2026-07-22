@@ -8,10 +8,9 @@ Architecture:
   Layer 1: Docker Sandbox (optional, separate deployment)
   Layer 2: Filesystem Reachability (Landlock + Windows DACL) ✓
   Layer 3: Boot Integrity (TPM 2.0 + Secure Boot) ✓
-  Layer 4: Cocoon Sealing — PLACEHOLDER (SHA3-HMAC, NOT real ML-KEM lattice crypto)
-           Intent: seal SQLite cocoon store with ML-KEM-768 via liboqs.
-           Current state: design stub. Replace PQCShield with liboqs.kem.Kem("Kyber768")
-           before treating this as a security control.
+  Layer 4: Cocoon Sealing — ML-KEM-768 + ML-DSA-65 (liboqs, NIST FIPS 203/204) ✓
+           Implemented in aegis_layer4_complete.py (PQCShield facade).
+           Requires: pip install liboqs-python (first import compiles C library).
   Layer 5: Pre-Emptive Healing (Auto-correct epsilon tension) ✓
   Layer 6: RenderLayer (CocoonV3 validation + 15% overlap gate) ✓
   Layer 7-8: Status reporting + deployment checklist
@@ -36,6 +35,7 @@ from typing import Dict, Optional, Tuple, Any
 try:
     from aegis_layer2_complete import restrict_filesystem_cross_platform
     from aegis_layer3_complete import verify_boot_integrity
+    from aegis_layer4_complete import PQCShield
     from aegis_layer5_complete import PreEmptiveImmuneEngine
     from aegis_layer6_complete import RenderLayer, CocoonV3Validator, AuthoredState, WordOverlapValidator
 except ImportError:
@@ -61,6 +61,7 @@ class AEGISOrchestrator:
         workspace_dir: Path = None,
         use_layer2: bool = True,  # Filesystem isolation
         use_layer3: bool = True,  # Boot verification
+        use_layer4: bool = True,  # PQC cocoon sealing (ML-KEM-768 + ML-DSA-65)
         use_layer5: bool = True,  # Pre-emptive healing
         use_layer6: bool = True,  # RenderLayer validation
         require_full_isolation: bool = False,  # Fail hard if safeguards unavailable
@@ -73,6 +74,7 @@ class AEGISOrchestrator:
             workspace_dir: Project root (for isolation)
             use_layer2: Enable filesystem reachability restriction
             use_layer3: Enable boot integrity verification
+            use_layer4: Enable PQC cocoon sealing (requires liboqs-python)
             use_layer5: Enable pre-emptive healing
             use_layer6: Enable RenderLayer validation
             require_full_isolation: If True, fail hard if safeguards unavailable
@@ -85,11 +87,27 @@ class AEGISOrchestrator:
 
         self.use_layer2 = use_layer2
         self.use_layer3 = use_layer3
+        self.use_layer4 = use_layer4
         self.use_layer5 = use_layer5
         self.use_layer6 = use_layer6
 
         self.tension_threshold = tension_critical_threshold
         self.min_overlap = min_word_overlap
+
+        # Initialize Layer 4 (PQC shield) — lazy, won't fail if liboqs not built yet
+        self.pqc_shield: Optional[Any] = None
+        if self.use_layer4:
+            try:
+                self.pqc_shield = PQCShield()
+                if not self.pqc_shield.initialize():
+                    logger.warning(
+                        f"[Layer 4] PQC init deferred: {self.pqc_shield.last_error}. "
+                        "Install liboqs-python and restart."
+                    )
+                    self.pqc_shield = None
+            except Exception as exc:
+                logger.warning(f"[Layer 4] PQCShield unavailable: {exc}")
+                self.pqc_shield = None
 
         # Initialize layer 5 (immune engine)
         self.immune_engine = None
@@ -103,6 +121,8 @@ class AEGISOrchestrator:
             "forge_calls": 0,
             "layer2_activations": 0,
             "layer3_checks": 0,
+            "layer4_seals": 0,
+            "layer4_verifications": 0,
             "layer5_healings": 0,
             "layer6_validations": 0,
             "rejections": 0,
@@ -173,6 +193,49 @@ class AEGISOrchestrator:
         except Exception as e:
             logger.exception(f"Layer 3 error: {e}")
             return False, {"error": str(e)}
+
+    # =========================================================================
+    # LAYER 4: PQC COCOON SEALING
+    # =========================================================================
+
+    def activate_layer4_seal(self, cocoon: dict) -> Tuple[dict, Dict]:
+        """
+        Seal a cocoon record with ML-KEM-768 key encapsulation.
+        Returns (sealed_cocoon, info_dict).
+        """
+        if not self.use_layer4 or self.pqc_shield is None:
+            return cocoon, {"status": "Layer 4 disabled or unavailable"}
+
+        try:
+            sealed = self.pqc_shield.seal_dict(cocoon)
+            self.stats["layer4_seals"] += 1
+            return sealed, {"status": "sealed", "alg": sealed.get("_pqc_seal", {}).get("alg", "?")}
+        except Exception as exc:
+            logger.warning(f"[Layer 4] Seal failed: {exc}")
+            return cocoon, {"status": "seal_failed", "error": str(exc)}
+
+    def activate_layer4_verify(self, sealed_cocoon: dict) -> Tuple[bool, Dict]:
+        """
+        Verify the ML-KEM-768 seal on a cocoon record.
+        Returns (ok, info_dict).
+        """
+        if not self.use_layer4 or self.pqc_shield is None:
+            return True, {"status": "Layer 4 disabled or unavailable"}
+
+        if "_pqc_seal" not in sealed_cocoon:
+            return True, {"status": "no seal present — pre-Layer4 cocoon"}
+
+        try:
+            ok = self.pqc_shield.verify_dict(sealed_cocoon)
+            self.stats["layer4_verifications"] += 1
+            if ok:
+                logger.info("[Layer 4] Cocoon seal VALID")
+            else:
+                logger.error("[Layer 4] Cocoon seal INVALID — possible tampering")
+            return ok, {"status": "valid" if ok else "TAMPERED"}
+        except Exception as exc:
+            logger.warning(f"[Layer 4] Verify failed: {exc}")
+            return False, {"status": "verify_error", "error": str(exc)}
 
     # =========================================================================
     # LAYER 5: PRE-EMPTIVE HEALING
@@ -328,6 +391,11 @@ class AEGISOrchestrator:
         cocoon = forge_result.get("cocoon", {})
         authored_state = forge_result.get("authored_state", {})
 
+        # ── Layer 4: PQC Cocoon Sealing ────────────────────────────────
+        if self.use_layer4 and self.pqc_shield is not None:
+            cocoon, l4_seal_info = self.activate_layer4_seal(cocoon)
+            result["layer_activations"]["layer4_pqc"] = l4_seal_info
+
         # ── Layer 5: Pre-Emptive Healing ───────────────────────────────
         if self.use_layer5:
             # Extract embedding from authored state or generate random
@@ -383,10 +451,12 @@ class AEGISOrchestrator:
         print("\n" + "=" * 70)
         print("AEGIS Orchestrator Status Report")
         print("=" * 70)
-        print(f"Forge Calls:       {stats['forge_calls']}")
-        print(f"Layer 2 Blocks:    {stats['layer2_activations']}")
-        print(f"Layer 3 Checks:    {stats['layer3_checks']}")
-        print(f"Layer 5 Healings:  {stats['layer5_healings']}")
+        print(f"Forge Calls:         {stats['forge_calls']}")
+        print(f"Layer 2 Blocks:      {stats['layer2_activations']}")
+        print(f"Layer 3 Checks:      {stats['layer3_checks']}")
+        print(f"Layer 4 Seals:       {stats['layer4_seals']}")
+        print(f"Layer 4 Verifies:    {stats['layer4_verifications']}")
+        print(f"Layer 5 Healings:    {stats['layer5_healings']}")
         print(f"Layer 6 Validations: {stats['layer6_validations']}")
         print(f"Rejections:        {stats['rejections']}")
         print(f"Rejection Rate:    {stats['rejection_rate']:.1f}%")
