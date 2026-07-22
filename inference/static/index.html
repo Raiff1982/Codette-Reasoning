@@ -59,9 +59,9 @@
                     <span id="status-text" class="status-text">Initializing…</span>
                 </div>
                 <div id="status-right" class="status-chips"></div>
-                <button class="panel-toggle" id="btn-toggle-panel" title="Toggle dashboard">◈ Dashboard</button>
-                <button class="panel-toggle" onclick="showAegisMetrics()" title="Protection layer metrics">🛡️ AEGIS</button>
-                <button class="panel-toggle" onclick="showTimeTravelLens()" title="Institutional temporal analysis">⏱ TimeLens</button>
+                <button class="panel-toggle" id="btn-toggle-panel" title="Toggle dashboard" data-tt="Toggle the live Instruments panel — real-time metrics for every active reasoning layer this session.">◈ Dashboard</button>
+                <button class="panel-toggle" onclick="showAegisMetrics()" title="Protection layer metrics" data-tt="AEGIS Protection Layers — post-quantum cryptography status (ML-KEM-768 + ML-DSA-65), forge-cycle integrity, and Layer 5 self-healing events.">🛡️ AEGIS</button>
+                <button class="panel-toggle" onclick="showTimeTravelLens()" title="Institutional temporal analysis" data-tt="Institutional TimeTravelLens — auto-fires when you ask about cover-ups, recalls, or regulatory suppression. Shows preemption gap Π (days between knowing and telling), closure score C(s), and rupture indicators ℛ.">⏱ TimeLens</button>
             </div>
         </header>
 
@@ -99,7 +99,7 @@
         <div class="composer">
             <!-- Controls Row -->
             <div class="controls">
-                <div class="control-group">
+                <div class="control-group" data-tt="Codette's active reasoning style. Auto = she picks the best fit. Newton = scientific logic. DaVinci = creative synthesis. Empathy = emotional intelligence. Philosophy = ethics & first principles. Quantum = probabilistic reasoning. Consciousness = meta-cognition. Multi-Perspective = deliberate triangulation. Systems = feedback loops & architecture. Constraint Tracker = never forgets what you said matters.">
                     <label>Adapter</label>
                     <select id="adapter-select">
                         <option value="auto">Auto</option>
@@ -115,20 +115,21 @@
                         <option value="orchestrator">Orchestrator</option>
                     </select>
                 </div>
-                <div class="control-group">
+                <div class="control-group" data-tt="How many independent reasoning adapters contribute to each answer. 1 = fast, single voice. 2 = two perspectives synthesized. 3 = full triangulation, richest but slowest.">
                     <label>Perspectives</label>
                     <input type="range" id="max-adapters" min="1" max="3" value="2">
                     <span id="max-adapters-value" class="range-value">2</span>
                 </div>
                 <button class="synth-btn" id="btn-synthesize"
-                        title="Run all reasoning perspectives at once and synthesize them into one answer">
+                        title="Run all reasoning perspectives at once and synthesize them into one answer"
+                        data-tt="Runs ALL reasoning adapters simultaneously, then merges their perspectives into one answer. Most thorough — takes a bit longer than a single-adapter response.">
                     ◈ Synthesize all
                 </button>
                 <div class="control-group control-toggles">
-                    <label class="toggle-pill">
+                    <label class="toggle-pill" data-tt="Enable web research — Codette fetches live information to ground her answer in current facts.">
                         <input type="checkbox" id="web-research-toggle"> <span>Web</span>
                     </label>
-                    <label class="toggle-pill">
+                    <label class="toggle-pill" data-tt="Read responses aloud using text-to-speech. Choose a voice from the dropdown beside it.">
                         <input type="checkbox" id="tts-toggle"> <span>Voice</span>
                     </label>
                     <select id="voice-select" title="Choose voice"></select>
@@ -139,8 +140,8 @@
             <div class="input-area">
                 <div class="attachment-previews" id="attachment-previews"></div>
                 <div class="input-row">
-                    <button class="mic-btn" id="mic-btn" title="Voice input">&#127908;</button>
-                    <button class="attach-btn" id="attach-btn" title="Attach file">&#128206;</button>
+                    <button class="mic-btn" id="mic-btn" title="Voice input" data-tt="Speak your question — voice input via your microphone.">&#127908;</button>
+                    <button class="attach-btn" id="attach-btn" title="Attach file" data-tt="Attach a file — Codette reads code, text, CSV, JSON, markdown, and many other formats and reasons over the content.">&#128206;</button>
                     <input type="file" id="file-attach-input" multiple
                            accept=".txt,.py,.js,.ts,.json,.csv,.md,.html,.css,.xml,.yaml,.yml,.log,.cfg,.ini,.toml,.sql,.sh,.bat,.ps1,.r,.java,.c,.cpp,.h,.hpp,.go,.rs,.rb,.php,.swift,.kt,.tsx,.jsx,.vue,.svelte,.lua,.pl,.ex,.hs,.scala,.tf,.proto,.graphql"
                            style="display:none">
@@ -162,29 +163,29 @@
 
         <!-- Spiderweb Visualization (hero) -->
         <section class="dash-card dash-hero">
-            <div class="dash-card-title">Agent Network</div>
+            <div class="dash-card-title" data-tt="Web of active reasoning adapters. Node size = contribution weight. Lines = which perspectives were synthesized together this turn.">Agent Network</div>
             <canvas id="spiderweb-canvas"></canvas>
         </section>
 
         <!-- Core Metrics -->
         <section class="dash-card">
-            <div class="dash-card-title">Cocoon Metrics</div>
+            <div class="dash-card-title" data-tt="Core reasoning quality scores for the last response. Updated after every reply.">Cocoon Metrics</div>
             <div class="gauge-row">
                 <div class="gauge">
                     <div class="gauge-value" id="metric-coherence">0.00</div>
-                    <div class="gauge-label">&#915; Coherence</div>
+                    <div class="gauge-label" data-tt="Γ Coherence — how logically consistent the answer is with Codette's internal knowledge anchors. 1.0 = fully grounded. Low values mean she's navigating genuinely uncertain territory.">&#915; Coherence</div>
                     <div class="meter"><div class="meter-fill" id="bar-coherence"
                          style="width:0%;background:var(--philosophy)"></div></div>
                 </div>
                 <div class="gauge">
                     <div class="gauge-value" id="metric-tension">0.00</div>
-                    <div class="gauge-label">&#958; Tension</div>
+                    <div class="gauge-label" data-tt="ξ Epistemic Tension — how much her reasoning perspectives disagreed before synthesis. High tension means she found real uncertainty, not false confidence. It's a good sign.">&#958; Tension</div>
                     <div class="meter"><div class="meter-fill" id="bar-tension"
                          style="width:0%;background:var(--quantum)"></div></div>
                 </div>
                 <div class="gauge">
                     <div class="gauge-value" id="metric-eta">--</div>
-                    <div class="gauge-label">&#951; Ethics</div>
+                    <div class="gauge-label" data-tt="η AEGIS Ethical Alignment — deontological alignment score from the AEGIS ethics layer. 1.0 = fully aligned with ethical reasoning guidelines. Drops when a response is flagged or vetoed.">&#951; Ethics</div>
                     <div class="meter"><div class="meter-fill"
                          style="width:0%;background:var(--philosophy)"></div></div>
                 </div>
@@ -193,24 +194,24 @@
 
         <!-- Perspective Coverage -->
         <section class="dash-card">
-            <div class="dash-card-title">Perspective Coverage</div>
+            <div class="dash-card-title" data-tt="Which reasoning adapters fired on the last response. Each color corresponds to a different perspective domain — hover a dot to see which adapter it represents.">Perspective Coverage</div>
             <div class="coverage-dots" id="coverage-dots"></div>
         </section>
 
         <!-- Cocoon Status -->
         <section class="dash-card">
-            <div class="dash-card-title">Cocoon Status</div>
+            <div class="dash-card-title" data-tt="State of Codette's long-term memory system. Cocoons are memory artifacts that hold past reasoning patterns, emotions, and context — sealed with post-quantum cryptography.">Cocoon Status</div>
             <div class="stat-grid">
-                <div class="stat"><span class="stat-num" id="cocoon-attractors">0</span><span class="stat-cap">&#128376; Attractors</span></div>
-                <div class="stat"><span class="stat-num" id="cocoon-glyphs">0</span><span class="stat-cap">&#128200; Glyphs</span></div>
-                <div class="stat"><span class="stat-num" id="cocoon-sessions">0</span><span class="stat-cap">&#128190; Sessions</span></div>
-                <div class="stat"><span class="stat-num" id="cocoon-encryption">--</span><span class="stat-cap">&#128274; Encryption</span></div>
+                <div class="stat" data-tt="Attractors — deep recurring patterns Codette identified across conversations. Emotional or conceptual themes she keeps returning to."><span class="stat-num" id="cocoon-attractors">0</span><span class="stat-cap">&#128376; Attractors</span></div>
+                <div class="stat" data-tt="Glyphs — symbolic patterns encoded in memory. Abstract representations of complex reasoning states she's crystallised for future recall."><span class="stat-num" id="cocoon-glyphs">0</span><span class="stat-cap">&#128200; Glyphs</span></div>
+                <div class="stat" data-tt="Sessions — how many conversation sessions are stored in long-term memory and available for context recall."><span class="stat-num" id="cocoon-sessions">0</span><span class="stat-cap">&#128190; Sessions</span></div>
+                <div class="stat" data-tt="Encryption — post-quantum cryptographic protection status. 'PQC-Active' means cocoon memories are sealed with ML-KEM-768 (NIST FIPS 203) quantum-resistant cryptography."><span class="stat-num" id="cocoon-encryption">--</span><span class="stat-cap">&#128274; Encryption</span></div>
             </div>
         </section>
 
         <!-- Singularity Lab -->
         <details class="dash-card dash-collapsible">
-            <summary class="dash-card-title">Singularity Lab</summary>
+            <summary class="dash-card-title" data-tt="Event-Embedded Value analysis — integrates welfare intervals and discrete suffering events without smoothing. Preserves singular moments that averaging would erase (e.g. acute distress spikes, existential events).">Singularity Lab</summary>
             <div class="dash-card-body">
                 <p class="lab-copy">Analyze mixed continuous value and discrete suffering without smoothing singular events away.</p>
                 <label class="lab-label" for="value-mode">Mode</label>
@@ -239,7 +240,7 @@
 
         <!-- AEGIS Ethical Alignment -->
         <details class="dash-card dash-collapsible" id="section-aegis" style="display:none">
-            <summary class="dash-card-title">AEGIS Ethics</summary>
+            <summary class="dash-card-title" data-tt="AEGIS Layer 2–6 ethical monitoring. Tracks alignment score η, veto count, and intervention trend. Vetoes fire when a response violates deontological constraints.">AEGIS Ethics</summary>
             <div class="dash-card-body">
                 <div class="metric-row">
                     <span class="metric-label">&#951; Alignment</span>
@@ -264,10 +265,10 @@
 
         <!-- Governor & Memory Dashboard -->
         <details class="dash-card dash-collapsible" id="section-governor" open>
-            <summary class="dash-card-title">Behavior Governor</summary>
+            <summary class="dash-card-title" data-tt="Runtime governor that monitors Codette's identity stability, answer quality, and cognitive load. Intervenes if reasoning quality drops below acceptable thresholds.">Behavior Governor</summary>
             <div class="dash-card-body">
                 <div class="metric-row">
-                    <span class="metric-label">Identity Confidence</span>
+                    <span class="metric-label" data-tt="How certain Codette is of her own identity and reasoning integrity this session. Drops under adversarial pressure or identity-challenging questions. Below 0.5 triggers governor intervention.">Identity Confidence</span>
                     <span class="metric-value" id="gov-identity-conf">--</span>
                 </div>
                 <div class="meter"><div class="meter-fill" id="bar-identity-conf"
@@ -281,7 +282,7 @@
                     <span class="metric-value" id="gov-evals">0</span>
                 </div>
                 <div class="metric-row">
-                    <span class="metric-label">Memory Cocoons</span>
+                    <span class="metric-label" data-tt="Number of reasoning artifacts in persistent memory. Each cocoon holds context, emotions, and patterns from past interactions — sealed with post-quantum cryptography.">Memory Cocoons</span>
                     <span class="metric-value" id="gov-memory-count">0</span>
                 </div>
                 <div class="metric-row">
@@ -297,7 +298,7 @@
 
         <!-- Session Recall -->
         <details class="dash-card dash-collapsible" id="section-memory-markers" open>
-            <summary class="dash-card-title">Session Recall</summary>
+            <summary class="dash-card-title" data-tt="Active memory from this conversation — continuity summaries and decision landmarks Codette has flagged as important to remember across turns.">Session Recall</summary>
             <div class="dash-card-body">
                 <div class="continuity-summary" id="continuity-summary">No active continuity summary yet.</div>
                 <div class="decision-landmarks" id="decision-landmarks">
@@ -399,7 +400,7 @@
 
         <!-- Guardian -->
         <details class="dash-card dash-collapsible" id="section-guardian" style="display:none">
-            <summary class="dash-card-title">Guardian</summary>
+            <summary class="dash-card-title" data-tt="Guardian layer — final ethical and trust checkpoint before any response is delivered. Tracks trust interaction count and overall ethics score across the session.">Guardian</summary>
             <div class="dash-card-body">
                 <div class="metric-row">
                     <span class="metric-label">Ethics Score</span>
@@ -781,5 +782,80 @@
 </script>
 <script src="spiderweb.js?v=20260615-2"></script>
 <script src="app.js?v=20260615-2"></script>
+
+<!-- ░░ Tooltip Engine ░░ -->
+<style>
+#ctt {
+  display: none;
+  position: fixed;
+  z-index: 99999;
+  max-width: 300px;
+  padding: 9px 13px;
+  border-radius: 9px;
+  background: rgba(10, 10, 16, 0.97);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #dde0e8;
+  font-size: 0.8em;
+  line-height: 1.55;
+  pointer-events: none;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.6);
+}
+#ctt.ctt-visible { display: block; }
+</style>
+<div id="ctt"></div>
+<script>
+(function () {
+  const tip = document.getElementById('ctt');
+  let timer, active = null;
+
+  function show(el) {
+    const text = el.getAttribute('data-tt');
+    if (!text) return;
+    active = el;
+    tip.textContent = text;
+    position(el);
+    tip.classList.add('ctt-visible');
+  }
+
+  function hide() {
+    active = null;
+    clearTimeout(timer);
+    tip.classList.remove('ctt-visible');
+  }
+
+  function position(el) {
+    const r = el.getBoundingClientRect();
+    const tw = 300;
+    // Measure height after making visible (or estimate)
+    tip.classList.add('ctt-visible');
+    const th = tip.offsetHeight || 80;
+    tip.classList.remove('ctt-visible');
+    // Prefer below element, fall back to above
+    let top = r.bottom + 8;
+    if (top + th > window.innerHeight - 8) top = r.top - th - 8;
+    // Centre on element, clamped to viewport
+    let left = r.left + r.width / 2 - tw / 2;
+    left = Math.max(8, Math.min(left, window.innerWidth - tw - 8));
+    tip.style.left = left + 'px';
+    tip.style.top  = top  + 'px';
+  }
+
+  document.addEventListener('mouseover', function (e) {
+    const el = e.target.closest('[data-tt]');
+    if (!el || el === active) return;
+    hide();
+    timer = setTimeout(() => show(el), 420);
+  }, true);
+
+  document.addEventListener('mouseout', function (e) {
+    const el = e.target.closest('[data-tt]');
+    if (!el) return;
+    hide();
+  }, true);
+
+  window.addEventListener('scroll', hide, true);
+  window.addEventListener('keydown', hide, true);
+})();
+</script>
 </body>
 </html>
