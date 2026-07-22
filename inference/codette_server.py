@@ -2092,6 +2092,35 @@ def _worker_thread():
                 except Exception as _g_e:
                     print(f"  [GLYPH] skipped: {_g_e}", flush=True)
 
+                # ── TimeTravelLens — institutional temporal gap analysis ──
+                # Runs only when query contains ≥2 institutional keywords (~0.1ms gate).
+                # Overhead when active: ~5–20ms (date regex + closure inference).
+                try:
+                    from reasoning_forge.time_travel_lens import (
+                        InstitutionalContextDetector, TimeTravelConfig, TimeTravelLens,
+                    )
+                    _tt_combined = query + "\n" + response_text
+                    if InstitutionalContextDetector.is_relevant(_tt_combined):
+                        global _last_time_travel_result
+                        from reasoning_forge.institutional_extractor import InstitutionalExtractor
+                        _tt_ext = InstitutionalExtractor()
+                        _tt_state, _tt_conf = _tt_ext.extract(_tt_combined)
+                        if _tt_state and _tt_conf >= 0.3:
+                            _tt_lens = TimeTravelLens(config=TimeTravelConfig.default())
+                            _tt_obs = _tt_lens.observe(_tt_state)
+                            _tt_obs["extraction_confidence"] = round(_tt_conf, 3)
+                            _tt_obs["query_preview"] = query[:120]
+                            import time as _tt_time
+                            _tt_obs["timestamp"] = _tt_time.time()
+                            response_data["time_travel"] = _tt_obs
+                            _last_time_travel_result = _tt_obs
+                            print(f"  [TTLens] Π={_tt_obs.get('preemption_gap_days') or '∞'} days, "
+                                  f"closure={_tt_obs.get('closure_class')}, "
+                                  f"high_zone={_tt_obs.get('high_preemption_zone')}, "
+                                  f"conf={_tt_conf:.2f}", flush=True)
+                except Exception as _tt_e:
+                    print(f"  [TTLens] skipped: {_tt_e}", flush=True)
+
                 # Add Phase 6 metadata (complexity, domain, ethical)
                 if result.get("complexity"):
                     response_data["complexity"] = str(result["complexity"])
@@ -2374,6 +2403,37 @@ class CodetteHandler(SimpleHTTPRequestHandler):
                     self._json_response({"error": str(e)})
             else:
                 self._json_response({"error": "AEGIS metrics engine not initialized"})
+        elif path == "/api/time_travel/last":
+            # Most recent TimeTravelLens observation (set whenever detector fires mid-chat)
+            global _last_time_travel_result
+            if "_last_time_travel_result" in globals() and _last_time_travel_result is not None:
+                self._json_response({"status": "ok", "metrics": _last_time_travel_result})
+            else:
+                self._json_response({"status": "none", "metrics": None})
+        elif path == "/api/time_travel/analyze":
+            # On-demand text analysis: GET /api/time_travel/analyze?text=...
+            try:
+                from reasoning_forge.time_travel_lens import (
+                    InstitutionalContextDetector, TimeTravelConfig, TimeTravelLens,
+                )
+                _text = parse_qs(parsed.query).get("text", [""])[0]
+                if not _text:
+                    self._json_response({"error": "text parameter required"})
+                elif not InstitutionalContextDetector.is_relevant(_text):
+                    self._json_response({"status": "not_relevant", "message": "Text lacks institutional keywords"})
+                else:
+                    from reasoning_forge.institutional_extractor import InstitutionalExtractor
+                    _ext = InstitutionalExtractor()
+                    _state, _conf = _ext.extract(_text)
+                    if not _state or _conf < 0.3:
+                        self._json_response({"status": "low_confidence", "confidence": _conf})
+                    else:
+                        _lens = TimeTravelLens(config=TimeTravelConfig.default())
+                        _obs = _lens.observe(_state)
+                        _obs["extraction_confidence"] = round(_conf, 3)
+                        self._json_response({"status": "ok", "metrics": _obs})
+            except Exception as _e:
+                self._json_response({"error": str(_e)})
         elif path == "/api/dashboard":
             self.path = "/dashboard.html"
             super().do_GET()

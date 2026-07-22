@@ -61,6 +61,7 @@
                 <div id="status-right" class="status-chips"></div>
                 <button class="panel-toggle" id="btn-toggle-panel" title="Toggle dashboard">◈ Dashboard</button>
                 <button class="panel-toggle" onclick="showAegisMetrics()" title="Protection layer metrics">🛡️ AEGIS</button>
+                <button class="panel-toggle" onclick="showTimeTravelLens()" title="Institutional temporal analysis">⏱ TimeLens</button>
             </div>
         </header>
 
@@ -488,6 +489,90 @@
   </div>
 </div>
 
+<!-- TimeTravelLens Dashboard Tab -->
+<div id="time-travel-tab" style="display:none; padding: 20px;">
+  <div style="max-width: 1200px; margin: 0 auto;">
+
+    <!-- Header -->
+    <div style="margin-bottom: 30px; padding: 20px; background: rgba(167,139,250,0.1); border-left: 4px solid #a78bfa; border-radius: 8px;">
+      <h2 style="font-size: 2em; color: #a78bfa; margin-bottom: 10px;">⏱ Institutional TimeTravelLens</h2>
+      <p style="color: #a0a0a0;">Auto-triggered analysis of institutional preemption gaps — Π(s), C(s), ℛ(s), ℬ(s), Z<sup>H</sup></p>
+    </div>
+
+    <!-- Status banner -->
+    <div id="tt-status-banner" style="margin-bottom: 24px; padding: 14px 18px; border-radius: 8px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: #a0a0a0; font-size: 0.9em;">
+      No TimeTravelLens observation yet. Ask about a product recall, cover-up, regulatory disclosure, or institutional suppression to trigger analysis.
+    </div>
+
+    <!-- Core Metrics Grid -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 28px;" id="tt-metrics-grid" style="display:none">
+
+      <div style="background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.3); border-radius: 12px; padding: 18px;">
+        <div style="font-size: 0.8em; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Preemption Gap Π</div>
+        <div id="tt-pi" style="font-size: 2em; font-weight: bold; color: #a78bfa;">—</div>
+        <div style="font-size: 0.8em; color: #707080;">days (t_inst − t_op)</div>
+      </div>
+
+      <div style="background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.3); border-radius: 12px; padding: 18px;">
+        <div style="font-size: 0.8em; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Closure Score C</div>
+        <div id="tt-closure" style="font-size: 2em; font-weight: bold; color: #10b981;">—</div>
+        <div id="tt-closure-class" style="font-size: 0.8em; color: #707080;">—</div>
+      </div>
+
+      <div style="background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.3); border-radius: 12px; padding: 18px;">
+        <div style="font-size: 0.8em; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Rupture ℛ</div>
+        <div id="tt-rupture" style="font-size: 2em; font-weight: bold; color: #ef4444;">—</div>
+        <div style="font-size: 0.8em; color: #707080;">institutional rupture indicator</div>
+      </div>
+
+      <div style="background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.3); border-radius: 12px; padding: 18px;">
+        <div style="font-size: 0.8em; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Beacon ℬ</div>
+        <div id="tt-beacon" style="font-size: 2em; font-weight: bold; color: #f59e0b;">—</div>
+        <div style="font-size: 0.8em; color: #707080;">high-influence rupture</div>
+      </div>
+
+      <div style="background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.3); border-radius: 12px; padding: 18px;">
+        <div style="font-size: 0.8em; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">High Preemption Z<sup>H</sup></div>
+        <div id="tt-zone" style="font-size: 2em; font-weight: bold; color: #ef4444;">—</div>
+        <div style="font-size: 0.8em; color: #707080;">all 3 conditions met</div>
+      </div>
+
+      <div style="background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.3); border-radius: 12px; padding: 18px;">
+        <div style="font-size: 0.8em; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Confidence</div>
+        <div id="tt-confidence" style="font-size: 2em; font-weight: bold; color: #06b6d4;">—</div>
+        <div style="font-size: 0.8em; color: #707080;">extraction confidence</div>
+      </div>
+
+    </div>
+
+    <!-- Actor Gaps -->
+    <div id="tt-actors-card" style="display:none; background: rgba(255,255,255,0.04); border: 1px solid rgba(167,139,250,0.2); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+      <h3 style="color: #a78bfa; margin-bottom: 16px; border-bottom: 1px solid rgba(167,139,250,0.2); padding-bottom: 10px;">Actor Preemption Gaps Π<sub>i</sub></h3>
+      <div id="tt-actors-body"></div>
+    </div>
+
+    <!-- On-demand analysis -->
+    <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+      <h3 style="color: #a78bfa; margin-bottom: 14px;">Analyze Custom Text</h3>
+      <p style="color: #a0a0a0; font-size: 0.9em; margin-bottom: 12px;">Paste any text describing an institutional timeline and click Analyze.</p>
+      <textarea id="tt-analyze-input" rows="5" style="width:100%;box-sizing:border-box;background:rgba(0,0,0,0.3);color:#e0e0e0;border:1px solid rgba(167,139,250,0.3);border-radius:8px;padding:12px;font-family:monospace;font-size:0.85em;resize:vertical;" placeholder="e.g. 'On March 5, engineers discovered the defect. The company suppressed the finding until October 10, when they filed the official recall.'"></textarea>
+      <div style="margin-top: 10px; display: flex; gap: 10px;">
+        <button onclick="runTimeTravelAnalysis()" style="background:rgba(167,139,250,0.2);color:#a78bfa;border:1px solid rgba(167,139,250,0.5);border-radius:6px;padding:8px 18px;cursor:pointer;font-size:0.9em;">⏱ Analyze</button>
+        <span id="tt-analyze-status" style="color:#a0a0a0;font-size:0.85em;line-height:2.2;"></span>
+      </div>
+      <pre id="tt-analyze-result" style="display:none;margin-top:14px;background:rgba(0,0,0,0.3);border:1px solid rgba(167,139,250,0.2);border-radius:8px;padding:14px;color:#e0e0e0;font-size:0.82em;overflow-x:auto;white-space:pre-wrap;"></pre>
+    </div>
+
+    <!-- Refresh controls -->
+    <div style="text-align:center; color:#707080; font-size:0.85em; margin-top:12px;">
+      Last triggered: <span id="tt-last-update">never</span>
+      &nbsp;·&nbsp;
+      <button onclick="loadTimeTravelData()" style="background:none;border:none;color:#a78bfa;cursor:pointer;font-size:0.85em;text-decoration:underline;">Refresh</button>
+    </div>
+
+  </div>
+</div>
+
 <style>
   .aegis-table { width: 100%; border-collapse: collapse; background: rgba(255, 255, 255, 0.02); }
   .aegis-table thead { background: rgba(74, 158, 255, 0.1); }
@@ -561,6 +646,131 @@
   };
 </script>
 
+<script>
+  // ── TimeTravelLens UI ──────────────────────────────────────────────────────
+  let _lastTTData = null;
+
+  function showTimeTravelLens() {
+    const allTabs = document.querySelectorAll('[id$="-tab"]');
+    allTabs.forEach(t => { t.style.display = 'none'; });
+    const tab = document.getElementById('time-travel-tab');
+    if (tab) { tab.style.display = 'block'; loadTimeTravelData(); }
+  }
+
+  window.showAegisMetrics = function() {
+    const allTabs = document.querySelectorAll('[id$="-tab"]');
+    allTabs.forEach(t => { t.style.display = 'none'; });
+    const tab = document.getElementById('aegis-metrics-tab');
+    if (tab) tab.style.display = 'block';
+  };
+
+  async function loadTimeTravelData() {
+    try {
+      const r = await fetch('/api/time_travel/last');
+      const data = await r.json();
+      if (data.status === 'ok' && data.metrics) {
+        _lastTTData = data.metrics;
+        renderTimeTravelMetrics(data.metrics);
+      }
+    } catch (e) { console.error('TTLens fetch error:', e); }
+  }
+
+  function _closureColor(cls) {
+    return {closed:'#10b981', drift:'#f59e0b', suppressed:'#ef4444', inexpressible:'#6b7280'}[cls] || '#a0a0a0';
+  }
+
+  function renderTimeTravelMetrics(m) {
+    const banner = document.getElementById('tt-status-banner');
+    const grid = document.getElementById('tt-metrics-grid');
+    const actorsCard = document.getElementById('tt-actors-card');
+
+    // Preemption gap
+    const pi = m.preemption_gap_days;
+    document.getElementById('tt-pi').textContent = pi !== null && pi !== undefined ? Math.round(pi) + ' d' : '∞';
+    document.getElementById('tt-pi').style.color = (pi !== null && pi > 90) ? '#ef4444' : '#a78bfa';
+
+    // Closure
+    const cls = (m.closure_class || '').toLowerCase();
+    document.getElementById('tt-closure').textContent = (m.closure_score !== undefined ? m.closure_score.toFixed(2) : '—');
+    document.getElementById('tt-closure').style.color = _closureColor(cls);
+    document.getElementById('tt-closure-class').textContent = cls || '—';
+
+    // Indicators
+    document.getElementById('tt-rupture').textContent = m.rupture ? '✗ YES' : '✓ NO';
+    document.getElementById('tt-rupture').style.color = m.rupture ? '#ef4444' : '#10b981';
+    document.getElementById('tt-beacon').textContent = m.beacon ? '✗ YES' : '✓ NO';
+    document.getElementById('tt-beacon').style.color = m.beacon ? '#ef4444' : '#10b981';
+    document.getElementById('tt-zone').textContent = m.high_preemption_zone ? '⚠ YES' : '✓ NO';
+    document.getElementById('tt-zone').style.color = m.high_preemption_zone ? '#ef4444' : '#10b981';
+    document.getElementById('tt-confidence').textContent = m.extraction_confidence !== undefined ? (m.extraction_confidence * 100).toFixed(0) + '%' : '—';
+
+    // Status banner
+    const highAlert = m.high_preemption_zone;
+    banner.style.background = highAlert ? 'rgba(239,68,68,0.1)' : 'rgba(167,139,250,0.08)';
+    banner.style.borderColor = highAlert ? 'rgba(239,68,68,0.4)' : 'rgba(167,139,250,0.3)';
+    const preview = m.query_preview ? `"${m.query_preview.substring(0,80)}…"` : 'last query';
+    banner.innerHTML = highAlert
+      ? `<strong style="color:#ef4444">⚠ High Preemption Zone detected</strong> — Π=${Math.round(pi)} days, closure=${cls}, rupture=${m.rupture?'yes':'no'} on ${preview}`
+      : `<strong style="color:#a78bfa">TimeTravelLens triggered</strong> on ${preview} — Π=${pi !== null ? Math.round(pi)+'d' : '∞'}, closure=${cls}`;
+
+    if (m.timestamp) {
+      document.getElementById('tt-last-update').textContent = new Date(m.timestamp * 1000).toLocaleTimeString();
+    }
+
+    // Actor gaps
+    const actors = m.actor_gaps || [];
+    if (actors.length > 0) {
+      actorsCard.style.display = 'block';
+      const rows = actors.map(a => {
+        const gap = (a.t_op_i !== null && a.t_inst_i !== null)
+          ? Math.round(a.t_inst_i - a.t_op_i) + ' d'
+          : (a.t_op_i === null ? 'no t_op' : '∞');
+        return `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+          <span style="color:#d0d0d0">${a.actor_id}</span>
+          <span style="color:#a78bfa;font-weight:bold">${gap}</span>
+        </div>`;
+      }).join('');
+      document.getElementById('tt-actors-body').innerHTML = rows;
+    } else {
+      actorsCard.style.display = 'none';
+    }
+
+    grid.style.display = 'grid';
+  }
+
+  async function runTimeTravelAnalysis() {
+    const text = document.getElementById('tt-analyze-input').value.trim();
+    const status = document.getElementById('tt-analyze-status');
+    const result = document.getElementById('tt-analyze-result');
+    if (!text) { status.textContent = 'Please enter text to analyze.'; return; }
+    status.textContent = 'Analyzing…';
+    result.style.display = 'none';
+    try {
+      const url = '/api/time_travel/analyze?text=' + encodeURIComponent(text);
+      const r = await fetch(url);
+      const data = await r.json();
+      if (data.status === 'ok' && data.metrics) {
+        status.textContent = '✓ Analysis complete';
+        result.style.display = 'block';
+        result.textContent = JSON.stringify(data.metrics, null, 2);
+        renderTimeTravelMetrics(data.metrics);
+      } else if (data.status === 'not_relevant') {
+        status.textContent = '— Text lacks institutional keywords (needs ≥2 of: recall, suppress, disclose, fraud, …)';
+      } else if (data.status === 'low_confidence') {
+        status.textContent = `— Confidence too low (${(data.confidence*100).toFixed(0)}% < 30%). Try text with explicit dates and event keywords.`;
+      } else {
+        status.textContent = data.error || 'Unknown error';
+      }
+    } catch (e) {
+      status.textContent = 'Error: ' + e.message;
+    }
+  }
+
+  // Poll every 15s while the tab is open
+  setInterval(() => {
+    if (document.getElementById('time-travel-tab').style.display !== 'none') loadTimeTravelData();
+  }, 15000);
+</script>
 <script src="spiderweb.js?v=20260615-2"></script>
 <script src="app.js?v=20260615-2"></script>
 </body>

@@ -2181,6 +2181,7 @@ class ForgeEngine:
                 "aegis_vetoed": aegis_result['vetoed'] if aegis_result else None,
                 "forge_mode": "consciousness_stack",
                 "reasoning_trace": _trace_report,
+                "time_travel_metrics": _time_travel_metrics if '_time_travel_metrics' in dir() else None,
             }
         }
 

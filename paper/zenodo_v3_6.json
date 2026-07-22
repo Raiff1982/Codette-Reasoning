@@ -1,0 +1,48 @@
+{
+  "title": "Codette v3.6: Institutional Temporal Analysis via TimeTravelLens and Multi-Layer Runtime Protection via AEGIS",
+  "description": "Documents two major systems integrated into the Codette multi-perspective reasoning engine (v3.6): (1) TimeTravelLens — a formal framework computing preemption gap Π(s), closure score C(s) across a ClosureClass taxonomy (CLOSED/DRIFT/SUPPRESSED/INEXPRESSIBLE), rupture indicator ℛ(s), beacon indicator ℬ(s), and high preemption zone Z^H from either structured InstitutionalState objects or unstructured text via InstitutionalExtractor; and (2) AEGIS Protection Layers — five production Python implementations (Layer 2: Landlock+DACL filesystem isolation; Layer 3: TPM 2.0+Secure Boot integrity; Layer 5: pre-emptive healing from real cocoon fields; Layer 6: CocoonV3 schema + word-overlap validation; metrics engine: SQLite-backed forge-cycle logging). The lens fires automatically on institutional queries, stores results in CocoonV3 memory artifacts with provenance, annotates AEGIS deontological weighting on high-preemption-zone detections, and surfaces metrics in a live UI dashboard. All implementations are open-source. 33 tests, 0 failures.",
+  "creators": [
+    {
+      "name": "Harrison, Jonathan",
+      "affiliation": "Independent researcher",
+      "orcid": ""
+    }
+  ],
+  "keywords": [
+    "multi-perspective reasoning",
+    "institutional temporal analysis",
+    "preemption gap",
+    "closure class",
+    "runtime protection",
+    "ethical AI",
+    "cocoon memory",
+    "TimeTravelLens",
+    "AEGIS",
+    "large language models",
+    "information suppression"
+  ],
+  "license": "MIT",
+  "upload_type": "software",
+  "access_right": "open",
+  "language": "eng",
+  "communities": [{"identifier": "zenodo"}],
+  "related_identifiers": [
+    {
+      "identifier": "10.5281/zenodo.15214462",
+      "relation": "isNewVersionOf",
+      "resource_type": "software"
+    },
+    {
+      "identifier": "https://github.com/Raiff1982/Codette-Reasoning",
+      "relation": "isSupplementTo",
+      "resource_type": "software"
+    },
+    {
+      "identifier": "https://arxiv.org/abs/2505.01464",
+      "relation": "references",
+      "resource_type": "publication-preprint",
+      "scheme": "url"
+    }
+  ],
+  "notes": "TimeTravelLens is a new framework original to this project. AEGIS protection layers are original implementations. The project's Perspective Dispersion metric Υ is independent of and convergent with Camlin (arXiv:2505.01464); see docs/ATTRIBUTION_perspective_dispersion.md for full attribution detail. Layer 4 (PQC cocoon sealing) is a design placeholder pending liboqs integration — the docstring in aegis_orchestrator.py explicitly marks this."
+}
