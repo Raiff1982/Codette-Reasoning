@@ -46,8 +46,8 @@ def _resolve_algorithms() -> Tuple[str, str]:
             "First import compiles the C library and may take several minutes."
         ) from exc
 
-    enabled_kems = set(oqs.get_enabled_KEMs())
-    enabled_sigs = set(oqs.get_enabled_sigs())
+    enabled_kems = set(oqs.get_enabled_kem_mechanisms())
+    enabled_sigs = set(oqs.get_enabled_sig_mechanisms())
 
     for name in _KEM_CANDIDATES:
         if name in enabled_kems:
