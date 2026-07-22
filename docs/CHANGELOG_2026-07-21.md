@@ -50,7 +50,7 @@ Jonathan built these solo without credits and integrated them. Assessment: Layer
 |---|---|---|
 | Layer 2 | `aegis_layer2_complete.py` (428 lines) | ✓ Landlock (Linux) + Windows DACL filesystem isolation |
 | Layer 3 | `aegis_layer3_complete.py` (456 lines) | ✓ TPM 2.0 + Secure Boot verification; degrades gracefully on non-Linux |
-| Layer 4 | *(concept only — .txt files)* | PLACEHOLDER — SHA3-HMAC labeled as ML-KEM-768; **NOT real PQC** |
+| Layer 4 | `aegis_layer4_complete.py` | ✓ **Real ML-KEM-768 (NIST FIPS 203) + ML-DSA-65 (NIST FIPS 204) via liboqs-python** |
 | Layer 5 | `aegis_layer5_complete.py` (496 lines) | ✓ Pre-emptive healing using real cocoon fields (ε, γ, pairwise tensions) |
 | Layer 6 | `aegis_layer6_complete.py` (504 lines) | ✓ RenderLayer validation: CocoonV3 schema gate + 15% word-overlap gate |
 | Orchestrator | `aegis_orchestrator.py` (376 lines) | ✓ Full pipeline wrapper |
@@ -59,7 +59,19 @@ Jonathan built these solo without credits and integrated them. Assessment: Layer
 
 Layer 5 reads **real** cocoon fields — ε (epistemic tension), γ (coherence), pairwise tensions — NOT random noise. The metrics engine provides historical healing rates, rejection rates, and overlap percentages via `/api/aegis/*` endpoints.
 
-**Layer 4 PQC disclaimer fix** (`aegis_orchestrator.py` line 11): The docstring previously called SHA3-HMAC a "Hybrid SHA3/liboqs" substrate, implying real lattice crypto. Fixed to explicitly mark it as a design placeholder with the actual fix needed (`liboqs.kem.Kem("Kyber768")`).
+**Layer 4 PQC — now real** (`Protection_Layer/aegis_layer4_complete.py`, 280 lines):
+The SHA3-HMAC placeholder has been replaced with genuine post-quantum lattice cryptography via `liboqs-python` (Open Quantum Safe project).
+
+Components:
+- **`PQCKeyStore`**: Persists ML-KEM-768 + ML-DSA-65 keypairs at `~/.codette/pqc/` with magic-header validation. `load_or_generate()` auto-provisions keys on first run.
+- **`PQCCocoonSealer`**: Each cocoon write performs a fresh KEM encapsulation against the persistent public key → `(ciphertext, shared_secret)`. Seal key = `SHA3-256(shared_secret || salt)`. Tag = `HMAC-SHA3-256(payload, seal_key)`. Verification decapsulates the stored ciphertext to recover the shared secret, re-derives the key, and checks the HMAC. An attacker without the ML-KEM-768 private key cannot forge a valid tag.
+- **`PQCBootVerifier`**: Hashes five critical source files with SHA3-256, signs each hash with ML-DSA-65. Manifest saved to `~/.codette/pqc/boot_manifest.json`. Server-startup verify call detects any post-signature modification.
+- **`EpistemicQuantumGate`**: Tension formula `ξ_t = (1/k) Σ ||Aᵢ − Ā||²` preserved and extended to accept real `PerspectiveVector` distributions from ForgeEngine; deterministic synthetic fallback from name hashes for non-forge contexts.
+- **`PQCShield`**: Single orchestrator facade. All `import oqs` calls are lazy (inside method bodies) — the module imports in microseconds; the liboqs C library is loaded only when a crypto method is first called.
+
+Integrated in `aegis_orchestrator.py`: `use_layer4=True` (default), `activate_layer4_seal()` applied to every cocoon after ForgeEngine returns, stats tracked in `layer4_seals` / `layer4_verifications`.
+
+Install: `pip install liboqs-python` — first `import oqs` triggers a cmake build of the C library (~5–10 min; result cached at `~/_oqs/bin/oqs.dll` on Windows).
 
 ---
 

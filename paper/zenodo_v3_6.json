@@ -44,5 +44,5 @@
       "scheme": "url"
     }
   ],
-  "notes": "TimeTravelLens is a new framework original to this project. AEGIS protection layers are original implementations. The project's Perspective Dispersion metric Υ is independent of and convergent with Camlin (arXiv:2505.01464); see docs/ATTRIBUTION_perspective_dispersion.md for full attribution detail. Layer 4 (PQC cocoon sealing) is a design placeholder pending liboqs integration — the docstring in aegis_orchestrator.py explicitly marks this."
+  "notes": "TimeTravelLens is a new framework original to this project. AEGIS protection layers are original implementations. The project's Perspective Dispersion metric Υ is independent of and convergent with Camlin (arXiv:2505.01464); see docs/ATTRIBUTION_perspective_dispersion.md for full attribution detail. Layer 4 (PQC cocoon sealing) is now a real implementation using liboqs-python (Open Quantum Safe): ML-KEM-768 (NIST FIPS 203) for key encapsulation and ML-DSA-65 (NIST FIPS 204) for digital signatures. See Protection_Layer/aegis_layer4_complete.py."
 }
