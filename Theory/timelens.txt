@@ -1,0 +1,443 @@
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import Dict, Optional, List
+import math
+import statistics
+
+class ClosureClass(str, Enum):
+    CLOSED = "closed"
+    DRIFT = "drift"
+    SUPPRESSED = "suppressed"
+    INEXPRESSIBLE = "inexpressible"
+
+CLOSURE_SCORE = {
+    ClosureClass.CLOSED: 1.00,
+    ClosureClass.DRIFT: 0.67,
+    ClosureClass.SUPPRESSED: 0.24,
+    ClosureClass.INEXPRESSIBLE: 0.00,
+}
+
+@dataclass
+class TimestampLadder:
+    # t_s, t_m, t_op, t_inst, t_p in their notation[page:1]
+    t_s: Optional[float] = None   # first sensing
+    t_m: Optional[float] = None   # first modeling
+    t_op: Optional[float] = None  # first materially conditioned action
+    t_inst: Optional[float] = None  # first formal institutional registration
+    t_p: Optional[float] = None   # first public legibility
+
+@dataclass
+class ActorGap:
+    # actor‑indexed preemption gap Π_i(s)[page:1]
+    actor_id: str
+    t_op_i: Optional[float]
+    t_inst_i: Optional[float]
+
+@dataclass
+class InstitutionalState:
+    state_id: str
+    ladder: TimestampLadder
+    closure_class: ClosureClass
+    unfolding_energy: float  # E_u(s)[page:1]
+    influence_over_time: List[float]  # samples for ∫ Influence(s,t) dt[page:1]
+    actor_gaps: List[ActorGap] = field(default_factory=list)
+    registration_fidelity_memo: str = ""  # “what faithful closure would have looked like”[page:1]
+	
+	
+	This gives Codette a clean representation it can pass around inside a cocoon: each student‑state or risk‑flag becomes one InstitutionalState.
+
+Preemption gap, closure, rupture, beacon
+Now implement their key observables as functions Codette’s agents can call when they analyze a state.
+
+python
+INF = math.inf
+
+def preemption_gap(state: InstitutionalState) -> float:
+    """
+    Π(s) = t_inst(s) − t_op(s) with their edge cases.[page:1]
+    """
+    t_op = state.ladder.t_op
+    t_inst = state.ladder.t_inst
+
+    if t_op is not None and t_inst is not None:
+        return t_inst - t_op
+    if t_op is not None and t_inst is None:
+        return INF
+    return math.nan  # undefined otherwise[page:1]
+
+def closure_score(state: InstitutionalState) -> float:
+    """
+    C(s) from closure class.[page:1]
+    """
+    return CLOSURE_SCORE[state.closure_class]
+
+def practical_non_closure(state: InstitutionalState, tau_E: float) -> bool:
+    """
+    E_u(s) > τ^E ⇒ practical non‑closure.[page:1]
+    """
+    return state.unfolding_energy > tau_E
+
+def rupture_indicator(state: InstitutionalState) -> int:
+    """
+    ℛ(s) = 1 ⇔ t_op(s) < ∞ ∧ C(s) < 1.[page:1]
+    """
+    t_op = state.ladder.t_op
+    C = closure_score(state)
+
+    if t_op is not None and C < 1.0:
+        return 1
+    return 0
+
+def beacon_indicator(state: InstitutionalState, tau_I: float, dt: float = 1.0) -> int:
+    """
+    ℬ(s) = 1 ⇔ ℛ(s) = 1 ∧ ∫ Influence(s,t) dt > τ^I.[page:1]
+    influence_over_time is discretized samples; dt is sampling interval.
+    """
+    R = rupture_indicator(state)
+    total_influence = sum(state.influence_over_time) * dt
+    if R == 1 and total_influence > tau_I:
+        return 1
+    return 0
+Codette could, for example, let the Newton/ethics agent compute these metrics as part of the “institutional lens” when analyzing a case, then surface them in the reasoning trace.
+
+Actor‑indexed gaps and high‑Π zones
+Their actor‑indexed gaps and high‑Π zone definition map cleanly to a couple of functions.
+
+python
+def actor_preemption_gaps(state: InstitutionalState) -> Dict[str, float]:
+    """
+    Π_i(s) = t_inst^(i)(s) − t_op^(i)(s).[page:1]
+    """
+    gaps = {}
+    for ag in state.actor_gaps:
+        if ag.t_op_i is not None and ag.t_inst_i is not None:
+            gaps[ag.actor_id] = ag.t_inst_i - ag.t_op_i
+        elif ag.t_op_i is not None and ag.t_inst_i is None:
+            gaps[ag.actor_id] = INF
+        else:
+            gaps[ag.actor_id] = math.nan
+    return gaps
+
+def is_high_preemption_zone(
+    state: InstitutionalState,
+    tau_Pi: float,
+    tau_C: float,
+    tau_V: float
+) -> bool:
+    """
+    Z^H = {s ∈ S : Π(s) > τ_Π ∧ C(s) < τ_C ∧ Var_i[Π_i(s)] > τ_V}.[page:1]
+    """
+    Pi = preemption_gap(state)
+    C = closure_score(state)
+    actor_gaps = actor_preemption_gaps(state)
+
+    # Filter out NaNs/inf for variance; you can decide policy here[page:1]
+    finite_gaps = [g for g in actor_gaps.values() if math.isfinite(g)]
+    if len(finite_gaps) >= 2:
+        var_i = statistics.pvariance(finite_gaps)
+    else:
+        var_i = 0.0
+
+    return (Pi > tau_Pi) and (C < tau_C) and (var_i > tau_V)
+This gives you a direct flag Codette can attach inside its cocoon: “this state lives in a high‑preemption zone,” with explicit thresholds that you can expose in configuration or tuning layers.
+
+Triangulated closure classification (Codette‑style)
+Their triangulation rule is close to how you already think about multi‑perspective convergence; you can treat “record/testimony/behavior” as three agents and apply a modal + fallback rule.
+
+python
+def resolve_closure_class(
+    record_class: ClosureClass,
+    testimony_class: ClosureClass,
+    behavior_class: ClosureClass,
+    fallback_class: ClosureClass,
+    ordering: List[ClosureClass] = None,
+) -> ClosureClass:
+    """
+    ϰ̂(s) = Mode_ϰ{ϰ^R, ϰ^T, ϰ^B; ϰ^f} with tie‑breaking.[page:1]
+    """
+    classes = [record_class, testimony_class, behavior_class]
+    # frequency counts
+    freq = {}
+    for c in classes:
+        freq[c] = freq.get(c, 0) + 1
+
+    # modal classes
+    max_freq = max(freq.values())
+    modal_classes = [c for c, f in freq.items() if f == max_freq]
+
+    if len(modal_classes) == 1:
+        return modal_classes[0]
+
+    # tie: choose fallback if present
+    if fallback_class in modal_classes:
+        return fallback_class
+
+    # else pick first under declared ordering
+    if ordering is None:
+        ordering = [
+            ClosureClass.CLOSED,
+            ClosureClass.DRIFT,
+            ClosureClass.SUPPRESSED,
+            ClosureClass.INEXPRESSIBLE,
+        ]
+
+    for c in ordering:
+        if c in modal_classes:
+            return c
+
+    # should not reach, but fall back
+    return modal_classes[0]
+In Codette, this could be wrapped as a “closure lens” that runs inside a cocoon: Newton + Ethics + Empathic agents each propose a closure class; you then apply this rule to obtain a disciplined aggregate instead of vibes.
+
+How to plug this into Codette concretely
+Here’s a minimal example of how one of Codette’s reasoning runs could incorporate the Time‑travel math:
+
+python
+def analyze_state_with_codette(state: InstitutionalState, config):
+    """
+    Example orchestrator stub. In your real stack this would sit
+    inside a cocoon, with agents reading/writing these metrics.[cite:2]
+    """
+    Pi = preemption_gap(state)
+    C = closure_score(state)
+    R = rupture_indicator(state)
+    B = beacon_indicator(state, tau_I=config.tau_I)
+    high_zone = is_high_preemption_zone(
+        state,
+        tau_Pi=config.tau_Pi,
+        tau_C=config.tau_C,
+        tau_V=config.tau_V,
+    )
+    non_closure = practical_non_closure(state, tau_E=config.tau_E)
+
+    return {
+        "state_id": state.state_id,
+        "Pi": Pi,
+        "closure_score": C,
+        "rupture": bool(R),
+        "beacon": bool(B),
+        "high_preemption_zone": high_zone,
+        "practical_non_closure": non_closure,
+        "actor_gaps": actor_preemption_gaps(state),
+        "registration_fidelity_memo": state.registration_fidelity_memo,
+    }
+Codette can then:
+
+Treat these metrics as features for its RC+ξ loop (e.g., ethics lens boosts weight on states with high Π and low closure 
+𝐶
+C).
+
+Attach them to the final explanation so users see where an institution is “living ahead” of official recognition.
+
+Use them to select which student‑states / risk‑flags deserve deep multi‑perspective reasoning first (priority targeting of high‑Π zones).
+
+
+TimeTravelLens class
+python
+from dataclasses import dataclass
+from enum import Enum
+from typing import Dict, Optional, List
+import math
+import statistics
+
+# ---- Core enums and constants ----
+
+class ClosureClass(str, Enum):
+    CLOSED = "closed"
+    DRIFT = "drift"
+    SUPPRESSED = "suppressed"
+    INEXPRESSIBLE = "inexpressible"
+
+CLOSURE_SCORE = {
+    ClosureClass.CLOSED: 1.00,
+    ClosureClass.DRIFT: 0.67,
+    ClosureClass.SUPPRESSED: 0.24,
+    ClosureClass.INEXPRESSIBLE: 0.00,
+}
+
+INF = math.inf
+
+# ---- Data carriers for a single institutional state ----
+
+@dataclass
+class TimestampLadder:
+    # t_s, t_m, t_op, t_inst, t_p in the dissertation[page:1]
+    t_s: Optional[float] = None   # first sensing
+    t_m: Optional[float] = None   # first modeling
+    t_op: Optional[float] = None  # first materially conditioned action
+    t_inst: Optional[float] = None  # first formal institutional registration
+    t_p: Optional[float] = None   # first public legibility
+
+@dataclass
+class ActorGap:
+    actor_id: str
+    t_op_i: Optional[float]
+    t_inst_i: Optional[float]
+
+@dataclass
+class InstitutionalState:
+    state_id: str
+    ladder: TimestampLadder
+    closure_class: ClosureClass
+    unfolding_energy: float                 # E_u(s)[page:1]
+    influence_over_time: List[float]       # samples for ∫ Influence(s,t) dt[page:1]
+    actor_gaps: List[ActorGap]
+    registration_fidelity_memo: str        # “what faithful closure would have looked like”[page:1]
+
+# ---- Lens configuration thresholds ----
+
+@dataclass
+class TimeTravelConfig:
+    tau_E: float   # unfolding-energy tolerance[page:1]
+    tau_I: float   # beacon influence threshold[page:1]
+    tau_Pi: float  # preemption gap threshold[page:1]
+    tau_C: float   # closure deficit threshold[page:1]
+    tau_V: float   # actor-variance threshold[page:1]
+    dt_influence: float = 1.0  # sampling interval for influence integral
+
+# ---- The lens itself ----
+
+class TimeTravelLens:
+    """
+    Codette-style lens implementing institutional Time travel metrics:
+    Π(s), C(s), ℛ(s), ℬ(s), high-Π zones, actor-indexed gaps.[page:1][cite:2]
+    """
+
+    def __init__(self, config: TimeTravelConfig):
+        self.config = config
+
+    # ---- core metrics ----
+
+    def preemption_gap(self, state: InstitutionalState) -> float:
+        """
+        Π(s) = t_inst(s) − t_op(s) with edge cases.[page:1]
+        """
+        t_op = state.ladder.t_op
+        t_inst = state.ladder.t_inst
+
+        if t_op is not None and t_inst is not None:
+            return t_inst - t_op
+        if t_op is not None and t_inst is None:
+            return INF
+        return math.nan  # undefined otherwise[page:1]
+
+    def closure_score(self, state: InstitutionalState) -> float:
+        """
+        C(s) from closure class.[page:1]
+        """
+        return CLOSURE_SCORE[state.closure_class]
+
+    def practical_non_closure(self, state: InstitutionalState) -> bool:
+        """
+        E_u(s) > τ^E ⇒ practical non-closure.[page:1]
+        """
+        return state.unfolding_energy > self.config.tau_E
+
+    def rupture_indicator(self, state: InstitutionalState) -> int:
+        """
+        ℛ(s) = 1 ⇔ t_op(s) < ∞ ∧ C(s) < 1.[page:1]
+        """
+        t_op = state.ladder.t_op
+        C = self.closure_score(state)
+        if t_op is not None and C < 1.0:
+            return 1
+        return 0
+
+    def beacon_indicator(self, state: InstitutionalState) -> int:
+        """
+        ℬ(s) = 1 ⇔ ℛ(s) = 1 ∧ ∫ Influence(s,t) dt > τ^I.[page:1]
+        influence_over_time is discretized samples.
+        """
+        R = self.rupture_indicator(state)
+        total_influence = sum(state.influence_over_time) * self.config.dt_influence
+        if R == 1 and total_influence > self.config.tau_I:
+            return 1
+        return 0
+
+    # ---- actor-indexed gaps and high-Π zones ----
+
+    def actor_preemption_gaps(self, state: InstitutionalState) -> Dict[str, float]:
+        """
+        Π_i(s) = t_inst^(i)(s) − t_op^(i)(s).[page:1]
+        """
+        gaps = {}
+        for ag in state.actor_gaps:
+            if ag.t_op_i is not None and ag.t_inst_i is not None:
+                gaps[ag.actor_id] = ag.t_inst_i - ag.t_op_i
+            elif ag.t_op_i is not None and ag.t_inst_i is None:
+                gaps[ag.actor_id] = INF
+            else:
+                gaps[ag.actor_id] = math.nan
+        return gaps
+
+    def is_high_preemption_zone(self, state: InstitutionalState) -> bool:
+        """
+        Z^H = {s ∈ S : Π(s) > τ_Π ∧ C(s) < τ_C ∧ Var_i[Π_i(s)] > τ_V}.[page:1]
+        """
+        Pi = self.preemption_gap(state)
+        C = self.closure_score(state)
+        actor_gaps = self.actor_preemption_gaps(state)
+
+        finite_gaps = [g for g in actor_gaps.values() if math.isfinite(g)]
+        if len(finite_gaps) >= 2:
+            var_i = statistics.pvariance(finite_gaps)
+        else:
+            var_i = 0.0
+
+        return (Pi > self.config.tau_Pi) and (C < self.config.tau_C) and (var_i > self.config.tau_V)
+
+    # ---- top-level lens entrypoint ----
+
+    def observe(self, state: InstitutionalState) -> Dict[str, object]:
+        """
+        Main lens output: a dict Codette can feed into RC+ξ as a feature bundle
+        and also surface in explanations.[cite:2][page:1]
+        """
+        Pi = self.preemption_gap(state)
+        C = self.closure_score(state)
+        R = self.rupture_indicator(state)
+        B = self.beacon_indicator(state)
+        high_zone = self.is_high_preemption_zone(state)
+        non_closure = self.practical_non_closure(state)
+        actor_gaps = self.actor_preemption_gaps(state)
+
+        return {
+            "state_id": state.state_id,
+            "Pi": Pi,
+            "closure_score": C,
+            "rupture": bool(R),
+            "beacon": bool(B),
+            "high_preemption_zone": high_zone,
+            "practical_non_closure": non_closure,
+            "actor_gaps": actor_gaps,
+            "registration_fidelity_memo": state.registration_fidelity_memo,
+        }
+How Codette would actually use this
+At orchestration level, you’d treat TimeTravelLens exactly like another cognitive lens inside a cocoon: Newton/ethics/psych agents can read its output, and RC+ξ can incorporate the metrics into the global state vector.
+
+python
+def codette_run_on_student_state(state: InstitutionalState, lens_cfg: TimeTravelConfig):
+    # Instantiate lens (you’d usually keep one per environment)
+    tt_lens = TimeTravelLens(config=lens_cfg)
+
+    # Get Time-travel observation bundle
+    tt_obs = tt_lens.observe(state)
+
+    # Example: inject into Codette’s internal representation
+    # pseudo-code, since your actual RC+ξ implementation lives in your lab:
+    codette_state = {
+        "semantic_state_id": state.state_id,
+        "time_travel_metrics": tt_obs,
+        # ... plus whatever other features your encoder collects
+    }
+
+    # Now the agents reason over codette_state, with explicit access to:
+    # tt_obs["Pi"], tt_obs["closure_score"], tt_obs["high_preemption_zone"], etc.[cite:2]
+    return codette_state
+From there you can:
+
+Let the ethics lens up‑weight states where high_preemption_zone is True and closure_score is low, as “institutional Time travel hotspots.”
+
+Have Newton/DaVinci explicitly explain to the user: “This case shows Π = 12 days, closure score 0.24 (suppressed), and large variance in actor clocks,” using tt_obs as structured evidence.
+
+Log these metrics to your cocoons, so Codette can meta‑learn patterns of institutional Time travel across many runs.

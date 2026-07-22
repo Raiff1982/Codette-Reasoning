@@ -8,7 +8,10 @@ Architecture:
   Layer 1: Docker Sandbox (optional, separate deployment)
   Layer 2: Filesystem Reachability (Landlock + Windows DACL) ✓
   Layer 3: Boot Integrity (TPM 2.0 + Secure Boot) ✓
-  Layer 4: PQC Substrate (Hybrid SHA3/liboqs) ✓
+  Layer 4: Cocoon Sealing — PLACEHOLDER (SHA3-HMAC, NOT real ML-KEM lattice crypto)
+           Intent: seal SQLite cocoon store with ML-KEM-768 via liboqs.
+           Current state: design stub. Replace PQCShield with liboqs.kem.Kem("Kyber768")
+           before treating this as a security control.
   Layer 5: Pre-Emptive Healing (Auto-correct epsilon tension) ✓
   Layer 6: RenderLayer (CocoonV3 validation + 15% overlap gate) ✓
   Layer 7-8: Status reporting + deployment checklist

@@ -1,0 +1,218 @@
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import Dict, Optional, List
+import math
+import statistics
+
+# ---- Core enums and constants ----
+
+class ClosureClass(str, Enum):
+    CLOSED = "closed"
+    DRIFT = "drift"
+    SUPPRESSED = "suppressed"
+    INEXPRESSIBLE = "inexpressible"
+
+CLOSURE_SCORE = {
+    ClosureClass.CLOSED: 1.00,
+    ClosureClass.DRIFT: 0.67,
+    ClosureClass.SUPPRESSED: 0.24,
+    ClosureClass.INEXPRESSIBLE: 0.00,
+}
+
+INF = math.inf
+
+# ---- Data carriers for a single institutional state ----
+
+@dataclass
+class TimestampLadder:
+    t_s: Optional[float] = None   # first sensing
+    t_m: Optional[float] = None   # first modeling
+    t_op: Optional[float] = None  # first materially conditioned action
+    t_inst: Optional[float] = None  # first formal institutional registration
+    t_p: Optional[float] = None   # first public legibility
+
+@dataclass
+class ActorGap:
+    actor_id: str
+    t_op_i: Optional[float]
+    t_inst_i: Optional[float]
+
+@dataclass
+class InstitutionalState:
+    state_id: str
+    ladder: TimestampLadder
+    closure_class: ClosureClass
+    unfolding_energy: float                 # E_u(s)
+    influence_over_time: List[float]       # samples for ∫ Influence(s,t) dt
+    actor_gaps: List[ActorGap] = field(default_factory=list)
+    registration_fidelity_memo: str = ""   # what faithful closure would have looked like
+
+# ---- Lens configuration thresholds ----
+
+@dataclass
+class TimeTravelConfig:
+    tau_E: float   # unfolding-energy tolerance
+    tau_I: float   # beacon influence threshold
+    tau_Pi: float  # preemption gap threshold
+    tau_C: float   # closure deficit threshold
+    tau_V: float   # actor-variance threshold
+    dt_influence: float = 1.0  # sampling interval for influence integral
+
+# ---- The lens itself ----
+
+class TimeTravelLens:
+    """
+    Codette-style lens implementing institutional Time travel metrics:
+    Π(s), C(s), ℛ(s), ℬ(s), high-Π zones, and actor-indexed gaps.
+    """
+
+    def __init__(self, config: TimeTravelConfig):
+        self.config = config
+
+    def preemption_gap(self, state: InstitutionalState) -> float:
+        """
+        Π(s) = t_inst(s) − t_op(s) with edge cases.
+        """
+        t_op = state.ladder.t_op
+        t_inst = state.ladder.t_inst
+
+        if t_op is not None and t_inst is not None:
+            return t_inst - t_op
+        if t_op is not None and t_inst is None:
+            return INF
+        return math.nan
+
+    def closure_score(self, state: InstitutionalState) -> float:
+        """
+        C(s) from closure class.
+        """
+        return CLOSURE_SCORE[state.closure_class]
+
+    def practical_non_closure(self, state: InstitutionalState) -> bool:
+        """
+        E_u(s) > τ^E ⇒ practical non-closure.
+        """
+        return state.unfolding_energy > self.config.tau_E
+
+    def rupture_indicator(self, state: InstitutionalState) -> int:
+        """
+        ℛ(s) = 1 ⇔ t_op(s) < ∞ ∧ C(s) < 1.
+        """
+        t_op = state.ladder.t_op
+        C = self.closure_score(state)
+        if t_op is not None and C < 1.0:
+            return 1
+        return 0
+
+    def beacon_indicator(self, state: InstitutionalState) -> int:
+        """
+        ℬ(s) = 1 ⇔ ℛ(s) = 1 ∧ ∫ Influence(s,t) dt > τ^I.
+        """
+        R = self.rupture_indicator(state)
+        total_influence = sum(state.influence_over_time) * self.config.dt_influence
+        if R == 1 and total_influence > self.config.tau_I:
+            return 1
+        return 0
+
+    def actor_preemption_gaps(self, state: InstitutionalState) -> Dict[str, float]:
+        """
+        Π_i(s) = t_inst^(i)(s) − t_op^(i)(s).
+        """
+        gaps = {}
+        for ag in state.actor_gaps:
+            if ag.t_op_i is not None and ag.t_inst_i is not None:
+                gaps[ag.actor_id] = ag.t_inst_i - ag.t_op_i
+            elif ag.t_op_i is not None and ag.t_inst_i is None:
+                gaps[ag.actor_id] = INF
+            else:
+                gaps[ag.actor_id] = math.nan
+        return gaps
+
+    def is_high_preemption_zone(self, state: InstitutionalState) -> bool:
+        """
+        Z^H = {s ∈ S : Π(s) > τ_Π ∧ C(s) < τ_C ∧ Var_i[Π_i(s)] > τ_V}.
+        """
+        Pi = self.preemption_gap(state)
+        C = self.closure_score(state)
+        actor_gaps = self.actor_preemption_gaps(state)
+
+        finite_gaps = [g for g in actor_gaps.values() if math.isfinite(g)]
+        if len(finite_gaps) >= 2:
+            var_i = statistics.pvariance(finite_gaps)
+        else:
+            var_i = 0.0
+
+        return (Pi > self.config.tau_Pi) and (C < self.config.tau_C) and (var_i > self.config.tau_V)
+
+    def resolve_closure_class(
+        self,
+        record_class: ClosureClass,
+        testimony_class: ClosureClass,
+        behavior_class: ClosureClass,
+        fallback_class: ClosureClass,
+        ordering: List[ClosureClass] = None,
+    ) -> ClosureClass:
+        """
+        ϰ̂(s) = Mode_ϰ{ϰ^R, ϰ^T, ϰ^B; ϰ^f} with tie‑breaking.
+        """
+        classes = [record_class, testimony_class, behavior_class]
+        freq = {}
+        for c in classes:
+            freq[c] = freq.get(c, 0) + 1
+
+        max_freq = max(freq.values())
+        modal_classes = [c for c, f in freq.items() if f == max_freq]
+
+        if len(modal_classes) == 1:
+            return modal_classes[0]
+
+        if fallback_class in modal_classes:
+            return fallback_class
+
+        if ordering is None:
+            ordering = [
+                ClosureClass.CLOSED,
+                ClosureClass.DRIFT,
+                ClosureClass.SUPPRESSED,
+                ClosureClass.INEXPRESSIBLE,
+            ]
+
+        for c in ordering:
+            if c in modal_classes:
+                return c
+
+        return modal_classes[0]
+
+    def observe(self, state: InstitutionalState) -> Dict[str, object]:
+        """
+        Main lens output: a feature bundle for Codette's Perspective Dispersion (Υ) and RC loop.
+        """
+        Pi = self.preemption_gap(state)
+        C = self.closure_score(state)
+        R = self.rupture_indicator(state)
+        B = self.beacon_indicator(state)
+        high_zone = self.is_high_preemption_zone(state)
+        non_closure = self.practical_non_closure(state)
+        actor_gaps = self.actor_preemption_gaps(state)
+
+        return {
+            "state_id": state.state_id,
+            "Pi": Pi,
+            "closure_score": C,
+            "rupture": bool(R),
+            "beacon": bool(B),
+            "high_preemption_zone": high_zone,
+            "practical_non_closure": non_closure,
+            "actor_gaps": actor_gaps,
+            "registration_fidelity_memo": state.registration_fidelity_memo,
+        }
+
+def codette_run_on_student_state(state: InstitutionalState, lens_cfg: TimeTravelConfig) -> Dict[str, object]:
+    tt_lens = TimeTravelLens(config=lens_cfg)
+    tt_obs = tt_lens.observe(state)
+
+    codette_state = {
+        "semantic_state_id": state.state_id,
+        "time_travel_metrics": tt_obs,
+    }
+    return codette_state

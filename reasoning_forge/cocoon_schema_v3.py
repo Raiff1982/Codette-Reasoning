@@ -100,6 +100,13 @@ class CocoonV3(Cocoon):
     synthesis_recommended_position: str = ""
     synthesis_uncertainty_notes: list = field(default_factory=list)
 
+    # ─── TimeTravelLens observation (optional, query-triggered) ─────────────
+    time_travel_metrics: Optional[dict] = None
+    # Set when InstitutionalContextDetector fires and extraction confidence ≥ 0.3.
+    # Keys: preemption_gap_days, closure_score, closure_class, rupture, beacon,
+    #       high_preemption_zone, practical_non_closure, actor_gaps, state_id.
+    # None means lens did not run for this cocoon.
+
     # ─── User-facing ─────────────────────────────────────────────────────────
     user_response_text: str = ""
 
@@ -206,6 +213,8 @@ class CocoonV3(Cocoon):
             "synthesis_tradeoffs":          self.synthesis_tradeoffs,
             "synthesis_recommended_position": self.synthesis_recommended_position,
             "synthesis_uncertainty_notes":  self.synthesis_uncertainty_notes,
+            # ── TimeTravelLens (v3.1) ──
+            "time_travel_metrics":          self.time_travel_metrics,
         }
         return base
 
@@ -261,6 +270,7 @@ def build_cocoon_v3(
     is_sycophancy_flagged: bool = False,
     echo_risk: str = "unknown",
     perspective_collapse_detected: bool = False,
+    time_travel_metrics: Optional[dict] = None,
 ) -> CocoonV3:
     """Build and validate a CocoonV3.  Raises ValueError on validation failure."""
     import hashlib
@@ -332,6 +342,7 @@ def build_cocoon_v3(
         user_response_text=user_response_text,
         echo_risk=echo_risk,
         perspective_collapse_detected=perspective_collapse_detected,
+        time_travel_metrics=time_travel_metrics,
     )
 
     errors = cocoon.validate()

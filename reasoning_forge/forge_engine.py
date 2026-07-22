@@ -1872,6 +1872,49 @@ class ForgeEngine:
             except Exception as e:
                 logger.debug(f"  AEGIS evaluation failed: {e}")
 
+        # =========================================================================
+        # LAYER 5.8: INSTITUTIONAL TIME-TRAVEL ANALYSIS (query-triggered, default ON)
+        # =========================================================================
+        # Runs only when the query contains ≥ 2 institutional keywords.
+        # Overhead when skipped: ~0.1 ms (keyword scan).
+        # Overhead when active: ~5–20 ms (date regex + closure inference).
+        # Disable by setting CODETTE_TIME_TRAVEL=0 in the environment.
+        _time_travel_metrics = None
+        if os.environ.get("CODETTE_TIME_TRAVEL", "1") != "0":
+            try:
+                from reasoning_forge.time_travel_lens import (
+                    InstitutionalContextDetector,
+                    TimeTravelConfig,
+                    TimeTravelLens,
+                )
+                if InstitutionalContextDetector.is_relevant(concept):
+                    from reasoning_forge.institutional_extractor import InstitutionalExtractor
+                    _tt_extractor = InstitutionalExtractor()
+                    _tt_text      = concept + "\n" + synthesis
+                    _tt_state, _tt_conf = _tt_extractor.extract(_tt_text)
+                    if _tt_state and _tt_conf >= 0.3:
+                        _tt_lens            = TimeTravelLens(config=TimeTravelConfig.default())
+                        _time_travel_metrics = _tt_lens.observe(_tt_state)
+                        _time_travel_metrics["extraction_confidence"] = round(_tt_conf, 3)
+                        logger.info(
+                            "  [TTLens] Π=%.1f days, closure=%s, high_zone=%s, conf=%.2f",
+                            _time_travel_metrics.get("preemption_gap_days") or 0,
+                            _time_travel_metrics.get("closure_class", "?"),
+                            _time_travel_metrics.get("high_preemption_zone"),
+                            _tt_conf,
+                        )
+                        # Annotate AEGIS result so deontological framework can
+                        # incorporate the institutional temporal gap.
+                        if aegis_result and _time_travel_metrics.get("high_preemption_zone"):
+                            aegis_result.setdefault("supplementary_context", {})
+                            aegis_result["supplementary_context"]["time_travel"] = {
+                                "preemption_gap_days": _time_travel_metrics.get("preemption_gap_days"),
+                                "closure_class":       _time_travel_metrics.get("closure_class"),
+                                "rupture":             _time_travel_metrics.get("rupture"),
+                            }
+            except Exception as _tt_err:
+                logger.debug("  [TTLens] skipped: %s", _tt_err)
+
         # Compute Ψ_r (resonant wavefunction) using epsilon/gamma from intent signal
         _psi_r = 0.0
         if getattr(self, 'resonance_engine', None):
@@ -2013,6 +2056,7 @@ class ForgeEngine:
                             perspective_collapse_detected=(
                                 _echo_result.perspective_collapse_detected if _echo_result else False
                             ),
+                            time_travel_metrics=_time_travel_metrics,
                         )
                         v2_cocoon = _v3_cocoon_instance
                     except Exception as _v3err:
