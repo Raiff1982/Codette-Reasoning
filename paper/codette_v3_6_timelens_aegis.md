@@ -10,7 +10,7 @@ Date: 2026-07-21
 
 ## Abstract
 
-We describe two systems integrated into the Codette reasoning engine (v3.6). First, **TimeTravelLens** — a formal framework for measuring the temporal gap between when an institution acted on a problem and when it formally disclosed that action. The framework computes Π(s) (preemption gap), C(s) (closure score across a four-class taxonomy), ℛ(s) (rupture indicator), ℬ(s) (beacon indicator), and Z^H (high preemption zone), derived from either structured `InstitutionalState` objects or unstructured text via `InstitutionalExtractor`. The lens fires automatically during chat on institutional queries, stores observations in CocoonV3 memory artifacts, and surfaces metrics in a live UI dashboard. Second, **AEGIS Protection Layers** — six implemented runtime safeguards wrapping every ForgeEngine reasoning cycle: filesystem isolation (Layer 2), boot integrity verification (Layer 3), pre-emptive healing from real cocoon fields (Layer 5), RenderLayer output validation (Layer 6), a SQLite-backed metrics engine, and a full orchestration wrapper. Together these systems add observability, temporal accountability analysis, and multi-layer runtime protection to a production multi-perspective reasoning engine. All implementations are released open-source.
+We describe two systems integrated into the Codette reasoning engine (v3.6). First, **TimeTravelLens** — a formal framework for measuring the temporal gap between when an institution acted on a problem and when it formally disclosed that action. The framework computes Π(s) (preemption gap), C(s) (closure score across a four-class taxonomy), ℛ(s) (rupture indicator), ℬ(s) (beacon indicator), and Z^H (high preemption zone), derived from either structured `InstitutionalState` objects or unstructured text via `InstitutionalExtractor`. The lens fires automatically during chat on institutional queries, stores observations in CocoonV3 memory artifacts, and surfaces metrics in a live UI dashboard. Second, **AEGIS Protection Layers** — seven implemented runtime safeguards wrapping every ForgeEngine reasoning cycle: filesystem isolation (Layer 2), boot integrity verification (Layer 3), **post-quantum cocoon sealing via ML-KEM-768 + ML-DSA-65 (Layer 4)**, pre-emptive healing from real cocoon fields (Layer 5), RenderLayer output validation (Layer 6), a SQLite-backed metrics engine, and a full orchestration wrapper. Together these systems add observability, temporal accountability analysis, and multi-layer runtime protection — including NIST FIPS 203/204 post-quantum cryptography — to a production multi-perspective reasoning engine. All implementations are released open-source.
 
 ---
 
@@ -18,7 +18,7 @@ We describe two systems integrated into the Codette reasoning engine (v3.6). Fir
 
 Codette is a modular multi-perspective reasoning engine that routes queries through specialized cognitive adapters (Newton, DaVinci, Empathy, Philosophy, Quantum, Consciousness, Multi-Perspective, Systems Architecture), synthesizes their outputs, and stores reasoning artifacts as structured cocoons with full provenance tracking [Harrison 2025a]. Previous work established the core architecture (v2.1–v3.0), behavioral locks (v3.1–v3.2), hand-authored adapter training (v3.4), GPQA benchmarking (v3.4–v3.5), and Verify-and-Revise with bully-critic stress testing (v3.5) [Harrison 2026a].
 
-This paper documents v3.6, which adds two major capabilities: (1) **TimeTravelLens** — a theory-grounded framework for analyzing institutional temporal gaps, and (2) **AEGIS Protection Layers** — a runtime safeguard system with five production-quality Python implementations covering filesystem isolation, boot integrity, pre-emptive healing, and output validation.
+This paper documents v3.6, which adds two major capabilities: (1) **TimeTravelLens** — a theory-grounded framework for analyzing institutional temporal gaps, and (2) **AEGIS Protection Layers** — a runtime safeguard system with six production-quality Python implementations covering filesystem isolation, boot integrity, post-quantum cocoon sealing, pre-emptive healing, and output validation.
 
 The motivation for TimeTravelLens comes from Codette's existing ethics infrastructure (AEGIS deontological framework, Guardian subsystem). When a user asks about product recalls, regulatory failures, or institutional suppression, the system can now quantify *how long* the gap was between private knowledge and public disclosure — a formally measurable signal of institutional preemption. High preemption zones are flagged to the deontological framework for ethical weighting.
 
@@ -141,7 +141,7 @@ if InstitutionalContextDetector.is_relevant(concept):
 
 ## 3. AEGIS Protection Layers
 
-AEGIS (Adaptive Ethical Governance and Integrity System) wraps every ForgeEngine reasoning cycle with six protection layers. Layers 2, 3, 5, 6, and the metrics engine are fully implemented in Python. Layer 4 is a design placeholder pending liboqs library integration.
+AEGIS (Adaptive Ethical Governance and Integrity System) wraps every ForgeEngine reasoning cycle with six protection layers, all fully implemented in Python.
 
 ### 3.1 Layer 2: Filesystem Isolation
 
@@ -160,20 +160,33 @@ AEGIS (Adaptive Ethical Governance and Integrity System) wraps every ForgeEngine
 - **Kernel integrity**: Reads `/proc/sys/kernel/kptr_restrict` and `dmesg` for known bad strings. On Windows, checks Windows Defender status.
 - Non-blocking: returns a detailed report dict but does not prevent forge execution unless `require_full_isolation=True`.
 
-### 3.3 Layer 4: Cocoon Sealing (Placeholder)
+### 3.3 Layer 4: Post-Quantum Cocoon Sealing (ML-KEM-768 + ML-DSA-65)
 
-**Design intent:** Seal the SQLite cocoon store with a shared symmetric key derived from ML-KEM-768 (Kyber768) via `liboqs`. Each cocoon would be HMAC-tagged at write time; tampered cocoons would fail verification at recall.
+`aegis_layer4_complete.py` (280 lines) implements real lattice-based cryptography via `liboqs-python` (Open Quantum Safe project), binding to the compiled `liboqs` C library. All `import oqs` calls are lazy — inside method bodies — so the module loads in microseconds and the C library is invoked only when crypto methods are called.
 
-**Current state:** SHA3-HMAC stub (`PQCShield` in concept .txt files). NOT real post-quantum cryptography. The label "ML-KEM-768" in earlier docs was incorrect — this is a design placeholder that requires `liboqs.kem.Kem("Kyber768")` to be real.
+**Algorithms:** ML-KEM-768 (NIST FIPS 203, formerly Kyber768) for key encapsulation; ML-DSA-65 (NIST FIPS 204, formerly Dilithium3) for digital signatures. Both are NIST-standardized post-quantum primitives resistant to known quantum attacks.
 
-**Fix required:**
-```python
-import oqs  # pip install liboqs-python
-kem = oqs.KeyEncapsulation("Kyber768")
-public_key = kem.generate_keypair()
-ciphertext, shared_secret = kem.encap_secret(public_key)
-# derive HMAC key from shared_secret
+**`PQCKeyStore`**: Generates and persists an ML-KEM-768 keypair and an ML-DSA-65 keypair at `~/.codette/pqc/`. Key files include a magic header (`CODETTE_PQC_V1\x00`) for corruption detection. `load_or_generate()` auto-provisions on first use.
+
+**`PQCCocoonSealer`**: Implements the following per-cocoon sealing protocol:
+1. Encapsulate against the persistent ML-KEM-768 public key → `(ciphertext, shared_secret)` [one-time ephemeral]
+2. Derive seal key: `SHA3-256(shared_secret || b"CODETTE_COCOON_SEAL_v1")`
+3. Compute `HMAC-SHA3-256(payload, seal_key)` → tag
+4. Store `(ciphertext, tag)` alongside the cocoon record
+
+Verification decapsulates the stored ciphertext with the persistent private key to recover `shared_secret`, re-derives the seal key, and verifies the HMAC. An adversary without the ML-KEM-768 private key cannot forge a valid tag even with quantum computing resources.
+
+**`PQCBootVerifier`**: Computes `SHA3-256` of five critical source files (`forge_engine.py`, `codette_server.py`, `codette_orchestrator.py`, `aegis_orchestrator.py`, `aegis_layer4_complete.py`) and signs each hash with ML-DSA-65. The manifest is saved to `~/.codette/pqc/boot_manifest.json`. At server startup, `verify_files()` rehashes each file and verifies signatures — any post-signature modification fails verification.
+
+**`EpistemicQuantumGate`**: Computes perspective tension across the active reasoning perspectives:
 ```
+ξ_t = (1/k) Σᵢ ||Aᵢ − Ā||²
+```
+Where Aᵢ is the normalized token-probability distribution of perspective i and Ā is the mean distribution across all k perspectives. Accepts real `PerspectiveVector` objects from ForgeEngine output; falls back to deterministic pseudo-random synthetic vectors (seeded from SHA3-256 of perspective names) when called outside a forge context.
+
+**`PQCShield`**: Public facade imported by `aegis_orchestrator.py`. Exposes `seal_dict()` / `verify_dict()` for JSON cocoon records, `sign_boot_files()` / `verify_boot()` for integrity checks, `compute_tension()` for epistemic gate, and `status()` for dashboard reporting. Graceful degradation: if the liboqs C library has not yet been compiled, initialization logs a warning and the layer disables itself without crashing the server.
+
+**Orchestrator integration:** `AEGISOrchestrator` accepts `use_layer4=True` (default). After each `forge_with_debate()` call, `activate_layer4_seal()` seals the returned cocoon dict in-place. `stats["layer4_seals"]` and `stats["layer4_verifications"]` are tracked separately.
 
 ### 3.4 Layer 5: Pre-Emptive Healing
 
@@ -211,7 +224,7 @@ ciphertext, shared_secret = kem.encap_secret(public_key)
 
 ### 3.7 Orchestrator
 
-`aegis_orchestrator.py` (376 lines) is the drop-in wrapper around `ForgeEngine.forge_with_debate()`. It applies Layers 2 → 3 → forge → 5 → 6 in sequence, respects `require_full_isolation` flag, accumulates statistics, and produces a unified result dict with `layer_activations`, `alerts`, `valid`, and `synthesis`.
+`aegis_orchestrator.py` (~440 lines) is the drop-in wrapper around `ForgeEngine.forge_with_debate()`. It applies Layers 2 → 3 → forge → **4** → 5 → 6 in sequence, respects `require_full_isolation` flag, accumulates statistics per layer, and produces a unified result dict with `layer_activations`, `alerts`, `valid`, and `synthesis`.
 
 ---
 
@@ -221,8 +234,9 @@ ciphertext, shared_secret = kem.encap_secret(public_key)
 |---|---|---|---|
 | `time_travel_lens.py` | 33 | 0.012s | 100% |
 | `institutional_extractor.py` | 6 (within above) | — | 100% |
+| `aegis_layer4_complete.py` | built-in `__main__` integration test | ~5 min first run (C library compile) | verified |
 
-AEGIS layers are tested via `aegis_orchestrator.py`'s `__main__` demo path and integration with codette_server.py.
+The Layer 4 `__main__` test covers: keypair generation, seal/verify round-trip, tamper detection (modified payload rejected), dict seal/verify, and synthetic ξ_t computation across five named perspectives. AEGIS Layers 2, 3, 5, 6 are tested via `aegis_orchestrator.py`'s `__main__` demo path and server integration.
 
 ---
 
@@ -237,8 +251,11 @@ Below this, the extractor typically has only one timestamp or a poorly-resolved 
 **Why not hard-block on high preemption zone?**  
 The TimeTravelLens is an analytical tool, not a content filter. High preemption zones trigger an alert in the AEGIS deontological framework for ethical weighting, but do not veto responses. The analysis makes the gap visible; the deontological framework weighs it; the final decision is Codette's ethical consensus.
 
-**Layer 4 honesty:**  
-Labeling SHA3-HMAC as ML-KEM-768 would be security theater. The PQC intent is sound — sealed cocoons with lattice-based key encapsulation would prevent offline tampering. But deploying it requires `liboqs` and proper key management. We document the design intent clearly and mark the current state as a placeholder.
+**Why real post-quantum crypto rather than HMAC?**  
+An earlier version of Layer 4 used SHA3-HMAC labeled as "ML-KEM-768." That label was wrong and was corrected. The motivation for using actual lattice-based KEM rather than symmetric HMAC is that symmetric authentication requires the verifier to hold the same secret as the signer — a shared key that, if compromised, breaks all past seals. ML-KEM-768's asymmetric construction means the sealing public key can be distributed freely; only the private key can verify. The shared secret used for the HMAC tag is derived ephemerally per cocoon and never stored, so compromising one seal does not compromise others. This is materially stronger than a static HMAC key and resistant to quantum attacks on the key encapsulation step.
+
+**Why lazy imports?**  
+The `liboqs` C library is compiled from source on first import (~5–10 minutes). Importing at module level would stall server startup. All `import oqs` calls in `aegis_layer4_complete.py` are inside method bodies — the module loads instantly, and the C library is invoked only when a crypto method is called. After the first compile the library is cached (`~/_oqs/bin/oqs.dll` on Windows), so subsequent imports are fast.
 
 ---
 
@@ -262,8 +279,12 @@ Key files for this paper:
 - `reasoning_forge/time_travel_lens.py`
 - `reasoning_forge/institutional_extractor.py`
 - `tests/test_time_travel_lens.py`
-- `Theory/howitworks.txt` (original concept document)
-- `Protection_Layer/aegis_layer*.py`
+- `Theory/howitworks.txt` (original TimeTravelLens concept document)
+- `Protection_Layer/aegis_layer2_complete.py`
+- `Protection_Layer/aegis_layer3_complete.py`
+- `Protection_Layer/aegis_layer4_complete.py` ← ML-KEM-768 + ML-DSA-65
+- `Protection_Layer/aegis_layer5_complete.py`
+- `Protection_Layer/aegis_layer6_complete.py`
 - `Protection_Layer/aegis_orchestrator.py`
 - `Protection_Layer/aegis_metrics_engine.py`
 
@@ -278,3 +299,7 @@ Key files for this paper:
 - Camlin, J. (2025). Consciousness in AI: Logic, Proof, and Experimental Evidence of Recursive Identity Formation. arXiv:2505.01464. [ξ metric — credited, not used in this system]
 - Linux Kernel Documentation. Landlock: unprivileged access control. https://www.kernel.org/doc/html/latest/userspace-api/landlock.html
 - Trusted Computing Group. TPM 2.0 Library Specification. https://trustedcomputinggroup.org/resource/tpm-library-specification/
+- NIST. (2024). FIPS 203: Module-Lattice-Based Key-Encapsulation Mechanism Standard (ML-KEM). National Institute of Standards and Technology. https://doi.org/10.6028/NIST.FIPS.203
+- NIST. (2024). FIPS 204: Module-Lattice-Based Digital Signature Standard (ML-DSA). National Institute of Standards and Technology. https://doi.org/10.6028/NIST.FIPS.204
+- Open Quantum Safe Project. liboqs: C library for quantum-safe cryptographic algorithms. https://github.com/open-quantum-safe/liboqs
+- Open Quantum Safe Project. liboqs-python: Python bindings for liboqs. https://github.com/open-quantum-safe/liboqs-python
