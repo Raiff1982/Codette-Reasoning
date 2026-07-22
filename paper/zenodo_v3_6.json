@@ -1,6 +1,6 @@
 {
   "title": "Codette v3.6: Institutional Temporal Analysis via TimeTravelLens and Multi-Layer Runtime Protection via AEGIS",
-  "description": "Documents two major systems integrated into the Codette multi-perspective reasoning engine (v3.6): (1) TimeTravelLens — a formal framework computing preemption gap Π(s), closure score C(s) across a ClosureClass taxonomy (CLOSED/DRIFT/SUPPRESSED/INEXPRESSIBLE), rupture indicator ℛ(s), beacon indicator ℬ(s), and high preemption zone Z^H from either structured InstitutionalState objects or unstructured text via InstitutionalExtractor; and (2) AEGIS Protection Layers — five production Python implementations (Layer 2: Landlock+DACL filesystem isolation; Layer 3: TPM 2.0+Secure Boot integrity; Layer 5: pre-emptive healing from real cocoon fields; Layer 6: CocoonV3 schema + word-overlap validation; metrics engine: SQLite-backed forge-cycle logging). The lens fires automatically on institutional queries, stores results in CocoonV3 memory artifacts with provenance, annotates AEGIS deontological weighting on high-preemption-zone detections, and surfaces metrics in a live UI dashboard. All implementations are open-source. 33 tests, 0 failures.",
+  "description": "Documents two major systems integrated into the Codette multi-perspective reasoning engine (v3.6): (1) TimeTravelLens — a formal framework computing preemption gap Π(s), closure score C(s) across a ClosureClass taxonomy (CLOSED/DRIFT/SUPPRESSED/INEXPRESSIBLE), rupture indicator ℛ(s), beacon indicator ℬ(s), and high preemption zone Z^H from either structured InstitutionalState objects or unstructured text via InstitutionalExtractor; and (2) AEGIS Protection Layers — six production Python implementations (Layer 2: Landlock+DACL filesystem isolation; Layer 3: TPM 2.0+Secure Boot integrity; Layer 4: ML-KEM-768 post-quantum cocoon sealing + ML-DSA-65 boot verification via liboqs, NIST FIPS 203/204; Layer 5: pre-emptive healing from real cocoon fields; Layer 6: CocoonV3 schema + word-overlap validation; metrics engine: SQLite-backed forge-cycle logging). The lens fires automatically on institutional queries, stores results in CocoonV3 memory artifacts with provenance, annotates AEGIS deontological weighting on high-preemption-zone detections, and surfaces metrics in a live UI dashboard. All implementations are open-source. 33 tests, 0 failures.",
   "creators": [
     {
       "name": "Harrison, Jonathan",
@@ -19,7 +19,10 @@
     "TimeTravelLens",
     "AEGIS",
     "large language models",
-    "information suppression"
+    "information suppression",
+    "post-quantum cryptography",
+    "ML-KEM-768",
+    "NIST FIPS 203"
   ],
   "license": "MIT",
   "upload_type": "software",
