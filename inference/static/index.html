@@ -649,22 +649,27 @@
   let _lastTTData = null;
 
   function showTimeTravelLens() {
-    document.querySelector('main.stage').style.display = 'none';
-    document.querySelectorAll('[id$="-tab"]').forEach(t => { t.style.display = 'none'; });
-    const tab = document.getElementById('time-travel-tab');
-    if (tab) { tab.style.display = 'block'; loadTimeTravelData(); }
+    _showTab('time-travel-tab');
+    loadTimeTravelData();
   }
 
-  window.showAegisMetrics = function() {
+  function _showTab(id) {
     document.querySelector('main.stage').style.display = 'none';
     document.querySelectorAll('[id$="-tab"]').forEach(t => { t.style.display = 'none'; });
-    const tab = document.getElementById('aegis-metrics-tab');
-    if (tab) tab.style.display = 'block';
-  };
+    const tab = document.getElementById(id);
+    if (tab) {
+      tab.style.cssText = 'display:block; position:fixed; top:0; left:0; width:100%; height:100%; overflow-y:auto; z-index:500; background:var(--bg, #0d0d12); padding:20px; box-sizing:border-box;';
+    }
+    window.scrollTo(0, 0);
+  }
+
+  window.showAegisMetrics = function() { _showTab('aegis-metrics-tab'); };
 
   window.showMainStage = function() {
+    document.querySelectorAll('[id$="-tab"]').forEach(t => {
+      t.style.cssText = 'display:none;';
+    });
     document.querySelector('main.stage').style.display = '';
-    document.querySelectorAll('[id$="-tab"]').forEach(t => { t.style.display = 'none'; });
   };
 
   async function loadTimeTravelData() {
