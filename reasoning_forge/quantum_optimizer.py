@@ -47,7 +47,11 @@ class QualitySignal:
     productivity: float       # Tension productivity score (gradient trajectory alignment)
     response_length: int      # Measured size in tokens/characters
     multi_perspective: bool    # Boolean flag indicating multi-perspective LoRA routing activation
-    user_continued: bool = True  # Binary engagement indicator tracking continuous context flow
+    user_continued: Optional[bool] = None  # Engagement indicator; None = NOT MEASURED
+    # NOTE: this is only knowable on the *following* turn. Callers that cannot
+    # observe it must leave it None rather than passing True — a hardcoded True
+    # is a constant +0.10 on every quality score, which inflates best_score and
+    # silently claims an engagement measurement the system never took.
     latency_ms: float = 0.0   # Response latency in milliseconds
     error_rate: float = 0.0   # Error rate for this response
 
@@ -232,16 +236,22 @@ class QuantumOptimizer:
 
         latency_score = 1.0 / (1.0 + signal.latency_ms / 1000.0)
         error_score = 1.0 - signal.error_rate
-        continuation_bonus = 1.0 if signal.user_continued else 0.0
 
-        composite = (
-            (0.25 * signal.coherence) +
-            (0.25 * signal.productivity) +
-            (0.15 * tension_score) +
-            (0.15 * latency_score) +
-            (0.10 * error_score) +
-            (0.10 * continuation_bonus)
-        )
+        # Measured terms only. Unmeasured signals are omitted and the remaining
+        # weights renormalized — never defaulted to a value that fabricates a
+        # measurement (same invariant LiveCognitionState enforces on its report).
+        terms = [
+            (0.25, signal.coherence),
+            (0.25, signal.productivity),
+            (0.15, tension_score),
+            (0.15, latency_score),
+            (0.10, error_score),
+        ]
+        if signal.user_continued is not None:
+            terms.append((0.10, 1.0 if signal.user_continued else 0.0))
+
+        total_weight = sum(w for w, _ in terms)
+        composite = sum(w * v for w, v in terms) / total_weight
         return float(min(max(composite, 0.0), 1.0))
 
     def _maybe_tune(self) -> None:

@@ -580,13 +580,18 @@ class CodetteSession:
                 break
 
     def update_after_response(self, route_result, adapter_name: str,
-                               perspectives: Optional[Dict[str, str]] = None):
+                               perspectives: Optional[Dict[str, str]] = None,
+                               is_benchmark: bool = False):
         """Update Cocoon state after a Codette response.
 
         Args:
             route_result: RouteResult from the router
             adapter_name: Which adapter was primary
             perspectives: Dict of adapter_name -> response text (if multi-perspective)
+            is_benchmark: True for benchmark/exam queries. Suppresses the optimizer
+                quality signal — benchmark traffic routes to a single adapter by
+                design, so feeding it to the router self-tuner teaches it that the
+                benchmark's adapter should dominate ordinary conversation.
         """
         # Track adapter usage
         self.perspective_usage[adapter_name] = \
@@ -639,8 +644,12 @@ class CodetteSession:
             is_converging, mean_tension = self.spiderweb.check_convergence()
             self.tension_history.append(mean_tension)
 
-            # Feed quality signal to optimizer if available
-            if HAS_OPTIMIZER and self.optimizer:
+            # Feed quality signal to optimizer if available.
+            # Benchmark traffic is EXCLUDED: GPQA routes to newton by design, so a
+            # single ablation run (246 signals, 100% newton) taught the shadow
+            # optimizer to boost newton +2.83 — a routing preference learned
+            # entirely from multiple-choice exams. See archive/2026-07-23/.
+            if HAS_OPTIMIZER and self.optimizer and not is_benchmark:
                 try:
                     signal = QualitySignal(
                         timestamp=time.time(),
@@ -650,7 +659,9 @@ class CodetteSession:
                         productivity=0.5,  # Default, updated by epistemic report
                         response_length=0,
                         multi_perspective=perspectives is not None and len(perspectives) > 1,
-                        user_continued=True,
+                        # user_continued left None — not measured at this point in the
+                        # turn. Omitted rather than fabricated; the optimizer
+                        # renormalizes without it.
                     )
                     self.optimizer.record_signal(signal)
                 except Exception:

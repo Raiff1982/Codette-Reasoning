@@ -115,10 +115,21 @@ class ShadowOptimizer:
     def observe(self, adapter: str, coherence: Optional[float],
                 tension: Optional[float], multi_perspective: bool,
                 render_fidelity: Optional[float] = None,
-                response_length: int = 0) -> None:
-        """Record one turn. Real signals only where measured; placeholders flagged."""
+                response_length: int = 0,
+                is_benchmark: bool = False) -> None:
+        """Record one turn. Real signals only where measured; placeholders flagged.
+
+        Benchmark turns are DROPPED, not recorded. GPQA and similar exams route to
+        a single adapter by design, so their signals are not evidence about routing
+        for ordinary conversation. The first shadow collection (2026-07-12..22) was
+        52% benchmark traffic from one ablation day and produced a +2.83 newton
+        boost proposal sourced entirely from multiple-choice exams; excluding those
+        days left 0 boost proposals. See archive/2026-07-23/README.md.
+        """
         if self.opt is None or coherence is None or tension is None:
             return  # need the two real signals; omit turns without them
+        if is_benchmark:
+            return  # exam traffic is not evidence about conversational routing
 
         productivity_is_proxy = render_fidelity is None
         productivity = 0.5 if productivity_is_proxy else float(render_fidelity)
@@ -129,7 +140,10 @@ class ShadowOptimizer:
                 timestamp=time.time(), adapter=adapter or "unknown",
                 coherence=float(coherence), tension=float(tension),
                 productivity=productivity, response_length=int(response_length),
-                multi_perspective=bool(multi_perspective), user_continued=True,
+                multi_perspective=bool(multi_perspective),
+                # user_continued omitted (None): engagement is only knowable on the
+                # NEXT turn. Passing True was a constant +0.10 on every score.
+                user_continued=None,
             ))
         except Exception:
             return
@@ -172,7 +186,9 @@ class ShadowOptimizer:
                     "tension": round(float(tension), 4),        # measured
                     "productivity": round(float(productivity), 4),
                     "productivity_is_placeholder": productivity_is_proxy,
-                    "user_continued_is_placeholder": True,
+                    # Omitted from the reward entirely (weights renormalized),
+                    # rather than fabricated as True and silently scored.
+                    "user_continued_measured": False,
                 },
                 "proposed_adjustments": [
                     {"param": s.parameter, "old": round(s.old_value, 4),

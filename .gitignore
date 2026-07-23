@@ -158,3 +158,10 @@ models/minilm-ov/
 
 # Rust build output (deployed .pyd is tracked separately)
 codette_core/target/
+
+# Editor lock/temp files
+~$*
+*.v[0-9][0-9][0-9]backup
+
+# Live runtime metrics DB (regenerable; server creates on startup)
+aegis_metrics.db

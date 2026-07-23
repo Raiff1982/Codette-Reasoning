@@ -1730,7 +1730,8 @@ def _worker_thread():
                         route_obj = result.get("route")
                         perspectives_dict = result.get("perspectives")
                         session.update_after_response(
-                            route_obj, adapter_name, perspectives=perspectives_dict
+                            route_obj, adapter_name, perspectives=perspectives_dict,
+                            is_benchmark=_is_benchmark_query,
                         )
 
                         # Get epistemic report from session metrics
@@ -2068,6 +2069,7 @@ def _worker_thread():
                             multi_perspective=bool(result.get("synthesis_used")),
                             render_fidelity=_rf_overlap,
                             response_length=len(str(result.get("response") or "")),
+                            is_benchmark=_is_benchmark_query,
                         )
                 except Exception as _opt_e:
                     print(f"  [OPTIMIZER] shadow skipped: {_opt_e}", flush=True)
