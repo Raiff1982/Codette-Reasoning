@@ -614,4 +614,17 @@ Research project in advanced multi-perspective AI reasoning, ethical governance,
 }
 ```
 
-Preprint also available on Research Square: [10.21203/rs.3.rs-9362560/v1](https://doi.org/10.21203/rs.3.rs-9362560/v1)
+Preprint (Research Square, 10 April 2026):
+
+```bibtex
+@misc{harrison2026codette_preprint,
+  title     = {Codette: Multi-Perspective Reasoning as a Convergent Dynamical System with Meta-Cognitive Strategy Evolution},
+  author    = {Harrison, Jonathan},
+  year      = {2026},
+  month     = {apr},
+  note      = {Preprint (Version 1)},
+  doi       = {10.21203/rs.3.rs-9362560/v1},
+  url       = {https://doi.org/10.21203/rs.3.rs-9362560/v1},
+  publisher = {Research Square}
+}
+```
