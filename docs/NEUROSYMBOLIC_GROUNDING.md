@@ -80,8 +80,13 @@ outputs — no integration, no verification, no grounding. The architecture was
 - [ ] **C2. `connect_memory_topics` depth control** — the `memory.txt` schema
       (connect topics across memory, with a `depth` parameter). Surface the
       synthesizer's cross-domain connection as an explicit, depth-controlled call.
-- [ ] **C3. z3 for logical claims** — add `z3-solver` for propositional/relational
-      claims beyond arithmetic (entailment, consistency, contradiction).
+- [x] **C3. z3 for logical claims — DONE.** `z3-solver` added. grounding.verify now
+      decides UNIVERSAL validity over variables ("x**2 >= 0" -> VERIFIED; "x**2 < 0"
+      -> REFUTED; "x > 0" -> contingent -> UNVERIFIABLE). New `verify_consistency()`
+      catches cross-claim contradictions (a > b, b > c, c > a = jointly impossible)
+      that no single-claim check sees. Bridge FLAGS a thought whose claims are each
+      fine but jointly contradictory. extract_claims now admits variable orderings
+      (comparison ops), not just arithmetic. 31 tests pass.
 - [ ] **C4. Associative recall** — `K:\ai_system2\upgrade.txt` has a real
       `MemoryStore` with `_find_associations` (links a new memory to existing ones
       by shared terms) + recall-weight reinforcement + decay pruning. This is a

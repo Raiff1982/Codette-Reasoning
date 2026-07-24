@@ -35,3 +35,4 @@ gradio>=5.34.0,<6.0.0
 
 # SQLite FTS5 is built into Python's standard library sqlite3 (no extra install needed)
 sympy>=1.12  # grounding verifier (reasoning_forge/grounding.py)
+z3-solver>=4.12  # grounding logical layer (reasoning_forge/grounding.py)

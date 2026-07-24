@@ -32,7 +32,7 @@ from pathlib import Path
 from typing import List, Optional
 
 from reasoning_forge.grounding import (
-    verify, extract_claims, GroundingResult, Verdict,
+    verify, extract_claims, verify_consistency, GroundingResult, Verdict,
 )
 
 
@@ -78,10 +78,22 @@ def _classify(results: List[GroundingResult]) -> tuple:
 
 
 def ground_text(text: str, *, source_kind: str = "text", source_id: str = "") -> GroundingReport:
-    """Ground the checkable claims in a block of text. Pure (no logging)."""
+    """Ground the checkable claims in a block of text. Pure (no logging).
+
+    Beyond per-claim grounding, checks the claims JOINTLY for contradiction (z3):
+    a thought whose individual claims each pass but are mutually impossible
+    (a circular ordering) is FLAGGED even though nothing was individually refuted.
+    """
     claims = extract_claims(text or "")
     results = [verify(c) for c in claims]
     status, note = _classify(results)
+
+    # Cross-claim contradiction: catches what per-claim checks miss.
+    consistency = verify_consistency(claims)
+    if consistency.verdict is Verdict.REFUTED and status != FLAGGED:
+        status = FLAGGED
+        note = f"claims are individually fine but JOINTLY CONTRADICTORY — {consistency.detail}"
+
     return GroundingReport(
         source_kind=source_kind,
         source_id=source_id or "",

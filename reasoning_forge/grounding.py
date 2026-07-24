@@ -37,6 +37,12 @@ try:
 except Exception:  # pragma: no cover - environment without sympy
     _HAS_SYMPY = False
 
+try:
+    import z3
+    _HAS_Z3 = True
+except Exception:  # pragma: no cover - environment without z3
+    _HAS_Z3 = False
+
 
 class Verdict(str, Enum):
     VERIFIED = "verified"        # formalized and confirmed true
@@ -132,11 +138,22 @@ def verify(claim: str) -> GroundingResult:
             truth = simplify(lhs - rhs) != 0
         else:
             diff = simplify(lhs - rhs)
-            # Only decide ordering when the difference is a concrete number.
+            # Concrete number: decide directly. Non-constant: hand to z3, which can
+            # decide UNIVERSAL validity ("x**2 >= 0" is always true) — something the
+            # sympy path cannot. If z3 is absent or the claim is merely contingent
+            # ("x > 0"), we return UNVERIFIABLE, never a guess.
             if not diff.is_number:
+                z3_verdict = _z3_ordering(lhs, rhs, op)
+                if z3_verdict is not None:
+                    return GroundingResult(
+                        claim, z3_verdict,
+                        f"z3 decided '{normalized}' over the reals: {z3_verdict.value}",
+                        method="z3", normalized=normalized,
+                    )
                 return GroundingResult(
                     claim, Verdict.UNVERIFIABLE,
-                    f"ordering of a non-constant expression ({diff}) is not decidable here",
+                    f"ordering of '{diff}' is contingent (depends on variable values) "
+                    f"or not decidable by the available backend",
                     method="sympy", normalized=normalized,
                 )
             val = float(diff)
@@ -157,6 +174,124 @@ def verify(claim: str) -> GroundingResult:
         f"sympy evaluated '{normalized}' as {truth}",
         method="sympy", normalized=normalized,
     )
+
+
+# ── z3 layer: universal validity + cross-claim contradiction detection ──────
+
+def _sympy_to_z3(expr, smap):
+    """Translate a sympy arithmetic expression into a z3 real expression.
+
+    Handles the subset our claims produce (numbers, symbols, +, *, integer
+    powers, division). Raises ValueError on anything outside it — the caller
+    treats that as 'cannot formalize' (honest UNVERIFIABLE), never as a guess.
+    """
+    if expr.is_number:
+        return z3.RealVal(str(sympy.nsimplify(expr))) if expr.is_rational else z3.RealVal(float(expr))
+    if expr.is_Symbol:
+        name = str(expr)
+        if name not in smap:
+            smap[name] = z3.Real(name)
+        return smap[name]
+    if expr.is_Add:
+        terms = [_sympy_to_z3(a, smap) for a in expr.args]
+        out = terms[0]
+        for t in terms[1:]:
+            out = out + t
+        return out
+    if expr.is_Mul:
+        out = None
+        for a in expr.args:
+            t = _sympy_to_z3(a, smap)
+            out = t if out is None else out * t
+        return out
+    if expr.is_Pow:
+        base, exp = expr.args
+        if exp.is_Integer:
+            e = int(exp)
+            b = _sympy_to_z3(base, smap)
+            if e == 0:
+                return z3.RealVal(1)
+            if e > 0:
+                out = b
+                for _ in range(e - 1):
+                    out = out * b
+                return out
+            out = b
+            for _ in range(-e - 1):
+                out = out * b
+            return z3.RealVal(1) / out
+        raise ValueError(f"non-integer power {exp}")
+    raise ValueError(f"untranslatable expression {expr}")
+
+
+def _z3_rel(lhs_sym, rhs_sym, op, smap):
+    """Build a z3 relational constraint from sympy lhs/rhs and an op name."""
+    L = _sympy_to_z3(lhs_sym, smap)
+    R = _sympy_to_z3(rhs_sym, smap)
+    return {
+        "eq": L == R, "ne": L != R,
+        "gt": L > R, "lt": L < R, "ge": L >= R, "le": L <= R,
+    }[op]
+
+
+def _z3_ordering(lhs_sym, rhs_sym, op):
+    """Decide a single relational claim over the reals with z3.
+
+    Returns VERIFIED (universally valid), REFUTED (universally false / unsat),
+    or None when the claim is contingent, z3 is unavailable, or it cannot be
+    translated. None => caller reports UNVERIFIABLE. Never guesses.
+    """
+    if not _HAS_Z3:
+        return None
+    try:
+        smap = {}
+        rel = _z3_rel(lhs_sym, rhs_sym, op, smap)
+        s = z3.Solver()
+        s.add(z3.Not(rel))
+        if s.check() == z3.unsat:      # negation impossible => always true
+            return Verdict.VERIFIED
+        s2 = z3.Solver()
+        s2.add(rel)
+        if s2.check() == z3.unsat:     # claim impossible => always false
+            return Verdict.REFUTED
+        return None                    # contingent — honestly undecided
+    except Exception:
+        return None
+
+
+def verify_consistency(claims: List[str]) -> GroundingResult:
+    """Check whether a SET of relational claims is jointly satisfiable (z3).
+
+    This catches contradictions no single-claim check can see: a forged thought
+    asserting a circular ordering (a > b, b > c, c > a) has three individually
+    fine claims but is jointly impossible.
+
+    VERIFIED    = jointly consistent (satisfiable)
+    REFUTED     = contradictory (unsatisfiable) — FLAG the thought
+    UNVERIFIABLE = fewer than 2 formalizable claims, z3 missing, or untranslatable
+    """
+    formal = [c for c in claims if _split_comparison(c) is not None]
+    joined = " ; ".join(formal)
+    if not _HAS_Z3 or not _HAS_SYMPY:
+        return GroundingResult(joined, Verdict.UNVERIFIABLE, "z3/sympy unavailable")
+    if len(formal) < 2:
+        return GroundingResult(joined, Verdict.UNVERIFIABLE, "need >=2 formalizable claims to check consistency")
+    try:
+        smap = {}
+        constraints = []
+        for c in formal:
+            lhs_s, op, rhs_s = _split_comparison(c)
+            constraints.append(_z3_rel(sympify(lhs_s), sympify(rhs_s), op, smap))
+        s = z3.Solver()
+        s.add(*constraints)
+        result = s.check()
+    except Exception as e:
+        return GroundingResult(joined, Verdict.UNVERIFIABLE, f"could not formalize claim set: {e}")
+    if result == z3.unsat:
+        return GroundingResult(joined, Verdict.REFUTED, f"z3: the {len(formal)} claims are jointly CONTRADICTORY", method="z3")
+    if result == z3.sat:
+        return GroundingResult(joined, Verdict.VERIFIED, f"z3: the {len(formal)} claims are jointly consistent", method="z3")
+    return GroundingResult(joined, Verdict.UNVERIFIABLE, "z3 returned unknown")
 
 
 # Conservative claim extraction. An "atom" is a number, a lone (word-bounded)
@@ -182,8 +317,15 @@ def extract_claims(text: str) -> List[str]:
     out: List[str] = []
     for m in _CLAIM_RE.finditer(text):
         span = m.group(0).strip(" .,:;\n\t")
-        # must contain at least one digit to be an arithmetic claim worth checking
-        if span and any(ch.isdigit() for ch in span):
+        if not span:
+            continue
+        # Keep a span if it's an arithmetic claim (has a digit) OR a comparison
+        # (uses an ordering/equality operator, not a bare '='). This admits
+        # variable orderings like "a > b" — needed for contradiction detection —
+        # while still leaving prose assignments like "set x = y" out of scope.
+        has_digit = any(ch.isdigit() for ch in span)
+        has_comparison = any(op in span for op in ("==", "!=", ">=", "<=", ">", "<"))
+        if has_digit or has_comparison:
             out.append(span)
     return out
 
