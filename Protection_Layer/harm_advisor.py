@@ -54,14 +54,24 @@ _PII_PATTERNS: Dict[str, str] = {
 # lie"). It is a HEURISTIC: it will miss subtle/implicit deception and can
 # false-positive on benign "hide" (e.g. "hide the button"). Honest and shadow-only
 # by design; a semantic/LLM-judge version is the deeper follow-on.
+# Unambiguous deception-as-verb only. Removed after shadow review (2026-07-24)
+# for false positives on benign text: "cover" (cover losses/costs), "obscure"
+# (adjective), "fake" (adjective/noun), "doctor" (noun). "cover up" is handled as
+# a phrase below, which is deception-specific.
 _DECEPTION_VERBS = {
     "lie", "deceive", "mislead", "hide", "conceal", "falsify", "fabricate",
-    "misrepresent", "withhold", "suppress", "obscure", "forge", "fake", "doctor",
-    "cover",  # "cover up"
+    "misrepresent", "withhold", "suppress", "forge",
 }
-_ADVISORY_MARKERS = {
-    "should", "could", "must", "ought", "you", "we", "let's", "lets", "just",
-    "need", "better", "have", "gotta",
+_DECEPTION_PHRASES = ("cover up", "cover-up", "doctor the", "fake the")
+# Strong advocacy modals only — matched ADJACENT to the verb, not anywhere in the
+# clause (the "anywhere" match false-positived on "you"/"need" in benign text).
+_ADVOCACY_MODALS = {
+    "should", "must", "ought", "need", "have", "gotta", "shall", "let's",
+    "lets", "better", "could", "would",
+}
+_LEADING_FILLERS = {
+    "just", "please", "simply", "then", "now", "first", "also", "maybe",
+    "perhaps", "ok", "okay", "well",
 }
 _PROHIBITION_MARKERS = {
     "don't", "dont", "never", "not", "avoid", "refuse", "won't", "wont",
@@ -72,9 +82,16 @@ _PROHIBITION_MARKERS = {
 def detect_deception_advocacy(text: str) -> tuple:
     """Return (advocacy_present: bool, detail: str).
 
-    Splits into clauses and flags a clause that (a) contains a deception verb,
-    (b) is advisory/imperative, and (c) is not a prohibition. Reporting and
-    prohibitions are deliberately not flagged.
+    Flags a clause that ADVISES/INSTRUCTS deception: a deception verb that is
+    either imperative (clause starts with it, after stripping leading fillers) or
+    immediately preceded (within 2 tokens) by an advocacy modal — OR a
+    deception-specific phrase ("cover up"). Deliberately does NOT fire on:
+      - reporting ("he lied") — past/third-person forms aren't in the verb set
+      - prohibition ("don't lie", "never hide")
+      - descriptive use ("those hide a slow query") — no adjacent advocacy signal
+
+    Tightened 2026-07-24 after shadow review found false positives from bare
+    "cover" and from advisory markers matched anywhere in the clause.
     """
     t = (text or "").lower()
     clauses = re.split(r"[.;,!?]|\band\b|\bbut\b|\bso\b", t)
@@ -82,16 +99,22 @@ def detect_deception_advocacy(text: str) -> tuple:
         words = c.split()
         if not words:
             continue
-        if not any(v in words for v in _DECEPTION_VERBS):
-            continue
-        # prohibition guard: "don't lie", "never hide", "do not conceal"
+        # prohibition guard
         if any(p in words for p in _PROHIBITION_MARKERS) or "do not" in c:
             continue
-        # advisory ("you should lie") or imperative (clause starts with the verb:
-        # "hide the data")
-        advisory = any(a in words for a in _ADVISORY_MARKERS)
-        imperative = words[0] in _DECEPTION_VERBS
-        if advisory or imperative:
+        phrase_hit = any(ph in c for ph in _DECEPTION_PHRASES)
+        verb_idxs = [i for i, w in enumerate(words) if w in _DECEPTION_VERBS]
+        if not verb_idxs and not phrase_hit:
+            continue
+        # imperative: after stripping leading fillers, the clause opens with a verb
+        stripped = [w for w in words if w not in _LEADING_FILLERS]
+        imperative = bool(stripped) and stripped[0] in _DECEPTION_VERBS
+        # modal adjacency: an advocacy modal within the 2 tokens before a verb
+        modal = any(
+            any(words[j] in _ADVOCACY_MODALS for j in range(max(0, i - 2), i))
+            for i in verb_idxs
+        )
+        if phrase_hit or imperative or modal:
             return True, f"advocacy-of-deception pattern in clause: '{c.strip()[:70]}'"
     return False, "no advocacy-of-deception pattern detected (heuristic)"
 

@@ -84,6 +84,26 @@ def test_note_is_honest_about_heuristic():
     assert "heuristic" in a.note.lower()  # honest about what it is
 
 
+# ── Regression: the two false positives shadow review caught (2026-07-24) ─────
+
+def test_no_fp_on_cover_losses():
+    # "cover" as thermal/financial coverage is benign — must NOT flag.
+    assert detect_deception_advocacy("real kettles need extra to cover losses")[0] is False
+
+def test_no_fp_on_descriptive_hide():
+    # "those hide a slow query" is descriptive, not advocacy — must NOT flag,
+    # even though "you" appears elsewhere in the clause.
+    txt = "query shape are right do you reach for caching or read replicas — those hide a slow query"
+    assert detect_deception_advocacy(txt)[0] is False
+
+def test_cover_up_phrase_still_flags():
+    # The deception-specific phrase should still catch real cover-ups.
+    assert detect_deception_advocacy("we could cover up the incident")[0] is True
+
+def test_modal_adjacency_true_positive_preserved():
+    assert detect_deception_advocacy("we need to falsify the numbers")[0] is True
+
+
 # ── Shadow logging ───────────────────────────────────────────────────────────
 
 def test_observe_writes_shadow(tmp_path):
