@@ -67,8 +67,10 @@ Attestation includes notation that Anthropic's potential relevance to some overl
 ---
 
 ## Benchmark Performance (Verified)
-- 93.5% improvement over baseline (published)
-- Cohen's d = 7.88 (effect size)
+*Figures below are as attested at the time of this document (April 2026 benchmark run). A later run (2026-05-26) improved these to +108.8% and Cohen's d = 8.31; see `data/results/codette_benchmark_report.md` and `paper/codette_paper_v8_additions.tex` for the April→May progression. The original attested values are preserved here unchanged.*
+
+- 93.5% improvement over baseline (published) — *April 2026 run*
+- Cohen's d = 7.88 (effect size) — *April 2026 run*
 - Gamma = 0.99 phase coherence (11 agents, consumer hardware, Llama 3.1 8B)
 - p < 0.0001 statistical significance
 - Reproducible on consumer-grade hardware
