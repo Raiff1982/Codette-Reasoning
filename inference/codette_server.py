@@ -2074,6 +2074,45 @@ def _worker_thread():
                 except Exception as _opt_e:
                     print(f"  [OPTIMIZER] shadow skipped: {_opt_e}", flush=True)
 
+                # ── AEGIS metrics: record the forge cycle so the dashboard populates ──
+                # The dashboard was empty because nothing recorded in the LIVE serving
+                # path (recording lived only inside forge_with_full_safeguards, which
+                # live serving never calls). We record what genuinely runs per response:
+                # the RenderLayer validation (Layer 6, via verify_render_fidelity) and
+                # response timing. Layers 2/3/5 (filesystem isolation, boot integrity,
+                # AEGIS Layer-5 healing) run ONLY under the full-safeguard forge path,
+                # which live serving does not use — so they are recorded as not-run, and
+                # every record carries an alert saying so. Honest, not flattering.
+                if _aegis_metrics_engine is not None:
+                    try:
+                        _arf = result.get("render_fidelity") or {}
+                        _aoverlap = _arf.get("overlap")
+                        _arender_ok = bool(_arf.get("compliant", True))
+                        _alat_ms = (result.get("latency_ms")
+                                    or result.get("actual_latency_ms")
+                                    or result.get("generation_time_ms") or 0.0)
+                        _aegis_metrics_engine.log_forge_execution({
+                            "timestamp": time.time(),
+                            "concept": (query or "")[:200],
+                            "debate_rounds": 0,
+                            "forge_time": float(_alat_ms) / 1000.0,
+                            "total_time": float(_alat_ms) / 1000.0,
+                            # Layer 6 (render validation) is REAL live:
+                            "layer6_valid": _arender_ok,
+                            "overlap_percentage": (float(_aoverlap) * 100.0)
+                                                  if isinstance(_aoverlap, (int, float)) else 0.0,
+                            "overlap_valid": _arender_ok,
+                            "valid": _arender_ok,
+                            # Layers 2/3/5 not invoked in live serving -> honest defaults:
+                            "layer2_success": False, "layer3_success": False,
+                            "layer5_healing_applied": False,
+                            "alerts": ["live-serving cycle: RenderLayer (Layer 6) + AEGIS "
+                                       "ethics run per response; Layers 2/3/5 run only under "
+                                       "the full-safeguard forge path, not wired into live serving"],
+                        })
+                    except Exception as _aegis_rec_e:
+                        print(f"  [AEGIS] metrics record skipped: {_aegis_rec_e}", flush=True)
+
                 # Phase 3 — per-session spectral glyphs over REAL conversation
                 # tension history. Uses the same semantic embedder as the web;
                 # a glyph forms once a perspective has accumulated enough
