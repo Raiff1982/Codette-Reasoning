@@ -111,7 +111,7 @@ query -> forge/orchestrator -> subsystem analysis -> metrics + AEGIS -> v3 cocoo
 - **Full v5 paper PDF:** [`paper/codette_paper_v5.pdf`](paper/codette_paper_v5.pdf)
 - **Public landing page:** [`landing.html`](landing.html)
 
-The benchmark suite covers 17 problems across 6 categories and reports a **93.1% improvement** over the single-perspective baseline with **p < 0.0001** and **Cohen's d = 7.88**.
+The benchmark suite covers 17 problems across 6 categories and reports a **108.8% improvement** over the single-perspective baseline with **p < 0.0001** and **Cohen's d = 8.31**.
 
 ---
 
@@ -461,21 +461,23 @@ Codette monitors hardware state and adjusts reasoning based on resource pressure
 
 ## Benchmark results
 
-Codette was evaluated on 17 problems across 6 categories under 4 conditions:
+This is Codette's own seven-dimension composite rubric — a *self-defined* score, distinct from the external GPQA-main benchmark reported above. It measures relative lift across conditions of the same system, not standing against other models.
+
+Codette was evaluated on 17 problems across 6 categories under 4 conditions (report generated 2026-05-26, N=17 per condition):
 
 | Condition | Composite score | Description |
 |---|---|---|
-| **SINGLE** | 0.338 | Single analytical perspective, no memory |
-| **MULTI** | 0.632 | All 6 reasoning agents + critic + synthesis |
-| **MEMORY** | 0.636 | MULTI + cocoon memory augmentation |
-| **CODETTE** | 0.652 | Full system with meta-cognitive strategy synthesis |
+| **SINGLE** | 0.357 | Single analytical perspective, no memory |
+| **MULTI** | 0.708 | All 6 reasoning agents + critic + synthesis |
+| **MEMORY** | 0.739 | MULTI + cocoon memory augmentation |
+| **CODETTE** | 0.744 | Full system with meta-cognitive strategy synthesis |
 
 ### Statistical significance
 
 | Comparison | Improvement | Cohen's d | p-value |
 |---|---|---|---|
-| Multi-perspective vs single | **+87.0%** | 7.52 | < 0.0001 |
-| Full Codette vs single | **+93.1%** | 7.88 | < 0.0001 |
+| Multi-perspective vs single | **+98.4%** | 7.45 | < 0.0001 |
+| Full Codette vs single | **+108.8%** | 8.31 | < 0.0001 |
 
 Scoring dimensions: Reasoning Depth (20%), Perspective Diversity (15%), Coherence (15%), Ethical Coverage (10%), Novelty (15%), Factual Grounding (15%), Turing Naturalness (10%).
 
@@ -542,8 +544,8 @@ Note for 8GB-UMA systems: the GPU shares system RAM. Keep ≥5GB free when loadi
 | AEGIS Ethical Alignment (Eta) | 0.961 |
 | Cocoon Coherence | 0.994 |
 | Memory Phase Stability | 0.969 |
-| Multi-Perspective Improvement | +93.1% (p < 0.0001) |
-| Cohen's d (Effect Size) | 7.88 |
+| Multi-Perspective Improvement | +108.8% (p < 0.0001) |
+| Cohen's d (Effect Size) | 8.31 |
 | Behavioral Lock Compliance | 9/9 adapters trained |
 | Adapter Hot-Swap Time | <1ms |
 | Consciousness Stack Layers | 12 including sub-layers |
@@ -585,7 +587,7 @@ Note: cocoon memory counts change over time; prefer introspection or health endp
 
 | Resource | Link |
 |---|---|
-| Academic Paper | [raiff1982/codette-paper](https://huggingface.co/raiff1982/codette-paper) |
+| Academic Paper | [Raiff1982/codette-paper](https://huggingface.co/Raiff1982/codette-paper) |
 | Rendered Paper (Repo PDF) | [paper/codette_paper_v5.pdf](paper/codette_paper_v5.pdf) |
 | Base Model (GGUF) | [Raiff1982/codette-llama-3.1-8b-gguf](https://huggingface.co/Raiff1982/codette-llama-3.1-8b-gguf) |
 | LoRA Adapters | [Raiff1982/codette-lora-adapters](https://huggingface.co/Raiff1982/codette-lora-adapters) |
@@ -602,12 +604,14 @@ Research project in advanced multi-perspective AI reasoning, ethical governance,
 ## Citation
 
 ```bibtex
-@article{harrison2026codette,
-  title={Codette: A Sovereign Modular Cognitive Architecture for Ethical Multi-Agent AI},
-  author={Harrison, Jonathan},
-  year={2026},
-  doi={10.5281/zenodo.18913936},
-  publisher={Raiff's Bits LLC},
-  url={https://huggingface.co/raiff1982/codette-paper}
+@misc{harrison2026codette,
+  title     = {Codette: A Sovereign Modular Cognitive Architecture for Ethical Multi-Agent AI},
+  author    = {Harrison, Jonathan},
+  year      = {2026},
+  doi       = {10.57967/hf/8998},
+  url       = {https://huggingface.co/Raiff1982/codette-paper},
+  publisher = {Hugging Face}
 }
 ```
+
+Preprint also available on Research Square: [10.21203/rs.3.rs-9362560/v1](https://doi.org/10.21203/rs.3.rs-9362560/v1)
