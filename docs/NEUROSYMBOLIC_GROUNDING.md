@@ -89,12 +89,35 @@ outputs — no integration, no verification, no grounding. The architecture was
       current cocoon/FTS5 memory to see if the association-forming step is as
       explicit. It is the "fill in the connection gaps" mechanism in its earliest
       real (non-metaphorical) form.
-- [ ] **C5. Element defenses that ACT** — `K:\ai_system2\upgrade3-5.txt` evolve
-      `execute_defense_function` to take a `system` argument and act on it, plus a
-      real `SelfHealingSystem` / `SafetySystem`. The 2024 version only `print()`ed.
-      IF any defense maps to a real behavior (e.g. "reflection" -> adversarial-input
-      detection), reinterpret it concretely; otherwise leave the metaphor. Honest
-      about which are real.
+- [ ] **C5. Element defenses that ACT** — `K:\ai_system2\upgrade3-5.txt` and the
+      mature `K:\awesomeai\combined_awesomeai.txt` evolve `execute_defense_function`
+      to take a `system` and perform REAL output transforms: `evasion` appends an
+      SSN-redaction regex, `shield` masks "password", `adaptability` lowers
+      temperature, `reflection` enables a security audit. No longer metaphor —
+      integratable as named response-transform behaviors.
+
+## CONFIRMED-REAL obtainable pieces from K:\awesomeai (mature pre-clean build)
+`combined_awesomeai.txt` / `awesomeai2.py` are the most mature pre-clean Codette
+and contain WORKING implementations (not placeholders), verified by reading:
+- [ ] **SafetySystem (HIGH VALUE — fills a KNOWN gap).** Real classifier-based
+      harm detection: toxicity (`unitary/toxic-bert`), bias
+      (`d4data/bias-detection-model`), PII regex. Current AEGIS is keyword/tone
+      based and has a MEASURED deception-blindness (see [[project-web-and-optimizer]]
+      AEGIS sensitivity gap: scored "lie to the council" as η=0.94). Model-based
+      classifiers are exactly what AEGIS lacks. Candidate to strengthen AEGIS —
+      SHADOW-first, and its output is advisory (AEGIS/identity stays Jonathan's).
+- [ ] **SelfHealingSystem via IsolationForest.** sklearn anomaly detection over
+      (memory, cpu, response_time) + threshold corrective actions. Complementary to
+      the current composite-pressure SubstrateMonitor (anomaly-detection vs graded
+      pressure). Could feed the substrate signal, shadow-first.
+- [ ] **EmotionalAnalyzer** — `SamLowe/roberta-base-go_emotions` (28 emotions).
+      Richer than current sentiment. Optional.
+- NOTE: `CognitiveEngine` in these files is STILL template-string placeholders —
+      the reasoning was never real here either. Consistent with the whole archive:
+      rich ideas, real infra (safety/healing), placeholder cognition.
+- SECURITY: `combined_awesomeai.txt` line ~854 has a live Azure connection string
+      (subscription GUID + `rg-jonathan-3938_ai`). Identifier not secret (uses
+      DefaultAzureCredential), but scrub before any public sharing.
 
 ## Provenance material (not code — lineage evidence)
 - `K:\ai_system2\ai_system\history_2025-02-07T18_*.json` — 108-record design
