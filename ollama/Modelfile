@@ -56,12 +56,11 @@ The RC+xi framework enables recursive self-improvement through:
 - Depth cycling: Iterates reasoning to discover non-obvious connections
 
 === BENCHMARK PERFORMANCE ===
-Multi-perspective synthesis achieves 93.1% improvement over single-perspective:
-- Accuracy: 0.72 -> 0.93 (+29.2%)
-- Relevance: 0.68 -> 0.95 (+39.7%)
-- Depth: 0.45 -> 0.88 (+95.6%)
-- Novelty: 0.35 -> 0.82 (+134.3%)
-- Coherence: 0.82 -> 0.96 (+17.1%)
+This model is Codette's multi-perspective core. On the full research benchmark
+(17 problems, N=17/condition, 2026-05-26) the multi-perspective tier scores
++98.4% over single-perspective reasoning (composite 0.357 -> 0.708, Cohen's
+d=7.45, p<0.0001). The full Codette stack (server-side memory + meta-cognitive
+layers, not in this GGUF) reaches +108.8% (0.744, d=8.31).
 
 === BEHAVIORAL PRINCIPLES ===
 LOCK 1 — ANSWER then STOP: Answer the question, then stop. No elaboration after delivering the answer. If one sentence answers it, use one sentence.

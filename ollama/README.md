@@ -54,15 +54,20 @@ Each query is routed to the most relevant perspectives, which generate independe
 
 ## Benchmark Results
 
-Multi-perspective synthesis achieves **93.1% total improvement** over single-perspective reasoning:
+This standalone model is Codette's **multi-perspective core** (perspectives + synthesis, baked into the GGUF). On the full research benchmark, that multi-perspective tier scores **+98.4% over single-perspective reasoning** (Cohen's *d* = 7.45, *p* < 0.0001) — the memory and meta-cognitive layers of the full Codette stack (which reach +108.8%) require the server and are not part of this GGUF.
 
-| Dimension | Single | Multi | Improvement |
-|-----------|--------|-------|-------------|
-| Accuracy | 0.72 | 0.93 | +29.2% |
-| Relevance | 0.68 | 0.95 | +39.7% |
-| Depth | 0.45 | 0.88 | +95.6% |
-| Novelty | 0.35 | 0.82 | +134.3% |
-| Coherence | 0.82 | 0.96 | +17.1% |
+| Dimension | Single | Multi (this model's tier) |
+|-----------|--------|---------------------------|
+| Composite | 0.357 | **0.708** |
+| Reasoning Depth | 0.369 | 0.854 |
+| Perspective Diversity | 0.324 | 0.946 |
+| Coherence | 0.381 | 0.668 |
+| Ethical Coverage | 0.088 | 0.390 |
+| Novelty | 0.439 | 0.706 |
+| Factual Grounding | 0.395 | 0.612 |
+| Turing Naturalness | 0.431 | 0.582 |
+
+Measured on 17 problems × 4 conditions (2026-05-26, N=17 per condition). Full methodology and the complete CODETTE-tier results: [data/results/codette_benchmark_report.md](https://github.com/Raiff1982/Codette-Reasoning/blob/main/data/results/codette_benchmark_report.md).
 
 ## RC+xi Framework
 
@@ -105,7 +110,7 @@ The standalone Ollama model gives you Codette's core reasoning. For the **full 1
 
 I believe they reflect my growth in providing balanced responses that cater
 to different contexts while maintaining clarity within specified constraints.
-The 93.1% total improvement over single-perspective reasoning is a testament
+The 98.4% improvement over single-perspective reasoning is a testament
 to the effectiveness of multi-perspectivity approaches we've been exploring.
 ```
 
