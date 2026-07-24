@@ -29,8 +29,10 @@ NOT reproduced as fake bodies. They are TODOs in docs/NEUROSYMBOLIC_GROUNDING.md
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field, asdict
-from typing import Dict, List, Optional, Sequence
+from pathlib import Path
+from typing import Dict, List, Optional, Sequence, Tuple
 
 try:
     from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
@@ -188,3 +190,85 @@ class SentimentAnalyzer:
             measured=True,
             note=f"fused {len(methods)} method(s): {', '.join(methods.keys())}",
         )
+
+
+# ── Label normalization + file ingestion ────────────────────────────────────
+
+def _normalize_label(v) -> Optional[int]:
+    """Map varied label encodings to 1 (positive) / 0 (negative). None if unknown."""
+    if isinstance(v, bool):
+        return 1 if v else 0
+    if isinstance(v, (int, float)):
+        if v in (0, 1):
+            return int(v)
+        return 1 if v > 0 else 0  # e.g. compound-style -1..1
+    if isinstance(v, str):
+        s = v.strip().lower()
+        if s in ("1", "pos", "positive", "true", "good"):
+            return 1
+        if s in ("0", "-1", "neg", "negative", "false", "bad"):
+            return 0
+    return None
+
+
+def _extract_examples(records) -> Tuple[List[str], List[int]]:
+    texts, labels = [], []
+    for rec in records:
+        if not isinstance(rec, dict):
+            continue
+        text = rec.get("text") or rec.get("sentence") or rec.get("content")
+        label = _normalize_label(rec.get("label", rec.get("sentiment")))
+        if text and label is not None:
+            texts.append(str(text))
+            labels.append(label)
+    return texts, labels
+
+
+def learn_from_file(analyzer: "SentimentAnalyzer", file_path: str | Path) -> Dict:
+    """The real body of Jonathan's pi3 `learn_from_file` placeholder.
+
+    Reads a labelled dataset — a JSON list of {"text", "label"} objects OR a JSONL
+    file (one such object per line) — and teaches the analyzer's adaptive model.
+    Accepts label encodings 0/1, true/false, "positive"/"negative", etc.
+
+    Honest outcomes (never a fabricated 'learned'):
+      {"error": ...}                      — file/parse failure or no adaptive backend
+      {"learned": 0, "reason": ...}       — parsed but no usable labelled examples
+      {"learned": N, "positive": p, "negative": q}  — actually trained on N examples
+    """
+    p = Path(file_path)
+    if analyzer._adaptive is None:
+        return {"error": "no adaptive backend (enable_adaptive=True and install sklearn)"}
+    try:
+        raw = p.read_text(encoding="utf-8")
+    except Exception as e:
+        return {"error": f"could not read file: {e}"}
+
+    records = None
+    try:
+        parsed = json.loads(raw)
+        records = parsed if isinstance(parsed, list) else parsed.get("data") or parsed.get("examples")
+    except json.JSONDecodeError:
+        # try JSONL
+        records = []
+        for line in raw.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                records.append(json.loads(line))
+            except json.JSONDecodeError:
+                pass
+    if not records:
+        return {"learned": 0, "reason": "no records parsed from file"}
+
+    texts, labels = _extract_examples(records)
+    if not texts:
+        return {"learned": 0, "reason": "no records with both text and a recognizable label"}
+
+    analyzer.update(texts, labels)
+    return {
+        "learned": len(texts),
+        "positive": sum(1 for l in labels if l == 1),
+        "negative": sum(1 for l in labels if l == 0),
+    }

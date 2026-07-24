@@ -155,8 +155,19 @@ pi3 C#, Dontwatchme). `reasoning_forge/sentiment_analyzer.py` + tests (11 pass):
   a fabricated reading. Untrained adaptive model never guesses.
 - [ ] STUBS NOT FAKED (archive TODOs, left honest): sarcasm detection,
       domain-specific fine-tune, multimodal sentiment. Real follow-ons, not bodies.
+- [x] `learn_from_file` — real body of pi3's placeholder: reads a labelled JSON/
+      JSONL dataset ({text,label}, varied label encodings) and teaches the adaptive
+      model. Honest outcomes (error / learned:0+reason / learned:N). Socket (his
+      pi3 learn_from_file) + component (our adaptive model) clicked together.
 - [ ] Integration: wire into the empathy perspective / AEGIS `care` signal after
       review (currently standalone). NOT yet wired live.
+- [ ] JONATHAN'S VISION: "let the model train itself on real-world data it's seen
+      first-hand." The adaptive model + learn_from_file is the mechanism; the FEED
+      should be real conversation data (cocoons already store it, with sentiment/
+      engagement signals usable as weak labels). CAUTION: self-training on
+      first-hand data needs a TRUSTWORTHY label source or it drifts/self-reinforces
+      — the exact failure the optimizer hit (learned routing from its own benchmark
+      harness). Build shadow-first, review the labels before any live training.
 
 ## Provenance material (not code — lineage evidence)
 - `K:\ai_system2\ai_system\history_2025-02-07T18_*.json` — 108-record design
