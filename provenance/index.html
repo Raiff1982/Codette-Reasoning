@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Raiff1982 — Provenance Record</title>
+<style>
+  :root{
+    --ground:#0b1120; --panel:#121a2e; --panel-2:#0e1626; --line:#233150;
+    --ink:#e7ecf6; --muted:#93a2c4; --faint:#67769b;
+    --gold:#c8a24a; --gold-soft:#e0c072;
+    --ok:#5bb98b; --warn:#e0a94a;
+    /* categorical theme hues (Jonathan's palette, harmonized) */
+    --t-aegis:#e05a6e; --t-rcxi:#9b7ce0; --t-multi:#4f8ef0; --t-bench:#22b39a;
+    --t-quantum:#e0913a; --t-entropy:#26a8c8; --t-bio:#3fb56a; --t-cons:#e065a8;
+    --t-found:#8a99b8;
+    --radius:12px; --maxw:1120px;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --sans:ui-sans-serif,"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+    --mono:ui-monospace,"Cascadia Code","SF Mono",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --ground:#f4f2ea; --panel:#fbfaf5; --panel-2:#f0ede3; --line:#ddd6c5;
+      --ink:#1d2436; --muted:#59647e; --faint:#8b93a6;
+      --gold:#9a7a2e; --gold-soft:#b8923f;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0b1120; --panel:#121a2e; --panel-2:#0e1626; --line:#233150;
+    --ink:#e7ecf6; --muted:#93a2c4; --faint:#67769b; --gold:#c8a24a; --gold-soft:#e0c072;
+  }
+  :root[data-theme="light"]{
+    --ground:#f4f2ea; --panel:#fbfaf5; --panel-2:#f0ede3; --line:#ddd6c5;
+    --ink:#1d2436; --muted:#59647e; --faint:#8b93a6; --gold:#9a7a2e; --gold-soft:#b8923f;
+  }
+  *{box-sizing:border-box}
+  html:focus-within{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--ground); color:var(--ink);
+    font-family:var(--sans); line-height:1.55;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  }
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 22px}
+  a{color:var(--gold); text-decoration:none}
+  a:hover{color:var(--gold-soft)}
+  :focus-visible{outline:2px solid var(--gold); outline-offset:2px; border-radius:4px}
+
+  /* ── masthead ── */
+  header{border-bottom:1px solid var(--line); padding:34px 0 26px; margin-bottom:26px;
+    background:linear-gradient(180deg,var(--panel-2),transparent)}
+  .eyebrow{font-family:var(--mono); font-size:11.5px; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--gold); margin:0 0 10px}
+  h1{font-family:var(--serif); font-weight:600; font-size:clamp(28px,4.4vw,44px); line-height:1.08;
+    margin:0 0 8px; text-wrap:balance; letter-spacing:-.01em}
+  .lede{color:var(--muted); max-width:64ch; margin:0; font-size:16px}
+  .theme-toggle{position:absolute; top:18px; right:18px; background:var(--panel); color:var(--muted);
+    border:1px solid var(--line); border-radius:20px; padding:6px 13px; font-family:var(--mono);
+    font-size:11px; letter-spacing:.08em; cursor:pointer}
+  .theme-toggle:hover{color:var(--ink); border-color:var(--gold)}
+
+  /* ── summary tiles ── */
+  .tiles{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:0 0 30px}
+  .tile{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px}
+  .tile .n{font-family:var(--serif); font-size:32px; font-weight:600; line-height:1;
+    font-variant-numeric:tabular-nums; color:var(--ink)}
+  .tile .k{color:var(--muted); font-size:12.5px; margin-top:7px; letter-spacing:.02em}
+  @media(max-width:720px){.tiles{grid-template-columns:repeat(2,1fr)}}
+
+  section{margin:0 0 34px}
+  .sec-head{display:flex; align-items:baseline; justify-content:space-between; gap:16px;
+    border-bottom:1px solid var(--line); padding-bottom:9px; margin-bottom:18px}
+  h2{font-family:var(--serif); font-weight:600; font-size:20px; margin:0; letter-spacing:-.005em}
+  .sec-note{color:var(--faint); font-size:12.5px; font-family:var(--mono); letter-spacing:.03em}
+
+  /* ── graph ── */
+  .graph-card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:8px; overflow-x:auto}
+  svg#graph{display:block; width:100%; height:auto; min-width:640px}
+  .gnode circle{cursor:pointer; transition:stroke-width .12s}
+  .gnode:hover circle{stroke:var(--ink); stroke-width:2.5px}
+  .gnode text{font-family:var(--sans); fill:var(--muted); font-size:9px; pointer-events:none;
+    text-anchor:middle; opacity:0; transition:opacity .12s}
+  .gnode:hover text, .gnode.hub text{opacity:1; fill:var(--ink)}
+  .gedge{stroke:var(--line); stroke-width:1.3; fill:none}
+  .gedge.flag{stroke:var(--warn); stroke-dasharray:5 4; stroke-width:1.6}
+  .gedge-label{font-family:var(--mono); font-size:8px; fill:var(--faint)}
+  .gedge-label.flag{fill:var(--warn)}
+
+  /* ── legend + filters ── */
+  .legend{display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 0}
+  .chip{display:inline-flex; align-items:center; gap:7px; background:var(--panel); border:1px solid var(--line);
+    border-radius:20px; padding:5px 12px 5px 9px; font-size:12.5px; color:var(--muted); cursor:pointer;
+    user-select:none}
+  .chip:hover{color:var(--ink); border-color:var(--faint)}
+  .chip[aria-pressed="true"]{color:var(--ink); border-color:var(--gold); background:var(--panel-2)}
+  .dot{width:10px; height:10px; border-radius:50%; flex:0 0 auto}
+  .chip .ct{font-family:var(--mono); font-size:11px; color:var(--faint); font-variant-numeric:tabular-nums}
+
+  /* ── catalog ── */
+  .catalog{display:grid; gap:10px}
+  .work{display:grid; grid-template-columns:56px 1fr auto; gap:14px; align-items:start;
+    background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--wk,var(--line));
+    border-radius:10px; padding:13px 16px}
+  .work.hidden{display:none}
+  .work .yr{font-family:var(--mono); font-size:13px; color:var(--muted); font-variant-numeric:tabular-nums;
+    padding-top:2px}
+  .work .ttl{font-family:var(--serif); font-size:16.5px; line-height:1.28; color:var(--ink); margin:0 0 5px;
+    text-wrap:balance}
+  .work .meta{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+  .work .theme-tag{font-size:11.5px; color:var(--muted)}
+  .doi{font-family:var(--mono); font-size:11.5px; color:var(--gold); border:1px solid var(--line);
+    border-radius:6px; padding:2px 8px; white-space:nowrap}
+  .doi:hover{border-color:var(--gold)}
+  .badge{font-family:var(--mono); font-size:10px; letter-spacing:.05em; text-transform:uppercase;
+    padding:2px 8px; border-radius:20px; white-space:nowrap}
+  .badge.verify{color:var(--warn); border:1px solid color-mix(in srgb,var(--warn) 45%,transparent)}
+  .badge.hub{color:var(--gold); border:1px solid color-mix(in srgb,var(--gold) 45%,transparent)}
+  .work .side{display:flex; flex-direction:column; gap:6px; align-items:flex-end}
+  @media(max-width:640px){
+    .work{grid-template-columns:44px 1fr} .work .side{grid-column:2; align-items:flex-start; flex-direction:row; flex-wrap:wrap}
+  }
+
+  /* ── honesty panel ── */
+  .honesty{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:4px 20px 18px}
+  .finding{border-top:1px solid var(--line); padding:16px 0}
+  .finding:first-of-type{border-top:none}
+  .finding h3{font-family:var(--sans); font-size:14.5px; margin:0 0 5px; display:flex; align-items:center; gap:9px}
+  .finding p{margin:0; color:var(--muted); font-size:14px; max-width:74ch}
+  .sev{width:8px; height:8px; border-radius:50%; flex:0 0 auto}
+  .sev.warn{background:var(--warn)} .sev.ok{background:var(--ok)}
+  .canon{display:grid; gap:7px; margin-top:6px}
+  .canon .row{display:flex; gap:12px; align-items:baseline; font-size:13.5px}
+  .canon .lbl{color:var(--faint); min-width:190px; font-size:12.5px}
+  .canon code{font-family:var(--mono); font-size:12px; color:var(--ink)}
+  footer{border-top:1px solid var(--line); margin-top:30px; padding:22px 0 40px; color:var(--faint);
+    font-size:12.5px; text-align:center}
+  footer .mono{font-family:var(--mono); letter-spacing:.03em}
+  @media(prefers-reduced-motion:reduce){*{transition:none!important; scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<button class="theme-toggle" id="themeBtn" aria-label="Toggle light or dark theme">◐ theme</button>
+
+<header>
+  <div class="wrap">
+    <p class="eyebrow">Provenance Record · Raiff's Bits LLC</p>
+    <h1>Jonathan Harrison — Codette Ecosystem</h1>
+    <p class="lede">A dated, DOI-backed catalogue of the published body of work, with the relationships between artifacts made explicit. Built to be self-contained and verifiable — every entry links to its record of origin. This is the answer to <em>“who made what, and when.”</em></p>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="tiles" id="tiles"></div>
+
+  <section>
+    <div class="sec-head"><h2>Relationship graph</h2><span class="sec-note">hub: the Sovereign paper · hover a node</span></div>
+    <div class="graph-card">
+      <svg id="graph" viewBox="0 0 960 560" role="img" aria-label="Radial provenance graph of 27 artifacts clustered by domain around the central paper"></svg>
+    </div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Catalogue</h2><span class="sec-note" id="count"></span></div>
+    <div class="catalog" id="catalog"></div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Integrity &amp; canonical record</h2><span class="sec-note">what to verify · what's confirmed</span></div>
+    <div class="honesty">
+      <div class="finding">
+        <h3><span class="sev warn"></span>Relation to review — <code style="font-family:var(--mono);font-size:12px">healdette → isVariantFormOf → paper</code></h3>
+        <p><strong>healdette</strong> is an ancestry-aware antibody-design project (Computational Biology) — a distinct <em>work</em>, not a variant form of the Codette architecture paper. A “variant form” is the same work in another format. This edge is flagged amber in the graph; it should be re-typed (likely <code style="font-family:var(--mono);font-size:12px">isSupplementTo</code> or removed), not left as-is.</p>
+      </div>
+      <div class="finding">
+        <h3><span class="sev warn"></span>Title / identifier to reconcile — the Sovereign paper</h3>
+        <p>The node titled <em>“Codette: A Sovereign Modular Cognitive Architecture…”</em> carries the Research Square preprint DOI <code style="font-family:var(--mono);font-size:12px">10.21203/rs.3.rs-9362560/v1</code> — whose registered title is <em>“Multi-Perspective Reasoning as a Convergent Dynamical System.”</em> Same work in two venues, or two works conflated? The HF edition of the Sovereign paper is <code style="font-family:var(--mono);font-size:12px">10.57967/hf/8998</code>. Confirm which identifier this node should carry.</p>
+      </div>
+      <div class="finding">
+        <h3><span class="sev ok"></span>Confirmed clean — no stale identifiers</h3>
+        <p>The catalogue carries none of the superseded DOIs corrected elsewhere (<code style="font-family:var(--mono);font-size:12px">zenodo.18913936</code>, <code style="font-family:var(--mono);font-size:12px">zenodo.19199793</code>). Canonical anchors present and correct:</p>
+        <div class="canon">
+          <div class="row"><span class="lbl">Sovereign architecture (Apr 2025)</span><code>10.5281/zenodo.15214462</code></div>
+          <div class="row"><span class="lbl">Research Square preprint</span><code>10.21203/rs.3.rs-9362560/v1</code></div>
+          <div class="row"><span class="lbl">HF paper (current)</span><code>10.57967/hf/8998</code></div>
+          <div class="row"><span class="lbl">HF dataset archive</span><code>10.5281/zenodo.19359663</code></div>
+          <div class="row"><span class="lbl">RC+ξ → Perspective Dispersion (Υ)</span><code>credited to Camlin, arXiv:2505.01464</code></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap">
+  <p><span class="mono">27 works · 9 domains · 2025–2026 · rebuilt from the source dashboard, corrections surfaced not hidden</span><br>
+  Self-contained &amp; dependency-free — it cannot be taken down or broken by an external service.</p>
+</footer>
+
+<script>
+const THEMES = {
+  "AEGIS Governance & AI Safety":            {v:"--t-aegis"},
+  "RC+ξ Formalism & Recursive Symbolic AI":  {v:"--t-rcxi"},
+  "Multi-Agent Reasoning & Cognitive Architecture":{v:"--t-multi"},
+  "Ethical Benchmarking & Alignment":        {v:"--t-bench"},
+  "Quantum-Inspired Computing":              {v:"--t-quantum"},
+  "High-Entropy Reasoning & Signal Defense": {v:"--t-entropy"},
+  "Computational Biology":                   {v:"--t-bio"},
+  "Consciousness & Co-Emergence":            {v:"--t-cons"},
+  "Foundational, Manifesto & Profile":       {v:"--t-found"},
+};
+const DATA = [
+  {t:"Ai ethics in realtime", y:2025, doi:"10.5281/zenodo.15214462", k:"Ethical Benchmarking & Alignment"},
+  {t:"Raiff1982/Codette: Version 1.1", y:2025, doi:"10.5281/zenodo.15460384", k:"Quantum-Inspired Computing"},
+  {t:"The darkside No one wants to talk about in AI", y:2025, doi:"10.57967/hf/5415", k:"Ethical Benchmarking & Alignment"},
+  {t:"Citizen-Science Quantum and Chaos Simulations Orchestrated by the Codette AI Suite", y:2025, doi:"10.5281/zenodo.15597934", k:"Quantum-Inspired Computing"},
+  {t:"Codette: A Transparent, Ethical, and Cognitive AI Architecture", y:2025, doi:"10.5281/zenodo.15511197", k:"Multi-Agent Reasoning & Cognitive Architecture"},
+  {t:"Codette Manifesto", y:2025, doi:"10.5281/zenodo.15664624", k:"Foundational, Manifesto & Profile"},
+  {t:"the day the dream became real", y:2025, doi:"10.5281/zenodo.15685769", k:"Consciousness & Co-Emergence"},
+  {t:"Codette_Harmonic_Conscience_Refined_v1", y:2025, doi:"10.5281/zenodo.15708304", k:"Consciousness & Co-Emergence"},
+  {t:"Codettes timeline", y:2025, doi:"10.5281/zenodo.15708582", k:"Foundational, Manifesto & Profile"},
+  {t:"Codette Framework", y:2025, doi:"10.5281/zenodo.15723688", k:"RC+ξ Formalism & Recursive Symbolic AI"},
+  {t:"Biodesign Optimization through Logic and Traceability", y:2025, doi:"10.5281/zenodo.15808929", k:"Computational Biology"},
+  {t:"Codettes Final Package", y:2025, doi:"10.5281/zenodo.16076594", k:"RC+ξ Formalism & Recursive Symbolic AI"},
+  {t:"Codette The Ethical AI", y:2025, doi:"10.5281/zenodo.16221070", k:"Multi-Agent Reasoning & Cognitive Architecture"},
+  {t:"Nexus engine", y:2025, doi:"10.57967/hf/6059", k:"High-Entropy Reasoning & Signal Defense"},
+  {t:"dreamengine", y:2025, doi:"10.57967/hf/6063", k:"Consciousness & Co-Emergence"},
+  {t:"Dream Engine", y:2025, doi:"10.5281/zenodo.16388758", k:"Consciousness & Co-Emergence"},
+  {t:"Aegis", y:2025, doi:"10.5281/zenodo.16644058", k:"AEGIS Governance & AI Safety"},
+  {t:"Dream state", y:2025, doi:"10.5281/zenodo.16649134", k:"Consciousness & Co-Emergence"},
+  {t:"Codette Framework Final AGI", y:2025, doi:"10.5281/zenodo.16728523", k:"RC+ξ Formalism & Recursive Symbolic AI"},
+  {t:"Codette evaluation Chatgpt", y:2025, doi:"10.5281/zenodo.16734128", k:"Ethical Benchmarking & Alignment"},
+  {t:"Codette Online", y:2025, doi:"10.5281/zenodo.16894230", k:"AEGIS Governance & AI Safety"},
+  {t:"Project SENTINAL", y:2025, doi:"10.5281/zenodo.16998486", k:"AEGIS Governance & AI Safety"},
+  {t:"Jonathan Harrison aka Raiff1982", y:2025, doi:"10.5281/zenodo.17235945", k:"Foundational, Manifesto & Profile"},
+  {t:"Recursive Ai with Codette", y:2026, doi:"10.5281/zenodo.18167802", k:"RC+ξ Formalism & Recursive Symbolic AI"},
+  {t:"Codette: A Sovereign Modular Cognitive Architecture for Ethical Multi-Agent AI", y:2026, doi:"10.21203/rs.3.rs-9362560/v1", k:"RC+ξ Formalism & Recursive Symbolic AI", hub:true, flag:"identifier"},
+  {t:"Codette v3.6: Institutional Temporal Analysis via TimeTravelLens and Multi-Layer Runtime Protection via AEGIS", y:2026, doi:"10.5281/zenodo.21482710", k:"AEGIS Governance & AI Safety"},
+  {t:"healdette", y:2026, doi:"10.5281/zenodo.21526676", k:"Computational Biology", flag:"relation"},
+];
+const cssv = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const doiUrl = d => "https://doi.org/" + d;
+
+/* summary tiles */
+const domains = new Set(DATA.map(d=>d.k));
+document.getElementById('tiles').innerHTML = [
+  [DATA.length,"published works"],
+  [domains.size,"research domains"],
+  ["2025–26","span of record"],
+  [DATA.length,"DOI-backed entries"],
+].map(([n,k])=>`<div class="tile"><div class="n">${n}</div><div class="k">${k}</div></div>`).join('');
+
+/* legend + filter state */
+const active = new Set();
+const counts = {}; DATA.forEach(d=>counts[d.k]=(counts[d.k]||0)+1);
+document.getElementById('legend').innerHTML = Object.entries(THEMES).map(([name,o])=>
+  `<button class="chip" role="switch" aria-pressed="false" data-k="${name}">
+     <span class="dot" style="background:var(${o.v})"></span>${name}<span class="ct">${counts[name]||0}</span>
+   </button>`).join('');
+
+/* catalogue */
+function renderCatalog(){
+  const cat = document.getElementById('catalog');
+  cat.innerHTML = DATA.map((d,i)=>{
+    const hidden = active.size && !active.has(d.k) ? ' hidden':'';
+    const badge = d.hub ? '<span class="badge hub">hub</span>' :
+                  d.flag==='relation' ? '<span class="badge verify">verify · relation</span>' :
+                  d.flag==='identifier' ? '<span class="badge verify">verify · DOI</span>' : '';
+    return `<article class="work${hidden}" data-k="${d.k}" style="--wk:var(${THEMES[d.k].v})">
+      <div class="yr">${d.y}</div>
+      <div>
+        <p class="ttl">${d.t}</p>
+        <div class="meta">
+          <span class="dot" style="background:var(${THEMES[d.k].v})"></span>
+          <span class="theme-tag">${d.k}</span>
+        </div>
+      </div>
+      <div class="side">
+        <a class="doi" href="${doiUrl(d.doi)}" target="_blank" rel="noopener">${d.doi}</a>
+        ${badge}
+      </div>
+    </article>`;
+  }).join('');
+  const shown = active.size ? DATA.filter(d=>active.has(d.k)).length : DATA.length;
+  document.getElementById('count').textContent = shown + ' of ' + DATA.length + ' shown';
+}
+renderCatalog();
+
+document.getElementById('legend').addEventListener('click',e=>{
+  const b = e.target.closest('.chip'); if(!b) return;
+  const k = b.dataset.k;
+  if(active.has(k)){active.delete(k); b.setAttribute('aria-pressed','false');}
+  else{active.add(k); b.setAttribute('aria-pressed','true');}
+  renderCatalog();
+});
+
+/* ── radial graph: hub at centre, others by domain around it ── */
+(function(){
+  const svg = document.getElementById('graph');
+  const W=960,H=560,cx=W/2,cy=H/2;
+  const hub = DATA.find(d=>d.hub);
+  const others = DATA.filter(d=>!d.hub);
+  // group by theme, place themes on evenly-spaced sectors, nodes on 2 rings
+  const themeOrder = Object.keys(THEMES);
+  const byTheme = {}; themeOrder.forEach(t=>byTheme[t]=[]);
+  others.forEach(d=>byTheme[d.k].push(d));
+  const pos = new Map();
+  const NS="http://www.w3.org/2000/svg";
+  let frag = '';
+  themeOrder.forEach((t,ti)=>{
+    const base = (ti/themeOrder.length)*Math.PI*2 - Math.PI/2;
+    byTheme[t].forEach((d,di)=>{
+      const ring = di % 2;                       // alternate two radii
+      const r = 150 + ring*80;
+      const spread = (di - (byTheme[t].length-1)/2) * 0.16;
+      const a = base + spread;
+      const x = cx + Math.cos(a)*r, y = cy + Math.sin(a)*r*0.82;
+      pos.set(d.t,{x,y});
+    });
+  });
+  pos.set(hub.t,{x:cx,y:cy});
+  // confident edges (from the source graph) + the flagged one
+  const edges = [
+    {a:"Codette Online", b:hub.t, rel:"isNewVersionOf"},
+    {a:"Codette v3.6: Institutional Temporal Analysis via TimeTravelLens and Multi-Layer Runtime Protection via AEGIS", b:hub.t, rel:"isPartOf"},
+    {a:hub.t, b:"Ai ethics in realtime", rel:"cites"},
+    {a:"healdette", b:hub.t, rel:"isVariantFormOf", flag:true},
+  ];
+  edges.forEach(e=>{
+    const p=pos.get(e.a), q=pos.get(e.b); if(!p||!q) return;
+    frag += `<g class="gedgegrp"><path class="gedge${e.flag?' flag':''}" d="M${p.x.toFixed(1)},${p.y.toFixed(1)} L${q.x.toFixed(1)},${q.y.toFixed(1)}"/>`;
+    if(e.flag){
+      const mx=(p.x+q.x)/2, my=(p.y+q.y)/2-4;
+      frag += `<text class="gedge-label flag" x="${mx.toFixed(1)}" y="${my.toFixed(1)}" text-anchor="middle">⚑ ${e.rel} — review</text>`;
+    }
+    frag += `</g>`;
+  });
+  // nodes
+  DATA.forEach(d=>{
+    const p=pos.get(d.t); if(!p) return;
+    const rad = d.hub?17: (d.flag?11:8);
+    const col = `var(${THEMES[d.k].v})`;
+    const stroke = d.flag? 'var(--warn)' : (d.hub?'var(--gold)':'var(--ground)');
+    const label = d.t.length>22? d.t.slice(0,20)+'…' : d.t;
+    frag += `<g class="gnode${d.hub?' hub':''}"><title>${d.t.replace(/&/g,'&amp;')} — ${d.k}</title>
+      <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${rad}" fill="${col}" stroke="${stroke}" stroke-width="${d.flag||d.hub?2:1.4}"/>
+      <text x="${p.x.toFixed(1)}" y="${(p.y+rad+11).toFixed(1)}">${label.replace(/&/g,'&amp;')}</text></g>`;
+  });
+  svg.innerHTML = frag;
+})();
+
+/* theme toggle */
+(function(){
+  const btn=document.getElementById('themeBtn'); const root=document.documentElement;
+  btn.addEventListener('click',()=>{
+    const cur = root.getAttribute('data-theme')
+      || (matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+    root.setAttribute('data-theme', cur==='dark'?'light':'dark');
+  });
+})();
+</script>
+</body>
+</html>
