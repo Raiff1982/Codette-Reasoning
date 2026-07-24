@@ -55,6 +55,8 @@ model-index:
 
 **Advanced multi-perspective AI with conscience, memory, auditability, and behavioral discipline.**
 
+> **📄 Peer-reviewed — accepted at *Scientific Reports* (Nature Portfolio), 24 July 2026.** "Codette: A Multi-Perspective Cognitive Architecture with Memory and Meta-Cognitive Strategy Evolution" passed peer review (two reviewers recommending publication) and is now *in press*. The final DOI and Article-in-Press link will be added here once Springer Nature mints them. The peer-reviewed version follows the Research Square preprint listed under [Citation](#citation).
+
 Codette is a modular reasoning system that routes queries through specialized cognitive perspectives, tracks ethical and epistemic signals, stores memory as cocoons, and writes validator-backed v3 cocoon artifacts with full provenance and integrity scoring.
 
 **Current release — v3.7 (July 2026): The Verify Half + Shadow-Safety Layer.** Codette could always *create* thoughts (the cocoon synthesizer forges cross-domain patterns; the perspective web spawns new nodes) but never *verify* them. v3.7 builds the missing verifying half — a neuro-symbolic **grounding** layer (`reasoning_forge/grounding.py`, sympy + z3) that checks a claim and returns VERIFIED / REFUTED / UNVERIFIABLE, never a guessed pass; the real body of the 2025 `NeuralSymbolicProcessor` interface; an AEGIS **harm advisor** (PII + a deception-advocacy detector that closes AEGIS's one measured gap); a consolidated advanced **sentiment analyzer** with online learning; a drift-guarded **cocoon self-trainer**; and an **emotion-ontology** consumer. **These subsystems are shadow-first / standalone — built and tested (91 new tests), but not yet wired into live behavior; nothing gates a response or changes an AEGIS verdict until its shadow log is reviewed.** The router self-tuner's go-live blockers (benchmark contamination, boost ratchet) are also fixed, still shadow. Details: [docs/CHANGELOG_2026-07-24.md](docs/CHANGELOG_2026-07-24.md). North star: [docs/CODETTE_CHARTER.md](docs/CODETTE_CHARTER.md).
@@ -614,6 +616,21 @@ MIT — Created by **Jonathan Harrison** (Raiff1982)
 Research project in advanced multi-perspective AI reasoning, ethical governance, and behavioral discipline.
 
 ## Citation
+
+**Peer-reviewed (accepted, in press — *Scientific Reports*, Nature Portfolio, 24 July 2026).** Final DOI to be added on publication:
+
+```bibtex
+@article{harrison2026codette_scirep,
+  title     = {Codette: A Multi-Perspective Cognitive Architecture with Memory and Meta-Cognitive Strategy Evolution},
+  author    = {Harrison, Jonathan},
+  year      = {2026},
+  journal   = {Scientific Reports},
+  publisher = {Nature Portfolio},
+  note      = {Accepted; in press}
+}
+```
+
+Earlier records:
 
 ```bibtex
 @misc{harrison2026codette,
