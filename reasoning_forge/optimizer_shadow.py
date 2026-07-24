@@ -126,19 +126,25 @@ class ShadowOptimizer:
         boost proposal sourced entirely from multiple-choice exams; excluding those
         days left 0 boost proposals. See archive/2026-07-23/README.md.
         """
-        if self.opt is None or coherence is None or tension is None:
-            return  # need the two real signals; omit turns without them
+        if self.opt is None or coherence is None:
+            return  # coherence is the one signal every turn must have
         if is_benchmark:
             return  # exam traffic is not evidence about conversational routing
+        # tension (Xi) may be None: it is variance ACROSS perspectives, so
+        # single-adapter turns have none to report. Those turns ARE recorded —
+        # requiring Xi silently restricted the optimizer to multi-perspective
+        # turns only (5 of 12 in a real 2026-07-23 conversation), biasing the
+        # sample it learns routing from. The reward renormalizes without it.
 
         productivity_is_proxy = render_fidelity is None
         productivity = 0.5 if productivity_is_proxy else float(render_fidelity)
+        tension_val = None if tension is None else float(tension)
 
         n_hist = len(self.opt.history)
         try:
             self.opt.record_signal(self._QSignal(
                 timestamp=time.time(), adapter=adapter or "unknown",
-                coherence=float(coherence), tension=float(tension),
+                coherence=float(coherence), tension=tension_val,
                 productivity=productivity, response_length=int(response_length),
                 multi_perspective=bool(multi_perspective),
                 # user_continued omitted (None): engagement is only knowable on the
@@ -150,14 +156,15 @@ class ShadowOptimizer:
 
         # Any NEW proposed adjustment this turn?
         new_steps = self.opt.history[n_hist:]
-        self._log_turn(adapter, coherence, tension, productivity,
+        self._log_turn(adapter, coherence, tension_val, productivity,
                        productivity_is_proxy, new_steps)
         if self._telemetry is not None:
             self._telemetry.record(
                 mode="live" if self.live else "shadow",
                 adapter=adapter,
                 coherence=float(coherence),
-                tension=float(tension),
+                # telemetry schema wants a number; -1.0 sentinel = not measured
+                tension=(-1.0 if tension_val is None else tension_val),
                 productivity=float(productivity),
                 response_length=int(response_length),
                 multi_perspective=bool(multi_perspective),
@@ -183,7 +190,11 @@ class ShadowOptimizer:
                 "adapter": adapter,
                 "signals": {
                     "coherence": round(float(coherence), 4),   # measured
-                    "tension": round(float(tension), 4),        # measured
+                    # tension is null (not 0.0) on single-adapter turns — there is
+                    # no cross-perspective variance to measure. Omitted from the
+                    # reward; weights renormalize.
+                    "tension": None if tension is None else round(float(tension), 4),
+                    "tension_measured": tension is not None,
                     "productivity": round(float(productivity), 4),
                     "productivity_is_placeholder": productivity_is_proxy,
                     # Omitted from the reward entirely (weights renormalized),

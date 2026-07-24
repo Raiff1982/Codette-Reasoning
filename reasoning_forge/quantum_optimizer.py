@@ -30,6 +30,16 @@ try:
 except ImportError:
     np = None
 
+
+def _nanmean(values) -> float:
+    """Mean over measured values, skipping NaN. Returns 0.0 if none are measured.
+
+    Pure-Python so it works without numpy, and so an all-NaN slice returns 0.0
+    instead of NaN-with-a-warning (which np.nanmean does).
+    """
+    vals = [v for v in values if isinstance(v, (int, float)) and v == v]
+    return float(sum(vals) / len(vals)) if vals else 0.0
+
 # ---------------------------------------------------------------------------
 # High-Integrity Telemetry & Parametric Abstractions
 # ---------------------------------------------------------------------------
@@ -43,7 +53,11 @@ class QualitySignal:
     timestamp: float
     adapter: str
     coherence: float          # Phase coherence at response time (Gamma Index)
-    tension: float            # Epistemic tension at response time (Xi Index)
+    tension: Optional[float]  # Epistemic tension (Xi); None = NOT MEASURED
+    # Xi is variance ACROSS perspectives, so single-adapter turns have no value to
+    # report. Those turns are still recorded (coherence is real) with tension None,
+    # and every consumer below omits the term rather than substituting a number.
+    # Dropping them entirely biased the sample toward multi-perspective turns only.
     productivity: float       # Tension productivity score (gradient trajectory alignment)
     response_length: int      # Measured size in tokens/characters
     multi_perspective: bool    # Boolean flag indicating multi-perspective LoRA routing activation
@@ -206,8 +220,12 @@ class QuantumOptimizer:
         # Per-adapter performance metrics tracking
         if signal.adapter not in self._performance_metrics:
             self._performance_metrics[signal.adapter] = []
+        # Fixed 6-wide stride (read back via metrics[n::6]), so unmeasured tension
+        # is stored as NaN to hold its slot; get_tuning_report uses nanmean.
         self._performance_metrics[signal.adapter].extend([
-            signal.coherence, signal.tension, signal.productivity,
+            signal.coherence,
+            float("nan") if signal.tension is None else signal.tension,
+            signal.productivity,
             signal.response_length, signal.latency_ms, signal.error_rate
         ])
 
@@ -231,9 +249,6 @@ class QuantumOptimizer:
             return float(self._quality_func(signal))
 
         # Formulate non-linear penalty for systemic divergence outside target 0.4 zone
-        tension_error = abs(signal.tension - 0.4)
-        tension_score = max(0.0, 1.0 - (2.0 * tension_error))
-
         latency_score = 1.0 / (1.0 + signal.latency_ms / 1000.0)
         error_score = 1.0 - signal.error_rate
 
@@ -243,10 +258,13 @@ class QuantumOptimizer:
         terms = [
             (0.25, signal.coherence),
             (0.25, signal.productivity),
-            (0.15, tension_score),
             (0.15, latency_score),
             (0.10, error_score),
         ]
+        if signal.tension is not None:
+            # Non-linear penalty for divergence outside the target 0.4 zone
+            tension_error = abs(signal.tension - 0.4)
+            terms.append((0.15, max(0.0, 1.0 - (2.0 * tension_error))))
         if signal.user_continued is not None:
             terms.append((0.10, 1.0 if signal.user_continued else 0.0))
 
@@ -308,7 +326,11 @@ class QuantumOptimizer:
             return
 
         avg_coherence = sum(s.coherence for s in recent) / len(recent)
-        avg_tension = sum(s.tension for s in recent) / len(recent)
+        # Average over MEASURED tension only; None when the window holds no
+        # multi-perspective turn. Branches keyed on tension are skipped in that
+        # case rather than firing on a substituted value.
+        _tensions = [s.tension for s in recent if s.tension is not None]
+        avg_tension = (sum(_tensions) / len(_tensions)) if _tensions else None
         avg_productivity = sum(s.productivity for s in recent) / len(recent)
         avg_latency = sum(s.latency_ms for s in recent) / len(recent)
         multi_ratio = sum(1 for s in recent if s.multi_perspective) / len(recent)
@@ -330,7 +352,7 @@ class QuantumOptimizer:
             self.state.contraction_ratio = new_val
             self.momentum[param] = delta
 
-        elif avg_tension < 0.2 and avg_productivity < 0.3:
+        elif avg_tension is not None and avg_tension < 0.2 and avg_productivity < 0.3:
             # Inactive tension systems -> expand processing space limits to multi-agent layers
             param = "multi_perspective_threshold"
             old_val = self.state.multi_perspective_threshold
@@ -339,7 +361,7 @@ class QuantumOptimizer:
             self.state.multi_perspective_threshold = new_val
             self.momentum[param] = -self.learning_rate * momentum_factor
 
-        elif avg_tension > 0.7:
+        elif avg_tension is not None and avg_tension > 0.7:
             # Destabilizing tension overheads detected -> step up acceptance boundaries
             param = "tension_threshold"
             old_val = self.state.tension_threshold
@@ -455,7 +477,8 @@ class QuantumOptimizer:
             if len(metrics) >= 6:
                 adapter_metrics[adapter] = {
                     "avg_coherence": np.mean(metrics[::6]) if np else 0.0,
-                    "avg_tension": np.mean(metrics[1::6]) if np else 0.0,
+                    # nanmean: single-adapter turns store NaN for tension
+                    "avg_tension": _nanmean(metrics[1::6]),
                     "avg_productivity": np.mean(metrics[2::6]) if np else 0.0,
                     "avg_latency": np.mean(metrics[4::6]) if np else 0.0,
                     "boost": self.get_adapter_boost(adapter)
