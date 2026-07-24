@@ -159,11 +159,15 @@ def verify(claim: str) -> GroundingResult:
     )
 
 
-# Conservative claim extraction: pull only spans that look like (in)equalities.
-# Everything not matched is simply not extracted — we never fabricate a claim.
-_CLAIM_RE = re.compile(
-    r"[A-Za-z0-9_.\s+\-*/^()]+?\s*(?:==|!=|>=|<=|=|>|<)\s*[A-Za-z0-9_.\s+\-*/^()]+"
-)
+# Conservative claim extraction. An "atom" is a number, a lone (word-bounded)
+# variable letter, or an operator/paren — so English words never match: "holds"
+# has no word-bounded single letter, but "x" does. An operand is a run of atoms.
+# This grabs "2 + 2 = 4" out of "note that 2 + 2 = 4 holds" without swallowing the
+# prose. Everything not matched is simply not extracted — never a fabricated claim.
+_ATOM = r"(?:\d+\.?\d*|\b[A-Za-z]\b|[-+*/^()])"
+_OPERAND = rf"{_ATOM}(?:\s*{_ATOM})*"
+_COMPARATOR_ALT = r"==|!=|>=|<=|=|>|<"
+_CLAIM_RE = re.compile(rf"{_OPERAND}\s*(?:{_COMPARATOR_ALT})\s*{_OPERAND}")
 
 
 def extract_claims(text: str) -> List[str]:

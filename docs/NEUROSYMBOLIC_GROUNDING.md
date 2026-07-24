@@ -121,9 +121,26 @@ outputs — no integration, no verification, no grounding. The architecture was
 - All wiring is flagged explicitly in this doc and in each commit.
 
 ## Status
-- **Phase A1: DONE** — `reasoning_forge/grounding.py` + `tests/test_grounding.py`
-  (15 tests pass, incl. every honesty invariant: unknowns return UNVERIFIABLE,
-  never guessed VERIFIED). Pure, shadow-safe, wired to nothing live.
-- Everything else: outlined, not started. Next up: A2 (claim extraction is
-  drafted in `extract_claims`; needs hardening) then B1 (shadow-ground the
-  synthesizer's forged patterns).
+- **Phase A1: DONE** — `reasoning_forge/grounding.py` + `tests/test_grounding.py`.
+  Pure, shadow-safe. Every honesty invariant tested: unknowns return UNVERIFIABLE,
+  never guessed VERIFIED.
+- **Phase A2: DONE** — hardened `extract_claims` (atom-based: grabs "2 + 2 = 4"
+  out of prose without swallowing surrounding words; English words never match).
+- **Phase B1: DONE** — `reasoning_forge/grounding_bridge.py` +
+  `tests/test_grounding_bridge.py`. Grounds a forged ReasoningPath / strategy /
+  pattern into one of three HONEST states: FLAGGED (a checkable claim refuted),
+  SUPPORTED (checkable claims found, all verified), UNGROUNDED (no checkable
+  claim — most qualitative thoughts; honestly NOT a pass). Shadow-only.
+  Verified on a real synthesizer output (`_apply_boundary_walking` conclusion):
+  correctly reports UNGROUNDED rather than a false SUPPORTED.
+- 22 tests pass total.
+- Next: B2 (perspective_web connections), B3 (surface honest labels), then a
+  real shadow-collection run on live synthesizer output before Phase D review.
+
+## Honest finding from B1 (informs the roadmap)
+Arithmetic grounding covers almost NONE of what she actually forges — her thoughts
+are qualitative (boundary reasoning, liminal concepts). This is expected and it is
+the reason Phase C3 (z3 for logical/relational claims) and, later, semantic
+entailment matter: to ground qualitative thought you need more than sympy. B1's
+value today is (a) proving the loop works and stays honest, and (b) catching the
+rare forged thought that asserts a checkable falsehood.
