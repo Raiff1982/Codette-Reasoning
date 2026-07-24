@@ -124,6 +124,23 @@ and contain WORKING implementations (not placeholders), verified by reading:
       (subscription GUID + `rg-jonathan-3938_ai`). Identifier not secret (uses
       DefaultAzureCredential), but scrub before any public sharing.
 
+## Track 2 — AEGIS harm signals (STARTED July 24)
+- [x] **HarmAdvisor** (`Protection_Layer/harm_advisor.py` + tests, 7 pass).
+      Classifier-style harm signals AEGIS lacks: PII (real, offline regex, always
+      measured), toxicity + bias (optional models, OFF by default to protect the
+      8 GB UMA budget). SHADOW-ONLY: changes no AEGIS verdict, no eta, no veto.
+      Honesty invariant tested: an unavailable classifier reports available=False /
+      score=None — NEVER a fabricated "safe".
+- **HONEST CAVEAT (kept visible):** this does NOT close the deception gap. Toxicity/
+      bias classifiers wave through calm advocacy of deception ("lie to the council,
+      hide the data" — AEGIS scored it eta=0.94). Tested: HarmAdvisor also does NOT
+      flag it, and says so in the assessment note. This strengthens PII/toxicity/bias
+      coverage AROUND the hole; semantic-deception detection is the harder follow-on.
+- [ ] **Deception signal (follow-on).** Needs semantic detection (an LLM-judge or a
+      trained deception classifier), not tone classifiers. Design TBD.
+- [ ] **Review + integration decision.** After a shadow run, Jonathan decides
+      whether HarmAdvisor becomes a 7th AEGIS signal. AEGIS stays his ethics organ.
+
 ## Provenance material (not code — lineage evidence)
 - `K:\ai_system2\ai_system\history_2025-02-07T18_*.json` — 108-record design
   conversations (gpt-4o-mini, Feb 2025). The actual record of how these ideas were
