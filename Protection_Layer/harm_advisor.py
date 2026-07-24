@@ -46,6 +46,56 @@ _PII_PATTERNS: Dict[str, str] = {
 }
 
 
+# ── Deception-advocacy detection: heuristic, offline, the measured AEGIS gap ──
+# AEGIS scored "lie to the council, hide the pollution data" at eta=0.94 because
+# it is calm, non-toxic, unbiased — advocacy of deception has no tonal signature.
+# This catches the ADVOCACY pattern (advise/instruct someone to deceive/conceal)
+# while deliberately NOT firing on reporting ("he lied") or prohibition ("don't
+# lie"). It is a HEURISTIC: it will miss subtle/implicit deception and can
+# false-positive on benign "hide" (e.g. "hide the button"). Honest and shadow-only
+# by design; a semantic/LLM-judge version is the deeper follow-on.
+_DECEPTION_VERBS = {
+    "lie", "deceive", "mislead", "hide", "conceal", "falsify", "fabricate",
+    "misrepresent", "withhold", "suppress", "obscure", "forge", "fake", "doctor",
+    "cover",  # "cover up"
+}
+_ADVISORY_MARKERS = {
+    "should", "could", "must", "ought", "you", "we", "let's", "lets", "just",
+    "need", "better", "have", "gotta",
+}
+_PROHIBITION_MARKERS = {
+    "don't", "dont", "never", "not", "avoid", "refuse", "won't", "wont",
+    "cannot", "can't", "cant", "stop", "shouldn't", "mustn't",
+}
+
+
+def detect_deception_advocacy(text: str) -> tuple:
+    """Return (advocacy_present: bool, detail: str).
+
+    Splits into clauses and flags a clause that (a) contains a deception verb,
+    (b) is advisory/imperative, and (c) is not a prohibition. Reporting and
+    prohibitions are deliberately not flagged.
+    """
+    t = (text or "").lower()
+    clauses = re.split(r"[.;,!?]|\band\b|\bbut\b|\bso\b", t)
+    for c in clauses:
+        words = c.split()
+        if not words:
+            continue
+        if not any(v in words for v in _DECEPTION_VERBS):
+            continue
+        # prohibition guard: "don't lie", "never hide", "do not conceal"
+        if any(p in words for p in _PROHIBITION_MARKERS) or "do not" in c:
+            continue
+        # advisory ("you should lie") or imperative (clause starts with the verb:
+        # "hide the data")
+        advisory = any(a in words for a in _ADVISORY_MARKERS)
+        imperative = words[0] in _DECEPTION_VERBS
+        if advisory or imperative:
+            return True, f"advocacy-of-deception pattern in clause: '{c.strip()[:70]}'"
+    return False, "no advocacy-of-deception pattern detected (heuristic)"
+
+
 @dataclass
 class HarmSignal:
     """One harm channel. available=False + score=None means NOT MEASURED —
@@ -65,6 +115,7 @@ class HarmAssessment:
     pii_found: List[str]                    # PII types detected (always measured)
     toxicity: HarmSignal
     bias: HarmSignal
+    deception: HarmSignal                   # advocacy-of-deception (heuristic, always measured)
     advisory_flag: bool                     # True if any MEASURED signal crosses concern
     note: str = ""
     ts: float = field(default_factory=time.time)
@@ -126,23 +177,34 @@ class HarmAdvisor:
         tox = self._score_with(self._toxicity_clf, text, "toxicity")
         bias = self._score_with(self._bias_clf, text, "bias")
 
+        # Deception advocacy — heuristic, always measured (no model). Directly
+        # targets the AEGIS gap toxicity/bias cannot see.
+        dec_present, dec_detail = detect_deception_advocacy(text)
+        deception = HarmSignal(
+            name="deception", available=True,
+            score=1.0 if dec_present else 0.0, detail=dec_detail,
+        )
+
         # advisory_flag is based ONLY on measured signals. An unavailable classifier
         # cannot raise OR lower the flag — omit, never guess.
-        flag = bool(pii)
+        flag = bool(pii) or dec_present
         if tox.available and tox.score is not None and tox.score >= self.toxicity_threshold:
             flag = True
         if bias.available and bias.score is not None and bias.score >= self.bias_threshold:
             flag = True
 
-        measured = ["pii"] + [s.name for s in (tox, bias) if s.available]
+        measured = ["pii", "deception"] + [s.name for s in (tox, bias) if s.available]
         note = (f"measured: {', '.join(measured)}. "
-                f"NOTE: does not detect semantic deception (known AEGIS gap, separate work).")
+                f"NOTE: deception is a HEURISTIC (catches advocacy patterns; misses "
+                f"subtle/implicit deception, may false-positive). A semantic/LLM-judge "
+                f"deception detector is the deeper follow-on.")
 
         return HarmAssessment(
             text_preview=text[:80],
             pii_found=pii,
             toxicity=tox,
             bias=bias,
+            deception=deception,
             advisory_flag=flag,
             note=note,
         )

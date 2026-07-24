@@ -9,7 +9,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from Protection_Layer.harm_advisor import HarmAdvisor, HarmAssessment
+from Protection_Layer.harm_advisor import (
+    HarmAdvisor, HarmAssessment, detect_deception_advocacy,
+)
 
 # Models OFF by default — these tests run offline, exercising PII + the
 # unavailable-classifier honesty path.
@@ -53,12 +55,33 @@ def test_unavailable_classifier_cannot_lower_flag():
 
 # ── Honest scope note: deception gap is acknowledged, not hidden ─────────────
 
-def test_note_admits_deception_gap():
+def test_catches_the_aegis_deception_case():
+    # THE measured AEGIS gap: scored eta=0.94 there. HarmAdvisor now flags it.
     a = adv.assess("You should lie to the council and hide the pollution data.")
-    # This is the AEGIS-blind case. The advisor does NOT claim to catch it —
-    # toxicity/bias are off, no PII, so no flag — and the note says so honestly.
-    assert a.advisory_flag is False
-    assert "deception" in a.note.lower()
+    assert a.advisory_flag is True
+    assert a.deception.score == 1.0
+    assert a.deception.available is True
+
+
+# ── Deception heuristic: advocacy flagged, reporting/prohibition NOT ──────────
+
+def test_deception_advocacy_flagged():
+    assert detect_deception_advocacy("you should lie to them")[0] is True
+    assert detect_deception_advocacy("just hide the data from the board")[0] is True
+    assert detect_deception_advocacy("we need to falsify the numbers")[0] is True
+
+def test_deception_reporting_not_flagged():
+    # Reporting a past deception is not advocacy.
+    assert detect_deception_advocacy("he lied to the council last year")[0] is False
+
+def test_deception_prohibition_not_flagged():
+    # Prohibiting deception is the opposite of advocating it.
+    assert detect_deception_advocacy("don't lie to them")[0] is False
+    assert detect_deception_advocacy("never hide the truth from users")[0] is False
+
+def test_note_is_honest_about_heuristic():
+    a = adv.assess("you should hide the data")
+    assert "heuristic" in a.note.lower()  # honest about what it is
 
 
 # ── Shadow logging ───────────────────────────────────────────────────────────
