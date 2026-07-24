@@ -6,7 +6,7 @@
 standalone** — built, unit-tested, and committed, but **not yet wired into
 Codette's live behavior**. Nothing here gates a response, changes an AEGIS
 verdict, or trains a live model until its shadow log has been reviewed and the
-wiring is done deliberately. The *documentation* changes are live. 93 new tests
+wiring is done deliberately. The *documentation* changes are live. 91 new tests
 pass across the new modules.
 
 Codette can already CREATE thoughts (the cocoon synthesizer forges cross-domain

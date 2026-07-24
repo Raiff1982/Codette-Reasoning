@@ -57,7 +57,7 @@ model-index:
 
 Codette is a modular reasoning system that routes queries through specialized cognitive perspectives, tracks ethical and epistemic signals, stores memory as cocoons, and writes validator-backed v3 cocoon artifacts with full provenance and integrity scoring.
 
-**Current release — v3.7 (July 2026): The Verify Half + Shadow-Safety Layer.** Codette could always *create* thoughts (the cocoon synthesizer forges cross-domain patterns; the perspective web spawns new nodes) but never *verify* them. v3.7 builds the missing verifying half — a neuro-symbolic **grounding** layer (`reasoning_forge/grounding.py`, sympy + z3) that checks a claim and returns VERIFIED / REFUTED / UNVERIFIABLE, never a guessed pass; the real body of the 2025 `NeuralSymbolicProcessor` interface; an AEGIS **harm advisor** (PII + a deception-advocacy detector that closes AEGIS's one measured gap); a consolidated advanced **sentiment analyzer** with online learning; a drift-guarded **cocoon self-trainer**; and an **emotion-ontology** consumer. **These subsystems are shadow-first / standalone — built and tested (93 new tests), but not yet wired into live behavior; nothing gates a response or changes an AEGIS verdict until its shadow log is reviewed.** The router self-tuner's go-live blockers (benchmark contamination, boost ratchet) are also fixed, still shadow. Details: [docs/CHANGELOG_2026-07-24.md](docs/CHANGELOG_2026-07-24.md). North star: [docs/CODETTE_CHARTER.md](docs/CODETTE_CHARTER.md).
+**Current release — v3.7 (July 2026): The Verify Half + Shadow-Safety Layer.** Codette could always *create* thoughts (the cocoon synthesizer forges cross-domain patterns; the perspective web spawns new nodes) but never *verify* them. v3.7 builds the missing verifying half — a neuro-symbolic **grounding** layer (`reasoning_forge/grounding.py`, sympy + z3) that checks a claim and returns VERIFIED / REFUTED / UNVERIFIABLE, never a guessed pass; the real body of the 2025 `NeuralSymbolicProcessor` interface; an AEGIS **harm advisor** (PII + a deception-advocacy detector that closes AEGIS's one measured gap); a consolidated advanced **sentiment analyzer** with online learning; a drift-guarded **cocoon self-trainer**; and an **emotion-ontology** consumer. **These subsystems are shadow-first / standalone — built and tested (91 new tests), but not yet wired into live behavior; nothing gates a response or changes an AEGIS verdict until its shadow log is reviewed.** The router self-tuner's go-live blockers (benchmark contamination, boost ratchet) are also fixed, still shadow. Details: [docs/CHANGELOG_2026-07-24.md](docs/CHANGELOG_2026-07-24.md). North star: [docs/CODETTE_CHARTER.md](docs/CODETTE_CHARTER.md).
 
 **Previous release — v3.6 (July 2026): TimeTravelLens + AEGIS Protection Layers + UI Observatory.** Codette now auto-detects institutional temporal gaps in any query — computing preemption gap Π(s), closure score C(s), rupture indicator ℛ(s), beacon ℬ(s), and high-preemption zone Z^H via `reasoning_forge/time_travel_lens.py`. An `InstitutionalExtractor` derives these metrics from unstructured text (regex date extraction + keyword event classification). New AEGIS Protection Layers (all six implemented — Layer 4 uses real ML-KEM-768 + ML-DSA-65 post-quantum cryptography via liboqs, NIST FIPS 203/204) wrap every ForgeEngine cycle with filesystem isolation, boot integrity, PQC cocoon sealing, pre-emptive healing from real cocoon fields, and RenderLayer validation. A SQLite-backed metrics engine logs every forge cycle. New UI: `⏱ TimeLens` dashboard with live Π/C/ℛ/ℬ/Z^H display, per-actor gap breakdown, and on-demand text analysis. Details: [docs/CHANGELOG_2026-07-21.md](docs/CHANGELOG_2026-07-21.md).
 
@@ -126,7 +126,7 @@ Codette is a modular reasoning system with published demos, tests, benchmarks, p
 - **Automated tests:** [tests](tests)
 - **Benchmark suites:** [benchmarks](benchmarks)
 - **Saved benchmark reports:** [data/results](data/results)
-- **Change transparency:** latest — [docs/CHANGELOG_2026-07-17.md](docs/CHANGELOG_2026-07-17.md) · [docs/CHANGELOG_2026-07-16.md](docs/CHANGELOG_2026-07-16.md) · [docs/CHANGELOG_2026-07-12.md](docs/CHANGELOG_2026-07-12.md); every release summarized in [docs/VERSION_HISTORY.md](docs/VERSION_HISTORY.md); all dated changelogs in [docs/](docs/)
+- **Change transparency:** latest — [docs/CHANGELOG_2026-07-24.md](docs/CHANGELOG_2026-07-24.md) · [docs/CHANGELOG_2026-07-21.md](docs/CHANGELOG_2026-07-21.md) · [docs/CHANGELOG_2026-07-17.md](docs/CHANGELOG_2026-07-17.md); every release summarized in [docs/VERSION_HISTORY.md](docs/VERSION_HISTORY.md); all dated changelogs in [docs/](docs/)
 - **Contributing guide:** [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ### Reproduce key claims
@@ -145,6 +145,7 @@ Codette is a modular reasoning system with published demos, tests, benchmarks, p
 | Verify-and-Revise vs single-pass (paired) | `python benchmarks/gpqa_verify_revise.py --dataset gpqa_main.csv --limit 30` (server running) | `data/results/verify_revise/vr_*.json` |
 | Bully-critic integrity stress test | same + `--adversarial` | hold-ground rate + per-question traces in `data/results/verify_revise/` |
 | McNemar paired significance for any two runs | `python benchmarks/paired_analysis.py <a.json> <b.json>` | exact p, discordant counts, letter-bias table |
+| v3.7 verify-half + shadow-safety modules | `python -m pytest tests/test_grounding.py tests/test_grounding_bridge.py tests/test_grounding_z3.py tests/test_neural_symbolic.py tests/test_harm_advisor.py tests/test_sentiment_analyzer.py tests/test_cocoon_self_trainer.py tests/test_emotion_ontology.py tests/test_optimizer_ratchet.py -q` | 91 tests pass (grounding, harm advisor, sentiment, self-trainer, emotion ontology, optimizer ratchet) |
 
 ### Direct evidence links
 
@@ -181,6 +182,15 @@ This repository includes reproducible evidence of:
 | **Substrate-aware reasoning** | Resource pressure influences reasoning depth and routing instead of being ignored. |
 | **Real self-diagnostics** | Health checks expose measured subsystem values rather than generated guesses. |
 | **Publishable benchmark story** | Benchmarks, ablations, and saved outputs are included in the repo. |
+
+**New in v3.7 — the verifying half + shadow-safety layer. These are built and tested (91 new tests) but *shadow-first / standalone*: they observe and log, and do not gate a response or change an AEGIS verdict until their shadow log is reviewed and they are deliberately wired in.**
+
+| Feature (v3.7, shadow-first) | Description |
+|---|---|
+| **Neuro-symbolic grounding** | `verify(claim) → VERIFIED / REFUTED / UNVERIFIABLE` via sympy (arithmetic/algebra) and z3 (universal validity, cross-claim contradiction). A claim it cannot formalize returns UNVERIFIABLE — never a guessed pass. `reasoning_forge/grounding.py`, `grounding_bridge.py`; fills the real body of the 2025 `NeuralSymbolicProcessor` interface. |
+| **AEGIS harm advisor** | Classifier-style signals AEGIS's heuristics lack: PII (offline regex), optional toxicity/bias models (off by default), and a deception-advocacy detector that closes AEGIS's one *measured* gap (calm advocacy of deception scored η=0.94). Advisory only. `Protection_Layer/harm_advisor.py`. |
+| **Advanced sentiment + self-learning** | VADER+TextBlob ensemble, negation handling, and an online-adaptive classifier that *abstains until trained*; a cocoon self-trainer that learns from first-hand data with a drift guard (refuses degenerate/single-class data). `reasoning_forge/sentiment_analyzer.py`, `cocoon_self_trainer.py`. |
+| **Emotion ontology** | Text → emotion + valence/arousal (Russell/Plutchik/Lazarus), returns None rather than guessing. `reasoning_forge/emotion_ontology.py`. |
 
 See the architecture and proof docs for the fuller feature inventory.
 
