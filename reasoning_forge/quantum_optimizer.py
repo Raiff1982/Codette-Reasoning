@@ -389,29 +389,13 @@ class QuantumOptimizer:
             self.momentum[param] = self.learning_rate * momentum_factor
 
         elif len(recent) >= 5:
-            # Award incremental boosts only to ATTRIBUTABLE adapters. Synthesis
-            # turns aren't produced by one adapter, so they carry a non-
-            # attributable label ("synthesis"/"unknown") and are excluded — else
-            # the optimizer boosts a phantom channel (caught in shadow review).
-            _NON_ATTRIBUTABLE = {"synthesis", "unknown", ""}
-            adapter_scores: Dict[str, List[float]] = {}
-            for s in recent:
-                if s.adapter in _NON_ATTRIBUTABLE:
-                    continue
-                q = self._compute_quality(s)
-                adapter_scores.setdefault(s.adapter, []).append(q)
-
-            if adapter_scores:
-                best_adapter = max(
-                    adapter_scores,
-                    key=lambda k: sum(adapter_scores[k]) / len(adapter_scores[k])
-                )
-                param = f"adapter_boost_{best_adapter}"
-                old_val = self.state.adapter_boosts.get(best_adapter, 0.0)
-                new_val = min(0.3, old_val + (self.learning_rate * 0.5 * momentum_factor))
-                self.state.adapter_boosts[best_adapter] = new_val
-                reason = f"Boosting high-integrity adapter vector channel: {best_adapter}"
-                self.momentum[param] = self.learning_rate * 0.5 * momentum_factor
+            # Adapter-boost tuning is delegated to a decay+reward routine that can
+            # move boosts DOWN as well as up. This fixes the monotonic ratchet found
+            # in the 2026-07-24 clean-traffic shadow review (26 up / 2 down): the old
+            # rule only ever ADDED to the most-used adapter, so boosts climbed to the
+            # cap and never reflected relative performance. The routine records its
+            # own steps, so leave `param` empty here.
+            self._tune_adapter_boosts(recent, current_quality, momentum_factor)
 
         # If an explicit structural parameter update was committed, validate and update history
         if param and self.state.validate():
@@ -425,6 +409,71 @@ class QuantumOptimizer:
                 temperature=self.temperature,
                 step_type="adjustment"
             ))
+
+    def _tune_adapter_boosts(self, recent, current_quality: float, momentum_factor: float) -> None:
+        """Decay-and-reward adapter boosts — the fix for the monotonic ratchet.
+
+        Every tuning step, ALL existing boosts decay toward 0 (they must be
+        re-earned), and at most ONE adapter is rewarded: the best performer, and
+        only if there are >=2 adapters and it strictly out-performs the peer mean.
+        Consequences:
+          - A consistently-winning adapter settles at a BOUNDED equilibrium
+            (decay loss == reward gain), not pinned at the cap.
+          - An adapter that stops winning DECAYS back toward 0 (the down-moves the
+            old rule never produced).
+          - A single-adapter window (e.g. a benchmark burst) gets decay only, never
+            a reward — a second guard against the contamination pattern.
+        Records ups (reward) and downs (decay) transparently.
+        """
+        _NON_ATTRIBUTABLE = {"synthesis", "unknown", ""}
+        scores: Dict[str, List[float]] = {}
+        for s in recent:
+            if s.adapter in _NON_ATTRIBUTABLE:
+                continue
+            scores.setdefault(s.adapter, []).append(self._compute_quality(s))
+        if not scores:
+            return
+        means = {a: sum(v) / len(v) for a, v in scores.items()}
+        overall = sum(means.values()) / len(means)
+
+        _DECAY = 0.90                              # boosts fade 10%/step
+        reward = self.learning_rate * 0.5 * momentum_factor
+
+        before = dict(self.state.adapter_boosts)
+
+        # 1) decay every existing boost toward 0 (source of the DOWN-moves)
+        for a in list(self.state.adapter_boosts):
+            nb = self.state.adapter_boosts[a] * _DECAY
+            if nb < 0.01:
+                self.state.adapter_boosts.pop(a, None)
+            else:
+                self.state.adapter_boosts[a] = nb
+
+        # 2) reward the best adapter ONLY if it beats its peers (relative, not
+        #    "most used"). Single-adapter windows get no reward.
+        best = max(means, key=lambda k: means[k])
+        if len(means) >= 2 and means[best] > overall:
+            self.state.adapter_boosts[best] = min(
+                0.3, self.state.adapter_boosts.get(best, 0.0) + reward)
+
+        # 3) record net changes transparently (ups from reward, downs from decay)
+        after = self.state.adapter_boosts
+        for a in set(before) | set(after):
+            old = before.get(a, 0.0)
+            new = after.get(a, 0.0)
+            if abs(new - old) > 1e-6 and self.state.validate():
+                up = new > old
+                self.history.append(OptimizationStep(
+                    timestamp=time.time(),
+                    parameter=f"adapter_boost_{a}",
+                    old_value=float(old), new_value=float(new),
+                    reason=(f"reward: {a} out-performed peers "
+                            f"({means.get(a, 0.0):.3f} > mean {overall:.3f})" if up
+                            else f"decay: {a} boost fading toward 0 (must be re-earned)"),
+                    quality_score=current_quality,
+                    temperature=self.temperature,
+                    step_type="adjustment",
+                ))
 
     def _explore_parameters(self, current_quality: float) -> None:
         """Random exploration of parameter space with bounded perturbations."""
