@@ -141,6 +141,23 @@ and contain WORKING implementations (not placeholders), verified by reading:
 - [ ] **Review + integration decision.** After a shadow run, Jonathan decides
       whether HarmAdvisor becomes a 7th AEGIS signal. AEGIS stays his ethics organ.
 
+## Advanced Sentiment Analyzer (BUILT July 24)
+Consolidated from four archive versions Jonathan confirmed real (pi2_0 Python,
+pi3 C#, Dontwatchme). `reasoning_forge/sentiment_analyzer.py` + tests (11 pass):
+- [x] Ensemble: VADER + TextBlob fused (only measured methods count).
+- [x] Negation handling: `mark_negation` ("not good" -> "not NEG_good"), wired
+      into the adaptive model's input — his pi2_0 technique, actually used.
+- [x] Adaptive online learning: `_AdaptiveSentiment` (HashingVectorizer + SGD
+      partial_fit) — the real Python equivalent of the pi3 C# UpdateModelWithNewData.
+      ABSTAINS (scores None) until trained; joins the ensemble only once taught.
+- [x] Optional transformer (BERT): OFF by default (8 GB UMA), lazy, honest degrade.
+- Honesty: no method available -> measured=False, neutral flagged UNMEASURED, never
+  a fabricated reading. Untrained adaptive model never guesses.
+- [ ] STUBS NOT FAKED (archive TODOs, left honest): sarcasm detection,
+      domain-specific fine-tune, multimodal sentiment. Real follow-ons, not bodies.
+- [ ] Integration: wire into the empathy perspective / AEGIS `care` signal after
+      review (currently standalone). NOT yet wired live.
+
 ## Provenance material (not code — lineage evidence)
 - `K:\ai_system2\ai_system\history_2025-02-07T18_*.json` — 108-record design
   conversations (gpt-4o-mini, Feb 2025). The actual record of how these ideas were
