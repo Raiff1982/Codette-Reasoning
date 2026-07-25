@@ -208,7 +208,7 @@ class TestCocoonValidator:
         self.tmp = tempfile.mkdtemp()
         self.validator = CocoonValidator(
             store_path=self.tmp,
-            quarantine_path=os.path.join(self.tmp, "quarantine"),
+            low_confidence_path=os.path.join(self.tmp, "low_confidence"),
         )
 
     def test_full_cocoon_scores_above_08(self):
@@ -216,13 +216,25 @@ class TestCocoonValidator:
         result = self.validator.validate(cocoon)
         assert result.integrity_score >= 0.80
         assert result.integrity_status == "complete"
-        assert not result.should_quarantine
+        assert not result.needs_review
 
     def test_missing_eta_on_forge_full_lowers_score(self):
-        cocoon = make_full_v3_cocoon(eta_score=None)
+        # The schema now enforces eta on forge_full at construction, so build a
+        # valid cocoon and then null eta to exercise the validator's field-completion
+        # scoring (the layer this test covers). Missing eta must lower the score
+        # relative to a complete cocoon and be reported as missing.
+        full_score = self.validator.validate(make_full_v3_cocoon()).integrity_score
+        cocoon = make_full_v3_cocoon()
+        cocoon.eta_score = None
         result = self.validator.validate(cocoon)
-        assert result.integrity_score < 0.80
+        assert result.integrity_score < full_score
         assert "eta_score" in result.missing_fields
+
+    def test_missing_eta_on_forge_full_rejected_by_schema(self):
+        # Stronger invariant added after this suite was written: a forge_full
+        # cocoon cannot even be constructed without eta_score.
+        with pytest.raises(ValueError, match="eta_score"):
+            make_full_v3_cocoon(eta_score=None)
 
     def test_fallback_template_always_partial(self):
         cocoon = make_full_v3_cocoon(
@@ -247,7 +259,7 @@ class TestCocoonValidator:
     def test_quarantine_on_high_echo(self):
         cocoon = make_full_v3_cocoon(echo_risk="high")
         result = self.validator.validate(cocoon)
-        assert result.should_quarantine
+        assert result.needs_review
 
     def test_apply_result_mutates_cocoon(self):
         cocoon = make_full_v3_cocoon()
@@ -437,7 +449,7 @@ class TestReleaseGates:
         with tempfile.TemporaryDirectory() as tmp:
             validator = CocoonValidator(
                 store_path=tmp,
-                quarantine_path=os.path.join(tmp, "q"),
+                low_confidence_path=os.path.join(tmp, "q"),
             )
             cocoon = make_full_v3_cocoon()
             result = validator.validate(cocoon)
@@ -450,12 +462,12 @@ class TestReleaseGates:
         with tempfile.TemporaryDirectory() as tmp:
             validator = CocoonValidator(
                 store_path=tmp,
-                quarantine_path=os.path.join(tmp, "q"),
+                low_confidence_path=os.path.join(tmp, "low_confidence"),
                 integrity_threshold=0.4,
             )
             cocoon = make_full_v3_cocoon(echo_risk="high")
             path = validator.write(cocoon, filename_prefix="cocoon_v3")
-            # Must end up in quarantine
-            assert "quarantine" in str(path), (
-                f"High echo_risk cocoon must be quarantined. Got path: {path}"
+            # Must end up in the low-confidence store
+            assert "low_confidence" in str(path), (
+                f"High echo_risk cocoon must be routed to low_confidence. Got path: {path}"
             )

@@ -163,7 +163,7 @@ try:
     with tempfile.TemporaryDirectory() as tmp:
         validator = CocoonValidator(
             store_path=Path(tmp) / "cocoons",
-            quarantine_path=Path(tmp) / "quarantine",
+            low_confidence_path=Path(tmp) / "low_confidence",
         )
         result = validator.validate(cocoon)
         validator.apply_result(cocoon, result)
@@ -174,11 +174,11 @@ try:
               f"got {cocoon.cocoon_integrity!r}")
         check("missing_fields == []", result.missing_fields == [],
               str(result.missing_fields))
-        check("should_quarantine == False", not result.should_quarantine)
+        check("needs_review == False", not result.needs_review)
 
         written_path = validator.write(cocoon)
         check("cocoon written to disk", written_path.exists())
-        check("not written to quarantine", "quarantine" not in str(written_path))
+        check("not written to low_confidence", "low_confidence" not in str(written_path))
 
 except Exception as e:
     check("validator integrity check", False, str(e))
@@ -281,9 +281,9 @@ except Exception as e:
     check("subsystem contracts", False, str(e))
 
 
-# ── 5. Quarantine: high echo → quarantined ───────────────────────────────────
+# ── 5. Low-confidence routing: high echo → flagged for review ────────────────
 
-print("\n[5] Quarantine: high echo risk cocoon is quarantined")
+print("\n[5] Low-confidence routing: high echo risk cocoon is flagged for review")
 try:
     from reasoning_forge.cocoon_schema_v3 import build_cocoon_v3
     from reasoning_forge.cocoon_validator import CocoonValidator
@@ -302,16 +302,16 @@ try:
     with tempfile.TemporaryDirectory() as tmp:
         validator = CocoonValidator(
             store_path=Path(tmp) / "cocoons",
-            quarantine_path=Path(tmp) / "quarantine",
+            low_confidence_path=Path(tmp) / "low_confidence",
         )
         result = validator.validate(cocoon)
-        check("high echo risk: should_quarantine=True", result.should_quarantine,
-              f"should_quarantine={result.should_quarantine}")
+        check("high echo risk: needs_review=True", result.needs_review,
+              f"needs_review={result.needs_review}")
         written_path = validator.write(cocoon)
-        check("quarantined cocoon written to quarantine/", "quarantine" in str(written_path))
+        check("flagged cocoon written to low_confidence/", "low_confidence" in str(written_path))
 
 except Exception as e:
-    check("quarantine routing", False, str(e))
+    check("low-confidence routing", False, str(e))
 
 
 # ── 6. Regression alarm: v3 fallback counter must stay at zero ───────────────
