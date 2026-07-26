@@ -22,6 +22,16 @@ import os
 import time
 from pathlib import Path
 from collections import Counter, defaultdict
+
+# Shared cocoon-quality signal (see reasoning_forge/cocoon_authority.py). Guarded
+# so introspection degrades to unfiltered counts if the module is unavailable.
+try:
+    from reasoning_forge.cocoon_authority import is_low_authority as _is_low_authority
+except Exception:  # pragma: no cover
+    try:
+        from cocoon_authority import is_low_authority as _is_low_authority
+    except Exception:
+        _is_low_authority = None
 from typing import Dict, List, Optional, Tuple
 
 
@@ -103,10 +113,28 @@ class CocoonIntrospectionEngine:
         return dict(counts.most_common())
 
     def adapter_dominance(self) -> Dict:
-        """Detect adapter dominance — is one adapter taking over?"""
-        freq = self.adapter_frequency()
+        """Detect adapter dominance — is one adapter taking over?
+
+        Quality-filtered (2026-07-26): low-authority cocoons (a known parroter's
+        output, meta-recall, boilerplate) are excluded from the dominance signal
+        so substrate pollution doesn't skew her self-model — the mechanism behind
+        a falsely-reassuring self-check. The count of excluded cocoons is surfaced
+        (`low_authority_excluded`) so the pollution stays VISIBLE, not hidden."""
+        self._ensure_loaded()
+        counts = Counter()
+        excluded = 0
+        for c in self._cocoons:
+            adapter = c.get("adapter")
+            if not adapter or adapter == "unknown":
+                continue
+            if _is_low_authority is not None and _is_low_authority(c):
+                excluded += 1
+                continue
+            counts[adapter] += 1
+        freq = dict(counts.most_common())
         if not freq:
-            return {"dominant": None, "ratio": 0, "balanced": True}
+            return {"dominant": None, "ratio": 0, "balanced": True,
+                    "low_authority_excluded": excluded}
 
         total = sum(freq.values())
         top_adapter = max(freq, key=freq.get)
@@ -120,6 +148,7 @@ class CocoonIntrospectionEngine:
             "ratio": round(ratio, 3),
             "balanced": ratio < 0.4,  # <40% = balanced
             "all_adapters": freq,
+            "low_authority_excluded": excluded,
         }
 
     def domain_clusters(self) -> Dict[str, int]:
