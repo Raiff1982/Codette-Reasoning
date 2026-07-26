@@ -34,14 +34,36 @@ replacing the `Accepted; in press` placeholder.)*
 
 | Date | Milestone | Verifiable anchor |
 |---|---|---|
-| Nov–Dec 2024 | Multi-perspective engine (Newton / DaVinci / Quantum / Empathy) built | Development record |
-| **Apr 14, 2025** | **Sovereign cognitive architecture archived** | **Zenodo DOI [10.5281/zenodo.15214462](https://doi.org/10.5281/zenodo.15214462)** |
+| **Nov 20, 2024** | **"Pi the Assistant" registered (Azure AD app) + Teams app v1.0.0** | **Microsoft-side `createdDateTime` 2024-11-20; Teams manifest dated 2024-11-20 (see §2a)** |
+| Dec 11, 2024 | "Pi the Assistant 2.0" Copilot Studio managed solution (v1.1.0.1) | Microsoft Power Platform managed-solution export; full architecture embedded (see §2a) |
+| Jan–Feb 2025 | Pi the Assistant 2.0 running in Microsoft Teams; publicly demoed | Microsoft app **certification** package; "Pisinterview" video (Jonathan Harrison) |
+| Apr 14, 2025 | Sovereign cognitive architecture archived | Zenodo DOI [10.5281/zenodo.15214462](https://doi.org/10.5281/zenodo.15214462) |
 | Apr 10, 2026 | Dynamical-systems formalization, preprint | Research Square DOI [10.21203/rs.3.rs-9362560/v1](https://doi.org/10.21203/rs.3.rs-9362560/v1) |
 | Jul 24, 2026 | Accepted at _Scientific Reports_ | §1 above |
 
-The **April 14, 2025 Zenodo archive is the load-bearing timestamp**: it is a third-party,
-immutable, publicly datable record of the multi-perspective architecture that predates
-external convergent work (see §5).
+The earliest hard anchor is a **Microsoft-side app-registration `createdDateTime` of
+Nov 20, 2024** — among the hardest evidence to backdate, as it is Microsoft's own
+record, not a self-published file. It is reinforced by the **Dec 11, 2024 Power
+Platform managed solution** (architecture already present) and the **April 14, 2025
+Zenodo archive** (immutable, publicly datable). Together they place the
+multi-perspective architecture on record well before external convergent work (see §5).
+
+### 2a. Origins — Pi the Assistant (2024), the direct ancestor of Codette
+
+Codette grew from **"Pi the Assistant"** (publisher *Raiff's Bits*, developer *Raiff's
+Bits LLC*). The Dec 11, 2024 managed solution and the Feb 2025 Microsoft-certified
+Teams app both already carry Codette's full feature set:
+
+- multi-perspective reasoning — **Newton, Da Vinci, Einstein, Sun Tzu, Gandhi, Ada Lovelace**;
+- sentiment ensemble — **BERT + TextBlob + VADER** (with sarcasm/negation/contextual handling);
+- **ethical decision-making, emotional intelligence, transparency/explainability**;
+- privacy/consent management, quantum optimization (QAOA), bias mitigation (AI Fairness 360),
+  multimodal placeholders.
+
+The version number (**1.1.0.1**) implies earlier 1.0.x builds. *These artifacts are
+held privately; the managed-solution export contains authentication material and must
+not be published — only the dates, publisher, and capability manifest above are
+provenance-public.*
 
 ---
 
