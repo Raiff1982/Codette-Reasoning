@@ -1,7 +1,7 @@
 ---
 language:
 - en
-license: mit
+license: CSAL
 tags:
 - codette
 - multi-perspective-reasoning
