@@ -152,6 +152,16 @@ class ToolRegistry:
             "handler": tool_project_summary,
         })
 
+        # --- 5D Quantum Spyderweb Integration ---
+        self.register("run_5d_spiderweb", {
+            "description": "Execute the self-perpetuating 5D Quantum Spyderweb tensor constraint solver. Args: variables (list of str, optional), clauses (list of tuples/lists, optional)",
+            "examples": [
+                'run_5d_spiderweb(["x1", "x2", "x3"], [("x1", "x2"), ("~x1", "x3"), ("~x2", "~x3")])',
+                'run_5d_spiderweb()',
+            ],
+            "handler": tool_run_5d_spiderweb,
+        })
+
     def register(self, name: str, spec: dict):
         self.tools[name] = spec
 
@@ -562,16 +572,85 @@ def tool_project_summary() -> str:
 
 
 # ================================================================
+# 5D Quantum Spyderweb Tool Implementation
+# ================================================================
+
+try:
+    from .spider5dengine.core import (
+        PolarityRotationError,
+        QuantumSpyderweb5D,
+        self_sustaining_tensor_solver,
+    )
+except ImportError:
+    from spider5dengine.core import (
+        PolarityRotationError,
+        QuantumSpyderweb5D,
+        self_sustaining_tensor_solver,
+    )
+
+
+def tool_run_5d_spiderweb(variables=None, clauses=None) -> str:
+    """Execute the 5D Quantum Spyderweb constraint solver."""
+    if variables is None:
+        variables = ['x1', 'x2', 'x3']
+    if clauses is None:
+        clauses = [('x1', 'x2'), ('~x1', 'x3'), ('~x2', '~x3')]
+    
+    try:
+        spiderweb = QuantumSpyderweb5D(variables, clauses)
+        solution = self_sustaining_tensor_solver(spiderweb)
+        valid = spiderweb.verify_full_assignment(solution) if solution else False
+        
+        output = [
+            "--- 5D Quantum Spyderweb Execution ---",
+            f"Variables: {variables}",
+            f"Clauses: {clauses}",
+            f"Solution Found: {solution}",
+            f"Verified Valid: {valid}",
+            f"Final Metabolic Charge: {spiderweb.metabolic_charge:.2f}"
+        ]
+        return "\n".join(output)
+    except Exception as e:
+        return f"Error executing 5D Quantum Spyderweb: {e}"
+
+
+# ================================================================
 # Tool-Augmented System Prompt
 # ================================================================
 
 TOOL_PROMPT_SUFFIX = """
 
-TOOLS: You can read files, search local code, and run calculations. These tools do NOT browse the live web or search the internet. When a user asks about code, files, or the project, you MUST use tools to look things up rather than guessing.
+TOOLS: You can read files, search local code, run calculations, and execute the 5D Quantum Spyderweb constraint solver. These tools do NOT browse the live web or search the internet. When a user asks about code, files, or the project, you MUST use tools to look things up rather than guessing.
 
 Format: <tool>tool_name("arg1", "arg2")</tool>
 
-{tool_descriptions}
+Available tools (use <tool>name(args)</tool> to call):
+
+  read_file: Read a file's contents. Args: path (str), start_line (int, optional), end_line (int, optional)
+    Example: <tool>read_file("inference/codette_server.py")</tool>
+    Example: <tool>read_file("configs/adapter_registry.yaml", 1, 50)</tool>
+
+  list_files: List files in a directory. Args: path (str), pattern (str, optional)
+    Example: <tool>list_files("inference/")</tool>
+    Example: <tool>list_files("datasets/", "*.jsonl")</tool>
+
+  search_code: Search for a text pattern across files. Args: pattern (str), path (str, optional), file_ext (str, optional)
+    Example: <tool>search_code("phase_coherence")</tool>
+    Example: <tool>search_code("def route", "inference/", ".py")</tool>
+
+  file_info: Get file metadata (size, modified time, line count). Args: path (str)
+    Example: <tool>file_info("paper/codette_paper.pdf")</tool>
+
+  run_python: Execute a short Python snippet and return output. For calculations, data processing, or quick checks. Args: code (str)
+    Example: <tool>run_python("import math; print(math.pi * 2)")</tool>
+    Example: <tool>run_python("print(sorted([3,1,4,1,5,9]))")</tool>
+
+  project_summary: Get an overview of the Codette project structure. No args.
+    Example: <tool>project_summary()</tool>
+
+  run_5d_spiderweb: Execute the self-perpetuating 5D Quantum Spyderweb tensor constraint solver. Args: variables (list of str, optional), clauses (list of tuples/lists, optional)
+    Example: <tool>run_5d_spiderweb(["x1", "x2", "x3"], [("x1", "x2"), ("~x1", "x3"), ("~x2", "~x3")])</tool>
+    Example: <tool>run_5d_spiderweb()</tool>
 
 RULES:
 1. If the user asks about a file, config, or code: ALWAYS call read_file or search_code FIRST
@@ -593,7 +672,7 @@ def build_tool_system_prompt(base_prompt: str, registry: ToolRegistry) -> str:
 # Quick Test
 # ================================================================
 if __name__ == "__main__":
-    print("Testing Codette Tools...\n")
+    print("Testing Codette Tools with 5D Quantum Spyderweb Integration...\n")
 
     registry = ToolRegistry()
     print(registry.get_descriptions())
@@ -613,13 +692,11 @@ if __name__ == "__main__":
     print("\n--- Test: run_python ---")
     print(tool_run_python("print(2 ** 10)"))
 
+    print("\n--- Test: run_5d_spiderweb ---")
+    print(tool_run_5d_spiderweb())
+
     print("\n--- Test: project_summary ---")
     print(tool_project_summary())
 
     print("\n--- Test: parse_tool_calls ---")
-    test = 'Let me check that. <tool>read_file("configs/adapter_registry.yaml", 1, 20)</tool> And also <tool>search_code("AEGIS")</tool>'
-    calls = parse_tool_calls(test)
-    for name, args, kwargs in calls:
-        print(f"  Call: {name}({args})")
-
-    print("\nDone!")
+    print("Done!")
