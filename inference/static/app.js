@@ -873,7 +873,12 @@ function addMessage(role, content, meta = {}) {
         if (meta.cognition_state && meta.cognition_state.metrics) {
             const cm = meta.cognition_state.metrics;
             const parts = [];
-            if (cm.epistemic_tension !== undefined) parts.push(`ξ ${cm.epistemic_tension.toFixed(2)}`);
+            // Perspective Dispersion (Υ). `epistemic_tension` is the deprecated
+            // alias — read it only as a fallback for pre-rename payloads.
+            const dispersion = cm.perspective_dispersion !== undefined
+                ? cm.perspective_dispersion
+                : cm.epistemic_tension;
+            if (dispersion !== undefined) parts.push(`Υ ${dispersion.toFixed(2)}`);
             if (cm.coherence_index !== undefined) parts.push(`Γ ${cm.coherence_index.toFixed(2)}`);
             if (cm.web_coherence !== undefined) parts.push(`webΓ ${cm.web_coherence.toFixed(2)}`);
             if (cm.aegis_alignment !== undefined) parts.push(`η ${cm.aegis_alignment.toFixed(2)}`);
