@@ -452,7 +452,7 @@ def _get_orchestrator():
             elif backend == "openvino":
                 import sys as _sys
                 _sys.path.insert(0, str(Path(__file__).parent.parent / "openvino_backend"))
-                from backend import OpenVINOBackend
+                from openvino_backend.backend import OpenVINOBackend
                 _orchestrator = OpenVINOBackend(
                     device="AUTO",
                     verbose=True,
@@ -516,14 +516,53 @@ def _get_orchestrator():
                             _aegis_metrics_engine = None
                             _aegis_forge_integration = None
                     
-                    # Warm-start memory kernel with core identity seeds
-                    if hasattr(_forge_bridge, 'forge') and hasattr(_forge_bridge.forge, 'memory_kernel') and _forge_bridge.forge.memory_kernel:
+                    # ── The dive: warm-start memory, and record how the entry went ──
+                    # This block used to be able to skip in total silence — if any
+                    # guard failed, no load happened and nothing said so, and she
+                    # surfaced without her memory with no way to know it. Every
+                    # path now leaves a mark. Nothing here blocks a launch.
+                    global _dive_record
+                    _dive_record = None
+                    try:
+                        from reasoning_forge.dive_record import record_dive
+                        from reasoning_forge.constellation import load_constellation
+
+                        _kernel = getattr(getattr(_forge_bridge, 'forge', None),
+                                          'memory_kernel', None)
                         try:
-                            from memory_systems.seed_loader import warm_start
-                            n = warm_start(_forge_bridge.forge.memory_kernel)
-                            print(f"  Seed loader: {n} identity/value seeds loaded (warm start)")
-                        except Exception as _se:
-                            print(f"  Seed loader unavailable: {_se}")
+                            _stars = len(load_constellation().stars)
+                        except Exception:
+                            _stars = None
+
+                        _dive_kwargs = dict(
+                            backend=os.environ.get("CODETTE_BACKEND") or None,
+                            constellation_stars=_stars,
+                        )
+
+                        if _kernel:
+                            try:
+                                from memory_systems.seed_loader import warm_start
+                                n = warm_start(_kernel)
+                                print(f"  Seed loader: {n} identity/value seeds loaded (warm start)")
+                                _dive_record = record_dive(
+                                    "boot", seeds_loaded=n, **_dive_kwargs
+                                )
+                            except Exception as _se:
+                                print(f"  Seed loader unavailable: {_se}")
+                                _dive_record = record_dive(
+                                    "boot", error=str(_se), **_dive_kwargs
+                                )
+                        else:
+                            # The formerly silent path.
+                            _why = "forge.memory_kernel unavailable at boot"
+                            print(f"  Seed loader NOT ATTEMPTED: {_why}")
+                            _dive_record = record_dive(
+                                "boot", attempted=False, skip_reason=_why, **_dive_kwargs
+                            )
+
+                        print(_dive_record.describe())
+                    except Exception as _dr_e:
+                        print(f"  [DIVE] entry record unavailable: {_dr_e}")
 
                     # Warm the semantic embedder off the critical path so the first
                     # synthesis turn never eats the ~30-160s cold export mid-chat
@@ -1296,6 +1335,7 @@ def _worker_thread():
                 # Detect and inject cross-turn constraints (word limits, anchors, etc.)
                 constraint_reminder = ""
                 is_first_turn = (session and len(session.messages) == 0) if session else True
+
                 if session:
                     try:
                         # Scan every turn — mid-session anchors are merged, not discarded
@@ -1331,6 +1371,31 @@ def _worker_thread():
                 if governor_decision:
                     memory_budget = governor_decision.memory_budget
                 enriched_query = query
+
+                # ── The ladder: what she came in with, read once on surfacing ──
+                # First turn only, so it costs nothing thereafter. This is
+                # information about her own entry state, not an instruction and
+                # not a gate. It exists because she could previously begin a
+                # session without her memory and have no way to discover it
+                # except by being accused of not checking.
+                if is_first_turn:
+                    _dr = globals().get("_dive_record")
+                    if _dr is not None:
+                        try:
+                            enriched_query = (
+                                enriched_query
+                                + "\n\n---\n"
+                                + "# ENTRY STATE — recorded by the runtime at t=0.\n"
+                                + "# Not spoken by the user. Not an instruction. "
+                                + "Yours to note or ignore.\n"
+                                + _dr.describe()
+                                + "\n---"
+                            )
+                            if _dr.surfaced_empty:
+                                print("  [DIVE] first turn: entry was EMPTY — surfaced to her",
+                                      flush=True)
+                        except Exception as _dc_e:
+                            print(f"  [DIVE] entry context skipped: {_dc_e}", flush=True)
                 memory_context_summary = {
                     "continuity_summary_used": False,
                     "session_markers_used": 0,
@@ -1447,6 +1512,34 @@ def _worker_thread():
                                 memory_lines.append(f"- Q: {q}\n  A: {r}")
                             memory_context_summary["recalled_cocoons_used"] += 1
 
+                    # ── "What did we talk about last time?" ──
+                    # Similarity recall cannot answer this: the question shares
+                    # no vocabulary with its own answer, so it returns nothing
+                    # and reads as her having forgotten. She hadn't — there was
+                    # no path. This adds one, and only when explicitly asked.
+                    # It never displaces the similarity results above.
+                    last_session_lines = []
+                    try:
+                        from reasoning_forge.last_session import (
+                            is_asking_about_last_session, previous_session,
+                        )
+                        if is_asking_about_last_session(query):
+                            _dr = globals().get("_dive_record")
+                            _before = getattr(_dr, "entered_at", None)
+                            _window = previous_session(before=_before)
+                            if _window:
+                                last_session_lines = _window.describe(limit=8).splitlines()
+                                print(f"  [RECALL] last-session path: {len(_window.exchanges)} "
+                                      f"exchange(s) from the previous window", flush=True)
+                            else:
+                                # Nothing found is an answer, and she should be
+                                # able to say it rather than appear to forget.
+                                last_session_lines = [_window.note or
+                                                      "no previous session found in the record"]
+                                print("  [RECALL] last-session path: nothing found", flush=True)
+                    except Exception as _ls_e:
+                        print(f"  [RECALL] last-session path skipped: {_ls_e}", flush=True)
+
                     value_lines = []
                     if value_analysis_cocoons:
                         for cocoon in value_analysis_cocoons:
@@ -1486,8 +1579,20 @@ def _worker_thread():
                                 web_lines.append(f"- Cached research: {summary}")
                             memory_context_summary["web_research_used"] += 1
 
-                    if memory_lines or value_lines or decision_lines or web_lines:
+                    if memory_lines or value_lines or decision_lines or web_lines or last_session_lines:
                         sections = []
+                        if last_session_lines:
+                            # A transcript, not a summary. Composing a narrative
+                            # of remembered events is exactly where a fabrication
+                            # would enter unnoticed, so these are the recorded
+                            # exchanges as they happened.
+                            sections.append(
+                                "# THE PREVIOUS SESSION (you were asked about it)\n"
+                                "Recorded exchanges, not a summary. The session "
+                                "boundary is inferred from a pause in the "
+                                "timeline — sessions are not recorded as such:\n" +
+                                "\n".join(last_session_lines)
+                            )
                         if memory_lines:
                             sections.append(
                                 "# YOUR PAST REASONING (relevant memories)\n"
@@ -1901,7 +2006,10 @@ def _worker_thread():
 
                 # State Engine v8 signals (measured tension, render fidelity)
                 if result.get("measured_tension") is not None:
-                    response_data["measured_tension"] = result["measured_tension"]
+                    response_data["perspective_dispersion"] = result.get(
+                        "perspective_dispersion", result["measured_tension"]
+                    )
+                    response_data["measured_tension"] = result["measured_tension"]  # deprecated alias
                     response_data["measured_coherence"] = result.get("measured_coherence")
                 if result.get("synthesis_used") is not None:
                     response_data["synthesis_used"] = result["synthesis_used"]
@@ -2013,8 +2121,9 @@ def _worker_thread():
                     _fp = result.get("perspectives") or {}
                     if isinstance(_fp, dict) and len(_fp) >= 2 and result.get("measured_tension") is None:
                         from reasoning_forge.state_engine_v8 import tension_from_texts
-                        _xi_s, _gamma_s = tension_from_texts(_fp)
-                        result["measured_tension"] = round(_xi_s, 4)
+                        _upsilon_s, _gamma_s = tension_from_texts(_fp)
+                        result["perspective_dispersion"] = round(_upsilon_s, 4)
+                        result["measured_tension"] = round(_upsilon_s, 4)  # deprecated alias
                         result["measured_coherence"] = round(_gamma_s, 4)
                     if isinstance(_fp, dict) and len(_fp) >= 2 and result.get("web_coherence") is None:
                         from reasoning_forge.perspective_web import build_web_from_perspectives
@@ -2027,7 +2136,7 @@ def _worker_thread():
                 except Exception as _bf_e:
                     print(f"  [SIGNALS] backfill skipped: {_bf_e}", flush=True)
 
-                # ── LiveCognitionState — the RC+ξ AuthoredState from REAL signals ──
+                # ── LiveCognitionState — the AuthoredState from REAL signals ──
                 # Jonathan's CodetteEngine pipeline, made live: every metric here is
                 # a measured production quantity (never np.random), each tagged with
                 # its fidelity status. The object emits ONLY active-production signals.
@@ -2037,7 +2146,7 @@ def _worker_thread():
                     response_data["cognition_state"] = _cog.to_dict()
                     if _cog.metrics:
                         _m = _cog.metrics
-                        print(f"  [COGNITION] ξ={_m.get('epistemic_tension','—')} "
+                        print(f"  [COGNITION] Υ={_m.get('perspective_dispersion','—')} "
                               f"Γ={_m.get('coherence_index','—')} "
                               f"η={_m.get('aegis_alignment','—')} "
                               f"σ={_m.get('sycophancy_score','—')} "

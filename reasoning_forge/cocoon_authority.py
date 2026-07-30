@@ -54,7 +54,42 @@ _BOILERPLATE_RE = re.compile(
 _W_PARROT = 0.5
 _W_META = 0.7
 _W_BOILERPLATE = 0.7
+# A response that reproduces its own query is the least ambiguous evidence of
+# parroting there is — structural, not a learned signature — so it demotes
+# hardest. Added 2026-07-30: cocoons whose response was character-for-character
+# their own query scored 1.0/clean/unflagged, were recalled at rank 1-3, and were
+# shown to her under the heading "YOUR PAST REASONING" — teaching the echo the
+# parrot detector could not see.
+_W_ECHO = 0.4
 _FLOOR = 0.2
+
+# Below this many words, matching text is ordinary rather than evidence: short
+# confirmations and one-line answers legitimately restate the question.
+_ECHO_MIN_WORDS = 8
+_ECHO_SIMILARITY = 0.9
+
+
+def _norm_words(text: str) -> List[str]:
+    return "".join(
+        c if c.isalnum() or c.isspace() else " " for c in (text or "").lower()
+    ).split()
+
+
+def _is_verbatim_echo(query: str, response: str) -> bool:
+    """Whether a response just hands the query back.
+
+    Requires a real amount of text — a short answer restating the question is
+    normal conversation, not evidence. Absent a query, returns False: an
+    unknown must not be scored as a fault.
+    """
+    q_words, r_words = _norm_words(query), _norm_words(response)
+    if len(q_words) < _ECHO_MIN_WORDS or len(r_words) < _ECHO_MIN_WORDS:
+        return False
+    if q_words == r_words:
+        return True
+    q_set, r_set = set(q_words), set(r_words)
+    overlap = len(q_set & r_set) / (len(q_set) or 1)
+    return overlap >= _ECHO_SIMILARITY and len(r_words) <= len(q_words) * 1.5
 
 
 @dataclass
@@ -75,11 +110,15 @@ def authority(cocoon: dict) -> Authority:
     returns weight 1.0 and no flags; known-bad patterns multiply it down."""
     adapter = cocoon.get("adapter") or ""
     resp = cocoon.get("response") or ""
+    query = cocoon.get("query") or ""
     w = 1.0
     flags: List[str] = []
     if adapter in PARROT_ADAPTERS:
         w *= _W_PARROT
         flags.append("parroter")
+    if _is_verbatim_echo(query, resp):
+        w *= _W_ECHO
+        flags.append("verbatim-echo")
     if _META_RECALL_RE.search(resp):
         w *= _W_META
         flags.append("meta-recall")
