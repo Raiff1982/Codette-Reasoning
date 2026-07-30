@@ -659,21 +659,21 @@ class OpenVINOBackend:
                 perspectives[name] = text
                 total_tokens += tokens
 
-            # ── State Engine v8: tension-gated synthesis ──
+            # ── State Engine v8: dispersion-gated synthesis ──
             # Measure actual disagreement between the perspectives. When they
-            # agree (low xi), the synthesis LLM call adds latency but no
+            # agree (low Υ), the synthesis LLM call adds latency but no
             # information — use the primary perspective directly. Only pay for
             # synthesis when there is real disagreement to reconcile.
-            _xi, _gamma = 0.0, 1.0
+            _upsilon, _gamma = 0.0, 1.0
             _synthesis_used = False
             try:
                 from reasoning_forge.state_engine_v8 import tension_from_texts
-                _xi, _gamma = tension_from_texts(perspectives)
+                _upsilon, _gamma = tension_from_texts(perspectives)
             except Exception:
                 pass
 
-            _TENSION_SYNTH_THRESHOLD = 0.20  # tunable once field data accumulates
-            if len(perspectives) > 1 and _xi >= _TENSION_SYNTH_THRESHOLD:
+            _DISPERSION_SYNTH_THRESHOLD = 0.20  # tunable once field data accumulates
+            if len(perspectives) > 1 and _upsilon >= _DISPERSION_SYNTH_THRESHOLD:
                 synthesis = self._synthesize(query, perspectives)
                 _synthesis_used = True
             elif perspectives:
@@ -683,7 +683,7 @@ class OpenVINOBackend:
             else:
                 synthesis = ""
 
-            print(f"  [TENSION] xi={_xi:.4f} gamma={_gamma:.4f} — "
+            print(f"  [DISPERSION] upsilon={_upsilon:.4f} gamma={_gamma:.4f} — "
                   f"{'synthesis (perspectives disagree)' if _synthesis_used else 'primary direct (perspectives agree)'}",
                   flush=True)
 
@@ -695,7 +695,8 @@ class OpenVINOBackend:
                 "route": route,
                 "tokens": total_tokens,
                 "time": time.time() - t0,
-                "measured_tension": round(_xi, 4),
+                "perspective_dispersion": round(_upsilon, 4),
+                "measured_tension": round(_upsilon, 4),  # deprecated alias of Υ
                 "measured_coherence": round(_gamma, 4),
                 "synthesis_used": _synthesis_used,
             }
