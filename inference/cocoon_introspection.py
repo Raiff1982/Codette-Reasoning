@@ -21,6 +21,7 @@ import json
 import os
 import time
 from pathlib import Path
+import sqlite3
 from collections import Counter, defaultdict
 
 # Shared cocoon-quality signal (see reasoning_forge/cocoon_authority.py). Guarded
@@ -46,55 +47,101 @@ class CocoonIntrospectionEngine:
         self._behavioral = []
         self._loaded = False
 
+    # Canonical store (2026-07-26): reasoning cocoons come from the SQLite store
+    # recall uses — so self-checks reflect her REAL working memory, not a legacy
+    # JSON snapshot. Her memory used to be fragmented (JSON files / SQLite /
+    # Supabase, each read by a different consumer); introspection reading the stale
+    # JSON files is why her self-diagnostics could reassure from the wrong ledger.
+    _SQLITE_DB = Path(__file__).parent.parent / "data" / "codette_memory.db"
+
     def _load_all(self):
-        """Load all cocoon files from disk."""
+        """Load reasoning cocoons from the canonical SQLite store (falling back to
+        the legacy JSON files), plus hand-crafted behavioral anchors from JSON."""
         if self._loaded:
             return
 
         self._cocoons = []
         self._behavioral = []
 
-        if not self.cocoons_dir.exists():
-            self._loaded = True
-            return
+        # PRIMARY: reasoning cocoons from SQLite (the store recall reads).
+        if not self._load_reasoning_from_sqlite():
+            self._load_reasoning_from_json()   # fallback: legacy JSON reasoning cocoons
 
+        # Behavioral anchors are hand-crafted JSON only — always from disk.
+        self._load_behavioral_from_json()
+
+        self._cocoons.sort(key=lambda c: c["timestamp"])
+        self._loaded = True
+
+    def _load_reasoning_from_sqlite(self) -> bool:
+        """Load reasoning cocoons from the canonical SQLite store, READ-ONLY (never
+        locks or writes the DB the live server holds open). Returns False if
+        unavailable so the caller can fall back to JSON."""
+        if not self._SQLITE_DB.exists():
+            return False
+        try:
+            conn = sqlite3.connect(f"file:{self._SQLITE_DB}?mode=ro", uri=True)
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(
+                "SELECT id, query, response, adapter, timestamp, metadata_json FROM cocoons"
+            ).fetchall()
+            conn.close()
+        except Exception:
+            return False
+        for r in rows:
+            try:
+                meta = json.loads(r["metadata_json"] or "{}")
+            except Exception:
+                meta = {}
+            self._cocoons.append({
+                "id": r["id"],
+                "timestamp": r["timestamp"] or 0,
+                "query": r["query"] or "",
+                "response": r["response"] or "",
+                "adapter": r["adapter"] or "unknown",
+                "metadata": meta,
+                "file": "sqlite",
+            })
+        return True
+
+    def _load_reasoning_from_json(self):
+        """Fallback: legacy timestamped reasoning cocoons from JSON files."""
+        if not self.cocoons_dir.exists():
+            return
         for f in sorted(self.cocoons_dir.glob("*.json")):
             try:
                 data = json.loads(f.read_text(encoding="utf-8"))
-
-                # Timestamped reasoning cocoons (auto-generated)
-                if isinstance(data, dict) and data.get("type") == "reasoning":
-                    wrapped = data.get("wrapped", {})
-                    self._cocoons.append({
-                        "id": data.get("id", f.stem),
-                        "timestamp": data.get("timestamp", 0),
-                        "query": wrapped.get("query", ""),
-                        "response": wrapped.get("response", ""),
-                        "adapter": wrapped.get("adapter", "unknown"),
-                        "metadata": wrapped.get("metadata", {}),
-                        "file": f.name,
-                    })
-
-                # Named behavioral cocoons (hand-crafted)
-                elif isinstance(data, dict) and "title" in data:
-                    self._behavioral.append({
-                        "title": data.get("title", ""),
-                        "emotion": data.get("emotion", ""),
-                        "summary": data.get("summary", ""),
-                        "tags": data.get("tags", []),
-                        "file": f.name,
-                    })
-
-                # Project awareness or other special cocoons
-                elif isinstance(data, dict) and data.get("type") == "consciousness_awareness":
-                    pass  # Skip — this is self-knowledge, not reasoning data
-
             except (json.JSONDecodeError, UnicodeDecodeError):
                 continue
+            if isinstance(data, dict) and data.get("type") == "reasoning":
+                wrapped = data.get("wrapped", {})
+                self._cocoons.append({
+                    "id": data.get("id", f.stem),
+                    "timestamp": data.get("timestamp", 0),
+                    "query": wrapped.get("query", ""),
+                    "response": wrapped.get("response", ""),
+                    "adapter": wrapped.get("adapter", "unknown"),
+                    "metadata": wrapped.get("metadata", {}),
+                    "file": f.name,
+                })
 
-        # Sort by timestamp
-        self._cocoons.sort(key=lambda c: c["timestamp"])
-        self._loaded = True
+    def _load_behavioral_from_json(self):
+        """Hand-crafted behavioral/anchor cocoons (JSON only — not in SQLite)."""
+        if not self.cocoons_dir.exists():
+            return
+        for f in sorted(self.cocoons_dir.glob("*.json")):
+            try:
+                data = json.loads(f.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, UnicodeDecodeError):
+                continue
+            if isinstance(data, dict) and "title" in data and data.get("type") != "reasoning":
+                self._behavioral.append({
+                    "title": data.get("title", ""),
+                    "emotion": data.get("emotion", ""),
+                    "summary": data.get("summary", ""),
+                    "tags": data.get("tags", []),
+                    "file": f.name,
+                })
 
     def _ensure_loaded(self):
         if not self._loaded:
