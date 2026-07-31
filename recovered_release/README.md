@@ -165,3 +165,48 @@ Also skipped as already present or superseded: `SolenaAI` (both revisions, taken
 in the first pass), `cognition_cocooner.py`, `universal_reasoning_clean.py`, and
 a 27-line `universal_reasoning.py` stub distinct from the 255-line version in
 `legacy/`.
+
+---
+
+# Third pass — code stored inside Word documents
+
+Across all archives, **43 unique `.docx` files contain Python source**, not
+prose. They were invisible to every earlier sweep because those looked at file
+extensions. The filenames do not describe the contents: `balls.docx`,
+`podbay.docx`, `readyplayer1.docx`, `whattowwtchoutfor1.docx`, `6 copy.docx`.
+
+Of the 43, ten hold code found nowhere else in this repository. They are in
+`from_docx/`, renamed for what they actually do, with the original filename
+recorded in each module docstring.
+
+| Module | Recovered from | Defines |
+|---|---|---|
+| `quantum_pipeline.py` | `allforone.docx` | `codette_quantum_pipeline`, `codette_spiderweb_synthesis`, `funnel_to_webs`, `quantum_walk_web` |
+| `emotional_webs.py` | `balls.docx` | `build_emotional_webs`, `run_quantum_spiderweb` |
+| `spiderweb_nodes.py` | `Document (12) copy.docx` | `SpiderNode`, `TensionSpike` |
+| `cocoon_self_check.py` | `conpleteweb.docx` | `self_check_cocoon` |
+| `genomic_codette_ai.py` | `Document626.docx` | `GenomicCodetteAI` and its agent functions |
+| `codette_heart.py` | `heart2.docx` | `CodetteHeart` (distinct from `CodetteQuantumHeart`) |
+| `advanced_codette_ai.py` | `cleanup.docx` | `AdvancedCodetteAI` — multi-agent null repair, recursion control |
+| `ethics_evaluator.py` | `Documenttestrun.docx` | `evaluate_ethics` |
+| `quantum_memory_audit.py` | `adit2.docx` | `quantum_memory_audit` |
+| `quantum_nightmare_echo.py` | `6 copy.docx` | `QuantumNightmareEcho`, `NightmareSimulator`, `EchoPulse`, `CollapseDetected` |
+
+The other 33 duplicate material already recovered — `error1`, `harmonics1`,
+`heart`, `memory1`, `qbert`, `head`, `testing1`, and so on — or are alternate
+drafts of each other (`readyplayer1` = `cleanup`, `randomfakecodeagain` =
+`error1`, `universalweb` = `headbox2`, `Documenttest` = `Documenteorkw`).
+
+## Damage patterns found in this pass
+
+Four documents needed repair beyond the usual glyph substitution:
+
+- **Trailing prose appended to source.** `cleanup.docx` and `readyplayer1.docx`
+  end with narrative after the last code line. Recovered by keeping the longest
+  parsing prefix — 61 of 63 lines, and 54 of 56.
+- **Fenced blocks inside narrative.** `copilotsweb.docx` is prose wrapping three
+  fenced blocks; only the `python` one is source.
+- **Non-breaking spaces (U+00A0) and smart quotes** used where ASCII was meant.
+
+`Document (14).docx` was reclassified out of the code set entirely: it is a
+system prompt, not source.
