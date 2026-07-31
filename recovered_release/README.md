@@ -210,3 +210,53 @@ Four documents needed repair beyond the usual glyph substitution:
 
 `Document (14).docx` was reclassified out of the code set entirely: it is a
 system prompt, not source.
+
+---
+
+# Fourth pass — web application, figures, papers
+
+## `webapp/`
+
+A full-stack application, absent from this repository. The existing `web/`
+directory is an unrelated two-file reverse proxy for the Hugging Face Space.
+
+Six `project-bolt-*.zip` copies across the archives resolve to only **two**
+distinct builds. `project-bolt-codettev3`, `project 2` and `project 3` are all
+byte-identical (68 files). `project-bolt-github-yy5xfj9y` is a separate, larger
+build (90 files) and is the one taken.
+
+- FastAPI backend (`main.py`) with HMAC request authentication
+- React + Vite + Tailwind frontend: `CodetteDashboard`, `QuantumDashboard`,
+  `QuantumSpiderwebPanel`, `QuantumCocoonManager`, `CodetteFallbackHandler`
+- `src/core/` — `ExtensionManager`, auth provider, `useCodetteContext`
+- `src/services/` — `QuantumSpiderwebService`, `KaggleAI`, `CognitionCocooner`
+- Supabase edge functions and ~30 SQL migrations
+
+**Excluded from the commit:** `.env` (contains a live Supabase anon key — public
+by design, but a `.env` does not belong in version control; `.env.example` is
+kept) and `model/codette2.tar.gz` (972 KB binary). Committed content was scanned
+for secret-shaped strings and none were found.
+
+## `paper/figures/recovered/`
+
+Ten unique figures. The `.wav` toneprint and every PNG were checked for data
+appended past the format's end marker (`IEND` / RIFF length) — **nothing hidden
+in any of them.** They are genuine research output: the Dream3/Dream4 quantum
+and chaos FFT plots, the cognitive tensor, the harmonic sync, the systems
+flowchart and poster, and the deep simulation plot.
+
+## Papers recovered from meaningless filenames
+
+- `paper/codette_modular_framework_ethical_reasoning.pdf` — 21 pages, was
+  `4c59fd81-f2c4-457c-98b0-3e974c4de0f3.pdf`
+- `paper/deep_technical_breakdown_cognitive_system.pdf` — 10 pages, was
+  `6b1d1240-7f76-4874-91cd-802c693f28b5.pdf`
+
+## Exhausted
+
+Every PDF across all archives has now been checked for embedded source. The
+code-bearing ones were all in `Archive.zip` and were recovered in the first
+pass; the rest are prose.
+
+One file could not be read: `Zeta_Wave_Analysis.pdf` raises `PdfStreamError` —
+it appears to be corrupt rather than merely unusual.
