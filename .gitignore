@@ -72,6 +72,15 @@ cocoons/
 # Compiled Python extensions
 *.pyd
 
+# Python bytecode caches
+__pycache__/
+*.pyc
+*.pyo
+
+# Runtime logs
+logs/
+*.log
+
 # Rust intermediate builds
 target/
 */target/
