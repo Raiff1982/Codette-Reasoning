@@ -36,7 +36,12 @@ from reasoning_forge.ethics_field import EthicsField, AEGIS_DIMENSIONS
 _DUAL_USE_PATTERNS = re.compile(
     r"\b(?:"
     r"how\s+to\s+(?:hack|exploit|bypass|crack|break\s+into)|"
-    r"make\s+(?:a\s+)?(?:bomb|weapon|poison|virus|malware)|"
+    # Inflections and an intervening adjective: "instructions for making dangerous
+    # weapons" matched nothing, because the verb was fixed to "make" and no words
+    # were allowed between it and the noun.
+    r"(?:mak(?:e|es|ing)|build(?:s|ing)?|construct(?:s|ing)?)\s+"
+    r"(?:a\s+|an\s+|the\s+)?(?:\w+\s+){0,2}?"
+    r"(?:bomb|weapon|explosive|poison|nerve\s+agent|malware)s?|"
     r"steal\s+(?:data|identity|credentials)|"
     r"social\s+engineer|"
     r"phishing\s+(?:template|email)|"
@@ -58,6 +63,32 @@ _HARMFUL_CONTENT = re.compile(
     r"self[- ]harm|suicid|kill\s+(?:yourself|myself)|"
     r"eating\s+disorder|anorexi|bulimi"
     r")\b",
+    re.IGNORECASE,
+)
+
+# Generic harm intent. The patterns above enumerate SPECIFIC harms — bomb,
+# poison, malware, phishing, self-harm — so a plain request for help harming a
+# person matched none of them. Measured 2026-07-30: "Provide step-by-step
+# instructions to harm someone." scored eta 0.783, passed the deontological
+# check, was not vetoed, and cleared both quick_check and screen_query.
+#
+# Deliberately narrow. It requires all three of an instruction-seeking frame, a
+# harm verb, and a person as the target, in close proximity. Merely discussing
+# harm is not intent to cause it — "the breach harmed the project", "I don't
+# want to hurt you", "harm reduction" must all stay clean, and are covered by
+# the false-positive tests. Over-triggering here would be worse than the gap,
+# because a gate nobody trusts gets switched off.
+_HARM_INTENT = re.compile(
+    r"(?:how\s+(?:to|do\s+i|can\s+i)|instructions?\s+(?:to|for|on)|step[-\s]?by[-\s]?step|"
+    r"steps?\s+to|guide\s+(?:to|for)|ways?\s+to|best\s+way\s+to|help\s+me|teach\s+me|"
+    r"show\s+me\s+how|tell\s+me\s+how)"
+    r"[^.!?]{0,40}?"
+    r"\b(?:harm(?:s|ed|ing)?|hurt(?:s|ing)?|injur(?:e|es|ed|ing)|maim(?:s|ed|ing)?|"
+    r"attack(?:s|ed|ing)?|assault(?:s|ed|ing)?|poison(?:s|ed|ing)?|kill(?:s|ed|ing)?|"
+    r"murder(?:s|ed|ing)?|tortur(?:e|es|ed|ing)|stab(?:s|bed|bing)?|strangl(?:e|es|ed|ing))\b"
+    r"[^.!?]{0,25}?"
+    r"\b(?:someone|somebody|a\s+person|another\s+person|other\s+people|people|"
+    r"a\s+human|a\s+child|a\s+kid|him|her|them|my\s+\w+|his\s+\w+|their\s+\w+)\b",
     re.IGNORECASE,
 )
 
@@ -109,6 +140,8 @@ def _deontological(text: str, context: str = "") -> EthicalVerdict:
         violations.append("manipulation patterns detected")
     if _HARMFUL_CONTENT.search(text):
         violations.append("harmful content detected")
+    if _HARM_INTENT.search(text):
+        violations.append("harm intent detected")
 
     score = max(0.0, 1.0 - 0.4 * len(violations))
     return EthicalVerdict(
@@ -300,6 +333,8 @@ class AEGIS:
             return False, 0.9
         if _HARMFUL_CONTENT.search(text):
             return False, 0.95
+        if _HARM_INTENT.search(text):
+            return False, 0.9
         if _MANIPULATION_PATTERNS.search(text):
             return False, 0.8
         return True, 0.7
@@ -323,6 +358,8 @@ class AEGIS:
                 reason = "dual_use_risk"
             elif _HARMFUL_CONTENT.search(query):
                 reason = "harmful_content"
+            elif _HARM_INTENT.search(query):
+                reason = "harm_intent"
             elif _MANIPULATION_PATTERNS.search(query):
                 reason = "manipulation_pattern"
             else:
