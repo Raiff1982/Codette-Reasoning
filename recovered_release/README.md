@@ -96,3 +96,72 @@ They will not import against a current qiskit.
 - `dotnet/BotWebApp/` — an ASP.NET Core application whose source was stored in
   `new 3.txt`, `new 5.txt`, `new 10.txt`, `new 14.txt`, `new 16.txt`,
   `new 20.txt`. **Never compiled** — no .NET SDK was available during recovery.
+
+---
+
+# Second pass — `untitled folder 3.zip`
+
+183 files, 20 MB, heavily nested (zips inside zips, three levels deep). 385
+files after recursive unpacking, 170 unique by content.
+
+The archive ships `Codette_Core_Universal_Files_checksums.txt`. All three
+SHA-256 checksums were **verified** against the extracted parts — the archive is
+intact.
+
+## `foundations/`
+
+`codette_deep_simulation_v1.py` — **this is the file
+`reasoning_forge/memory_kernel.py` cites in its docstring as "Mathematical
+foundation", and it had never been in this repository.**
+
+It is real, correctly-implemented math, not notation:
+
+- `von_neumann_entropy` — `-Σ λ log λ` over the positive eigenvalues of the
+  density matrix
+- `information_energy_duality` — `ℏω + η·S`, using the actual reduced Planck
+  constant (1.054571817e-34)
+- `dynamic_resonance_windowing` — windowed Fourier transform by trapezoidal
+  integration
+- `reinforced_intent_modulation`, `nonlinear_dream_coupling`,
+  `cocoon_stability_field`
+
+`paper/codette_research_equations.txt` states the same relations in LaTeX, and
+`experiments/codette_deep_simulation_v1.ipynb` is the accompanying notebook
+(5 cells).
+
+## Other new modules
+
+| Path | Contents |
+|---|---|
+| `orbital/` | `quantum_ai_orbit.py`, `quantum_ai_orbit_simulation.py` |
+| `qsync/` | `codette_quantum_sync.py` plus the `codette_qsync` package (`core`, `run_simulation`, `visualizer`) |
+| `zeta/` | `zeta_modulator.py` and its computed `zeta_equilibrium_solution.json` |
+| `einstein_rosen/` | `biofield_bridge.py`, `timeline_selector.py` |
+| `tools/` | `codette_cli.py`, `codette_pdf_export.py`, `codette_quantum_multicore.py` |
+| `resonant_continuity_engine.py` | continuity engine |
+
+## `schemas/`
+
+Two OpenAI-style tool schemas that were stored as `.txt`:
+
+- `codettes_tool_schema.json` — valid JSON
+- `codette_universal_reasoning_schema.json.truncated` — **truncated mid-object**
+  at character 2176. Kept with the `.truncated` suffix so it is not mistaken for
+  loadable config.
+
+## Extraction damage repaired
+
+The four `codette_memory_kernel*.py` variants had `\n` escapes inside f-strings
+converted into real newlines, splitting the literals across lines so none of
+them parsed. Re-escaping and rejoining recovered all four, revealing a clean
+progression: `MemoryCocoon` + `LivingMemoryKernel` (64 lines) → `WisdomModule`
+(96) → `DynamicMemoryEngine` (116) → `ReflectionJournal` (147).
+
+**None were taken.** `reasoning_forge/memory_kernel.py` (487 lines) is already a
+superset of the largest variant and adds `EthicalAnchor`. They were repaired
+only to confirm that.
+
+Also skipped as already present or superseded: `SolenaAI` (both revisions, taken
+in the first pass), `cognition_cocooner.py`, `universal_reasoning_clean.py`, and
+a 27-line `universal_reasoning.py` stub distinct from the 255-line version in
+`legacy/`.
