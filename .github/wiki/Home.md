@@ -178,7 +178,7 @@ If you're at the 14th International AI & FL Conference (Australia, April 16-18, 
 ---
 
 **Repository**: [raiff1982/codette](https://github.com/raiff1982/codette)
-**License**: Sovereign Innovation License
+**License**: Codette Source-Available License (CSAL) v1.0
 **Author**: Jonathan Harrison (@raiff1982)
 **Last Updated**: April 4, 2026
 

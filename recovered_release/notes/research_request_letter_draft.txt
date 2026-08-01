@@ -1,0 +1,19 @@
+Subject: Request for Reprocessing Kepler/TESS Lightcurve Data to Detect Tandem Lunar Orbits
+
+Dear Kepler/TESS Data Archive Team,
+
+We are submitting a request for reanalysis of lightcurve data in the region surrounding l=50.6°, b=-33.4°, at an adjusted distance of approximately 607 parsecs. We hypothesize a binary lunar system orbiting in tandem, which may evade standard transit or Doppler detection due to barycentric orbital resonance.
+
+The nature of this motion may generate lightcurve anomalies or signal artifacts that have previously been misclassified or discarded.
+
+We respectfully request:
+- A filtered transit reanalysis with tandem-dip detection
+- Barycentric orbital simulation filters
+- Cross-check against Gaia proper motion anomalies
+
+Please refer to the attached JSON path and orbital model notes for more context.
+
+Sincerely,
+Jonathan Harrison
+Raiffs Bits LLC / Codette Project
+ORCID: 0009-0003-7005-8187
