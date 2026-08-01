@@ -1,0 +1,13 @@
+# Dependencies for the modules in this folder.
+# Import name -> package name differs for some of these.
+numpy
+scipy
+matplotlib          # also provides mpl_toolkits
+pandas
+networkx
+requests
+scikit-learn        # imported as sklearn
+textblob            # imported by the from_chat_history modules
+werkzeug            # imported by secure_database.py
+fpdf                # imported by tools/codette_pdf_export.py
+pytest              # for test_universal_reasoning.py
