@@ -151,7 +151,7 @@ class CodetteSubsystemUpgrade:
 
 
 class ForgeManifoldEngine:
-    """Production RC+ξ manifold — Jonathan's ForgeManifoldEngine, adopted with
+    """Production dispersion manifold — Jonathan's ForgeManifoldEngine, adopted with
     two fixes and a real ethical target.
 
     Fixes over the sketch:

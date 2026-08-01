@@ -1,0 +1,115 @@
+{
+  "Core Controller": {
+    "Module": "AICoreFinal",
+    "Source": "timezone247.docx",
+    "Purpose": "Primary orchestration; manages multi-agent, neural-symbolic, and predictive components.",
+    "Integrates With": [
+      "Ethical Layer",
+      "Self-Healing",
+      "Quantum Thought Engine",
+      "Memory Systems"
+    ]
+  },
+  "Ethical Layer": {
+    "Module": "EthicalAIGovernance",
+    "Source": "ethical_governance.py",
+    "Purpose": "Applies transparency, fairness, privacy, and accountability rules to decisions.",
+    "Integrates With": [
+      "Core Controller",
+      "Output Stage"
+    ]
+  },
+  "Self-Healing & Improvement": {
+    "Modules": [
+      "SelfImprovingAI",
+      "AdvancedDataProcessor"
+    ],
+    "Source": [
+      "self_improving_ai.py",
+      "data_processing.py"
+    ],
+    "Purpose": "Monitors health, detects anomalies, and adapts algorithms based on feedback.",
+    "Integrates With": [
+      "Core Controller",
+      "Memory Systems"
+    ]
+  },
+  "Neuro-Symbolic Engine": {
+    "Module": "NeuroSymbolicEngine",
+    "Source": "neuro_symbolic.py",
+    "Purpose": "Blends symbolic reasoning with neural model responses.",
+    "Integrates With": [
+      "Core Controller",
+      "Creative Engine"
+    ]
+  },
+  "Creative Engine": {
+    "Module": "AIDrivenCreativity",
+    "Source": "ai_driven_creativity.py",
+    "Purpose": "Generates art, music, and literature.",
+    "Integrates With": [
+      "Neuro-Symbolic Engine",
+      "Output Stage"
+    ]
+  },
+  "Quantum Thought Engine": {
+    "Modules": [
+      "QuantumSpiderweb",
+      "CodetteQuantumMulticore"
+    ],
+    "Source": [
+      "quantum_spiderweb.py",
+      "codette_quantum_multicore.py"
+    ],
+    "Purpose": "Simulates thought propagation, uncertainty, and collapse in a graph-like structure.",
+    "Integrates With": [
+      "Core Controller",
+      "Philosophical Layer"
+    ]
+  },
+  "Philosophical Layer": {
+    "Modules": [
+      "CodetteQuantumMulticore2",
+      "CodetteMeta3D"
+    ],
+    "Source": [
+      "codette_quantum_multicore2.py",
+      "codette_meta_3d.py"
+    ],
+    "Purpose": "Interprets cognitive states metaphorically and philosophically; visualizes thought clusters.",
+    "Integrates With": [
+      "Quantum Thought Engine",
+      "Output Stage"
+    ]
+  },
+  "Memory Systems": {
+    "Modules": [
+      "CognitionCocooner"
+    ],
+    "Source": [
+      "codette_quantum_multicore.py",
+      "timezone247.docx"
+    ],
+    "Purpose": "Encrypts, stores, and retrieves reasoning states ('cocoons').",
+    "Integrates With": [
+      "Core Controller",
+      "Self-Healing"
+    ]
+  },
+  "Simulation Engine": {
+    "Module": "fruityfresh Simulation Core",
+    "Source": "fruityfresh.docx",
+    "Purpose": "Physics-based and multi-agent dynamic simulations for testing reasoning in virtual environments.",
+    "Integrates With": [
+      "Core Controller",
+      "Creative Engine"
+    ]
+  },
+  "Output Stage": {
+    "Purpose": "Final filtered, enriched, and ethically-checked responses to the user.",
+    "Feeds": [
+      "User Interface",
+      "APIs"
+    ]
+  }
+}

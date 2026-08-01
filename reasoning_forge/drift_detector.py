@@ -3,7 +3,7 @@ Longitudinal Drift Detector
 ============================
 
 Reads the accumulated LivingMemoryKernelV2 store and surfaces four categories
-of drift that matter for RC+ξ continuity:
+of drift that matter for Perspective Dispersion (Υ) continuity:
 
     1. Epsilon trend       — is epistemic tension rising, falling, or stable?
     2. Perspective lock    — is one perspective dominating at >LOCK_THRESHOLD?
