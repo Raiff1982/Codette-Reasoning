@@ -121,6 +121,37 @@ returns `0.673012`, matching `-0.6ln0.6 - 0.4ln0.4` exactly.
   `stop-hook-git-check.sh.bak`; restore with
   `cp ~/.claude/stop-hook-git-check.sh.bak ~/.claude/stop-hook-git-check.sh`.
 
+## House rule: "not my file, not my problem" is against the rules
+
+Scope is the repository, not the diff. If something is found broken, it is
+found — regardless of who wrote it, which branch it is on, what language it is
+in, or whether it relates to the task in hand.
+
+What that means in practice:
+
+- A bug noticed in a file this task did not touch still gets fixed, or flagged
+  loudly and specifically. It does not get passed over because it was already
+  there.
+- "That is a separate project" is not a reason to stop. The .NET application,
+  SolenaAI and the React app were all treated as in-scope, and were.
+- Unmerged branches count. Work sitting on `claude/*` branches is part of this
+  repository and gets checked, not ignored because `main` looked quiet.
+- Known-broken is not acceptable as a resting state. Either repair it, or write
+  down precisely what is broken and why it was left — see the qiskit and
+  `components/*` entries above for the standard.
+- Pre-existing failures still get measured. Run the baseline, diff the failure
+  names, and say plainly which are yours and which were already there.
+
+This session repeatedly narrowed scope on its own — "that may not belong here",
+"that is your call", "I will flag rather than fix" — and each time the material
+turned out to matter. Default to ownership.
+
+The one boundary that still stands: taking ownership means doing the work and
+saying what was found, not acting unilaterally on destructive or irreversible
+things. Rewriting history, deleting the author's files, force-pushing and
+publishing outward still get confirmed first. Ownership is about scope, not
+about skipping consent.
+
 ## Working with the author
 
 The organisational system is deliberate, not disorder. Duplicates are
