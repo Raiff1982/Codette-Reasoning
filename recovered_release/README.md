@@ -381,3 +381,43 @@ Those module names match `integration_architecture.json` exactly, so the design
 is documented — but **none of the implementations appear in any archive**, and
 the chat histories do not contain them either. They are the one genuine gap left
 in the recovery.
+
+---
+
+# Final pass — verified exhausted
+
+`tools/archive_diff.py` was run over every archive after the recovery. All
+report **NEW=0**: nothing code-bearing remains unrecovered in any of them.
+
+Closing that out required two last items and one correction of my own.
+
+## `compliance/`
+
+Eight modules extracted from fenced blocks inside
+`docs/compliance/sentinal_fips_nist_ai_rmf.md`: `FIPSCompliantSentinal`,
+`RiskMappingAgent`, `ComplianceManager`, `CryptographicAuditTrail`,
+`ContinuousRiskAssessment`, `ComplianceReporter`, `DataLineageTracker`,
+`ComplianceMonitor`.
+
+That document was committed earlier as prose and its code was never mined —
+`archive_diff` caught the omission on its first run, which is the point of
+having the tool. These are illustrative of the FIPS/NIST AI RMF mapping and
+reference helpers (a crypto module, the agent council, the NSE) that are not
+defined alongside them, so they will not run as-is.
+
+## Two stragglers
+
+- `cognitive_processor.py` — `CognitiveProcessor`, a multi-perspective analysis
+  engine. It exists **only** in the `project-bolt-codettev3` web build, which is
+  not the build taken into `webapp/` (that is the larger
+  `project-bolt-github-yy5xfj9y`). Taking the bigger build lost this one file.
+- `render_meta_results.py` — a different implementation from
+  `experiments/codette_meta_3d.py`. That one is a script; this exposes a
+  callable. Neither supersedes the other.
+
+## Integrity at close
+
+- 604 Python files across the repository parse
+- 27 tests pass
+- no `.env` tracked, no secret-shaped strings anywhere in the tree
+- every archive reports NEW=0
