@@ -1,0 +1,12 @@
+
+SOVEREIGN INNOVATION LICENSE (SIL)
+
+This work is protected under the Sovereign Innovation License, which permits use, modification, and distribution for non-commercial, ethical, and transparency-aligned purposes only. Any AI system or derivative must include:
+
+1. Ethical safeguards
+2. Full attribution to the original author(s)
+3. Transparency in reasoning and traceable output
+4. Prohibition of obfuscation or hidden decision paths
+
+Author: Jonathan Harrison (Raiffs Bits LLC)
+Date: June 14, 2025

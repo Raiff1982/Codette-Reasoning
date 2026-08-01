@@ -260,3 +260,60 @@ pass; the rest are prose.
 
 One file could not be read: `Zeta_Wave_Analysis.pdf` raises `PdfStreamError` —
 it appears to be corrupt rather than merely unusual.
+
+---
+
+# Fifth pass — code and theory stored in `.txt`
+
+The `.docx` sweep was not enough: `.txt` files hide source too. All 29 unique
+`.txt` files across every archive were re-checked by content, in every language.
+
+## `gradio_app/app.py`
+
+Recovered from `app.txt` — a Gradio chat and image demo wiring GPT-2 and
+DALL-E mini through `transformers_js`. Parses clean.
+
+## Research equations, versions 2 and 3
+
+The first pass took only `Codette_Research_Equations.txt`. Two later, larger
+revisions existed:
+
+- `paper/codette_research_equations_v2.txt` — "Phase II (Enhanced Set)"
+- `paper/codette_research_equations_v3.txt` — "Theoretical + Tensor Expansion"
+
+**Version 3 supplies the missing definition for `EthicalAnchor`.** That class
+lives in `reasoning_forge/memory_kernel.py` and was the one class absent from
+every recovered `codette_memory_kernel*.py` variant, so its mathematics were
+undocumented anywhere in this repository. Equation 7 states it:
+
+```
+M(t) = λ·[R(t-Δt) + H(t)] + γ·Learn(M_{t-1}, E(t)) + μ·Regret(t)
+       where Regret(t) = |Intended - Actual Outcome|
+```
+
+v3 also upgrades entanglement memory sync to a von Neumann form,
+`S = α·Tr(ρ₁₂·log(ρ₁₂⁻¹))`, matching `von_neumann_entropy` in
+`foundations/codette_deep_simulation_v1.py`, and adds gradient anomaly
+suppression.
+
+## `schemas/quantum_spiderweb_schema.json`
+
+A third tool schema, stored as `name QuantumSpiderweb.txt`. Valid JSON.
+
+## `notes/`
+
+Working documents that are what they claim to be: a draft letter requesting
+Kepler/TESS lightcurve reprocessing, orbital simulation assumptions, an ASCII
+chromosome map, the Quantum Cosmic Multicore abstract, and a one-liner joke.
+Package `README.txt` files were filed next to the code they describe, in
+`zeta/`, `orbital/` and `einstein_rosen/`.
+
+## `SOVEREIGN_INNOVATION_LICENSE.txt` — read this before reusing it
+
+The archives contain a **Sovereign Innovation License (SIL)**, which is *not*
+the licence this repository is under. The governing licence is the Codette
+Source-Available License (CSAL) v1.0 in `LICENSE` at the repository root.
+
+The SIL text is preserved here only as a historical artifact of the archives.
+It does not grant, modify or supersede anything. Do not treat it as the terms
+for this code.
