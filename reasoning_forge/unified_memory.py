@@ -26,6 +26,16 @@ import json
 import math
 import sqlite3
 import threading
+
+# Shared cocoon-quality signal (demotion-only; see cocoon_authority.py). Guarded
+# import so recall degrades to unfiltered behaviour if the module is unavailable.
+try:
+    from reasoning_forge.cocoon_authority import authority as _cocoon_authority
+except Exception:  # pragma: no cover
+    try:
+        from cocoon_authority import authority as _cocoon_authority
+    except Exception:
+        _cocoon_authority = None
 import time
 import hashlib
 import os
@@ -313,6 +323,17 @@ class UnifiedMemory:
                     success_weight * success_score +
                     identity_weight * identity_score
                 )
+
+                # Authority demotion (2026-07-26): down-weight known-polluted
+                # cocoons (parroter / meta-recall / boilerplate) so real sources
+                # out-rank the parroter's later echoes. DEMOTION-ONLY (weight ≤ 1.0)
+                # so a clean cocoon's score is unchanged — this cannot over-boost.
+                if _cocoon_authority is not None:
+                    auth = _cocoon_authority(cocoon)
+                    combined *= auth.weight
+                    if auth.flags:
+                        cocoon["_authority"] = round(auth.weight, 3)
+                        cocoon["_authority_flags"] = auth.flags
 
                 cocoon["_rank_score"] = round(combined, 4)
                 cocoon.pop("rank", None)

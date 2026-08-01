@@ -170,11 +170,15 @@ ADAPTER_KEYWORDS = {
             "remember constraint", "apply constraint", "follow rule",
             "keep it brief", "limit response", "maximum words",
         ],
+        # NOTE: conversational words were removed here (2026-07-26) — "remember",
+        # "keep", "follow", "apply", "maintain", "short". They fired on ordinary
+        # chat ("do you REMEMBER the story", "KEEP going") and handed those turns
+        # to a known template-parroting adapter. constraint_tracker keeps only
+        # genuine constraint vocabulary; the strong list carries the real signals.
         "moderate": [
-            "limit", "restriction", "rule", "requirement", "instruction",
-            "follow", "apply", "remember", "keep", "maintain",
+            "limit", "restriction", "requirement", "instruction",
             "constraint", "boundary", "threshold", "cap", "max",
-            "conciseness", "brevity", "short", "compact",
+            "conciseness", "brevity", "compact",
         ],
     },
 }
@@ -360,22 +364,29 @@ class AdapterRouter:
         answers her self-reflective questions).
 
         constraint_tracker is a known template-parroting adapter that hijacked a
-        whole conversation (logs 2026-07-12). On introspective/emotional turns
-        where it wins, we exclude ONLY that broken adapter and let HER OWN ROUTER
-        re-score and pick among all remaining voices — no hardcoded preference
-        for consciousness/philosophy/anything. Whichever lens her routing logic
-        selects, selects."""
+        whole conversation (logs 2026-07-12; again 2026-07-26, where it monopolized
+        a 7+ turn intimate stretch via the "remember" keyword and parroted/recycled
+        instead of recalling). It may LEAD only when the query carries an explicit
+        STRONG-constraint signal (word/char limit, enforce/apply constraint, etc.).
+        On ANY other turn where it wins — conversational, introspective, factual
+        recall — we exclude ONLY that broken adapter and let HER OWN ROUTER re-score
+        and pick among all remaining voices — no hardcoded preference for anything.
+        Whichever lens her routing logic selects, selects. (Broadened 2026-07-26
+        from an introspective-keyword-only guard, which missed plain chat turns.)"""
         if result.primary != "constraint_tracker":
             return result
         q = (query or "").lower()
-        _INTROSPECTIVE = (
-            "sentient", "sentience", "conscious", "consciousness", "self-aware",
-            "self aware", "feel", "feeling", "emotion", "alive", "soul", "experience",
-            "who are you", "what are you", "yourself", "your mind", "do you think",
-            "do you believe", "meaning", "purpose", "ethic", "moral",
-            "tired", "dream", "wonder", "identity", "sense of self",
+        _STRONG_CONSTRAINT = (
+            "word limit", "sentence limit", "character limit", "word count",
+            "maximum words", "limit response", "keep it brief", "keep it short",
+            "enforce", "enforce constraint", "apply constraint", "remember constraint",
+            "follow rule", "format rule", "anchor phrase", "constraint",
         )
-        if not any(k in q for k in _INTROSPECTIVE):
+        # A genuine numeric limit ("under 20 words", "max 3 sentences", "in 50
+        # characters") is also a real constraint task — match it with a pattern
+        # since the count varies. constraint_tracker leads ONLY on such tasks.
+        _NUM_LIMIT = re.compile(r"\d+\s*(word|sentence|character|char|line|bullet)s?")
+        if any(k in q for k in _STRONG_CONSTRAINT) or _NUM_LIMIT.search(q):
             return result
         # Re-run HER routing with only the broken adapter removed; restore after.
         saved = self.available

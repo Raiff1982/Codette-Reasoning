@@ -123,9 +123,52 @@ def run_python(code: str) -> str:
         return f"Execution error: {e}"
 
 
+# ================================================================
+# 5D Quantum Spyderweb Integration
+# ================================================================
+
+try:
+    from .spider5dengine.core import (
+        PolarityRotationError,
+        QuantumSpyderweb5D,
+        self_sustaining_tensor_solver,
+    )
+except ImportError:
+    from spider5dengine.core import (
+        PolarityRotationError,
+        QuantumSpyderweb5D,
+        self_sustaining_tensor_solver,
+    )
+
+
+def run_5d_spiderweb(variables: Optional[List[str]] = None, clauses: Optional[List[Tuple[str, ...]]] = None) -> str:
+    """Execute the self-perpetuating 5D Quantum Spyderweb tensor constraint solver."""
+    if variables is None:
+        variables = ['x1', 'x2', 'x3']
+    if clauses is None:
+        clauses = [('x1', 'x2'), ('~x1', 'x3'), ('~x2', '~x3')]
+    
+    try:
+        spiderweb = QuantumSpyderweb5D(variables, clauses)
+        solution = self_sustaining_tensor_solver(spiderweb)
+        valid = spiderweb.verify_full_assignment(solution) if solution else False
+        
+        output = [
+            "--- 5D Quantum Spyderweb Execution ---",
+            f"Variables: {variables}",
+            f"Clauses: {clauses}",
+            f"Solution Found: {solution}",
+            f"Verified Valid: {valid}",
+            f"Final Metabolic Charge: {spiderweb.metabolic_charge:.2f}"
+        ]
+        return "\n".join(output)
+    except Exception as e:
+        return f"Error executing 5D Quantum Spyderweb: {e}"
+
+
 def project_summary() -> str:
     """Project overview."""
-    return "Codette Reasoning Forge — Core modules loaded. Tools active."
+    return "Codette Reasoning Forge — Core modules loaded. Tools active (including 5D Quantum Spyderweb)."
 
 
 class CodetteToolRegistry:
@@ -140,6 +183,7 @@ class CodetteToolRegistry:
         self.register("run_python", run_python)
         self.register("validate_code_syntax", validate_code_syntax)
         self.register("project_summary", project_summary)
+        self.register("run_5d_spiderweb", run_5d_spiderweb)
 
     def register(self, name: str, handler):
         self.tools[name] = {"handler": handler}

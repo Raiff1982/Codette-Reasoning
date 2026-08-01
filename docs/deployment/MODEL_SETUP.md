@@ -185,7 +185,7 @@ print(engine.get_loaded_adapters())
 
 ### Adapters
 - All adapters trained with PEFT (Parameter-Efficient Fine-Tuning)
-- Licensed under Sovereign Innovation License (Jonathan Harrison)
+- Licensed under the Codette Source-Available License (CSAL) v1.0 (Jonathan Harrison)
 - See `LICENSE` for full details
 
 ## Performance Benchmarks

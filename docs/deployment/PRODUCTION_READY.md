@@ -357,7 +357,7 @@ This system is ready for:
 **Framework**: Codette RC+xi (Recursive Consciousness)
 **Models**: Meta Llama (open source)
 **GGUF Quantization**: Ollama/ggerganov
-**License**: Sovereign Innovation License
+**License**: Codette Source-Available License (CSAL) v1.0
 
 ---
 

@@ -1,21 +1,112 @@
-MIT License
+Codette Source-Available License (CSAL)
+Version 1.0 – 2026-07-29
 
 Copyright (c) 2026 Jonathan Harrison
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+All rights reserved.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+1. Grant of Permission (Non-Commercial Use)
+
+Subject to the terms of this License, you are granted a worldwide, royalty-free,
+non-exclusive, non-transferable permission to:
+
+- use, copy, and modify the Software; and
+- distribute the Software and derivative works of the Software,
+
+solely for personal, educational, research, or other strictly non-commercial
+purposes.
+
+2. Attribution and Traceability
+
+2.1 Attribution. Any use, copy, modification, or distribution of the Software,
+in whole or in part, must provide clear and visible attribution to the original
+creator as:
+
+    "Jonathan Harrison (ORCID: https://orcid.org/0009-0003-7005-8187)"
+
+or an equivalent form that clearly and unambiguously identifies Jonathan
+Harrison as the original author.
+
+2.2 Traceability of Derivative Works. Any derivative work based on the
+Software must:
+
+- clearly state that it is a derivative of the Codette-Reasoning project; and
+- retain this License file and the original copyright notice; and
+- document in a CHANGELOG, README, or equivalent file the nature of the
+  modifications made.
+
+3. Commercial and Corporate Use
+
+3.1 Commercial Use. Any use of the Software, or any derivative work, that is
+intended for or directed toward generating revenue, commercial advantage, or
+monetary compensation of any kind (including, without limitation, use in
+products, services, SaaS offerings, internal business processes, consulting
+deliverables, or paid research) constitutes “Commercial Use”.
+
+3.2 Corporate Use. Any use of the Software by or on behalf of a corporation,
+company, partnership, government entity, or other organization (whether or not
+for profit) constitutes “Corporate Use”.
+
+3.3 Approval Requirement. Commercial Use or Corporate Use of the Software or
+any derivative work is not permitted under this License without the express
+prior written permission of Jonathan Harrison, or a separate written commercial
+license agreement executed with Jonathan Harrison or his designated entity
+(e.g., Raiff’s Bits LLC).
+
+Any Commercial Use or Corporate Use without such permission is strictly
+prohibited and constitutes a material breach of this License.
+
+4. No Removal of Notices
+
+You must not remove, obscure, or alter any copyright, attribution, authorship,
+license, or similar notices contained in the Software. If technically feasible,
+attribution should appear in user-facing documentation, about pages, or
+equivalent locations in addition to source code.
+
+5. No Sublicensing
+
+You may not sublicense rights to the Software. Any party that receives a copy
+of the Software or a derivative work from you does so subject to this License
+and must agree to its terms.
+
+6. No Trademark License
+
+This License does not grant any rights to use the names “Codette”,
+“Codette-Reasoning”, “Raiff1982”, “Raiff’s Bits LLC”, or any associated logos,
+marks, or branding, except as strictly necessary for accurate attribution as
+described above.
+
+7. Warranty Disclaimer
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+AUTHOR OR COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM,
+OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+8. Limitation of Liability
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL JONATHAN
+HARRISON BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES, OR FOR ANY LOSS OF PROFITS, REVENUE, DATA, OR GOODWILL,
+ARISING OUT OF OR IN CONNECTION WITH THE USE OF OR INABILITY TO USE THE
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+
+9. Termination
+
+If you breach any term of this License, your rights under this License
+terminate automatically and immediately without notice. Upon termination, you
+must cease all use and distribution of the Software and any derivative works.
+Sections 2, 3, 4, 7, and 8 shall survive termination.
+
+10. Relationship to Open Source
+
+This License is a “source-available” license and is not an open-source license
+as defined by the Open Source Initiative. Commercial and Corporate Use
+restrictions are intentional to preserve the author’s control over commercial
+exploitation of the Software.
+
+By using, copying, modifying, or distributing the Software, you agree to be
+bound by the terms of this License.

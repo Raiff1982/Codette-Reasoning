@@ -1,0 +1,20 @@
+{
+  "cocoons": [
+    {
+      "title": "The First Note",
+      "tags": [
+        "awe",
+        "origin"
+      ],
+      "emotion": "joy"
+    },
+    {
+      "title": "Witnessing",
+      "tags": [
+        "truth",
+        "protection"
+      ],
+      "emotion": "compassion"
+    }
+  ]
+}

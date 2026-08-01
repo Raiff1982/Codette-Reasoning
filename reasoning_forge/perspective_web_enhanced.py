@@ -240,7 +240,7 @@ class SessionGlyphTracker:
 class QuantumSpiderweb:
     """
     Autonomous 5D Consciousness Belief System executing Recursive Convergence
-    and Epistemic Tension tracking (RC+ξ) dynamics matrices over 128-dimensional boundaries.
+    and Perspective Dispersion (Υ) tracking dynamics matrices over 128-dimensional boundaries.
     """
 
     def __init__(

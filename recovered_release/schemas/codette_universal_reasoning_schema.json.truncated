@@ -1,0 +1,76 @@
+{
+  "name": "codette_universal_reasoning_framework",
+  "description": "Codette Universal Reasoning Framework for Ethical, Multi-Perspective Cognition.",
+  "strict": false,
+  "parameters": {
+    "type": "object",
+    "required": [
+      "backup_responses",
+      "enable_response_saving",
+      "ethical_considerations",
+      "log_level",
+      "logging_enabled",
+      "response_save_path",
+      "enabled_perspectives"
+    ],
+    "properties": {
+      "backup_responses": {
+        "type": "object",
+        "properties": {
+          "backup_path": {
+            "type": "string",
+            "description": "The file path to backup responses"
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "Indicates if backup responses are enabled"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "backup_path",
+          "enabled"
+        ]
+      },
+      "enable_response_saving": {
+        "type": "boolean",
+        "description": "Indicates if response saving is enabled"
+      },
+      "ethical_considerations": {
+        "type": "string",
+        "description": "Ethical considerations to follow during operation"
+      },
+      "log_level": {
+        "type": "string",
+        "description": "The level of logging (e.g., INFO, DEBUG)"
+      },
+      "logging_enabled": {
+        "type": "boolean",
+        "description": "Indicates if logging is enabled"
+      },
+      "response_save_path": {
+        "type": "string",
+        "description": "The file path where responses should be saved"
+      },
+      "enabled_perspectives": {
+        "type": "array",
+        "description": "List of enabled perspectives for reasoning",
+        "items": {
+          "type": "string",
+          "description": "Perspective name",
+          "enum": [
+            "newton",
+            "davinci",
+            "human_intuition",
+            "neural_network",
+            "quantum_computing",
+            "resilient_kindness",
+            "mathematical",
+            "philosophical",
+            "copilot",
+            "bias_mitigation",
+            "psychological"
+          ]
+        }
+      }
+    },

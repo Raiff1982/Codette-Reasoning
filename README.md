@@ -1,7 +1,7 @@
 ---
 language:
 - en
-license: mit
+license: CSAL
 tags:
 - codette
 - multi-perspective-reasoning
@@ -52,6 +52,7 @@ model-index:
 ---
 
 # Codette Reasoning Engine
+Harrison, J. Codette: a multi-perspective cognitive architecture with memory and meta-cognitive strategy evolution. Sci Rep (2026). https://doi.org/10.1038/s41598-026-64449-0
 
 **Advanced multi-perspective AI with conscience, memory, auditability, and behavioral discipline.**
 
