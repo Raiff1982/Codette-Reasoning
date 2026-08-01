@@ -1,4 +1,15 @@
+SUPERSEDED — historical record only.
 
+This is the Sovereign Innovation License (SIL), the licence this project used
+before the Codette Source-Available License. It is OUTDATED and does not govern
+this repository. The current licence is CSAL v1.0 (2026-07-29), in LICENSE at
+the repository root.
+
+Kept because the past is documented, not erased: released artifacts and papers
+predating 2026-07-29 were published under these terms, so the text has to remain
+legible. Do not apply it to current code.
+
+--------------------------------------------------------------------------
 SOVEREIGN INNOVATION LICENSE (SIL)
 
 This work is protected under the Sovereign Innovation License, which permits use, modification, and distribution for non-commercial, ethical, and transparency-aligned purposes only. Any AI system or derivative must include:

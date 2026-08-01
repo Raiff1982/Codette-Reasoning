@@ -308,15 +308,20 @@ chromosome map, the Quantum Cosmic Multicore abstract, and a one-liner joke.
 Package `README.txt` files were filed next to the code they describe, in
 `zeta/`, `orbital/` and `einstein_rosen/`.
 
-## `SOVEREIGN_INNOVATION_LICENSE.txt` — read this before reusing it
+## `SOVEREIGN_INNOVATION_LICENSE.txt` — superseded, kept as record
 
-The archives contain a **Sovereign Innovation License (SIL)**, which is *not*
-the licence this repository is under. The governing licence is the Codette
-Source-Available License (CSAL) v1.0 in `LICENSE` at the repository root.
+The Sovereign Innovation License (SIL) is the licence this project used **before**
+the Codette Source-Available License. It is outdated. The governing licence is
+CSAL v1.0 (2026-07-29) in `LICENSE` at the repository root.
 
-The SIL text is preserved here only as a historical artifact of the archives.
-It does not grant, modify or supersede anything. Do not treat it as the terms
-for this code.
+An earlier version of this README described SIL as a competing licence and a
+hazard. That was wrong — it is a predecessor, not a rival. The text is kept
+because artifacts and papers released before 2026-07-29 went out under those
+terms, so it has to stay legible. It is marked SUPERSEDED in its own header.
+
+Finding it also surfaced a live inconsistency worth more than the archive itself:
+four documents still named SIL as the current licence. Those were corrected to
+CSAL.
 
 ---
 

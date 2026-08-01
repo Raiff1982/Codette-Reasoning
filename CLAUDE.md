@@ -152,10 +152,14 @@ What that obliges of any assistant working here:
   as written, not recovered, with unverified versions.
 - Report failure with the output attached, and separate pre-existing failures
   from newly caused ones by measuring a baseline.
-- Raise the uncomfortable thing. The Sovereign Innovation License found in the
-  archives is not the licence this repository uses, and a public repository with
-  two licence texts in it is a real hazard, so it is labelled in three places.
-  The `.env` was excluded even though its key is public by design.
+- Raise the uncomfortable thing, then check the premise before naming it a
+  hazard. The Sovereign Innovation License found in the archives was flagged as
+  a competing licence; it is in fact **the outdated predecessor** of CSAL, which
+  is a different and smaller problem. Chasing it down was still worth it, because
+  it surfaced five live documents that named SIL as the current licence long
+  after CSAL v1.0 replaced it. Those were corrected; the dated snapshots under
+  `archive/2026-04-02-*` were deliberately left alone. The `.env` was excluded
+  even though its key is public by design.
 - Correct yourself in the open, in the commit message, where it will outlive the
   conversation.
 
