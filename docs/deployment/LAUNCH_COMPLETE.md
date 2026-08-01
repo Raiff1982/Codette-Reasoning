@@ -234,7 +234,7 @@ Ready for deployment, user testing, production use.
 ---
 
 **Created by**: Jonathan Harrison (Raiff1982)
-**License**: Sovereign Innovation License
+**License**: Codette Source-Available License (CSAL) v1.0
 **Date**: 2026-03-20
 **Status**: 🟢 LIVE & OPERATIONAL
 

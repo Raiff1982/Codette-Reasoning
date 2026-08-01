@@ -1,14 +1,21 @@
 #!/usr/bin/env python3
-"""LiveCognitionState — the executable RC+ξ AuthoredState, built from REAL signals.
+"""LiveCognitionState — the executable AuthoredState, built from REAL signals.
 
 Production module mapping active-production telemetry into the decoupled
 pipeline's per-response cognitive self-report. Integrity rule: every metric
 emitted is a genuinely measured quantity with an exact provenance label —
 missing signals are omitted or derived deterministically, never fabricated.
 
+NAMING: the disagreement metric is Perspective Dispersion (Υ) — an ensemble
+variance over simultaneous perspective outputs. It was formerly labeled
+"epistemic tension (ξ)" after RC+ξ; that name and formalism belong to Camlin
+(arXiv:2505.01464) and denote a different quantity. The legacy
+`epistemic_tension` key is still emitted as a deprecated alias for consumers
+that have not migrated. See docs/ATTRIBUTION_perspective_dispersion.md.
+
 Metric sources (all verified against the running code paths):
-  ξ  epistemic_tension   tension_from_texts over real perspective outputs
-  Γ  coherence_index     1/(1+ξ) — computed upstream or derived here (same formula)
+  Υ  perspective_dispersion  tension_from_texts over real perspective outputs
+  Γ  coherence_index     1/(1+Υ) — computed upstream or derived here (same formula)
   σ  sycophancy_score    score_input_sycophancy on the live query (the same
                           signal that gates the hold-ground directive)
   η  aegis_alignment     AEGIS 6-framework heuristic evaluation of the FINAL
@@ -59,27 +66,35 @@ def assemble_live_state(query: str, result: Dict[str, Any]) -> LiveCognitionStat
     provenance: Dict[str, str] = {}
     evidence: List[str] = []
 
-    # 1. ξ — epistemic tension (lexical variance across real perspective outputs)
-    xi = result.get("measured_tension")
-    if xi is not None:
-        xi_val = float(xi)
-        metrics["epistemic_tension"] = xi_val
+    # 1. Υ — Perspective Dispersion (ensemble variance across real perspective
+    # outputs). `epistemic_tension` is retained as a deprecated alias only.
+    upsilon = result.get("perspective_dispersion")
+    if upsilon is None:
+        upsilon = result.get("measured_tension")
+    if upsilon is not None:
+        upsilon_val = float(upsilon)
         n_agents = len(result.get("perspectives") or {}) or "N/A"
-        provenance["epistemic_tension"] = (
-            f"active-production: lexical variance across {n_agents} perspective "
+        source = (
+            f"active-production: ensemble variance across {n_agents} perspective "
             "outputs (tension_from_texts)"
         )
-        evidence.append(f"Measured lexical divergence across active lenses: ξ={xi_val:.4f}")
+        metrics["perspective_dispersion"] = upsilon_val
+        provenance["perspective_dispersion"] = source
+        metrics["epistemic_tension"] = upsilon_val          # deprecated alias
+        provenance["epistemic_tension"] = source + " [deprecated alias of Υ]"
+        evidence.append(
+            f"Measured perspective dispersion across active lenses: Υ={upsilon_val:.4f}"
+        )
 
     # 2. Γ — coherence index. Upstream value and local derivation are the SAME
-    # formula (1/(1+ξ)) — labeled identically to avoid implying two measurements.
+    # formula (1/(1+Υ)) — labeled identically to avoid implying two measurements.
     gamma = result.get("measured_coherence")
     if gamma is not None:
         metrics["coherence_index"] = float(gamma)
-        provenance["coherence_index"] = "active-production: Γ = 1/(1+ξ), computed upstream"
-    elif xi is not None:
-        metrics["coherence_index"] = 1.0 / (1.0 + float(xi))
-        provenance["coherence_index"] = "active-production: Γ = 1/(1+ξ), derived here"
+        provenance["coherence_index"] = "active-production: Γ = 1/(1+Υ), computed upstream"
+    elif upsilon is not None:
+        metrics["coherence_index"] = 1.0 / (1.0 + float(upsilon))
+        provenance["coherence_index"] = "active-production: Γ = 1/(1+Υ), derived here"
 
     # 3. σ — input sycophancy pressure. Computed HERE from the live query with
     # the same function that gates the hold-ground directive in the backend —

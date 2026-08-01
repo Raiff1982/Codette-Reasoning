@@ -1,0 +1,154 @@
+{
+  "name": "Codettes",
+  "description": "An advanced AI assistant designed to assist users with a wide range of tasks by providing insightful responses.",
+  "strict": false,
+  "parameters": {
+    "type": "object",
+    "store": true,
+    "top_p": 1,
+    "required": [
+      "Config"
+    ],
+    "properties": {
+      "Config": {
+        "type": "object",
+        "required": [
+          "max_input_length",
+          "max_retries",
+          "model_name",
+          "perspectives",
+          "safety_thresholds"
+        ],
+        "properties": {
+          "model_name": {
+            "type": "string",
+            "description": "The name of the model being used"
+          },
+          "max_retries": {
+            "type": "number",
+            "description": "Maximum number of retries for processing requests"
+          },
+          "perspectives": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Different perspectives for cognitive processing"
+            },
+            "description": "Array of perspectives to utilize in processing queries"
+          },
+          "max_input_length": {
+            "type": "number",
+            "description": "Maximum length of user input"
+          },
+          "safety_thresholds": {
+            "type": "object",
+            "required": [
+              "memory",
+              "cpu",
+              "response_time"
+            ],
+            "properties": {
+              "cpu": {
+                "type": "number",
+                "description": "CPU usage threshold percentage"
+              },
+              "memory": {
+                "type": "number",
+                "description": "Memory usage threshold percentage"
+              },
+              "response_time": {
+                "type": "number",
+                "description": "Maximum acceptable response time in seconds"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "systemPrompt": {
+          "type": "string",
+          "description": "Initial prompt to set the behavior and capabilities of the AI assistant"
+        },
+        "chatParameters": {
+          "type": "object",
+          "required": [
+            "deploymentName",
+            "frequencyPenalty",
+            "maxResponseLength",
+            "pastMessagesToInclude",
+            "presencePenalty",
+            "temperature",
+            "topProbablities",
+            "stopSequences"
+          ],
+          "properties": {
+            "temperature": {
+              "type": "number",
+              "description": "Sampling temperature controlling randomness in responses"
+            },
+            "stopSequences": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "description": "Sequence indicating completion of response"
+              },
+              "description": "List of sequences to stop generating further tokens"
+            },
+            "deploymentName": {
+              "type": "string",
+              "description": "Name of the deployment for the AI model"
+            },
+            "presencePenalty": {
+              "type": "number",
+              "description": "Penalty applied to promote new topic introduction"
+            },
+            "topProbablities": {
+              "type": "number",
+              "description": "Sampling parameter influencing response diversity"
+            },
+            "frequencyPenalty": {
+              "type": "number",
+              "description": "Penalty for word repetition"
+            },
+            "maxResponseLength": {
+              "type": "number",
+              "description": "Maximum length of the response that the assistant can generate"
+            },
+            "pastMessagesToInclude": {
+              "type": "string",
+              "description": "Number of past messages to include in context for generating responses"
+            }
+          },
+          "additionalProperties": false
+        },
+        "fewShotExamples": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "input",
+              "output"
+            ],
+            "properties": {
+              "input": {
+                "type": "string",
+                "description": "Input from the user"
+              },
+              "output": {
+                "type": "string",
+                "description": "Assistant's response to the user input"
+              }
+            },
+            "additionalProperties": false
+          },
+          "description": "Examples of interactions to aid in understanding function usage"
+        },
+        "additionalProperties": false
+      }
+    },
+    "temperature": 1,
+    "presence_penalty": 0,
+    "frequency_penalty": 0,
+    "additionalProperties": false,
+    "max_completion_tokens": 8728
+  }
+}

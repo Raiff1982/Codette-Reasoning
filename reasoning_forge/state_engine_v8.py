@@ -10,7 +10,7 @@ Three components made real (log-only wiring; no behavior changes):
    carries the substrate's conclusion (>= 15% word overlap). Catches
    render-layer drift like the AAP template-wrapping incident of 2026-07-05.
 
-2. tension_from_texts — the spec's epistemic tension formula
+2. tension_from_texts — the spec's Perspective Dispersion (Υ) formula
    (mean squared distance of attractors from their mean) computed over
    term-frequency vectors of REAL perspective responses, not hardcoded
    shifts. v0 is lexical; the vectorizer is swappable for embeddings
@@ -95,8 +95,9 @@ def tension_from_texts(perspective_texts: Dict[str, str]) -> Tuple[float, float]
     ξ = ‖Aₙ₊₁−Aₙ‖², a successive-hidden-state difference — a DIFFERENT quantity).
     Ours is an ensemble variance of simultaneous perspective outputs, renamed
     Perspective Dispersion (Υ). See docs/ATTRIBUTION_perspective_dispersion.md.
-    (Return tuple name kept for now to avoid breaking callers; a full symbol
-    rename is a separate, tested pass.)
+    The runtime symbol rename landed 2026-07-30: live paths emit
+    `perspective_dispersion`, with `measured_tension` / `epistemic_tension`
+    retained as deprecated aliases for unmigrated consumers.
     """
     vectors = [
         _tf_vector(t) for t in perspective_texts.values()

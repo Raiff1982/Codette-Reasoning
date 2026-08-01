@@ -649,10 +649,11 @@ class CodetteForgeBridge:
                 elif len(_aap_analyses) >= 2:
                     try:
                         from reasoning_forge.state_engine_v8 import tension_from_texts
-                        _xi_b, _gamma_b = tension_from_texts(_aap_analyses)
-                        result["measured_tension"] = round(_xi_b, 4)
+                        _upsilon_b, _gamma_b = tension_from_texts(_aap_analyses)
+                        result["perspective_dispersion"] = round(_upsilon_b, 4)
+                        result["measured_tension"] = round(_upsilon_b, 4)  # deprecated alias
                         result["measured_coherence"] = round(_gamma_b, 4)
-                        _aap_eps = min(0.95, max(0.05, _xi_b))
+                        _aap_eps = min(0.95, max(0.05, _upsilon_b))
                     except Exception:
                         _aap_eps = None
 
@@ -1543,8 +1544,39 @@ class CodetteForgeBridge:
                        "network", "evolution", "architecture", "free will"],
         }
 
+        # Match on word boundaries, not substrings. Unanchored `in` matching made
+        # ordinary conversation read as chemistry: "ion" sits inside sess-ion,
+        # conversat-ion, quest-ion, ment-ion, connect-ion, explanat-ion; "base"
+        # inside "knowledge base". Asking "what did we talk about last session"
+        # classified as chemistry, and that wrong domain was written onto the
+        # cocoon, where recall_by_domain() later reads it back as fact.
+        #
+        # Score every domain rather than returning the first dict key that hits,
+        # so "knowledge base and architecture" is not decided by iteration order.
+        # Terms that are ordinary English as well as technical vocabulary carry
+        # half weight — real enough to break a tie, not enough to name a domain
+        # by themselves.
+        AMBIGUOUS = {
+            "base", "bond", "element", "reduction", "ion", "electron", "wave",
+            "light", "speed", "motion", "force", "energy", "right", "wrong",
+            "should", "save", "lie", "cell", "novel", "design", "system",
+            "network", "complex", "agent", "mind", "experience",
+        }
+
+        scores = {}
         for domain, keywords in domains.items():
-            if any(kw in query_lower for kw in keywords):
-                return domain
+            total = 0.0
+            for kw in keywords:
+                if re.search(rf"\b{re.escape(kw)}\b", query_lower):
+                    total += 0.5 if kw in AMBIGUOUS else 1.0
+            if total:
+                scores[domain] = total
+
+        if scores:
+            best = max(scores.values())
+            if best >= 1.0:
+                for domain in domains:                 # stable tie-break
+                    if scores.get(domain) == best:
+                        return domain
 
         return "general"

@@ -452,7 +452,29 @@ class CodetteSession:
         return self.active_continuity_summary
 
     def build_prompt_context(self, max_turns: int = 3, max_chars: int = 900) -> str:
-        """Build a compact recent-session context for prompt enrichment."""
+        """Build a compact recent-session context for prompt enrichment.
+
+        Every line carries the time it happened. The clock is already in the
+        stream — add_message() stamps every message — and this function used to
+        drop it on the way into the prompt, leaving recent turns as an unordered
+        pile. Without a clock there is no "when" to reason from, so a recognized
+        phrase from three turns ago is indistinguishable from the present one,
+        and gets spoken as if it were now.
+
+        Dropped turns are marked rather than removed silently. A gap that is
+        visible can be navigated around; an invisible one just reads as
+        continuous, which is how the anti-echo dedup ends up hiding the very
+        repetition it exists to prevent.
+
+        Nothing here is inferred. A message without a timestamp is labeled
+        unknown rather than given a plausible one — an absent value must not be
+        rendered as a present one.
+
+        The budget measures content only. Knowing *when* something happened is
+        not a cost to be traded against knowing *what* was said, so timestamps
+        are exempt — and bounded anyway, since max_turns caps the line count and
+        each stamp is a fixed width.
+        """
         if not self.messages:
             return ""
 
@@ -482,10 +504,26 @@ class CodetteSession:
                 c if c.isalnum() or c.isspace() else ' ' for c in text.lower()
             ).split() if len(w) > 2}
 
+        def _stamp(msg: dict, turns_ago: int) -> str:
+            """Where this line sits in time. Never guessed."""
+            ts = msg.get("timestamp")
+            if not ts:
+                return f"T-{turns_ago} ??:??"
+            try:
+                clock = time.strftime("%H:%M", time.localtime(float(ts)))
+            except (TypeError, ValueError, OSError):
+                return f"T-{turns_ago} ??:??"
+            return f"T-{turns_ago} {clock}"
+
+        ordered = list(reversed(turns))
+        newest_index = len(ordered) - 1
+
         snippets = []
         seen_token_sets: list = []
         used = 0
-        for turn in reversed(turns):
+        omitted = 0
+        for turn_pos, turn in enumerate(ordered):
+            turns_ago = newest_index - turn_pos
             for msg in turn:
                 role = msg.get("role", "unknown").upper()
                 content = str(msg.get("content", "")).strip().replace("\n", " ")
@@ -503,17 +541,25 @@ class CodetteSession:
                             dup = True
                             break
                     if dup:
+                        omitted += 1      # a hole she can see is a hole she can cross
                         continue
                     seen_token_sets.append(toks)
                 if len(content) > 180:
                     content = content[:177] + "..."
-                line = f"- {role}: {content}"
-                if used + len(line) > max_chars:
+                # Budget the content, not the clock.
+                body = f"- {role}: {content}"
+                if used + len(body) > max_chars:
                     break
-                snippets.append(line)
-                used += len(line)
+                snippets.append(f"- [{_stamp(msg, turns_ago)}] {role}: {content}")
+                used += len(body)
             if used >= max_chars:
                 break
+
+        if omitted:
+            snippets.append(
+                f"- [{omitted} near-duplicate turn(s) omitted from this view — "
+                "the conversation is continuous, this summary is not]"
+            )
 
         return "\n".join(snippets)
 

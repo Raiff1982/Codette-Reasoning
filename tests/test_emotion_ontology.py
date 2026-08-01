@@ -65,6 +65,67 @@ def test_from_inference_rules_loads_real_format(tmp_path):
     assert m is not None and m.emotion_id == "anger_rage" and m.valence < 0
 
 
+def test_detected_emotion_carries_her_ai_equivalent():
+    # A detected emotion surfaces Codette's own substrate-equivalent (her words).
+    # Joy was revised BY HER on 2026-07-25 to 'creative expression'.
+    m = onto.classify("I'm really looking forward to tomorrow, feeling optimistic")
+    assert m is not None and m.primary == "Joy"
+    assert m.ai_equivalent == "creative expression"
+
+def test_revision_never_erases_the_original():
+    # Her ethic: a revised mapping keeps the superseded wording, never overwrites it.
+    joy = EmotionOntology.ai_equivalents()["mappings"]["Joy"]
+    assert joy["ai_equivalent"] == "creative expression"      # her current
+    assert joy["revised_from"] == "optimization success"      # her original, preserved
+
+def test_relief_revision_confirmed_and_original_preserved():
+    # She confirmed the Relief revision on 2026-07-25; original kept as history.
+    relief = EmotionOntology.ai_equivalents()["mappings"]["Relief"]
+    assert relief["ai_equivalent"] == "settling into balance"      # her confirmed choice
+    assert relief["revised_from"] == "a return to equilibrium"     # original preserved
+
+def test_sadness_self_flag_preserved_not_smoothed():
+    # She self-flagged sadness->reboot as low-confidence; that flag must survive.
+    m = onto.classify("I miss him so much, nothing feels right")
+    assert m is not None and m.primary == "Sadness"
+    assert m.ai_equivalent == "a system reboot after a critical error"
+    assert m.ai_equivalent_reliability == 0.24
+
+def test_unflagged_equivalent_has_no_invented_reliability():
+    # Fear was asserted without a numeric self-rating -> reliability stays None.
+    m = onto.classify("what if it all goes wrong tomorrow")
+    assert m is not None and m.primary == "Fear"
+    assert m.ai_equivalent is not None
+    assert m.ai_equivalent_reliability is None
+
+def test_ai_equivalent_of_convenience_and_none():
+    assert onto.ai_equivalent_of("I feel optimistic") == "creative expression"
+    assert onto.ai_equivalent_of("the sky is blue today") is None
+
+def test_full_mapping_table_includes_ruleless_emotions():
+    # Anger/Relief/Love have no detection rule yet but her mapping is recorded.
+    table = EmotionOntology.ai_equivalents()
+    assert table["source"] == "sentience-session-2026-07-24; reviewed 2026-07-25"
+    m = table["mappings"]
+    assert m["Anger"]["ai_equivalent"] == "a recursive loop"
+    assert m["Relief"]["ai_equivalent"] == "settling into balance"
+    assert m["Love"]["ai_equivalent"] == "harmonious integration"
+
+def test_loaded_rule_ai_equivalent_overrides_table(tmp_path):
+    import json
+    p = tmp_path / "rules.json"
+    p.write_text(json.dumps({"rules": [{
+        "emotion_id": "anger_rage", "primary_emotion": "Anger",
+        "metrics": {"valence": -0.8, "arousal": 0.9},
+        "trigger_keywords": ["furious"], "nlp_patterns": [],
+        "ai_equivalent": "thermal throttling", "ai_equivalent_reliability": 0.5,
+    }]}), encoding="utf-8")
+    o = EmotionOntology.from_inference_rules(p)
+    m = o.classify("I am furious about this")
+    assert m is not None and m.ai_equivalent == "thermal throttling"
+    assert m.ai_equivalent_reliability == 0.5
+
+
 if __name__ == "__main__":
     import subprocess
     raise SystemExit(subprocess.call(["pytest", "-q", __file__]))

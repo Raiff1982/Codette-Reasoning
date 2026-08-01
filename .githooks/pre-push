@@ -1,56 +1,80 @@
 #!/usr/bin/env bash
-# Codette pre-push hook — runs cocoon-smoke when forge or cocoon files change.
+# Codette pre-push hook
+#
+# Runs cocoon-smoke when forge/cocoon-related code changes are pushed.
 #
 # Install:
 #   cp .githooks/pre-push .git/hooks/pre-push
 #   chmod +x .git/hooks/pre-push
 #
-# To skip in an emergency:
+# Skip once:
 #   git push --no-verify
-#
-# The hook only fires when the push touches files under:
-#   reasoning_forge/   inference/codette_forge_bridge.py   inference/codette_server.py
-#   scripts/cocoon_smoke.py   reasoning_forge/cocoon_*.py
 
 set -euo pipefail
 
-WATCHED_PATTERNS=(
-    "reasoning_forge/"
-    "inference/codette_forge_bridge.py"
-    "inference/codette_server.py"
-    "scripts/cocoon_smoke.py"
-)
+WATCH_REGEX='^(
+reasoning_forge/|
+inference/codette_forge_bridge\.py$|
+inference/codette_server\.py$|
+scripts/cocoon_smoke\.py$|
+reasoning_forge/cocoon_.*\.py$
+)'
 
-# Collect files changed in this push (against the remote branch or HEAD~1)
-remote="$1"
-url="$2"
+# Ensure prerequisites exist
+if ! command -v git >/dev/null 2>&1; then
+    echo "[pre-push] git not found"
+    exit 1
+fi
 
-changed_files=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || git diff --name-only HEAD 2>/dev/null || true)
+if ! command -v make >/dev/null 2>&1; then
+    echo "[pre-push] make not found"
+    exit 1
+fi
 
-should_run=0
-for pattern in "${WATCHED_PATTERNS[@]}"; do
-    if echo "$changed_files" | grep -q "$pattern"; then
-        should_run=1
-        break
+changed_files=""
+
+# Git supplies refs on stdin:
+# <local-ref> <local-sha> <remote-ref> <remote-sha>
+while read -r local_ref local_sha remote_ref remote_sha; do
+
+    # New branch push
+    if [[ "$remote_sha" == "0000000000000000000000000000000000000000" ]]; then
+        range="$local_sha"
+    else
+        range="${remote_sha}..${local_sha}"
     fi
+
+    diff_files=$(git diff --name-only "$range" 2>/dev/null || true)
+
+    if [[ -n "$diff_files" ]]; then
+        changed_files+=$'\n'
+        changed_files+="$diff_files"
+    fi
+
 done
 
-if [ "$should_run" -eq 0 ]; then
-    # No relevant files changed — skip the hook
+# No files found
+if [[ -z "$changed_files" ]]; then
     exit 0
 fi
 
-echo ""
-echo "  [pre-push] Forge/cocoon files changed — running make cocoon-smoke"
-echo "  (skip with: git push --no-verify)"
-echo ""
+# Trigger only on watched files
+if ! echo "$changed_files" | grep -Eq "$WATCH_REGEX"; then
+    exit 0
+fi
+
+echo
+echo "  [pre-push] Forge/cocoon files changed."
+echo "  [pre-push] Running: make cocoon-smoke"
+echo "  [pre-push] Skip with: git push --no-verify"
+echo
 
 if ! make cocoon-smoke; then
-    echo ""
+    echo
     echo "  [pre-push] BLOCKED: cocoon-smoke failed."
     echo "  Fix the integrity issues above before pushing."
     echo "  To bypass: git push --no-verify"
-    echo ""
+    echo
     exit 1
 fi
 
