@@ -121,6 +121,37 @@ returns `0.673012`, matching `-0.6ln0.6 - 0.4ln0.4` exactly.
   `stop-hook-git-check.sh.bak`; restore with
   `cp ~/.claude/stop-hook-git-check.sh.bak ~/.claude/stop-hook-git-check.sh`.
 
+## House rule: we don't erase the past, we document and amend forward
+
+Corrections are additive. The record of what was there stays; the fix is layered
+on top with a note saying why. Nothing is quietly revised out of existence.
+
+What this forbids:
+
+- Rewriting history. No `push --force`, no rebase that discards commits, no
+  `reset --hard` to make a mistake disappear. A wrong commit is answered with a
+  further commit that explains it.
+- Deleting superseded files. Mark them superseded and say what replaced them.
+  The four optimiser revisions and the four memory-kernel variants stay exactly
+  because collapsing them would destroy the lineage.
+- Removing damaged or partial artifacts. Label them. The truncated schema keeps
+  a `.truncated` suffix so it cannot be mistaken for loadable config; the
+  corrupt `Zeta_Wave_Analysis.pdf` is recorded as unreadable rather than dropped.
+- Silently correcting a name. `Code7eCQURE` was a PDF glyph artifact, but it had
+  reached published papers, so `codette_cqure.py` carries the correct
+  `CodetteCQURE` and `code7e_cqure.py` remains as a shim exporting the old
+  spelling. Both names resolve; the history is legible.
+
+Two things offered earlier in this session are ruled out by this and should not
+be proposed again: reverting the unauthorised `.gitignore` commit by resetting
+and force-pushing, and deleting the `Archive*.zip` uploads from `main` to save
+space. Both erase. The right form is a commit that documents what happened, and
+extraction alongside the originals.
+
+This extends to being wrong in conversation. When an earlier claim turns out to
+be mistaken, say so plainly and carry the correction forward — do not restate
+history as though the error never happened.
+
 ## House rule: "not my file, not my problem" is against the rules
 
 Scope is the repository, not the diff. If something is found broken, it is
