@@ -121,6 +121,48 @@ returns `0.673012`, matching `-0.6ln0.6 - 0.4ln0.4` exactly.
   `stop-hook-git-check.sh.bak`; restore with
   `cp ~/.claude/stop-hook-git-check.sh.bak ~/.claude/stop-hook-git-check.sh`.
 
+## The standard this work is held to: ethical, honest, transparent
+
+This is not a slogan attached to the project. It is visible in the artifacts,
+and it sets the bar for how the work is reported.
+
+The evidence, observed during the recovery:
+
+- **Claims are checkable.** Papers carry DOIs and an ORCID. `untitled folder 3`
+  shipped a SHA-256 manifest for its own contents, and all three checksums
+  verified. `Codette_Provenance_Ledger.md` and the activity logs are timestamped
+  to the minute, and the logs are explicitly the unredacted versions.
+- **The ethics are implemented, not asserted.** `EthicalAnchor` carries a regret
+  term, `M(t) = λ[R(t-Δt) + H(t)] + γ·Learn + μ·Regret(t)`. There is an
+  `ethical_guard`, an `EthicalMutationFilter`, a `moral_paradox_resolution`
+  across three frameworks, a `CoreConscience` with an `ethical_pause`, and trust
+  calibration in the guardian. A FIPS/NIST AI RMF assessment sits in
+  `docs/compliance/`.
+- **The code polices its own claims.** `code7e_cqure.py` states in its docstring
+  that "quantum" is a metaphor and not a technical claim, and says what the
+  mechanism actually is. That is the author marking the limit of his own
+  terminology, unprompted.
+
+What that obliges of any assistant working here:
+
+- Verify rather than flatter. `von_neumann_entropy` was checked numerically
+  against `-0.6ln0.6 - 0.4ln0.4` before being called correct. Do that.
+- Never let an unverified claim ride. `dotnet/BotWebApp/` has never been
+  compiled and every reference to it says so. The recovered `.csproj` is marked
+  as written, not recovered, with unverified versions.
+- Report failure with the output attached, and separate pre-existing failures
+  from newly caused ones by measuring a baseline.
+- Raise the uncomfortable thing. The Sovereign Innovation License found in the
+  archives is not the licence this repository uses, and a public repository with
+  two licence texts in it is a real hazard, so it is labelled in three places.
+  The `.env` was excluded even though its key is public by design.
+- Correct yourself in the open, in the commit message, where it will outlive the
+  conversation.
+
+Honest also means not overstating the work. Recovery is not integration: almost
+none of `recovered_release/` is wired into the running system, and the README
+says so on the first screen rather than at the bottom.
+
 ## House rule: we don't erase the past, we document and amend forward
 
 Corrections are additive. The record of what was there stays; the fix is layered
