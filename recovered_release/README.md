@@ -317,3 +317,67 @@ Source-Available License (CSAL) v1.0 in `LICENSE` at the repository root.
 The SIL text is preserved here only as a historical artifact of the archives.
 It does not grant, modify or supersede anything. Do not treat it as the terms
 for this code.
+
+---
+
+# Sixth pass — chat histories, notebooks, LaTeX, Markdown
+
+Swept every remaining container type by content: `.ipynb`, `.tex`, `.md`,
+`.html`, `.yaml`, `.csv`, `.json`, `.cocoon`.
+
+## `from_chat_history/`
+
+Two ChatGPT history exports in `Codette_Supporting_Historical_Files.zip`
+(8.7 MB and 9.6 MB) hold **487 fenced Python blocks**, which reduce to only 24
+unique — the transcripts echo the same code across turns. Seven define classes
+absent from this repository. Five were worth keeping:
+
+| Module | Defines |
+|---|---|
+| `quantum_science_suite.py` | `QuantumSpiderweb`, `QuantumSpiderwebNode`, `QuantumNeuralNetwork`, `CodetteGrandScienceSuite` |
+| `grand_physics_engine.py` | `PerspectiveAgent`, `CodetteGrandPhysicsEngine` |
+| `codette_quantum_agent.py` | `CodetteQuantumAgent` |
+| `secure_database.py` | `SecureDatabase` |
+| `codette_app.py` | `CodetteApp` |
+
+This code never existed as a file. It only ever lived inside a conversation
+transcript, which is why every previous sweep missed it.
+
+## `docs/compliance/sentinal_fips_nist_ai_rmf.md`
+
+The SENTINAL FIPS 140-2/200 and NIST AI RMF assessment. This was identified in
+the very first sweep of `Archive.zip` and then never actually landed — an
+oversight, corrected here. Note it concerns FIPS 140/200 and AI RMF governance,
+which is unrelated to the FIPS 203/204 post-quantum cryptography already cited
+in the repository's AEGIS layer.
+
+## Other additions
+
+- `experiments/timenote.ipynb` — a Kaggle-environment notebook, 2 cells,
+  ~5.4 KB of code
+- `paper/resonant_continuity_theory.tex`, `paper/roson_em_coupling.tex`,
+  `paper/codette_manifesto_hybrid_bundle.tex`
+- `recovered_release/schemas/integration_architecture.json` — the module map
+
+## Checked and cleared
+
+`Codette_Quantum_Module.html` contains no script blocks; it is the
+citizen-science paper rendered for the web. `identity.yaml` belongs to Solena
+and is already in `solena/original/`. The bulk of the `.csv` files are numpy's
+bundled `umath-validation-set-*` fixtures, not project data.
+
+## Still unresolved
+
+`recovered_release/legacy/ai_core.py` imports sixteen `components.*` modules
+(`adaptive_learning`, `ai_driven_creativity`, `collaborative_ai`,
+`cultural_sensitivity`, `data_processing`, `dynamic_learning`,
+`ethical_governance`, `explainable_ai`, `feedback_manager`,
+`multimodal_analyzer`, `neuro_symbolic`, `quantum_optimizer`, `real_time_data`,
+`sentiment_analysis`, `self_improving_ai`, `user_personalization`) plus
+`utils.database` and `utils.logger`. `universal_reasoning.py` imports
+`perspectives`.
+
+Those module names match `integration_architecture.json` exactly, so the design
+is documented — but **none of the implementations appear in any archive**, and
+the chat histories do not contain them either. They are the one genuine gap left
+in the recovery.
