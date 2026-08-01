@@ -11,7 +11,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from reasoning_forge.grounding_bridge import (
-    ground_text, ground_reasoning_path, observe,
+    ground_text, ground_text_with_evidence, ground_reasoning_path, observe,
     GroundingReport, FLAGGED, SUPPORTED, UNGROUNDED,
 )
 
@@ -78,6 +78,42 @@ def test_observe_writes_shadow(tmp_path):
     assert rec["mode"] == "shadow"
     assert rec["record"] == "bridge_report"
     assert rec["status"] == SUPPORTED
+
+
+# A short qualitative thought — sympy/z3 say nothing, so it is UNGROUNDED, but
+# it can be strongly echoed by a single stored memory (clears the overlap floor).
+SHORT_THOUGHT = "principled plasticity governs change"
+
+
+def test_evidence_enrichment_never_changes_ungrounded_status():
+    # A qualitative thought stays UNGROUNDED even when evidence echoes it.
+    ev = ["principled plasticity governs how much an AI may change its patterns"]
+    r = ground_text_with_evidence(SHORT_THOUGHT, lambda q: ev)
+    assert r.status == UNGROUNDED                       # symbolic status untouched
+    assert r.evidence_verdict == "supported_by_evidence"  # but it echoes stored evidence
+    assert "echoes stored evidence" in r.note.lower()
+
+
+def test_evidence_enrichment_marks_novel_thought():
+    r = ground_text_with_evidence(QUALITATIVE_THOUGHT, lambda q: [])
+    assert r.status == UNGROUNDED
+    assert r.evidence_verdict == "unaddressed"
+    assert "novel here" in r.note.lower()
+
+
+def test_evidence_enrichment_skipped_when_symbolic_speaks():
+    # A refuted arithmetic claim is FLAGGED; we must NOT dilute it with evidence.
+    r = ground_text_with_evidence("2 + 2 = 5", lambda q: ["two plus two equals five"])
+    assert r.status == FLAGGED
+    assert r.evidence_verdict is None
+
+
+def test_evidence_enrichment_survives_broken_retriever():
+    def broken(_):
+        raise RuntimeError("db down")
+    r = ground_text_with_evidence(QUALITATIVE_THOUGHT, broken)
+    assert r.status == UNGROUNDED
+    assert r.evidence_verdict == "unaddressed"   # failure -> no invented support
 
 
 if __name__ == "__main__":
