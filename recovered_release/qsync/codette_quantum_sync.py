@@ -1,3 +1,7 @@
+"""
+Recovered from the Codette archives — see RECOVERY_MANIFEST.md
+"""
+
 
 import numpy as np
 import matplotlib.pyplot as plt

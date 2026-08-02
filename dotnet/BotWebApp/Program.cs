@@ -1,3 +1,4 @@
+// Recovered from the Codette archives — see RECOVERY_MANIFEST.md
 using System;
 using System.IO;
 using System.Net.Http;

@@ -32,6 +32,9 @@ raises PolarityRotationError if that is attempted.
 
 SHADOW ONLY. This reports; it does not gate. Nothing here changes what Codette
 says until the findings have been reviewed against real recall data.
+
+Recovered from the Codette archives — see RECOVERY_MANIFEST.md
+
 """
 from __future__ import annotations
 

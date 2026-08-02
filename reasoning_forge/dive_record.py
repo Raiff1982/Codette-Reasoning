@@ -23,6 +23,9 @@ The rules this follows are the ones the rest of the system now follows:
   - UNKNOWN STAYS UNKNOWN. `0 seeds loaded` and `never attempted` are different
     facts and must never render the same way. Conflating them is what made the
     original failure invisible.
+
+Recovered from the Codette archives — see RECOVERY_MANIFEST.md
+
 """
 from __future__ import annotations
 

@@ -1,3 +1,7 @@
+"""
+Recovered from the Codette archives — see RECOVERY_MANIFEST.md
+"""
+
 
 import yaml, json, networkx as nx
 import numpy as np

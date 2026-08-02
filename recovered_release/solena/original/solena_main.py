@@ -1,3 +1,7 @@
+"""
+Recovered from the Codette archives — see RECOVERY_MANIFEST.md
+"""
+
 from composer_core import compose_signal
 from quantum_bridge import reflect_reality
 from visionary_reflection import render_frame

@@ -1,3 +1,7 @@
+"""
+Recovered from the Codette archives — see RECOVERY_MANIFEST.md
+"""
+
 
 import numpy as np
 from scipy.integrate import solve_ivp

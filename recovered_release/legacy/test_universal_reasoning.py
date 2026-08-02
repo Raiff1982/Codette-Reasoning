@@ -1,3 +1,7 @@
+"""
+Recovered from the Codette archives — see RECOVERY_MANIFEST.md
+"""
+
 import pytest
 import asyncio
 from unittest.mock import MagicMock

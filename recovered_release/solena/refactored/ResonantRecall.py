@@ -1,3 +1,7 @@
+"""
+Recovered from the Codette archives — see RECOVERY_MANIFEST.md
+"""
+
 class ResonantRecall:
     def __init__(self):
         self.amplitude_history = []

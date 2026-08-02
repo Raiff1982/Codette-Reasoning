@@ -1,3 +1,7 @@
+"""
+Recovered from the Codette archives — see RECOVERY_MANIFEST.md
+"""
+
 
 import json, yaml, networkx as nx
 try:  # qiskit>=1.0 removed Aer/execute; module stays importable without it

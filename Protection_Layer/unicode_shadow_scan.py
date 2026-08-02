@@ -1,3 +1,7 @@
+"""
+Recovered from the Codette archives — see RECOVERY_MANIFEST.md
+"""
+
 #!/usr/bin/env python3
 # unicode_shadow_scan.py
 # Detect invisible Unicode, homoglyph tricks, bidi overrides, and mixed-script camouflage.
