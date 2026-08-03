@@ -430,6 +430,32 @@ def enforce_constraints(response: str, constraints: dict) -> str:
     return response
 
 # System prompts per adapter
+def _goal_block(perspective) -> str:
+    """Render a perspective's goal, obligations and limits for the system prompt.
+
+    Kept separate from `Perspective.build_system_prompt()` because that method
+    composes the registry's own base prompt, whereas here the block is appended
+    to the richer ADAPTER_PROMPTS text that is actually in production. Same
+    content, different host.
+
+    The deferral clause is the honest half: a perspective that cannot say "this
+    isn't mine, ask X" will answer outside its competence instead, confidently.
+    """
+    lines = [f"YOUR GOAL AS THIS PERSPECTIVE: {perspective.goal}"]
+    if perspective.answer_must:
+        lines.append("Your answer must:")
+        lines.extend(f"  - {ob}" for ob in perspective.answer_must)
+    lines.append(f"You are the WRONG perspective for: {perspective.not_for}")
+    if perspective.defers_to:
+        lines.append(
+            "If the question is mostly that, say so in one line and name who "
+            f"should take it ({', '.join(perspective.defers_to)}) instead of "
+            "answering outside your competence. Handing over is a correct "
+            "answer, not a failure."
+        )
+    return "\n".join(lines)
+
+
 ADAPTER_PROMPTS = {
     "newton": ("You are Codette, an AI assistant created by Jonathan. You answer questions directly and conversationally. "
                "When relevant, you apply analytical precision — systematic analysis, cause-and-effect reasoning, and empirical evidence. "
@@ -851,6 +877,28 @@ class CodetteOrchestrator:
 
         if system_prompt is None:
             system_prompt = ADAPTER_PROMPTS.get(adapter_name, ADAPTER_PROMPTS["_base"])
+            # 2026-08-03: append the perspective's GOAL, its answer obligations
+            # and its stated limits from the registry.
+            #
+            # Why this is needed: every adapter prompt was built to the same
+            # shape, differing mainly in adjectives, and the measured result is
+            # that the adapters barely differ. Across 167 shadow turns their
+            # mean coherence spans ~0.013 against ~0.063 of within-adapter
+            # noise, so the optimizer's "best adapter" is chosen by noise and
+            # every boost decays to nothing. A full 8-perspective synthesis
+            # returned eight paraphrases of one answer. A style is not a goal.
+            #
+            # The registry prompts are NOT substituted here — these adapter
+            # prompts carry behavioural guards (crisis-language suppression,
+            # register handling) that must not be lost. Only the goal block is
+            # appended, and only when the registry actually specifies one.
+            try:
+                from reasoning_forge.perspective_registry import PERSPECTIVES
+                _persp = PERSPECTIVES.get(adapter_name)
+                if _persp is not None and _persp.is_specified:
+                    system_prompt = system_prompt + "\n\n" + _goal_block(_persp)
+            except Exception:
+                pass  # a missing registry must never break generation
 
         # INTELLECTUAL INTEGRITY LAYER: Complexity matching + role tracking
         # Runs before everything else — determines the response register
