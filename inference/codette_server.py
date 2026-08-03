@@ -1803,12 +1803,48 @@ def _worker_thread():
 
                 # Update session with response data (drives cocoon metrics UI)
                 epistemic = None
+                # Outcome of the PREVIOUS turn, measured below at query-arrival.
+                # Declared here so the optimizer call further down can read it
+                # unconditionally, including on benchmark turns and when there
+                # is no session (both leave it None, i.e. not measured).
+                _engagement = None
+                _steer = None
                 if session:
                     try:
                         # Add user message + assistant response to session history.
                         # Benchmark turns are excluded — they'd bleed into the
                         # session context injected before later questions.
                         if not _is_benchmark_query:
+                            # Measure the PREVIOUS turn's outcome here, in the
+                            # moment, BEFORE this turn's messages are appended.
+                            # At this instant `session.messages` still ends with
+                            # the last query and the response to it, so the
+                            # outcome of that turn is already fully determined —
+                            # the incoming message is simultaneously this turn's
+                            # input and the last turn's result. Nothing is
+                            # buffered and nothing has to be resolved later.
+                            try:
+                                from reasoning_forge.engagement_signal import (
+                                    classify_from_history, push_off)
+                                _engagement = classify_from_history(
+                                    session.messages, query)
+                                _prev_adapter = ""
+                                for _m in reversed(session.messages):
+                                    if _m.get("role") == "assistant":
+                                        _prev_adapter = (_m.get("metadata") or {}).get(
+                                            "adapter", "") or ""
+                                        break
+                                _steer = push_off(_engagement, _prev_adapter)
+                                if _engagement.measured:
+                                    print(f"  [ENGAGEMENT] previous turn "
+                                          f"user_continued={_engagement.value} "
+                                          f"({_engagement.reason}) -> "
+                                          f"steer={_steer['steer']}", flush=True)
+                            except Exception as _eng_e:
+                                _engagement = None
+                                _steer = None
+                                print(f"  [ENGAGEMENT] skipped: {_eng_e}", flush=True)
+
                             session.add_message("user", query)
                             session.add_message("assistant", result.get("response", ""), metadata={
                                 "adapter": result.get("adapter", "base"),
@@ -2171,6 +2207,12 @@ def _worker_thread():
                         _adapter_lbl = str(result.get("adapter") or result.get("primary_adapter") or "")
                         if not _adapter_lbl:
                             _adapter_lbl = "synthesis" if result.get("synthesis_used") else "unknown"
+                        # The engagement measurement taken at query-arrival
+                        # (above) belongs to the PREVIOUS turn, not this one.
+                        # It is attached here because this is where the
+                        # optimizer is fed; the scoring lag is one turn and is
+                        # inherent to the quantity, not to the wiring.
+                        _eng = _engagement
                         _shadow.observe(
                             adapter=_adapter_lbl,
                             coherence=result.get("measured_coherence"),
@@ -2179,6 +2221,8 @@ def _worker_thread():
                             render_fidelity=_rf_overlap,
                             response_length=len(str(result.get("response") or "")),
                             is_benchmark=_is_benchmark_query,
+                            user_continued=(_eng.value if _eng is not None else None),
+                            engagement_reason=(_eng.reason if _eng is not None else ""),
                         )
                 except Exception as _opt_e:
                     print(f"  [OPTIMIZER] shadow skipped: {_opt_e}", flush=True)
