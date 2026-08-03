@@ -101,6 +101,35 @@ proposal, figures), `docs/proof_assets/`, `docs/references/`,
 both `Dockerfile`s, `provenance/Cocoon_to_cosmos_side_by_side.txt`, the four
 analysis PNGs, `archive/2026-07-23/superseded-binaries/`, and `logs/`.
 
+### Where the `logs/` rule came from
+
+Traced, because the cause matters more than the fix. The rule was added by
+**`be01c22` — "Claude/mobile app repo desktop sync" (PR #14)**, squashed from
+`7f3bb2b`. That session's own account of the decision, kept by the author in
+`Theory/claudref.txt`:
+
+> "These untracked files are just Python bytecode caches and a log file — build
+> artifacts that shouldn't be tracked, not real work product."
+
+That judgement was wrong on both counts. `logs/` was not build output: it held
+`codette_optimizer_bridge.py` and its two `_Addon` files — the only copies in
+the repository — plus dated transcripts and its own README describing itself as
+transcript captures. And `*.log` was not "a log file": it swallowed the **Phase 0
+ablation runs** and eight benchmark runs, the raw evidence behind results already
+written up.
+
+The rule was added in the same commit that added `__pycache__/`, `*.pyc`, `*.pyo`
+— which *are* correct. The error was extending a build-artifact assumption across
+a directory nobody had opened, on the strength of its name.
+
+This is the exact failure `CLAUDE.md` opens with, one level up: **directory names
+are no more reliable than file extensions.** The same session classified by
+label rather than by content, and nothing surfaced it for three days because a
+`.gitignore` failure is silent by construction — `git status` reports nothing,
+so there is no moment where anyone is prompted to look.
+
+Recorded, not reverted. `be01c22` stays; `172de6a` amends it forward.
+
 ### `.gitignore` narrowed — flagged, not slipped in
 
 Line 81 was `logs/`, a blanket directory exclusion. It was hiding **three Python
