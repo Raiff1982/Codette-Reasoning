@@ -102,7 +102,9 @@ class TestAEGISAlignmentTrend(unittest.TestCase):
     def test_trend_with_no_history_is_stable(self):
         trend = self.aegis.alignment_trend()
         self.assertIsInstance(trend, str)
-        self.assertIn(trend, ("stable", "improving", "declining", "insufficient data"))
+        # Spelled with an underscore throughout the codebase (aegis,
+        # cocoon_introspection, guardian); the space form was only ever here.
+        self.assertIn(trend, ("stable", "improving", "declining", "insufficient_data"))
 
     def test_trend_after_benign_inputs_is_not_declining(self):
         for _ in range(5):
