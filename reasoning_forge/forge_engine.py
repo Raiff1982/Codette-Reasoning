@@ -50,7 +50,7 @@ from reasoning_forge.cocoon_stability import CocoonStabilityField
 from reasoning_forge.code7e_cqure import Code7eCQURE
 from reasoning_forge.colleen_conscience import ColleenConscience
 from reasoning_forge.guardian_spindle import CoreGuardianSpindle
-from reasoning_forge.nexis_signal_engine_local import NexisSignalEngine
+from reasoning_forge.nexis_signal_engine import NexisSignalEngine
 from reasoning_forge.consciousness_mathematics import EthicalAnchor as EthicalAnchorMath
 
 # === ORIGINAL FRAMEWORK INTEGRATION (from J:\TheAI\src\framework\) ===
@@ -184,6 +184,27 @@ SYSTEM_PROMPT = (
 
 # Score below which an agent gets sent back for revision
 _REVISION_THRESHOLD = 0.6
+
+
+
+def _intent_of(record):
+    """
+    Pull the intent vector out of a NexisSignalEngine.process() record.
+
+    process() returns the intent nested under "intent_signature", or under
+    "intent_warning" when it takes the adaptive-intervention path. Earlier code
+    read the fields off the top level, where they have never existed, so
+    pre_corruption_risk always resolved to "unknown" and the high-risk branch
+    was unreachable. Accepts a flat mapping too, so a future shape change or a
+    stub does not silently regress to "unknown".
+    """
+    if not isinstance(record, dict):
+        return {}
+    for key in ("intent_signature", "intent_warning"):
+        nested = record.get(key)
+        if isinstance(nested, dict) and nested:
+            return nested
+    return record
 
 
 class ForgeEngine:
@@ -354,7 +375,7 @@ class ForgeEngine:
         # Initialize NexisSignalEngine intent prediction (must be before Tier2Bridge)
         try:
             self.nexis_signal_engine = NexisSignalEngine(
-                memory_path="reasoning_forge/.logs/nexis_signal_memory.json"
+                memory_path="reasoning_forge/.logs/nexis_signal_memory.db"
             )
             logger.info("  ✓ NexisSignalEngine signal analysis initialized")
         except Exception as e:
@@ -841,7 +862,8 @@ class ForgeEngine:
         intent_vector = {}
         if getattr(self, 'nexis_signal_engine', None):
             try:
-                intent_vector = self.nexis_signal_engine.process(concept)
+                nexis_record = self.nexis_signal_engine.process(concept)
+                intent_vector = _intent_of(nexis_record)
                 safety_notes['intent_risk'] = intent_vector.get('pre_corruption_risk', 'unknown')
                 if _trace:
                     _trace.record(EVENT_NEXUS_SIGNAL, "NexisSignalEngine", {
@@ -1483,7 +1505,8 @@ class ForgeEngine:
         intent_vector = {}
         if hasattr(self, 'nexis_signal_engine') and self.nexis_signal_engine:
             try:
-                intent_vector = self.nexis_signal_engine.process(concept)
+                nexis_record = self.nexis_signal_engine.process(concept)
+                intent_vector = _intent_of(nexis_record)
                 risk_level = intent_vector.get("pre_corruption_risk", "unknown")
                 logger.info(f"  Intent risk level: {risk_level}")
                 if risk_level == "high":
