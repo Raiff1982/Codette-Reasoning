@@ -291,13 +291,39 @@ class TestPhase6Benchmarks:
         assert "multi_round_convergence" in benchmarks.results
 
     def test_benchmark_summary_generation(self):
-        """Test benchmark summary formatting."""
+        """Summary must distinguish 'nothing measured' from 'measured, all fine'.
+
+        Corrected 2026-08-03. This constructed a Phase6Benchmarks, ran no
+        benchmarks at all, and then asserted that a "MULTI-ROUND" or "MEMORY"
+        section was present. Every section is conditional on having results, so
+        it could not be — the test asserted an impossibility.
+
+        The underlying problem was not the assertion though. With no results,
+        summary() emitted a title and a horizontal rule and nothing else: a
+        document that reads exactly like a completed report showing no problems.
+        That is the failure mode worth guarding, so it is now asserted directly
+        in both states.
+        """
         from evaluation.phase6_benchmarks import Phase6Benchmarks
 
         benchmarks = Phase6Benchmarks(forge_engine=None)
-        summary = benchmarks.summary()
-        assert "PHASE 6 BENCHMARK SUMMARY" in summary
-        assert "MULTI-ROUND" in summary or "MEMORY" in summary
+
+        # Nothing run: must say so explicitly, and must NOT look like a report.
+        empty = benchmarks.summary()
+        assert "PHASE 6 BENCHMARK SUMMARY" in empty
+        assert "NO BENCHMARKS HAVE BEEN RUN" in empty
+        assert "MULTI-ROUND" not in empty
+
+        # With results: the section renders and the disclaimer disappears.
+        benchmarks.results["multi_round_convergence"] = {
+            "queries_tested": 3,
+            "convergence_rate": 0.812,
+            "improvement_percentage": 67,
+        }
+        filled = benchmarks.summary()
+        assert "MULTI-ROUND" in filled
+        assert "NO BENCHMARKS HAVE BEEN RUN" not in filled
+        assert "0.812" in filled
 
 
 # ===================================================================
