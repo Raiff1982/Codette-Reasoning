@@ -4,14 +4,29 @@ Written 2026-08-03 at the end of the recovery pass, so the next session starts
 from facts rather than re-deriving them. **Recovery is not integration.** Nearly
 everything below is *saved* but wired to nothing.
 
+> **UPDATE, later on 2026-08-03.** Both PRs below are **merged** (`8006a21` =
+> #19, `0e764f7` = #20). A follow-up pass resolved several items in this
+> document; each is marked **[DONE]** inline. Items with no marker still stand.
+>
+> Also fixed in that pass, and *not* previously in this document: bare `pytest`
+> from the repository root collected **zero tests** — five collection errors
+> aborted every run while 596 working tests sat behind them. Now 600 collected,
+> 0 errors, 22 pre-existing failures unchanged. See `24b8311`.
+>
+> And a reward-function bug in `quantum_optimizer.py`: `productivity` was scored
+> unconditionally at weight 0.25 while `optimizer_shadow` fed it a neutral `0.5`
+> on 34% of turns — a fabricated measurement, scored, breaking the invariant the
+> function states above itself. Fixed in `8be7c76`; the causal story attached to
+> that fix was then **disproved** in `fbb8307`. Read both.
+
 ## State right now
 
-Two PRs open, neither merged:
+Two PRs, **both now merged**:
 
 | PR | What | Merge order |
 |---|---|---|
-| [#19](https://github.com/Raiff1982/Codette-Reasoning/pull/19) | AEGIS harm-intent gate | **first** — security fix, 15 tests pass |
-| [#20](https://github.com/Raiff1982/Codette-Reasoning/pull/20) | the recovery, 138 files | after |
+| [#19](https://github.com/Raiff1982/Codette-Reasoning/pull/19) | AEGIS harm-intent gate | **[DONE]** merged as `8006a21` |
+| [#20](https://github.com/Raiff1982/Codette-Reasoning/pull/20) | the recovery, 138 files | **[DONE]** merged as `0e764f7` |
 
 ### Read this before switching branches
 
@@ -43,7 +58,19 @@ Start there; it is the highest-quality set and the work is already done.
 
 ## Confirmed blockers — measured 2026-08-03, not assumed
 
-### `ethics/core_guardian_spindle_v2.py` is broken at import — LIVE code
+### `ethics/core_guardian_spindle_v2.py` is broken at import — LIVE code — **[DONE]**
+
+**Fixed in `24b8311`.** The guard from `core_conscience.py` was copied verbatim,
+plus a classical fallback of the same distribution so `quantum_execute` returns
+rather than raising on `None`. The fallback is named honestly — without qiskit
+it is not a quantum selection and does not claim to be. Verified: imports
+cleanly, empty web returns `None`, all nodes reachable. The qiskit branch is
+marked **UNVERIFIED** in-file: qiskit is still not installed, so that path has
+never executed. Note also that **nothing currently imports this module**, so it
+was a latent break, not an active one. The larger qiskit question (9 files,
+`Aer`/`execute` removed in 1.0) is untouched and still open.
+
+Original text follows.
 
 ```
 >>> import ethics.core_guardian_spindle_v2
@@ -76,7 +103,25 @@ Options: port to `qiskit_aer` + primitives, pin `qiskit<1.0`, or guard the
 import as `core_conscience.py` already does. The guard is the cheapest fix for
 the live failure and does not decide the larger question.
 
-### `components/*` — 16 modules, still missing
+### `components/*` — 16 modules, still missing — **CONFIRMED ABSENT, independently**
+
+The claim below was re-tested on 2026-08-03 the only way it can be: by reading
+**inside** 1,157 non-`.py` containers (`.docx`, `.pdf`, `.txt`, chat-history
+`.json`, zip members) for `class <Name>` definitions, rather than by filename.
+Extensions here do not indicate contents, so a filename search proves nothing.
+
+Result: **genuinely absent.** `SelfImprovingAI`, `AdvancedDataProcessor`,
+`NeuroSymbolicEngine`, `AIDrivenCreativity`, `EnhancedSentimentAnalyzer` and the
+rest are *mentioned* across archives and cocoons but **defined nowhere**. Two of
+the sixteen do exist and are merely mispathed: `ethical_governance` →
+`reasoning_forge/ethical_governance.py`, `quantum_spiderweb` →
+`reasoning_forge/quantum_spiderweb.py`.
+
+One thing this document did not record: **`utilities/integrated_ai_core_with_cocoons.py`
+is LIVE code with the same problem**, not just `recovered_release/legacy/ai_core.py`.
+It imports six of the missing names. Nothing imports *it*, so it is inert.
+
+Original text follows.
 
 `recovered_release/legacy/ai_core.py` imports 16 modules from `components/`
 (`adaptive_learning`, `ai_driven_creativity`, `collaborative_ai`,
@@ -158,3 +203,62 @@ When auditing, list what is *ignored*, not just what is untracked:
 git ls-files --others --ignored --exclude-standard | grep -v __pycache__
 git check-ignore -v --stdin < paths.txt   # one process, not one per file
 ```
+
+---
+
+# Addendum — follow-up pass, 2026-08-03 (later)
+
+## Resolved
+
+- **Test suite runnable.** 0 collected / 5 errors → 600 collected / 0 errors.
+  `MazegameCompKaggle/` archived to `archive/2026-08-03-mazegame-kaggle/` by
+  `git mv` at the author's direction (history preserved, README explains the
+  CWD-relative path bug that caused three of the errors).
+  `reasoning_forge/test_global_aegis.py` import repaired — recovers 4 tests that
+  were never running, the only direct exercise of the 25-framework AEGIS table.
+  `pyproject.toml` now has a pytest section stating what is excluded *and why*.
+- **`logs/codette_optimizer_bridge.py` parses.** It was the "prose appended
+  after the last line of code" pattern, one un-commented line at EOF. Commented,
+  not deleted. This mattered because **unparseable meant unscreenable**.
+- **Harm screen run.** 153 recovered/archive `.py` screened by AST for
+  exfiltration, obfuscated execution, destructive filesystem calls, credential
+  reads, reverse shells and prompt injection. **No malicious code.** Zero
+  injection strings — notable given how much came out of `.docx`/PDF/transcripts.
+  All 16 HIGH hits resolved to false positives (loopback binds, DuckDuckGo,
+  NASA's exoplanet archive) and the resolutions are recorded, not assumed.
+
+## Still open, with new detail
+
+- **`archive/2026-07-23/git-history-scripts/push_cleanup.py`** runs
+  `reflog expire --expire=now --all` + `gc --prune=now --aggressive` +
+  `rmtree('.git-rewrite')`. Not malicious, inert where it sits, but it destroys
+  recoverability and so conflicts directly with the "we don't erase the past"
+  rule. Flagged rather than acted on, because deleting it would itself be an
+  erasure. Suggest a header marking it retained-for-record, not-to-be-run.
+- **Optimizer shadow → live is BLOCKED**, and the blocker is not sample size:
+  `user_continued` is never measured (0/167 turns), so there is **no outcome
+  signal** to judge "consistent results" against. It is correctly passed as
+  `None`, not fabricated — an earlier version of `optimizer_shadow.py`'s
+  docstring claimed `True`, which was stale and is now fixed.
+- **The decay pattern in the shadow log is real and unexplained.** 41.1% of
+  placeholder turns vs 49.5% of measured turns propose a decay, so it is *not*
+  an artifact of the productivity bug. Wanted a cause.
+- **Flaky test**: `tests/test_drift_detector.py::TestInterventionPlan::
+  test_psi_r_history_populated` failed once in a full run, then passed 8/8 in
+  isolation and did not reproduce. Order-dependent pollution.
+- **28 modules run plotting code at import**, 19 of them calling `plt.show()`
+  or `savefig` *outside* a `__main__` guard — all in `archive/`,
+  `recovered_release/` and `experiments/`. **Zero in live code.** Importing
+  those directories opens blocking GUI windows and writes `.npy`/`.png` into the
+  repository root; that is what any repo-wide import sweep will trigger.
+
+## Method note
+
+The reference audit's first version treated a `.py` stem *anywhere* in the tree
+as satisfying an import, which silently emptied the "exists but mispathed"
+category — the single most actionable class. Worth knowing before trusting a
+similar sweep. Ground truth for imports is executing them, not parsing them;
+`CLAUDE.md` already says so and it was right again here.
+
+Working notes, baselines and the screen output are outside the repository, in
+`G:\claudes space for files\2026-08-03-incorporation\`.
