@@ -126,8 +126,6 @@ class CodetteCQURE:
             signal = self.ethical_guard(signal)
             if "Blocked" in signal:
                 return signal
-            if dynamic_recursion and random() < 0.1:
-                break
             dream_outcome = self.dream_sequence(signal)
             empathy_checked_answer = self.temporal_empathy_drift(dream_outcome)
             final_answer = self.emotion_engine(empathy_checked_answer)
@@ -135,6 +133,23 @@ class CodetteCQURE:
             self.memory_clusters[key].append(final_answer)
             self.memory_bank[key] = final_answer
             self.save_quantum_memory()
+            # 2026-08-03: this stochastic early exit used to sit BEFORE
+            # final_answer was assigned. On the first cycle it therefore
+            # returned `final_answer = signal`, i.e. the user's own question
+            # echoed back verbatim, roughly 10% of the time. Measured at 5 in 60
+            # calls before the fix: recursive_universal_reasoning("What is
+            # water?") returned exactly "What is water?".
+            #
+            # That is literal parroting, emitted from the live reasoning path
+            # (forge_engine.py calls this), and it was invisible because it only
+            # showed up as an intermittently failing test.
+            #
+            # Moved to the end of the body. The intent — dynamic recursion may
+            # stop early instead of always running to full depth — is preserved
+            # exactly, but at least one complete cycle now always produces a
+            # real answer before any early exit can happen.
+            if dynamic_recursion and random() < 0.1:
+                break
         return final_answer
 
     def aggregate_results(self, results):
