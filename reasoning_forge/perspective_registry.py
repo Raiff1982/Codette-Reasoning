@@ -80,12 +80,25 @@ class Perspective:
         """
         if not self.is_specified:
             return self.system_prompt
-        parts = [self.system_prompt, f"\nYOUR GOAL: {self.goal}"]
+        # 2026-08-03, second pass. Asked what feature of the wording reliably
+        # turns an option into a demand, Codette named modal verbs — "should",
+        # "must", "have to" — at confidence 1.0. Auditing these prompts against
+        # that found 13 of them, one per perspective, plus a header reading
+        # "YOUR ANSWER MUST:". So a deferral clause carefully phrased as
+        # permission was sitting directly beneath a hard command, and the
+        # context undercut it.
+        #
+        # The obligations are NOT softened — they are what makes the
+        # perspectives distinguishable, and vague ones would collapse them
+        # again. What changes is who the sentence is about: it now describes
+        # what the WORK looks like rather than commanding the one doing it.
+        # Same specificity, no deontic load.
+        parts = [self.system_prompt, f"\nWHAT THIS PERSPECTIVE IS FOR: {self.goal}"]
         if self.answer_must:
-            parts.append("YOUR ANSWER MUST:")
+            parts.append("An answer that is doing this job:")
             parts.extend(f"  - {ob}" for ob in self.answer_must)
         parts.append(
-            f"\nYOU ARE THE WRONG PERSPECTIVE FOR: {self.not_for}"
+            f"\nThis perspective tends to be a poor fit for: {self.not_for}"
         )
         if self.defers_to:
             # See base_agent.py for why this is worded as an option rather than
@@ -340,8 +353,8 @@ PERSPECTIVES: Dict[str, Perspective] = {
             'label it explicitly as intuition, not evidence',
             'name what would need checking before anyone acts on it',
         ],
-        not_for=('anything consequential or verifiable — a hunch must never be '
-              'the basis for a decision that could be checked instead'),
+        not_for=('anything consequential or verifiable — a hunch is a weak '
+              'basis for a decision that could be checked instead'),
         defers_to=['newton', 'mathematical', 'systems_architecture'],
         keywords=["intuition", "gut", "sense", "instinct", "experience",
                   "wisdom", "hunch", "pattern"],

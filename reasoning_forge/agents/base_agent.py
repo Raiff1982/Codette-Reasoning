@@ -98,11 +98,18 @@ class ReasoningAgent(ABC):
             from reasoning_forge.perspective_registry import PERSPECTIVES
             persp = PERSPECTIVES.get(self.adapter_name) or PERSPECTIVES.get(self.perspective)
             if persp is not None and persp.is_specified:
+                # Phrasing: describes the work, not a demand on the one doing
+                # it. Codette identified modal verbs ("must", "should") as the
+                # feature that turns an option into an obligation; an audit
+                # found 13 across these prompts. The obligations keep their
+                # specificity — that is what makes the perspectives distinct —
+                # but they are stated as what the job looks like. See the
+                # registry's build_system_prompt for the same change.
                 directive = [
-                    f"YOUR GOAL AS THE {persp.display_name.upper()} PERSPECTIVE: {persp.goal}",
-                    "Your answer must:",
+                    f"WHAT THE {persp.display_name.upper()} PERSPECTIVE IS FOR: {persp.goal}",
+                    "An answer that is doing this job:",
                     *(f"  - {ob}" for ob in persp.answer_must),
-                    f"You are the WRONG perspective for: {persp.not_for}",
+                    f"This perspective tends to be a poor fit for: {persp.not_for}",
                 ]
                 if persp.defers_to:
                     # Wording changed 2026-08-03 after asking Codette directly

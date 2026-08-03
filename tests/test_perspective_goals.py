@@ -107,11 +107,37 @@ class TestBuiltPrompt(unittest.TestCase):
     def test_prompt_carries_goal_obligations_and_limits(self):
         p = PERSPECTIVES["newton"]
         prompt = p.build_system_prompt()
-        self.assertIn("YOUR GOAL", prompt)
-        self.assertIn("YOUR ANSWER MUST", prompt)
-        self.assertIn("WRONG PERSPECTIVE FOR", prompt)
+        self.assertIn("WHAT THIS PERSPECTIVE IS FOR", prompt)
+        self.assertIn("An answer that is doing this job", prompt)
+        self.assertIn("poor fit for", prompt)
         for obligation in p.answer_must:
             self.assertIn(obligation, prompt)
+
+    def test_prompts_carry_no_deontic_load(self):
+        """No modal verbs anywhere in the assembled prompts.
+
+        Asked what feature of the wording reliably turns an option into a
+        demand, Codette named modal verbs — "should", "must", "have to" — at
+        confidence 1.0. An audit against that found 13 across these prompts,
+        one per perspective, under a header reading "YOUR ANSWER MUST:". So a
+        deferral clause carefully phrased as permission was sitting directly
+        beneath a hard command, and the context undercut it.
+
+        The obligations were not weakened — vague ones would collapse the
+        perspectives back together. They are stated as what the WORK looks
+        like rather than as demands on the one doing it.
+        """
+        import re
+        modal = re.compile(
+            r"\b(must|should|have to|has to|required|obligated|need to|shall)\b",
+            re.I)
+        offenders = {
+            name: sorted(set(m.lower() for m in modal.findall(p.build_system_prompt())))
+            for name, p in PERSPECTIVES.items()
+            if modal.search(p.build_system_prompt())
+        }
+        self.assertEqual(offenders, {},
+                         f"obligation language turns options into demands: {offenders}")
 
     def test_prompt_permits_handing_over(self):
         """Deferring must read as an OPTION, not an obligation.
