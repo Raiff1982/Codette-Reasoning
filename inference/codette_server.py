@@ -205,6 +205,24 @@ def _analyze_response_reliability(response_text: str, adapter_name: str, domain:
         "hallucination_recommendation": "CONTINUE",
         "low_confidence_claims": [],
         "mean_token_confidence": 0.5,
+        # 2026-08-03: these two record whether the checks actually RAN.
+        #
+        # Without them, a guard that failed was indistinguishable from a guard
+        # that passed. `hallucination_confidence` starts at 1.0 and
+        # `hallucination_detected` at False; if HallucinationGuard raised, the
+        # except clause below wrote only to `hallucination_signals` — a field
+        # nothing gates on — and left those two reassuring defaults standing.
+        # _build_trust_tags then read 1.0 >= 0.85 and tagged the response
+        # "grounded" to the user. A response nobody checked was being badged as
+        # verified.
+        #
+        # Same shape as three other defects found today: the Nexis engine
+        # raising into a bare except at DEBUG, the corruption detector unable to
+        # match across newlines, and the Phase 6 summary rendering "nothing
+        # measured" identically to "measured, all fine". Absence must not
+        # render as safety.
+        "hallucination_checked": False,
+        "token_confidence_checked": False,
     }
     if not response_text.strip():
         return analysis
@@ -218,6 +236,7 @@ def _analyze_response_reliability(response_text: str, adapter_name: str, domain:
             "hallucination_detected": bool(detection.is_hallucination),
             "hallucination_signals": detection.signals[:5],
             "hallucination_recommendation": detection.recommendation,
+            "hallucination_checked": True,
         })
     except Exception as e:
         analysis["hallucination_signals"] = [f"hallucination_guard_unavailable: {e}"]
@@ -232,6 +251,7 @@ def _analyze_response_reliability(response_text: str, adapter_name: str, domain:
         low_claims = sorted(token_report.claims, key=lambda claim: claim.confidence)[:3]
         analysis.update({
             "mean_token_confidence": round(mean_token_conf, 3),
+            "token_confidence_checked": True,
             "low_confidence_claims": [
                 {
                     "text": claim.text[:180],
@@ -268,9 +288,21 @@ def _build_trust_tags(result: dict, memory_context_summary: dict) -> list[str]:
         tags.append("web-cited")
     if result.get("tools_used"):
         tags.append("tool-assisted")
+    # 2026-08-03: "grounded" now requires the check to have actually RUN.
+    #
+    # This previously read `.get("hallucination_confidence", 1.0) >= 0.85`. The
+    # default of 1.0 clears the threshold, so whenever the key was absent — or
+    # the guard raised and left its initial value in place — an unchecked
+    # response was tagged "grounded" for the user. The badge asserted
+    # verification that had never happened.
+    #
+    # Absence is now its own tag. "unverified" is information; a false
+    # "grounded" is worse than no tag at all.
     if confidence_analysis.get("hallucination_detected"):
         tags.append("hallucination-risk")
-    elif confidence_analysis.get("hallucination_confidence", 1.0) >= 0.85:
+    elif not confidence_analysis.get("hallucination_checked", False):
+        tags.append("unverified")
+    elif confidence_analysis.get("hallucination_confidence", 0.0) >= 0.85:
         tags.append("grounded")
 
     seen = set()
