@@ -136,3 +136,8 @@ Recording*.mp4
 
 # Generated archives
 *.zip
+
+# CodetteCQURE runtime memory written by tests/test_consciousness_stack.py.
+# Content is stochastic, so every run produced a diff on tracked files.
+test.json
+test_quantum_cocoon.json

@@ -3,6 +3,8 @@ Test Suite for Consciousness Stack Integration (Session 13)
 150+ comprehensive tests covering all 7 layers
 """
 
+import shutil
+import tempfile
 import unittest
 import json
 import sys
@@ -217,11 +219,18 @@ class TestCode7eCQURE(unittest.TestCase):
     """Tests for Code7eCQURE reasoning engine (15 cases)"""
 
     def setUp(self):
+        # CodetteCQURE persists to memory_path on every reasoning cycle. Pointing
+        # it at the repository root rewrote tracked files (test_quantum_cocoon.json,
+        # test.json) with stochastic output on every run, so the suite left the
+        # working tree dirty and the churn got swept into commits. Use a temp dir
+        # that is cleaned up afterwards.
+        self._tmp = tempfile.mkdtemp(prefix="codette-test-")
+        self.addCleanup(shutil.rmtree, self._tmp, True)
         self.code7e = Code7eCQURE(
             perspectives=["Newton", "DaVinci", "Ethical", "Quantum", "Memory"],
             ethical_considerations="Codette test instance",
             spiderweb_dim=5,
-            memory_path="test_quantum_cocoon.json",
+            memory_path=os.path.join(self._tmp, "quantum_cocoon.json"),
             recursion_depth=2,
             quantum_fluctuation=0.05
         )
@@ -279,11 +288,13 @@ class TestIntegration(unittest.TestCase):
     def setUp(self):
         self.colleen = ColleenConscience()
         self.guardian = CoreGuardianSpindle()
+        self._tmp = tempfile.mkdtemp(prefix="codette-test-")
+        self.addCleanup(shutil.rmtree, self._tmp, True)
         self.code7e = Code7eCQURE(
             perspectives=["Newton", "DaVinci", "Ethical"],
             ethical_considerations="Test",
             spiderweb_dim=3,
-            memory_path="test.json",
+            memory_path=os.path.join(self._tmp, "memory.json"),
         )
 
     def test_full_pipeline_clean(self):
