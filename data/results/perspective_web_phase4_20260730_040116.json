@@ -1,0 +1,13 @@
+{
+  "spearman_flat_vs_web": 0.4538483462086552,
+  "q2": {
+    "flat_a": 0.1875,
+    "flat_b": 0.1875,
+    "flat_conflated": true,
+    "cluster_a": 3,
+    "cluster_b": 1,
+    "separates": true
+  },
+  "verdict": "GRAPH EARNS ITS PLACE \u2014 web \u03be is NOT a monotone image of flat \u03be (Spearman 0.45, independent scalar signal), AND attractor structure separates configs the flat centroid-variance metric provably conflates. The graph carries information flat \u03be cannot.",
+  "note": "lexical/vector mode; semantic mode may change Q1 redundancy"
+}
