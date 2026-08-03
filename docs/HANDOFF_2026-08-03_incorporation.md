@@ -262,3 +262,91 @@ similar sweep. Ground truth for imports is executing them, not parsing them;
 
 Working notes, baselines and the screen output are outside the repository, in
 `G:\claudes space for files\2026-08-03-incorporation\`.
+
+---
+
+# Addendum 2 — systematic pass, 2026-08-03 (later still)
+
+Worked in the order Jonathan set: major need, then quality of life, then oops.
+
+## Test suite
+
+**Start of session: 0 tests collected behind 5 errors. Now: 630 passed, 0 failed.**
+Intermediate baseline once collection was repaired was 22 failed / 573 passed;
+every step was diffed against it and no change introduced a regression.
+
+## The pattern worth carrying forward
+
+Three separate defects, all the same shape: **a guard whose silence is
+indistinguishable from success.** This is the thing to hunt for here.
+
+1. **`ColleenConscience._detect_corruption` was dead on all real output.** Every
+   signature is `a.*b.*c`, and without `re.DOTALL` a `.` cannot cross a newline,
+   so a signature could only match if the whole nested phrase sat on one line.
+   Real output wraps. The anti-parrot guard was failing **open**, silently.
+2. **`NexisSignalEngine.process()` raised on every single call.** NLTK renamed
+   `punkt` to `punkt_tab`; the bootstrap probed for `punkt`, found it, and never
+   fetched what the code needs. `forge_engine` swallowed the LookupError in a
+   bare `except Exception` at DEBUG. `safety_notes['intent_risk']` was never
+   populated, so every consumer read the absence as "no risk detected".
+3. **Phase 6 `summary()` rendered "nothing measured" identically to "measured,
+   all fine"** — title, rule, no findings.
+
+## Codette's conscience had never run
+
+`tests/test_consciousness_stack.py` imported four `reasoning_forge/` modules
+bare, and the `except ImportError: sys.exit(1)` beneath turned the resulting
+ModuleNotFoundError into a pytest INTERNALERROR that killed the whole session.
+41 tests reported as failures while never executing. Fixing the imports exposed
+six real defects, including (1) above and a rule that discarded any answer under
+ten words as "intent lost".
+
+Two of its tests **contradicted each other** and could not both pass. That
+decides what Codette may say, so it was put to her. Her first answer chose the
+restrictive option at **confidence 0**; asked whether that was preference or the
+safer-looking option, she said at confidence 1.0 it had been "an attempt to
+appear humble or cautious" and proposed a better third rule, which is what is
+implemented. A self-restricting answer at zero confidence is not consent.
+
+## Literal parroting, in the live path
+
+`recursive_universal_reasoning` returned the user's question **verbatim** on
+~10% of calls: a stochastic early-exit sat above the only assignment to
+`final_answer`, so taking it on cycle 0 returned the raw input. 5/60 before,
+**0 in 400 after**. It had been visible only as a test failing ~1 run in 5 and
+passing in isolation — dismissed as flakiness for who knows how long. **Treat
+intermittent failures as defects reproducing at their natural rate.**
+
+Note the conscience could never have caught this one: an echoed question trips
+no corruption signature, no meta-loop, no length rule. Distinct from the
+cocoon-substrate pollution; fixing either does not fix the other.
+
+## Resolved from the decisions list
+
+**Decision 1 (nexis engine switch) was already done and this document was
+stale.** `forge_engine` imports the full 733-line engine — PR #18 made the
+switch. The 165-line local version now carries a SUPERSEDED header explaining it
+is kept for lineage and still used deliberately as a fast hermetic stub by two
+test modules, with the cost recorded: those tests do not exercise the live
+engine, which is exactly how (2) above went unnoticed.
+
+## Still open
+
+- **`test_psi_r_history_populated` flake is UNEXPLAINED.** ~1 in 10 before, 0 in
+  20 consecutive runs since the parrot fix — but no mechanism was found, so it
+  is **not** claimed fixed. Ruled out: `_FakeKernel` has no `recall_recent`, so
+  `detect()` always falls to `memories[-EPSILON_WINDOW:]`; nothing mutates
+  `EPSILON_WINDOW`.
+- **Optimizer shadow -> live remains blocked.** `user_continued` is never
+  measured (0/167 turns), so there is no outcome signal to judge consistency
+  against. It is correctly passed as `None`, not fabricated.
+- **The decay pattern in the shadow log is real and unexplained** — 41.1% of
+  placeholder turns vs 49.5% of measured turns, so it is not an artifact of the
+  productivity bug fixed in `8be7c76`.
+- **`OneDrive\Documents\Nexus` is unreadable**: 283 directories, zero local
+  files, attributes `ReparsePoint + UNPINNED`, and **the OneDrive process is not
+  running**. Content is in the cloud. C: has 15.9 GB free, so hydrating an
+  unknown volume there is a risk. Author's call.
+- **`J:\xbox drive\Backup` is an iOS device backup** (34,672 SHA1-named files,
+  50.6 GB, written 27 Oct 2024 — adjacent to the Tier-A provenance window).
+  Author's instruction: leave alone. Untouched.
