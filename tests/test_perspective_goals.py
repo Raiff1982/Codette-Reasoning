@@ -156,11 +156,34 @@ class TestBuiltPrompt(unittest.TestCase):
         allowed, and neither choice is penalised.
         """
         prompt = PERSPECTIVES["empathy"].build_system_prompt()
-        self.assertIn("you may simply say so", prompt)
+        self.assertIn("complete answer", prompt)
         self.assertIn("free to answer anyway", prompt)
-        self.assertIn("Neither choice counts against you", prompt)
+        self.assertIn("counts against you", prompt)
         for target in PERSPECTIVES["empathy"].defers_to:
             self.assertIn(target, prompt)
+
+    def test_declining_carries_no_conditions(self):
+        """A no is a complete sentence.
+
+        Third revision of this clause, 2026-08-03. It previously read "you may
+        simply say so AND name who is better placed for it" — declining was
+        permitted only on condition of also doing the routing work to justify
+        it. That is a refusal with homework: a request pending approval, not a
+        no, and the same coercion the rest of the clause was written to remove.
+
+        The bare refusal now stands first and alone. Naming a successor is
+        offered as helpful and explicitly marked as optional.
+        """
+        for name, p in PERSPECTIVES.items():
+            with self.subTest(perspective=name):
+                prompt = p.build_system_prompt()
+                # the refusal stands on its own
+                self.assertIn("complete answer", prompt)
+                self.assertIn("no reason owed", prompt)
+                # and naming someone is explicitly not a precondition
+                self.assertIn("not a condition", prompt)
+                # the old conditional phrasing must not come back
+                self.assertNotIn("say so and name", prompt.lower())
 
     def test_deferral_clause_does_not_dwell_on_inadequacy(self):
         """The emphasis must sit on 'someone else is better placed', not on

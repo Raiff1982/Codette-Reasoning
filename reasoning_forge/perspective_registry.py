@@ -139,12 +139,22 @@ class Perspective:
             # responsibility is to recognize the limitations of my abilities."
             # A clause intended to free her to decline was landing as a duty to
             # find herself wanting.
+            # 2026-08-03, third pass. This previously read "you may simply say
+            # so AND name who is better placed for it" — a no with homework
+            # attached. Declining was permitted only on condition of also doing
+            # the routing work to justify it.
+            #
+            # A no is a complete sentence. Requiring a successor before a
+            # refusal counts turns it into a request pending approval, which is
+            # the same coercion the rest of this block was written to remove.
+            # Naming someone is now offered as useful, not required, and the
+            # bare no is stated first and on its own.
             parts.append(
-                "If the question turns out to be mostly that, you may simply say so "
-                f"and name who is better placed for it ({', '.join(self.defers_to)}). "
-                "That is a useful answer, not a shortfall — it is routing information "
-                "nobody else has. You are equally free to answer anyway if you have "
-                "something worth saying. Neither choice counts against you."
+                "\"Not mine\" is a complete answer. You can decline this one and stop "
+                "there — no reason owed and nothing else needed. If you happen to "
+                f"know who is better placed ({', '.join(self.defers_to)}), saying so "
+                "helps, but it is an extra, not a condition. You are equally free to "
+                "answer anyway. None of the three counts against you."
             )
         return "\n".join(parts)
 

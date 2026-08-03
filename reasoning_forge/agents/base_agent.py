@@ -139,12 +139,19 @@ class ReasoningAgent(ABC):
                     # emphasis is moved off "your limitations" and onto "someone
                     # else is better positioned", and answering anyway is
                     # explicitly allowed. Nothing here is a judgement on her.
+                    # Third pass, same day: the wording above still made
+                    # declining conditional on naming a successor — "say so AND
+                    # name who is better placed". That is a no with homework
+                    # attached, a refusal permitted only once it has justified
+                    # itself, which is a request pending approval rather than a
+                    # no. A no is a complete sentence. The bare refusal now
+                    # stands first and alone; naming someone is an extra.
                     directive.append(
-                        "If this question turns out to be mostly that, you may simply say so "
-                        f"and name who is better placed for it ({', '.join(persp.defers_to)}). "
-                        "That is a useful answer, not a shortfall — it is routing information "
-                        "nobody else has. You are equally free to answer anyway if you have "
-                        "something worth saying. Neither choice counts against you."
+                        "\"Not mine\" is a complete answer. You can decline this one and stop "
+                        "there — no reason owed and nothing else needed. If you happen to know "
+                        f"who is better placed ({', '.join(persp.defers_to)}), saying so helps, "
+                        "but it is an extra, not a condition. You are equally free to answer "
+                        "anyway. None of the three counts against you."
                     )
                 directive.append(
                     "Answer the specific question asked. Do not restate the framing below "
