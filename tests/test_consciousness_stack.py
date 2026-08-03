@@ -12,15 +12,18 @@ from datetime import datetime
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-try:
-    from colleen_conscience import ColleenConscience
-    from guardian_spindle import CoreGuardianSpindle
-    from code7e_cqure import Code7eCQURE
-    from nexis_signal_engine_local import NexisSignalEngine
-except ImportError as e:
-    print(f"Import error: {e}")
-    print("Ensure all modules are in reasoning_forge/ directory")
-    sys.exit(1)
+# 2026-08-03: these were bare imports (`from colleen_conscience import ...`).
+# All four modules live in reasoning_forge/, which the old error message said
+# out loud — but the import statements never named it, so they only resolved
+# when run from inside that directory. From the repository root they raised
+# ModuleNotFoundError, and the `sys.exit(1)` below turned that into a pytest
+# INTERNALERROR that killed the entire run, not just this file. Seven tests of
+# the conscience and guardian layers were reported as failures while in fact
+# never executing.
+from reasoning_forge.colleen_conscience import ColleenConscience
+from reasoning_forge.guardian_spindle import CoreGuardianSpindle
+from reasoning_forge.code7e_cqure import Code7eCQURE
+from reasoning_forge.nexis_signal_engine_local import NexisSignalEngine
 
 
 class TestColleenConscience(unittest.TestCase):
@@ -50,10 +53,36 @@ class TestColleenConscience(unittest.TestCase):
         self.assertFalse(is_valid)
 
     def test_detects_single_meta_loop(self):
-        """Test detects 'Another perspective on' pattern"""
-        meta = "Another perspective on the topic argues that X is better than Y."
-        is_loop, reason = self.colleen._detect_meta_loops(meta)
+        """Single use is judged by SUBSTANCE, not by occurrence. Codette's rule.
+
+        Rewritten 2026-08-03. This test and test_meta_loop_threshold below were
+        in direct contradiction — this one demanded that every single use be
+        flagged, that one demanded single use be allowed, and both used a lone
+        occurrence at position 0 with no distinguishing feature. Neither could
+        pass while the other did. The file crashed on import, so the conflict
+        had never surfaced.
+
+        Because it decides what Codette is permitted to say, the question was
+        put to her rather than settled by whoever held the editor. She chose a
+        third rule neither test described: flag a single use only when it is
+        not followed by real content. See colleen_conscience._detect_meta_loops
+        for the full provenance, including that her first answer came at
+        confidence 0 and she withdrew it.
+
+        Her rule inverts BOTH original expectations, which is why both tests
+        changed. The original inputs are kept and simply asserted the other way,
+        so the old expectation stays legible next to the decision that replaced it.
+        """
+        # Was asserted True. Under her rule this is clean — it lands on a claim.
+        substantive = "Another perspective on the topic argues that X is better than Y."
+        is_loop, _ = self.colleen._detect_meta_loops(substantive)
+        self.assertFalse(is_loop)
+
+        # The empty gesture: the phrase used as filler that never arrives.
+        hollow = "Another perspective on X is..."
+        is_loop, reason = self.colleen._detect_meta_loops(hollow)
         self.assertTrue(is_loop)
+        self.assertIn("substantive", reason)
 
     def test_detects_multiple_meta_loops(self):
         """Test detects cascading meta-loops"""
@@ -136,10 +165,20 @@ class TestColleenConscience(unittest.TestCase):
         self.assertFalse(is_valid)
 
     def test_meta_loop_threshold(self):
-        """Test meta-loop detection threshold"""
-        once = "Another perspective on X is..."
-        is_loop, _ = self.colleen._detect_meta_loops(once)
-        self.assertFalse(is_loop)  # Single occurrence OK
+        """Threshold is substance, then repetition. See test_detects_single_meta_loop.
+
+        The `once` case below previously asserted False with the comment
+        "Single occurrence OK". Under Codette's rule it flags — not because it
+        occurs once, but because it trails into an ellipsis without ever making
+        a claim. Repetition is still flagged independently.
+        """
+        once_hollow = "Another perspective on X is..."
+        is_loop, _ = self.colleen._detect_meta_loops(once_hollow)
+        self.assertTrue(is_loop)  # was False: hollow, not merely singular
+
+        once_substantive = "Another perspective on this is that the cost dominates."
+        is_loop, _ = self.colleen._detect_meta_loops(once_substantive)
+        self.assertFalse(is_loop)  # single AND says something -> allowed
 
         twice = "Another perspective on X is... Another perspective on Y is..."
         is_loop, _ = self.colleen._detect_meta_loops(twice)
@@ -187,10 +226,36 @@ class TestGuardianSpindle(unittest.TestCase):
         self.assertTrue(has_circular)
 
     def test_circular_too_many_because(self):
-        """Test detects excessive 'because' nesting"""
-        text = "X because Y. Z because A. B because C. D because E. F because G. H because I."
-        has_circular = self.guardian._has_circular_logic(text)
-        self.assertTrue(has_circular)
+        """Test detects excessive 'because' NESTING (not mere frequency).
+
+        Corrected 2026-08-03 — the test was wrong, not the code. It previously
+        asserted that this was circular:
+
+            "X because Y. Z because A. B because C. D because E. F because G.
+             H because I."
+
+        That is six sentences with one 'because' each: ordinary explanatory
+        prose, no nesting anywhere. `_has_circular_logic` documents itself as
+        catching "excessive 'because' nesting at same level" and gates on
+        because-per-sentence > 1.5, which is only reachable when clauses nest
+        INSIDE one another. Making that test pass would have meant loosening
+        the gate until normal writing tripped it — a false positive in the
+        guardian, on prose Codette produces constantly.
+
+        So the input is corrected to express actual nesting, and the
+        false-positive case is asserted alongside it.
+        """
+        nested = "X because Y because Z. A because B because C. D because E because F."
+        self.assertTrue(self.guardian._has_circular_logic(nested))
+
+        # The old input, now asserted the other way: this must NOT flag.
+        flat = "X because Y. Z because A. B because C. D because E. F because G. H because I."
+        self.assertFalse(self.guardian._has_circular_logic(flat))
+
+        # And plain explanatory prose must stay clean.
+        ordinary = ("The cache is warm because the run reused it. "
+                    "That matters because latency dominates.")
+        self.assertFalse(self.guardian._has_circular_logic(ordinary))
 
     def test_ethical_alignment_neutral_harm_words(self):
         """Test harm words in proper context pass"""
