@@ -1,4 +1,28 @@
 #!/usr/bin/env python3
+"""
+ARCHIVED — RETAINED FOR THE RECORD. DO NOT RUN.
+===============================================
+
+Flagged 2026-08-03 by a harm screen of all recovered and archived code. It is
+not malicious and it is not wired to anything, so it is inert where it sits.
+It is marked because of what it does if executed:
+
+    shutil.rmtree('.git-rewrite')                    # discards a filter-branch backup
+    git reflog expire --expire=now --all             # discards the reflog
+    git gc --prune=now --aggressive                  # discards unreachable objects
+
+Together those remove the safety net that makes a bad history rewrite
+recoverable. Once the reflog is expired and unreachable objects pruned, commits
+that were only reachable from the reflog are gone for good.
+
+That runs directly against this repository's standing rule: we do not erase the
+past, we document and amend forward. It is kept rather than deleted for exactly
+the same reason — deleting it would itself be an erasure, and the record of what
+was once run against this repository is worth preserving.
+
+If disk pressure ever makes a gc genuinely necessary, do it deliberately and
+without `--prune=now` or `reflog expire`, and take a full copy of `.git` first.
+"""
 import subprocess
 import sys
 import os

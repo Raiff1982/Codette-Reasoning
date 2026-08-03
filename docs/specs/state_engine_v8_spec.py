@@ -233,7 +233,7 @@ class RenderLayer:
         header = f"### [Codette State Engine v8]\n"
         meta = (f"> **Metrics:** Coherence: {state.metrics['coherence']:.4f} | "
                 f"Tension: {state.metrics['tension']:.4f} | "
-                f"Alignment ($\eta$): {state.metrics['eta']:.4f} | "
+                rf"Alignment ($\eta$): {state.metrics['eta']:.4f} | "
                 f"State: {state.primary_emotion}\n\n")
         
         # Build core statement ensuring the strict raw conclusions are represented
