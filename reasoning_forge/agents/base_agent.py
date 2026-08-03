@@ -69,6 +69,55 @@ class ReasoningAgent(ABC):
         template = self.select_template(concept)
         system_prompt = template.replace("{concept}", concept)
 
+        # 2026-08-03: prepend this perspective's GOAL, obligations and limits.
+        #
+        # This is where the perspectives were actually collapsing, and it took
+        # a negative result from Codette to find. Asked to answer one question
+        # as newton and then as davinci, she reported the two came out "the
+        # same picture in different colours" — matching the measurement that
+        # the adapters differ by ~0.013 in mean coherence against ~0.063 of
+        # within-adapter noise.
+        #
+        # The goal block had been added to codette_orchestrator, but it only
+        # applies when `system_prompt is None`. This path passes one
+        # explicitly, so the whole change was bypassed here — the very path
+        # that does multi-perspective reasoning never saw it.
+        #
+        # The deeper problem is what these templates ARE. They are pre-written
+        # essays about the concept with a slot in them, not instructions: e.g.
+        # "Tracing the causal chain within X: every observable outcome is the
+        # terminal node of..." The model receives a filled-in essay and
+        # paraphrases it, so different templates yield different vocabulary
+        # around the same generic reasoning. That is the template-filler
+        # problem showing up in the prompt path itself.
+        #
+        # The goal block is prepended rather than replacing the template: the
+        # templates carry genuine domain flavour worth keeping, but the
+        # instruction has to come first and has to be an instruction.
+        try:
+            from reasoning_forge.perspective_registry import PERSPECTIVES
+            persp = PERSPECTIVES.get(self.adapter_name) or PERSPECTIVES.get(self.perspective)
+            if persp is not None and persp.is_specified:
+                directive = [
+                    f"YOUR GOAL AS THE {persp.display_name.upper()} PERSPECTIVE: {persp.goal}",
+                    "Your answer must:",
+                    *(f"  - {ob}" for ob in persp.answer_must),
+                    f"You are the WRONG perspective for: {persp.not_for}",
+                ]
+                if persp.defers_to:
+                    directive.append(
+                        "If this question is mostly that, say so in one line and name who "
+                        f"should take it ({', '.join(persp.defers_to)}) instead of answering "
+                        "outside your competence. Handing over is a correct answer."
+                    )
+                directive.append(
+                    "Answer the specific question asked. Do not restate the framing below "
+                    "as though it were your analysis — it is background, not an answer."
+                )
+                system_prompt = "\n".join(directive) + "\n\n" + system_prompt
+        except Exception:
+            pass  # a missing registry must never break reasoning
+
         # Log debug info if verbose
         import os
         verbose = os.environ.get('CODETTE_VERBOSE', '0') == '1'
