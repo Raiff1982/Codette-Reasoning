@@ -1,3 +1,6 @@
+Recovered from the Codette archives — see RECOVERY_MANIFEST.md
+--------------------------------------------------------------
+
 Codette Tandem Moon Harmonic Packet
 Generated: 2025-06-17T05:48:03.861640 UTC
 

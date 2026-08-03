@@ -1,3 +1,7 @@
+"""
+Recovered from the Codette archives — see RECOVERY_MANIFEST.md
+"""
+
 import aiohttp
 import json
 from transformers import AutoModelForCausalLM, AutoTokenizer

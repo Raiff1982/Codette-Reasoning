@@ -1,3 +1,7 @@
+"""
+Recovered from the Codette archives — see RECOVERY_MANIFEST.md
+"""
+
 import numpy as np
 
 # numpy 2.0 removed np.trapz in favour of np.trapezoid. Bind once so this

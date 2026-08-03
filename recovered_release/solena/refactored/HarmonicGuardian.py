@@ -1,3 +1,7 @@
+"""
+Recovered from the Codette archives — see RECOVERY_MANIFEST.md
+"""
+
 class HarmonicGuardian:
     def __init__(self):
         self.stability_threshold = 0.7

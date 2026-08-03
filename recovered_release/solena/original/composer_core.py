@@ -1,3 +1,7 @@
+"""
+Recovered from the Codette archives — see RECOVERY_MANIFEST.md
+"""
+
 def compose_signal():
     # Fusion of math, music, emotion
     return {

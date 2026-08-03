@@ -1,3 +1,6 @@
+Recovered from the Codette archives — see RECOVERY_MANIFEST.md
+--------------------------------------------------------------
+
 Simulation assumes:
 - Two moons in mutual barycentric orbit
 - Mass ratio near 1:1 or 3:2

@@ -1,3 +1,6 @@
+Recovered from the Codette archives — see RECOVERY_MANIFEST.md
+--------------------------------------------------------------
+
 Great! Let's add the additional features and create the necessary files to enhance the bot application. We'll focus on the following:
 User Interface (UI): Adding a simple web interface using ASP.NET Core.
 Model Updates: Implementing functionality to update models with new data.

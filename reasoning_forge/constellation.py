@@ -27,6 +27,9 @@ compass, not a cage"):
     map, and two maps is worse than none.
   - UNKNOWN STAYS UNKNOWN. If the Charter is absent or unparseable, this returns
     an empty sky and says so. It does not supply remembered stars.
+
+Recovered from the Codette archives — see RECOVERY_MANIFEST.md
+
 """
 from __future__ import annotations
 

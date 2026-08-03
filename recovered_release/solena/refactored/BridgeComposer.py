@@ -1,3 +1,7 @@
+"""
+Recovered from the Codette archives — see RECOVERY_MANIFEST.md
+"""
+
 class BridgeComposer:
     def __init__(self):
         self.translations = []

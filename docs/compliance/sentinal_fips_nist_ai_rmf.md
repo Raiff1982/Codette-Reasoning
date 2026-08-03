@@ -1,3 +1,5 @@
+<!-- Recovered from the Codette archives — see RECOVERY_MANIFEST.md -->
+
 # SENTINAL for FIPS and NIST AI Compliance: Technical Assessment
 
 ## Executive Summary

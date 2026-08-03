@@ -1,3 +1,7 @@
+"""
+Recovered from the Codette archives — see RECOVERY_MANIFEST.md
+"""
+
 
 from core import quantum_harmonic_dynamics, y0
 from scipy.integrate import solve_ivp

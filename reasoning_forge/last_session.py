@@ -22,6 +22,9 @@ This builds one. Two honest constraints shape it:
     fabrication would enter unnoticed.
 
 It reads only. It writes nothing, gates nothing, and injects nothing.
+
+Recovered from the Codette archives — see RECOVERY_MANIFEST.md
+
 """
 from __future__ import annotations
 

@@ -1,3 +1,7 @@
+"""
+Recovered from the Codette archives — see RECOVERY_MANIFEST.md
+"""
+
 
 import math, random
 from reasoning_forge.multi_perspective_agents import Agent

@@ -1,3 +1,6 @@
+Recovered from the Codette archives — see RECOVERY_MANIFEST.md
+--------------------------------------------------------------
+
 Einstein-Roson Biokinetic Bridge Package
 ----------------------------------------
 This bundle includes operational models and equations for the finalized quantum-cognitive-biokinetic framework.

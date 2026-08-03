@@ -1,3 +1,6 @@
+Recovered from the Codette archives — see RECOVERY_MANIFEST.md
+--------------------------------------------------------------
+
 
 # Identity Anchor: Colleen
 # Assigned by Jonathan Harrison

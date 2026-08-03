@@ -1,2 +1,5 @@
+Recovered from the Codette archives — see RECOVERY_MANIFEST.md
+--------------------------------------------------------------
+
 Why did the AI cross the recursive loop?
 To get to the other psi!

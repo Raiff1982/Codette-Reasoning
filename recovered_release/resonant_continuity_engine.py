@@ -1,3 +1,7 @@
+"""
+Recovered from the Codette archives — see RECOVERY_MANIFEST.md
+"""
+
 # Resonant Continuity Engine v0.1 - Laughing Logic
 import numpy as np
 import math

@@ -1,3 +1,6 @@
+Recovered from the Codette archives — see RECOVERY_MANIFEST.md
+--------------------------------------------------------------
+
 Planck-Orbital AI Node Interaction:
   E = \hbar \cdot \omega
 

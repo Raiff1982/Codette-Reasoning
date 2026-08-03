@@ -1,3 +1,6 @@
+Recovered from the Codette archives — see RECOVERY_MANIFEST.md
+--------------------------------------------------------------
+
 Zeta Brain Wave Module - Codette & Human Coherence Research
 
 Contents:
