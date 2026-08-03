@@ -11,13 +11,23 @@ somewhere sane before flipping it live.
 Going live is one env flag: CODETTE_OPTIMIZER_LIVE=1. Until then this is a
 pure observer with a persisted state file, safe to leave running for weeks.
 
-Signal honesty:
-  coherence, tension  -> REAL (measured every turn, from LiveCognitionState)
-  productivity        -> proxy: render_fidelity overlap if present, else the
-                         neutral 0.5 placeholder (flagged in the log; NOT a
-                         measured productivity signal yet)
-  user_continued      -> True placeholder (real cross-turn engagement wiring
-                         is future work; flagged in the log)
+Signal honesty (corrected 2026-08-03 — this block had drifted from the code):
+  coherence     -> REAL, every turn, from LiveCognitionState. Required.
+  tension (Xi)  -> REAL when present. None on single-adapter turns, because it
+                   is variance ACROSS perspectives and there is none to measure.
+                   Omitted from the reward; weights renormalize.
+  productivity  -> REAL only when render_fidelity is supplied. Otherwise None.
+                   It previously defaulted to a neutral 0.5, which the log
+                   flagged as a placeholder but the reward still scored at
+                   weight 0.25. Fixed: unmeasured means omitted.
+  user_continued-> NEVER measured here. Engagement is only knowable on the
+                   FOLLOWING turn, so this caller passes None. It is *not*
+                   hardcoded True — an earlier version of this docstring said
+                   so, and was wrong. Real cross-turn wiring is still future
+                   work, and is the outstanding blocker on going live.
+
+The invariant, in one line: a signal that was not measured is omitted, never
+defaulted to a value that fabricates a measurement.
 """
 from __future__ import annotations
 
@@ -137,7 +147,12 @@ class ShadowOptimizer:
         # sample it learns routing from. The reward renormalizes without it.
 
         productivity_is_proxy = render_fidelity is None
-        productivity = 0.5 if productivity_is_proxy else float(render_fidelity)
+        # 2026-08-03: was `0.5 if productivity_is_proxy else ...`. The 0.5 was
+        # flagged in the log as a placeholder but still fed to the reward at
+        # weight 0.25 — a fabricated measurement, scored. Now it is None when
+        # unmeasured, exactly as tension and user_continued already were, and
+        # the reward renormalizes over the terms that are real.
+        productivity = None if productivity_is_proxy else float(render_fidelity)
         tension_val = None if tension is None else float(tension)
 
         n_hist = len(self.opt.history)

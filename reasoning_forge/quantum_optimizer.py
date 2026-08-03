@@ -58,7 +58,10 @@ class QualitySignal:
     # report. Those turns are still recorded (coherence is real) with tension None,
     # and every consumer below omits the term rather than substituting a number.
     # Dropping them entirely biased the sample toward multi-perspective turns only.
-    productivity: float       # Tension productivity score (gradient trajectory alignment)
+    productivity: Optional[float]  # Gradient-trajectory alignment; None = NOT MEASURED
+    # Same rule as user_continued below: a caller with no real productivity
+    # measurement passes None, NOT the neutral 0.5. A placeholder 0.5 here is
+    # not neutral — it is a fabricated measurement carrying weight 0.25.
     response_length: int      # Measured size in tokens/characters
     multi_perspective: bool    # Boolean flag indicating multi-perspective LoRA routing activation
     user_continued: Optional[bool] = None  # Engagement indicator; None = NOT MEASURED
@@ -257,10 +260,17 @@ class QuantumOptimizer:
         # measurement (same invariant LiveCognitionState enforces on its report).
         terms = [
             (0.25, signal.coherence),
-            (0.25, signal.productivity),
             (0.15, latency_score),
             (0.10, error_score),
         ]
+        if signal.productivity is not None:
+            # 2026-08-03: was unconditional, which broke the invariant stated
+            # directly above it. Callers with no render_fidelity were passing
+            # the neutral 0.5 placeholder, so a fabricated measurement was
+            # scored at the joint-largest weight (0.25, tied with coherence) on
+            # 34% of turns — while tension and user_continued were correctly
+            # omitted. Now it is omitted too, and the weights renormalize.
+            terms.append((0.25, signal.productivity))
         if signal.tension is not None:
             # Non-linear penalty for divergence outside the target 0.4 zone
             tension_error = abs(signal.tension - 0.4)
