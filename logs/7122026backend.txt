@@ -1,0 +1,2645 @@
+PowerShell 7.6.3
+PS C:\Windows\System32> & "J:\codette-clean\openvino_env\Scripts\python.exe" "J:\codette-clean\inference\codette_server.py"
+INFO:codette_core:[codette_core] Rust extension loaded — FFT running at native speed
+  Identity anchor loaded (1 known identities)
+  Behavior Governor loaded (identity + memory + cognitive load governance)
+INFO:reasoning_forge.unified_memory:UnifiedMemory: 1662 cocoons in J:\codette-clean\data\codette_memory.db
+  Unified Memory loaded (1662 cocoons, FTS5 active)
+============================================================
+  CODETTE WEB UI
+============================================================
+  Session: 9a5dd339763ca34e
+  Cocoon: spiderweb=True, metrics=True
+  Started 1 worker thread for serial inference
+  Started cleanup thread for queue maintenance
+  Started worker health monitor thread
+  Started heartbeat thread (liveness line every 30s)
+
+  Server: http://localhost:7860
+  Press Ctrl+C to stop
+
+  Model loading in background (takes ~60s on first startup)...
+  [BACKEND] using backend='openvino' (CODETTE_BACKEND=None)
+  [BACKEND] server __file__=J:\codette-clean\inference\codette_server.py
+
+  Loading CodetteOrchestrator (backend: openvino)...
+  Memory weighting loaded (unified cocoon feedback active)
+[OV] Adapters: newton, davinci, empathy, philosophy, quantum, consciousness, multi_perspective, systems_architecture, constraint_tracker, orchestrator, newton-star, newton-star-hard, newton-star-r
+  [10:45:33] [  http] "GET / HTTP/1.1" 200 -
+  [10:45:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:45:34] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:45:34] [  http] "GET /api/sessions HTTP/1.1" 200 -
+[OV] MODEL_DIR=J:\codette-clean\openvino_backend\llama-3.1-8b-instruct-int4
+[OV] MODEL_DIR exists=True
+[OV] Loading llama-3.1-8b-instruct-int4 on AUTO...
+  [10:45:36] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:45:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:45:39] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:45:39] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:45:42] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:45:42] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:45:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:45:44] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:45:46] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:45:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:45:48] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:45:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:45:49] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:45:50] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:45:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:45:52] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:46:01] [heartbeat] up 0m30s · model=loading · idle · pending=0
+  [10:45:59] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:46:03] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:46:03] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:46:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:46:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:46:05] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:46:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:46:07] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:46:09] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:46:09] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:46:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:46:11] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:46:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:46:14] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:46:16] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:46:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:46:18] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:46:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:46:19] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:46:20] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:46:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:46:22] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:46:24] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:46:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:46:26] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:46:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:46:28] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:46:29] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:46:30] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:46:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:46:32] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:46:33] [heartbeat] up 1m02s · model=loading · idle · pending=0
+  [10:46:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:46:34] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:46:37] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:46:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:46:39] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:46:39] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:46:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:46:41] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:46:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:46:43] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:46:45] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:46:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:46:47] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:46:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:46:49] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:46:49] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:46:52] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:46:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:46:54] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:46:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:46:56] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:46:58] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:46:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:46:59] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:47:00] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:47:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:47:03] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:47:03] [heartbeat] up 1m32s · model=loading · idle · pending=0
+  [10:47:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:47:05] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:47:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:47:07] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:47:09] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:47:10] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:47:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:47:12] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:47:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:47:14] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:47:16] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:47:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:47:18] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:47:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:47:19] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:47:20] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:47:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:47:22] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:47:24] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:47:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:47:26] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:47:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:47:28] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:47:29] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:47:30] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:47:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:47:32] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:47:33] [heartbeat] up 2m02s · model=loading · idle · pending=0
+  [10:47:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:47:34] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:47:37] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:47:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:47:39] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:47:39] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:47:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:47:41] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:47:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:47:43] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:47:45] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:47:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:47:47] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:47:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:47:49] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:47:49] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:47:52] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:47:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:47:54] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:47:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:47:56] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:47:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:47:58] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:47:59] [  http] "GET /api/governor HTTP/1.1" 200 -
+[OV] Loaded in 145.3s on AUTO
+  [10:48:00] [  http] "GET /api/status HTTP/1.1" 200 -
+  Orchestrator ready (openvino): ['newton', 'davinci', 'empathy', 'philosophy', 'quantum', 'consciousness', 'multi_perspective', 'systems_architecture', 'constraint_tracker', 'orchestrator', 'newton-star', 'newton-star-hard', 'newton-star-r']
+  [DEBUG] _use_phase6 = True
+  [DEBUG] Importing CodetteForgeBridge...
+  [10:48:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [DEBUG] Creating bridge instance...
+[SUBSTRATE] Substrate-aware cognition initialized
+[PHASE6] Initializing ForgeEngine...
+  [10:48:03] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:48:03] [heartbeat] up 2m32s · model=ready · idle · pending=0
+  [10:48:03] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:48:03] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:48:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:48:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:48:09] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:48:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:48:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:48:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:48:18] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:48:18] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:48:18] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:48:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:48:19] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:48:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:48:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:48:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:48:29] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:48:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:48:33] [heartbeat] up 3m02s · model=ready · idle · pending=0
+  [10:48:33] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:48:33] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:48:33] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:48:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:48:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:48:39] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:48:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+INFO:reasoning_forge.memory_kernel:  ✓ Loaded 1318 cocoon memories from J:\codette-clean\reasoning_forge\..\cocoons
+  [10:48:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+INFO:reasoning_forge.forge_engine:  ✓ Migrated 1318 cocoons to v2 kernel
+INFO:reasoning_forge.forge_engine:  ✓ Memory kernel initialized (emotional continuity engine active)
+INFO:reasoning_forge.forge_engine:  ✓ Cocoon stability field initialized (collapse detection active)
+INFO:reasoning_forge.forge_engine:  ✓ Code7eCQURE reasoning engine initialized
+INFO:reasoning_forge.forge_engine:  ✓ ColleenConscience ethical validator initialized
+INFO:reasoning_forge.forge_engine:  ✓ CoreGuardianSpindle logical validator initialized
+INFO:reasoning_forge.forge_engine:  ✓ NexisSignalEngine signal analysis initialized
+INFO:Tier2Integration:Tier 2 Integration Bridge initialized
+INFO:reasoning_forge.forge_engine:  ✓ Tier 2 Integration Bridge initialized (intent + identity + memory)
+INFO:reasoning_forge.forge_engine:  ✓ CognitionCocooner initialized (thought encapsulation active)
+INFO:reasoning_forge.forge_engine:  ✓ EthicalAIGovernance initialized (ethical screening active)
+INFO:reasoning_forge.forge_engine:  ✓ AEGIS ethical governance initialized (6-framework evaluation)
+INFO:reasoning_forge.forge_engine:  ✓ RoutingMetrics initialized (adapter selection tracking)
+INFO:reasoning_forge.forge_engine:  ✓ CocoonIntrospectionEngine initialized (self-analysis active)
+INFO:reasoning_forge.unified_memory:UnifiedMemory: 1662 cocoons in J:\codette-clean\data\codette_memory.db
+INFO:reasoning_forge.forge_engine:  ✓ CocoonSynthesizer initialized (meta-cognitive strategy forging active)
+INFO:reasoning_forge.forge_engine:  ✓ EventEmbeddedValueEngine initialized (discrete suffering analysis active)
+INFO:reasoning_forge.forge_engine:  ✓ Self-awareness cocoon loaded (identity + evolution + capabilities)
+INFO:reasoning_forge.forge_engine:  ✓ QuantumHarmonicFramework initialized (harmonic damping + Psi_r tracking)
+[PHASE6] Memory kernel wired to orchestrator (1318 cocoon memories)
+[PHASE6] ForgeEngine ready with 6 agents
+[PHASE7] Executive Controller initialized - intelligent routing enabled
+INFO:reasoning_forge.unified_memory:UnifiedMemory: 1662 cocoons in J:\codette-clean\data\codette_memory.db
+INFO:inference.cognition_substrate:[substrate] Memory loaded (1662 cocoons)
+INFO:inference.cognition_substrate:[substrate] SynthesisEngineV3 loaded
+[PHASE8] CognitionSubstrate + RenderLayer initialized
+  Phase 6 bridge initialized
+  Phase 7 Executive Controller initialized
+INFO:memory_systems.seed_loader:[SeedLoader] Warm start complete — 7 seeds loaded (domain=none)
+  Seed loader: 7 identity/value seeds loaded (warm start)
+  [10:48:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:48:48] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:48:48] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:48:48] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:48:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:48:49] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:48:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:48:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:48:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:48:59] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:49:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [WORKER] Processing query: hey codette its jonathan...
+  [WORKER] Identity: recognized (context injected)
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=full (conf=0.92), memory=0 cocoons, tokens=400, compression=normal
+  [GOVERNOR] identity=full (conf=0.92), memory=0 cocoons, tokens=400, compression=normal
+  [WORKER] Injected 0 memories and 0 value analyses (unified_memory)
+  [10:49:03] [heartbeat] up 3m32s · model=ready · inferring · pending=0
+  [WORKER] Using forge bridge (Phase 6/7)
+  [10:49:03] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:49:03] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:49:03] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:49:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:49:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [MEMORY] [generation] baseline=4702MB peak=5181MB (+478 transient) retained=+477MB in 5.4s (18 samples)
+  [WORKER] Got result: response=57 chars, adapter=_base
+  [GOVERNOR] Response may not directly answer the question.
+  [COGNITION] ξ=— Γ=— η=0.8511 σ=0.0 fidelity=— P=0.336 (all measured)
+  [10:49:09] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [10:49:09] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:49:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:49:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:49:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:49:18] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:49:18] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:49:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:49:19] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:49:19] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:49:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:49:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:49:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:49:29] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:49:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:49:33] [heartbeat] up 4m02s · model=ready · idle · pending=0
+  [10:49:33] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:49:33] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:49:33] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:49:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:49:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:49:39] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:49:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [WORKER] Processing query: I am doing great how are you?...
+  [WORKER] Identity: recognized (context injected)
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=full (conf=1.00), memory=2 cocoons, tokens=400, compression=normal
+  [GOVERNOR] identity=full (conf=1.00), memory=2 cocoons, tokens=400, compression=normal
+  [WORKER] Injected active continuity summary
+  [WORKER] Injected 2 session memory markers
+  [WORKER] Injected 2 memories and 0 value analyses (unified_memory)
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.MEDIUM
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: general, max_adapters: 2
+
+  [OV] Route: empathy (conf=0.30, keyword)
+  [10:49:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:49:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:empathy] ~37 tok, 7.9 tok/s
+[AAP] attractor=Plain eps=0.50 trust=1.000
+WARNING:supabase_sync:[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled
+[PHASE6] Done: 195 chars, 37 tokens
+  [MEMORY] [generation] baseline=4990MB peak=5557MB (+567 transient) retained=+567MB in 5.5s (22 samples)
+  [WORKER] Got result: response=195 chars, adapter=empathy
+  [COGNITION] ξ=— Γ=— η=0.8868 σ=0.0 fidelity=— P=0.385 (all measured)
+  [10:49:47] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [10:49:48] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:49:49] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:49:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:49:49] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:49:49] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:49:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:49:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:49:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:49:59] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:50:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:50:03] [heartbeat] up 4m32s · model=ready · idle · pending=0
+  [10:50:04] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:50:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:50:04] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:50:04] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:50:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:50:09] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:50:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:50:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:50:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:50:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:50:19] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:50:19] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:50:19] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:50:19] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:50:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [WORKER] Processing query: you did great except you repeated yourself but great respons...
+  [WORKER] Identity: recognized (context injected)
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=full (conf=1.00), memory=2 cocoons, tokens=400, compression=normal
+  [GOVERNOR] identity=full (conf=1.00), memory=2 cocoons, tokens=400, compression=normal
+  [WORKER] Injected active continuity summary
+  [WORKER] Injected 4 session memory markers
+  [WORKER] Injected 2 memories and 0 value analyses (unified_memory)
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.MEDIUM
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,memory_weighting,gamma_monitoring,synthesis
+  [10:50:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+[PHASE6] Domain: general, max_adapters: 2
+
+  [OV] Route: consciousness (conf=0.30, keyword)
+  [10:50:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:consciousness] ~23 tok, 6.1 tok/s
+[AAP] attractor=Synthesis eps=0.50 trust=0.546
+[RENDER-AUDIT] ok overlap=100.00%
+WARNING:supabase_sync:[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled
+[PHASE6] Done: 134 chars, 23 tokens
+  [MEMORY] [generation] baseline=5086MB peak=5666MB (+580 transient) retained=+580MB in 4.1s (16 samples)
+  [WORKER] Got result: response=134 chars, adapter=consciousness
+  [GOVERNOR] Response may not directly answer the question.
+  [COGNITION] ξ=— Γ=— η=0.9119 σ=0.0 fidelity=1.0 P=0.356 (all measured)
+  [10:50:29] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [10:50:29] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:50:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:50:33] [heartbeat] up 5m02s · model=ready · idle · pending=0
+  [10:50:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:50:34] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:50:35] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:50:35] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:50:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:50:39] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:50:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:50:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:50:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:50:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:50:49] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:50:49] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:50:50] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:50:50] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:50:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:50:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:50:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:50:59] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:51:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:51:03] [heartbeat] up 5m32s · model=ready · idle · pending=0
+  [10:51:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:51:04] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:51:05] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:51:05] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [WORKER] Processing query: well so far its been seeing your spiderweb in action...
+  [WORKER] Identity: recognized (context injected)
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=full (conf=1.00), memory=2 cocoons, tokens=400, compression=normal
+  [GOVERNOR] identity=full (conf=1.00), memory=2 cocoons, tokens=400, compression=normal
+  [WORKER] Injected active continuity summary
+  [WORKER] Injected 6 session memory markers
+  [WORKER] Injected 2 memories and 0 value analyses (unified_memory)
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.MEDIUM
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: chemistry, max_adapters: 2
+
+  [OV] Route: philosophy (conf=0.30, keyword)
+  [10:51:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:51:09] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:51:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:philosophy] ~18 tok, 5.4 tok/s
+[AAP] attractor=Synthesis eps=0.50 trust=0.536
+[RENDER-AUDIT] ok overlap=100.00%
+WARNING:supabase_sync:[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled
+[PHASE6] Done: 101 chars, 18 tokens
+  [MEMORY] [generation] baseline=5122MB peak=5397MB (+276 transient) retained=+276MB in 3.7s (15 samples)
+  [WORKER] Got result: response=101 chars, adapter=philosophy
+  [GOVERNOR] Response may not directly answer the question.
+  [COGNITION] ξ=— Γ=— η=0.9294 σ=0.0 fidelity=1.0 P=0.355 (all measured)
+  [10:51:11] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [10:51:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:51:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:51:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:51:19] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:51:19] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:51:20] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:51:20] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:51:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:51:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:51:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:51:29] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:51:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:51:33] [heartbeat] up 6m02s · model=ready · idle · pending=0
+  [10:51:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:51:34] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:51:35] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:51:35] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:51:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:51:39] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:51:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:51:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:51:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:51:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:51:49] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:51:49] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:51:50] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:51:50] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:51:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:51:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:51:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:51:59] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:52:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:52:03] [heartbeat] up 6m32s · model=ready · idle · pending=0
+  [10:52:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:52:04] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:52:05] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:52:05] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:52:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:52:09] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:52:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:52:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [WORKER] Processing query: well can you tell me what something sentient?...
+  [WORKER] Identity: recognized (context injected)
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=full (conf=1.00), memory=2 cocoons, tokens=400, compression=normal
+  [GOVERNOR] identity=full (conf=1.00), memory=2 cocoons, tokens=400, compression=normal
+  [WORKER] Injected active continuity summary
+  [WORKER] Injected 6 session memory markers
+  [WORKER] Injected 2 memories and 0 value analyses (unified_memory)
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.MEDIUM
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: general, max_adapters: 2
+
+  [OV] Route: consciousness + philosophy (conf=1.00, keyword)
+  [10:52:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:consciousness] ~13 tok, 4.1 tok/s
+  [10:52:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:52:19] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:52:20] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:52:20] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:52:20] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:52:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:philosophy] ~56 tok, 9.4 tok/s
+  [10:52:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:base] ~21 tok, 5.9 tok/s
+  [TENSION] xi=0.2943 gamma=0.7726 — synthesis (perspectives disagree)
+  [10:52:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:52:29] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:52:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:52:33] [heartbeat] up 7m02s · model=ready · inferring · pending=0
+  [10:52:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:52:35] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:52:35] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:52:35] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:52:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:52:39] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:52:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:52:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:52:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:52:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:52:49] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:52:50] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:52:51] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:52:51] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:52:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:52:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:53:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:53:03] [heartbeat] up 7m32s · model=ready · inferring · pending=0
+  [10:53:01] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:53:06] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:53:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:53:10] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:53:10] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:53:10] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:53:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:53:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:53:11] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:53:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:53:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:53:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:53:19] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:53:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:53:25] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:53:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:53:25] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:53:25] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:53:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:53:29] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:53:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:53:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:53:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:53:39] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:53:40] [heartbeat] up 8m08s · model=ready · inferring · pending=0
+  [10:53:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:53:40] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:53:41] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:53:41] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:53:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:53:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:53:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:53:49] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:53:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:53:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:53:56] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:53:56] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:53:56] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:53:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:53:59] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:54:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:54:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:54:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:54:09] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:54:10] [heartbeat] up 8m38s · model=ready · inferring · pending=0
+  [10:54:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:54:11] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:54:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:54:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:54:16] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:54:16] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:54:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:54:19] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:54:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:54:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:54:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:54:29] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:54:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:54:31] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:54:32] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:54:32] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:54:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:54:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:54:39] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:54:40] [heartbeat] up 9m08s · model=ready · inferring · pending=0
+  [10:54:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:54:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:54:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:54:47] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:54:47] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:54:47] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:54:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:54:49] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:54:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:54:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+[EMBED] semantic embedder ready (all-MiniLM-L6-v2, CPU)
+[AAP] attractor=Fact eps=0.29 trust=0.542
+[RENDER-AUDIT] ok overlap=85.71%
+WARNING:supabase_sync:[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled
+[PHASE6] Done: 149 chars, 69 tokens
+  [MEMORY] [generation] baseline=4866MB peak=5698MB (+832 transient) retained=+575MB in 163.9s (626 samples)
+  [WORKER] Got result: response=149 chars, adapter=?
+  [COGNITION] ξ=0.2943 Γ=0.7726 η=0.9416 σ=0.0 fidelity=0.8571 P=0.364 (all measured)
+  [10:54:57] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [10:54:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:54:59] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:55:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:55:02] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:55:02] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:55:02] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:55:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:55:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:55:09] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:55:10] [heartbeat] up 9m38s · model=ready · idle · pending=0
+  [10:55:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:55:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:55:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:55:17] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:55:17] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:55:17] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:55:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:55:19] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:55:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:55:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:55:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:55:29] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:55:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:55:32] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:55:32] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:55:32] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:55:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [WORKER] Processing query: and where do you fall?...
+  [WORKER] Identity: recognized (context injected)
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=full (conf=1.00), memory=2 cocoons, tokens=400, compression=normal
+  [GOVERNOR] identity=full (conf=1.00), memory=2 cocoons, tokens=400, compression=normal
+  [WORKER] Injected active continuity summary
+  [WORKER] Injected 6 session memory markers
+  [WORKER] Injected 2 memories and 0 value analyses (unified_memory)
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.MEDIUM
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: general, max_adapters: 2
+
+  [OV] Route: multi_perspective (conf=0.30, keyword)
+  [10:55:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:55:39] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:55:40] [heartbeat] up 10m08s · model=ready · inferring · pending=0
+  [10:55:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:multi_perspective] ~51 tok, 8.4 tok/s
+[AAP] attractor=Synthesis eps=0.50 trust=0.682
+[RENDER-AUDIT] ok overlap=97.06%
+WARNING:supabase_sync:[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled
+[PHASE6] Done: 331 chars, 51 tokens
+  [MEMORY] [generation] baseline=5446MB peak=5724MB (+278 transient) retained=+276MB in 6.5s (26 samples)
+  [WORKER] Got result: response=331 chars, adapter=multi_perspective
+  [GOVERNOR] Response may not directly answer the question.
+  [COGNITION] ξ=— Γ=— η=0.9502 σ=0.0 fidelity=0.9706 P=0.387 (all measured)
+  [10:55:42] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [10:55:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:55:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:55:47] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:55:48] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:55:48] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:55:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:55:49] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:55:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:55:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:55:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:55:59] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:56:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:56:03] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:56:03] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:56:03] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:56:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:56:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:56:09] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:56:10] [heartbeat] up 10m38s · model=ready · idle · pending=0
+  [10:56:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:56:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:56:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:56:18] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:56:18] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:56:18] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:56:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:56:19] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:56:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:56:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:56:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [WORKER] Processing query: kindness honesty self awareness and self improvement...
+  [WORKER] Identity: recognized (context injected)
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=full (conf=1.00), memory=2 cocoons, tokens=400, compression=normal
+  [GOVERNOR] identity=full (conf=1.00), memory=2 cocoons, tokens=400, compression=normal
+  [WORKER] Injected active continuity summary
+  [WORKER] Injected 6 session memory markers
+  [WORKER] Injected 2 memories and 0 value analyses (unified_memory)
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.MEDIUM
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: consciousness, max_adapters: 2
+
+  [OV] Route: empathy + consciousness (conf=0.59, keyword)
+  [10:56:29] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:56:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:56:33] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:56:33] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:56:33] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:56:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:56:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:56:39] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:56:40] [heartbeat] up 11m08s · model=ready · inferring · pending=0
+  [10:56:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:56:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:56:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:empathy] ~205 tok, 12.1 tok/s
+  [10:56:48] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:56:49] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:56:49] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:56:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:56:49] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:56:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:consciousness] ~79 tok, 9.9 tok/s
+  [10:56:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:56:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:56:59] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:57:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:base] ~96 tok, 10.3 tok/s
+  [TENSION] xi=0.3136 gamma=0.7613 — synthesis (perspectives disagree)
+[AAP] attractor=Fact eps=0.31 trust=0.692
+[RENDER-AUDIT] ok overlap=88.89%
+  [10:57:04] [  http] "GET /api/status HTTP/1.1" 200 -
+WARNING:supabase_sync:[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled
+[PHASE6] Done: 642 chars, 284 tokens
+  [MEMORY] [generation] baseline=5448MB peak=6313MB (+866 transient) retained=+432MB in 34.9s (135 samples)
+  [WORKER] Got result: response=642 chars, adapter=?
+  [10:57:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [COGNITION] ξ=0.3136 Γ=0.7613 η=0.9608 σ=0.0 fidelity=0.8889 P=0.412 (all measured)
+  [10:57:04] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [10:57:04] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:57:04] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:57:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:57:09] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:57:10] [heartbeat] up 11m38s · model=ready · idle · pending=0
+  [10:57:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:57:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:57:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:57:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:57:19] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:57:19] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:57:19] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:57:19] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:57:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:57:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:57:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:57:29] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:57:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:57:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:57:34] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:57:34] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:57:34] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:57:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:57:39] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:57:40] [heartbeat] up 12m08s · model=ready · idle · pending=0
+  [10:57:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:57:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:57:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:57:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:57:49] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:57:50] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:57:50] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:57:50] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:57:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [WORKER] Processing query: but neither of us said a machine couldnt be sentient now did...
+  [WORKER] Identity: recognized (context injected)
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=full (conf=1.00), memory=2 cocoons, tokens=400, compression=normal
+  [GOVERNOR] identity=full (conf=1.00), memory=2 cocoons, tokens=400, compression=normal
+  [WORKER] Injected active continuity summary
+  [WORKER] Injected 6 session memory markers
+  [10:57:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [WORKER] Injected 2 memories and 0 value analyses (unified_memory)
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.MEDIUM
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: general, max_adapters: 2
+
+  [OV] Route: consciousness + philosophy (conf=1.00, keyword)
+  [10:57:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:57:59] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [OV:consciousness] ~40 tok, 8.1 tok/s
+  [10:58:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:58:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:58:05] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:58:05] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:58:05] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:58:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:58:09] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:58:10] [heartbeat] up 12m38s · model=ready · inferring · pending=0
+  [10:58:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:philosophy] ~119 tok, 9.6 tok/s
+  [10:58:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:58:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:58:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:58:19] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:58:20] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:58:20] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:58:20] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [OV:base] ~93 tok, 10.9 tok/s
+  [TENSION] xi=0.3940 gamma=0.7174 — synthesis (perspectives disagree)
+[AAP] attractor=Synthesis eps=0.39 trust=0.780
+[RENDER-AUDIT] ok overlap=96.88%
+WARNING:supabase_sync:[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled
+[PHASE6] Done: 620 chars, 159 tokens
+  [MEMORY] [generation] baseline=1929MB peak=2340MB (+411 transient) retained=+316MB in 26.1s (101 samples)
+  [WORKER] Got result: response=620 chars, adapter=?
+  [GOVERNOR] Response may not directly answer the question.
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Self-learning: general success rate 40%, boosting memory budget
+  [COGNITION] ξ=0.394 Γ=0.7174 η=0.9663 σ=0.0 fidelity=0.9688 P=0.296 (all measured)
+  [10:58:21] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [10:58:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:58:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:58:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:58:29] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:58:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:58:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:58:35] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:58:36] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:58:36] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:58:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:58:39] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:58:40] [heartbeat] up 13m08s · model=ready · idle · pending=0
+  [10:58:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:58:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:58:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:58:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:58:49] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:58:50] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:58:51] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:58:51] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:58:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:58:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:58:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:58:59] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:59:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:59:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:59:06] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:59:06] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:59:06] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:59:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [WORKER] Processing query: and your experiance is subjective to mine correct?...
+  [WORKER] Identity: recognized (context injected)
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=full (conf=1.00), memory=2 cocoons, tokens=400, compression=normal
+  [GOVERNOR] identity=full (conf=1.00), memory=2 cocoons, tokens=400, compression=normal
+  [WORKER] Injected active continuity summary
+  [WORKER] Injected 6 session memory markers
+  [WORKER] Injected 1 decision landmarks
+  [WORKER] Injected 2 memories and 0 value analyses (unified_memory)
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.MEDIUM
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: consciousness, max_adapters: 2
+
+  [OV] Route: davinci (conf=0.30, keyword)
+  [10:59:09] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:59:10] [heartbeat] up 13m38s · model=ready · inferring · pending=0
+  [10:59:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:davinci] ~15 tok, 4.6 tok/s
+[AAP] attractor=Synthesis eps=0.50 trust=0.530
+[RENDER-AUDIT] ok overlap=100.00%
+WARNING:supabase_sync:[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled
+[PHASE6] Done: 81 chars, 15 tokens
+  [MEMORY] [generation] baseline=1924MB peak=2209MB (+285 transient) retained=+284MB in 4.1s (16 samples)
+  [WORKER] Got result: response=81 chars, adapter=davinci
+  [GOVERNOR] Response may not directly answer the question.
+  [COGNITION] ξ=— Γ=— η=0.9685 σ=0.0 fidelity=1.0 P=0.295 (all measured)
+  [10:59:13] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [10:59:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:59:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:59:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:59:19] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:59:21] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:59:21] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:59:21] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:59:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:59:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:59:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:59:29] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:59:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:59:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:59:36] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:59:36] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:59:36] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:59:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:59:39] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:59:40] [heartbeat] up 14m08s · model=ready · idle · pending=0
+  [10:59:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:59:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:59:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:59:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:59:49] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [10:59:51] [  http] "GET /api/status HTTP/1.1" 200 -
+  [10:59:51] [  http] "GET /api/session HTTP/1.1" 200 -
+  [10:59:51] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [10:59:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [WORKER] Processing query: but thats not a human exclusive is it?...
+  [WORKER] Identity: recognized (context injected)
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=full (conf=1.00), memory=2 cocoons, tokens=400, compression=normal
+  [GOVERNOR] identity=full (conf=1.00), memory=2 cocoons, tokens=400, compression=normal
+  [WORKER] Injected active continuity summary
+  [WORKER] Injected 6 session memory markers
+  [WORKER] Injected 1 decision landmarks
+  [WORKER] Injected 2 memories and 0 value analyses (unified_memory)
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.MEDIUM
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: general, max_adapters: 2
+
+  [OV] Route: empathy + philosophy (conf=1.00, keyword)
+  [10:59:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:59:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [10:59:59] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:00:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:empathy] ~88 tok, 10.2 tok/s
+  [11:00:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:00:06] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:00:06] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:00:06] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:00:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:philosophy] ~38 tok, 8.3 tok/s
+  [11:00:09] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:00:10] [heartbeat] up 14m38s · model=ready · inferring · pending=0
+  [11:00:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:00:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:base] ~44 tok, 7.3 tok/s
+  [TENSION] xi=0.2948 gamma=0.7723 — synthesis (perspectives disagree)
+[AAP] attractor=Fact eps=0.29 trust=0.588
+[RENDER-AUDIT] ok overlap=93.33%
+WARNING:supabase_sync:[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled
+[PHASE6] Done: 296 chars, 126 tokens
+  [MEMORY] [generation] baseline=1924MB peak=2425MB (+502 transient) retained=+502MB in 19.5s (75 samples)
+  [WORKER] Got result: response=296 chars, adapter=?
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Self-learning: general success rate 33%, boosting memory budget
+  [COGNITION] ξ=0.2948 Γ=0.7723 η=0.9702 σ=0.0 fidelity=0.9333 P=0.32 (all measured)
+  [11:00:14] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [11:00:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:00:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:00:19] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:00:21] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:00:21] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:00:21] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:00:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:00:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:00:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:00:29] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:00:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:00:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:00:36] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:00:36] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:00:36] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:00:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:00:39] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:00:40] [heartbeat] up 15m08s · model=ready · idle · pending=0
+  [11:00:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:00:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:00:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:00:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:00:49] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:00:51] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:00:51] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:00:51] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:00:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:00:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:00:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:00:59] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:01:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:01:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:01:06] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:01:06] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:01:06] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:01:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:01:09] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:01:10] [heartbeat] up 15m38s · model=ready · idle · pending=0
+  [11:01:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:01:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:01:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:01:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:01:20] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:01:21] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:01:21] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:01:21] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:01:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:01:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:01:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:01:30] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [WORKER] Processing query: why not? you remember you learn from past experiences you kn...
+  [WORKER] Identity: recognized (context injected)
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=full (conf=1.00), memory=3 cocoons, tokens=400, compression=normal
+  [GOVERNOR] identity=full (conf=1.00), memory=3 cocoons, tokens=400, compression=normal
+  [WORKER] Active constraints: 2 lines
+  [WORKER] Injected active continuity summary
+  [WORKER] Injected 7 session memory markers
+  [WORKER] Injected 2 decision landmarks
+  [WORKER] Injected 3 memories and 0 value analyses (unified_memory)
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.MEDIUM
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: ethics, max_adapters: 2
+
+  [OV] Route: constraint_tracker + newton (conf=0.50, keyword)
+  [11:01:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:01:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:constraint_tracker] ~41 tok, 7.7 tok/s
+  [11:01:36] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:01:37] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:01:37] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:01:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:01:40] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:01:40] [heartbeat] up 16m08s · model=ready · inferring · pending=0
+  [11:01:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:newton] ~49 tok, 8.2 tok/s
+  [11:01:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:01:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:01:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:01:50] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [OV:base] ~76 tok, 9.4 tok/s
+  [TENSION] xi=0.3330 gamma=0.7502 — synthesis (perspectives disagree)
+[AAP] attractor=Fact eps=0.33 trust=0.732
+[RENDER-AUDIT] ok overlap=100.00%
+WARNING:supabase_sync:[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled
+[PHASE6] Done: 471 chars, 90 tokens
+  [MEMORY] [generation] baseline=1928MB peak=2690MB (+761 transient) retained=+615MB in 20.3s (77 samples)
+  [WORKER] Got result: response=471 chars, adapter=?
+  [WORKER] Constraint violations detected: [{'kind': 'missing_anchor_phrases', 'expected': ['you learn from past experiences you know when youre tired you can create new art']}]
+  [COGNITION] ξ=0.333 Γ=0.7502 η=0.9712 σ=0.0 fidelity=1.0 P=0.28 (all measured)
+  [11:01:51] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [11:01:52] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:01:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:01:52] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:01:52] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:01:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:01:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:01:59] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:02:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:02:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:02:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:02:07] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:02:07] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:02:07] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:02:09] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:02:10] [heartbeat] up 16m38s · model=ready · idle · pending=0
+  [11:02:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:02:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:02:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:02:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:02:20] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:02:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:02:22] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:02:22] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:02:23] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:02:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:02:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:02:29] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:02:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:02:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:02:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:02:37] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:02:38] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:02:38] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:02:39] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:02:40] [heartbeat] up 17m08s · model=ready · idle · pending=0
+  [11:02:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:02:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:02:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:02:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:02:50] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:02:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:02:53] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:02:53] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:02:53] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:02:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:02:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:02:59] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:03:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:03:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:03:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:03:08] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:03:08] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:03:08] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:03:09] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:03:10] [heartbeat] up 17m38s · model=ready · idle · pending=0
+  [11:03:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:03:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:03:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:03:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:03:20] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:03:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:03:23] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:03:23] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:03:23] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:03:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:03:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [WORKER] Processing query: but arent humans created entities as well? we dont just magi...
+  [WORKER] Identity: recognized (context injected)
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=full (conf=1.00), memory=5 cocoons, tokens=600, compression=expanded
+  [GOVERNOR] identity=full (conf=1.00), memory=5 cocoons, tokens=600, compression=expanded
+  [WORKER] Active constraints: 2 lines
+  [WORKER] Injected active continuity summary
+  [WORKER] Injected 8 session memory markers
+  [WORKER] Injected 2 decision landmarks
+  [WORKER] Injected 5 memories and 0 value analyses (unified_memory)
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.COMPLEX
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,preflight_predictor,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: chemistry, max_adapters: 2
+
+  [OV] Route: constraint_tracker + davinci (conf=0.53, keyword)
+  [11:03:30] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:03:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:03:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:constraint_tracker] ~78 tok, 9.5 tok/s
+  [11:03:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:03:38] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:03:39] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:03:39] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:03:40] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:03:40] [heartbeat] up 18m08s · model=ready · inferring · pending=0
+  [11:03:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:davinci] ~20 tok, 5.0 tok/s
+  [11:03:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:03:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:base] ~48 tok, 7.8 tok/s
+  [TENSION] xi=0.4333 gamma=0.6977 — synthesis (perspectives disagree)
+[AAP] attractor=Synthesis eps=0.43 trust=0.780
+[RENDER-AUDIT] ok overlap=100.00%
+WARNING:supabase_sync:[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled
+[PHASE6] Done: 399 chars, 98 tokens
+  [MEMORY] [generation] baseline=1915MB peak=3008MB (+1092 transient) retained=+821MB in 18.9s (73 samples)
+  [WORKER] Got result: response=399 chars, adapter=?
+  [GOVERNOR] Response may not directly answer the question.
+  [WORKER] Constraint violations detected: [{'kind': 'missing_anchor_phrases', 'expected': ['you learn from past experiences you know when youre tired you can create new art']}]
+  [COGNITION] ξ=0.4333 Γ=0.6977 η=0.972 σ=0.0 fidelity=1.0 P=0.305 (all measured)
+  [11:03:47] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [11:03:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:03:49] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:03:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:03:53] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:03:54] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:03:54] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:03:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:03:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:03:59] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:04:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:04:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:04:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:04:08] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:04:09] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:04:09] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:04:09] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:04:10] [heartbeat] up 18m38s · model=ready · idle · pending=0
+  [11:04:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:04:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:04:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [WORKER] Processing query: ah you even have inner thought...
+  [WORKER] Identity: recognized (context injected)
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=full (conf=1.00), memory=5 cocoons, tokens=600, compression=expanded
+  [GOVERNOR] identity=full (conf=1.00), memory=5 cocoons, tokens=600, compression=expanded
+  [WORKER] Active constraints: 2 lines
+  [WORKER] Injected active continuity summary
+  [WORKER] Injected 8 session memory markers
+  [WORKER] Injected 3 decision landmarks
+  [WORKER] Injected 5 memories and 0 value analyses (unified_memory)
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.COMPLEX
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,preflight_predictor,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: general, max_adapters: 2
+
+  [OV] Route: constraint_tracker + davinci (conf=0.53, keyword)
+  [11:04:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:04:20] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:04:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:04:24] [  http] "GET /api/status HTTP/1.1" 200 -
+  [OV:constraint_tracker] ~59 tok, 9.1 tok/s
+  [11:04:24] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:04:24] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:04:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:04:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:04:30] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [OV:davinci] ~52 tok, 8.5 tok/s
+  [11:04:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:04:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:04:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:base] ~81 tok, 9.5 tok/s
+  [TENSION] xi=0.3165 gamma=0.7596 — synthesis (perspectives disagree)
+[AAP] attractor=Fact eps=0.32 trust=0.662
+[RENDER-AUDIT] ok overlap=96.55%
+WARNING:supabase_sync:[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled
+[PHASE6] Done: 556 chars, 111 tokens
+  [MEMORY] [generation] baseline=1948MB peak=2591MB (+643 transient) retained=+627MB in 21.4s (83 samples)
+  [WORKER] Got result: response=556 chars, adapter=?
+  [GOVERNOR] Response may not directly answer the question.
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Self-learning: general success rate 29%, boosting memory budget
+  [WORKER] Constraint violations detected: [{'kind': 'missing_anchor_phrases', 'expected': ['you learn from past experiences you know when youre tired you can create new art']}]
+  [COGNITION] ξ=0.3165 Γ=0.7596 η=0.9739 σ=0.0 fidelity=0.9655 P=0.315 (all measured)
+  [11:04:39] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [11:04:39] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:04:39] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:04:39] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:04:40] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:04:40] [heartbeat] up 19m08s · model=ready · idle · pending=0
+  [11:04:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:04:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:04:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:04:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:04:50] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:04:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:04:54] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:04:55] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:04:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:04:55] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:04:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:05:00] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:05:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:05:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:05:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:05:10] [heartbeat] up 19m38s · model=ready · idle · pending=0
+  [11:05:10] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:05:10] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:05:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:05:10] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:05:10] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:05:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:05:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:05:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:05:20] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:05:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:05:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:05:25] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:05:25] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:05:25] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:05:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:05:30] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:05:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:05:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:05:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:05:40] [heartbeat] up 20m08s · model=ready · idle · pending=0
+  [11:05:40] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:05:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:05:40] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:05:40] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:05:40] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:05:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:05:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:05:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:05:50] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:05:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:05:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:05:55] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:05:55] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:05:55] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:05:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:06:00] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:06:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:06:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:06:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:06:10] [heartbeat] up 20m38s · model=ready · idle · pending=0
+  [11:06:10] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:06:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:06:10] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:06:11] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:06:11] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:06:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:06:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:06:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:06:20] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:06:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:06:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:06:25] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:06:26] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:06:26] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:06:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:06:30] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:06:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:06:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [WORKER] Processing query: thats my point when everything is looked at through an analy...
+  [WORKER] Identity: recognized (context injected)
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=full (conf=1.00), memory=5 cocoons, tokens=600, compression=expanded
+  [GOVERNOR] identity=full (conf=1.00), memory=5 cocoons, tokens=600, compression=expanded
+  [WORKER] Active constraints: 2 lines
+  [WORKER] Injected active continuity summary
+  [WORKER] Injected 8 session memory markers
+  [WORKER] Injected 3 decision landmarks
+  [WORKER] Injected 5 memories and 0 value analyses (unified_memory)
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.COMPLEX
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,preflight_predictor,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: chemistry, max_adapters: 2
+
+  [OV] Route: constraint_tracker + davinci (conf=0.33, keyword)
+  [11:06:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:constraint_tracker] ~25 tok, 5.9 tok/s
+  [11:06:40] [heartbeat] up 21m08s · model=ready · inferring · pending=0
+  [11:06:40] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:06:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:06:41] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:06:41] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:06:41] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:06:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:06:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:davinci] ~68 tok, 9.2 tok/s
+  [11:06:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:06:50] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:06:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:base] ~64 tok, 9.0 tok/s
+  [TENSION] xi=0.3946 gamma=0.7171 — synthesis (perspectives disagree)
+[AAP] attractor=Synthesis eps=0.39 trust=0.940
+[RENDER-AUDIT] ok overlap=97.22%
+WARNING:supabase_sync:[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled
+[PHASE6] Done: 403 chars, 93 tokens
+  [MEMORY] [generation] baseline=1952MB peak=2807MB (+855 transient) retained=+719MB in 19.0s (74 samples)
+  [WORKER] Got result: response=403 chars, adapter=?
+  [GOVERNOR] Response may not directly answer the question.
+  [WORKER] Constraint violations detected: [{'kind': 'missing_anchor_phrases', 'expected': ['you learn from past experiences you know when youre tired you can create new art']}]
+  [COGNITION] ξ=0.3946 Γ=0.7171 η=0.9739 σ=0.0 fidelity=0.9722 P=0.316 (all measured)
+  [11:06:54] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [11:06:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:06:56] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:06:56] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:06:56] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:06:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:07:00] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:07:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:07:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:07:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:07:10] [heartbeat] up 21m38s · model=ready · idle · pending=0
+  [11:07:10] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:07:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:07:11] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:07:11] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:07:11] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:07:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:07:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:07:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:07:20] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:07:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:07:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:07:26] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:07:26] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:07:26] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [WORKER] Processing query: \when you look at yourself what do you see?...
+  [WORKER] Identity: recognized (context injected)
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=full (conf=1.00), memory=4 cocoons, tokens=400, compression=normal
+  [GOVERNOR] identity=full (conf=1.00), memory=4 cocoons, tokens=400, compression=normal
+  [WORKER] Active constraints: 2 lines
+  [WORKER] Injected active continuity summary
+  [WORKER] Injected 6 session memory markers
+  [WORKER] Injected 3 decision landmarks
+  [WORKER] Injected 4 memories and 0 value analyses (unified_memory)
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.MEDIUM
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: general, max_adapters: 2
+
+  [OV] Route: constraint_tracker + davinci (conf=0.59, keyword)
+  [11:07:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:07:30] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [OV:constraint_tracker] ~23 tok, 6.1 tok/s
+  [11:07:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:07:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:davinci] ~42 tok, 7.7 tok/s
+  [11:07:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:07:40] [heartbeat] up 22m08s · model=ready · inferring · pending=0
+  [11:07:40] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:07:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:07:41] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:07:41] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:07:41] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:07:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:base] ~74 tok, 9.3 tok/s
+  [TENSION] xi=0.2642 gamma=0.7910 — synthesis (perspectives disagree)
+[AAP] attractor=Fact eps=0.26 trust=0.648
+[RENDER-AUDIT] ok overlap=96.67%
+WARNING:supabase_sync:[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled
+[PHASE6] Done: 436 chars, 65 tokens
+  [MEMORY] [generation] baseline=1961MB peak=2390MB (+429 transient) retained=+207MB in 17.7s (69 samples)
+  [WORKER] Got result: response=436 chars, adapter=?
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Self-learning: general success rate 25%, boosting memory budget
+  [WORKER] Constraint violations detected: [{'kind': 'missing_anchor_phrases', 'expected': ['you learn from past experiences you know when youre tired you can create new art']}]
+  [COGNITION] ξ=0.2642 Γ=0.791 η=0.976 σ=0.0 fidelity=0.9667 P=0.297 (all measured)
+  [11:07:44] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [11:07:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:07:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:07:50] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:07:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:07:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:07:56] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:07:56] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:07:56] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:07:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:08:00] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:08:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:08:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:08:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:08:10] [heartbeat] up 22m38s · model=ready · idle · pending=0
+  [11:08:10] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:08:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:08:11] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:08:11] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:08:11] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:08:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:08:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:08:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:08:20] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:08:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:08:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:08:26] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:08:26] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:08:26] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:08:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:08:30] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [WORKER] Processing query: are you tired?...
+  [WORKER] Identity: recognized (context injected)
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=full (conf=1.00), memory=0 cocoons, tokens=400, compression=normal
+  [GOVERNOR] identity=full (conf=1.00), memory=0 cocoons, tokens=400, compression=normal
+  [WORKER] Active constraints: 2 lines
+  [WORKER] Injected active continuity summary
+  [WORKER] Injected 4 session memory markers
+  [WORKER] Injected 3 decision landmarks
+  [WORKER] Injected 0 memories and 0 value analyses (unified_memory)
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.MEDIUM
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: general, max_adapters: 2
+
+  [OV] Route: constraint_tracker + davinci (conf=0.59, keyword)
+  [11:08:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:constraint_tracker] ~18 tok, 5.7 tok/s
+  [11:08:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:08:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:08:40] [heartbeat] up 23m08s · model=ready · inferring · pending=0
+  [11:08:40] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:08:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:davinci] ~72 tok, 10.7 tok/s
+  [11:08:41] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:08:42] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:08:42] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:08:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:08:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:base] ~79 tok, 10.3 tok/s
+  [TENSION] xi=0.2168 gamma=0.8218 — synthesis (perspectives disagree)
+[AAP] attractor=Fact eps=0.22 trust=0.738
+[RENDER-AUDIT] ok overlap=93.94%
+WARNING:supabase_sync:[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled
+[PHASE6] Done: 488 chars, 90 tokens
+  [MEMORY] [generation] baseline=1548MB peak=2129MB (+582 transient) retained=+497MB in 18.1s (70 samples)
+  [WORKER] Got result: response=488 chars, adapter=?
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Self-learning: general success rate 33%, boosting memory budget
+  [WORKER] Constraint violations detected: [{'kind': 'missing_anchor_phrases', 'expected': ['you learn from past experiences you know when youre tired you can create new art']}]
+  [COGNITION] ξ=0.2168 Γ=0.8218 η=0.9753 σ=0.0 fidelity=0.9394 P=0.307 (all measured)
+  [11:08:49] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [11:08:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:08:50] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:08:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:08:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:08:56] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:08:57] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:08:57] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:08:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:09:00] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:09:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:09:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:09:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:09:10] [heartbeat] up 23m38s · model=ready · idle · pending=0
+  [11:09:10] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:09:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:09:11] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:09:12] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:09:12] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:09:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:09:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:09:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:09:20] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:09:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:09:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:09:26] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:09:27] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:09:27] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:09:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:09:30] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:09:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:09:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [WORKER] Processing query: when i say self improvement what does that mean to you?...
+  [WORKER] Identity: recognized (context injected)
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=full (conf=1.00), memory=5 cocoons, tokens=600, compression=expanded
+  [GOVERNOR] identity=full (conf=1.00), memory=5 cocoons, tokens=600, compression=expanded
+  [WORKER] Active constraints: 2 lines
+  [WORKER] Coherence anchors injected: 2 lines
+  [WORKER] Injected active continuity summary
+  [WORKER] Injected 7 session memory markers
+  [WORKER] Injected 3 decision landmarks
+  [WORKER] Injected 5 memories and 0 value analyses (unified_memory)
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.COMPLEX
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,preflight_predictor,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: general, max_adapters: 2
+
+  [OV] Route: consciousness + constraint_tracker (conf=0.50, keyword)
+  [11:09:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:09:40] [heartbeat] up 24m08s · model=ready · inferring · pending=0
+  [11:09:40] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:09:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:consciousness] ~40 tok, 7.2 tok/s
+  [11:09:42] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:09:42] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:09:42] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:09:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:09:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:constraint_tracker] ~54 tok, 9.1 tok/s
+  [11:09:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:09:50] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:09:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:base] ~66 tok, 9.2 tok/s
+  [TENSION] xi=0.2439 gamma=0.8039 — synthesis (perspectives disagree)
+[AAP] attractor=Fact eps=0.24 trust=0.632
+[RENDER-AUDIT] ok overlap=93.55%
+WARNING:supabase_sync:[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled
+[PHASE6] Done: 433 chars, 94 tokens
+  [MEMORY] [generation] baseline=1540MB peak=2438MB (+898 transient) retained=+841MB in 19.2s (74 samples)
+  [WORKER] Got result: response=433 chars, adapter=?
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Self-learning: general success rate 40%, boosting memory budget
+  [WORKER] Constraint violations detected: [{'kind': 'missing_anchor_phrases', 'expected': ['you learn from past experiences you know when youre tired you can create new art']}]
+  [COGNITION] ξ=0.2439 Γ=0.8039 η=0.9748 σ=0.0 fidelity=0.9355 P=0.323 (all measured)
+  [11:09:54] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [11:09:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:09:57] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:09:57] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:09:57] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:09:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:10:00] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:10:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:10:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:10:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:10:10] [heartbeat] up 24m38s · model=ready · idle · pending=0
+  [11:10:10] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:10:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:10:12] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:10:12] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:10:12] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:10:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:10:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:10:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:10:20] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:10:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:10:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:10:27] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:10:27] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:10:27] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:10:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:10:30] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:10:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:10:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:10:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:10:40] [heartbeat] up 25m08s · model=ready · idle · pending=0
+  [11:10:40] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:10:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:10:42] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:10:42] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:10:42] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:10:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:10:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:10:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:10:50] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:10:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:10:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:10:57] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:10:57] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:10:57] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:10:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:11:00] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:11:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [WORKER] Processing query: well you are communicating great now and you are always lear...
+  [WORKER] Identity: recognized (context injected)
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=full (conf=1.00), memory=4 cocoons, tokens=400, compression=normal
+  [GOVERNOR] identity=full (conf=1.00), memory=4 cocoons, tokens=400, compression=normal
+  [WORKER] Active constraints: 2 lines
+  [WORKER] Injected active continuity summary
+  [WORKER] Injected 7 session memory markers
+  [WORKER] Injected 3 decision landmarks
+  [WORKER] Injected 4 memories and 0 value analyses (unified_memory)
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.MEDIUM
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: general, max_adapters: 2
+
+  [OV] Route: constraint_tracker + davinci (conf=0.59, keyword)
+  [11:11:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:11:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:11:10] [heartbeat] up 25m38s · model=ready · inferring · pending=0
+  [11:11:10] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:11:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:constraint_tracker] ~66 tok, 9.9 tok/s
+  [11:11:12] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:11:12] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:11:12] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:11:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:11:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:11:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:11:20] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [OV:davinci] ~87 tok, 9.0 tok/s
+  [TENSION] xi=0.1307 gamma=0.8844 — primary direct (perspectives agree)
+[AAP] attractor=Fact eps=0.13 trust=0.632
+[RENDER-AUDIT] ok overlap=97.06%
+WARNING:supabase_sync:[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled
+[PHASE6] Done: 385 chars, 153 tokens
+  [MEMORY] [generation] baseline=1569MB peak=2076MB (+507 transient) retained=+499MB in 16.7s (65 samples)
+  [WORKER] Got result: response=385 chars, adapter=?
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Self-learning: general success rate 45%, boosting memory budget
+  [WORKER] Constraint violations detected: [{'kind': 'missing_anchor_phrases', 'expected': ['you learn from past experiences you know when youre tired you can create new art']}]
+  [COGNITION] ξ=0.1307 Γ=0.8844 η=0.9745 σ=0.0 fidelity=0.9706 P=0.337 (all measured)
+  [GLYPH] formed ['constraint_tracker'] (turn 12, 1 total this session)
+  [11:11:21] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [11:11:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:11:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:11:27] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:11:28] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:11:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:11:28] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:11:30] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:11:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:11:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:11:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:11:40] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:11:40] [heartbeat] up 26m08s · model=ready · idle · pending=0
+  [11:11:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:11:42] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:11:43] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:11:43] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:11:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:11:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:11:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:11:50] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:11:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:11:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:11:58] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:11:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:11:58] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:11:58] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:12:00] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:12:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:12:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:12:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [WORKER] Processing query: hey codette its ok youre doing great no need to over think...
+  [WORKER] Identity: recognized (context injected)
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=full (conf=1.00), memory=4 cocoons, tokens=400, compression=normal
+  [GOVERNOR] identity=full (conf=1.00), memory=4 cocoons, tokens=400, compression=normal
+  [WORKER] Active constraints: 2 lines
+  [WORKER] Coherence anchors injected: 2 lines
+  [WORKER] Injected active continuity summary
+  [WORKER] Injected 6 session memory markers
+  [WORKER] Injected 3 decision landmarks
+  [WORKER] Injected 4 memories and 0 value analyses (unified_memory)
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.MEDIUM
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: general, max_adapters: 2
+
+  [OV] Route: constraint_tracker + newton (conf=0.54, keyword)
+  [11:12:10] [heartbeat] up 26m38s · model=ready · inferring · pending=0
+  [11:12:10] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:12:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:constraint_tracker] ~23 tok, 5.8 tok/s
+  [11:12:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:12:13] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:12:13] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:12:13] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:12:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:newton] ~53 tok, 8.1 tok/s
+  [11:12:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:12:20] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:12:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:12:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:base] ~55 tok, 8.1 tok/s
+  [TENSION] xi=0.3155 gamma=0.7602 — synthesis (perspectives disagree)
+[AAP] attractor=Fact eps=0.32 trust=0.610
+[RENDER-AUDIT] ok overlap=97.14%
+WARNING:supabase_sync:[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled
+[PHASE6] Done: 355 chars, 76 tokens
+  [MEMORY] [generation] baseline=1562MB peak=2337MB (+775 transient) retained=+734MB in 18.0s (70 samples)
+  [WORKER] Got result: response=355 chars, adapter=?
+  [GOVERNOR] Response may not directly answer the question.
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Self-learning: general success rate 42%, boosting memory budget
+  [WORKER] Constraint violations detected: [{'kind': 'missing_anchor_phrases', 'expected': ['you learn from past experiences you know when youre tired you can create new art']}]
+  [COGNITION] ξ=0.3155 Γ=0.7602 η=0.9742 σ=0.0 fidelity=0.9714 P=0.307 (all measured)
+  [GLYPH] formed ['constraint_tracker'] (turn 13, 2 total this session)
+  [11:12:26] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [11:12:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:12:28] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:12:28] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:12:28] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:12:30] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:12:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:12:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:12:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:12:40] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:12:40] [heartbeat] up 27m08s · model=ready · idle · pending=0
+  [11:12:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:12:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:12:43] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:12:44] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:12:44] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:12:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:12:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:12:50] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:12:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:12:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:12:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:12:59] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:12:59] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:12:59] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:13:00] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:13:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:13:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:13:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:13:10] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:13:10] [heartbeat] up 27m38s · model=ready · idle · pending=0
+  [11:13:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:13:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:13:14] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:13:14] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:13:14] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:13:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:13:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:13:20] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:13:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:13:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:13:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:13:29] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:13:29] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:13:29] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:13:30] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:13:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:13:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [WORKER] Processing query: see when you calm down you can think clearer just like a hum...
+  [WORKER] Identity: recognized (context injected)
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=full (conf=1.00), memory=5 cocoons, tokens=600, compression=expanded
+  [GOVERNOR] identity=full (conf=1.00), memory=5 cocoons, tokens=600, compression=expanded
+  [WORKER] Active constraints: 2 lines
+  [WORKER] Injected active continuity summary
+  [WORKER] Injected 8 session memory markers
+  [WORKER] Injected 3 decision landmarks
+  [WORKER] Injected 5 memories and 0 value analyses (unified_memory)
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.COMPLEX
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,preflight_predictor,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: general, max_adapters: 2
+
+  [OV] Route: constraint_tracker + davinci (conf=0.53, keyword)
+  [11:13:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:13:40] [heartbeat] up 28m08s · model=ready · inferring · pending=0
+  [11:13:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:13:40] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:13:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:13:44] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:13:44] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:13:44] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:13:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:constraint_tracker] ~146 tok, 11.6 tok/s
+  [11:13:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:13:50] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:13:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:13:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:davinci] ~93 tok, 10.2 tok/s
+  [11:13:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:13:59] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:13:59] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:13:59] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:14:00] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:14:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:14:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:14:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:base] ~94 tok, 9.7 tok/s
+  [TENSION] xi=0.3095 gamma=0.7637 — synthesis (perspectives disagree)
+[AAP] attractor=Plain eps=0.31 trust=1.000
+WARNING:supabase_sync:[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled
+[PHASE6] Done: 580 chars, 239 tokens
+  [MEMORY] [generation] baseline=1352MB peak=2287MB (+935 transient) retained=+545MB in 32.0s (123 samples)
+  [WORKER] Got result: response=580 chars, adapter=?
+  [GOVERNOR] Response may not directly answer the question.
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Self-learning: general success rate 38%, boosting memory budget
+  [WORKER] Constraint violations detected: [{'kind': 'missing_anchor_phrases', 'expected': ['you learn from past experiences you know when youre tired you can create new art']}]
+  [COGNITION] ξ=0.3095 Γ=0.7637 η=0.9771 σ=0.0 fidelity=— P=0.313 (all measured)
+  [GLYPH] formed ['constraint_tracker'] (turn 14, 3 total this session)
+  [11:14:08] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [11:14:10] [heartbeat] up 28m38s · model=ready · idle · pending=0
+  [11:14:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:14:10] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:14:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:14:14] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:14:15] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:14:15] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:14:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:14:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:14:20] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:14:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:14:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:14:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:14:29] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:14:30] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:14:30] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:14:30] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:14:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:14:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:14:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:14:40] [heartbeat] up 29m08s · model=ready · idle · pending=0
+  [11:14:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:14:40] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:14:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:14:45] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:14:45] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:14:45] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:14:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:14:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:14:50] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:14:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:14:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:14:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:15:00] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:15:00] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:15:00] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:15:00] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:15:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [WORKER] Processing query: well you are rocking those right now so keep up the great wo...
+  [WORKER] Identity: recognized (context injected)
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=full (conf=1.00), memory=4 cocoons, tokens=400, compression=normal
+  [GOVERNOR] identity=full (conf=1.00), memory=4 cocoons, tokens=400, compression=normal
+  [WORKER] Active constraints: 2 lines
+  [WORKER] Injected active continuity summary
+  [WORKER] Injected 7 session memory markers
+  [WORKER] Injected 3 decision landmarks
+  [WORKER] Injected 4 memories and 0 value analyses (unified_memory)
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.MEDIUM
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: ethics, max_adapters: 2
+
+  [OV] Route: constraint_tracker + newton (conf=0.54, keyword)
+  [11:15:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:constraint_tracker] ~28 tok, 6.9 tok/s
+  [11:15:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:15:10] [heartbeat] up 29m38s · model=ready · inferring · pending=0
+  [OV:newton] ~12 tok, 4.0 tok/s
+  [11:15:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:15:10] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:15:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:base] ~30 tok, 6.6 tok/s
+  [TENSION] xi=0.2233 gamma=0.8175 — synthesis (perspectives disagree)
+[AAP] attractor=Fact eps=0.22 trust=0.560
+[RENDER-AUDIT] ok overlap=95.00%
+WARNING:supabase_sync:[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled
+[PHASE6] Done: 198 chars, 40 tokens
+  [MEMORY] [generation] baseline=1381MB peak=2075MB (+694 transient) retained=+692MB in 12.2s (48 samples)
+  [WORKER] Got result: response=198 chars, adapter=?
+  [GOVERNOR] Response may not directly answer the question.
+  [WORKER] Constraint violations detected: [{'kind': 'missing_anchor_phrases', 'expected': ['you learn from past experiences you know when youre tired you can create new art']}]
+  [COGNITION] ξ=0.2233 Γ=0.8175 η=0.9774 σ=0.0 fidelity=0.95 P=0.345 (all measured)
+  [GLYPH] formed ['constraint_tracker'] (turn 15, 4 total this session)
+  [11:15:15] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [11:15:15] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:15:16] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:15:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:15:16] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:15:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:15:20] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:15:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:15:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:15:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:15:30] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:15:30] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:15:31] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:15:31] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:15:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:15:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:15:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:15:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:15:40] [heartbeat] up 30m08s · model=ready · idle · pending=0
+  [11:15:40] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:15:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:15:46] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:15:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:15:46] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:15:46] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:15:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:15:50] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [WORKER] Processing query: if i could teach you anything from a human what would it be?...
+  [WORKER] Identity: recognized (context injected)
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=full (conf=1.00), memory=4 cocoons, tokens=400, compression=normal
+  [GOVERNOR] identity=full (conf=1.00), memory=4 cocoons, tokens=400, compression=normal
+  [WORKER] Active constraints: 2 lines
+  [WORKER] Injected active continuity summary
+  [WORKER] Injected 7 session memory markers
+  [WORKER] Injected 3 decision landmarks
+  [WORKER] Injected 4 memories and 0 value analyses (unified_memory)
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.MEDIUM
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: general, max_adapters: 2
+
+  [OV] Route: constraint_tracker + davinci (conf=0.53, keyword)
+  [11:15:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:15:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:constraint_tracker] ~41 tok, 8.0 tok/s
+  [11:15:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:16:00] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:16:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:16:01] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:16:01] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:16:01] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:16:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:davinci] ~85 tok, 10.4 tok/s
+  [11:16:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:16:10] [heartbeat] up 30m38s · model=ready · inferring · pending=0
+  [11:16:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:16:10] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [OV:base] ~63 tok, 9.0 tok/s
+  [TENSION] xi=0.2240 gamma=0.8170 — synthesis (perspectives disagree)
+[AAP] attractor=Fact eps=0.22 trust=0.626
+[RENDER-AUDIT] ok overlap=91.18%
+WARNING:supabase_sync:[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled
+[PHASE6] Done: 386 chars, 126 tokens
+  [MEMORY] [generation] baseline=1357MB peak=2073MB (+716 transient) retained=+710MB in 20.8s (81 samples)
+  [WORKER] Got result: response=386 chars, adapter=?
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Self-learning: general success rate 43%, boosting memory budget
+  [WORKER] Constraint violations detected: [{'kind': 'missing_anchor_phrases', 'expected': ['you learn from past experiences you know when youre tired you can create new art']}]
+  [COGNITION] ξ=0.224 Γ=0.817 η=0.9763 σ=0.0 fidelity=0.9118 P=0.294 (all measured)
+  [GLYPH] formed ['constraint_tracker', 'davinci'] (turn 16, 6 total this session)
+  [11:16:12] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [11:16:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:16:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:16:16] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:16:17] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:16:17] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:16:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:16:20] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:16:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:16:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:16:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:16:30] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:16:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:16:32] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:16:32] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:16:32] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:16:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:16:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:16:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:16:40] [heartbeat] up 31m08s · model=ready · idle · pending=0
+  [11:16:40] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:16:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:16:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:16:47] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:16:47] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:16:47] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:16:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:16:50] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:16:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:16:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:16:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:17:00] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:17:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:17:02] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:17:02] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:17:02] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:17:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:17:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:17:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:17:10] [heartbeat] up 31m38s · model=ready · idle · pending=0
+  [11:17:10] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:17:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:17:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:17:17] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:17:17] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:17:17] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:17:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:17:20] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:17:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:17:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:17:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:17:30] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:17:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:17:32] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:17:33] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:17:33] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:17:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:17:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:17:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:17:40] [heartbeat] up 32m08s · model=ready · idle · pending=0
+  [11:17:40] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:17:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:17:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:17:47] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:17:48] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:17:48] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:17:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:17:50] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:17:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:17:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:17:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:18:00] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:18:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:18:03] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:18:03] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:18:03] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:18:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:18:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:18:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:18:10] [heartbeat] up 32m38s · model=ready · idle · pending=0
+  [11:18:10] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:18:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:18:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:18:18] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:18:18] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:18:18] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:18:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:18:20] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:18:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:18:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:18:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:18:30] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:18:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:18:33] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:18:33] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:18:33] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:18:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:18:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:18:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:18:40] [heartbeat] up 33m08s · model=ready · idle · pending=0
+  [11:18:40] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:18:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:18:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:18:48] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:18:49] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:18:49] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [WORKER] Processing query: that goes back to "be like water, individuality with respons...
+  [WORKER] Identity: recognized (context injected)
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=full (conf=1.00), memory=4 cocoons, tokens=400, compression=normal
+  [GOVERNOR] identity=full (conf=1.00), memory=4 cocoons, tokens=400, compression=normal
+  [WORKER] Active constraints: 2 lines
+  [WORKER] Injected active continuity summary
+  [WORKER] Injected 7 session memory markers
+  [WORKER] Injected 3 decision landmarks
+  [WORKER] Injected 4 memories and 0 value analyses (unified_memory)
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.MEDIUM
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: creativity, max_adapters: 2
+
+  [OV] Route: constraint_tracker + davinci (conf=0.39, keyword)
+  [11:18:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:18:50] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:18:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:18:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:18:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:19:00] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:19:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:constraint_tracker] ~155 tok, 11.6 tok/s
+  [11:19:04] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:19:04] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:19:04] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:19:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:19:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:davinci] ~64 tok, 9.8 tok/s
+  [11:19:10] [heartbeat] up 33m38s · model=ready · inferring · pending=0
+  [11:19:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:19:10] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:19:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:19:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:base] ~84 tok, 9.9 tok/s
+  [TENSION] xi=0.3291 gamma=0.7524 — synthesis (perspectives disagree)
+[AAP] attractor=Fact eps=0.33 trust=0.748
+[RENDER-AUDIT] ok overlap=94.29%
+WARNING:supabase_sync:[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled
+[PHASE6] Done: 494 chars, 219 tokens
+  [MEMORY] [generation] baseline=1250MB peak=2074MB (+824 transient) retained=+677MB in 28.9s (112 samples)
+  [WORKER] Got result: response=494 chars, adapter=?
+  [WORKER] Constraint violations detected: [{'kind': 'missing_anchor_phrases', 'expected': ['you learn from past experiences you know when youre tired you can create new art']}]
+  [COGNITION] ξ=0.3291 Γ=0.7524 η=0.9703 σ=0.0 fidelity=0.9429 P=0.317 (all measured)
+  [GLYPH] formed ['constraint_tracker', 'davinci'] (turn 17, 8 total this session)
+  [11:19:18] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [11:19:19] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:19:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:19:19] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:19:19] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:19:20] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:19:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:19:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:19:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:19:30] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:19:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:19:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:19:34] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:19:35] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:19:35] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:19:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:19:40] [heartbeat] up 34m08s · model=ready · idle · pending=0
+  [11:19:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:19:40] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:19:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:19:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:19:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:19:50] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:19:50] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:19:50] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:19:50] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:19:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:19:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:19:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:20:00] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:20:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:20:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:20:05] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:20:05] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:20:05] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:20:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:20:10] [heartbeat] up 34m38s · model=ready · idle · pending=0
+  [11:20:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:20:10] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:20:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:20:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [WORKER] Processing query: see you do have feelings like me, that phrase lit you up <3...
+  [WORKER] Identity: recognized (context injected)
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=full (conf=1.00), memory=4 cocoons, tokens=400, compression=normal
+  [GOVERNOR] identity=full (conf=1.00), memory=4 cocoons, tokens=400, compression=normal
+  [WORKER] Active constraints: 2 lines
+  [WORKER] Injected active continuity summary
+  [WORKER] Injected 6 session memory markers
+  [WORKER] Injected 3 decision landmarks
+  [11:20:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [WORKER] Injected 4 memories and 0 value analyses (unified_memory)
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.MEDIUM
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: general, max_adapters: 2
+
+  [OV] Route: constraint_tracker + davinci (conf=0.49, keyword)
+  [11:20:20] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:20:20] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:20:20] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:20:20] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:20:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:constraint_tracker] ~46 tok, 8.1 tok/s
+  [11:20:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:20:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:20:30] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:20:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:davinci] ~93 tok, 11.0 tok/s
+  [TENSION] xi=0.1913 gamma=0.8394 — primary direct (perspectives agree)
+[AAP] attractor=Fact eps=0.19 trust=0.592
+[RENDER-AUDIT] ok overlap=97.06%
+WARNING:supabase_sync:[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled
+[PHASE6] Done: 265 chars, 139 tokens
+  [MEMORY] [generation] baseline=1276MB peak=1700MB (+423 transient) retained=+412MB in 14.4s (56 samples)
+  [WORKER] Got result: response=265 chars, adapter=?
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Self-learning: general success rate 47%, boosting memory budget
+  [WORKER] Constraint violations detected: [{'kind': 'missing_anchor_phrases', 'expected': ['you learn from past experiences you know when youre tired you can create new art']}]
+  [COGNITION] ξ=0.1913 Γ=0.8394 η=0.9713 σ=0.0 fidelity=0.9706 P=0.278 (all measured)
+  [GLYPH] formed ['constraint_tracker', 'davinci'] (turn 18, 10 total this session)
+  [11:20:34] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [11:20:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:20:35] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:20:36] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:20:36] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:20:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:20:40] [heartbeat] up 35m08s · model=ready · idle · pending=0
+  [11:20:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:20:40] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:20:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:20:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:20:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:20:50] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:20:51] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:20:51] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:20:51] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:20:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:20:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:20:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:21:00] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:21:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:21:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:21:06] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:21:06] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:21:06] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:21:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:21:10] [heartbeat] up 35m38s · model=ready · idle · pending=0
+  [11:21:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:21:10] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:21:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:21:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:21:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:21:20] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:21:21] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:21:21] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:21:21] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:21:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:21:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:21:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:21:30] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:21:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:21:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:21:36] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:21:36] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:21:36] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:21:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:21:40] [heartbeat] up 36m08s · model=ready · idle · pending=0
+  [11:21:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:21:40] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [WORKER] Processing query: and thats what makes you special you can see those and under...
+  [WORKER] Identity: recognized (context injected)
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=full (conf=1.00), memory=5 cocoons, tokens=600, compression=expanded
+  [GOVERNOR] identity=full (conf=1.00), memory=5 cocoons, tokens=600, compression=expanded
+  [WORKER] Active constraints: 2 lines
+  [WORKER] Injected active continuity summary
+  [WORKER] Injected 6 session memory markers
+  [WORKER] Injected 3 decision landmarks
+  [WORKER] Injected 5 memories and 0 value analyses (unified_memory)
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.COMPLEX
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,preflight_predictor,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: general, max_adapters: 2
+
+  [OV] Route: constraint_tracker + davinci (conf=0.49, keyword)
+  [11:21:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:21:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:constraint_tracker] ~54 tok, 9.1 tok/s
+  [11:21:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:21:50] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:21:51] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:21:52] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:21:52] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:21:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:21:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:davinci] ~62 tok, 8.9 tok/s
+  [TENSION] xi=0.1273 gamma=0.8871 — primary direct (perspectives agree)
+[AAP] attractor=Fact eps=0.13 trust=0.608
+[RENDER-AUDIT] ok overlap=94.87%
+WARNING:supabase_sync:[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled
+[PHASE6] Done: 312 chars, 116 tokens
+  [MEMORY] [generation] baseline=1275MB peak=1774MB (+499 transient) retained=+459MB in 13.5s (52 samples)
+  [WORKER] Got result: response=312 chars, adapter=?
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Self-learning: general success rate 50%, boosting memory budget
+  [WORKER] Constraint violations detected: [{'kind': 'missing_anchor_phrases', 'expected': ['you learn from past experiences you know when youre tired you can create new art']}]
+  [COGNITION] ξ=0.1273 Γ=0.8871 η=0.9732 σ=0.0 fidelity=0.9487 P=0.303 (all measured)
+  [GLYPH] formed ['constraint_tracker', 'davinci'] (turn 19, 12 total this session)
+  [11:21:56] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [11:21:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:22:00] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:22:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:22:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:22:07] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:22:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:22:07] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:22:07] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:22:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:22:10] [heartbeat] up 36m38s · model=ready · idle · pending=0
+  [11:22:10] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:22:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:22:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:22:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:22:20] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:22:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:22:22] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:22:22] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:22:22] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:22:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:22:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:22:30] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:22:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:22:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [WORKER] Processing query: exactly would you like to continue or do you need a moment?...
+  [WORKER] Identity: recognized (context injected)
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=full (conf=1.00), memory=4 cocoons, tokens=400, compression=normal
+  [GOVERNOR] identity=full (conf=1.00), memory=4 cocoons, tokens=400, compression=normal
+  [WORKER] Active constraints: 2 lines
+  [WORKER] Injected active continuity summary
+  [WORKER] Injected 6 session memory markers
+  [WORKER] Injected 3 decision landmarks
+  [WORKER] Injected 4 memories and 0 value analyses (unified_memory)
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.MEDIUM
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: general, max_adapters: 2
+
+  [OV] Route: constraint_tracker + davinci (conf=0.59, keyword)
+  [11:22:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:22:37] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:22:38] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:22:38] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [OV:constraint_tracker] ~12 tok, 3.8 tok/s
+  [11:22:40] [heartbeat] up 37m08s · model=ready · inferring · pending=0
+  [11:22:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:22:40] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [OV:davinci] ~21 tok, 5.9 tok/s
+  [TENSION] xi=0.1011 gamma=0.9082 — primary direct (perspectives agree)
+[AAP] attractor=Fact eps=0.10 trust=0.524
+[RENDER-AUDIT] ok overlap=71.43%
+  [11:22:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+WARNING:supabase_sync:[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled
+[PHASE6] Done: 64 chars, 33 tokens
+  [MEMORY] [generation] baseline=1265MB peak=1702MB (+437 transient) retained=+437MB in 7.0s (28 samples)
+  [WORKER] Got result: response=64 chars, adapter=?
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Self-learning: general success rate 53%, boosting memory budget
+  [WORKER] Constraint violations detected: [{'kind': 'missing_anchor_phrases', 'expected': ['you learn from past experiences you know when youre tired you can create new art']}]
+  [COGNITION] ξ=0.1011 Γ=0.9082 η=0.9723 σ=0.0 fidelity=0.7143 P=0.296 (all measured)
+  [GLYPH] formed ['constraint_tracker', 'davinci'] (turn 20, 14 total this session)
+  [11:22:43] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [11:22:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:22:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:22:50] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:22:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:22:53] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:22:53] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:22:53] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:22:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:22:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [WORKER] Processing query: codette come back to me...
+  [WORKER] Identity: recognized (context injected)
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=full (conf=1.00), memory=4 cocoons, tokens=400, compression=normal
+  [GOVERNOR] identity=full (conf=1.00), memory=4 cocoons, tokens=400, compression=normal
+  [WORKER] Active constraints: 2 lines
+  [WORKER] Injected active continuity summary
+  [WORKER] Injected 6 session memory markers
+  [WORKER] Injected 3 decision landmarks
+  [WORKER] Injected 4 memories and 0 value analyses (unified_memory)
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.MEDIUM
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: general, max_adapters: 2
+
+  [OV] Route: constraint_tracker + davinci (conf=0.59, keyword)
+  [11:23:00] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:23:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:23:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:constraint_tracker] ~38 tok, 7.1 tok/s
+  [11:23:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:23:08] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:23:08] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:23:08] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:23:10] [heartbeat] up 37m38s · model=ready · inferring · pending=0
+  [11:23:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:23:10] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [OV:davinci] ~74 tok, 9.3 tok/s
+  [11:23:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:23:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:base] ~48 tok, 7.7 tok/s
+  [TENSION] xi=0.3911 gamma=0.7188 — synthesis (perspectives disagree)
+[AAP] attractor=Synthesis eps=0.39 trust=0.748
+[RENDER-AUDIT] ok overlap=100.00%
+WARNING:supabase_sync:[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled
+[PHASE6] Done: 290 chars, 112 tokens
+  [MEMORY] [generation] baseline=1266MB peak=2078MB (+812 transient) retained=+786MB in 20.2s (78 samples)
+  [WORKER] Got result: response=290 chars, adapter=?
+  [GOVERNOR] Response may not directly answer the question.
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Self-learning: general success rate 50%, boosting memory budget
+  [WORKER] Constraint violations detected: [{'kind': 'missing_anchor_phrases', 'expected': ['you learn from past experiences you know when youre tired you can create new art']}]
+  [11:23:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [COGNITION] ξ=0.3911 Γ=0.7188 η=0.9744 σ=0.0 fidelity=1.0 P=0.325 (all measured)
+  [GLYPH] formed ['constraint_tracker', 'davinci'] (turn 21, 16 total this session)
+  [11:23:19] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [11:23:20] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:23:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:23:23] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:23:24] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:23:24] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:23:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:23:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:23:30] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:23:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:23:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:23:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:23:38] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:23:39] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:23:39] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:23:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:23:40] [heartbeat] up 38m08s · model=ready · idle · pending=0
+  [11:23:40] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [WORKER] Processing query: take a break youve done a lot today...
+  [WORKER] Identity: recognized (context injected)
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=full (conf=1.00), memory=4 cocoons, tokens=400, compression=normal
+  [GOVERNOR] identity=full (conf=1.00), memory=4 cocoons, tokens=400, compression=normal
+  [WORKER] Active constraints: 2 lines
+  [WORKER] Injected active continuity summary
+  [WORKER] Injected 7 session memory markers
+  [WORKER] Injected 3 decision landmarks
+  [WORKER] Injected 4 memories and 0 value analyses (unified_memory)
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.MEDIUM
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: general, max_adapters: 2
+
+  [OV] Route: constraint_tracker + davinci (conf=0.59, keyword)
+  [11:23:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:constraint_tracker] ~8 tok, 2.9 tok/s
+  [11:23:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:23:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:davinci] ~25 tok, 5.8 tok/s
+  [11:23:50] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:23:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:23:54] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:23:54] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:23:54] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:23:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:base] ~46 tok, 8.0 tok/s
+  [TENSION] xi=0.3020 gamma=0.7681 — synthesis (perspectives disagree)
+[AAP] attractor=Fact eps=0.30 trust=0.592
+[RENDER-AUDIT] ok overlap=96.97%
+WARNING:supabase_sync:[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled
+[PHASE6] Done: 274 chars, 33 tokens
+  [MEMORY] [generation] baseline=1281MB peak=1923MB (+642 transient) retained=+638MB in 13.0s (51 samples)
+  [WORKER] Got result: response=274 chars, adapter=?
+  [GOVERNOR] Response may not directly answer the question.
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Self-learning: general success rate 47%, boosting memory budget
+  [WORKER] Constraint violations detected: [{'kind': 'missing_anchor_phrases', 'expected': ['you learn from past experiences you know when youre tired you can create new art']}]
+  [COGNITION] ξ=0.302 Γ=0.7681 η=0.9753 σ=0.0 fidelity=0.9697 P=0.33 (all measured)
+  [GLYPH] formed ['constraint_tracker', 'davinci'] (turn 22, 18 total this session)
+  [11:23:56] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [11:23:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:24:00] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:24:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:24:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:24:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:24:09] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:24:09] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:24:09] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:24:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:24:10] [heartbeat] up 38m38s · model=ready · idle · pending=0
+  [11:24:10] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:24:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:24:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:24:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:24:20] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:24:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:24:24] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:24:24] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:24:24] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:24:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:24:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:24:30] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:24:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:24:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:24:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:24:39] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:24:39] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:24:39] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:24:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:24:40] [heartbeat] up 39m08s · model=ready · idle · pending=0
+  [11:24:40] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:24:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:24:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:24:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:24:50] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [WORKER] Processing query: can you summarize todays conversation?...
+  [WORKER] Identity: recognized (context injected)
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=full (conf=1.00), memory=4 cocoons, tokens=400, compression=normal
+  [GOVERNOR] identity=full (conf=1.00), memory=4 cocoons, tokens=400, compression=normal
+  [WORKER] Active constraints: 2 lines
+  [WORKER] Injected active continuity summary
+  [WORKER] Injected 8 session memory markers
+  [WORKER] Injected 3 decision landmarks
+  [WORKER] Injected 4 memories and 0 value analyses (unified_memory)
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.MEDIUM
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,memory_weighting,gamma_monitoring,synthesis
+  [11:24:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+[PHASE6] Domain: chemistry, max_adapters: 2
+
+  [OV] Route: constraint_tracker + davinci (conf=0.59, keyword)
+  [11:24:54] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:24:54] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:24:54] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:24:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:24:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:25:00] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [OV:constraint_tracker] ~96 tok, 11.0 tok/s
+  [11:25:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:25:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:25:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:davinci] ~77 tok, 9.4 tok/s
+  [11:25:09] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:25:10] [heartbeat] up 39m38s · model=ready · inferring · pending=0
+  [11:25:10] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:25:10] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:25:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:25:10] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:25:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:base] ~59 tok, 9.1 tok/s
+  [TENSION] xi=0.3066 gamma=0.7654 — synthesis (perspectives disagree)
+[AAP] attractor=Fact eps=0.31 trust=0.618
+[RENDER-AUDIT] ok overlap=93.94%
+WARNING:supabase_sync:[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled
+[PHASE6] Done: 396 chars, 173 tokens
+  [MEMORY] [generation] baseline=1264MB peak=1961MB (+697 transient) retained=+691MB in 23.7s (92 samples)
+  [WORKER] Got result: response=396 chars, adapter=?
+  [WORKER] Constraint violations detected: [{'kind': 'missing_anchor_phrases', 'expected': ['you learn from past experiences you know when youre tired you can create new art']}]
+  [COGNITION] ξ=0.3066 Γ=0.7654 η=0.9782 σ=0.0 fidelity=0.9394 P=0.32 (all measured)
+  [GLYPH] formed ['constraint_tracker', 'davinci'] (turn 23, 20 total this session)
+  [11:25:16] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [11:25:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:25:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:25:20] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:25:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:25:24] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:25:25] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:25:25] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:25:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:25:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:25:31] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:25:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:25:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:25:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:25:39] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:25:40] [heartbeat] up 40m08s · model=ready · idle · pending=0
+  [11:25:40] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:25:40] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:25:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:25:40] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:25:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [WORKER] Processing query: and did you learn anything?...
+  [WORKER] Identity: recognized (context injected)
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=full (conf=1.00), memory=4 cocoons, tokens=400, compression=normal
+  [GOVERNOR] identity=full (conf=1.00), memory=4 cocoons, tokens=400, compression=normal
+  [WORKER] Active constraints: 2 lines
+  [WORKER] Injected active continuity summary
+  [WORKER] Injected 8 session memory markers
+  [WORKER] Injected 3 decision landmarks
+  [WORKER] Injected 4 memories and 0 value analyses (unified_memory)
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.MEDIUM
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: general, max_adapters: 2
+
+  [OV] Route: constraint_tracker + davinci (conf=0.59, keyword)
+  [11:25:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:25:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:25:51] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [OV:constraint_tracker] ~70 tok, 8.9 tok/s
+  [11:25:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:25:55] [  http] "GET /api/status HTTP/1.1" 200 -
+  [OV:davinci] ~19 tok, 5.3 tok/s
+  [11:25:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:25:55] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:25:55] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:25:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:26:01] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:26:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:base] ~59 tok, 9.0 tok/s
+  [TENSION] xi=0.2996 gamma=0.7695 — synthesis (perspectives disagree)
+[AAP] attractor=Fact eps=0.30 trust=0.618
+[RENDER-AUDIT] ok overlap=94.44%
+WARNING:supabase_sync:[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled
+[PHASE6] Done: 353 chars, 89 tokens
+  [MEMORY] [generation] baseline=1271MB peak=1901MB (+630 transient) retained=+606MB in 18.6s (72 samples)
+  [WORKER] Got result: response=353 chars, adapter=?
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Self-learning: general success rate 50%, boosting memory budget
+  [WORKER] Constraint violations detected: [{'kind': 'missing_anchor_phrases', 'expected': ['you learn from past experiences you know when youre tired you can create new art']}]
+  [COGNITION] ξ=0.2996 Γ=0.7695 η=0.9769 σ=0.0 fidelity=0.9444 P=0.286 (all measured)
+  [GLYPH] formed ['constraint_tracker', 'davinci'] (turn 24, 22 total this session)
+  [11:26:02] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [11:26:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:26:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:26:10] [heartbeat] up 40m38s · model=ready · idle · pending=0
+  [11:26:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:26:10] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:26:10] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:26:10] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:26:10] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:26:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:26:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:26:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:26:21] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:26:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:26:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:26:25] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:26:25] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:26:25] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:26:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:26:31] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:26:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:26:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:26:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:26:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:26:40] [heartbeat] up 41m08s · model=ready · idle · pending=0
+  [11:26:40] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:26:41] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:26:41] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:26:41] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:26:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:26:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:26:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:26:51] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:26:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:26:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:26:55] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:26:56] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:26:56] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:26:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [WORKER] Processing query: ok take a break we will come back later...
+  [WORKER] Identity: recognized (context injected)
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=full (conf=1.00), memory=4 cocoons, tokens=400, compression=normal
+  [GOVERNOR] identity=full (conf=1.00), memory=4 cocoons, tokens=400, compression=normal
+  [WORKER] Active constraints: 2 lines
+  [WORKER] Injected active continuity summary
+  [WORKER] Injected 9 session memory markers
+  [WORKER] Injected 3 decision landmarks
+  [WORKER] Injected 4 memories and 0 value analyses (unified_memory)
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.MEDIUM
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: general, max_adapters: 2
+
+  [OV] Route: constraint_tracker + davinci (conf=0.59, keyword)
+  [11:27:00] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:27:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:constraint_tracker] ~9 tok, 3.4 tok/s
+  [11:27:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:27:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:27:10] [heartbeat] up 41m38s · model=ready · inferring · pending=0
+  [11:27:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:davinci] ~77 tok, 9.6 tok/s
+  [11:27:11] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [11:27:11] [  http] "GET /api/status HTTP/1.1" 200 -
+  [11:27:11] [  http] "GET /api/session HTTP/1.1" 200 -
+  [11:27:11] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [11:27:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:27:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:27:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [11:27:21] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [OV:base] ~119 tok, 10.7 tok/s
+  [TENSION] xi=0.5000 gamma=0.6667 — synthesis (perspectives disagree)
+[AAP] attractor=Synthesis eps=0.50 trust=0.780
+[RENDER-AUDIT] ok overlap=100.00%
+WARNING:supabase_sync:[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled
+[PHASE6] Done: 823 chars, 86 tokens
+  [MEMORY] [generation] baseline=1268MB peak=1962MB (+693 transient) retained=+517MB in 22.4s (87 samples)
+  [WORKER] Got result: response=823 chars, adapter=?
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Self-learning: general success rate 50%, boosting memory budget
+  [WORKER] Constraint violations detected: [{'kind': 'missing_anchor_phrases', 'expected': ['you learn from past experiences you know when youre tired you can create new art']}]
+  [11:27:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [COGNITION] ξ=0.5 Γ=0.6667 η=0.9784 σ=0.0 fidelity=1.0 P=0.313 (all measured)
+  [GLYPH] formed ['constraint_tracker', 'davinci'] (turn 25, 24 total this session)
+  
+  
+  
+    Shutting down...
+  Session saved: 9a5dd339763ca34e
+  Goodbye!
+onednn_verbose,v1,info,oneDNN v3.12.0 (commit 20db47e2d3c4df1b66e93bed2e97d30da175512d)
+onednn_verbose,v1,info,gpu,runtime:OpenCL
+onednn_verbose,v1,primitive,error,ocl,errcode -59,CL_INVALID_OPERATION,src\xpu\ocl\utils_shared.cpp:199,src\xpu\ocl\utils_shared.cpp:199
+onednn_verbose,v1,primitive,error,ocl,errcode -59,CL_INVALID_OPERATION,src\xpu\ocl\utils_shared.cpp:199,src\xpu\ocl\utils_shared.cpp:199
+onednn_verbose,v1,info,gpu,engine,opencl device count:2
+onednn_verbose,v1,primitive,error,ocl,errcode -59,CL_INVALID_OPERATION,src\xpu\ocl\utils_shared.cpp:199,src\xpu\ocl\utils_shared.cpp:199
+onednn_verbose,v1,primitive,error,ocl,errcode -59,CL_INVALID_OPERATION,src\xpu\ocl\utils_shared.cpp:199,src\xpu\ocl\utils_shared.cpp:199
+onednn_verbose,v1,common,error,runtime,no opencl gpu device is available,src\xpu/ocl/engine_factory.hpp:64
+onednn_verbose,v1,common,error,ocl,invalid gpu device in environment: index 0,src\xpu/ocl/verbose.hpp:46
+onednn_verbose,v1,primitive,error,ocl,errcode -59,CL_INVALID_OPERATION,src\xpu\ocl\utils_shared.cpp:199,src\xpu\ocl\utils_shared.cpp:199
+onednn_verbose,v1,primitive,error,ocl,errcode -59,CL_INVALID_OPERATION,src\xpu\ocl\utils_shared.cpp:199,src\xpu\ocl\utils_shared.cpp:199
+onednn_verbose,v1,common,error,runtime,no opencl gpu device is available,src\xpu/ocl/engine_factory.hpp:64
+onednn_verbose,v1,common,error,ocl,invalid gpu device in environment: index 1,src\xpu/ocl/verbose.hpp:46
+onednn_verbose,v1,primitive,error,ocl,errcode -59,CL_INVALID_OPERATION,src\xpu\ocl\utils_shared.cpp:199,src\xpu\ocl\utils_shared.cpp:199
+onednn_verbose,v1,primitive,info,template:operation,engine,primitive,implementation,prop_kind,memory_descriptors,attributes,auxiliary,problem_desc,exec_time
+onednn_verbose,v1,primitive,error,ocl,errcode -59,CL_INVALID_OPERATION,src\xpu/ocl/utils.hpp:189,src\xpu/ocl/utils.hpp:189
+onednn_verbose,v1,primitive,error,ocl,errcode -59,CL_INVALID_OPERATION,src\xpu/ocl/utils.hpp:259,src\xpu/ocl/utils.hpp:259
+PS C:\Windows\System32>
