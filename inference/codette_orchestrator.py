@@ -899,6 +899,16 @@ class CodetteOrchestrator:
                     system_prompt = system_prompt + "\n\n" + _goal_block(_persp)
             except Exception:
                 pass  # a missing registry must never break generation
+        # Observable from outside the model. Logged whether or not the block was
+        # applied, and whether or not the caller supplied its own prompt —
+        # "caller-supplied" is exactly the case that silently bypassed this.
+        try:
+            from codette_shared import prompt_carries_goal as _pcg
+            print(f"  [PROMPT] llama adapter={adapter_name} "
+                  f"goal_block={_pcg(system_prompt)} len={len(system_prompt or '')}",
+                  flush=True)
+        except Exception:
+            pass
 
         # INTELLECTUAL INTEGRITY LAYER: Complexity matching + role tracking
         # Runs before everything else — determines the response register

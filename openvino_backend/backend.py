@@ -298,6 +298,13 @@ class OpenVINOBackend:
 
         if system_prompt is None:
             system_prompt = ADAPTER_PROMPTS.get(adapter_name, ADAPTER_PROMPTS["_base"])
+        # Observable from outside the model — see codette_shared.prompt_carries_goal.
+        try:
+            from codette_shared import prompt_carries_goal as _pcg
+            print(f"  [PROMPT] single adapter={adapter_name} "
+                  f"goal_block={_pcg(system_prompt)} len={len(system_prompt)}", flush=True)
+        except Exception:
+            pass
 
         primary_query = extract_primary_user_query(query)
         constraints = extract_constraints(primary_query)
@@ -500,6 +507,14 @@ class OpenVINOBackend:
             else:
                 system_prompt = ADAPTER_PROMPTS.get("multi_perspective",
                                                     ADAPTER_PROMPTS["_base"])
+
+        try:
+            from codette_shared import prompt_carries_goal as _pcg
+            _dom, _da = max(blend.items(), key=lambda kv: kv[1])
+            print(f"  [PROMPT] blend dominant={_dom}@{_da:.2f} "
+                  f"goal_block={_pcg(system_prompt)} len={len(system_prompt)}", flush=True)
+        except Exception:
+            pass
 
         mem_ctx = self._build_memory_context()
         full_system = system_prompt + (mem_ctx or "")

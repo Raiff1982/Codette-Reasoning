@@ -261,6 +261,31 @@ def _attach_perspective_goals() -> None:
 
 _attach_perspective_goals()
 
+# Marker used to verify, from OUTSIDE the model, whether a perspective's goal
+# block actually reached the prompt.
+GOAL_MARKER = "WHY THIS PERSPECTIVE EXISTS"
+
+
+def prompt_carries_goal(system_prompt: str) -> bool:
+    """True when this assembled system prompt contains a perspective goal block.
+
+    Added 2026-08-03 because the question "did the change reach her?" was
+    answered three times by asking Codette, and all three answers were
+    worthless — not because she was wrong, but because a model cannot reliably
+    introspect its own system prompt. Asked to quote it, she said "my system
+    instructions appear to be absent currently."
+
+    Treating that self-report as a measurement was the same error this codebase
+    keeps producing: an unmeasured thing recorded as measured. The prompt is
+    directly observable from outside the model, so it should be observed there.
+
+    Used by the backends to log, per request, which prompt was selected and
+    whether it carried a goal block — turning "I think the wiring is right"
+    into a line in the server output.
+    """
+    return GOAL_MARKER in (system_prompt or "")
+
+
 # newton-star (STaR self-taught reasoning adapter) uses the newton persona so
 # the A/B against newton isolates the adapter weights, not the prompt.
 # NOTE: assigned AFTER _attach_perspective_goals() so the star variants inherit
