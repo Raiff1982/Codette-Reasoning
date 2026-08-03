@@ -415,4 +415,8 @@ if __name__ == "__main__":
 
 # noise_scale (Default: 0.02): Injects random perturbation variance vectors to jump entrapment constraints during local minima loops. Increase threshold values if systemic metrics # stagnate across iterative training cycles.
 
-hardware_pressure Range: Directly triggers perspective footprint contraction gates. Tracks system limits continuously to downgrade tasks cleanly from 11 perspective structures down to a single core matrix state without operational thread failure patterns.
+# 2026-08-03: this trailing line was prose rendered without its comment
+# marker - the documented "prose appended after the last line of code"
+# damage pattern (see CLAUDE.md). Commented, not deleted: the file now
+# parses and can be screened, and the text is preserved verbatim below.
+# hardware_pressure Range: Directly triggers perspective footprint contraction gates. Tracks system limits continuously to downgrade tasks cleanly from 11 perspective structures down to a single core matrix state without operational thread failure patterns.

@@ -17,3 +17,40 @@ dependencies = [
     "huggingface-hub>=0.19.0",
     "bitsandbytes>=0.41.0",
 ]
+
+[tool.pytest.ini_options]
+# Added 2026-08-03. Before this, bare `pytest` from the repository root
+# collected nothing at all: five collection errors aborted the run, so the
+# whole suite reported "5 errors" and zero tests. A collection error is fatal
+# to the entire session, not just to the file that raised it.
+#
+# `testpaths` names the canonical suite. `tests/` is the maintained one and
+# holds 596 tests; `reasoning_forge/test_global_aegis.py` is a legacy in-place
+# test kept because it is the only direct exercise of the 25-framework AEGIS
+# table, and its import was repaired to the package path in the same commit.
+testpaths = ["tests", "reasoning_forge/test_global_aegis.py"]
+
+# Not collected, and why. These are excluded deliberately, not swept aside:
+#
+#   recovered_release/legacy/test_universal_reasoning.py
+#       needs `perspectives`, which does not exist anywhere in this repository
+#       or in any archive. Confirmed twice: by filename search, and on
+#       2026-08-03 by reading INSIDE 1,157 non-.py containers (.docx, .pdf,
+#       .txt, chat-history .json), since extensions here do not indicate
+#       contents. It is genuinely absent, not merely mislaid. The file stays
+#       as recovered — it is evidence — and is not edited to paper over that.
+#
+#   archive/, recovered_release/, backup/, codette-demo-space/
+#       archival by intent: snapshots, superseded revisions and provenance.
+#       They are screened (see the harm screen) but not executed as tests.
+#
+# To run an excluded test deliberately, name it:
+#   pytest recovered_release/legacy/test_universal_reasoning.py
+norecursedirs = [
+    "archive", "recovered_release", "backup", "codette-demo-space",
+    "webapp", "node_modules", ".git", "__pycache__", "*.egg-info",
+]
+
+markers = [
+    "integration: end-to-end test that exercises more than one subsystem",
+]

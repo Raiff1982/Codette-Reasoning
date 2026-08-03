@@ -4,7 +4,7 @@ Test suite for Global AEGIS (25 ethical frameworks).
 Validates that all frameworks are evaluated correctly and synthesis works.
 """
 
-from event_embedded_value import (
+from reasoning_forge.event_embedded_value import (
     EventEmbeddedValueEngine,
     DiscreteEvent,
     ContinuousInterval,
