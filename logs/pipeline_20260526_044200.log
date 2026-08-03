@@ -1,0 +1,42 @@
+2026-05-26 04:42:00 | INFO     | codette.pipeline | === Codette Training Pipeline ===
+2026-05-26 04:42:00 | INFO     | codette.pipeline | Stages: ['evaluate']
+2026-05-26 04:42:10 | INFO     | codette.pipeline | Random seed: 42
+2026-05-26 04:42:10 | INFO     | codette.pipeline | Adapters (9): ['newton', 'davinci', 'empathy', 'philosophy', 'quantum', 'consciousness', 'multi_perspective', 'systems_architecture', 'orchestrator']
+2026-05-26 04:42:10 | INFO     | codette.pipeline | ============================================================
+2026-05-26 04:42:10 | INFO     | codette.pipeline | STAGE 5: Evaluation
+2026-05-26 04:42:10 | INFO     | codette.pipeline | ============================================================
+2026-05-26 04:42:10 | WARNING  | codette.pipeline |   SKIP newton: dataset not found
+2026-05-26 04:42:10 | WARNING  | codette.pipeline |   SKIP davinci: dataset not found
+2026-05-26 04:42:10 | WARNING  | codette.pipeline |   SKIP empathy: dataset not found
+2026-05-26 04:42:10 | WARNING  | codette.pipeline |   SKIP philosophy: dataset not found
+2026-05-26 04:42:10 | WARNING  | codette.pipeline |   SKIP quantum: dataset not found
+2026-05-26 04:42:10 | WARNING  | codette.pipeline |   SKIP consciousness: dataset not found
+2026-05-26 04:42:10 | WARNING  | codette.pipeline |   SKIP multi_perspective: dataset not found
+2026-05-26 04:42:10 | WARNING  | codette.pipeline |   SKIP systems_architecture: dataset not found
+2026-05-26 04:42:10 | WARNING  | codette.pipeline |   SKIP orchestrator: dataset not found
+2026-05-26 04:42:10 | INFO     | codette.pipeline | Observatory metrics saved to: observatory_metrics.json
+2026-05-26 04:42:10 | INFO     | codette.pipeline | 
+2026-05-26 04:42:10 | INFO     | codette.pipeline | ========================================================================
+2026-05-26 04:42:10 | INFO     | codette.pipeline |   CODETTE TRAINING PIPELINE DASHBOARD
+2026-05-26 04:42:10 | INFO     | codette.pipeline | ========================================================================
+2026-05-26 04:42:10 | INFO     | codette.pipeline |   Total time: 0.3s (0.0 min)
+2026-05-26 04:42:10 | INFO     | codette.pipeline |   Timestamp:  2026-05-26 04:42:10
+2026-05-26 04:42:10 | INFO     | codette.pipeline | 
+2026-05-26 04:42:10 | INFO     | codette.pipeline | Adapter               evaluate 
+2026-05-26 04:42:10 | INFO     | codette.pipeline | ------------------------------------------------------------------------
+2026-05-26 04:42:10 | INFO     | codette.pipeline | consciousness           SKIP   
+2026-05-26 04:42:10 | INFO     | codette.pipeline | davinci                 SKIP   
+2026-05-26 04:42:10 | INFO     | codette.pipeline | empathy                 SKIP   
+2026-05-26 04:42:10 | INFO     | codette.pipeline | multi_perspective       SKIP   
+2026-05-26 04:42:10 | INFO     | codette.pipeline | newton                  SKIP   
+2026-05-26 04:42:10 | INFO     | codette.pipeline | orchestrator            SKIP   
+2026-05-26 04:42:10 | INFO     | codette.pipeline | philosophy              SKIP   
+2026-05-26 04:42:10 | INFO     | codette.pipeline | quantum                 SKIP   
+2026-05-26 04:42:10 | INFO     | codette.pipeline | systems_architecture    SKIP   
+2026-05-26 04:42:10 | INFO     | codette.pipeline | ------------------------------------------------------------------------
+2026-05-26 04:42:10 | INFO     | codette.pipeline | 
+2026-05-26 04:42:10 | INFO     | codette.pipeline |   evaluate    : 0 ok, 0 failed, 9 skipped
+2026-05-26 04:42:10 | INFO     | codette.pipeline | 
+2026-05-26 04:42:10 | INFO     | codette.pipeline | ========================================================================
+2026-05-26 04:42:10 | INFO     | codette.pipeline | Pipeline results saved to: logs\pipeline_results.json
+2026-05-26 04:42:10 | INFO     | codette.pipeline | Pipeline completed successfully.

@@ -1,0 +1,196 @@
+Cocoon‑Style Agent Context Envelopes and Microsoft’s CosmosMemoryContextProvider: Convergent Design for Durable, Typed Agent Memory
+Author: Jonathan Harrison (Raiff1982)
+Date: July 2026
+
+Abstract
+Recent work in the Microsoft Agent Framework introduces a Cosmos‑backed CosmosMemoryContextProvider that gives agents durable, cross‑session memory via before_run and after_run lifecycle hooks. Under the hood, it stores raw conversation turns in Azure Cosmos DB for NoSQL and distills them into higher‑value derived memories: thread summaries, extracted facts, and cross‑thread user profiles, all searchable with vector, full‑text, and hybrid search in a single database. This note shows that this design is structurally equivalent to the “Cocoon” architecture I have been developing: a vendor‑neutral context envelope around agent runs with typed memory (factual, procedural, episodic), domain‑tuned extraction rubrics, and multi‑agent access to a unified memory substrate. Rather than competing designs, these are convergent implementations of the same pattern: treating agent memory as a first‑class, pluggable context provider that wraps the agent loop, decoupling reasoning from storage, distillation, and retrieval.
+
+1. Motivation: from memory APIs to context envelopes
+Most agent frameworks expose a narrow “memory interface”: a fixed API for storing and retrieving conversation history. Microsoft Agent Framework instead exposes a general context provider abstraction—a pair of lifecycle hooks, before_run and after_run, that any component can implement to contribute context into a run and capture results out of it.
+
+That generality matters. A context provider is not limited to memory; it is a clean seam for injecting anything an agent should know before it thinks and for reacting to anything it produces afterwards. Among major agent frameworks, Agent Framework stands out for making this a first‑class, pluggable extension point rather than a memory‑specific bolt‑on, which is precisely what allows Cosmos‑backed memory to exist as a drop‑in provider instead of a wrapper around the entire agent loop.
+
+Cocoon takes the same step, but in a vendor‑neutral way. In Cocoon, the agent loop is surrounded by a context envelope that:
+
+Pre‑run: assembles context from durable memory, identity streams, tools, and other substrates.
+
+Post‑run: records events and triggers distillation pipelines to update derived state.
+
+In both designs, “memory” is one kind of context provider; the key idea is the lifecycle seam around the agent run.
+
+2. Data model: turns, typed memories, profiles
+The Cosmos memory stack is explicitly layered. The Agent Memory Toolkit stores raw conversation turns and then distills them into derived memories—thread summaries, extracted facts, and cross‑thread user profiles—all in Azure Cosmos DB for NoSQL. Everything lands as JSON documents, and retrieval uses the database’s built‑in vector, full‑text, and hybrid search, so there is no separate vector store to provision or synchronize.
+
+The CosmosMemoryContextProvider exposes typed memory via a memory_types parameter that includes fact, procedural, and episodic memories. It also manages user profiles as long‑lived, cross‑thread aggregates of what the system has learned about each user.
+
+Cocoon’s memory model closely parallels this:
+
+Raw stream: an event timeline of turns and agent actions.
+
+Derived layers: factual assertions, procedural preferences and habits, episodic events.
+
+Profiles: identity‑level summaries across conversations (e.g., stable user preferences and traits).
+
+Unified substrate: one storage engine with multiple retrieval strategies, rather than bolt‑on external vector stores.
+
+The key similarity is that both systems treat raw turns as the primitive and derived memories as structured projections over that stream, backed by a unified data substrate.
+
+3. Lifecycle mapping: before_run / after_run vs Cocoon phases
+In the CosmosMemoryContextProvider, lifecycle is explicit:
+
+before_run: searches Cosmos‑backed memory for context relevant to the incoming message and injects the matches plus the user’s profile into the model context, so the agent answers with what it already knows about the user.
+
+after_run: stores the new turns and lets the Agent Memory Toolkit pipeline extract facts, roll up summaries, and update the user profile in the background.
+
+Agent Framework owns the agent loop and the context‑provider lifecycle; the Agent Memory Toolkit owns the Cosmos DB storage model and the LLM pipeline that turns raw turns into facts, summaries, and profiles.
+
+Cocoon uses analogous phases:
+
+Pre‑context: select and compose symbols, episodes, and profiles into a context scene for the next agent step.
+
+Commit: persist the event, update derived layers, and reconcile identity/profile state, often via asynchronous jobs.
+
+In both systems, the agent’s reasoning loop is intentionally separate from memory plumbing. The framework manages the loop and lifecycle; the memory engine manages storage, distillation, and retrieval.
+
+4. Identity and cross‑thread continuity
+Long‑term, cross‑session memory requires stable identity. The Cosmos provider scopes memory by a stable user_id and a thread_id representing the current conversation. In the interactive sample, a helper function wires this into session state:
+
+python
+def new_session(agent, provider, user_id):
+    session = agent.create_session()
+    session.state.setdefault(provider.source_id, {})["user_id"] = user_id
+    return session
+This allows a brand‑new thread for the same user to recall previous facts and preferences. In the sample, the agent learns that Alice loves hiking and is allergic to peanuts in one thread, and then, in a new thread with the same user_id, it plans a peanut‑free trail lunch without seeing the previous messages.
+
+Cocoon generalizes the same semantic through identity streams:
+
+Subject identifiers (users, systems, organizations) form stable keys.
+
+Channels or threads represent specific conversations bound to those identities.
+
+Memory continuity follows identity, not any single chat window.
+
+The practical outcome is identical: new thread, same identity → persistence; new identity → isolation.
+
+5. Domain tuning: rubrics for “what is worth remembering”
+By default, the Agent Memory Toolkit uses a general rubric that pulls out facts, procedural preferences, and episodic experiences that apply to almost any assistant. However, “what is worth remembering” is domain‑specific: a coding assistant should remember architectural decisions and language preferences; a travel agent should remember seat and dietary preferences; a support bot should remember account tier and past incidents.
+
+The Cosmos provider exposes a prompts_dir parameter for precisely this purpose. It points the extraction pipeline at a directory of Prompty templates, and the pipeline reads its extraction and summarization prompts from there instead of the toolkit’s bundled defaults. The most important template is extract_memories.prompty, which defines the rubric the model uses to decide what to pull out of each turn and how to classify it, while keeping the inputs and JSON output schema intact.
+
+The interactive_chat_custom_extraction.py sample shows an end‑to‑end customization: it builds a prompts directory at runtime, copies the bundled templates, swaps in a coding‑focused extract_memories.prompty, and passes that directory to the provider. All storage, scoping, retrieval, and injection logic remains unchanged; only the notion of “memorable content” is tuned to the domain.
+
+Cocoon takes a similar approach:
+
+Maintain a stable JSON schema for memory outputs (facts, episodes, profile entries).
+
+Provide domain‑specific guidance for extraction while leaving storage and retrieval untouched.
+
+Treat the domain rubric for durable state as a first‑class configuration surface.
+
+Both systems separate “how to store and recall” from “what to store,” which is a crucial design choice for multi‑domain agents.
+
+6. Production details: performance and safety
+The Cosmos provider is built for production rather than just demos.
+
+Key details include:
+
+Transparent extraction: turn writes are non‑blocking; fact and summary extraction run in the background and are drained automatically when the provider’s async context exits, so nothing is lost and the request path stays fast.
+
+Safe by default: the user profile the agent recalls is generated from stored conversation content, and the provider injects it as an ordinary user‑role message, prefixed with an explicit note telling the model to treat it as untrusted reference information rather than as instructions. This reduces the risk that a poisoned memory becomes a standing directive via prompt injection.
+
+Explicit deployments: chat and embedding deployments are named via environment variables; there is no silent default model.
+
+Cocoon shares the same production philosophy:
+
+Keep the reasoning path fast and push heavy distillation and reconciliation into asynchronous jobs.
+
+Separate stored facts and preferences from system policy, so memory cannot silently mutate agent behavior.
+
+Make model and tool choices explicit and inspectable.
+
+These shared concerns reinforce that both architectures are intended as serious infrastructure for AI agents.
+
+7. Minimal code mapping: CosmosMemoryContextProvider as a Cocoon‑style module
+A minimal version of the Cosmos sample makes the mapping very clear.
+
+Creating a memory‑backed agent:
+
+python
+import os
+from agent_framework import Agent
+from agent_framework.foundry import FoundryChatClient
+from azure.identity.aio import DefaultAzureCredential
+from agent_framework_azure_cosmos_memory import CosmosMemoryContextProvider
+
+def create_agent_with_memory():
+    foundry_endpoint = os.environ["FOUNDRY_ENDPOINT"]
+    credential = DefaultAzureCredential()
+
+    # One object gives the agent durable, Cosmos-backed long-term memory.
+    provider = CosmosMemoryContextProvider(
+        cosmos_endpoint=os.environ["COSMOS_ENDPOINT"],
+        cosmos_database=os.getenv("COSMOS_DATABASE", "ai_memory"),
+        foundry_endpoint=foundry_endpoint,
+        embedding_model=os.getenv("EMBEDDING_MODEL", "text-embedding-3-large"),
+        chat_model=os.getenv("CHAT_MODEL", "gpt-5.4-mini"),
+        credential=credential,
+        memory_types=["fact", "procedural", "episodic"],
+    )
+
+    agent = Agent(
+        client=FoundryChatClient(
+            project_endpoint=foundry_endpoint,
+            model=os.getenv("CHAT_MODEL", "gpt-5.4-mini"),
+            credential=credential,
+        ),
+        name="Memory Assistant",
+        instructions="You are a helpful assistant with long-term memory.",
+        context_providers=[provider],  # <- integration is one line
+    )
+
+    return agent, provider
+The line that matters is context_providers=[provider]. From that point on, before_run and after_run fire automatically around every agent run, giving the agent long‑term memory without additional orchestration code.
+
+Scoping memory to a user:
+
+python
+def new_session(agent, provider, user_id):
+    session = agent.create_session()
+    session.state.setdefault(provider.source_id, {})["user_id"] = user_id
+    return session
+Demonstrating cross‑thread recall:
+
+python
+agent, provider = create_agent_with_memory()
+
+async with provider:
+    session = new_session(agent, provider, user_id="alice")
+    await agent.run("I love hiking and I'm allergic to peanuts.", session=session)
+
+    # Brand-new thread, same user -> memory persists.
+    session = new_session(agent, provider, user_id="alice")
+    reply = await agent.run("What should we pack for a trail lunch?", session=session)
+    print(reply.text)
+Even though the second thread has no prior messages, the agent recalls that Alice hikes and is allergic to peanuts and plans a peanut‑free trail lunch. That recall is driven entirely by the provider’s lifecycle: before_run searches Alice’s extracted facts and injects her profile as context; after_run of the first turn stores the turn and lets the toolkit extract durable facts.
+
+In Cocoon terms, the CosmosMemoryContextProvider is a concrete memory module plugged into the context envelope; the Agent Framework loop is the core agent runner; Cosmos DB is the underlying memory substrate.
+
+8. Convergent design, different scope
+The table below summarizes the convergence between CosmosMemoryContextProvider and Cocoon:
+
+Axis	CosmosMemoryContextProvider (Microsoft Agent Framework)	Cocoon architecture
+Extension model	Context provider abstraction with before_run / after_run lifecycle hooks. 
+General context envelope around agent runs, with pre‑context and commit phases.
+Memory substrate	Azure Cosmos DB for NoSQL with built‑in vector, full‑text, and hybrid search; all artifacts stored as JSON documents. 
+Vendor‑neutral unified memory substrate; backends may vary, but the envelope and schema remain stable.
+Typed memory	Facts, procedural preferences, episodic experiences, plus thread summaries and profiles. 
+Factual assertions, procedural/preferences, episodic events, identity profiles, with optional summaries.
+Identity scope	Stable user_id and per‑conversation thread_id, wired via provider‑scoped session state. 
+Identity streams bound to subjects; channels/threads bound to conversations; continuity driven by identity.
+Domain tuning	prompts_dir and extract_memories.prompty templates for customizing extraction rubrics without changing storage or retrieval. 
+Domain‑specific extraction guidance configured on top of a stable schema and substrate.
+Production focus	Non‑blocking writes, background extraction, safe profile injection as untrusted user content, explicit model deployments. 
+Fast reasoning paths, asynchronous distillation, separation of memory from policy, explicit tooling configuration.
+From my perspective as the author of Cocoon‑style architectures, CosmosMemoryContextProvider is a Microsoft‑stack implementation of the same pattern I have been advocating: agents wrapped by a context envelope that treats durable, typed memory as a pluggable provider rather than a hard‑wired buffer. The main difference is scope: Cocoon is designed as a vendor‑neutral, open architecture; CosmosMemoryContextProvider is optimized for Azure Cosmos DB and Microsoft Agent Framework.
+
+Both designs move the ecosystem in the same direction: memory as infrastructure, not as an ad‑hoc sidecar, and agent context as a first‑class, composable surface rather than a closed, framework‑specific black box

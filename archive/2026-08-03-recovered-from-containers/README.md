@@ -7,6 +7,38 @@ rather than by extension, per the first rule in `CLAUDE.md`.
 | Recovered as | Was hiding in | Content |
 |---|---|---|
 | `multi_agent_convergence.py` | `paper/Document (23).docx` | 70 lines of Python |
+| `codette_optimizer_bridge.py` | `logs/` (untracked) | 418 lines, one line repaired |
+| `codette_optimizer_bridge_Addon.py` | `logs/` (untracked) | 13,860 bytes, verbatim |
+| `codette_optimizer_bridge_Addon_cont.py` | `logs/` (untracked) | 11,716 bytes, verbatim |
+
+## `codette_optimizer_bridge*.py`
+
+Three Python modules that were sitting in `logs/` — untracked, in no branch, and
+existing **nowhere else in the repository**. `logs/` is not a log directory: its
+own README describes it as "real run logs and transcript captures", and it holds
+dated `.txt` notes and source alongside actual `.log` files. Classifying by
+content rather than by directory name is what surfaced these.
+
+Between them they define `CodetteSystemBridge`, `ForgeEngineRCXI`,
+`PersistentCocoonStore`, `PropagationMetrics` and `SelfTuningQuantumOptimizer`.
+The header of the main file describes it as the "Dynamic Router & Self-Tuning
+Parameter Framework (RC+ξ Integration)" — online hill-climbing with noise
+injection over decision gates, plus AEGIS η-score tracking.
+
+**One repair, in `codette_optimizer_bridge.py` only.** The original fails to
+parse: line 418 is a prose fragment (`hardware_pressure Range: ...`), itself
+truncated mid-sentence — the documented "prose appended after the last line of
+code" pattern. The longest parsing prefix is 417 of 418 lines. Rather than drop
+the line, it is commented out. The first 417 lines are byte-identical to the
+source. The other two parse unmodified and are copied verbatim.
+
+`logs/codette_optimizer_bridge.py` is **kept exactly as found**, unparseable line
+and all. This folder holds the usable copies; `logs/` holds the raw capture.
+
+Verified: all three parse under Python 3.14. **Not** import-tested — they
+reference the wider stack and were not executed.
+
+## `multi_agent_convergence.py`
 
 ## `multi_agent_convergence.py`
 

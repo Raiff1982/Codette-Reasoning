@@ -78,7 +78,15 @@ __pycache__/
 *.pyo
 
 # Runtime logs
-logs/
+#
+# 2026-08-03: narrowed from `logs/` to `logs/*.log`. The blanket directory rule
+# was hiding real content: three Python modules (CodetteSystemBridge,
+# ForgeEngineRCXI, PersistentCocoonStore, PropagationMetrics,
+# SelfTuningQuantumOptimizer), dated .txt notes, and logs/README.md — none of
+# which existed anywhere else in the repository, and none of which `git status`
+# would ever show. Because `logs/` excluded the directory itself, no child
+# .gitignore could re-include them. Actual .log files are still ignored.
+logs/*.log
 *.log
 
 # Rust intermediate builds

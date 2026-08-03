@@ -92,11 +92,55 @@ regress the licence and drop the publication credential.
 The other seven `claude/*` branches differ from `main` only in files they have not
 touched since their merge-base. Nothing owed.
 
+## Added: the untracked working tree (17.5 MB)
+
+Everything that was sitting on disk and committed nowhere: the paper set
+(`v8`, `v9_camlin_revision`, `ReviewReport`, `Review.docx`, the OpenAI research
+proposal, figures), `docs/proof_assets/`, `docs/references/`,
+`data/identities/`, `data/optimizer_state.json` + `optimizer_shadow.jsonl`,
+both `Dockerfile`s, `provenance/Cocoon_to_cosmos_side_by_side.txt`, the four
+analysis PNGs, `archive/2026-07-23/superseded-binaries/`, and `logs/`.
+
+### `.gitignore` narrowed — flagged, not slipped in
+
+Line 81 was `logs/`, a blanket directory exclusion. It was hiding **three Python
+modules that exist nowhere else in the repository** —
+`codette_optimizer_bridge.py` and its two `_Addon` files, between them defining
+`CodetteSystemBridge`, `ForgeEngineRCXI`, `PersistentCocoonStore`,
+`PropagationMetrics` and `SelfTuningQuantumOptimizer` — plus dated `.txt` notes
+and `logs/README.md`. `git status` would never have shown any of them.
+
+Because `logs/` excluded the *directory*, no child `.gitignore` could re-include
+its contents; the root file had to change. Narrowed to `logs/*.log`. Real `.log`
+files are still ignored, and the ones committed here went in with `git add -f`
+deliberately.
+
+The same problem, smaller, in `archive/2026-08-01-scirep-submission-rescue/`:
+`*.log`, `*.aux`, `*.bbl`, `*.blg`, `*.out` silently swallowed eight rescued
+files on `git add`. Fixed there with a scoped `.gitignore`, no root change.
+
+`logs/` is a directory of transcripts and source, not runtime logs — its own
+README says so. Directory names are no more reliable than file extensions here.
+
+### Repaired copies
+
+`archive/2026-08-03-recovered-from-containers/` now also holds parsing copies of
+the three bridge modules. `codette_optimizer_bridge.py` needed one repair: line
+418 was a prose fragment, itself truncated mid-sentence, and is commented rather
+than dropped — the longest parsing prefix is 417 of 418 lines, byte-identical.
+The other two are verbatim. All three parse under Python 3.14; **none was
+import-tested**, as they reference the wider stack.
+
+`logs/` keeps the raw, unrepaired originals.
+
 ## Still outstanding
 
-- `d857492` (AEGIS harm-intent) is not on `main`.
+- `d857492` (AEGIS harm-intent) is not on `main`. Highest priority.
 - 3 LFS objects unrecoverable without `git-lfs`.
-- Untracked working-tree material beyond the code recovered above — papers,
-  proof assets, Dockerfiles, `codette-demo-space/` (which is its own nested git
-  repository) — is still uncommitted. Model weights under `adapters/`, `models/`
-  and `behavioral_safetensors/` cannot go into git as-is and need an LFS decision.
+- `codette-demo-space/` is **its own nested git repository** (141 files) and is
+  not committed here — nesting it would need either a submodule or removing its
+  `.git`. That is a structural decision, not a cleanup.
+- Model weights under `adapters/`, `models/`, `behavioral_safetensors/`,
+  `codette-gguf/` and `codette-lora/` cannot go into git as-is and need an LFS
+  decision. Untouched.
+- `.env` left untracked deliberately, as before.
