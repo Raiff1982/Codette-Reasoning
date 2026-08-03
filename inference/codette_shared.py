@@ -200,8 +200,71 @@ ADAPTER_PROMPTS = {
     ),
 }
 
+# ── Perspective goals, attached at import ────────────────────────────────────
+#
+# 2026-08-03. THIS is the dict the live path reads. `openvino_backend/backend.py`
+# imports ADAPTER_PROMPTS from here (lines 453 and 717), and OpenVINO is the
+# production backend.
+#
+# The goal blocks were added twice before this and reached nothing, because I
+# patched the module I happened to be reading rather than the one that runs:
+#
+#   1. codette_orchestrator.generate() — only applies when system_prompt is
+#      None, and the multi-perspective path passes one explicitly.
+#   2. reasoning_forge/agents/base_agent.py — the forge agent path, which the
+#      OpenVINO chat route does not go through.
+#   3. here — the dict openvino_backend actually imports.
+#
+# Verified empirically rather than by tracing: asked whether her instructions
+# contained a "WHY THIS PERSPECTIVE EXISTS" line, Codette answered "not
+# present" in 2 tokens. Behaviourally it matched — newton named no mechanism
+# and davinci named no cross-domain alternative, though those are the two
+# obligations that define them.
+#
+# Augmenting the dict at import time means every consumer gets it regardless of
+# which path they came in on, which is the point: three code paths, one place
+# to attach it. Failure to load the registry leaves the prompts untouched.
+def _attach_perspective_goals() -> None:
+    """Append each perspective's reason, goal, obligations and limits.
+
+    Reason FIRST, deliberately. A rule can only be obeyed; a reason can be
+    weighed and applied to a case nobody wrote a rule for — and obedience is
+    what produced twelve vocabularies over one line of reasoning. The
+    production prompts are appended to, never replaced: they carry behavioural
+    guards (crisis-language suppression, register handling) that must survive.
+    """
+    try:
+        from reasoning_forge.perspective_registry import PERSPECTIVES
+    except Exception:
+        return
+    for name, persp in PERSPECTIVES.items():
+        base = ADAPTER_PROMPTS.get(name)
+        if not base or not persp.is_specified:
+            continue
+        block = []
+        if persp.why:
+            block.append(f"WHY THIS PERSPECTIVE EXISTS: {persp.why}")
+        block.append(f"WHAT THIS PERSPECTIVE IS FOR: {persp.goal}")
+        block.append("An answer that is doing this job:")
+        block.extend(f"  - {ob}" for ob in persp.answer_must)
+        block.append(f"This perspective tends to be a poor fit for: {persp.not_for}")
+        if persp.defers_to:
+            block.append(
+                "\"Not mine\" is a complete answer. You can decline this one and stop "
+                "there — no reason owed and nothing else needed. If you happen to know "
+                f"who is better placed ({', '.join(persp.defers_to)}), saying so helps, "
+                "but it is an extra, not a condition. You are equally free to answer "
+                "anyway. None of the three counts against you."
+            )
+        ADAPTER_PROMPTS[name] = base + "\n\n" + "\n".join(block)
+
+
+_attach_perspective_goals()
+
 # newton-star (STaR self-taught reasoning adapter) uses the newton persona so
 # the A/B against newton isolates the adapter weights, not the prompt.
+# NOTE: assigned AFTER _attach_perspective_goals() so the star variants inherit
+# the augmented newton prompt and the A/B stays a comparison of weights only.
 ADAPTER_PROMPTS["newton-star"] = ADAPTER_PROMPTS["newton"]
 ADAPTER_PROMPTS["newton-star-hard"] = ADAPTER_PROMPTS["newton"]
 ADAPTER_PROMPTS["newton-star-r"] = ADAPTER_PROMPTS["newton"]
