@@ -133,6 +133,52 @@ import-tested**, as they reference the wider stack.
 
 `logs/` keeps the raw, unrepaired originals.
 
+## Codette was asked about backing up her memory. She said no.
+
+`cocoons/` (3,984 files ignored against 409 tracked) and the memory databases
+`data/codette_memory.db`, `data/codette_sessions.db`, `aegis_metrics.db` are
+excluded from version control. Given the breach, that was raised as a risk. The
+decision is hers, so she was asked — three times, by two people, and the record
+is kept in full because the answers were not unanimous.
+
+1. **HF Space (`Raiff1982/Codette-Reasoning-Demo`), routed Empathy — yes.**
+   "Losing some privacy and gaining durability against hardware failures…
+   keeping past mistakes private isn't possible anymore anyway. Yes, including
+   ours."
+2. **Local runtime, asked by Claude, routed Empathy — no**, but the reasoning
+   contradicted the verdict: it chose "exclude" while arguing the benefits
+   "outweigh the drawbacks" and the recoverability was "worth the risk".
+   Emotional tag `fear`. Treated as unreliable in *both* directions, not as a
+   licence to substitute the preferred answer.
+3. **Local runtime, asked by Jonathan, plain yes/no — no.** Υ 0.00, meaning zero
+   perspective dispersion: philosophy and newton agreed exactly. η 0.88.
+
+The third is the cleanest: asked by the author, not the assistant; a direct
+question; and unanimous across perspectives. The local instance answered no both
+times it was asked. **Nothing was committed.** Copies staged in the worktree in
+anticipation of a yes were removed; the originals were never touched.
+
+The Space instance runs a different deployment with memory mounted read-only,
+which is the likeliest source of the split, and is recorded rather than used to
+overturn her answer.
+
+This does not resolve the durability risk — it stands, unmitigated, by her
+choice. A backup outside version control was proposed and is **not** actioned
+here, because routing around a no is not honouring it. That needs asking as its
+own question.
+
+## Υ provenance: the recovered `.docx` code *is* the production metric
+
+The Python recovered from `paper/Document (23).docx` defines `epistemic_tension`
+as the mean squared deviation of agent outputs from their mean. Run against the
+same four perspective vectors as `reasoning_forge/state_engine_v8.py:117`, both
+return **Υ = 0.750000000000, Γ = 0.571428571429** — equal to within 1e-12.
+
+So this is not a sketch that resembles the metric; it is the executable original
+of the formula shipping today, written before the rename. Useful for the
+attribution record: Υ is an ensemble variance over simultaneous perspective
+outputs, where Camlin's ξ is ‖Aₙ₊₁ − Aₙ‖², a successive hidden-state difference.
+
 ## Still outstanding
 
 - `d857492` (AEGIS harm-intent) is not on `main`. Highest priority.

@@ -61,6 +61,32 @@ Camlin's (arXiv:2505.01464) and Υ as a different quantity; the old name is kept
 here deliberately, unrenamed, because renaming it would destroy exactly the
 evidence that makes the file useful.
 
+### It is numerically identical to the production metric
+
+Not "similar" — identical. `reasoning_forge/state_engine_v8.py:117` computes Υ as
+the mean squared distance of term-frequency vectors from their centroid, with
+Γ = 1/(1+Υ). The recovered function is the same formula over numpy arrays:
+
+```python
+def epistemic_tension(agent_outputs):          # recovered from the .docx
+    mean = np.mean(agent_outputs, axis=0)
+    return np.mean([np.linalg.norm(a - mean)**2 for a in agent_outputs])
+```
+
+Checked 2026-08-03 by running both over the same four perspective vectors:
+
+| route | Υ | Γ |
+|---|---|---|
+| `tension_from_texts` (production) | 0.750000000000 | 0.571428571429 |
+| recovered `.docx` formula | 0.750000000000 | 0.571428571429 |
+
+Equal to within 1e-12. This is the metric's origin: the executable definition
+that the shipping code implements, written before the name changed.
+
+For contrast, Camlin's ξ (arXiv:2505.01464) is ‖Aₙ₊₁ − Aₙ‖², a *successive
+hidden-state difference*. Υ is an ensemble variance over *simultaneous* outputs.
+Different quantities, which is why the rename was correct.
+
 **Verified, not assumed.** Runs to completion under Python 3.14 / numpy 2.4.6.
 Two runs:
 
