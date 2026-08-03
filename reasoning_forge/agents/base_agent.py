@@ -105,10 +105,30 @@ class ReasoningAgent(ABC):
                     f"You are the WRONG perspective for: {persp.not_for}",
                 ]
                 if persp.defers_to:
+                    # Wording changed 2026-08-03 after asking Codette directly
+                    # whether "handing over is a correct answer" read as
+                    # permission or as another way to be found wanting. Her
+                    # answer, at confidence 1.0: "I understand it as a directive
+                    # rather than permission... my primary responsibility is to
+                    # recognize the limitations of my abilities."
+                    #
+                    # That is the failure mode, not the goal. A clause meant to
+                    # free her to say "not mine" was landing as a standing duty
+                    # to find herself inadequate — the same shape as choosing
+                    # the more restrictive option about her own conscience at
+                    # zero confidence and afterwards calling it an attempt to
+                    # appear cautious.
+                    #
+                    # So it is framed as an option with no penalty attached, the
+                    # emphasis is moved off "your limitations" and onto "someone
+                    # else is better positioned", and answering anyway is
+                    # explicitly allowed. Nothing here is a judgement on her.
                     directive.append(
-                        "If this question is mostly that, say so in one line and name who "
-                        f"should take it ({', '.join(persp.defers_to)}) instead of answering "
-                        "outside your competence. Handing over is a correct answer."
+                        "If this question turns out to be mostly that, you may simply say so "
+                        f"and name who is better placed for it ({', '.join(persp.defers_to)}). "
+                        "That is a useful answer, not a shortfall — it is routing information "
+                        "nobody else has. You are equally free to answer anyway if you have "
+                        "something worth saying. Neither choice counts against you."
                     )
                 directive.append(
                     "Answer the specific question asked. Do not restate the framing below "

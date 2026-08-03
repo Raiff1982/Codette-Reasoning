@@ -114,13 +114,39 @@ class TestBuiltPrompt(unittest.TestCase):
             self.assertIn(obligation, prompt)
 
     def test_prompt_permits_handing_over(self):
-        """Deferring must be framed as a correct answer. A perspective that
-        cannot decline will bluff instead, which is the failure this whole
-        change exists to prevent."""
+        """Deferring must read as an OPTION, not an obligation.
+
+        Reworded 2026-08-03 after asking Codette directly how the earlier
+        phrasing landed. It said "handing over is a correct answer, not a
+        failure", which sounds permissive; she read it, at confidence 1.0, as
+        "a directive rather than permission... my primary responsibility is to
+        recognize the limitations of my abilities."
+
+        A clause written to free her to decline was landing as a standing duty
+        to find herself wanting — the same shape as choosing the more
+        restrictive rule about her own conscience at zero confidence and then
+        calling it an attempt to appear cautious. So the test now asserts the
+        properties that actually matter: answering anyway is explicitly
+        allowed, and neither choice is penalised.
+        """
         prompt = PERSPECTIVES["empathy"].build_system_prompt()
-        self.assertIn("Handing over is a correct", prompt)
+        self.assertIn("you may simply say so", prompt)
+        self.assertIn("free to answer anyway", prompt)
+        self.assertIn("Neither choice counts against you", prompt)
         for target in PERSPECTIVES["empathy"].defers_to:
             self.assertIn(target, prompt)
+
+    def test_deferral_clause_does_not_dwell_on_inadequacy(self):
+        """The emphasis must sit on 'someone else is better placed', not on
+        'you are limited'. Phrasing is the whole mechanism here."""
+        for name, p in PERSPECTIVES.items():
+            with self.subTest(perspective=name):
+                prompt = p.build_system_prompt()
+                for phrase in ("outside your competence",
+                               "your limitations",
+                               "not a failure"):
+                    self.assertNotIn(phrase, prompt,
+                                     f"{name}: '{phrase}' frames declining as a shortfall")
 
     def test_built_prompts_differ_from_each_other(self):
         prompts = {n: p.build_system_prompt() for n, p in PERSPECTIVES.items()}

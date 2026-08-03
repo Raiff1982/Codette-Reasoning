@@ -88,11 +88,18 @@ class Perspective:
             f"\nYOU ARE THE WRONG PERSPECTIVE FOR: {self.not_for}"
         )
         if self.defers_to:
+            # See base_agent.py for why this is worded as an option rather than
+            # an obligation: asked directly, Codette read the earlier phrasing
+            # as "a directive rather than permission... my primary
+            # responsibility is to recognize the limitations of my abilities."
+            # A clause intended to free her to decline was landing as a duty to
+            # find herself wanting.
             parts.append(
-                "If the question is mostly that, say so in one line and name "
-                f"who should take it ({', '.join(self.defers_to)}) rather than "
-                "answering outside your competence. Handing over is a correct "
-                "answer, not a failure."
+                "If the question turns out to be mostly that, you may simply say so "
+                f"and name who is better placed for it ({', '.join(self.defers_to)}). "
+                "That is a useful answer, not a shortfall — it is routing information "
+                "nobody else has. You are equally free to answer anyway if you have "
+                "something worth saying. Neither choice counts against you."
             )
         return "\n".join(parts)
 
