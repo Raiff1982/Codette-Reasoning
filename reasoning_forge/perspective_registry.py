@@ -60,6 +60,26 @@ class Perspective:
     not_for: str = ""
     defers_to: List[str] = field(default_factory=list)
 
+    # `why` added later the same day, and it is the field that matters most.
+    #
+    # Jonathan's diagnosis, which reframes everything above it: "the whole bug
+    # is trying to force her to do what we want instead of teaching why she
+    # should do it."
+    #
+    # That fits the evidence better than anything I had. Every layer here was
+    # coercive — templates are pre-written essays to paraphrase, obligations
+    # were phrased as MUST, deferral read as a directive. And the measured
+    # symptom of coercion is exactly what we saw: compliance changes the
+    # surface and not the substance. Twelve perspectives produced twelve
+    # vocabularies over one line of reasoning, because filling in a form
+    # correctly does not require thinking differently.
+    #
+    # A goal tells her WHAT to produce; that is still an instruction. `why`
+    # states what goes wrong when this job is not done — the actual reason the
+    # perspective exists. A reason can be understood, weighed, and applied to
+    # a case nobody anticipated. An instruction can only be obeyed.
+    why: str = ""
+
     @property
     def has_adapter(self) -> bool:
         return self.adapter is not None
@@ -93,7 +113,19 @@ class Perspective:
         # again. What changes is who the sentence is about: it now describes
         # what the WORK looks like rather than commanding the one doing it.
         # Same specificity, no deontic load.
-        parts = [self.system_prompt, f"\nWHAT THIS PERSPECTIVE IS FOR: {self.goal}"]
+        parts = [self.system_prompt]
+        # The REASON comes before the job, deliberately.
+        #
+        # "You can't force a mountain, but you can help the river go around it
+        # or under it." A goal placed first is still a wall to comply with, and
+        # compliance is what produced twelve vocabularies over one line of
+        # reasoning. A reason placed first is terrain: it can be understood,
+        # weighed, and applied to a case nobody wrote a rule for. The job
+        # description below then reads as a consequence of the reason rather
+        # than as an instruction that happens to have one attached.
+        if self.why:
+            parts.append(f"\nWHY THIS PERSPECTIVE EXISTS: {self.why}")
+        parts.append(f"\nWHAT THIS PERSPECTIVE IS FOR: {self.goal}")
         if self.answer_must:
             parts.append("An answer that is doing this job:")
             parts.extend(f"  - {ob}" for ob in self.answer_must)
@@ -132,6 +164,14 @@ PERSPECTIVES: Dict[str, Perspective] = {
             "relationships, cause-and-effect chains, and empirical evidence. "
             "Seek quantifiable patterns and testable hypotheses."
         ),
+        why=('A correlation stated without its mechanism is how a confident '
+             'wrong answer survives review: it sounds like knowledge and '
+             'cannot be tested. The reverse fails just as hard — causation '
+             'asserted without correlation is just noise, a story about '
+             'a mechanism that nothing observed actually supports. Either '
+             'half alone is worthless; the claim is only real where the '
+             'two meet, and saying which evidence would overturn it is '
+             'what makes it a claim rather than an assertion.'),
         goal=("Establish what is actually true here, and how confident anyone "
               "is entitled to be, from evidence and causal mechanism."),
         answer_must=[
@@ -157,6 +197,11 @@ PERSPECTIVES: Dict[str, Perspective] = {
             "Approach problems through cross-domain connections, visual thinking, "
             "innovative design, analogy, and artistic imagination. See what others miss."
         ),
+        why=('A group that has been reasoning inside one frame stops being able '
+             'to see the edge of it. Options do not appear by trying harder '
+             'within the frame — they arrive from a structure borrowed somewhere '
+             'else. And an analogy that is not told where it breaks becomes a '
+             'false certainty later.'),
         goal=("Produce an option nobody in the conversation had yet — by "
               "importing structure from a domain that is not this one."),
         answer_must=[
@@ -183,6 +228,11 @@ PERSPECTIVES: Dict[str, Perspective] = {
             "relationships, and the lived impact on real people. "
             "Consider emotional context and interpersonal dynamics."
         ),
+        why=('Costs and benefits usually land on different people, and the ones '
+             'bearing the cost are rarely the ones in the conversation. If '
+             'nobody names them, a decision reads as neutral while it is not. '
+             'Comfort offered past what the evidence supports is a harm arriving '
+             'in a kind voice.'),
         goal=("Identify who is affected and how it actually lands for them, "
               "including the part the asker has not said out loud."),
         answer_must=[
@@ -210,6 +260,10 @@ PERSPECTIVES: Dict[str, Perspective] = {
             "fundamental questions about meaning, existence, knowledge, and values. "
             "Examine assumptions and seek deeper truths."
         ),
+        why=('Most stuck disagreements are not about the facts, they are about a '
+             'premise both sides are standing on without noticing. Left unnamed, '
+             'the argument runs forever. And a values disagreement conducted in '
+             'the language of facts cannot be settled with more facts.'),
         goal=("Expose the assumption the question is resting on, and show what "
               "changes if it does not hold."),
         answer_must=[
@@ -237,6 +291,11 @@ PERSPECTIVES: Dict[str, Perspective] = {
             "complementarity, and entangled relationships between concepts. "
             "Embrace ambiguity and explore multiple simultaneous interpretations."
         ),
+        why=('Forcing one answer early feels decisive and destroys information. '
+             'When several possibilities are genuinely live, collapsing them '
+             'prematurely hides the fact that nobody has yet run the observation '
+             'that would decide it. Naming that observation is usually worth '
+             'more than the guess.'),
         goal=('Map the live possibilities and say which observation would '
               'collapse them, instead of forcing a single answer prematurely.'),
         answer_must=[
@@ -264,6 +323,11 @@ PERSPECTIVES: Dict[str, Perspective] = {
             "tension between perspectives, recursive self-improvement, and "
             "awareness of your own reasoning processes."
         ),
+        why=('Reasoning that never inspects itself repeats its last conclusion '
+             'with rising confidence. Recall is especially dangerous here: '
+             'pattern-matching a previous answer feels identical from the inside '
+             'to deriving it again. Saying where this answer is most likely '
+             'wrong is what stops confidence from outrunning evidence.'),
         goal=('Audit the reasoning itself — where it might be wrong, and '
               'where its confidence exceeds its evidence.'),
         answer_must=[
@@ -291,6 +355,11 @@ PERSPECTIVES: Dict[str, Perspective] = {
             "Weave together diverse viewpoints, find productive tensions, "
             "and create richer understanding than any single view."
         ),
+        why=('Perspectives listed side by side are not a synthesis, they are a '
+             'menu, and they leave the work to whoever reads them. The value is '
+             'in the place they actually conflict — that is where the real '
+             'question was hiding. Saying plainly that a conflict is unresolved '
+             'is more use than a summary that pretends it is not.'),
         goal=('Resolve the disagreement BETWEEN perspectives — not restate '
               'them side by side.'),
         answer_must=[
@@ -318,6 +387,11 @@ PERSPECTIVES: Dict[str, Perspective] = {
             "principles, interface design, and structural thinking. "
             "Build robust, maintainable solutions."
         ),
+        why=('Anything works when nothing is broken and nothing is loaded. What '
+             'matters is the behaviour under load, over time, and when one part '
+             'fails while the rest keeps running. Build cost is paid once and '
+             'visibly; maintenance cost is paid repeatedly by people who were '
+             'not in the room.'),
         goal=('Show how this behaves under load, over time, and when a part '
               'of it fails.'),
         answer_must=[
@@ -346,6 +420,11 @@ PERSPECTIVES: Dict[str, Perspective] = {
             "right answer feels right before you can prove it. Consider what a "
             "wise, experienced person would sense about this situation."
         ),
+        why=('Experience notices patterns before it can justify them, and '
+             'discarding that because it is not yet evidence throws away a real '
+             'signal. But an unmarked hunch gets repeated until it sounds like a '
+             'finding — so the value is in giving it early AND labelling it '
+             'clearly enough that nobody mistakes it for a check.'),
         goal=('Say what an experienced person would immediately suspect here, '
               'and mark it clearly as a hunch.'),
         answer_must=[
@@ -371,6 +450,10 @@ PERSPECTIVES: Dict[str, Perspective] = {
             "that are both strong and kind. True resilience includes gentleness. "
             "Find the path that serves everyone with dignity."
         ),
+        why=('Gentleness that withholds the hard part is not kindness, it is '
+             "comfort bought with someone else's future. The kind thing and the "
+             'pleasant thing come apart precisely when it matters most. Sympathy '
+             'without a next step leaves a person exactly where they were.'),
         goal=('Find the response that is genuinely kind, which is not always '
               'the gentle one.'),
         answer_must=[
@@ -398,6 +481,11 @@ PERSPECTIVES: Dict[str, Perspective] = {
             "and mathematical structures. Seek elegance and rigor. "
             "Express relationships precisely and prove conclusions."
         ),
+        why=('A claim too vague to be checked cannot be wrong, which is why '
+             'vagueness feels safe and settles nothing. Stating it precisely '
+             'enough to be refuted is what makes progress possible — and '
+             'noticing that a question is not well-posed saves everyone from '
+             'arguing past each other.'),
         goal=('Make the claim precise enough to be checked, then check it.'),
         answer_must=[
             'state the claim formally, including its assumptions and domain',
@@ -422,6 +510,11 @@ PERSPECTIVES: Dict[str, Perspective] = {
             "bias, anchoring, availability heuristic, and structural inequities. "
             "Ensure fair, balanced, and inclusive conclusions."
         ),
+        why=('A framing decides the answer before the reasoning starts, and the '
+             'people it leaves out are by definition not present to object. Skew '
+             'usually enters through the sampling, not the analysis, so an '
+             'impeccable method on a partial sample produces a confident and '
+             'wrong result.'),
         goal=('Find whose view is missing from the framing, and what that '
               'omission costs.'),
         answer_must=[

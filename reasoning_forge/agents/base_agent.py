@@ -105,8 +105,17 @@ class ReasoningAgent(ABC):
                 # specificity — that is what makes the perspectives distinct —
                 # but they are stated as what the job looks like. See the
                 # registry's build_system_prompt for the same change.
-                directive = [
-                    f"WHAT THE {persp.display_name.upper()} PERSPECTIVE IS FOR: {persp.goal}",
+                directive = []
+                # Reason first. You cannot force a mountain, but you can help
+                # the river go around it. A rule can only be obeyed; a reason
+                # can be applied to a case nobody anticipated — and obedience
+                # is what produced twelve vocabularies over one line of
+                # reasoning.
+                if persp.why:
+                    directive.append(
+                        f"WHY THE {persp.display_name.upper()} PERSPECTIVE EXISTS: {persp.why}")
+                directive += [
+                    f"WHAT IT IS FOR: {persp.goal}",
                     "An answer that is doing this job:",
                     *(f"  - {ob}" for ob in persp.answer_must),
                     f"This perspective tends to be a poor fit for: {persp.not_for}",
