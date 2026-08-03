@@ -479,8 +479,27 @@ class OpenVINOBackend:
         blend = {name: a / total for name, a in adjusted.items()}
 
         if system_prompt is None:
-            system_prompt = ADAPTER_PROMPTS.get("multi_perspective",
-                                                ADAPTER_PROMPTS["_base"])
+            # 2026-08-03: this used ADAPTER_PROMPTS["multi_perspective"] for
+            # EVERY blend, whatever was in it. So a request for davinci got
+            # davinci-weighted LoRA deltas underneath multi_perspective's
+            # system prompt, and davinci's own prompt — its goal, its
+            # obligations, its limits — was never sent at all.
+            #
+            # That is a structural cause of the perspectives converging, and it
+            # is upstream of everything else looked at today: the weights
+            # differed while the instruction was identical. It also explains
+            # why an explicit adapter= request behaved like a generic one.
+            #
+            # A genuinely mixed blend SHOULD get the synthesis prompt — that is
+            # what multi_perspective is for, and it is the honest description
+            # of what is happening. But when one adapter dominates, the honest
+            # description is that adapter, so it gets its own prompt.
+            dominant, dom_alpha = max(blend.items(), key=lambda kv: kv[1])
+            if dom_alpha >= 0.6 and dominant in ADAPTER_PROMPTS:
+                system_prompt = ADAPTER_PROMPTS[dominant]
+            else:
+                system_prompt = ADAPTER_PROMPTS.get("multi_perspective",
+                                                    ADAPTER_PROMPTS["_base"])
 
         mem_ctx = self._build_memory_context()
         full_system = system_prompt + (mem_ctx or "")
