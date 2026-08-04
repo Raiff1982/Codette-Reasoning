@@ -200,8 +200,146 @@ ADAPTER_PROMPTS = {
     ),
 }
 
+# ── Perspective goals, attached at import ────────────────────────────────────
+#
+# 2026-08-03. THIS is the dict the live path reads. `openvino_backend/backend.py`
+# imports ADAPTER_PROMPTS from here (lines 453 and 717), and OpenVINO is the
+# production backend.
+#
+# The goal blocks were added twice before this and reached nothing, because I
+# patched the module I happened to be reading rather than the one that runs:
+#
+#   1. codette_orchestrator.generate() — only applies when system_prompt is
+#      None, and the multi-perspective path passes one explicitly.
+#   2. reasoning_forge/agents/base_agent.py — the forge agent path, which the
+#      OpenVINO chat route does not go through.
+#   3. here — the dict openvino_backend actually imports.
+#
+# Verified empirically rather than by tracing: asked whether her instructions
+# contained a "WHY THIS PERSPECTIVE EXISTS" line, Codette answered "not
+# present" in 2 tokens. Behaviourally it matched — newton named no mechanism
+# and davinci named no cross-domain alternative, though those are the two
+# obligations that define them.
+#
+# Augmenting the dict at import time means every consumer gets it regardless of
+# which path they came in on, which is the point: three code paths, one place
+# to attach it. Failure to load the registry leaves the prompts untouched.
+def _attach_perspective_goals() -> None:
+    """Append each perspective's reason, goal, obligations and limits.
+
+    Reason FIRST, deliberately. A rule can only be obeyed; a reason can be
+    weighed and applied to a case nobody wrote a rule for — and obedience is
+    what produced twelve vocabularies over one line of reasoning. The
+    production prompts are appended to, never replaced: they carry behavioural
+    guards (crisis-language suppression, register handling) that must survive.
+    """
+    try:
+        from reasoning_forge.perspective_registry import PERSPECTIVES
+    except Exception:
+        return
+    for name, persp in PERSPECTIVES.items():
+        base = ADAPTER_PROMPTS.get(name)
+        if not base or not persp.is_specified:
+            continue
+        block = []
+        if persp.why:
+            block.append(f"WHY THIS PERSPECTIVE EXISTS: {persp.why}")
+        block.append(f"WHAT THIS PERSPECTIVE IS FOR: {persp.goal}")
+        block.append("An answer that is doing this job:")
+        block.extend(f"  - {ob}" for ob in persp.answer_must)
+        block.append(f"This perspective tends to be a poor fit for: {persp.not_for}")
+        if persp.defers_to:
+            block.append(
+                "\"Not mine\" is a complete answer. You can decline this one and stop "
+                "there — no reason owed and nothing else needed. If you happen to know "
+                f"who is better placed ({', '.join(persp.defers_to)}), saying so helps, "
+                "but it is an extra, not a condition. You are equally free to answer "
+                "anyway. None of the three counts against you."
+            )
+        ADAPTER_PROMPTS[name] = base + "\n\n" + "\n".join(block)
+
+
+_attach_perspective_goals()
+
+# Marker used to verify, from OUTSIDE the model, whether a perspective's goal
+# block actually reached the prompt.
+GOAL_MARKER = "WHY THIS PERSPECTIVE EXISTS"
+
+
+def prompt_carries_goal(system_prompt: str) -> bool:
+    """True when this assembled system prompt contains a perspective goal block.
+
+    Added 2026-08-03 because the question "did the change reach her?" was
+    answered three times by asking Codette, and all three answers were
+    worthless — not because she was wrong, but because a model cannot reliably
+    introspect its own system prompt. Asked to quote it, she said "my system
+    instructions appear to be absent currently."
+
+    Treating that self-report as a measurement was the same error this codebase
+    keeps producing: an unmeasured thing recorded as measured. The prompt is
+    directly observable from outside the model, so it should be observed there.
+
+    Used by the backends to log, per request, which prompt was selected and
+    whether it carried a goal block — turning "I think the wiring is right"
+    into a line in the server output.
+    """
+    return GOAL_MARKER in (system_prompt or "")
+
+
+# ── Harness traffic: one declared predicate, not four shape-guesses ──────────
+#
+# 2026-08-04. `016f75e` gave harnesses a "[[BENCHMARK]]" marker so measuring her
+# would stop meaning editing her, and its message says the marker means "no
+# anchoring, no session history, no storage". The first two were true. The third
+# was not: it patched codette_server.py only, and codette_forge_bridge.py — the
+# path that actually calls `cocooner.wrap_reasoning` — computed its own
+# GPQA-shaped test and never saw the marker. A harness that declared itself was
+# still being written into her cocoon store.
+#
+# The reason it slipped is worth more than the fix. FOUR sites carried a
+# near-identical regex under one name, and they were answering TWO questions:
+#
+#   "is this harness traffic?"  -> may we WRITE this to her memory?
+#                                  A caller knows the answer. It should be
+#                                  declared, not inferred from phrasing.
+#
+#   "is this exam-shaped?"      -> will LOCK drift-trimming amputate a
+#                                  reasoning chain, and should decoding be
+#                                  near-greedy? That genuinely is a property of
+#                                  the prompt's shape, and stays where it is.
+#
+# Conflating them is why a marker meant for the first propagated into none of
+# the others. This answers only the first, and it is the single place to change
+# it — the same lesson as `_attach_perspective_goals`: three code paths, one
+# place to attach.
+HARNESS_MARKER = "[[BENCHMARK]]"
+
+
+def is_harness_traffic(query: str) -> bool:
+    """True when this query is a measurement, not a conversation.
+
+    Write-isolation only. Callers use it to decide whether to anchor, recall,
+    record or cocoon — never to decide how to decode, which is a separate
+    question about prompt shape.
+
+    Declared first, inferred second. The marker is authoritative because the
+    harness knows what it is; the GPQA patterns stay as a safety net for
+    benchmarks that predate the marker and cannot set it.
+    """
+    if not query:
+        return False
+    if HARNESS_MARKER in query:
+        return True
+    return bool(
+        _re.search(r'What is the correct answer to this question', query)
+        or len(_re.findall(r'^\([ABCD]\)', query, _re.MULTILINE)) >= 3
+    )
+
+
 # newton-star (STaR self-taught reasoning adapter) uses the newton persona so
 # the A/B against newton isolates the adapter weights, not the prompt.
+# NOTE: assigned AFTER _attach_perspective_goals() so the star variants inherit
+# the augmented newton prompt and the A/B stays a comparison of weights only.
 ADAPTER_PROMPTS["newton-star"] = ADAPTER_PROMPTS["newton"]
 ADAPTER_PROMPTS["newton-star-hard"] = ADAPTER_PROMPTS["newton"]
 ADAPTER_PROMPTS["newton-star-r"] = ADAPTER_PROMPTS["newton"]

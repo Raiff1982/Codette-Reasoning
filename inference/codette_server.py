@@ -1355,6 +1355,20 @@ def _worker_thread():
                 _is_benchmark_query = bool(
                     re.search(r'What is the correct answer to this question', query)
                     or len(re.findall(r'^\([ABCD]\)', query, re.MULTILINE)) >= 3
+                    # 2026-08-03: an explicit opt-in marker any harness can set.
+                    #
+                    # The two patterns above only recognise GPQA-shaped prompts.
+                    # A perspective-divergence benchmark run tonight looked like
+                    # ordinary conversation, so 140 synthetic probes went into
+                    # her live session and her cocoon store — and she began
+                    # answering Jonathan from the benchmark's context instead of
+                    # his. The measurement was polluted and, worse, so was her
+                    # memory.
+                    #
+                    # Harness traffic is not conversation. It should never be
+                    # recalled, anchored, or stored, and that should not depend
+                    # on the harness happening to phrase things like GPQA.
+                    or "[[BENCHMARK]]" in query
                 )
                 coherence_block = ""
                 if session and not _is_benchmark_query:

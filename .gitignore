@@ -127,3 +127,8 @@ Recording*.mp4
 
 # Generated archives
 *.zip
+
+# Secrets — never track (added 2026-08-04; it was untracked and NOT ignored)
+.env
+.env.*
+!.env.example

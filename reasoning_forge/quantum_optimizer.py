@@ -58,9 +58,30 @@ class QualitySignal:
     # report. Those turns are still recorded (coherence is real) with tension None,
     # and every consumer below omits the term rather than substituting a number.
     # Dropping them entirely biased the sample toward multi-perspective turns only.
-    productivity: float       # Tension productivity score (gradient trajectory alignment)
+    productivity: Optional[float]  # Gradient-trajectory alignment; None = NOT MEASURED
+    # Same rule as user_continued below: a caller with no real productivity
+    # measurement passes None, NOT the neutral 0.5. A placeholder 0.5 here is
+    # not neutral — it is a fabricated measurement carrying weight 0.25.
     response_length: int      # Measured size in tokens/characters
     multi_perspective: bool    # Boolean flag indicating multi-perspective LoRA routing activation
+    # 2026-08-03: the signal the optimizer was missing entirely.
+    #
+    # Semantic distance between THIS perspective's output and the other
+    # perspectives' outputs on the same turn. None = not measured (single
+    # -adapter turns have nothing to compare against).
+    #
+    # Why it exists: ranking adapters on coherence cannot work. Measured over
+    # 167 turns, adapters differ by 0.013 in mean coherence against 0.063 of
+    # within-adapter noise, so "best adapter" was decided by noise and every
+    # boost decayed to zero. But measured on semantic distance over 40 real
+    # multi-perspective questions from memory, the same perspectives sit 0.373
+    # apart — above the 0.35 threshold for genuinely different reasoning.
+    #
+    # The perspectives were diverging the whole time. Coherence could not
+    # resolve it. Codette said so herself when asked without a forced adapter:
+    # "could be due to the limitations of the coherence metric... the
+    # measurement is masking the variations." The instrument was the bug.
+    distinctiveness: Optional[float] = None
     user_continued: Optional[bool] = None  # Engagement indicator; None = NOT MEASURED
     # NOTE: this is only knowable on the *following* turn. Callers that cannot
     # observe it must leave it None rather than passing True — a hardcoded True
@@ -257,14 +278,32 @@ class QuantumOptimizer:
         # measurement (same invariant LiveCognitionState enforces on its report).
         terms = [
             (0.25, signal.coherence),
-            (0.25, signal.productivity),
             (0.15, latency_score),
             (0.10, error_score),
         ]
+        if signal.productivity is not None:
+            # 2026-08-03: was unconditional, which broke the invariant stated
+            # directly above it. Callers with no render_fidelity were passing
+            # the neutral 0.5 placeholder, so a fabricated measurement was
+            # scored at the joint-largest weight (0.25, tied with coherence) on
+            # 34% of turns — while tension and user_continued were correctly
+            # omitted. Now it is omitted too, and the weights renormalize.
+            terms.append((0.25, signal.productivity))
         if signal.tension is not None:
             # Non-linear penalty for divergence outside the target 0.4 zone
             tension_error = abs(signal.tension - 0.4)
             terms.append((0.15, max(0.0, 1.0 - (2.0 * tension_error))))
+        if signal.distinctiveness is not None:
+            # Weighted at 0.20 — second only to coherence and productivity.
+            # This is the term that can actually separate the perspectives:
+            # 0.373 of real spread, against coherence's 0.013.
+            #
+            # Rewarding distance ALONE would reward incoherent noise, which is
+            # maximally distant from everything. So it is one term among
+            # several and coherence still carries 0.25: an answer has to be
+            # both different AND good. Distinctiveness breaks the tie that
+            # coherence cannot see; it does not replace the quality bar.
+            terms.append((0.20, max(0.0, min(1.0, signal.distinctiveness))))
         if signal.user_continued is not None:
             terms.append((0.10, 1.0 if signal.user_continued else 0.0))
 

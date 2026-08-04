@@ -1,0 +1,12 @@
+{
+    "truncation": {
+        "strategy": "LongestFirst",
+        "max_length": 512,
+        "stride": 0
+    },
+    "padding": "max_length",
+    "do_lower_case": false,
+    "add_prefix_space": false,
+    "use_fast": true,
+    "model_max_length": 512
+}
