@@ -706,6 +706,41 @@ class OpenVINOBackend:
             except Exception:
                 pass
 
+            # ── Distinctiveness, 2026-08-04 — OBSERVED, NOT ACTED ON ──
+            #
+            # `QualitySignal.distinctiveness` landed in 1b7f63a and has never
+            # been computed anywhere. This is the call site the handoff meant:
+            # `perspectives` is fully populated above, which is the only place
+            # every answer for a turn exists at once.
+            #
+            # It reads the same dict `tension_from_texts` does and changes
+            # nothing. The synthesis threshold below is untouched, the returned
+            # response is untouched. It is a second measurement of the same
+            # moment, recorded so the optimizer finally has a signal that is not
+            # coherence — which over 167 shadow turns carried 0.013 of signal
+            # inside 0.063 of noise, so "best adapter" was chosen by coin flip.
+            #
+            # None when unmeasurable, never 0.0. An absent measurement and a
+            # measurement of zero are different facts.
+            #
+            # Offline baseline over the clean 20-probe set, taken before this
+            # was wired so there is a before: mean 0.3439, sd 0.1702,
+            # range 0.1296-0.7210; empathy highest at 0.4083, newton lowest at
+            # 0.3139.
+            #
+            # Cost: first call loads all-MiniLM-L6-v2 (~90 MB, ~2 s), cached
+            # thereafter. On a 15.7 GB unified-memory machine that is real but
+            # small; if it ever matters, this is the line to remove and the
+            # measurement stops with nothing else affected.
+            _distinct = None
+            try:
+                from reasoning_forge.distinctiveness import distinctiveness
+                _d = distinctiveness(perspectives)
+                if _d:
+                    _distinct = {k: round(v, 4) for k, v in _d.items()}
+            except Exception as _de:
+                print(f"  [DISTINCT] not measured: {type(_de).__name__}", flush=True)
+
             _DISPERSION_SYNTH_THRESHOLD = 0.20  # tunable once field data accumulates
             if len(perspectives) > 1 and _upsilon >= _DISPERSION_SYNTH_THRESHOLD:
                 synthesis = self._synthesize(query, perspectives)
@@ -720,6 +755,12 @@ class OpenVINOBackend:
             print(f"  [DISPERSION] upsilon={_upsilon:.4f} gamma={_gamma:.4f} — "
                   f"{'synthesis (perspectives disagree)' if _synthesis_used else 'primary direct (perspectives agree)'}",
                   flush=True)
+            if _distinct is not None:
+                _dsorted = sorted(_distinct.items(), key=lambda kv: -kv[1])
+                print("  [DISTINCT] " + "  ".join(f"{k}={v:.3f}" for k, v in _dsorted),
+                      flush=True)
+            else:
+                print("  [DISTINCT] not measured this turn", flush=True)
 
             return {
                 "response": synthesis,
@@ -733,6 +774,9 @@ class OpenVINOBackend:
                 "measured_tension": round(_upsilon, 4),  # deprecated alias of Υ
                 "measured_coherence": round(_gamma, 4),
                 "synthesis_used": _synthesis_used,
+                # None when unmeasurable — callers must not read absence as zero.
+                "distinctiveness": _distinct,
+                "distinctiveness_measured": _distinct is not None,
             }
 
         text, tokens, _ = self.generate(query, adapter_name=route.primary)
