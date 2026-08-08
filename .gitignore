@@ -132,3 +132,60 @@ Recording*.mp4
 .env
 .env.*
 !.env.example
+
+# ── Added 2026-08-07 ──────────────────────────────────────────────────────────
+# Everything below was untracked AND unignored: 962 files, 74 GB. Nothing here
+# was lost by ignoring it — the files stay on disk, they just stop being one
+# `git add -A` away from a push that GitHub would reject anyway.
+
+# Model weights and quantised artifacts — 73 GB of the 74. GitHub hard-rejects
+# files over 100 MB and nine of these are 100 MB to 16 GB. These live on the
+# huggingface remote, not here. Zero were tracked when this rule was added.
+*.gguf
+*.safetensors
+*.pt
+models/base/
+models/adapters/
+models/minilm-ov/
+ollama/*.gguf
+codette-gguf/
+codette-lora/
+behavioral-lora-f16-gguf/
+behavioral_safetensors/
+adapters/hf_download/
+adapters/hf_download_v4/
+
+# Python bytecode — 243 files under reasoning_forge alone
+__pycache__/
+*.pyc
+*.pyo
+
+# Runtime logs
+logs/
+*.log
+
+# Local pre-edit backups. Kept on disk deliberately (nothing is erased here),
+# but they are point-in-time copies of files that are already in history.
+_sync_backup/
+_backup_prompt_wiring_*/
+
+# Nested clone: codette-demo-space is its own git repository with its own
+# remote (418 MB). Committing it would create a broken gitlink.
+codette-demo-space/
+
+# Editor state
+.vscode/
+
+# Adapter tokenizer / checkpoint artifacts — model files, 17 MB each
+adapters/**/tokenizer.json
+adapters/**/checkpoint-*/
+
+# Personal identity material — encrypted, but personal and this repo is public
+data/identities/
+
+# Runtime learned state and shadow telemetry (changes every session)
+data/optimizer_state.json
+data/optimizer_shadow.jsonl
+
+# Nexis engine live memory + cocoon scratch (written continuously)
+reasoning_forge/.logs/

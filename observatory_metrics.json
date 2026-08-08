@@ -1,0 +1,188 @@
+[
+  {
+    "stage": "validate",
+    "adapter": "newton",
+    "timestamp": "2026-05-26T04:41:32.929332",
+    "pipeline_run": "2026-05-26T04:41:32.889085",
+    "status": "missing",
+    "error": "Dataset file not found: datasets/newton_reasoning.jsonl"
+  },
+  {
+    "stage": "validate",
+    "adapter": "davinci",
+    "timestamp": "2026-05-26T04:41:32.929835",
+    "pipeline_run": "2026-05-26T04:41:32.889085",
+    "status": "missing",
+    "error": "Dataset file not found: datasets/davinci_reasoning.jsonl"
+  },
+  {
+    "stage": "validate",
+    "adapter": "empathy",
+    "timestamp": "2026-05-26T04:41:32.930350",
+    "pipeline_run": "2026-05-26T04:41:32.889085",
+    "status": "missing",
+    "error": "Dataset file not found: datasets/empathy_reasoning.jsonl"
+  },
+  {
+    "stage": "validate",
+    "adapter": "philosophy",
+    "timestamp": "2026-05-26T04:41:32.930758",
+    "pipeline_run": "2026-05-26T04:41:32.889085",
+    "status": "missing",
+    "error": "Dataset file not found: datasets/philosophy_reasoning.jsonl"
+  },
+  {
+    "stage": "validate",
+    "adapter": "quantum",
+    "timestamp": "2026-05-26T04:41:32.931198",
+    "pipeline_run": "2026-05-26T04:41:32.889085",
+    "status": "missing",
+    "error": "Dataset file not found: datasets/quantum_reasoning.jsonl"
+  },
+  {
+    "stage": "validate",
+    "adapter": "consciousness",
+    "timestamp": "2026-05-26T04:41:32.931691",
+    "pipeline_run": "2026-05-26T04:41:32.889085",
+    "status": "missing",
+    "error": "Dataset file not found: datasets/consciousness_reasoning.jsonl"
+  },
+  {
+    "stage": "validate",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-05-26T04:41:32.932095",
+    "pipeline_run": "2026-05-26T04:41:32.889085",
+    "status": "missing",
+    "error": "Dataset file not found: datasets/multi_perspective_reasoning.jsonl"
+  },
+  {
+    "stage": "validate",
+    "adapter": "systems_architecture",
+    "timestamp": "2026-05-26T04:41:32.932442",
+    "pipeline_run": "2026-05-26T04:41:32.889085",
+    "status": "missing",
+    "error": "Dataset file not found: datasets/systems_architecture_reasoning.jsonl"
+  },
+  {
+    "stage": "validate",
+    "adapter": "orchestrator",
+    "timestamp": "2026-05-26T04:41:32.932829",
+    "pipeline_run": "2026-05-26T04:41:32.889085",
+    "status": "missing",
+    "error": "Dataset file not found: datasets/orchestrator_reasoning.jsonl"
+  },
+  {
+    "stage": "pipeline",
+    "adapter": null,
+    "timestamp": "2026-05-26T04:41:32.933014",
+    "pipeline_run": "2026-05-26T04:41:32.889085",
+    "total_time_seconds": 0.0435335636138916,
+    "stages_run": [
+      "validate"
+    ],
+    "adapters_processed": [
+      "newton",
+      "davinci",
+      "empathy",
+      "philosophy",
+      "quantum",
+      "consciousness",
+      "multi_perspective",
+      "systems_architecture",
+      "orchestrator"
+    ]
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "newton",
+    "timestamp": "2026-05-26T04:42:10.638858",
+    "pipeline_run": "2026-05-26T04:42:10.343669",
+    "status": "skipped",
+    "reason": "dataset_missing"
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "davinci",
+    "timestamp": "2026-05-26T04:42:10.650518",
+    "pipeline_run": "2026-05-26T04:42:10.343669",
+    "status": "skipped",
+    "reason": "dataset_missing"
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "empathy",
+    "timestamp": "2026-05-26T04:42:10.652883",
+    "pipeline_run": "2026-05-26T04:42:10.343669",
+    "status": "skipped",
+    "reason": "dataset_missing"
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "philosophy",
+    "timestamp": "2026-05-26T04:42:10.653718",
+    "pipeline_run": "2026-05-26T04:42:10.343669",
+    "status": "skipped",
+    "reason": "dataset_missing"
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "quantum",
+    "timestamp": "2026-05-26T04:42:10.654521",
+    "pipeline_run": "2026-05-26T04:42:10.343669",
+    "status": "skipped",
+    "reason": "dataset_missing"
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "consciousness",
+    "timestamp": "2026-05-26T04:42:10.696582",
+    "pipeline_run": "2026-05-26T04:42:10.343669",
+    "status": "skipped",
+    "reason": "dataset_missing"
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "multi_perspective",
+    "timestamp": "2026-05-26T04:42:10.697898",
+    "pipeline_run": "2026-05-26T04:42:10.343669",
+    "status": "skipped",
+    "reason": "dataset_missing"
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "systems_architecture",
+    "timestamp": "2026-05-26T04:42:10.698500",
+    "pipeline_run": "2026-05-26T04:42:10.343669",
+    "status": "skipped",
+    "reason": "dataset_missing"
+  },
+  {
+    "stage": "evaluate",
+    "adapter": "orchestrator",
+    "timestamp": "2026-05-26T04:42:10.699128",
+    "pipeline_run": "2026-05-26T04:42:10.343669",
+    "status": "skipped",
+    "reason": "dataset_missing"
+  },
+  {
+    "stage": "pipeline",
+    "adapter": null,
+    "timestamp": "2026-05-26T04:42:10.699362",
+    "pipeline_run": "2026-05-26T04:42:10.343669",
+    "total_time_seconds": 0.26706743240356445,
+    "stages_run": [
+      "evaluate"
+    ],
+    "adapters_processed": [
+      "newton",
+      "davinci",
+      "empathy",
+      "philosophy",
+      "quantum",
+      "consciousness",
+      "multi_perspective",
+      "systems_architecture",
+      "orchestrator"
+    ]
+  }
+]

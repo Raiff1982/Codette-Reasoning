@@ -1,0 +1,45 @@
+# Models & large artifacts
+models/
+behavioral-lora-f16-gguf/
+behavioral_safetensors/
+codette-gguf/
+codette-lora/
+*.gguf
+*.safetensors
+
+# Cache & logs
+__pycache__/
+.pytest_cache/
+.vs/
+logs/
+*.log
+.vscode/
+
+# Git & CI
+.git/
+.github/
+.githooks/
+
+# Data & temp
+data/
+.env
+*.db
+archive/
+
+# Docs
+docs/
+WIKI_SETUP_GUIDE.md
+CODETTE_UPGRADES_v2_1.md
+*.md
+paper/
+
+# Node/Python
+node_modules/
+.npm/
+dist/
+build/
+*.egg-info/
+
+# OS
+.DS_Store
+Thumbs.db

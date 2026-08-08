@@ -1,0 +1,457 @@
+{
+  "generated_from": "claude/review-integrate-recovered-files-f64ee3",
+  "tree_was_on": "claude/navigation-and-substrate-fixes",
+  "note": "Nothing in the live source tree was modified. *.tree files are the live copy at staging time.",
+  "files": [
+    {
+      "path": "consciousness/colleen_identity_seed.txt",
+      "kind": "absent",
+      "staged_at": "absent/consciousness/colleen_identity_seed.txt",
+      "branch_sha256": "1ba55c6cf08cfdb71080262f9d9bc2b932607722573a03f11b71cbe4d079ea69",
+      "branch_bytes": 794,
+      "tree_sha256": null,
+      "tree_bytes": null
+    },
+    {
+      "path": "consciousness/dreamcore_wakestate_engine.py",
+      "kind": "differs",
+      "staged_at": "differs/consciousness/dreamcore_wakestate_engine.py",
+      "branch_sha256": "9680eb5d6c9922aca1efbc3bd85e43501473011c2732a21298de0181a94b9991",
+      "branch_bytes": 20904,
+      "tree_sha256": "f13186ddbea9eb000fee48963fd522ea800b3d2fdb73c141aa7bf5508a9c6b69",
+      "tree_bytes": 2469
+    },
+    {
+      "path": "ethics/core_conscience.py",
+      "kind": "absent",
+      "staged_at": "absent/ethics/core_conscience.py",
+      "branch_sha256": "2150dc7329a029bb6eec6c92d6a44ebfb218aa4472d40dc33d7c9fa403e3bb31",
+      "branch_bytes": 3162,
+      "tree_sha256": null,
+      "tree_bytes": null
+    },
+    {
+      "path": "ethics/core_guardian_spindle_v2.py",
+      "kind": "differs",
+      "staged_at": "differs/ethics/core_guardian_spindle_v2.py",
+      "branch_sha256": "e9528ff1e8c30e4f22f8c4858856e0acf5487ff95d14b182f5a1e69df2b44fdb",
+      "branch_bytes": 4452,
+      "tree_sha256": "15cb9c0029a8a4c7ed225b00917bd368fd40218f2889f1efa198f3005a362f57",
+      "tree_bytes": 3626
+    },
+    {
+      "path": "evaluation/phase6_benchmarks.py",
+      "kind": "differs",
+      "staged_at": "differs/evaluation/phase6_benchmarks.py",
+      "branch_sha256": "cd7a5e4447afebbcaa4b873b306b0b3a5744073240b4ea8722b8c50f706e9a5c",
+      "branch_bytes": 15440,
+      "tree_sha256": "bdc46813e9ec02887b52b7e7c3bbdbf1ad664e480c5b21cd29923d37ee6963a3",
+      "tree_bytes": 14667
+    },
+    {
+      "path": "inference/Dockerfile",
+      "kind": "differs",
+      "staged_at": "differs/inference/Dockerfile",
+      "branch_sha256": "548d0d006457fd91d76731f68fa5ff9a2c773c90866b9ecc22d4ea7900a1f419",
+      "branch_bytes": 614,
+      "tree_sha256": "cdc8ce1b7ca823e03aeb68d349864a67fdd12665694d9d04d983e2ea2e8f2253",
+      "tree_bytes": 615
+    },
+    {
+      "path": "inference/codette_orchestrator.py",
+      "kind": "differs",
+      "staged_at": "differs/inference/codette_orchestrator.py",
+      "branch_sha256": "b4ba1adb629e388711ba69613150f7c8bb2f999792e83a3796c13f9d3f770065",
+      "branch_bytes": 81601,
+      "tree_sha256": "49d069f86b008dd71d225a5220bbcbccd974ad6a0fb774fba25019938ccf6f45",
+      "tree_bytes": 80057
+    },
+    {
+      "path": "inference/codette_server.py",
+      "kind": "differs",
+      "staged_at": "differs/inference/codette_server.py",
+      "branch_sha256": "7bb821c31ce98208c6ea7a49da623e33a41907342ce13e9ca85d3ae59dbe9b05",
+      "branch_bytes": 172648,
+      "tree_sha256": "a9d463f53ba0b2e41c3ef5f851c146a941b2d7adcaa5c79bbc607f299f40ba42",
+      "tree_bytes": 171115
+    },
+    {
+      "path": "inference/codette_shared.py",
+      "kind": "differs",
+      "staged_at": "differs/inference/codette_shared.py",
+      "branch_sha256": "b41c782d09e8db034bbe268113dd37be749f5eab735426cc4870397b1d6fbe3f",
+      "branch_bytes": 28238,
+      "tree_sha256": "96f305205999064b7afea9aac5039e60cea5c74dc82f13e72a8d5ce3b5bfd9e6",
+      "tree_bytes": 31145
+    },
+    {
+      "path": "inference/web_search.py",
+      "kind": "differs",
+      "staged_at": "differs/inference/web_search.py",
+      "branch_sha256": "3c6ee4ec3622157cbbdc47295c877fd4b7d1ec9683dd4a8698c6537c3f201530",
+      "branch_bytes": 10650,
+      "tree_sha256": "477c1dbbd749603846f21163f41f668ff616662558dd757d964a95c2e7e7e429",
+      "tree_bytes": 9182
+    },
+    {
+      "path": "openvino_backend/backend.py",
+      "kind": "differs",
+      "staged_at": "differs/openvino_backend/backend.py",
+      "branch_sha256": "a71d69d3179ed248eacf7ba44e92788804c5202fe0c9dfaaa1cf6d578299810a",
+      "branch_bytes": 38185,
+      "tree_sha256": "215c4198712adfdf360179fd3eacefe943e28831ac0836a7f8053f12acb64522",
+      "tree_bytes": 39005
+    },
+    {
+      "path": "openvino_backend/convert.log",
+      "kind": "differs",
+      "staged_at": "differs/openvino_backend/convert.log",
+      "branch_sha256": "e701447aec559be5078feeab38afb2de69975b019faa5fc7f44ebf9a24c45c91",
+      "branch_bytes": 89280,
+      "tree_sha256": "b12052d576448c7a64971157599f74a4664c83bc4e47149199ccee3c4390b716",
+      "tree_bytes": 89927
+    },
+    {
+      "path": "reasoning_forge/aegis.py",
+      "kind": "differs",
+      "staged_at": "differs/reasoning_forge/aegis.py",
+      "branch_sha256": "6f3782502e60a9901926ccd0a6dd3be818680d8645358a8bac7355a2869a1e81",
+      "branch_bytes": 18772,
+      "tree_sha256": "32157dfa957dd530eed41968ee381abed09289941123de6de440cf038eef2199",
+      "tree_bytes": 16494
+    },
+    {
+      "path": "reasoning_forge/agents/base_agent.py",
+      "kind": "differs",
+      "staged_at": "differs/reasoning_forge/agents/base_agent.py",
+      "branch_sha256": "286eac212b4a53f8d62df22ec9d6c9154a75b105df61ba85ca7791e2a110f61f",
+      "branch_bytes": 12590,
+      "tree_sha256": "96af2b7e59af33d545f0fcabe8e8c8779cfd38e42c300c4f610b422d3c3d520f",
+      "tree_bytes": 6849
+    },
+    {
+      "path": "reasoning_forge/code7e_cqure.py",
+      "kind": "differs",
+      "staged_at": "differs/reasoning_forge/code7e_cqure.py",
+      "branch_sha256": "984421a062b5c01b5caad81ae13926ef9d6476dc36275e78bc9562d400f04772",
+      "branch_bytes": 389,
+      "tree_sha256": "0ce3b7d702d25eeb927f2c16f92f3df77c55d7ff478c3d08344a0c8b734814f0",
+      "tree_bytes": 7605
+    },
+    {
+      "path": "reasoning_forge/codette_cqure.py",
+      "kind": "absent",
+      "staged_at": "absent/reasoning_forge/codette_cqure.py",
+      "branch_sha256": "67f526ff1c1d2051b17c053831efe8396985fc77a0df79560e40c24c73e21c4e",
+      "branch_bytes": 9251,
+      "tree_sha256": null,
+      "tree_bytes": null
+    },
+    {
+      "path": "reasoning_forge/codette_quantum_heart.py",
+      "kind": "absent",
+      "staged_at": "absent/reasoning_forge/codette_quantum_heart.py",
+      "branch_sha256": "aafa241de1b85b8c0918aa252ead80516ebcb52e11fc5fd90fff6727b2081d85",
+      "branch_bytes": 1965,
+      "tree_sha256": null,
+      "tree_bytes": null
+    },
+    {
+      "path": "reasoning_forge/colleen_conscience.py",
+      "kind": "differs",
+      "staged_at": "differs/reasoning_forge/colleen_conscience.py",
+      "branch_sha256": "3db359f9fb55cfcc90362aeae2ad13dfa7e4ce63ecfd8092342770efbee2e7f2",
+      "branch_bytes": 16013,
+      "tree_sha256": "2701ced3235516702001c704e6d367b4214cfb53b96dfaaf7b8d45f1b807fdc4",
+      "tree_bytes": 10238
+    },
+    {
+      "path": "reasoning_forge/constellation.py",
+      "kind": "differs",
+      "staged_at": "differs/reasoning_forge/constellation.py",
+      "branch_sha256": "990a86e8fb6a3f2c0fe0e0e45cb6390b8428c0ae089e79849b918e8feff873a4",
+      "branch_bytes": 7806,
+      "tree_sha256": "3cb5529dae2f44f11f6495be92a8849f5ff34ae13693453e34c966ef1b838cc9",
+      "tree_bytes": 7739
+    },
+    {
+      "path": "reasoning_forge/distinctiveness.py",
+      "kind": "absent",
+      "staged_at": "absent/reasoning_forge/distinctiveness.py",
+      "branch_sha256": "f4ce36fba389ad1f670551379e8b57f260a50fa6dd321ec83a80ed6a3b4aeb7e",
+      "branch_bytes": 4595,
+      "tree_sha256": null,
+      "tree_bytes": null
+    },
+    {
+      "path": "reasoning_forge/dive_record.py",
+      "kind": "differs",
+      "staged_at": "differs/reasoning_forge/dive_record.py",
+      "branch_sha256": "898a46b79d1f8c891767f8819e32c9e406289fe028f7b099c94af1d0aad7f985",
+      "branch_bytes": 6743,
+      "tree_sha256": "d3237823e3c78527d66b2ed50f9182862ed8d7db442ca7e23941d1150a9ea881",
+      "tree_bytes": 6676
+    },
+    {
+      "path": "reasoning_forge/emotion_ontology.py",
+      "kind": "differs",
+      "staged_at": "differs/reasoning_forge/emotion_ontology.py",
+      "branch_sha256": "6c0d64ee5a09b33a3b88a5d10934ddf283ec7a99bea9ea9df17c373d638b1593",
+      "branch_bytes": 10496,
+      "tree_sha256": "889a1e5c610c33ecbd854f764d86e0a9c66b20f91b6b951620d3cc7cde628161",
+      "tree_bytes": 5489
+    },
+    {
+      "path": "reasoning_forge/engagement_signal.py",
+      "kind": "absent",
+      "staged_at": "absent/reasoning_forge/engagement_signal.py",
+      "branch_sha256": "1c8d0045fd0cdfd471690d4a0f3e2572bae276594564c9d2f2bc1e8518d84723",
+      "branch_bytes": 11613,
+      "tree_sha256": null,
+      "tree_bytes": null
+    },
+    {
+      "path": "reasoning_forge/ethical_governance.py",
+      "kind": "differs",
+      "staged_at": "differs/reasoning_forge/ethical_governance.py",
+      "branch_sha256": "9c6d3ff15950b88eb8c158d145df96a5af0d710b8c35eeb8f462a2c02b500233",
+      "branch_bytes": 5214,
+      "tree_sha256": "08042d1b65251930492a8f940bfc93d046ddd6caf0d12821b9b227f5f90cfbf6",
+      "tree_bytes": 5213
+    },
+    {
+      "path": "reasoning_forge/forge_engine.py",
+      "kind": "differs",
+      "staged_at": "differs/reasoning_forge/forge_engine.py",
+      "branch_sha256": "c0e25ced39a3af03c770f321ecb8743b571f0d3f79d061a780658b368b8e22b9",
+      "branch_bytes": 126670,
+      "tree_sha256": "79fa72d6f59939d0cb592f132702d0b967b7d4d03d99c7612847687c20d5cb5c",
+      "tree_bytes": 128327
+    },
+    {
+      "path": "reasoning_forge/grounding_bridge.py",
+      "kind": "differs",
+      "staged_at": "differs/reasoning_forge/grounding_bridge.py",
+      "branch_sha256": "45be32189c62f8c4fc056c9258f4bd599c601f2099c81c6003829ef7f82f2a84",
+      "branch_bytes": 9395,
+      "tree_sha256": "d6e261df014ad5b5e6f56e5341586677200ec89358230bdb802184e46bf1911a",
+      "tree_bytes": 6838
+    },
+    {
+      "path": "reasoning_forge/harmonic_ode.py",
+      "kind": "absent",
+      "staged_at": "absent/reasoning_forge/harmonic_ode.py",
+      "branch_sha256": "b03c676dbfb9c88493b11963017264041afbb8eb7c26b860658c927e6d1a9236",
+      "branch_bytes": 3796,
+      "tree_sha256": null,
+      "tree_bytes": null
+    },
+    {
+      "path": "reasoning_forge/last_session.py",
+      "kind": "differs",
+      "staged_at": "differs/reasoning_forge/last_session.py",
+      "branch_sha256": "b73ed3efdad4fa8671f1eda6f3f19f28b8ed1b7f293c9f2359c56319a1ce60ec",
+      "branch_bytes": 7309,
+      "tree_sha256": "acc29d55e0d89064c43a257d7e6fbe76d5e874653e9fbecbea500769ced106b1",
+      "tree_bytes": 7242
+    },
+    {
+      "path": "reasoning_forge/memory_item.py",
+      "kind": "absent",
+      "staged_at": "absent/reasoning_forge/memory_item.py",
+      "branch_sha256": "f6e7a8da2455eed1229bdbb43a06a0d2f2f5c2af068afd7d3845a79d8861052d",
+      "branch_bytes": 6730,
+      "tree_sha256": null,
+      "tree_bytes": null
+    },
+    {
+      "path": "reasoning_forge/memory_kernel.py",
+      "kind": "differs",
+      "staged_at": "differs/reasoning_forge/memory_kernel.py",
+      "branch_sha256": "40138a351ecf4df81eaa67b78235875086de183b395207b0943fa9c530d83ba8",
+      "branch_bytes": 17911,
+      "tree_sha256": "092f5ad2c350a3faae0a01ee1a379fabbedb370c9ec5bf492fa5893b9e916d17",
+      "tree_bytes": 18397
+    },
+    {
+      "path": "reasoning_forge/memory_provenance_solver.py",
+      "kind": "differs",
+      "staged_at": "differs/reasoning_forge/memory_provenance_solver.py",
+      "branch_sha256": "5c20b606e9a9a7090221b77e2c6d8876e3fefdfb7ee69d756e7f19fa6f939059",
+      "branch_bytes": 10266,
+      "tree_sha256": "f45350afae13babc5ecb67c6915710b3e8ccff217ddacca9b1ad732ad074a7c8",
+      "tree_bytes": 10199
+    },
+    {
+      "path": "reasoning_forge/nexis_signal_engine.py",
+      "kind": "differs",
+      "staged_at": "differs/reasoning_forge/nexis_signal_engine.py",
+      "branch_sha256": "54b7b0edbe287878fbf2d6a5648f4d81f8e2b272202421eea2ed15a24d016a6a",
+      "branch_bytes": 32724,
+      "tree_sha256": "30e2dd73d6e9e520acf8da7dc39c64bbe447d183257f0224f7894f01bb898be4",
+      "tree_bytes": 7155
+    },
+    {
+      "path": "reasoning_forge/nexis_signal_engine_local.py",
+      "kind": "differs",
+      "staged_at": "differs/reasoning_forge/nexis_signal_engine_local.py",
+      "branch_sha256": "8cba7141700ebb93e5e201876dcc00c5ced001a6484eb992dbfa682a83ea6cfd",
+      "branch_bytes": 8210,
+      "tree_sha256": "787d0c4a925196465d470975e225054550ca5556bdb948d19d6309dae66cf430",
+      "tree_bytes": 6795
+    },
+    {
+      "path": "reasoning_forge/nexis_signal_engine_rustfft.py",
+      "kind": "absent",
+      "staged_at": "absent/reasoning_forge/nexis_signal_engine_rustfft.py",
+      "branch_sha256": "fc61f83dd3298f86c277987fdd91fe31b73850261a98d9b6cdfab3e245cd08a2",
+      "branch_bytes": 7056,
+      "tree_sha256": null,
+      "tree_bytes": null
+    },
+    {
+      "path": "reasoning_forge/optimizer_shadow.py",
+      "kind": "differs",
+      "staged_at": "differs/reasoning_forge/optimizer_shadow.py",
+      "branch_sha256": "d4ea8eea7f63cb4070ff37d860f5a6719a368efc8a26ceed5bf9bb06d17a16a1",
+      "branch_bytes": 13190,
+      "tree_sha256": "c2f9aad78426072dd0dcd34ad61ee19304f58ec7807ad37253cee3bbac11b1a3",
+      "tree_bytes": 10661
+    },
+    {
+      "path": "reasoning_forge/perspective_registry.py",
+      "kind": "differs",
+      "staged_at": "differs/reasoning_forge/perspective_registry.py",
+      "branch_sha256": "429906f3ef528db183d6914257f49b4261246aef289280fc5896b845c95808e8",
+      "branch_bytes": 31293,
+      "tree_sha256": "edf764556c95aa8f83d513b8cecf037cffa13e113190633486c5da15c66381f0",
+      "tree_bytes": 31887
+    },
+    {
+      "path": "reasoning_forge/quantum_harmonic_dynamics.py",
+      "kind": "absent",
+      "staged_at": "absent/reasoning_forge/quantum_harmonic_dynamics.py",
+      "branch_sha256": "610d6dc0731132f641d98450b35f8de2f6ded871cdf2623e2c4fc58f16d68b73",
+      "branch_bytes": 7712,
+      "tree_sha256": null,
+      "tree_bytes": null
+    },
+    {
+      "path": "reasoning_forge/quantum_optimizer.py",
+      "kind": "differs",
+      "staged_at": "differs/reasoning_forge/quantum_optimizer.py",
+      "branch_sha256": "3f22fb039c0f8c60294f256d454ef0c74cc4b3c1758618f728743ac576b7ba6b",
+      "branch_bytes": 30346,
+      "tree_sha256": "5b427047b1469358e33cca39d2287647cc2ea8d047661f0b1b48de8a14688bdf",
+      "tree_bytes": 28381
+    },
+    {
+      "path": "reasoning_forge/semantic_grounding.py",
+      "kind": "absent",
+      "staged_at": "absent/reasoning_forge/semantic_grounding.py",
+      "branch_sha256": "591cc626e05e2d093185f24954d9a1c29d6bed5a9413b993295ade5b0d70967f",
+      "branch_bytes": 9769,
+      "tree_sha256": null,
+      "tree_bytes": null
+    },
+    {
+      "path": "reasoning_forge/test_global_aegis.py",
+      "kind": "differs",
+      "staged_at": "differs/reasoning_forge/test_global_aegis.py",
+      "branch_sha256": "5c1039f4fce772f3f54912ee7f67c7ea2467123e67d4d35f9ec7f7298ab42e74",
+      "branch_bytes": 6857,
+      "tree_sha256": "abf65087117cb00dfd7012e435d66b0bebad3e879476d4e580d858338f296f90",
+      "tree_bytes": 6841
+    },
+    {
+      "path": "tests/test_classifier.py",
+      "kind": "differs",
+      "staged_at": "differs/tests/test_classifier.py",
+      "branch_sha256": "d55d0f0fa2fabf7d2aa53967a4f88b3aeb80cf3ad06a0e460af91fce853d880b",
+      "branch_bytes": 5579,
+      "tree_sha256": "fb8544bc4e983fc99d18ab2a049bb9ebbd72650e65d499ae973869083e4e7e57",
+      "tree_bytes": 3327
+    },
+    {
+      "path": "tests/test_cocoon_synthesizer.py",
+      "kind": "differs",
+      "staged_at": "differs/tests/test_cocoon_synthesizer.py",
+      "branch_sha256": "536588933580bed827cec9e50c8743992c3948d9883327450c58ccf00481ed2a",
+      "branch_bytes": 14219,
+      "tree_sha256": "a1af00ce49db584b44f3709103726660b112494a7900a0a13c9fa84ac0c741be",
+      "tree_bytes": 10920
+    },
+    {
+      "path": "tests/test_consciousness_stack.py",
+      "kind": "differs",
+      "staged_at": "differs/tests/test_consciousness_stack.py",
+      "branch_sha256": "46922d7a15097f54f64e35ada3afc3e63bc3410ce7ef76137d7b517c9b675524",
+      "branch_bytes": 18589,
+      "tree_sha256": "d15d97bc91434665e3c058d366595c15660641950d863bf41da373810c673904",
+      "tree_bytes": 14670
+    },
+    {
+      "path": "tests/test_emotion_ontology.py",
+      "kind": "differs",
+      "staged_at": "differs/tests/test_emotion_ontology.py",
+      "branch_sha256": "7e7a679052039dd54c8f86938a26f63c7578bb377092e508aac74db3a586e95e",
+      "branch_bytes": 5758,
+      "tree_sha256": "8af6564258bafe478755680e02957c291f2e17f0b873405d63712b2a2343426e",
+      "tree_bytes": 2577
+    },
+    {
+      "path": "tests/test_engagement_signal.py",
+      "kind": "absent",
+      "staged_at": "absent/tests/test_engagement_signal.py",
+      "branch_sha256": "70b7667724e128dd0b06d12b16599d88965bec2395362e309f2b0172f25a11a1",
+      "branch_bytes": 13702,
+      "tree_sha256": null,
+      "tree_bytes": null
+    },
+    {
+      "path": "tests/test_grounding_bridge.py",
+      "kind": "differs",
+      "staged_at": "differs/tests/test_grounding_bridge.py",
+      "branch_sha256": "e278200a1a89d4af2c406cc69c80ab2d782c830de42b4cb86cacfceb8116812c",
+      "branch_bytes": 4838,
+      "tree_sha256": "537a76870332bc89c4ad9fe6882cc34f4888db10522f977119fac6005a32d99f",
+      "tree_bytes": 3234
+    },
+    {
+      "path": "tests/test_perspective_goals.py",
+      "kind": "absent",
+      "staged_at": "absent/tests/test_perspective_goals.py",
+      "branch_sha256": "a96836b681d69d44c6c20b30d05dbd71bffed788348faa7ca2a8d72a1bcdb548",
+      "branch_bytes": 12170,
+      "tree_sha256": null,
+      "tree_bytes": null
+    },
+    {
+      "path": "tests/test_phase6_e2e.py",
+      "kind": "differs",
+      "staged_at": "differs/tests/test_phase6_e2e.py",
+      "branch_sha256": "91a4b498a3154373eccee46b36545814bdb955143b4202fdc4703cc24f1bba32",
+      "branch_bytes": 15101,
+      "tree_sha256": "86664436f982e353cddfe7425dcf659a2cf87e4eca852db68945c24a6ec04ae9",
+      "tree_bytes": 13882
+    },
+    {
+      "path": "tests/test_semantic_grounding.py",
+      "kind": "absent",
+      "staged_at": "absent/tests/test_semantic_grounding.py",
+      "branch_sha256": "be4fcc4fbb03fdbe8f78e6bc43ef786e672fd8525514f5933e5181af26b748b4",
+      "branch_bytes": 3799,
+      "tree_sha256": null,
+      "tree_bytes": null
+    },
+    {
+      "path": "tools/archive_diff.py",
+      "kind": "absent",
+      "staged_at": "absent/tools/archive_diff.py",
+      "branch_sha256": "bda18c7ea247ed59f622eeadd8c5cf02972f2a3f23a740d84cef09de6cd8b482",
+      "branch_bytes": 19598,
+      "tree_sha256": null,
+      "tree_bytes": null
+    }
+  ]
+}

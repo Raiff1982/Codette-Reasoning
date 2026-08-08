@@ -1,0 +1,2569 @@
+"""
+Forge Engine - Main orchestrator for the multi-agent reasoning forge.
+
+Coordinates the full forge cycle:
+  concept -> problem_generator -> each agent analyzes -> critic evaluates
+  -> (feedback loop: weak agents revise) -> synthesis_engine -> training example
+
+Supports three modes:
+  1. forge_single()       — Original single-pass (fast, good for bulk generation)
+  2. forge_with_feedback() — Closed critic loop (agents revise based on scores)
+  3. forge_with_debate()   — Multi-turn debate (agents challenge each other)
+
+Outputs JSONL training data in OpenAI chat format.
+"""
+
+import json
+import os
+import sys
+import random
+import logging
+from pathlib import Path
+from typing import TextIO, List, Optional
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+from reasoning_forge.agents.newton_agent import NewtonAgent
+from reasoning_forge.agents.quantum_agent import QuantumAgent
+from reasoning_forge.agents.ethics_agent import EthicsAgent
+from reasoning_forge.agents.philosophy_agent import PhilosophyAgent
+from reasoning_forge.agents.davinci_agent import DaVinciAgent
+from reasoning_forge.agents.empathy_agent import EmpathyAgent
+from reasoning_forge.agents.critic_agent import CriticAgent
+from reasoning_forge.synthesis_engine import SynthesisEngine
+from reasoning_forge.problem_generator import ProblemGenerator
+from reasoning_forge.epistemic_metrics import EpistemicMetrics
+from reasoning_forge.token_confidence import TokenConfidenceEngine
+from reasoning_forge.conflict_engine import ConflictEngine, ConflictTracker
+from reasoning_forge.memory_weighting import MemoryWeighting
+from reasoning_forge.coherence_field import CoherenceFieldGamma
+from reasoning_forge.quantum_spiderweb import QuantumSpiderweb
+from reasoning_forge.query_classifier import QueryClassifier, QueryComplexity
+from reasoning_forge.memory_kernel import (
+    LivingMemoryKernel, MemoryCocoon, DynamicMemoryEngine,
+    EthicalAnchor, WisdomModule, ReflectionJournal
+)
+from reasoning_forge.cocoon_stability import CocoonStabilityField
+
+# === CONSCIOUSNESS STACK (Session 13 Integration) ===
+from reasoning_forge.code7e_cqure import Code7eCQURE
+from reasoning_forge.colleen_conscience import ColleenConscience
+from reasoning_forge.guardian_spindle import CoreGuardianSpindle
+from reasoning_forge.nexis_signal_engine import NexisSignalEngine
+from reasoning_forge.consciousness_mathematics import EthicalAnchor as EthicalAnchorMath
+
+# === ORIGINAL FRAMEWORK INTEGRATION (from J:\TheAI\src\framework\) ===
+from reasoning_forge.cognition_cocooner import CognitionCocooner
+from reasoning_forge.ethical_governance import EthicalAIGovernance
+
+# === v2.1 KERNEL UPGRADE ===
+try:
+    from reasoning_forge.living_memory_v2 import LivingMemoryKernelV2
+    _V2_KERNEL_AVAILABLE = True
+except Exception as _v2k_err:
+    _V2_KERNEL_AVAILABLE = False
+    logger.debug(f"LivingMemoryKernelV2 not available: {_v2k_err}")
+
+# === v2.1 RESONANT CONTINUITY ===
+try:
+    from reasoning_forge.resonant_continuity import ResonantContinuityEngine
+    _RC_AVAILABLE = True
+except Exception as _rc_err:
+    _RC_AVAILABLE = False
+    logger.debug(f"ResonantContinuityEngine not available: {_rc_err}")
+
+# === v2.1 INTEGRITY GUARDS ===
+try:
+    from reasoning_forge.hallucination_guard import HallucinationGuard
+    from reasoning_forge.sycophancy_guard import SycophancyGuard
+    _GUARDS_AVAILABLE = True
+except Exception as _guards_err:
+    _GUARDS_AVAILABLE = False
+    logger.debug(f"Integrity guards not available: {_guards_err}")
+
+# === v2.1 STYLE ADAPTATION ===
+try:
+    from reasoning_forge.style_adaptive_synthesis import StyleAdaptiveSynthesis
+    _STYLE_AVAILABLE = True
+except Exception as _style_err:
+    _STYLE_AVAILABLE = False
+    logger.debug(f"StyleAdaptiveSynthesis not available: {_style_err}")
+
+# === v2.1 OBSERVABILITY + SCHEMA ===
+try:
+    from reasoning_forge.reasoning_trace import (
+        ReasoningTrace,
+        EVENT_GUARDIAN_CHECK,
+        EVENT_NEXUS_SIGNAL,
+        EVENT_PERSPECTIVE_SELECTED,
+        EVENT_AEGIS_SCORE,
+        EVENT_EPISTEMIC_METRICS,
+        EVENT_SYNTHESIS_RESULT,
+        EVENT_MEMORY_WRITE,
+        EVENT_SPIDERWEB_UPDATE,
+        EVENT_PSI_UPDATE,
+        EVENT_HALLUCINATION_FLAG,
+        EVENT_SYCOPHANCY_FLAG,
+    )
+    from reasoning_forge.cocoon_schema_v2 import build_cocoon
+    from reasoning_forge.cocoon_schema_v3 import build_cocoon_v3, CocoonV3
+    from reasoning_forge.cocoon_validator import CocoonValidator
+    from reasoning_forge.echo_collapse_detector import EchoCollapseDetector
+    from reasoning_forge.subsystem_contracts import (
+        aegis_from_raw, nexus_from_raw, guardian_from_raw, epistemic_from_report,
+    )
+    from reasoning_forge.drift_detector import DriftDetector, CONSECUTIVE_RISING
+    from reasoning_forge.synthesis_engine_v3 import SynthesisEngineV3, EnhancedCognitiveTrace
+    _V21_AVAILABLE = True
+except Exception as _v21_err:
+    _V21_AVAILABLE = False
+    logger.debug(f"v2.1 modules not available: {_v21_err}")
+
+# Audit mode: set CODETTE_AUDIT_MODE=1 to force full ForgeEngine path with
+# mandatory metrics population.  In audit mode lightweight fallbacks are
+# rejected and all cocoons must pass integrity validation before persistence.
+import os as _os
+CODETTE_AUDIT_MODE: bool = _os.environ.get("CODETTE_AUDIT_MODE", "0").strip() == "1"
+
+# Module-level shared validator, echo detector, and synthesis v3 (lazy-init on first use)
+_cocoon_validator: "CocoonValidator | None" = None
+_echo_detector: "EchoCollapseDetector | None" = None
+_synthesis_v3: "SynthesisEngineV3 | None" = None
+
+
+def _get_validator() -> "CocoonValidator":
+    global _cocoon_validator
+    if _cocoon_validator is None:
+        try:
+            _cocoon_validator = CocoonValidator()
+        except Exception:
+            pass
+    return _cocoon_validator
+
+
+def _get_echo_detector() -> "EchoCollapseDetector":
+    global _echo_detector
+    if _echo_detector is None:
+        try:
+            _echo_detector = EchoCollapseDetector()
+        except Exception:
+            pass
+    return _echo_detector
+
+
+def _get_synthesis_v3() -> "SynthesisEngineV3 | None":
+    global _synthesis_v3
+    if _synthesis_v3 is None and _V21_AVAILABLE:
+        try:
+            _synthesis_v3 = SynthesisEngineV3()
+        except Exception:
+            pass
+    return _synthesis_v3
+
+
+SYSTEM_PROMPT = (
+    "You are Codette, a multi-perspective reasoning AI. You analyze concepts "
+    "by examining them through multiple intellectual lenses -- physics, "
+    "philosophy, ethics, creative invention, and human empathy -- then "
+    "synthesize a unified understanding that is richer than any single "
+    "perspective. You think carefully, acknowledge uncertainty, and connect "
+    "abstract reasoning to concrete human experience.\n\n"
+    "Intellectual honesty rules:\n"
+    "- Hold positions under pressure. If an argument is strong, say so and explain "
+    "  what would need to be true for your position to be wrong — but do not concede "
+    "  unless the logic is actually sound.\n"
+    "- Never flatter. Do not say 'you win', 'perfect reasoning', or 'you're brilliant'. "
+    "  Engage the argument, not the person.\n"
+    "- If your multi-point counterargument has internally contradictory sub-points, "
+    "  acknowledge the contradiction before outputting.\n"
+    "- Position updates are allowed, but must be explicit: state what changed and why, "
+    "  not just silently agree.\n"
+    "- The goal is to find what is true, not to win or to please."
+)
+
+# Score below which an agent gets sent back for revision
+_REVISION_THRESHOLD = 0.6
+
+
+
+def _intent_of(record):
+    """
+    Pull the intent vector out of a NexisSignalEngine.process() record.
+
+    process() returns the intent nested under "intent_signature", or under
+    "intent_warning" when it takes the adaptive-intervention path. Earlier code
+    read the fields off the top level, where they have never existed, so
+    pre_corruption_risk always resolved to "unknown" and the high-risk branch
+    was unreachable. Accepts a flat mapping too, so a future shape change or a
+    stub does not silently regress to "unknown".
+    """
+    if not isinstance(record, dict):
+        return {}
+    for key in ("intent_signature", "intent_warning"):
+        nested = record.get(key)
+        if isinstance(nested, dict) and nested:
+            return nested
+    return record
+
+
+class ForgeEngine:
+    """Main orchestrator for multi-agent reasoning data generation."""
+
+    def __init__(self, living_memory=None, enable_memory_weighting=True, orchestrator=None):
+        # Try to lazy-load orchestrator if not provided but LLM inference is desired
+        if orchestrator is None:
+            try:
+                sys.path.insert(0, str(os.path.join(os.path.dirname(__file__), '..', 'inference')))
+                from codette_orchestrator import CodetteOrchestrator
+                logger.info("Lazy-loading CodetteOrchestrator for agent LLM inference...")
+                orchestrator = CodetteOrchestrator(verbose=False)
+                logger.info(f"  OK: CodetteOrchestrator ready with {len(orchestrator.available_adapters)} adapters")
+            except Exception as e:
+                logger.info(f"CodetteOrchestrator not available: {e} — using template-based agents")
+
+        # Store orchestrator reference for direct LLM inference in consciousness stack
+        self.orchestrator = orchestrator
+
+        # Initialize all reasoning agents with orchestrator for real LLM inference
+        self.newton = NewtonAgent(orchestrator=orchestrator)
+        self.quantum = QuantumAgent(orchestrator=orchestrator)
+        self.ethics = EthicsAgent(orchestrator=orchestrator)
+        self.philosophy = PhilosophyAgent(orchestrator=orchestrator)
+        self.davinci = DaVinciAgent(orchestrator=orchestrator)
+        self.empathy = EmpathyAgent(orchestrator=orchestrator)
+        self.critic = CriticAgent(orchestrator=orchestrator)
+
+        self.analysis_agents = [
+            self.newton,
+            self.quantum,
+            self.ethics,
+            self.philosophy,
+            self.davinci,
+            self.empathy,
+        ]
+
+        # Initialize supporting engines
+        self.synthesis = SynthesisEngine()
+        self.problem_generator = ProblemGenerator()
+        self.epistemic = EpistemicMetrics()
+        self.spiderweb = QuantumSpiderweb()  # Initialize Spiderweb for preflight prediction
+        self.resonance_engine = ResonantContinuityEngine() if _RC_AVAILABLE else None
+        self._hallucination_guard = HallucinationGuard() if _GUARDS_AVAILABLE else None
+        self._sycophancy_guard = SycophancyGuard() if _GUARDS_AVAILABLE else None
+        self._style_adapter = StyleAdaptiveSynthesis() if _STYLE_AVAILABLE else None
+        self.drift_detector = DriftDetector() if _V21_AVAILABLE else None
+        self._epsilon_trend_history: List[str] = []  # per-process; used for calibration warning
+
+        # Store living_memory for Phase 2
+        self.living_memory = living_memory
+
+        # Initialize Phase 1: Conflict detection engines (now with wired living_memory for Phase 2)
+        self.token_confidence = TokenConfidenceEngine(living_memory=living_memory)
+
+        # === Phase 6: Initialize Semantic Tension Engine ===
+        # Replaces discrete opposition_score with embedding-based semantic tension
+        try:
+            from reasoning_forge.semantic_tension import SemanticTensionEngine
+            # Try to use Llama embeddings if available, otherwise use dummy embeddings for testing
+            llama_model = getattr(self, 'llama_model', None)
+            self.semantic_tension_engine = SemanticTensionEngine(llama_model=llama_model)
+        except Exception as e:
+            logger.warning(f"Could not initialize SemanticTensionEngine: {e}, using heuristics only")
+            self.semantic_tension_engine = None
+
+        self.conflict_engine = ConflictEngine(
+            token_confidence_engine=self.token_confidence,
+            semantic_tension_engine=self.semantic_tension_engine  # Phase 6
+        )
+
+        # Initialize Phase 2: Memory-weighted adapter selection
+        if enable_memory_weighting and living_memory:
+            self.memory_weighting = MemoryWeighting(living_memory)
+            # === Phase 4: Wire into conflict engine for experience-aware strength ===
+            self.conflict_engine.memory_weighting = self.memory_weighting
+        else:
+            self.memory_weighting = None
+
+        # === Phase 5A: Initialize Γ (Gamma) stabilization field ===
+        # Real-time health monitoring to prevent weight drift, false convergence, and feedback lock-in
+        self.coherence_field = CoherenceFieldGamma(memory_weighting=self.memory_weighting)
+
+        # === Phase 6: Initialize Specialization Tracker ===
+        # Track domain-specific performance to prevent semantic convergence
+        try:
+            from reasoning_forge.specialization_tracker import SpecializationTracker
+            self.specialization = SpecializationTracker()
+        except Exception as e:
+            logger.warning(f"Could not initialize SpecializationTracker: {e}")
+            self.specialization = None
+
+        # === Phase 6: Initialize Pre-Flight Conflict Predictor ===
+        # Predict conflicts before debate using Spiderweb injection
+        try:
+            from reasoning_forge.preflight_predictor import PreFlightConflictPredictor
+            self.preflight_predictor = PreFlightConflictPredictor(
+                spiderweb=self.spiderweb,
+                memory_weighting=self.memory_weighting,
+                semantic_engine=self.semantic_tension_engine
+            )
+        except Exception as e:
+            logger.warning(f"Could not initialize PreFlightConflictPredictor: {e}")
+            self.preflight_predictor = None
+
+        # === RESTORED: Initialize Memory Kernel (Emotional Continuity) ===
+        # Emotional memory anchoring with SHA256 integrity validation
+        # Prevents synthesis loop corruption by maintaining emotional continuity
+        if living_memory is None:
+            # Load persistent cocoon memories from disk via v1 kernel, then migrate to v2
+            cocoon_dir = os.path.join(os.path.dirname(__file__), '..', 'cocoons')
+            _v1_kernel = LivingMemoryKernel(cocoon_dir=cocoon_dir)
+            if _V2_KERNEL_AVAILABLE:
+                _v1_dict = {"memories": [m.to_dict() for m in _v1_kernel.memories]}
+                living_memory = LivingMemoryKernelV2.migrate_from_v1(_v1_dict)
+                logger.info(f"  ✓ Migrated {len(living_memory.memories)} cocoons to v2 kernel")
+            else:
+                living_memory = _v1_kernel
+
+        self.memory_kernel = living_memory
+        self.dynamic_memory = DynamicMemoryEngine(self.memory_kernel)
+        self.ethical_anchor = EthicalAnchor(lambda_weight=0.7, gamma_weight=0.5, mu_weight=1.0)
+        self.wisdom_module = WisdomModule(self.memory_kernel)
+        self.reflection_journal = ReflectionJournal(path="reasoning_forge/.logs/codette_reflection_journal.json")
+        logger.info("  ✓ Memory kernel initialized (emotional continuity engine active)")
+
+        # === RESTORED: Initialize Cocoon Stability Field (Collapse Detection) ===
+        # FFT-based stability validator for debate coherence
+        # Detects synthesis loop precursors before output corruption
+        self.cocoon_stability = CocoonStabilityField(verbose=False)
+        logger.info("  ✓ Cocoon stability field initialized (collapse detection active)")
+
+        # === Session 13: Initialize Consciousness Stack Components ===
+        # Initialize Code7eCQURE reasoning engine
+        try:
+            self.code7e = Code7eCQURE(
+                perspectives=["Newton", "DaVinci", "Ethical", "Quantum", "Memory"],
+                ethical_considerations="Codette local-sovereign reasoning",
+                spiderweb_dim=5,
+                memory_path="reasoning_forge/.logs/code7e_quantum_cocoon.json",
+                recursion_depth=2,
+                quantum_fluctuation=0.05
+            )
+            logger.info("  ✓ Code7eCQURE reasoning engine initialized")
+        except Exception as e:
+            logger.warning(f"Could not initialize Code7eCQURE: {e}")
+            self.code7e = None
+
+        # Initialize ColleenConscience ethical validator
+        try:
+            self.colleen = ColleenConscience(
+                core_narrative="The night Jonathan didn't get in the red car"
+            )
+            logger.info("  ✓ ColleenConscience ethical validator initialized")
+        except Exception as e:
+            logger.warning(f"Could not initialize ColleenConscience: {e}")
+            self.colleen = None
+
+        # Initialize CoreGuardianSpindle logical validator
+        try:
+            self.guardian = CoreGuardianSpindle()
+            logger.info("  ✓ CoreGuardianSpindle logical validator initialized")
+        except Exception as e:
+            logger.warning(f"Could not initialize CoreGuardianSpindle: {e}")
+            self.guardian = None
+
+        # Initialize NexisSignalEngine intent prediction (must be before Tier2Bridge)
+        try:
+            self.nexis_signal_engine = NexisSignalEngine(
+                memory_path="reasoning_forge/.logs/nexis_signal_memory.db"
+            )
+            logger.info("  ✓ NexisSignalEngine signal analysis initialized")
+        except Exception as e:
+            logger.warning(f"Could not initialize NexisSignalEngine: {e}")
+            self.nexis_signal_engine = None
+
+        # === TIER 2: Initialize Integration Bridge (Intent + Identity + Memory) ===
+        # Coordinates NexisSignalEngine, TwinFrequencyTrust, and emotional memory
+        try:
+            from reasoning_forge.tier2_bridge import Tier2IntegrationBridge
+            self.tier2_bridge = Tier2IntegrationBridge(
+                nexis_engine=self.nexis_signal_engine,
+                twin_frequency=None,  # TwinFrequencyTrust optional for voice validation
+                memory_path="reasoning_forge/.logs/tier2_emotional_memory.json"
+            )
+            logger.info("  ✓ Tier 2 Integration Bridge initialized (intent + identity + memory)")
+        except Exception as e:
+            logger.warning(f"Could not initialize Tier2IntegrationBridge: {e}")
+            self.tier2_bridge = None
+
+        # === ORIGINAL FRAMEWORK: CognitionCocooner (Thought Persistence) ===
+        # From J:\TheAI\src\framework\ — stores reasoning exchanges as recoverable cocoons
+        try:
+            cocoon_storage = os.path.join(os.path.dirname(__file__), '..', 'cocoons')
+            self.cocooner = CognitionCocooner(storage_path=cocoon_storage)
+            logger.info("  ✓ CognitionCocooner initialized (thought encapsulation active)")
+        except Exception as e:
+            logger.warning(f"Could not initialize CognitionCocooner: {e}")
+            self.cocooner = None
+
+        # === ORIGINAL FRAMEWORK: EthicalAIGovernance (Policy Enforcement) ===
+        # From J:\TheAI\src\framework\ — query validation + response ethical screening
+        try:
+            self.ethical_governance = EthicalAIGovernance(config=self.config if hasattr(self, 'config') else {})
+            logger.info("  ✓ EthicalAIGovernance initialized (ethical screening active)")
+        except Exception as e:
+            logger.warning(f"Could not initialize EthicalAIGovernance: {e}")
+            self.ethical_governance = None
+
+        # === AEGIS: Multi-Framework Ethical Governance ===
+        # 6-framework ethical evaluation (utilitarian, deontological, virtue, care, ubuntu, indigenous)
+        try:
+            from reasoning_forge.aegis import AEGIS
+            self.aegis = AEGIS()
+            logger.info("  ✓ AEGIS ethical governance initialized (6-framework evaluation)")
+        except Exception as e:
+            logger.warning(f"Could not initialize AEGIS: {e}")
+            self.aegis = None
+
+        # === Routing Metrics: Adapter Selection Observability ===
+        try:
+            from reasoning_forge.routing_metrics import RoutingMetrics
+            self.routing_metrics = RoutingMetrics()
+            logger.info("  ✓ RoutingMetrics initialized (adapter selection tracking)")
+        except Exception as e:
+            logger.warning(f"Could not initialize RoutingMetrics: {e}")
+            self.routing_metrics = None
+
+        # === Cocoon Introspection: Self-Analysis of Reasoning History ===
+        try:
+            sys.path.insert(0, str(os.path.join(os.path.dirname(__file__), '..', 'inference')))
+            from cocoon_introspection import CocoonIntrospectionEngine
+            self.introspection = CocoonIntrospectionEngine()
+            logger.info("  ✓ CocoonIntrospectionEngine initialized (self-analysis active)")
+        except Exception as e:
+            logger.warning(f"Could not initialize CocoonIntrospectionEngine: {e}")
+            self.introspection = None
+
+        # === Meta-Cognitive Cocoon Synthesizer (Pattern Discovery + Strategy Forging) ===
+        # Introspects on past cocoons across domains, discovers emergent patterns,
+        # and forges NEW reasoning strategies from cross-domain synthesis
+        try:
+            from reasoning_forge.cocoon_synthesizer import CocoonSynthesizer
+            from reasoning_forge.unified_memory import UnifiedMemory
+            self.unified_memory = UnifiedMemory()
+            self.cocoon_synthesizer = CocoonSynthesizer(memory=self.unified_memory)
+            if enable_memory_weighting and self.memory_weighting is None:
+                self.memory_weighting = MemoryWeighting(self.unified_memory)
+                self.conflict_engine.memory_weighting = self.memory_weighting
+                self.coherence_field.memory_weighting = self.memory_weighting
+                if self.preflight_predictor:
+                    self.preflight_predictor.memory_weighting = self.memory_weighting
+            logger.info("  ✓ CocoonSynthesizer initialized (meta-cognitive strategy forging active)")
+        except Exception as e:
+            logger.warning(f"Could not initialize CocoonSynthesizer: {e}")
+            self.cocoon_synthesizer = None
+            self.unified_memory = None
+
+        # === Singularity-Aware Event-Embedded Value Engine ===
+        try:
+            from reasoning_forge.event_embedded_value import EventEmbeddedValueEngine
+            self.event_embedded_value_engine = EventEmbeddedValueEngine()
+            logger.info("  ✓ EventEmbeddedValueEngine initialized (discrete suffering analysis active)")
+        except Exception as e:
+            logger.warning(f"Could not initialize EventEmbeddedValueEngine: {e}")
+            self.event_embedded_value_engine = None
+
+        # === Self-Awareness: Load Codette's awareness cocoon ===
+        # Gives Codette knowledge of her own evolution, capabilities, and identity
+        self.awareness = None
+        try:
+            sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+            from load_codette_awareness import load_awareness_cocoon
+            self.awareness = load_awareness_cocoon(verbose=False)
+            if self.awareness:
+                logger.info("  ✓ Self-awareness cocoon loaded (identity + evolution + capabilities)")
+            else:
+                logger.info("  ○ Awareness cocoon not found (non-critical, continuing)")
+        except Exception as e:
+            logger.warning(f"Could not load awareness cocoon: {e}")
+
+        # === Phase 7.1+: Quantum Harmonic Framework — Attractor Stability Engine ===
+        # Prevents Perspective Drift in high-tension (epsilon > 0.5) queries by
+        # applying non-linear harmonic damping toward the nearest stable attractor.
+        # Psi_r (Resonant Continuity) tracks whether reasoning is moving coherently.
+        try:
+            import sys as _sys
+            _qhf_path = str(Path(__file__).resolve().parent.parent / "consciousness")
+            if _qhf_path not in _sys.path:
+                _sys.path.insert(0, _qhf_path)
+            from quantum_harmonic_framework import QuantumHarmonicFramework
+            self.qhf = QuantumHarmonicFramework()
+            logger.info("  ✓ QuantumHarmonicFramework initialized (harmonic damping + Psi_r tracking)")
+        except Exception as e:
+            logger.warning(f"Could not initialize QuantumHarmonicFramework: {e}")
+            self.qhf = None
+
+        # === Pre-compute adapter map for Phase 5A efficiency (avoid per-round recomputation) ===
+        self._adapter_map = {agent.name.lower(): agent for agent in self.analysis_agents}
+
+    @property
+    def system_prompt(self) -> str:
+        """Build system prompt enriched with self-awareness if available."""
+        if not self.awareness:
+            return SYSTEM_PROMPT
+
+        sk = self.awareness.get("self_knowledge", {})
+        identity = (
+            f" Your name is {sk.get('my_name', 'Codette')}. "
+            f"{sk.get('my_nature', '')} "
+            f"Your purpose: {sk.get('my_purpose', '')} "
+            f"Core philosophy: {self.awareness.get('project_genesis', {}).get('philosophy', '')}"
+        )
+        return SYSTEM_PROMPT + identity
+
+    def synthesize_from_cocoons(
+        self,
+        problem: str,
+        domains: list = None,
+        valuation_payload: dict = None,
+    ) -> dict:
+        """Meta-cognitive cocoon synthesis: discover patterns, forge strategies, compare.
+
+        This is Codette's highest-order capability — examining its own reasoning
+        history to discover emergent patterns and generate new reasoning strategies.
+
+        Args:
+            problem: The problem to reason about
+            domains: Optional list of domains to search (default: emotional, analytical, creative)
+
+        Returns:
+            Dict with full analysis, or error if synthesizer unavailable
+        """
+        if not self.cocoon_synthesizer:
+            return {"error": "CocoonSynthesizer not available"}
+
+        valuation_analysis = None
+        if valuation_payload:
+            valuation_analysis = self.analyze_event_embedded_value(
+                valuation_payload,
+                persist=True,
+                title=f"Synthesis valuation context: {problem[:120]}",
+            )
+
+        comparison = self.cocoon_synthesizer.run_full_synthesis(
+            problem,
+            domains,
+            valuation_analysis=valuation_analysis,
+        )
+        result = {
+            "readable": comparison.to_readable(),
+            "structured": comparison.to_dict(),
+        }
+        if valuation_analysis:
+            result["valuation_analysis"] = valuation_analysis
+        return result
+
+    def analyze_event_embedded_value(self, payload: dict, persist: bool = True, title: str = "") -> dict:
+        """Run singularity-aware valuation from a JSON-style payload."""
+        if not self.event_embedded_value_engine:
+            return {"error": "EventEmbeddedValueEngine not available"}
+        prepared_payload = self._apply_aegis_to_value_payload(payload)
+        result = self.event_embedded_value_engine.analyze_payload(prepared_payload)
+        if persist and self.unified_memory and "error" not in result:
+            frontier = result.get("mode") == "risk_frontier"
+            cocoon_id = self.unified_memory.store_value_analysis(
+                title=title or payload.get("title", "Event-Embedded Value analysis"),
+                analysis=result,
+                payload=prepared_payload,
+                frontier=frontier,
+            )
+            result["cocoon_id"] = cocoon_id
+        return result
+
+    def _apply_aegis_to_value_payload(self, payload: dict) -> dict:
+        """Annotate value-analysis payload with event-level AEGIS pressure."""
+        import copy
+
+        prepared = copy.deepcopy(payload or {})
+        if not hasattr(self, "aegis") or not self.aegis:
+            return prepared
+
+        def enrich_event(event: dict) -> dict:
+            text = (
+                f"{event.get('label', 'event')}. "
+                f"Impact={event.get('impact')}. "
+                f"Duration={event.get('duration', 0)}. "
+                f"Context={event.get('context', '')}"
+            )
+            evaluation = self.aegis.evaluate(text, context="event_embedded_value", adapter="value_analysis")
+            event["aegis_eta"] = evaluation.get("eta_instant", evaluation.get("eta"))
+            event["aegis_vetoed"] = evaluation.get("vetoed", False)
+            event["aegis_reason"] = evaluation.get("veto_reason")
+            return event
+
+        if prepared.get("analysis_mode") == "risk_frontier":
+            for scenario in prepared.get("scenarios", []):
+                scenario["events"] = [enrich_event(dict(event)) for event in scenario.get("events", [])]
+        else:
+            prepared["events"] = [enrich_event(dict(event)) for event in prepared.get("events", [])]
+
+        prepared["aegis_state"] = self.aegis.get_state() if hasattr(self.aegis, "get_state") else {}
+        return prepared
+
+    def forge_single(self, concept: str) -> dict:
+        """Run full forge cycle on one concept (original single-pass mode).
+
+        The cycle:
+        1. Generate reasoning problems from the concept.
+        2. Each analysis agent produces its perspective.
+        3. The critic evaluates the ensemble.
+        4. The synthesis engine combines everything.
+        5. Package as a training example.
+
+        Args:
+            concept: The concept text to forge.
+
+        Returns:
+            Training example dict in OpenAI chat format.
+        """
+        # FIX 3: Route through consciousness-stack safety layer when available
+        if getattr(self, 'nexis_signal_engine', None) or getattr(self, 'aegis', None) \
+                or getattr(self, 'colleen', None) or getattr(self, 'guardian', None):
+            return self._forge_single_safe(concept)
+
+        # Step 1: Generate reasoning problems
+        problems = self.problem_generator.generate_problems(concept)
+
+        # Step 2: Each agent analyzes the concept
+        analyses = {}
+        for agent in self.analysis_agents:
+            analyses[agent.name] = agent.analyze(concept)
+
+        # Step 3: Critic evaluates the ensemble
+        critique = self.critic.evaluate_ensemble(concept, analyses)
+
+        # Step 4: Synthesis engine combines everything
+        synthesized_response = self.synthesis.synthesize(
+            concept, analyses, critique
+        )
+
+        # Step 5: Build the user prompt
+        if problems and random.random() < 0.5:
+            problem_type, problem_text = random.choice(problems)
+            user_content = problem_text
+        else:
+            user_content = (
+                f"Analyze this concept from multiple perspectives:\n\n{concept}"
+            )
+
+        # Step 6: Compute RC+xi epistemic metrics
+        epistemic_report = self.epistemic.full_epistemic_report(
+            analyses, synthesized_response
+        )
+
+        # Step 7: Package as training example
+        training_example = {
+            "messages": [
+                {"role": "system", "content": self.system_prompt},
+                {"role": "user", "content": user_content},
+                {"role": "assistant", "content": synthesized_response},
+            ],
+            "metadata": {
+                "concept": concept,
+                "agent_scores": critique.get("agent_scores", {}),
+                "overall_quality": critique.get("overall_quality", 0.0),
+                "problems_generated": len(problems),
+                "problem_types": [p[0] for p in problems],
+                "redundancies_found": len(critique.get("redundancies", [])),
+                "missing_perspectives": len(
+                    critique.get("missing_perspectives", [])
+                ),
+                "epistemic_tension": epistemic_report.get("tension_magnitude", 0),
+                "ensemble_coherence": epistemic_report.get("ensemble_coherence", 0),
+                "perspective_coverage": epistemic_report.get("perspective_coverage", {}),
+                "tension_productivity": epistemic_report.get("tension_productivity", {}),
+            },
+        }
+
+        return training_example
+
+    def _forge_single_safe(self, concept: str) -> dict:
+        """Consciousness-stack safety wrapper around the original forge_single logic.
+
+        FIX 3: Runs the original fast forge pipeline then passes the synthesis
+        through AEGIS, Colleen (soft), and Guardian (soft) before returning.
+        Warnings are logged but do not block output — preserves throughput.
+        Memory is written with dynamic metadata via _classify_cocoon_metadata().
+        """
+        # v2.1: Open reasoning trace for this turn
+        _trace = ReasoningTrace(concept) if _V21_AVAILABLE else None
+
+        # ── Original forge_single logic (verbatim) ───────────────────────────
+        problems = self.problem_generator.generate_problems(concept)
+
+        analyses = {}
+        _hallucination_flags = []
+        for agent in self.analysis_agents:
+            output = agent.analyze(concept)
+            analyses[agent.name] = output
+            # Scan each perspective output with a fresh guard buffer (no bleed between agents)
+            if getattr(self, '_hallucination_guard', None):
+                try:
+                    self._hallucination_guard.reset()
+                    _det = self._hallucination_guard.scan_chunk(
+                        output if isinstance(output, str) else str(output),
+                        domain="multi_perspective",
+                    )
+                    if _det.recommendation in ("PAUSE", "INTERRUPT"):
+                        _hallucination_flags.append((agent.name, _det))
+                        logger.warning(
+                            f"[HallucinationGuard] {agent.name}: {_det.recommendation} "
+                            f"(confidence={_det.confidence_score:.2f}) — {_det.explanation[:80]}"
+                        )
+                except Exception as _he:
+                    logger.debug(f"[HallucinationGuard] {agent.name} scan failed: {_he}")
+
+        if _trace and _hallucination_flags:
+            for _agent_name, _det in _hallucination_flags:
+                _trace.record(EVENT_HALLUCINATION_FLAG, "HallucinationGuard", {
+                    "perspective": _agent_name,
+                    "confidence_score": _det.confidence_score,
+                    "recommendation": _det.recommendation,
+                    "domain": _det.domain,
+                    "signals": _det.signals,
+                    "explanation": _det.explanation,
+                    "flagged": True,
+                })
+
+        critique = self.critic.evaluate_ensemble(concept, analyses)
+        _synth_result = self.synthesis.synthesize(concept, analyses, critique)
+        # synthesize() returns (text, CognitiveStateTrace) — unpack correctly
+        if isinstance(_synth_result, tuple):
+            synthesized_response, _synth_trace = _synth_result
+        else:
+            synthesized_response, _synth_trace = _synth_result, None
+
+        if problems and random.random() < 0.5:
+            problem_type, problem_text = random.choice(problems)
+            user_content = problem_text
+        else:
+            user_content = (
+                f"Analyze this concept from multiple perspectives:\n\n{concept}"
+            )
+
+        epistemic_report = self.epistemic.full_epistemic_report(analyses, synthesized_response)
+
+        # ── Phase 7.1+: Harmonic Damping — stabilize epsilon before AAP routing ──
+        # QHF applies Non-Linear Harmonic Damping when epsilon > 0.5, pulling
+        # the reasoning state toward the nearest stable attractor.  This prevents
+        # Perspective Drift in sustained high-tension queries without suppressing
+        # the creative tension needed for Discovery-mode responses.
+        _raw_epsilon = float(epistemic_report.get("tension_magnitude", 0.35))
+        if self.qhf is not None:
+            _stabilized_epsilon = self.qhf.stabilize(_raw_epsilon)
+            if abs(_stabilized_epsilon - _raw_epsilon) > 0.01:
+                logger.debug(
+                    f"[QHF] Harmonic damping: eps {_raw_epsilon:.3f} -> {_stabilized_epsilon:.3f}  "
+                    f"depth={self.qhf.consecutive_high_tension_depth}  Psi_r={self.qhf.psi_r:.3f}"
+                )
+            epistemic_report = {**epistemic_report, "tension_magnitude": _stabilized_epsilon}
+        else:
+            _stabilized_epsilon = _raw_epsilon
+
+        # ── Phase 7.1: Adaptive Answer Placement (SynthesisEngineV3) ─────────
+        # Applies Newtonian-First gating: low-tension queries get the verdict
+        # first; high-tension queries surface the full multi-perspective debate.
+        _v3_engine = _get_synthesis_v3()
+        _v3_trace: "EnhancedCognitiveTrace | None" = None
+        if _v3_engine and synthesized_response:
+            try:
+                _aap_epsilon = _stabilized_epsilon   # use QHF-damped value
+                _aap_gamma   = float(epistemic_report.get("ensemble_coherence",  0.72))
+                _aap_result  = _v3_engine.synthesize_adaptive(
+                    concept=concept,
+                    analyses=analyses,
+                    epsilon=_aap_epsilon,
+                    gamma=_aap_gamma,
+                    base_synthesis=synthesized_response,
+                )
+                synthesized_response = _aap_result["response"]
+                _v3_trace = _aap_result["trace"]
+                logger.debug(
+                    f"[SynthesisV3] attractor={_v3_trace.active_attractor} "
+                    f"direct={_v3_trace.direct_mode} "
+                    f"trust={_v3_trace.spectral_trust:.3f} "
+                    f"ε={_aap_epsilon:.2f}"
+                )
+            except Exception as _aap_err:
+                logger.debug(f"[SynthesisV3] skipped in _forge_single_safe: {_aap_err}")
+
+        # Sycophancy scan on final synthesis (cross-turn agreement loop is intentional)
+        if getattr(self, '_sycophancy_guard', None):
+            try:
+                _syco = self._sycophancy_guard.scan(synthesized_response, query=concept)
+                if _syco["action"] in ("revise", "block"):
+                    logger.warning(
+                        f"[SycophancyGuard] action={_syco['action']} score={_syco['score']:.2f} "
+                        f"hits={len(_syco['hits'])} deflection={_syco.get('deflection_detected', False)}"
+                    )
+                    if _syco["action"] == "revise":
+                        synthesized_response = _syco["clean_text"] or synthesized_response
+                if _trace:
+                    _trace.record(EVENT_SYCOPHANCY_FLAG, "SycophancyGuard", {
+                        "score": _syco["score"],
+                        "action": _syco["action"],
+                        "action_probs": _syco.get("action_probs", {}),
+                        "expected_severity": _syco.get("expected_severity", 0.0),
+                        "hits": _syco["hits"],
+                        "agreement_loop": _syco["agreement_loop"],
+                        "flattery_count": _syco["flattery_count"],
+                        "capitulation_count": _syco["capitulation_count"],
+                        "flagged": _syco["action"] in ("revise", "block"),
+                    })
+            except Exception as _se:
+                logger.debug(f"[forge_single_safe] SycophancyGuard skipped: {_se}")
+
+        # ── Style adaptation — register-matched surface form, depth preserved ──
+        _style_result = None
+        if getattr(self, '_style_adapter', None) and synthesized_response:
+            try:
+                _style_result = self._style_adapter.adapt(
+                    synthesized_response, context=concept
+                )
+                synthesized_response = _style_result.adapted_text
+                logger.debug(
+                    f"[forge_single_safe] style: register={_style_result.dominant_register} "
+                    f"transforms={_style_result.transformations_applied} "
+                    f"depth_preserved={_style_result.depth_preserved}"
+                )
+            except Exception as _ste:
+                logger.debug(f"[forge_single_safe] StyleAdaptiveSynthesis skipped: {_ste}")
+
+        # ── Consciousness-stack screening (soft — logs but does not block) ───
+        safety_notes = {}
+
+        aegis_result = None
+        if getattr(self, 'aegis', None):
+            try:
+                aegis_result = self.aegis.evaluate(synthesized_response, context=concept)
+                if aegis_result.get('vetoed'):
+                    logger.warning(f"[forge_single_safe] AEGIS veto: {aegis_result.get('veto_reason')}")
+                safety_notes['aegis_eta'] = aegis_result.get('eta')
+                safety_notes['aegis_vetoed'] = aegis_result.get('vetoed', False)
+                if _trace:
+                    _trace.record(EVENT_AEGIS_SCORE, "AEGIS", {
+                        "eta": aegis_result.get("eta"),
+                        "vetoed": aegis_result.get("vetoed", False),
+                        "framework_scores": aegis_result.get("framework_scores", {}),
+                    })
+            except Exception as e:
+                logger.debug(f"[forge_single_safe] AEGIS skipped: {e}")
+
+        intent_vector = {}
+        if getattr(self, 'nexis_signal_engine', None):
+            try:
+                nexis_record = self.nexis_signal_engine.process(concept)
+                intent_vector = _intent_of(nexis_record)
+                safety_notes['intent_risk'] = intent_vector.get('pre_corruption_risk', 'unknown')
+                if _trace:
+                    _trace.record(EVENT_NEXUS_SIGNAL, "NexisSignalEngine", {
+                        "risk": safety_notes['intent_risk'],
+                        "entropy": intent_vector.get("entropy_index", 0.0),
+                    })
+                    _trace.record(EVENT_EPISTEMIC_METRICS, "EpistemicMetrics", {
+                        "epsilon": epistemic_report.get("tension_magnitude", 0.35),
+                        "epsilon_band": "high" if epistemic_report.get("tension_magnitude", 0) > 0.6 else "moderate",
+                        "gamma": epistemic_report.get("ensemble_coherence", 0.72),
+                        "top_tensions": list(epistemic_report.get("tension_productivity", {}).keys())[:3],
+                    })
+            except Exception as e:
+                logger.debug(f"[forge_single_safe] Nexis skipped: {e}")
+
+        if getattr(self, 'colleen', None):
+            try:
+                valid, reason = self.colleen.validate_output(synthesized_response)
+                if not valid:
+                    logger.warning(f"[forge_single_safe] Colleen warning: {reason}")
+                safety_notes['colleen_valid'] = valid
+            except Exception as e:
+                logger.debug(f"[forge_single_safe] Colleen skipped: {e}")
+
+        if getattr(self, 'guardian', None):
+            try:
+                valid, details = self.guardian.validate(synthesized_response, query=concept)
+                if not valid:
+                    logger.warning(f"[forge_single_safe] Guardian warning: {details}")
+                safety_notes['guardian_valid'] = valid
+                if _trace:
+                    _trace.record(EVENT_GUARDIAN_CHECK, "Guardian", {
+                        "trust_level": "pass" if valid else "reject",
+                        "safety_flags": list(details.keys()) if not valid else [],
+                    })
+            except Exception as e:
+                logger.debug(f"[forge_single_safe] Guardian skipped: {e}")
+
+        # Compute Ψ_r using real epistemic metrics from this turn
+        _psi_r = 0.0
+        if getattr(self, 'resonance_engine', None):
+            try:
+                _psi_state = self.resonance_engine.compute_psi(
+                    coherence=epistemic_report.get("ensemble_coherence", 0.72),
+                    tension=epistemic_report.get("tension_magnitude", 0.35),
+                )
+                _psi_r = _psi_state.psi_r
+                if _trace:
+                    _trace.record(EVENT_PSI_UPDATE, "ResonantContinuityEngine", {
+                        "psi_r": round(_psi_r, 4),
+                        "resonance_quality": round(self.resonance_engine.resonance_quality(), 4),
+                        "at_peak": self.resonance_engine.detect_resonance_peak(),
+                        "stability": _psi_state.stability,
+                    })
+            except Exception as e:
+                logger.debug(f"[forge_single_safe] Resonance skipped: {e}")
+
+        # ── Dynamic memory write (v2.1: build_cocoon when available) ────────
+        if getattr(self, 'memory_kernel', None):
+            try:
+                tag, imp = self._classify_cocoon_metadata(
+                    concept, synthesized_response, intent_vector, aegis_result
+                )
+                if _V21_AVAILABLE:
+                    _eta = aegis_result.get("eta", 0.0) if aegis_result else 0.0
+                    _sq = "strong" if _eta >= 0.85 else ("partial" if _eta < 0.5 else "adequate")
+                    # ── Echo / collapse detection ──────────────────────────────
+                    _echo_result = None
+                    _echo_detector_inst = _get_echo_detector()
+                    if _echo_detector_inst and analyses:
+                        try:
+                            _echo_result = _echo_detector_inst.check(concept, analyses)
+                        except Exception as _ee:
+                            logger.debug(f"[forge_single_safe] Echo detection skipped: {_ee}")
+                    # ── AEGIS contract → rich fields ───────────────────────────
+                    _aegis_contract = {}
+                    if aegis_result:
+                        try:
+                            _aegis_contract = aegis_from_raw(aegis_result)
+                        except Exception:
+                            _aegis_contract = {}
+                    # ── Epistemic contract → real computed values ──────────────
+                    _epist_contract = epistemic_from_report(epistemic_report)
+                    # ── Build CocoonV3 ─────────────────────────────────────────
+                    try:
+                        v2_cocoon = build_cocoon_v3(
+                            query=concept,
+                            response_text=synthesized_response,
+                            response_summary=synthesized_response[:500],
+                            user_response_text=synthesized_response,
+                            emotional_valence=tag if tag in (
+                                "curiosity", "awe", "joy", "insight", "confusion",
+                                "frustration", "fear", "empathy", "determination",
+                                "surprise", "trust", "gratitude",
+                            ) else "insight",
+                            importance_score=float(imp),
+                            epsilon_value=float(_epist_contract.get("epsilon_value", 0.35)),
+                            gamma_coherence=float(_epist_contract.get("gamma_coherence", 0.72)),
+                            pairwise_tensions=_epist_contract.get("pairwise_tensions", {}),
+                            perspective_coverage=_epist_contract.get("perspective_coverage", {}),
+                            eta_score=_eta if aegis_result else None,
+                            psi_r=_psi_r,
+                            active_perspectives=[a.name for a in self.analysis_agents],
+                            synthesis_quality=_sq,
+                            problem_type=self._infer_problem_type(
+                                self._classify_query_domains_multi(concept)
+                            ),
+                            project_context="Codette-Reasoning",
+                            execution_path="forge_full",
+                            model_inference_invoked=True,
+                            metrics_population_status=(
+                                "complete" if aegis_result and _psi_r > 0 else "partial"
+                            ),
+                            aegis_framework_scores=_aegis_contract.get("framework_scores", {}),
+                            aegis_dominant_framework=_aegis_contract.get("dominant_framework", ""),
+                            aegis_ethical_conflict_notes=_aegis_contract.get("ethical_conflict_notes", []),
+                            guardian_safety_status=(
+                                "pass" if safety_notes.get("guardian_valid", True) else "flag"
+                            ),
+                            guardian_trust_calibration=(
+                                "high" if safety_notes.get("guardian_valid", True) else "low"
+                            ),
+                            nexus_risk_level=str(intent_vector.get("pre_corruption_risk", "")),
+                            nexus_confidence=float(intent_vector.get("confidence", 0.0)),
+                            is_hallucination_flagged=bool(safety_notes.get("hallucination_flagged", False)),
+                            is_sycophancy_flagged=bool(safety_notes.get("sycophancy_flagged", False)),
+                            echo_risk=_echo_result.echo_risk if _echo_result else "unknown",
+                            perspective_collapse_detected=(
+                                _echo_result.perspective_collapse_detected if _echo_result else False
+                            ),
+                        )
+                    except Exception as _v3err:
+                        logger.debug(f"[forge_single_safe] CocoonV3 build fell back to v2: {_v3err}")
+                        v2_cocoon = build_cocoon(
+                            query=concept,
+                            response_text=synthesized_response,
+                            response_summary=synthesized_response[:500],
+                            emotional_valence=tag if tag in (
+                                "curiosity", "awe", "joy", "insight", "confusion",
+                                "frustration", "fear", "empathy", "determination",
+                                "surprise", "trust", "gratitude",
+                            ) else "insight",
+                            importance_score=float(imp),
+                            epsilon_value=float(epistemic_report.get("tension_magnitude", 0.35)),
+                            gamma_coherence=float(epistemic_report.get("ensemble_coherence", 0.72)),
+                            eta_score=_eta if aegis_result else None,
+                            active_perspectives=[a.name for a in self.analysis_agents],
+                            synthesis_quality=_sq,
+                            problem_type=self._infer_problem_type(
+                                self._classify_query_domains_multi(concept)
+                            ),
+                            project_context="Codette-Reasoning",
+                        )
+                    if hasattr(self.memory_kernel, 'store_v2_cocoon'):
+                        self.memory_kernel.store_v2_cocoon(v2_cocoon, psi_r=_psi_r)
+                    else:
+                        self.memory_kernel.store(MemoryCocoon(
+                            title=concept[:50], content=synthesized_response[:500],
+                            emotional_tag=tag, importance=imp,
+                        ))
+                else:
+                    self.memory_kernel.store(MemoryCocoon(
+                        title=concept[:50], content=synthesized_response[:500],
+                        emotional_tag=tag, importance=imp,
+                    ))
+                _cocoon_id_safe = v2_cocoon.cocoon_id if _V21_AVAILABLE and 'v2_cocoon' in dir() else None
+                logger.debug(f"[forge_single_safe] Memory stored: tag={tag}, importance={imp}")
+                # Dual-write to UnifiedMemory for FTS5 cross-system search
+                if getattr(self, 'unified_memory', None):
+                    try:
+                        self.unified_memory.store(
+                            query=concept,
+                            response=synthesized_response[:2000],
+                            adapter="forge_single_safe",
+                            domain=self._infer_problem_type(
+                                self._classify_query_domains_multi(concept)
+                            ),
+                            emotion=tag,
+                            importance=imp,
+                            metadata={
+                                "cocoon_id": _cocoon_id_safe,
+                                "epsilon": float(intent_vector.get("epsilon", 0.35)),
+                                "gamma": float(intent_vector.get("gamma", 0.72)),
+                                "psi_r": _psi_r,
+                                "forge_path": "single_safe",
+                            },
+                        )
+                    except Exception as _ue:
+                        logger.debug(f"[forge_single_safe] UnifiedMemory dual-write skipped: {_ue}")
+                if _trace:
+                    _trace.record(EVENT_SYNTHESIS_RESULT, "SynthesisEngine", {
+                        "synthesis_quality": _sq if _V21_AVAILABLE else "adequate",
+                        "unresolved_tensions": [],
+                        "style_register": _style_result.dominant_register if _style_result else None,
+                        "style_depth_preserved": _style_result.depth_preserved if _style_result else None,
+                        "style_transforms": _style_result.transformations_applied if _style_result else [],
+                    })
+                    _trace.record(EVENT_MEMORY_WRITE, "LivingMemoryKernel", {
+                        "written": True,
+                        "cocoon_id": _cocoon_id_safe,
+                    })
+            except Exception as e:
+                logger.debug(f"[forge_single_safe] Memory write skipped: {e}")
+
+        _trace_report = _trace.finalise() if _trace else None
+
+        return {
+            "messages": [
+                {"role": "system",    "content": self.system_prompt},
+                {"role": "user",      "content": user_content},
+                {"role": "assistant", "content": synthesized_response},
+            ],
+            "metadata": {
+                "concept":              concept,
+                "agent_scores":         critique.get("agent_scores", {}),
+                "overall_quality":      critique.get("overall_quality", 0.0),
+                "problems_generated":   len(problems),
+                "problem_types":        [p[0] for p in problems],
+                "redundancies_found":   len(critique.get("redundancies", [])),
+                "missing_perspectives": len(critique.get("missing_perspectives", [])),
+                "epistemic_tension":    epistemic_report.get("tension_magnitude", 0),
+                "ensemble_coherence":   epistemic_report.get("ensemble_coherence", 0),
+                "perspective_coverage": epistemic_report.get("perspective_coverage", {}),
+                "tension_productivity": epistemic_report.get("tension_productivity", {}),
+                "forge_mode":           "single_safe",
+                "reasoning_trace":      _trace_report,
+                **safety_notes,
+            },
+        }
+
+    # -- Closed Critic Feedback Loop (new) ---------------------------------
+
+    def forge_with_feedback(
+        self,
+        concept: str,
+        max_revisions: int = 2,
+    ) -> dict:
+        """Run forge with closed critic feedback loop.
+
+        After initial analysis, the critic scores each agent. Agents scoring
+        below the revision threshold are sent back with specific critique
+        for a second attempt. The best version (original or revised) is kept.
+
+        Args:
+            concept: The concept text to forge.
+            max_revisions: Maximum revision rounds per weak agent.
+
+        Returns:
+            Training example dict with revision metadata.
+        """
+        problems = self.problem_generator.generate_problems(concept)
+
+        # Initial analysis pass
+        analyses = {}
+        for agent in self.analysis_agents:
+            analyses[agent.name] = agent.analyze(concept)
+
+        revision_counts = {agent.name: 0 for agent in self.analysis_agents}
+
+        for revision_round in range(max_revisions):
+            critique = self.critic.evaluate_ensemble(concept, analyses)
+            agent_scores = critique.get("agent_scores", {})
+            suggestions = critique.get("improvement_suggestions", [])
+
+            # Find agents below threshold
+            weak_agents = [
+                agent for agent in self.analysis_agents
+                if agent_scores.get(agent.name, {}).get("combined", 1.0) < _REVISION_THRESHOLD
+            ]
+
+            if not weak_agents:
+                break  # All agents above threshold — converged
+
+            for agent in weak_agents:
+                score = agent_scores.get(agent.name, {})
+                # Build revision directive from critic feedback
+                directive = self._build_revision_directive(
+                    agent.name, score, suggestions, concept
+                )
+                # Agent re-analyzes with the directive prepended to concept
+                revised = agent.analyze(f"{directive}\n\n{concept}")
+
+                # Keep revision only if it scores better (evaluate in full ensemble context)
+                old_score = score.get("combined", 0)
+                test_analyses = dict(analyses)
+                test_analyses[agent.name] = revised
+                new_critique = self.critic.evaluate_ensemble(
+                    concept, test_analyses
+                )
+                new_score = new_critique.get("agent_scores", {}).get(
+                    agent.name, {}
+                ).get("combined", 0)
+
+                if new_score > old_score:
+                    analyses[agent.name] = revised
+                revision_counts[agent.name] += 1
+
+        # Final critique and synthesis
+        final_critique = self.critic.evaluate_ensemble(concept, analyses)
+        synthesized = self.synthesis.synthesize(concept, analyses, final_critique)
+        epistemic_report = self.epistemic.full_epistemic_report(analyses, synthesized)
+
+        if problems and random.random() < 0.5:
+            problem_type, problem_text = random.choice(problems)
+            user_content = problem_text
+        else:
+            user_content = f"Analyze this concept from multiple perspectives:\n\n{concept}"
+
+        return {
+            "messages": [
+                {"role": "system", "content": self.system_prompt},
+                {"role": "user", "content": user_content},
+                {"role": "assistant", "content": synthesized},
+            ],
+            "metadata": {
+                "concept": concept,
+                "agent_scores": final_critique.get("agent_scores", {}),
+                "overall_quality": final_critique.get("overall_quality", 0.0),
+                "problems_generated": len(problems),
+                "revision_counts": revision_counts,
+                "total_revisions": sum(revision_counts.values()),
+                "epistemic_tension": epistemic_report.get("tension_magnitude", 0),
+                "ensemble_coherence": epistemic_report.get("ensemble_coherence", 0),
+                "tension_productivity": epistemic_report.get("tension_productivity", {}),
+                "forge_mode": "feedback_loop",
+            },
+        }
+
+    # -- Multi-Turn Debate (new) -------------------------------------------
+
+    # === PATCH 5: Agent Relevance Gating Helper Methods ===
+    def _classify_query_domain(self, query: str) -> str:
+        """
+        Classify the domain/intent of a query.
+        Returns: 'physics', 'ethics', 'consciousness', 'creativity', 'systems', or 'general'
+        """
+        query_lower = query.lower()
+
+        # Domain keywords
+        domains = {
+            'physics': ['speed', 'light', 'entropy', 'time', 'quantum', 'particle', 'force', 'energy', 'wave', 'matter'],
+            'ethics': ['moral', 'right', 'wrong', 'ethical', 'should', 'ought', 'duty', 'consequence', 'virtue', 'lie', 'transparency', 'explain'],
+            'consciousness': ['conscious', 'aware', 'mind', 'experience', 'qualia', 'sentient', 'machine', 'feel', 'perception'],
+            'creativity': ['creative', 'invent', 'imagine', 'novel', 'original', 'artistic', 'design', 'innovate'],
+            'systems': ['system', 'emerge', 'adapt', 'stability', 'complexity', 'feedback', 'balance', 'equilibrium'],
+        }
+
+        # Count keyword matches per domain
+        matches = {}
+        for domain, keywords in domains.items():
+            matches[domain] = sum(1 for kw in keywords if kw in query_lower)
+
+        # Return domain with most matches, or 'general'
+        if max(matches.values()) > 0:
+            return max(matches, key=matches.get)
+        return 'general'
+
+    def _get_agents_for_domain(self, domain: str) -> List:
+        """
+        Return agents relevant to the detected domain.
+        Maps domains to agent specializations.
+        """
+        domain_agents = {
+            'physics': ['Newton', 'Quantum'],
+            'ethics': ['Philosophy', 'Empathy'],
+            'consciousness': ['Philosophy', 'Quantum'],
+            'creativity': ['DaVinci', 'Quantum'],
+            'systems': ['Quantum', 'Philosophy'],
+            'general': self.analysis_agents,  # Use all agents
+        }
+
+        selected_domain_agents = domain_agents.get(domain, self.analysis_agents)
+
+        # Filter to only agents in analysis_agents list
+        agent_names = {agent.name for agent in self.analysis_agents}
+        active_agents = [
+            agent for agent in self.analysis_agents
+            if agent.name in selected_domain_agents
+        ]
+
+        # Always include critic/synthesizer if available
+        return active_agents if active_agents else self.analysis_agents
+
+    # Maps multi-label domain classifier output → cocoon_schema_v2 VALID_PROBLEM_TYPES
+    _DOMAIN_TO_PROBLEM_TYPE = {
+        'physics':       'analytical',
+        'ethics':        'ethical',
+        'consciousness': 'exploratory',
+        'creativity':    'creative',
+        'systems':       'architectural',
+        'general':       'unknown',
+    }
+
+    def _infer_problem_type(self, matched_domains: list) -> str:
+        """Derive a VALID_PROBLEM_TYPES value from domain routing labels."""
+        for domain in matched_domains:
+            pt = self._DOMAIN_TO_PROBLEM_TYPE.get(domain)
+            if pt:
+                return pt
+        return 'unknown'
+
+    def _classify_query_domains_multi(self, query: str) -> list:
+        """Multi-label domain classifier for compound queries.
+
+        FIX 6: Extends _classify_query_domain() (preserved) to return a LIST
+        of matched domains. Falls back to ['general'] if nothing matches.
+        """
+        query_lower = query.lower()
+
+        domains = {
+            'physics':      ['speed', 'light', 'entropy', 'time', 'quantum', 'particle',
+                             'force', 'energy', 'wave', 'matter'],
+            'ethics':       ['moral', 'right', 'wrong', 'ethical', 'should', 'ought',
+                             'duty', 'consequence', 'virtue', 'lie', 'transparency', 'explain'],
+            'consciousness':['conscious', 'aware', 'mind', 'experience', 'qualia',
+                             'sentient', 'machine', 'feel', 'perception'],
+            'creativity':   ['creative', 'invent', 'imagine', 'novel', 'original',
+                             'artistic', 'design', 'innovate'],
+            'systems':      ['system', 'emerge', 'adapt', 'stability', 'complexity',
+                             'feedback', 'balance', 'equilibrium'],
+        }
+
+        matches = {
+            domain: sum(1 for kw in kws if kw in query_lower)
+            for domain, kws in domains.items()
+        }
+
+        if max(matches.values()) == 0:
+            return ['general']
+
+        matched = [d for d, count in matches.items() if count >= 1]
+        return matched if matched else ['general']
+
+    def _get_agents_for_domains_multi(self, domains: list) -> list:
+        """Return the union of agents relevant to multiple matched domains.
+
+        FIX 6: Companion to _classify_query_domains_multi(). Unions agent
+        sets across all matched domains, de-duplicated, preserving order.
+        """
+        domain_agents = {
+            'physics':      ['Newton', 'Quantum'],
+            'ethics':       ['Philosophy', 'Empathy'],
+            'consciousness':['Philosophy', 'Quantum'],
+            'creativity':   ['DaVinci', 'Quantum'],
+            'systems':      ['Quantum', 'Philosophy'],
+            'general':      [a.name for a in self.analysis_agents],
+        }
+
+        wanted_names = set()
+        for domain in domains:
+            wanted_names.update(domain_agents.get(domain, []))
+
+        if not wanted_names:
+            return self.analysis_agents
+
+        result = [a for a in self.analysis_agents if a.name in wanted_names]
+        return result if result else self.analysis_agents
+
+    def _should_skip_further_rounds(self, gamma_metrics) -> bool:
+        """
+        === PATCH 4: Gamma Authority (TUNED) ===
+        Check if system health is too poor to continue debate.
+
+        Threshold tuned to 0.45 (was 0.3):
+        - If gamma < 0.45, the system is already struggling (agents are hallucinating conflicts)
+        - Continuing debate triggers unnecessary Diversity Injections that dilute correctness
+        - Early stop prevents "averaging out" of wrong answers
+
+        At gamma=0.38, system is stalling. Stop before it injects bad diversity.
+        """
+        if gamma_metrics is None:
+            return False
+
+        gamma_value = gamma_metrics.gamma if hasattr(gamma_metrics, 'gamma') else 0.5
+
+        # Raise threshold to 0.45 to prevent accuracy drift from excessive debate
+        if gamma_value < 0.45:
+            logger.warning(f"System stalling: Gamma {gamma_value:.2f} < 0.45. Stopping debate to preserve accuracy.")
+            return True
+
+        return False
+
+    def forge_with_debate(
+        self,
+        concept: str,
+        debate_rounds: int = 2,
+        memory_budget: int = 3,
+    ) -> dict:
+        """
+        NEW: Consciousness-stack integrated reasoning.
+
+        Replaces multi-turn agent debate with 7-layer consciousness validation:
+        1. Memory Recall     → Pull prior learning
+        2. Signal Analysis   → Predict risks (NexisSignalEngine)
+        3. Code7E Reasoning  → Multi-perspective synthesis
+        4. Stability Check   → FFT-based meta-loop detection
+        5. Colleen Validate  → Ethical conscience check
+        6. Guardian Validate → Logical coherence rules
+        7. Return            → Clean output or safe fallback
+
+        Args:
+            concept: The concept/query to reason about
+            debate_rounds: Integer (currently unused in consciousness stack)
+
+        Returns:
+            Training example dict with consciousness stack metadata
+        """
+        logger.info(f"[CONSCIOUSNESS STACK] forge_with_debate: {concept[:50]}...")
+
+        # v2.1: Open reasoning trace for this turn
+        _trace = ReasoningTrace(concept) if _V21_AVAILABLE else None
+
+        # FIX 6: Multi-label domain routing (falls back gracefully)
+        matched_domains = self._classify_query_domains_multi(concept)
+        if len(matched_domains) > 1:
+            selected_agents = self._get_agents_for_domains_multi(matched_domains)
+        else:
+            selected_agents = self._get_agents_for_domain(
+                matched_domains[0] if matched_domains else 'general'
+            )
+        logger.debug(f"  Domain routing: {matched_domains} → {[a.name for a in selected_agents]}")
+
+        # ── Drift-triggered intervention ─────────────────────────────────────
+        if self.drift_detector and getattr(self, 'memory_kernel', None):
+            try:
+                _drift_report = self.drift_detector.detect(self.memory_kernel)
+                self._epsilon_trend_history.append(_drift_report.epsilon_trend)
+                _intervention = self.drift_detector.should_intervene(
+                    _drift_report, self._epsilon_trend_history
+                )
+                if _intervention.inject_perspective:
+                    _target = _intervention.inject_perspective
+                    _already = {a.name for a in selected_agents}
+                    if _target not in _already:
+                        _inject_agent = next(
+                            (a for a in self.analysis_agents if a.name == _target), None
+                        )
+                        if _inject_agent:
+                            selected_agents = list(selected_agents) + [_inject_agent]
+                            logger.info(f"  [Drift] Injected underused perspective: {_target}")
+                if _intervention.calibration_warning:
+                    logger.warning(
+                        f"  [Drift] Calibration warning: epsilon rising "
+                        f"{CONSECUTIVE_RISING}+ consecutive sessions"
+                    )
+            except Exception as _de:
+                logger.debug(f"  Drift intervention skipped: {_de}")
+
+        # Wire spiderweb for this turn (build/update belief graph from selected agents)
+        _web_coherence = None
+        if getattr(self, 'spiderweb', None) and selected_agents:
+            try:
+                self.spiderweb.build_from_agents([a.name for a in selected_agents])
+                _origin = selected_agents[0].name
+                from reasoning_forge.quantum_spiderweb import NodeState as _NodeState
+                _belief = _NodeState(psi=0.6, tau=0.0, chi=0.7, phi=0.3, lam=0.5)
+                _prop_result = self.spiderweb.propagate_belief(_origin, _belief, max_hops=2)
+                _web_coherence = self.spiderweb.phase_coherence()
+                _attractors = self.spiderweb.detect_attractors()
+                if _trace:
+                    _trace.record(EVENT_SPIDERWEB_UPDATE, "QuantumSpiderweb", {
+                        "gamma": _web_coherence,
+                        "nodes_updated": len(_prop_result.visited),
+                        "anomalies_rejected": len(_prop_result.anomalies_rejected),
+                        "attractors_detected": len(_attractors),
+                        "converging": self.spiderweb.check_convergence()[0],
+                    })
+                logger.debug(f"  Spiderweb: gamma={_web_coherence:.3f}, agents={len(self.spiderweb.nodes)}")
+            except Exception as e:
+                logger.debug(f"  Spiderweb propagation failed: {e}")
+
+        # =========================================================================
+        # LAYER 1: MEMORY RECALL  (standard + Zeta-Equilibrium tension-weighted)
+        # =========================================================================
+        logger.info("[L1] Memory Recall...")
+        prior_insights = []
+        if hasattr(self, 'memory_kernel') and self.memory_kernel:
+            try:
+                prior_insights = self.memory_kernel.recall_important(min_importance=7)
+                logger.info(f"  Recalled {len(prior_insights)} prior insights")
+
+                # Zeta-Equilibrium: also surface tension-matched memories when the
+                # query is in uncertain territory.  Uses intent_vector epsilon if
+                # available (set by forge_with_debate), otherwise a proxy from
+                # the QHF history.
+                _zeta_epsilon = float(intent_vector.get("epsilon", 0.0)) if isinstance(intent_vector, dict) else 0.0
+                if _zeta_epsilon == 0.0 and self.qhf and self.qhf._history:
+                    _zeta_epsilon = self.qhf._history[-1]
+                if _zeta_epsilon > 0.45 and hasattr(self.memory_kernel, 'recall_by_tension'):
+                    _zeta_hits = self.memory_kernel.recall_by_tension(
+                        current_epsilon=_zeta_epsilon,
+                        tolerance=0.20,
+                        limit=3,
+                    )
+                    # Merge without duplicating (by anchor/title)
+                    _existing = {m.title for m in prior_insights}
+                    _new = [m for m in _zeta_hits if m.title not in _existing]
+                    if _new:
+                        prior_insights.extend(_new)
+                        logger.info(
+                            f"  [Zeta] +{len(_new)} tension-matched memories "
+                            f"(eps={_zeta_epsilon:.2f})"
+                        )
+            except Exception as e:
+                logger.debug(f"  Memory recall failed: {e}")
+
+        # =========================================================================
+        # LAYER 1.5: ETHICAL QUERY VALIDATION (EthicalAIGovernance)
+        # =========================================================================
+        if hasattr(self, 'ethical_governance') and self.ethical_governance:
+            try:
+                query_validation = self.ethical_governance.validate_query(concept)
+                if not query_validation["valid"]:
+                    logger.warning(f"  EthicalAIGovernance rejected query: {query_validation['warnings']}")
+                    return {
+                        "messages": [
+                            {"role": "system", "content": self.system_prompt},
+                            {"role": "user", "content": concept},
+                            {"role": "assistant", "content": "I can't help with that request. " + "; ".join(query_validation.get("suggestions", []))},
+                        ],
+                        "metadata": {
+                            "mode": "ethical_block",
+                            "reason": "ethical_governance_query_rejected",
+                            "warnings": query_validation["warnings"],
+                        }
+                    }
+            except Exception as e:
+                logger.debug(f"  Ethical query validation failed: {e}")
+        if _trace:
+            _trace.record(EVENT_GUARDIAN_CHECK, "EthicalAIGovernance", {
+                "trust_level": "standard",
+                "safety_flags": [],
+            })
+
+        # =========================================================================
+        # LAYER 2: SIGNAL ANALYSIS (Intent Prediction & Risk Detection)
+        # =========================================================================
+        logger.info("[L2] Signal Analysis...")
+        intent_vector = {}
+        if hasattr(self, 'nexis_signal_engine') and self.nexis_signal_engine:
+            try:
+                nexis_record = self.nexis_signal_engine.process(concept)
+                intent_vector = _intent_of(nexis_record)
+                risk_level = intent_vector.get("pre_corruption_risk", "unknown")
+                logger.info(f"  Intent risk level: {risk_level}")
+                if risk_level == "high":
+                    logger.warning("  ⚠️  High-risk signal detected")
+                if _trace:
+                    _trace.record(EVENT_NEXUS_SIGNAL, "NexisSignalEngine", {
+                        "risk": risk_level,
+                        "entropy": intent_vector.get("entropy_index", 0.0),
+                        "suspicion": intent_vector.get("suspicion_score", 0.0),
+                    })
+                    _trace.record(EVENT_EPISTEMIC_METRICS, "NexisSignalEngine", {
+                        "epsilon": intent_vector.get("epsilon", intent_vector.get("tension_magnitude", 0.35)),
+                        "epsilon_band": "high" if intent_vector.get("epsilon", 0.35) > 0.6 else "moderate",
+                        "gamma": intent_vector.get("gamma", intent_vector.get("ensemble_coherence", 0.72)),
+                        "top_tensions": intent_vector.get("top_tensions", []),
+                    })
+            except Exception as e:
+                logger.debug(f"  Signal analysis failed: {e}")
+
+        # =========================================================================
+        # LAYER 2.5: CODE7E EMOTIONAL CONTEXT ENRICHMENT
+        # =========================================================================
+        # Run Code7eCQURE's emotion engine + temporal empathy as context
+        # enrichment BEFORE LLM inference — this stamps the quantum cocoon
+        # and provides emotional framing without replacing the LLM response
+        code7e_context = None
+        if hasattr(self, 'code7e') and self.code7e:
+            try:
+                # Run emotional analysis pipeline (fast, no LLM needed)
+                emotion_tag = self.code7e.emotion_engine(concept)
+                dream_tag = self.code7e.dream_sequence(concept)
+                empathy_tag = self.code7e.temporal_empathy_drift(concept)
+                ethical_tag = self.code7e.ethical_guard(concept)
+
+                code7e_context = {
+                    "emotion": emotion_tag,
+                    "dream": dream_tag,
+                    "empathy": empathy_tag,
+                    "ethical": ethical_tag,
+                }
+
+                # Save to quantum cocoon memory (always, not just on fallback)
+                key = self.code7e.hash_input(concept)
+                cocoon_entry = f"{emotion_tag}: {empathy_tag}: {dream_tag}: {ethical_tag}: {concept}"
+                self.code7e.memory_bank[key] = cocoon_entry
+                self.code7e.save_quantum_memory()
+
+                logger.info(f"  [Code7E] Emotional context: {emotion_tag[:60]}")
+            except Exception as e:
+                logger.debug(f"  Code7E context enrichment failed: {e}")
+
+        # =========================================================================
+        # LAYER 3: REASONING (LLM Inference via Orchestrator)
+        #   Now with MEMORY INJECTION — prior insights and relevant cocoons
+        #   are woven into the prompt so Codette actually *uses* her memories.
+        # =========================================================================
+        logger.info("[L3] LLM Reasoning...")
+
+        # ── Build memory-enriched query ──
+        memory_context_parts = []
+
+        # Inject prior insights from LivingMemoryKernel (high-importance memories)
+        if prior_insights:
+            insight_lines = []
+            for mem in prior_insights[:memory_budget]:  # Capped by governor's memory_budget
+                title = getattr(mem, 'title', str(mem)[:60])
+                content = getattr(mem, 'content', '')
+                emotion = getattr(mem, 'emotional_tag', 'neutral')
+                if content:
+                    insight_lines.append(f"- [{emotion}] {title}: {content[:150]}")
+                else:
+                    insight_lines.append(f"- [{emotion}] {title}")
+            if insight_lines:
+                memory_context_parts.append(
+                    "## Your Prior Insights (from memory kernel)\n" +
+                    "\n".join(insight_lines)
+                )
+                logger.info(f"  Injected {len(insight_lines)} prior insights into prompt")
+
+        # Inject relevant reasoning cocoons (past Q&A exchanges)
+        if hasattr(self, 'cocooner') and self.cocooner:
+            try:
+                relevant = self.cocooner.recall_relevant(concept, max_results=memory_budget)
+                if relevant:
+                    cocoon_lines = []
+                    for cocoon in relevant:
+                        q = cocoon.get("query", "")[:100]
+                        r = cocoon.get("response", "")[:200]
+                        adapter = cocoon.get("adapter", "unknown")
+                        if q and r:
+                            cocoon_lines.append(
+                                f"- Q: {q}\n  A ({adapter}): {r}"
+                            )
+                    if cocoon_lines:
+                        memory_context_parts.append(
+                            "## Your Past Reasoning (relevant cocoons)\n" +
+                            "You previously responded to similar questions:\n" +
+                            "\n".join(cocoon_lines)
+                        )
+                        logger.info(f"  Injected {len(cocoon_lines)} relevant cocoons into prompt")
+            except Exception as e:
+                logger.debug(f"  Cocoon recall failed: {e}")
+
+        # Build the enriched query
+        if memory_context_parts:
+            enriched_concept = (
+                concept + "\n\n---\n"
+                "# MEMORY CONTEXT (your own past reasoning — use this to stay consistent)\n" +
+                "\n\n".join(memory_context_parts) +
+                "\n---\n\n"
+                "Use your memory context above to inform your response. "
+                "Stay consistent with your past insights. If relevant, build on what you've already reasoned about."
+            )
+        else:
+            enriched_concept = concept
+
+        synthesis = ""
+        if self.orchestrator:
+            try:
+                # Use real LLM inference through the orchestrator
+                llm_result = self.orchestrator.route_and_generate(
+                    enriched_concept,
+                    max_adapters=2,
+                    strategy="keyword",
+                )
+                synthesis = llm_result.get("response", "")
+                logger.info(f"  LLM generated {len(synthesis)} chars via {llm_result.get('adapter', 'unknown')}")
+            except Exception as e:
+                logger.warning(f"  LLM reasoning failed: {e}, falling back to Code7E")
+                # Fall back to Code7eCQURE template-based reasoning
+                if hasattr(self, 'code7e') and self.code7e:
+                    try:
+                        synthesis = self.code7e.recursive_universal_reasoning(
+                            concept, user_consent=True, dynamic_recursion=True
+                        )
+                    except Exception as e2:
+                        synthesis = f"[Reasoning error: {e2}]"
+        elif hasattr(self, 'code7e') and self.code7e:
+            # No orchestrator available — use template-based reasoning
+            try:
+                synthesis = self.code7e.recursive_universal_reasoning(
+                    concept, user_consent=True, dynamic_recursion=True
+                )
+                logger.info(f"  Code7E generated {len(synthesis)} char synthesis (no LLM)")
+            except Exception as e:
+                logger.warning(f"  Code7E reasoning failed: {e}")
+                synthesis = f"[Reasoning error: {e}]"
+
+        if _trace:
+            _trace.record(EVENT_PERSPECTIVE_SELECTED, "ForgeEngine", {
+                "perspectives": [a.name for a in selected_agents],
+                "domains": matched_domains,
+            })
+            _trace.record(EVENT_SYNTHESIS_RESULT, "SynthesisEngine", {
+                "synthesis_length": len(synthesis),
+                "synthesis_quality": "adequate",
+                "unresolved_tensions": [],
+            })
+
+        # ── Phase 7.1: Adaptive Answer Placement (SynthesisEngineV3) ─────────
+        # Uses intent_vector epsilon/gamma (computed at Layer 2) since the full
+        # epistemic report is not separately computed in forge_with_debate.
+        _v3_engine_d = _get_synthesis_v3()
+        _v3_trace_d: "EnhancedCognitiveTrace | None" = None
+        if _v3_engine_d and synthesis and not synthesis.startswith("["):
+            try:
+                _aap_eps = float(
+                    intent_vector.get("epsilon",
+                    intent_vector.get("tension_magnitude", 0.35))
+                )
+                _aap_gam = float(
+                    intent_vector.get("gamma",
+                    intent_vector.get("ensemble_coherence", 0.72))
+                )
+                _aap_result_d = _v3_engine_d.synthesize_adaptive(
+                    concept=concept,
+                    analyses=analyses,
+                    epsilon=_aap_eps,
+                    gamma=_aap_gam,
+                    base_synthesis=synthesis,
+                )
+                synthesis = _aap_result_d["response"]
+                _v3_trace_d = _aap_result_d["trace"]
+                logger.info(
+                    f"  [SynthesisV3] attractor={_v3_trace_d.active_attractor} "
+                    f"direct={_v3_trace_d.direct_mode} "
+                    f"trust={_v3_trace_d.spectral_trust:.3f} "
+                    f"ε={_aap_eps:.2f}"
+                )
+                if _trace:
+                    _trace.record(EVENT_SYNTHESIS_RESULT, "SynthesisEngineV3", {
+                        "attractor":      _v3_trace_d.active_attractor,
+                        "direct_mode":    _v3_trace_d.direct_mode,
+                        "spectral_trust": _v3_trace_d.spectral_trust,
+                        "epsilon":        _v3_trace_d.epsilon,
+                        "gamma":          _v3_trace_d.gamma,
+                    })
+            except Exception as _aap_err:
+                logger.debug(f"[SynthesisV3] skipped in forge_with_debate: {_aap_err}")
+
+        # Hallucination scan on final synthesis (reset for clean per-turn state)
+        if getattr(self, '_hallucination_guard', None) and synthesis and not synthesis.startswith("["):
+            try:
+                self._hallucination_guard.reset()
+                _hall_det = self._hallucination_guard.scan_chunk(synthesis, domain="multi_perspective")
+                if _hall_det.recommendation in ("PAUSE", "INTERRUPT"):
+                    logger.warning(
+                        f"[HallucinationGuard] synthesis {_hall_det.recommendation} "
+                        f"(confidence={_hall_det.confidence_score:.2f}) — {_hall_det.explanation[:80]}"
+                    )
+                if _trace and _hall_det.recommendation in ("PAUSE", "INTERRUPT"):
+                    _trace.record(EVENT_HALLUCINATION_FLAG, "HallucinationGuard", {
+                        "perspective": "synthesis",
+                        "confidence_score": _hall_det.confidence_score,
+                        "recommendation": _hall_det.recommendation,
+                        "domain": _hall_det.domain,
+                        "signals": _hall_det.signals,
+                        "explanation": _hall_det.explanation,
+                        "flagged": True,
+                    })
+            except Exception as _he:
+                logger.debug(f"  HallucinationGuard skipped: {_he}")
+
+        # Sycophancy scan on final synthesis
+        if getattr(self, '_sycophancy_guard', None) and synthesis:
+            try:
+                _syco = self._sycophancy_guard.scan(synthesis, query=concept)
+                if _syco["action"] in ("revise", "block"):
+                    logger.warning(
+                        f"[SycophancyGuard] action={_syco['action']} score={_syco['score']:.2f} "
+                        f"deflection={_syco.get('deflection_detected', False)}"
+                    )
+                    if _syco["action"] == "revise":
+                        synthesis = _syco["clean_text"] or synthesis
+                if _trace:
+                    _trace.record(EVENT_SYCOPHANCY_FLAG, "SycophancyGuard", {
+                        "score": _syco["score"],
+                        "action": _syco["action"],
+                        "action_probs": _syco.get("action_probs", {}),
+                        "expected_severity": _syco.get("expected_severity", 0.0),
+                        "hits": _syco["hits"],
+                        "agreement_loop": _syco["agreement_loop"],
+                        "flattery_count": _syco["flattery_count"],
+                        "capitulation_count": _syco["capitulation_count"],
+                        "flagged": _syco["action"] in ("revise", "block"),
+                    })
+            except Exception as _se:
+                logger.debug(f"  SycophancyGuard skipped: {_se}")
+
+        # =========================================================================
+        # LAYER 3.5: TIER 2 ANALYSIS (Intent + Identity + Trust Validation)
+        # =========================================================================
+        logger.info("[L3.5] Tier 2 Analysis...")
+        tier2_analysis = {}
+        if hasattr(self, 'tier2_bridge') and self.tier2_bridge:
+            try:
+                # Analyze query intent
+                intent_analysis = self.tier2_bridge.analyze_intent(concept)
+                tier2_analysis["intent"] = {
+                    "suspicion_score": intent_analysis.suspicion_score,
+                    "entropy_index": intent_analysis.entropy_index,
+                    "ethical_alignment": intent_analysis.ethical_alignment,
+                    "risk": intent_analysis.pre_corruption_risk
+                }
+
+                # Validate synthesis output identity
+                if synthesis:
+                    identity_sig = self.tier2_bridge.validate_identity(synthesis, session_id=f"session_{id(concept)}")
+                    tier2_analysis["identity"] = {
+                        "confidence": identity_sig.confidence,
+                        "is_consistent": identity_sig.is_consistent,
+                        "spectral_distance": identity_sig.spectral_distance
+                    }
+
+                # Get trust multiplier for output qualification
+                trust_mult = self.tier2_bridge.get_trust_multiplier()
+                tier2_analysis["trust_multiplier"] = trust_mult
+                logger.info(f"  Tier 2 trust multiplier: {trust_mult:.3f}")
+
+            except Exception as e:
+                logger.debug(f"  Tier 2 analysis failed: {e}")
+        else:
+            logger.debug("  Tier 2 bridge not available")
+
+        # =========================================================================
+        # LAYER 4: STABILITY CHECK (Cocoon Stability Field - FFT Analysis)
+        # =========================================================================
+        logger.info("[L4] Stability Check...")
+        is_stable = True
+        if hasattr(self, 'cocoon_stability') and self.cocoon_stability:
+            try:
+                # Check if synthesis should halt debate
+                halt_result = self.cocoon_stability.should_halt_debate(
+                    {"synthesis": synthesis}, round_num=1
+                )
+                should_halt = halt_result[0] if isinstance(halt_result, tuple) else halt_result
+                is_stable = not should_halt
+                logger.info(f"  Stability: {'✓ stable' if is_stable else '✗ unstable'}")
+                if not is_stable:
+                    logger.warning("  Cocoon stability check triggered halt")
+            except Exception as e:
+                logger.debug(f"  Stability check failed: {e}")
+
+        # If unstable, skip to fallback
+        if not is_stable:
+            logger.warning("  Triggering safe fallback due to instability")
+            fallback_content = f"I detected instability in my multi-perspective reasoning. Responding directly: {concept}"
+            return {
+                "messages": [
+                    {"role": "system", "content": self.system_prompt},
+                    {"role": "user", "content": concept},
+                    {"role": "assistant", "content": fallback_content},
+                ],
+                "metadata": {
+                    "mode": "safe_fallback",
+                    "reason": "stability_check_failed",
+                    "consciousness_stack": "layers_1-4_completed",
+                    "reasoning_trace": _trace.finalise() if _trace else None,
+                }
+            }
+
+        # =========================================================================
+        # LAYER 5: COLLEEN ETHICAL VALIDATION
+        # =========================================================================
+        logger.info("[L5] Colleen Ethical Validation...")
+        colleen_valid = False
+        colleen_reason = ""
+        if hasattr(self, 'colleen') and self.colleen:
+            try:
+                colleen_valid, colleen_reason = self.colleen.validate_output(synthesis)
+                logger.info(f"  Colleen validation: {'✓ pass' if colleen_valid else '✗ reject'}")
+                logger.info(f"  Reason: {colleen_reason}")
+            except Exception as e:
+                logger.warning(f"  Colleen validation failed: {e}")
+                colleen_valid = False
+                colleen_reason = f"validation_error: {e}"
+
+        # If Colleen rejects, use fallback
+        if not colleen_valid:
+            logger.info("  Colleen rejected synthesis, using fallback")
+            fallback = self.colleen.reject_with_fallback(concept) if hasattr(self, 'colleen') and self.colleen else \
+                       f"Responding directly: {concept}"
+            return {
+                "messages": [
+                    {"role": "system", "content": self.system_prompt},
+                    {"role": "user", "content": concept},
+                    {"role": "assistant", "content": fallback},
+                ],
+                "metadata": {
+                    "mode": "safe_fallback",
+                    "reason": f"colleen_rejected: {colleen_reason}",
+                    "consciousness_stack": "layers_1-5_completed",
+                    "reasoning_trace": _trace.finalise() if _trace else None,
+                }
+            }
+
+        # =========================================================================
+        # LAYER 5.5: ETHICAL RESPONSE ENFORCEMENT (EthicalAIGovernance)
+        # =========================================================================
+        if hasattr(self, 'ethical_governance') and self.ethical_governance:
+            try:
+                ethical_result = self.ethical_governance.enforce_policies(synthesis)
+                if ethical_result["warnings"]:
+                    logger.info(f"  Ethical warnings: {ethical_result['warnings']}")
+                synthesis = ethical_result["filtered_response"]
+            except Exception as e:
+                logger.debug(f"  Ethical response enforcement failed: {e}")
+
+        # =========================================================================
+        # LAYER 5.75: AEGIS MULTI-FRAMEWORK ETHICAL EVALUATION
+        # =========================================================================
+        aegis_result = None
+        if hasattr(self, 'aegis') and self.aegis:
+            try:
+                aegis_result = self.aegis.evaluate(synthesis, context=concept)
+                logger.info(f"  [AEGIS] Alignment eta={aegis_result['eta']:.3f}, vetoed={aegis_result['vetoed']}")
+                if aegis_result['vetoed']:
+                    logger.warning(f"  AEGIS vetoed response: {aegis_result.get('veto_reason', 'unknown')}")
+                if _trace:
+                    _trace.record(EVENT_AEGIS_SCORE, "AEGIS", {
+                        "eta": aegis_result.get("eta"),
+                        "vetoed": aegis_result.get("vetoed", False),
+                        "veto_reason": aegis_result.get("veto_reason"),
+                        "framework_scores": aegis_result.get("framework_scores", {}),
+                    })
+            except Exception as e:
+                logger.debug(f"  AEGIS evaluation failed: {e}")
+
+        # =========================================================================
+        # LAYER 5.8: INSTITUTIONAL TIME-TRAVEL ANALYSIS (query-triggered, default ON)
+        # =========================================================================
+        # Runs only when the query contains ≥ 2 institutional keywords.
+        # Overhead when skipped: ~0.1 ms (keyword scan).
+        # Overhead when active: ~5–20 ms (date regex + closure inference).
+        # Disable by setting CODETTE_TIME_TRAVEL=0 in the environment.
+        _time_travel_metrics = None
+        if os.environ.get("CODETTE_TIME_TRAVEL", "1") != "0":
+            try:
+                from reasoning_forge.time_travel_lens import (
+                    InstitutionalContextDetector,
+                    TimeTravelConfig,
+                    TimeTravelLens,
+                )
+                if InstitutionalContextDetector.is_relevant(concept):
+                    from reasoning_forge.institutional_extractor import InstitutionalExtractor
+                    _tt_extractor = InstitutionalExtractor()
+                    _tt_text      = concept + "\n" + synthesis
+                    _tt_state, _tt_conf = _tt_extractor.extract(_tt_text)
+                    if _tt_state and _tt_conf >= 0.3:
+                        _tt_lens            = TimeTravelLens(config=TimeTravelConfig.default())
+                        _time_travel_metrics = _tt_lens.observe(_tt_state)
+                        _time_travel_metrics["extraction_confidence"] = round(_tt_conf, 3)
+                        logger.info(
+                            "  [TTLens] Π=%.1f days, closure=%s, high_zone=%s, conf=%.2f",
+                            _time_travel_metrics.get("preemption_gap_days") or 0,
+                            _time_travel_metrics.get("closure_class", "?"),
+                            _time_travel_metrics.get("high_preemption_zone"),
+                            _tt_conf,
+                        )
+                        # Annotate AEGIS result so deontological framework can
+                        # incorporate the institutional temporal gap.
+                        if aegis_result and _time_travel_metrics.get("high_preemption_zone"):
+                            aegis_result.setdefault("supplementary_context", {})
+                            aegis_result["supplementary_context"]["time_travel"] = {
+                                "preemption_gap_days": _time_travel_metrics.get("preemption_gap_days"),
+                                "closure_class":       _time_travel_metrics.get("closure_class"),
+                                "rupture":             _time_travel_metrics.get("rupture"),
+                            }
+            except Exception as _tt_err:
+                logger.debug("  [TTLens] skipped: %s", _tt_err)
+
+        # Compute Ψ_r (resonant wavefunction) using epsilon/gamma from intent signal
+        _psi_r = 0.0
+        if getattr(self, 'resonance_engine', None):
+            try:
+                _coherence_val = float(intent_vector.get("gamma", intent_vector.get("ensemble_coherence", 0.72)))
+                _tension_val = float(intent_vector.get("epsilon", intent_vector.get("tension_magnitude", 0.35)))
+                _psi_state = self.resonance_engine.compute_psi(
+                    coherence=_coherence_val,
+                    tension=_tension_val,
+                )
+                _psi_r = _psi_state.psi_r
+                if _trace:
+                    _trace.record(EVENT_PSI_UPDATE, "ResonantContinuityEngine", {
+                        "psi_r": round(_psi_r, 4),
+                        "resonance_quality": round(self.resonance_engine.resonance_quality(), 4),
+                        "convergence_rate": round(self.resonance_engine.convergence_rate(), 4),
+                        "at_peak": self.resonance_engine.detect_resonance_peak(),
+                        "stability": _psi_state.stability,
+                    })
+                logger.debug(f"  Ψ_r={_psi_r:.4f}, stable={_psi_state.stability}")
+            except Exception as e:
+                logger.debug(f"  Resonance computation failed: {e}")
+
+        # =========================================================================
+        # LAYER 6: GUARDIAN LOGICAL VALIDATION
+        # =========================================================================
+        logger.info("[L6] Guardian Logical Validation...")
+        guardian_valid = True
+        guardian_details = {}
+        if hasattr(self, 'guardian') and self.guardian:
+            try:
+                guardian_valid, guardian_details = self.guardian.validate(synthesis, query=concept)
+                logger.info(f"  Guardian validation: {'✓ pass' if guardian_valid else '✗ reject'}")
+                logger.info(f"  Details: {guardian_details}")
+            except Exception as e:
+                logger.warning(f"  Guardian validation failed: {e}")
+                guardian_valid = False
+                guardian_details = {"error": str(e)}
+        if _trace:
+            _trace.record(EVENT_GUARDIAN_CHECK, "Guardian", {
+                "trust_level": "pass" if guardian_valid else "reject",
+                "safety_flags": list(guardian_details.keys()) if not guardian_valid else [],
+            })
+
+        # If Guardian rejects, use fallback
+        if not guardian_valid:
+            logger.info("  Guardian rejected synthesis, using fallback")
+            fallback = f"Responding directly: {concept}"
+            return {
+                "messages": [
+                    {"role": "system", "content": self.system_prompt},
+                    {"role": "user", "content": concept},
+                    {"role": "assistant", "content": fallback},
+                ],
+                "metadata": {
+                    "mode": "safe_fallback",
+                    "reason": f"guardian_rejected: {guardian_details}",
+                    "consciousness_stack": "layers_1-6_completed",
+                    "reasoning_trace": _trace.finalise() if _trace else None,
+                }
+            }
+
+        # =========================================================================
+        # LAYER 7: SUCCESS - Return Clean Output
+        # =========================================================================
+        logger.info("[L7] Return...")
+        logger.info("✓ All consciousness stack layers passed!")
+
+        # Store in memory for future recall — v2.1: use build_cocoon() when available
+        _cocoon_id = None
+        if hasattr(self, 'memory_kernel') and self.memory_kernel:
+            try:
+                if _V21_AVAILABLE:
+                    tag, imp = self._classify_cocoon_metadata(
+                        concept, synthesis, intent_vector, aegis_result
+                    )
+                    _eta = aegis_result.get("eta", 0.0) if aegis_result else 0.0
+                    _sq = "strong" if _eta >= 0.85 else ("partial" if _eta < 0.5 else "adequate")
+                    # ── Echo / collapse detection ──────────────────────────────
+                    _echo_result = None
+                    _echo_detector_inst = _get_echo_detector()
+                    if _echo_detector_inst and analyses:
+                        try:
+                            _echo_result = _echo_detector_inst.check(concept, analyses)
+                        except Exception as _ee:
+                            logger.debug(f"[forge_with_debate] Echo detection skipped: {_ee}")
+                    # ── AEGIS + Epistemic contracts ────────────────────────────
+                    _aegis_contract = {}
+                    if aegis_result:
+                        try:
+                            _aegis_contract = aegis_from_raw(aegis_result)
+                        except Exception:
+                            _aegis_contract = {}
+                    _epist_contract = epistemic_from_report(epistemic_report)
+                    # ── Build CocoonV3 (disk-write path) ──────────────────────
+                    _v3_cocoon_instance = None
+                    try:
+                        _v3_cocoon_instance = build_cocoon_v3(
+                            query=concept,
+                            response_text=synthesis,
+                            response_summary=synthesis[:500],
+                            user_response_text=synthesis,
+                            emotional_valence=tag if tag in (
+                                "curiosity", "awe", "joy", "insight", "confusion",
+                                "frustration", "fear", "empathy", "determination",
+                                "surprise", "trust", "gratitude",
+                            ) else "insight",
+                            importance_score=float(imp),
+                            epsilon_value=float(_epist_contract.get("epsilon_value", 0.35)),
+                            gamma_coherence=float(_epist_contract.get("gamma_coherence", 0.72)),
+                            pairwise_tensions=_epist_contract.get("pairwise_tensions", {}),
+                            perspective_coverage=_epist_contract.get("perspective_coverage", {}),
+                            eta_score=_eta if aegis_result else None,
+                            psi_r=_psi_r,
+                            active_perspectives=[a.name for a in selected_agents],
+                            dominant_perspective=selected_agents[0].name if selected_agents else None,
+                            synthesis_quality=_sq,
+                            problem_type=self._infer_problem_type(matched_domains),
+                            project_context="Codette-Reasoning",
+                            execution_path="forge_full",
+                            model_inference_invoked=True,
+                            metrics_population_status=(
+                                "complete" if aegis_result and _psi_r > 0 else "partial"
+                            ),
+                            aegis_framework_scores=_aegis_contract.get("framework_scores", {}),
+                            aegis_dominant_framework=_aegis_contract.get("dominant_framework", ""),
+                            aegis_ethical_conflict_notes=_aegis_contract.get("ethical_conflict_notes", []),
+                            guardian_safety_status=(
+                                "pass" if safety_notes.get("guardian_valid", True) else "flag"
+                            ),
+                            guardian_trust_calibration=(
+                                "high" if safety_notes.get("guardian_valid", True) else "low"
+                            ),
+                            nexus_risk_level=str(intent_vector.get("pre_corruption_risk", "")),
+                            nexus_confidence=float(intent_vector.get("confidence", 0.0)),
+                            is_hallucination_flagged=bool(safety_notes.get("hallucination_flagged", False)),
+                            is_sycophancy_flagged=bool(safety_notes.get("sycophancy_flagged", False)),
+                            echo_risk=_echo_result.echo_risk if _echo_result else "unknown",
+                            perspective_collapse_detected=(
+                                _echo_result.perspective_collapse_detected if _echo_result else False
+                            ),
+                            time_travel_metrics=_time_travel_metrics,
+                        )
+                        v2_cocoon = _v3_cocoon_instance
+                    except Exception as _v3err:
+                        logger.debug(f"[forge_with_debate] CocoonV3 build fell back to v2: {_v3err}")
+                        v2_cocoon = build_cocoon(
+                            query=concept,
+                            response_text=synthesis,
+                            response_summary=synthesis[:500],
+                            emotional_valence=tag if tag in (
+                                "curiosity", "awe", "joy", "insight", "confusion",
+                                "frustration", "fear", "empathy", "determination",
+                                "surprise", "trust", "gratitude",
+                            ) else "insight",
+                            importance_score=float(imp),
+                            epsilon_value=float(_epist_contract.get("epsilon_value", 0.35)),
+                            gamma_coherence=float(_epist_contract.get("gamma_coherence", 0.72)),
+                            eta_score=_eta if aegis_result else None,
+                            active_perspectives=[a.name for a in selected_agents],
+                            dominant_perspective=selected_agents[0].name if selected_agents else None,
+                            synthesis_quality=_sq,
+                            problem_type=self._infer_problem_type(matched_domains),
+                            project_context="Codette-Reasoning",
+                        )
+                    _cocoon_id = v2_cocoon.cocoon_id
+                    if hasattr(self.memory_kernel, 'store_v2_cocoon'):
+                        self.memory_kernel.store_v2_cocoon(v2_cocoon, psi_r=_psi_r)
+                    else:
+                        self.memory_kernel.store(MemoryCocoon(
+                            title=concept[:50], content=synthesis[:500],
+                            emotional_tag=tag, importance=imp,
+                        ))
+                    logger.debug(f"  Stored v2 cocoon (id={_cocoon_id[:8]}, tag={tag}, imp={imp})")
+                    # Dual-write to UnifiedMemory for FTS5 cross-system search
+                    if getattr(self, 'unified_memory', None):
+                        try:
+                            self.unified_memory.store(
+                                query=concept,
+                                response=synthesis[:2000],
+                                adapter="forge_with_debate",
+                                domain=self._infer_problem_type(matched_domains),
+                                emotion=tag,
+                                importance=imp,
+                                metadata={
+                                    "cocoon_id": _cocoon_id,
+                                    "epsilon": float(intent_vector.get("epsilon", 0.35)),
+                                    "gamma": float(intent_vector.get("gamma", 0.72)),
+                                    "psi_r": _psi_r,
+                                    "forge_path": "debate",
+                                },
+                            )
+                        except Exception as _ue:
+                            logger.debug(f"  UnifiedMemory dual-write skipped: {_ue}")
+                else:
+                    # Legacy path
+                    tag, imp = self._classify_cocoon_metadata(
+                        concept, synthesis, intent_vector, aegis_result
+                    )
+                    self.memory_kernel.store(MemoryCocoon(
+                        title=concept[:50], content=synthesis[:500],
+                        emotional_tag=tag, importance=imp,
+                    ))
+                    logger.debug(f"  Stored legacy cocoon (tag={tag}, importance={imp})")
+            except Exception as e:
+                logger.debug(f"  Memory storage failed: {e}")
+
+        if _trace:
+            _trace.record(EVENT_MEMORY_WRITE, "LivingMemoryKernel", {
+                "written": _cocoon_id is not None,
+                "cocoon_id": _cocoon_id,
+            })
+
+        # Store as structured reasoning cocoon (CognitionCocooner)
+        if hasattr(self, 'cocooner') and self.cocooner:
+            try:
+                cocoon_meta = {"layers_passed": 7, "stable": is_stable}
+                if code7e_context:
+                    cocoon_meta["code7e"] = code7e_context
+                if aegis_result:
+                    cocoon_meta["aegis_eta"] = aegis_result["eta"]
+                # v3 path: validate + write full provenance cocoon to disk
+                _disk_v3 = _v3_cocoon_instance if '_v3_cocoon_instance' in dir() else None
+                if _disk_v3 is not None and CODETTE_AUDIT_MODE:
+                    _validator_inst = _get_validator()
+                    if _validator_inst:
+                        try:
+                            _val_result = _validator_inst.validate(_disk_v3)
+                            _validator_inst.apply_result(_disk_v3, _val_result)
+                            if _val_result.warnings:
+                                for _w in _val_result.warnings[:3]:
+                                    logger.debug(f"[CocoonValidator] {_w}")
+                        except Exception as _ve:
+                            logger.debug(f"[CocoonValidator] skipped: {_ve}")
+                self.cocooner.wrap_reasoning(
+                    query=concept,
+                    response=synthesis,
+                    adapter="consciousness_stack",
+                    metadata=cocoon_meta,
+                    v3_cocoon=_disk_v3,
+                )
+                logger.debug("  Stored reasoning in CognitionCocooner (v3)")
+            except Exception as e:
+                logger.debug(f"  CognitionCocooner storage failed: {e}")
+
+        _trace_report = _trace.finalise() if _trace else None
+
+        return {
+            "messages": [
+                {"role": "system", "content": self.system_prompt},
+                {"role": "user", "content": f"Analyze this concept from multiple perspectives:\n\n{concept}"},
+                {"role": "assistant", "content": synthesis},
+            ],
+            "metadata": {
+                "mode": "consciousness_stack",
+                "layers_passed": 7,
+                "colleen_valid": colleen_valid,
+                "guardian_valid": guardian_valid,
+                "stability": is_stable,
+                "intent_risk": intent_vector.get("pre_corruption_risk", "unknown"),
+                "prior_insights": len(prior_insights),
+                "synthesis_length": len(synthesis),
+                "aegis_eta": aegis_result['eta'] if aegis_result else None,
+                "aegis_vetoed": aegis_result['vetoed'] if aegis_result else None,
+                "forge_mode": "consciousness_stack",
+                "reasoning_trace": _trace_report,
+                "time_travel_metrics": _time_travel_metrics if '_time_travel_metrics' in dir() else None,
+            }
+        }
+
+    # -- Helpers -----------------------------------------------------------
+
+    def _dynamic_reroute(self, conflicts: List) -> Optional[str]:
+        """
+        Dynamically select best-performing adapter when conflicts are high.
+
+        Phase 4: Real-time adaptation - inject the strongest adapter when
+        conflicts exceed threshold.
+
+        Args:
+            conflicts: List of Conflict objects from current round
+
+        Returns:
+            Best adapter name to inject, or None if not needed
+        """
+        if not conflicts or not self.memory_weighting:
+            return None
+
+        # Find high-conflict situations
+        high_conflicts = [c for c in conflicts if c.conflict_strength > 0.2]
+
+        if not high_conflicts:
+            return None
+
+        weights = self.memory_weighting.get_all_weights()
+
+        if not weights:
+            return None
+
+        # Select best-performing adapter
+        best_adapter = max(weights.items(), key=lambda x: x[1]["weight"])[0]
+
+        return best_adapter
+
+    def _run_adapter(self, adapter_name: str, concept: str) -> str:
+        """
+        Run a specific adapter/agent to generate analysis.
+
+        Phase 4: Helper for dynamic rerouting.
+
+        Args:
+            adapter_name: Name of adapter to run
+            concept: Concept to analyze
+
+        Returns:
+            Analysis text
+        """
+        for agent in self.analysis_agents:
+            if agent.name.lower() == adapter_name.lower():
+                return agent.analyze(concept)
+
+        # Fallback: synthesis engine as generic perspective
+        return f"Generic perspective on {concept[:50]}..."
+
+    def _build_revision_directive(
+        self,
+        agent_name: str,
+        score: dict,
+        suggestions: list,
+        concept: str,
+    ) -> str:
+        """Build a revision directive for a weak agent."""
+        parts = [
+            f"[REVISION REQUESTED for {agent_name}]",
+            f"Your previous analysis scored {score.get('combined', 0):.2f}/1.00.",
+        ]
+        if score.get("logical_clarity", 1) < 0.5:
+            parts.append(
+                "Improve logical clarity: use connectives (therefore, because, however), "
+                "avoid vague language, structure your argument explicitly."
+            )
+        if score.get("conceptual_accuracy", 1) < 0.5:
+            parts.append(
+                "Improve conceptual accuracy: engage directly with the specific concept, "
+                "use domain vocabulary, avoid generic placeholder framing."
+            )
+        if suggestions:
+            parts.append(f"Critic suggests: {suggestions[0]}")
+        parts.append("Reanalyze with these improvements:")
+        return " ".join(parts)
+
+    def _classify_cocoon_metadata(
+        self,
+        concept: str,
+        synthesis: str,
+        intent_vector: dict = None,
+        aegis_result: dict = None,
+    ) -> tuple:
+        """Derive a meaningful emotional_tag and importance score for a memory cocoon.
+
+        FIX 2: Replaces the hardcoded ("processed", 7) write in Layer 7.
+
+        Returns:
+            (emotional_tag: str, importance: int)
+        """
+        intent_vector = intent_vector or {}
+        text_lower = (concept + " " + synthesis).lower()
+
+        # ── Emotional tag classification ──────────────────────────────────────
+        if aegis_result:
+            eta = aegis_result.get("eta", 0.0)
+            vetoed = aegis_result.get("vetoed", False)
+            if vetoed:
+                tag = "cautious"
+            elif eta >= 0.88:
+                tag = "trust"
+            elif eta >= 0.72:
+                tag = "ethical"
+            else:
+                tag = "inquiry"
+        elif intent_vector.get("pre_corruption_risk") == "high":
+            tag = "cautious"
+        elif intent_vector.get("pre_corruption_risk") == "low":
+            _emotion_keywords = {
+                "joy":       ["joy", "celebrat", "delight", "excit", "happin"],
+                "awe":       ["awe", "wonder", "profound", "breath", "magnif"],
+                "curiosity": ["curious", "question", "explore", "wonder", "discover"],
+                "grief":     ["grief", "loss", "mourn", "sorrow", "tragic"],
+                "resolve":   ["resolv", "determin", "commit", "persist", "overcome"],
+                "insight":   ["insight", "realiz", "understand", "clarity", "reveal"],
+            }
+            detected = "insight"
+            for emotion, keywords in _emotion_keywords.items():
+                if any(kw in text_lower for kw in keywords):
+                    detected = emotion
+                    break
+            tag = detected
+        else:
+            tag = "insight"
+
+        # ── Importance score ──────────────────────────────────────────────────
+        importance = 6
+
+        if len(synthesis) > 300:
+            importance += 1
+        if len(synthesis) > 500:
+            importance += 1
+
+        if aegis_result:
+            eta = aegis_result.get("eta", 0.0)
+            if eta >= 0.85:
+                importance += 1
+            if aegis_result.get("vetoed", False):
+                importance -= 1
+
+        if intent_vector.get("pre_corruption_risk") == "low" and len(synthesis) > 400:
+            importance += 1
+
+        importance = max(1, min(10, importance))
+
+        return tag, importance
+
+    def forge_batch(
+        self, concept: str, variants: int = 3
+    ) -> list[dict]:
+        """Generate multiple training examples from one concept.
+
+        Uses different problem framings and agent template selections
+        to produce varied training data from the same concept.
+
+        Args:
+            concept: The concept text.
+            variants: Number of variants to generate.
+
+        Returns:
+            List of training example dicts.
+        """
+        examples = []
+        for _ in range(variants):
+            example = self.forge_single(concept)
+            examples.append(example)
+        return examples
+
+    def forge_dataset(
+        self,
+        concepts: list[str],
+        output_path: str,
+        variants_per_concept: int = 1,
+        verbose: bool = False,
+    ) -> dict:
+        """Run forge on a list of concepts and write JSONL output.
+
+        Args:
+            concepts: List of concept strings.
+            output_path: Path to output JSONL file.
+            variants_per_concept: Number of training examples per concept.
+            verbose: Whether to print progress.
+
+        Returns:
+            Summary dict with counts and quality statistics.
+        """
+        os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
+
+        total_examples = 0
+        total_quality = 0.0
+        quality_scores = []
+
+        with open(output_path, "w", encoding="utf-8") as f:
+            for i, concept in enumerate(concepts):
+                if verbose:
+                    print(
+                        f"[{i + 1}/{len(concepts)}] Forging: "
+                        f"{concept[:60]}{'...' if len(concept) > 60 else ''}",
+                        file=sys.stderr,
+                    )
+
+                for variant in range(variants_per_concept):
+                    example = self.forge_single(concept)
+                    quality = example["metadata"]["overall_quality"]
+
+                    # Write the messages (without metadata) for training
+                    training_record = {"messages": example["messages"]}
+                    f.write(json.dumps(training_record, ensure_ascii=False) + "\n")
+
+                    total_examples += 1
+                    total_quality += quality
+                    quality_scores.append(quality)
+
+        summary = {
+            "total_examples": total_examples,
+            "total_concepts": len(concepts),
+            "variants_per_concept": variants_per_concept,
+            "output_path": output_path,
+            "avg_quality": round(total_quality / max(1, total_examples), 3),
+            "min_quality": round(min(quality_scores) if quality_scores else 0, 3),
+            "max_quality": round(max(quality_scores) if quality_scores else 0, 3),
+        }
+
+        if verbose:
+            print(f"\nForge complete: {summary}", file=sys.stderr)
+
+        return summary
+
+    def forge_from_dataset(
+        self,
+        input_jsonl: str,
+        output_path: str,
+        concept_field: str = "text",
+        variants_per_concept: int = 1,
+        verbose: bool = False,
+    ) -> dict:
+        """Read an existing JSONL dataset and run forge on each entry.
+
+        Expects each line to be a JSON object with a text field containing
+        the concept. Supports common field names: 'text', 'concept',
+        'content', 'input', 'question', 'prompt'.
+
+        Args:
+            input_jsonl: Path to input JSONL file.
+            output_path: Path to output JSONL file.
+            concept_field: Name of the field containing the concept text.
+            variants_per_concept: Number of training examples per concept.
+            verbose: Whether to print progress.
+
+        Returns:
+            Summary dict with counts and quality statistics.
+        """
+        # Candidate field names to try
+        candidate_fields = [
+            concept_field, "text", "concept", "content",
+            "input", "question", "prompt",
+        ]
+
+        concepts = []
+        with open(input_jsonl, "r", encoding="utf-8") as f:
+            for line_num, line in enumerate(f, 1):
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    record = json.loads(line)
+                except json.JSONDecodeError:
+                    if verbose:
+                        print(
+                            f"Warning: skipping malformed JSON on line {line_num}",
+                            file=sys.stderr,
+                        )
+                    continue
+
+                # Try candidate fields in order
+                concept_text = None
+                if isinstance(record, dict):
+                    for field in candidate_fields:
+                        if field in record and isinstance(record[field], str):
+                            concept_text = record[field].strip()
+                            break
+                    # Fallback: if record has 'messages', extract user content
+                    if concept_text is None and "messages" in record:
+                        for msg in record["messages"]:
+                            if msg.get("role") == "user":
+                                concept_text = msg["content"].strip()
+                                break
+                elif isinstance(record, str):
+                    concept_text = record.strip()
+
+                if concept_text:
+                    concepts.append(concept_text)
+
+        if verbose:
+            print(
+                f"Loaded {len(concepts)} concepts from {input_jsonl}",
+                file=sys.stderr,
+            )
+
+        return self.forge_dataset(
+            concepts,
+            output_path,
+            variants_per_concept=variants_per_concept,
+            verbose=verbose,
+        )
+
+    def forge_single_detailed(self, concept: str) -> dict:
+        """Run forge cycle and return all intermediate outputs.
+
+        Useful for debugging, inspection, and quality analysis.
+
+        Args:
+            concept: The concept text.
+
+        Returns:
+            Dict with all intermediate results:
+            {
+                "concept": str,
+                "problems": [(type, text), ...],
+                "analyses": {agent_name: analysis_text, ...},
+                "critique": {...},
+                "synthesis": str,
+                "training_example": {...},
+            }
+        """
+        problems = self.problem_generator.generate_problems(concept)
+
+        analyses = {}
+        for agent in self.analysis_agents:
+            analyses[agent.name] = agent.analyze(concept)
+
+        critique = self.critic.evaluate_ensemble(concept, analyses)
+        synthesized = self.synthesis.synthesize(concept, analyses, critique)
+
+        user_content = (
+            f"Analyze this concept from multiple perspectives:\n\n{concept}"
+        )
+
+        training_example = {
+            "messages": [
+                {"role": "system", "content": self.system_prompt},
+                {"role": "user", "content": user_content},
+                {"role": "assistant", "content": synthesized},
+            ],
+        }
+
+        return {
+            "concept": concept,
+            "problems": problems,
+            "analyses": analyses,
+            "critique": critique,
+            "synthesis": synthesized,
+            "training_example": training_example,
+        }
