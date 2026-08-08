@@ -1,0 +1,2713 @@
+INFO:codette_core:[codette_core] Rust extension loaded — FFT running at native speed
+  Identity anchor loaded (1 known identities)
+  Behavior Governor loaded (identity + memory + cognitive load governance)
+INFO:reasoning_forge.unified_memory:UnifiedMemory: 2840 cocoons in J:\codette-clean\data\codette_memory.db
+  Unified Memory loaded (2840 cocoons, FTS5 active)
+============================================================
+  CODETTE WEB UI
+============================================================
+  Session: 7587c16f1461aa7e
+  Cocoon: spiderweb=True, metrics=True
+  Started 1 worker thread for serial inference
+  Started cleanup thread for queue maintenance
+  Started worker health monitor thread
+  Started heartbeat thread (liveness line every 30s)
+
+  Server: http://localhost:7860
+  Press Ctrl+C to stop
+
+  Model loading in background (takes ~60s on first startup)...
+  [BACKEND] using backend='openvino' (CODETTE_BACKEND=None)
+  [BACKEND] server __file__=J:\codette-clean\inference\codette_server.py
+
+  Loading CodetteOrchestrator (backend: openvino)...
+  [05:16:28] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:16:29] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:16:29] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:16:29] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  Memory weighting loaded (unified cocoon feedback active)
+  [05:16:29] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:29] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:29] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:29] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:16:29] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:16:29] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+[OV] Adapters: newton, davinci, empathy, philosophy, quantum, consciousness, multi_perspective, systems_architecture, constraint_tracker, orchestrator, newton-star, newton-star-hard, newton-star-r
+  [05:16:29] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:16:29] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:30] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:30] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:30] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:31] [  http] "GET / HTTP/1.1" 200 -
+  [05:16:31] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:16:31] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:31] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+[OV] MODEL_DIR=J:\codette-clean\openvino_backend\llama-3.1-8b-instruct-int4
+[OV] MODEL_DIR exists=True
+[OV] Loading llama-3.1-8b-instruct-int4 on AUTO...
+  [05:16:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:31] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:16:32] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:32] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:32] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:32] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:16:32] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:32] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:32] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:16:33] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:33] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:33] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:16:33] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:33] [  http] "GET /api/health HTTP/1.1" 200 -
+  [05:16:33] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:33] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:34] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:35] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:35] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:36] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:16:36] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:36] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:38] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:38] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:16:38] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:16:38] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:38] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:38] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:16:38] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:16:39] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:16:39] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:39] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:16:39] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:16:39] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:16:39] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:39] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:16:39] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:40] [  http] "GET / HTTP/1.1" 200 -
+  [05:16:40] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:40] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:41] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:16:41] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:41] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:16:41] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:16:42] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:42] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:42] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:16:42] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:43] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:16:43] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:44] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:44] [  http] "GET /api/status HTTP/1.1" 200 -
+  [INFO] Client request queued — model still loading, waiting for ready...
+  [05:16:45] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:45] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:45] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:46] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:46] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:16:47] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:47] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:16:47] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:16:47] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:47] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:47] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:16:47] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:16:47] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:16:48] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:16:48] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:16:48] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:16:48] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:48] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:16:48] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:48] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:49] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:50] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:50] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:50] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:51] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:51] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:51] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:16:51] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:16:51] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:16:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:52] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:52] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:16:53] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:53] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:53] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:16:53] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:54] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:55] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:55] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:55] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:56] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:56] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:16:57] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:16:57] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:16:57] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:57] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:57] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:57] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:16:57] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:16:57] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:16:57] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:57] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:16:58] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:16:58] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:16:58] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:16:58] [heartbeat] up 0m30s · model=loading · idle · pending=0
+  [05:16:59] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:59] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:16:59] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:59] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:16:59] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:00] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:01] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:01] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:01] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:17:01] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:17:01] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:02] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:02] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:02] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:02] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:03] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:03] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:03] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:04] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:04] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:05] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:06] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:06] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:06] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:06] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:06] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:06] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:17:07] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:17:07] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:07] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:17:07] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:17:08] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:08] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:08] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:17:08] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:17:08] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:08] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:17:08] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:08] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:09] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:10] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:11] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:11] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:11] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:11] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:11] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:11] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:17:11] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:17:12] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:12] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:12] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:13] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:13] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:13] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:14] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:14] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:15] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:15] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:16] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:16] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:16] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:17:17] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:17] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:17:17] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:17] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:17] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:17] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:17] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:17:17] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:17:17] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:18] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:17:18] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:17:18] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:18] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:17:18] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:19] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:19] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:20] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:20] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:20] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:21] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:21] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:21] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:17:21] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:17:21] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:22] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:22] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:22] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:23] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:23] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:23] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:24] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:24] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:24] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:25] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:26] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:26] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:26] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:26] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:26] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:17:27] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:17:27] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:27] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:27] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:17:27] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:27] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:17:28] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:28] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:17:28] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:17:28] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:17:28] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:28] [heartbeat] up 1m00s · model=loading · idle · pending=0
+  [05:17:29] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:29] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:29] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:29] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:30] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:31] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:31] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:31] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:31] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:17:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:31] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:17:31] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:32] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:32] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:33] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:33] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:33] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:33] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:34] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:35] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:35] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:35] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:36] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:36] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:36] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:37] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:17:37] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:17:37] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:37] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:37] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:17:38] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:17:38] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:38] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:38] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:38] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:17:38] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:17:38] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:38] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:17:39] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:39] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:40] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:40] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:41] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:41] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:41] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:41] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:17:41] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:17:41] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:42] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:42] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:42] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:43] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:44] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:44] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:45] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:45] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:46] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:46] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:46] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:47] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:47] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:17:47] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:17:47] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:47] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:47] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:47] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:17:47] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:17:48] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:48] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:17:48] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:17:48] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:17:48] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:48] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:49] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:49] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:50] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:50] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:51] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:51] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:51] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:51] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:17:51] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:17:51] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:52] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:53] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:53] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:53] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:53] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:53] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:54] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:55] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:55] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:55] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:56] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:56] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:56] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:17:57] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:17:57] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:57] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:57] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:17:57] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:17:57] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:57] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:58] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:17:58] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:17:58] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:17:58] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:17:58] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:17:58] [heartbeat] up 1m30s · model=loading · idle · pending=0
+  [05:17:59] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:59] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:17:59] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:00] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:00] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:00] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:01] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:01] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:18:01] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:18:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:02] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:02] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:02] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:02] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:02] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:03] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:03] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:04] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:04] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:05] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:05] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:06] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:06] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:06] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:06] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:07] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:18:07] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:18:07] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:07] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:07] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:18:07] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:18:07] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:08] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:08] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:18:08] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:18:08] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:18:08] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:08] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:09] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:09] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:10] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:11] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:11] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:11] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:11] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:18:11] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:18:11] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:12] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:12] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:12] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:13] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:13] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:14] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:14] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:15] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:15] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:15] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:16] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:16] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:16] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:18:17] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:17] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:18:17] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:17] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:17] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:17] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:17] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:18:17] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:18:18] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:18] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:18:18] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:18:18] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:18:18] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:18] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:19] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:19] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:20] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:20] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:20] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:21] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:21] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:21] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:21] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:18:21] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:18:21] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:22] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:22] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:23] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:23] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:23] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:23] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:24] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:24] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:25] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:25] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:26] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:26] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:26] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:26] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:18:27] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:18:27] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:27] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:27] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:27] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:18:27] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:18:27] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:28] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:28] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:28] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:18:28] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:18:28] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:18:28] [heartbeat] up 2m00s · model=loading · idle · pending=0
+  [05:18:29] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:29] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:29] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:29] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:30] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:30] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:31] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:31] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:31] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:18:31] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:18:32] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:32] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:32] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:32] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:32] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:33] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:33] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:33] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:34] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:34] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:35] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:35] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:35] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:36] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:36] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:36] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:36] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:37] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:18:37] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:18:37] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:37] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:37] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:18:37] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:18:38] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:38] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:38] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:18:38] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:18:38] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:18:38] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:38] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:39] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:40] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:41] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:41] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:41] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:41] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:18:41] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:18:41] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:42] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:42] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:42] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:43] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:43] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:44] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:45] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:45] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:45] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:46] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:46] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:47] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:47] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:18:47] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:47] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:18:47] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:47] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:47] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:47] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:18:47] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:18:48] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:48] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:18:48] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:18:48] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:18:48] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:48] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:49] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:49] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:50] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:50] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:50] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:51] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:51] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:51] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:18:51] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:51] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:18:51] [  http] "GET /api/drift HTTP/1.1" 200 -
+[OV] Loaded in 140.9s on AUTO
+  [05:18:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:52] [  http] "GET /api/status HTTP/1.1" 200 -
+  Orchestrator ready (openvino): ['newton', 'davinci', 'empathy', 'philosophy', 'quantum', 'consciousness', 'multi_perspective', 'systems_architecture', 'constraint_tracker', 'orchestrator', 'newton-star', 'newton-star-hard', 'newton-star-r']
+  [DEBUG] _use_phase6 = True
+  [DEBUG] Importing CodetteForgeBridge...
+  [05:18:53] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [WORKER] Processing query: What is the correct answer to this question: Two quantum sta...
+  [05:18:53] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:53] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:53] [  http] "GET /api/status HTTP/1.1" 200 -
+  [DEBUG] Creating bridge instance...
+[SUBSTRATE] Substrate-aware cognition initialized
+[PHASE6] Initializing ForgeEngine...
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=none (conf=0.00), memory=4 cocoons, tokens=600, compression=expanded
+  [GOVERNOR] identity=none (conf=0.00), memory=4 cocoons, tokens=600, compression=expanded
+  [05:18:54] [  http] "GET /api/session HTTP/1.1" 200 -
+  [WORKER] Using direct orchestrator
+
+  [OV] Route: newton + quantum (conf=0.71, keyword)
+  [05:18:54] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:54] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:18:54] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:18:54] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:18:54] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:55] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:18:55] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:18:55] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:18:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:56] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:57] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:18:57] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:18:57] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:57] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:18:57] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:18:57] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:58] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:18:58] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:18:58] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:18:58] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:18:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:18:58] [heartbeat] up 2m30s · model=ready · inferring · pending=0
+  [05:18:59] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:00] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:01] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:01] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:19:01] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:19:02] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:02] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:02] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:03] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:03] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:05] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:06] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:06] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:07] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:19:07] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:19:07] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:07] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:19:07] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:19:08] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:08] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:08] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:19:08] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:19:08] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:19:08] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:19:09] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:19:09] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:19:09] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:19:09] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:19:09] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:09] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:19:10] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:19:10] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:19:10] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:19:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:11] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:11] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:19:11] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:19:12] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:12] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:13] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:15] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:16] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:17] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:17] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:19:17] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:19:17] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:17] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:19:17] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:19:18] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:18] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:19:18] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:19:18] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:19:18] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:21] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:21] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:19:21] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:19:21] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:22] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:23] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:23] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:24] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:19:24] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:19:24] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:19:24] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:19:24] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:19:24] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:19:24] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:25] [  http] "GET /api/status HTTP/1.1" 200 -
+  [OV:newton] ~280 tok, 9.1 tok/s
+  [05:19:25] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:19:25] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:19:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+INFO:reasoning_forge.memory_kernel:  ✓ Loaded 2075 cocoon memories from J:\codette-clean\reasoning_forge\..\cocoons
+INFO:reasoning_forge.forge_engine:  ✓ Migrated 2075 cocoons to v2 kernel
+INFO:reasoning_forge.forge_engine:  ✓ Memory kernel initialized (emotional continuity engine active)
+INFO:reasoning_forge.forge_engine:  ✓ Cocoon stability field initialized (collapse detection active)
+INFO:reasoning_forge.forge_engine:  ✓ Code7eCQURE reasoning engine initialized
+INFO:reasoning_forge.forge_engine:  ✓ ColleenConscience ethical validator initialized
+INFO:reasoning_forge.forge_engine:  ✓ CoreGuardianSpindle logical validator initialized
+INFO:reasoning_forge.forge_engine:  ✓ NexisSignalEngine signal analysis initialized
+  [05:19:26] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+INFO:Tier2Integration:Tier 2 Integration Bridge initialized
+INFO:reasoning_forge.forge_engine:  ✓ Tier 2 Integration Bridge initialized (intent + identity + memory)
+INFO:reasoning_forge.forge_engine:  ✓ CognitionCocooner initialized (thought encapsulation active)
+INFO:reasoning_forge.forge_engine:  ✓ EthicalAIGovernance initialized (ethical screening active)
+INFO:reasoning_forge.forge_engine:  ✓ AEGIS ethical governance initialized (6-framework evaluation)
+INFO:reasoning_forge.forge_engine:  ✓ RoutingMetrics initialized (adapter selection tracking)
+INFO:reasoning_forge.forge_engine:  ✓ CocoonIntrospectionEngine initialized (self-analysis active)
+  [05:19:27] [  http] "GET /api/governor HTTP/1.1" 200 -
+INFO:reasoning_forge.unified_memory:UnifiedMemory: 2840 cocoons in J:\codette-clean\data\codette_memory.db
+  [05:19:27] [  http] "GET /api/governor HTTP/1.1" 200 -
+INFO:reasoning_forge.forge_engine:  ✓ CocoonSynthesizer initialized (meta-cognitive strategy forging active)
+INFO:reasoning_forge.forge_engine:  ✓ EventEmbeddedValueEngine initialized (discrete suffering analysis active)
+  [05:19:27] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+INFO:reasoning_forge.forge_engine:  ✓ Self-awareness cocoon loaded (identity + evolution + capabilities)
+INFO:reasoning_forge.forge_engine:  ✓ QuantumHarmonicFramework initialized (harmonic damping + Psi_r tracking)
+[PHASE6] Memory kernel wired to orchestrator (2075 cocoon memories)
+[PHASE6] ForgeEngine ready with 6 agents
+[PHASE7] Executive Controller initialized - intelligent routing enabled
+INFO:reasoning_forge.unified_memory:UnifiedMemory: 2840 cocoons in J:\codette-clean\data\codette_memory.db
+INFO:inference.cognition_substrate:[substrate] Memory loaded (2840 cocoons)
+INFO:inference.cognition_substrate:[substrate] SynthesisEngineV3 loaded
+[PHASE8] CognitionSubstrate + RenderLayer initialized
+  Phase 6 bridge initialized
+  Phase 7 Executive Controller initialized
+  [05:19:27] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:19:27] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:19:27] [  http] "GET /api/drift HTTP/1.1" 200 -
+INFO:aegis_metrics_engine:✓ AEGIS Metrics Engine initialized at J:\codette-clean\aegis_metrics.db
+  [05:19:28] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:28] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:19:28] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+INFO:aegis_layer4_complete:[Layer4] PQCShield initialized
+INFO:aegis_orchestrator:🛡️  [AEGIS Orchestrator] Initialized with all safeguards active
+INFO:aegis_forge_integration:✓ AEGIS layers loaded successfully
+  AEGIS Protection Layers initialized (metrics db: J:\codette-clean\aegis_metrics.db)
+  [05:19:28] [  http] "GET /api/governor HTTP/1.1" 200 -
+INFO:memory_systems.seed_loader:[SeedLoader] Warm start complete — 7 seeds loaded (domain=none)
+  Seed loader: 7 identity/value seeds loaded (warm start)
+  [05:19:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:28] [heartbeat] up 3m00s · model=ready · inferring · pending=0
+  [05:19:29] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:30] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:31] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:31] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:19:31] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:19:32] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:32] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:32] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:33] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:33] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:35] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:36] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:36] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:37] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:19:37] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:19:37] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:37] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:19:37] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:19:38] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:38] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:38] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:19:38] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:19:38] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:19:39] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:19:39] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:19:39] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:19:39] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:19:39] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:40] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:19:40] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:19:40] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:19:40] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:19:40] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:19:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:41] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:19:41] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:41] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:19:42] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:42] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:43] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:45] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:46] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:47] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:47] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:19:47] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:19:47] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:47] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:19:47] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:19:48] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:48] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:19:48] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:19:48] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:19:48] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:quantum] ~276 tok, 10.5 tok/s
+  [TENSION] xi=0.1198 gamma=0.8930 — primary direct (perspectives agree)
+  [MEMORY] [generation] baseline=4179MB peak=4680MB (+501 transient) retained=+326MB in 57.7s (227 samples)
+  [WORKER] Got result: response=1662 chars, adapter=newton
+  [05:19:51] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:19:51] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:19:51] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:51] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [COGNITION] ξ=0.1198 Γ=0.893 η=0.8521 σ=0.0 fidelity=— P=0.398 (all measured)
+  [05:19:52] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:53] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:53] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:54] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [05:19:54] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:54] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:19:55] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:19:55] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:19:55] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:19:55] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:19:55] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:19:55] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:19:55] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:19:55] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:55] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:19:56] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [WORKER] Processing query: What is the correct answer to this question: trans-cinnamald...
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=none (conf=0.15), memory=1 cocoons, tokens=200, compression=compressed
+  [GOVERNOR] identity=none (conf=0.15), memory=1 cocoons, tokens=200, compression=compressed
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.SIMPLE
+[PHASE7] Route: 
+[PHASE6] Domain: chemistry, max_adapters: 1
+
+  [OV] Route: newton (conf=0.89, keyword)
+  [05:19:56] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:56] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:19:57] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:19:57] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:57] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:19:57] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:57] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:19:58] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:19:58] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:19:58] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:19:58] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:19:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:19:58] [heartbeat] up 3m30s · model=ready · inferring · pending=0
+  [05:19:59] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:00] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:01] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:01] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:20:01] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:20:02] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:02] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:02] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:03] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:03] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:05] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:06] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:06] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:07] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:20:07] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:20:07] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:07] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:20:07] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:20:08] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:08] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:08] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:20:08] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:20:08] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:20:09] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:10] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:20:10] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:20:10] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:20:10] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:20:10] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:20:10] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:20:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:10] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:20:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:11] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:20:11] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:20:11] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:20:11] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:20:11] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:12] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:12] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:13] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:14] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:15] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:16] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:17] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:17] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:20:17] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:17] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:20:17] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:17] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:20:17] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:20:18] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:18] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:20:18] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:20:18] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:20:18] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:newton] ~212 tok, 8.8 tok/s
+[AAP] attractor=Fact eps=0.20 trust=0.700
+[RENDER-AUDIT] ok overlap=96.55%
+[PHASE6] Done: 1357 chars, 212 tokens
+  [MEMORY] [generation] baseline=4367MB peak=4708MB (+341 transient) retained=+195MB in 24.6s (98 samples)
+  [WORKER] Got result: response=1357 chars, adapter=newton
+  [GOVERNOR] Response exceeded token budget (339 est vs 200 budget).
+  [COGNITION] ξ=— Γ=— η=0.8886 σ=0.0 fidelity=0.9655 P=0.384 (all measured)
+  [05:20:21] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [05:20:21] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:21] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:20:21] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:20:21] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:22] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:23] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:23] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [WORKER] Processing query: What is the correct answer to this question: A spin-half par...
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=none (conf=0.15), memory=2 cocoons, tokens=400, compression=normal
+  [GOVERNOR] identity=none (conf=0.15), memory=2 cocoons, tokens=400, compression=normal
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.MEDIUM
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: physics, max_adapters: 2
+
+  [OV] Route: newton + quantum (conf=0.62, keyword)
+  [05:20:24] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:25] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:20:25] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:20:25] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:20:25] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:20:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:25] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:20:25] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:25] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:20:26] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:20:26] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:20:26] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:20:26] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:28] [heartbeat] up 4m00s · model=ready · inferring · pending=0
+  [05:20:29] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:20:29] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:20:30] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:30] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:30] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:20:30] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:20:30] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:30] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:20:33] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:33] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:20:33] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:20:33] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:33] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:33] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:20:33] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:33] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:20:33] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:33] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:33] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:33] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:35] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:36] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:36] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:37] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:20:37] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:20:37] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:37] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:20:37] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:20:38] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:38] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:38] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:20:38] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:20:38] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:20:39] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:40] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:20:40] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:20:40] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:20:40] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:20:41] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:41] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:20:41] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:41] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:20:41] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:20:41] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:20:41] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:20:41] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:41] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:20:41] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:20:42] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:42] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:43] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:44] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:44] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:45] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:46] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:47] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:47] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:20:47] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:47] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:20:47] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:47] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:20:47] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:20:48] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:48] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:20:48] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:20:48] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:20:48] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:51] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:51] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:20:51] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:20:51] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:52] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:52] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:53] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:53] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:54] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:55] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:20:56] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:56] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:56] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:20:56] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:20:56] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:20:56] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:20:56] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:20:56] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:20:56] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:20:56] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:56] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:20:57] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:20:57] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:20:57] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:57] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:20:57] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:20:57] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:58] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:20:58] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:20:58] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:20:58] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:20:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:20:58] [heartbeat] up 4m30s · model=ready · inferring · pending=0
+  [05:20:59] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:00] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:01] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:01] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:21:01] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:21:02] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:02] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:02] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:03] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:03] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:05] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:06] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:06] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:07] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:21:07] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:21:07] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:07] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:21:07] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:21:08] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:08] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:08] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:21:08] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:21:08] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:21:09] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:11] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:21:11] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:11] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:21:11] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:21:11] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:21:11] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:21:11] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:21:12] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:21:12] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:21:12] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:12] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:21:12] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:21:12] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:21:12] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:12] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:13] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:14] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:15] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:17] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:17] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:21:17] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:17] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:21:17] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:17] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:21:17] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:21:18] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:18] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:21:18] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:21:18] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [OV:newton] ~324 tok, 5.8 tok/s
+  [05:21:18] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:20] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:22] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:22] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:21:22] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:21:22] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:23] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:23] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:23] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:24] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:26] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:26] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:26] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:21:26] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:21:26] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:21:26] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:21:26] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:21:27] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:21:27] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:21:27] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:27] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:21:27] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:27] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:21:27] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:21:27] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:28] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:21:28] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:28] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:21:28] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:21:28] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:21:28] [heartbeat] up 5m00s · model=ready · inferring · pending=0
+  [05:21:28] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:21:28] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:21:29] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:29] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:30] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:32] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:32] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:32] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:21:32] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:32] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:21:32] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:33] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:33] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:35] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:35] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:36] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:37] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:21:37] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:37] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:37] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:21:37] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:21:38] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:38] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:21:38] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:21:38] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:21:38] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:38] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:38] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:21:39] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:41] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:41] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:21:42] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:21:42] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:21:42] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:21:42] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:21:42] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:42] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:21:42] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:21:42] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:21:42] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:42] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:43] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:44] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:21:44] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:44] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:21:44] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:21:45] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:47] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:47] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:21:47] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:47] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:47] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:21:47] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:21:48] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:48] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:21:48] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:21:48] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:21:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:49] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:21:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:50] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:51] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:52] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:52] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:21:52] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:21:52] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:53] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:53] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:53] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:54] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:56] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:56] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:56] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:21:57] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:21:57] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:21:57] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:57] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:21:57] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:21:57] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:21:57] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:21:57] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:58] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:21:58] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:21:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:58] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:21:58] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:21:58] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:21:58] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:21:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:21:58] [heartbeat] up 5m30s · model=ready · inferring · pending=0
+  [05:22:00] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:00] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:22:00] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:22:00] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:22:00] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:22:00] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:02] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:22:02] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:22:02] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:22:02] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:02] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:22:03] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:22:03] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:05] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:05] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:06] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:07] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:22:07] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:22:07] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:22:07] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:22:07] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:22:07] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:22:08] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:08] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:22:08] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:22:08] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:22:08] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:quantum] ~268 tok, 5.3 tok/s
+  [TENSION] xi=0.0438 gamma=0.9580 — primary direct (perspectives agree)
+[AAP] attractor=Fact eps=0.05 trust=0.700
+[RENDER-AUDIT] ok overlap=96.77%
+[PHASE6] Done: 2330 chars, 592 tokens
+  [MEMORY] [generation] baseline=4536MB peak=4841MB (+305 transient) retained=-959MB in 106.3s (401 samples)
+  [WORKER] Got result: response=2330 chars, adapter=newton
+  [GOVERNOR] Response may not directly answer the question.
+  [COGNITION] ξ=0.0438 Γ=0.958 η=0.9131 σ=0.0 fidelity=0.9677 P=0.375 (all measured)
+[EMBED] semantic embedder ready (all-MiniLM-L6-v2, CPU)
+  [05:22:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:10] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [05:22:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:12] [  http] "GET /api/status HTTP/1.1" 200 -
+  [WORKER] Processing query: What is the correct answer to this question: In a parallel u...
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=none (conf=0.15), memory=4 cocoons, tokens=600, compression=expanded
+  [GOVERNOR] identity=none (conf=0.15), memory=4 cocoons, tokens=600, compression=expanded
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.COMPLEX
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,preflight_predictor,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: chemistry, max_adapters: 2
+
+  [OV] Route: newton + quantum (conf=0.90, keyword)
+  [05:22:12] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:22:12] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:22:12] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:22:12] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:22:12] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:22:12] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:22:12] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:12] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:22:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:15] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:16] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:22:16] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:22:16] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:22:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:17] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:22:17] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:22:17] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:22:17] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:22:17] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:22:18] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:22:18] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:22:18] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:22:18] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:22] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:22] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:22:23] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:22:23] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:24] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:26] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:27] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:22:27] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:22:27] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:22:27] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:22:27] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:22:27] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:22:27] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:22:27] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:22:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:28] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:22:28] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:22:28] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:22:28] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:22:28] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:22:28] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:22:28] [heartbeat] up 6m00s · model=ready · inferring · pending=0
+  [05:22:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:30] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:32] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:32] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:22:32] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:22:32] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:22:32] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:22:33] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:22:33] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:35] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:35] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:22:35] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:22:35] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:35] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:22:35] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:22:36] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:37] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:22:37] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:22:37] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:22:37] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:22:37] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:22:38] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:38] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:22:38] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:22:38] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:22:39] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:42] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:22:42] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:22:42] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:43] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:22:43] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:22:43] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:22:43] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:22:43] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:22:43] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:22:44] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:newton] ~365 tok, 11.0 tok/s
+  [05:22:45] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:47] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:47] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:22:47] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:22:47] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:22:47] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:22:48] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:22:48] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:22:48] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:22:48] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:22:48] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:22:48] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:22:48] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:22:48] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:51] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:52] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:22:53] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:22:53] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:54] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:56] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:57] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:22:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:22:58] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:22:58] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:22:58] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:22:58] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:22:58] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:22:58] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:22:58] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:22:58] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:22:58] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:22:58] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:22:58] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:22:58] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:22:58] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:22:58] [heartbeat] up 6m30s · model=ready · inferring · pending=0
+  [05:22:59] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:00] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:02] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:02] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:23:03] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:23:03] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:04] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:23:04] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:23:04] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:23:05] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:06] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:07] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:23:07] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:23:07] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:23:07] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:23:07] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:23:08] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:23:08] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:08] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:23:08] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:23:09] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:12] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:23:12] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:13] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:23:13] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:23:13] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:23:13] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:23:13] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:23:13] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:23:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:13] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [OV:quantum] ~331 tok, 11.3 tok/s
+  [TENSION] xi=0.0409 gamma=0.9607 — primary direct (perspectives agree)
+[MANIFOLD] weights={'newton': 0.4999, 'quantum': 0.5001} xi=0.026 steering=ON
+[AAP] attractor=Fact eps=0.05 trust=0.940
+[RENDER-AUDIT] ok overlap=100.00%
+[PHASE6] Done: 2145 chars, 696 tokens
+  [MEMORY] [generation] baseline=3503MB peak=3560MB (+56 transient) retained=-2197MB in 63.1s (248 samples)
+  [WORKER] Got result: response=2145 chars, adapter=newton
+WARNING:CodetteSubsystemUpgrade:[AEGIS] would-veto (SHADOW) — ubuntu=0.40 < 0.5 (η=0.92); passing through
+  [AEGIS] would-block (SHADOW) η=0.9216 — enforcing nothing yet
+  [COGNITION] ξ=0.0409 Γ=0.9607 η=0.9216 σ=0.0 fidelity=1.0 P=0.345 (all measured)
+  [05:23:15] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:15] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [05:23:17] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:17] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:23:17] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [WORKER] Processing query: What is the correct answer to this question: Calculate the e...
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=none (conf=0.15), memory=1 cocoons, tokens=200, compression=compressed
+  [GOVERNOR] identity=none (conf=0.15), memory=1 cocoons, tokens=200, compression=compressed
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.SIMPLE
+[PHASE7] Route: 
+[PHASE6] Domain: physics, max_adapters: 1
+
+  [OV] Route: newton (conf=0.69, keyword)
+  [05:23:17] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:23:17] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:23:18] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:23:18] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:23:18] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:23:18] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:23:18] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:20] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:23:20] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:23:20] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:23:21] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:22] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:23:23] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:23] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:23:24] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:26] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:27] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:23:27] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:23:27] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:23:27] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:23:27] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:28] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:23:28] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:23:28] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:23:28] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:23:28] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:23:28] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:23:28] [heartbeat] up 7m00s · model=ready · inferring · pending=0
+  [05:23:28] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:23:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:28] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:23:29] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:23:29] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:23:30] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:32] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:32] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:23:33] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:23:33] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:35] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:35] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:23:35] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:35] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:23:35] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:23:35] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:23:36] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:23:36] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:23:36] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:23:36] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:37] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:23:37] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:23:37] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:23:37] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:23:37] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:23:38] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:38] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:23:38] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:23:38] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:23:39] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:41] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:42] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:23:42] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:43] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:23:43] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:23:44] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:44] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:23:44] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:23:44] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:23:44] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:23:44] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:23:45] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:47] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:23:47] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:23:47] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:23:47] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:23:47] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:23:48] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:23:48] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:23:48] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:23:48] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:51] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:52] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:23:52] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:23:52] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:23:52] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:23:53] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:53] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:23:54] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:56] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:57] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:23:57] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:23:57] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:23:57] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:23:57] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:58] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:23:58] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:23:58] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:23:58] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:23:58] [heartbeat] up 7m30s · model=ready · inferring · pending=0
+  [05:23:59] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:23:59] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:23:59] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:23:59] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:23:59] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:23:59] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:23:59] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:24:00] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:02] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:02] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:24:03] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:24:03] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:05] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:06] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:07] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:24:07] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:24:07] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:24:07] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:24:07] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:24:08] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:08] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:24:08] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:24:08] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:24:08] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:24:08] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:24:08] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:24:09] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:11] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:12] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:24:12] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:13] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:24:14] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:14] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:24:14] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:24:14] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:24:14] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:24:14] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:24:15] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:24:15] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:17] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:17] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:24:17] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:24:17] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:24:17] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:24:18] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:24:18] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:24:18] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:24:18] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:24:18] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:newton] ~303 tok, 5.0 tok/s
+[AAP] attractor=Fact eps=0.20 trust=0.780
+[RENDER-AUDIT] ok overlap=96.77%
+[PHASE6] Done: 2592 chars, 303 tokens
+  [MEMORY] [generation] baseline=1300MB peak=1699MB (+399 transient) retained=+215MB in 61.3s (240 samples)
+  [WORKER] Got result: response=2592 chars, adapter=newton
+  [GOVERNOR] Response exceeded token budget (648 est vs 200 budget).
+WARNING:CodetteSubsystemUpgrade:[AEGIS] would-veto (SHADOW) — ubuntu=0.40 < 0.5 (η=0.93); passing through
+  [AEGIS] would-block (SHADOW) η=0.9276 — enforcing nothing yet
+  [COGNITION] ξ=— Γ=— η=0.9276 σ=0.0 fidelity=0.9677 P=0.391 (all measured)
+  [05:24:19] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [05:24:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [WORKER] Processing query: What is the correct answer to this question: A quantum mecha...
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=none (conf=0.15), memory=2 cocoons, tokens=400, compression=normal
+  [GOVERNOR] identity=none (conf=0.15), memory=2 cocoons, tokens=400, compression=normal
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.MEDIUM
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: physics, max_adapters: 2
+
+  [OV] Route: newton + quantum (conf=0.67, keyword)
+  [05:24:21] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:22] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:24:23] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:24:23] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:24] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:24:24] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:24:24] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:24:24] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:26] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:27] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:24:27] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:24:27] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:24:28] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:24:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:28] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:24:28] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:24:28] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:24:28] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:24:28] [heartbeat] up 8m00s · model=ready · inferring · pending=0
+  [05:24:29] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:29] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:24:29] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:24:29] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:24:30] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:24:30] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:24:30] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:24:30] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:32] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:32] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:24:33] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:24:33] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:35] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:35] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:24:35] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:35] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:24:35] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:24:35] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:24:36] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:37] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:24:37] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:24:37] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:24:37] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:24:37] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:24:38] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:38] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:24:38] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:24:38] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:24:39] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:40] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:24:40] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:24:40] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:24:41] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:42] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:24:42] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:43] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:24:44] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:44] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:24:44] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:24:44] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:24:45] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:24:45] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:24:45] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:24:45] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:47] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:47] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:24:47] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:24:47] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:24:47] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:24:48] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:24:48] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:24:48] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:24:48] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:24:48] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:51] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:52] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:24:53] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:24:53] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:54] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:56] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:24:56] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:56] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:24:56] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:24:57] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:24:57] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:24:57] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:24:57] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:24:58] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:58] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:24:58] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:24:58] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:24:58] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:24:58] [heartbeat] up 8m30s · model=ready · inferring · pending=0
+  [05:24:59] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:24:59] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:24:59] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:24:59] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:25:00] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:25:00] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:25:00] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:25:00] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:02] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:02] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:25:03] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:25:03] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:05] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:newton] ~377 tok, 8.5 tok/s
+  [05:25:06] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:07] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:25:07] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:25:07] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:25:07] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:25:07] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:25:08] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:08] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:25:08] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:25:08] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:25:09] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:12] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:25:12] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:25:12] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:25:12] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:12] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:25:13] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:25:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:14] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:25:15] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:25:15] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:25:15] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:25:15] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:25:15] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:25:15] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:17] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:17] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:25:17] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:25:17] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:25:17] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:25:18] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:25:18] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:25:18] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:25:18] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:25:18] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:21] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:22] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:25:23] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:23] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:25:24] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:26] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:27] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:25:27] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:25:27] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:25:27] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:27] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:25:28] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:25:28] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:25:28] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:25:28] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:25:28] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:25:28] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:25:28] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:25:28] [heartbeat] up 9m00s · model=ready · inferring · pending=0
+  [05:25:29] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:29] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:25:30] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:25:30] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:25:30] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:25:30] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:25:30] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:25:30] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:32] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:25:33] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:25:33] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:35] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:35] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:25:35] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:35] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:25:35] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:25:35] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:25:36] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:37] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:25:37] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:25:37] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:25:37] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:25:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:38] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:25:38] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:25:38] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:25:38] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:25:39] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:quantum] ~380 tok, 10.3 tok/s
+  [05:25:42] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:42] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:25:43] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:25:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:44] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:25:44] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:25:44] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:25:45] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:25:45] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:25:45] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:25:45] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:25:45] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:25:45] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:25:45] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:47] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:25:47] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:25:47] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:25:47] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:25:47] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:25:48] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:25:48] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:25:48] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:25:48] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:51] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:52] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:25:53] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:53] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:25:54] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:56] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:57] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:25:57] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:25:57] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:25:57] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:25:57] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:25:58] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:25:58] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:25:58] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:25:58] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:25:58] [heartbeat] up 9m30s · model=ready · inferring · pending=0
+  [05:25:59] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:00] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:26:00] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:26:00] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:26:00] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:26:00] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:26:00] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:26:00] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:26:00] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:00] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:26:01] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:26:01] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:02] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:26:03] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:26:03] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:05] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:06] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:07] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:26:07] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:26:07] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:26:07] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:26:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:08] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:26:08] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:26:08] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:26:08] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:26:09] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:10] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:12] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:12] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:26:13] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:26:13] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:15] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:26:15] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:26:15] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:15] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:26:15] [  http] "GET /api/status HTTP/1.1" 200 -
+  [OV:base] ~301 tok, 9.1 tok/s
+  [TENSION] xi=0.2724 gamma=0.7859 — synthesis (perspectives disagree)
+[MANIFOLD] weights={'newton': 0.5, 'quantum': 0.5} xi=0.092 steering=ON
+[AAP] attractor=Fact eps=0.27 trust=0.780
+[RENDER-AUDIT] ok overlap=97.22%
+[PHASE6] Done: 1686 chars, 757 tokens
+  [MEMORY] [generation] baseline=1471MB peak=1632MB (+161 transient) retained=+129MB in 114.8s (449 samples)
+  [WORKER] Got result: response=1686 chars, adapter=newton
+  [05:26:16] [  http] "GET /api/session HTTP/1.1" 200 -
+  [COGNITION] ξ=0.2724 Γ=0.7859 η=0.9343 σ=0.0 fidelity=0.9722 P=0.37 (all measured)
+  [05:26:16] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:26:16] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [05:26:16] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:26:16] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:26:16] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:26:16] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:17] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:26:17] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:26:17] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:26:17] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:26:17] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:26:18] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [WORKER] Processing query: What is the correct answer to this question: The universe is...
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=none (conf=0.15), memory=2 cocoons, tokens=400, compression=normal
+  [GOVERNOR] identity=none (conf=0.15), memory=2 cocoons, tokens=400, compression=normal
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.MEDIUM
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,memory_weighting,gamma_monitoring,synthesis
+  [05:26:18] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+[PHASE6] Domain: physics, max_adapters: 2
+
+  [OV] Route: newton + quantum (conf=0.83, keyword)
+  [05:26:18] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:26:18] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:21] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:22] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:26:23] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:26:23] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:24] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:26] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:27] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:26:27] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:26:27] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:26:27] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:26:27] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:28] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:26:28] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:26:28] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:26:28] [heartbeat] up 10m00s · model=ready · inferring · pending=0
+  [05:26:28] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:26:29] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:30] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:26:30] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:26:30] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:26:30] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:31] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:26:31] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:26:31] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:26:31] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:32] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:26:32] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:26:32] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:26:32] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:26:33] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:26:33] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:35] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:35] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:26:35] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:35] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:26:35] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:26:35] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:26:36] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:37] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:26:37] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:26:37] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:26:37] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:26:37] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:38] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:26:38] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:26:38] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:26:38] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:26:39] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:42] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:42] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:26:43] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:26:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:45] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:26:45] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:46] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:26:46] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:26:46] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:26:46] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:26:46] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:26:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:47] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:26:47] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:26:47] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:26:47] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:26:47] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:26:48] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:26:48] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:26:48] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:26:48] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:26:48] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:26:48] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:26:48] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:51] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:52] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:26:53] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:26:53] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:54] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:56] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:newton] ~391 tok, 10.3 tok/s
+  [05:26:57] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:26:57] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:26:57] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:26:57] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:26:57] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:26:58] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:26:58] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:26:58] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:26:58] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:26:59] [heartbeat] up 10m30s · model=ready · inferring · pending=0
+  [05:26:59] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:00] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:01] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:27:01] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:27:01] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:27:01] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:27:01] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:27:01] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:27:02] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:02] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:27:03] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:27:03] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:04] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:27:04] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:27:04] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:27:05] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:06] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:07] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:27:07] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:27:07] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:27:07] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:27:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:08] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:27:08] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:27:08] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:27:08] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:27:09] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:11] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:12] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:27:12] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:13] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:27:14] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:15] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:16] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:27:16] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:27:16] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:27:16] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:27:16] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:27:17] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:27:17] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:17] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:27:17] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:27:17] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:27:17] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:27:17] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:27:18] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:27:18] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:27:18] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:27:18] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:20] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:27:20] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:27:20] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:27:21] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:22] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:27:23] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:23] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:27:24] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:26] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:27] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:27:27] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:27:27] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:27:27] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:27:27] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:28] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:27:28] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:27:28] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:27:28] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:27:29] [heartbeat] up 11m00s · model=ready · inferring · pending=0
+  [05:27:29] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:30] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:31] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:27:32] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:27:32] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:27:32] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:32] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:27:32] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:27:32] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:27:32] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:27:33] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:27:33] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:35] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:35] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:27:35] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:35] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:27:35] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:27:35] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:27:36] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:27:36] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:36] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:27:36] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:27:37] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:27:37] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:27:37] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:27:37] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:27:38] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:38] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:27:38] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:27:38] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:27:38] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [OV:quantum] ~333 tok, 7.7 tok/s
+  [05:27:39] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:41] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:42] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:27:42] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:43] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:27:44] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:45] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:47] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:47] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:27:47] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:27:47] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:27:47] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:27:47] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:27:47] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:27:47] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:27:47] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:27:47] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:27:47] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:27:47] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:27:48] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:27:48] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:27:48] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:48] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:27:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:51] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:52] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:27:52] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:27:52] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:27:52] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:27:53] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:27:53] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:54] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:56] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:57] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:27:57] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:27:57] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:27:57] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:27:57] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:27:58] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:27:58] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:27:58] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:27:58] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:27:59] [heartbeat] up 11m30s · model=ready · inferring · pending=0
+  [05:27:59] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:00] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:02] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:02] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:28:02] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:28:02] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:28:02] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:28:02] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:28:02] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:28:03] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:28:03] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:28:03] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:05] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:06] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:07] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:28:07] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:28:07] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:28:07] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:28:07] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:08] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:28:08] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:28:08] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:28:08] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:28:08] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:28:08] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:28:08] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:28:09] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:11] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:base] ~300 tok, 9.4 tok/s
+  [TENSION] xi=0.2568 gamma=0.7957 — synthesis (perspectives disagree)
+[MANIFOLD] weights={'newton': 0.5001, 'quantum': 0.4999} xi=0.111 steering=ON
+[AAP] attractor=Fact eps=0.26 trust=0.940
+[RENDER-AUDIT] ok overlap=96.30%
+[PHASE6] Done: 1755 chars, 724 tokens
+  [MEMORY] [generation] baseline=1540MB peak=1705MB (+165 transient) retained=-472MB in 113.1s (437 samples)
+  [WORKER] Got result: response=1755 chars, adapter=newton
+WARNING:CodetteSubsystemUpgrade:[AEGIS] would-veto (SHADOW) — care=0.45 < 0.5 (η=0.94); passing through
+  [AEGIS] would-block (SHADOW) η=0.939 — enforcing nothing yet
+  [COGNITION] ξ=0.2568 Γ=0.7957 η=0.939 σ=0.0 fidelity=0.963 P=0.339 (all measured)
+  [05:28:11] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [05:28:12] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:28:12] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:13] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [WORKER] Processing query: What is the correct answer to this question: You perform a h...
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=none (conf=0.15), memory=2 cocoons, tokens=400, compression=normal
+  [GOVERNOR] identity=none (conf=0.15), memory=2 cocoons, tokens=400, compression=normal
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.MEDIUM
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: chemistry, max_adapters: 2
+
+  [OV] Route: newton + quantum (conf=0.64, keyword)
+  [05:28:14] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:15] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:17] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:17] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:28:17] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:28:17] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:28:17] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:28:17] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:28:17] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:28:18] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:28:18] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:28:18] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:28:18] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:28:18] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:28:18] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:28:18] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:28:18] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:19] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:28:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:21] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:22] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:28:23] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:23] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:28:24] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:28:24] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:28:24] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:28:24] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:26] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:27] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:28:27] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:28:27] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:28:27] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:28:27] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:28] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:28:28] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:28:28] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:28:29] [heartbeat] up 12m00s · model=ready · inferring · pending=0
+  [05:28:29] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:28:29] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:30] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:32] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:32] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:28:33] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:28:33] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:28:33] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:28:33] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:28:33] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:28:33] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:28:33] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:28:33] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:35] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:35] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:28:35] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:35] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:28:35] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:28:35] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:28:36] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:37] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:28:37] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:28:37] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:28:37] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:28:38] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:38] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:28:38] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:28:38] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:28:39] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:28:39] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:40] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:28:40] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:28:40] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:28:41] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:42] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:28:42] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:43] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:28:44] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:newton] ~337 tok, 10.8 tok/s
+  [05:28:45] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:47] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:47] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:28:47] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:28:47] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:28:47] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:28:48] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:28:48] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:28:48] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:28:48] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:28:48] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:28:48] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:28:48] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:28:48] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:28:48] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:28:48] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:48] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:28:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:51] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:52] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:28:53] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:28:53] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:54] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:56] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:28:56] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:56] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:28:56] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:28:57] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:28:57] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:28:57] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:28:57] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:28:57] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:28:58] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:28:58] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:28:58] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:28:59] [heartbeat] up 12m30s · model=ready · inferring · pending=0
+  [05:28:59] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:28:59] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:00] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:02] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:02] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:29:03] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:29:03] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:29:03] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:29:03] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:29:03] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:29:03] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:03] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:29:04] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:29:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:06] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:07] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:29:07] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:29:07] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:29:07] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:29:08] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:08] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:29:08] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:29:08] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:29:09] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:29:09] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:11] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:12] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:29:12] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:29:12] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:29:12] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:29:12] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:13] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:29:14] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:15] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:17] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:17] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:29:17] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:29:17] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:29:17] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:29:18] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:29:18] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:29:18] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:29:18] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:29:18] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:29:18] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:29:18] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:19] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:29:19] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:29:19] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:29:19] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:29:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:quantum] ~406 tok, 11.5 tok/s
+  [TENSION] xi=0.0915 gamma=0.9162 — primary direct (perspectives agree)
+[MANIFOLD] weights={'newton': 0.5, 'quantum': 0.5} xi=0.118 steering=ON
+[AAP] attractor=Fact eps=0.09 trust=0.940
+[RENDER-AUDIT] ok overlap=97.06%
+[PHASE6] Done: 577 chars, 743 tokens
+  [MEMORY] [generation] baseline=1068MB peak=1317MB (+249 transient) retained=-336MB in 66.8s (259 samples)
+  [WORKER] Got result: response=577 chars, adapter=newton
+  [COGNITION] ξ=0.0915 Γ=0.9162 η=0.9495 σ=0.0 fidelity=0.9706 P=0.367 (all measured)
+  [05:29:20] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [05:29:21] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:22] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [WORKER] Processing query: What is the correct answer to this question: which of the fo...
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=none (conf=0.15), memory=2 cocoons, tokens=400, compression=normal
+  [GOVERNOR] identity=none (conf=0.15), memory=2 cocoons, tokens=400, compression=normal
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.MEDIUM
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: chemistry, max_adapters: 2
+
+  [OV] Route: newton + quantum (conf=0.86, keyword)
+  [05:29:23] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:23] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:29:24] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:26] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:27] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:29:27] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:29:27] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:29:27] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:29:28] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:28] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:29:28] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:29:28] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:29:28] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:29:28] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:29:28] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:29:29] [heartbeat] up 13m00s · model=ready · inferring · pending=0
+  [05:29:29] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:29:29] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:30] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:32] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:32] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:29:33] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:29:33] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:29:33] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:29:33] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:29:33] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:34] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:29:34] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:29:34] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:29:34] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:35] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:29:35] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:35] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:29:35] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:29:35] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:29:36] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:37] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:29:37] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:29:37] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:29:37] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:29:38] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:38] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:29:38] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:29:38] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:29:38] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:29:39] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:40] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:42] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:29:42] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:43] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [OV:newton] ~175 tok, 8.5 tok/s
+  [05:29:43] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:44] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:29:44] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:29:44] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:29:45] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:46] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:47] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:29:47] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:29:47] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:29:47] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:29:48] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:29:48] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:29:48] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:29:48] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:29:48] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:29:48] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:29:48] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:49] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:29:49] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:29:49] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:29:49] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:29:49] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:51] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:52] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:29:53] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:53] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:29:54] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:56] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:57] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:29:57] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:29:57] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:29:57] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:29:57] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:29:58] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:29:58] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:29:58] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:29:59] [heartbeat] up 13m30s · model=ready · inferring · pending=0
+  [05:29:59] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:29:59] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:00] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:30:00] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:30:00] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [OV:quantum] ~123 tok, 7.2 tok/s
+  [TENSION] xi=0.0712 gamma=0.9336 — primary direct (perspectives agree)
+  [05:30:00] [  http] "GET /api/drift HTTP/1.1" 200 -
+[MANIFOLD] weights={'newton': 0.5, 'quantum': 0.5} xi=0.013 steering=ON
+[AAP] attractor=Fact eps=0.07 trust=0.780
+[RENDER-AUDIT] ok overlap=97.06%
+[PHASE6] Done: 1208 chars, 298 tokens
+  [MEMORY] [generation] baseline=732MB peak=962MB (+230 transient) retained=+8MB in 37.9s (147 samples)
+  [WORKER] Got result: response=1208 chars, adapter=newton
+  [COGNITION] ξ=0.0712 Γ=0.9336 η=0.9558 σ=0.0 fidelity=0.9706 P=0.348 (all measured)
+  [05:30:00] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [05:30:02] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:02] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [WORKER] Processing query: What is the correct answer to this question: Among the follo...
+INFO:reasoning_forge.behavior_governor:[GOVERNOR] Pre: identity=none (conf=0.15), memory=2 cocoons, tokens=400, compression=normal
+  [GOVERNOR] identity=none (conf=0.15), memory=2 cocoons, tokens=400, compression=normal
+  [WORKER] Using forge bridge (Phase 6/7)
+[PHASE6] Query complexity: QueryComplexity.MEDIUM
+[PHASE7] Route: debate,semantic_tension,specialization_tracking,memory_weighting,gamma_monitoring,synthesis
+[PHASE6] Domain: chemistry, max_adapters: 2
+
+  [OV] Route: newton + quantum (conf=0.83, keyword)
+  [05:30:03] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:30:03] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:30:03] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:30:03] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:30:03] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:04] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:30:04] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:30:04] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:30:04] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:06] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:07] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:30:07] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:30:07] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:30:07] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:30:08] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:08] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:30:08] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:30:08] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:30:09] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:30:09] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:11] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:12] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:30:12] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:13] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:30:14] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:15] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:16] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:30:16] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:30:16] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:30:17] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:17] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:30:17] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:30:17] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:30:17] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:30:18] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:30:18] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:30:18] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:30:18] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:30:18] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:19] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:30:19] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:30:19] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:30:19] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:30:19] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:30:19] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:30:19] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:21] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:22] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:30:23] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:23] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:30:24] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:26] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:27] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:30:27] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:30:27] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:30:27] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:30:27] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:28] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:30:28] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:30:28] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:30:29] [heartbeat] up 14m00s · model=ready · inferring · pending=0
+  [05:30:29] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:30:29] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:30] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:32] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:30:32] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:32] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:30:32] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:30:32] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [OV:newton] ~366 tok, 12.4 tok/s
+  [05:30:33] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:30:33] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:34] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:30:34] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:30:34] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:30:34] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:30:34] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:30:34] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:30:35] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:35] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:30:35] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:35] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:30:35] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:30:35] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:30:36] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:37] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:30:37] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:30:37] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:30:37] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:30:38] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:38] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:30:38] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:30:38] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:30:39] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:30:39] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:41] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:42] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:30:42] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:43] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:30:44] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:45] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:47] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:47] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:30:47] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:30:47] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:30:47] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:30:48] [  http] "GET /api/aegis/healing-log?limit=15 HTTP/1.1" 200 -
+  [05:30:48] [  http] "GET /api/aegis/recent-events?limit=15 HTTP/1.1" 200 -
+  [05:30:48] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:30:48] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:30:48] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:48] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:30:48] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:30:49] [  http] "GET /api/governor HTTP/1.1" 200 -
+  [05:30:49] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:30:49] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:30:49] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:30:49] [  http] "GET /api/status HTTP/1.1" 200 -
+  [05:30:49] [  http] "GET /api/session HTTP/1.1" 200 -
+  [05:30:50] [  http] "GET /api/sessions HTTP/1.1" 200 -
+  [05:30:50] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:51] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:52] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:30:53] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [05:30:53] [  http] "GET /api/aegis/stats?hours=24 HTTP/1.1" 200 -
+  [05:30:54] [  http] "GET /api/drift HTTP/1.1" 200 -
+  [OV:quantum] ~286 tok, 12.9 tok/s
+  [TENSION] xi=0.0647 gamma=0.9392 — primary direct (perspectives agree)
+[MANIFOLD] weights={'newton': 0.5001, 'quantum': 0.4999} xi=0.060 steering=ON
+[AAP] attractor=Fact eps=0.06 trust=0.860
+[RENDER-AUDIT] ok overlap=97.22%
+[PHASE6] Done: 2003 chars, 652 tokens
+  [MEMORY] [generation] baseline=740MB peak=945MB (+205 transient) retained=-1MB in 52.1s (201 samples)
+  [WORKER] Got result: response=2003 chars, adapter=newton
+  [COGNITION] ξ=0.0647 Γ=0.9392 η=0.9601 σ=0.0 fidelity=0.9722 P=0.371 (all measured)
+  [GLYPH] formed ['newton', 'quantum'] (turn 8, 2 total this session)
+  [05:30:55] [  http] "POST /api/chat HTTP/1.1" 200 -
+  [05:30:56] [  http] "GET /api/drift HTTP/1.1" 200 -

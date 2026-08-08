@@ -1,0 +1,10 @@
+Recovered from the Codette archives — see RECOVERY_MANIFEST.md
+--------------------------------------------------------------
+
+Simulation assumes:
+- Two moons in mutual barycentric orbit
+- Mass ratio near 1:1 or 3:2
+- Combined transit signature may mimic eccentric or noise-filtered object
+- Coordinates set to l=50.6°, b=-33.4°, adjusted to 607.41 parsecs
+
+To run: Use barycentric simulation software or numerical integrator (e.g., REBOUND, Python + scipy odeint) with dual-mass system.

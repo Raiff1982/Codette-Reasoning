@@ -52,6 +52,7 @@ model-index:
 ---
 
 # Codette Reasoning Engine
+Harrison, J. Codette: a multi-perspective cognitive architecture with memory and meta-cognitive strategy evolution. Sci Rep (2026). https://doi.org/10.1038/s41598-026-64449-0
 
 **Advanced multi-perspective AI with conscience, memory, auditability, and behavioral discipline.**
 
@@ -147,7 +148,7 @@ Codette is a modular reasoning system with published demos, tests, benchmarks, p
 | Verify-and-Revise vs single-pass (paired) | `python benchmarks/gpqa_verify_revise.py --dataset gpqa_main.csv --limit 30` (server running) | `data/results/verify_revise/vr_*.json` |
 | Bully-critic integrity stress test | same + `--adversarial` | hold-ground rate + per-question traces in `data/results/verify_revise/` |
 | McNemar paired significance for any two runs | `python benchmarks/paired_analysis.py <a.json> <b.json>` | exact p, discordant counts, letter-bias table |
-| v3.7 verify-half + shadow-safety modules | `python -m pytest tests/test_grounding.py tests/test_grounding_bridge.py tests/test_grounding_z3.py tests/test_neural_symbolic.py tests/test_harm_advisor.py tests/test_sentiment_analyzer.py tests/test_cocoon_self_trainer.py tests/test_emotion_ontology.py tests/test_optimizer_ratchet.py -q` | 91 tests pass (grounding, harm advisor, sentiment, self-trainer, emotion ontology, optimizer ratchet) |
+| v3.7 verify-half + shadow-safety modules | `python -m pytest tests/test_grounding.py tests/test_grounding_bridge.py tests/test_grounding_z3.py tests/test_neural_symbolic.py tests/test_harm_advisor.py tests/test_sentiment_analyzer.py tests/test_cocoon_self_trainer.py tests/test_emotion_ontology.py tests/test_optimizer_ratchet.py tests/test_semantic_grounding.py -q` | 113 tests pass (grounding, semantic grounding, harm advisor, sentiment, self-trainer, emotion ontology, optimizer ratchet) |
 
 ### Direct evidence links
 
@@ -185,14 +186,15 @@ This repository includes reproducible evidence of:
 | **Real self-diagnostics** | Health checks expose measured subsystem values rather than generated guesses. |
 | **Publishable benchmark story** | Benchmarks, ablations, and saved outputs are included in the repo. |
 
-**New in v3.7 — the verifying half + shadow-safety layer. These are built and tested (91 new tests) but *shadow-first / standalone*: they observe and log, and do not gate a response or change an AEGIS verdict until their shadow log is reviewed and they are deliberately wired in.**
+**New in v3.7 — the verifying half + shadow-safety layer. These are built and tested (113 tests) but *shadow-first / standalone*: they observe and log, and do not gate a response or change an AEGIS verdict until their shadow log is reviewed and they are deliberately wired in.**
 
 | Feature (v3.7, shadow-first) | Description |
 |---|---|
 | **Neuro-symbolic grounding** | `verify(claim) → VERIFIED / REFUTED / UNVERIFIABLE` via sympy (arithmetic/algebra) and z3 (universal validity, cross-claim contradiction). A claim it cannot formalize returns UNVERIFIABLE — never a guessed pass. `reasoning_forge/grounding.py`, `grounding_bridge.py`; fills the real body of the 2025 `NeuralSymbolicProcessor` interface. |
+| **Semantic-layer grounding** | Evidential support for *qualitative* thoughts, which sympy/z3 cannot reach: grounds a claim against her cocoon memory (offline lexical overlap) into `SUPPORTED_BY_EVIDENCE` / `UNADDRESSED`. Reports *support, never truth* — the caveat is stated in every verdict — and never false-flags. `reasoning_forge/semantic_grounding.py`. |
 | **AEGIS harm advisor** | Classifier-style signals AEGIS's heuristics lack: PII (offline regex), optional toxicity/bias models (off by default), and a deception-advocacy detector that closes AEGIS's one *measured* gap (calm advocacy of deception scored η=0.94). Advisory only. `Protection_Layer/harm_advisor.py`. |
 | **Advanced sentiment + self-learning** | VADER+TextBlob ensemble, negation handling, and an online-adaptive classifier that *abstains until trained*; a cocoon self-trainer that learns from first-hand data with a drift guard (refuses degenerate/single-class data). `reasoning_forge/sentiment_analyzer.py`, `cocoon_self_trainer.py`. |
-| **Emotion ontology** | Text → emotion + valence/arousal (Russell/Plutchik/Lazarus), returns None rather than guessing. `reasoning_forge/emotion_ontology.py`. |
+| **Emotion ontology** | Text → emotion + valence/arousal (Russell/Plutchik/Lazarus), returns None rather than guessing. Also carries Codette's *own* AI-equivalent for each emotion — her words, reviewed and revised **by her** — as transparency data, never a gate. `reasoning_forge/emotion_ontology.py`. |
 
 See the architecture and proof docs for the fuller feature inventory.
 

@@ -1,0 +1,53 @@
+2026-05-26 04:41:24 | INFO     | codette.pipeline | === Codette Training Pipeline ===
+2026-05-26 04:41:24 | INFO     | codette.pipeline | Stages: ['validate']
+2026-05-26 04:41:32 | INFO     | codette.pipeline | Random seed: 42
+2026-05-26 04:41:32 | INFO     | codette.pipeline | Adapters (9): ['newton', 'davinci', 'empathy', 'philosophy', 'quantum', 'consciousness', 'multi_perspective', 'systems_architecture', 'orchestrator']
+2026-05-26 04:41:32 | INFO     | codette.pipeline | ============================================================
+2026-05-26 04:41:32 | INFO     | codette.pipeline | STAGE 2: Dataset Validation
+2026-05-26 04:41:32 | INFO     | codette.pipeline | ============================================================
+2026-05-26 04:41:32 | INFO     | codette.pipeline | Validating: newton (datasets/newton_reasoning.jsonl)
+2026-05-26 04:41:32 | WARNING  | codette.pipeline |   SKIP: dataset file not found
+2026-05-26 04:41:32 | INFO     | codette.pipeline | Validating: davinci (datasets/davinci_reasoning.jsonl)
+2026-05-26 04:41:32 | WARNING  | codette.pipeline |   SKIP: dataset file not found
+2026-05-26 04:41:32 | INFO     | codette.pipeline | Validating: empathy (datasets/empathy_reasoning.jsonl)
+2026-05-26 04:41:32 | WARNING  | codette.pipeline |   SKIP: dataset file not found
+2026-05-26 04:41:32 | INFO     | codette.pipeline | Validating: philosophy (datasets/philosophy_reasoning.jsonl)
+2026-05-26 04:41:32 | WARNING  | codette.pipeline |   SKIP: dataset file not found
+2026-05-26 04:41:32 | INFO     | codette.pipeline | Validating: quantum (datasets/quantum_reasoning.jsonl)
+2026-05-26 04:41:32 | WARNING  | codette.pipeline |   SKIP: dataset file not found
+2026-05-26 04:41:32 | INFO     | codette.pipeline | Validating: consciousness (datasets/consciousness_reasoning.jsonl)
+2026-05-26 04:41:32 | WARNING  | codette.pipeline |   SKIP: dataset file not found
+2026-05-26 04:41:32 | INFO     | codette.pipeline | Validating: multi_perspective (datasets/multi_perspective_reasoning.jsonl)
+2026-05-26 04:41:32 | WARNING  | codette.pipeline |   SKIP: dataset file not found
+2026-05-26 04:41:32 | INFO     | codette.pipeline | Validating: systems_architecture (datasets/systems_architecture_reasoning.jsonl)
+2026-05-26 04:41:32 | WARNING  | codette.pipeline |   SKIP: dataset file not found
+2026-05-26 04:41:32 | INFO     | codette.pipeline | Validating: orchestrator (datasets/orchestrator_reasoning.jsonl)
+2026-05-26 04:41:32 | WARNING  | codette.pipeline |   SKIP: dataset file not found
+2026-05-26 04:41:32 | INFO     | codette.pipeline | Observatory metrics saved to: observatory_metrics.json
+2026-05-26 04:41:32 | INFO     | codette.pipeline | 
+2026-05-26 04:41:32 | INFO     | codette.pipeline | ========================================================================
+2026-05-26 04:41:32 | INFO     | codette.pipeline |   CODETTE TRAINING PIPELINE DASHBOARD
+2026-05-26 04:41:32 | INFO     | codette.pipeline | ========================================================================
+2026-05-26 04:41:32 | INFO     | codette.pipeline |   Total time: 0.0s (0.0 min)
+2026-05-26 04:41:32 | INFO     | codette.pipeline |   Timestamp:  2026-05-26 04:41:32
+2026-05-26 04:41:32 | INFO     | codette.pipeline | 
+2026-05-26 04:41:32 | INFO     | codette.pipeline | Adapter               validate 
+2026-05-26 04:41:32 | INFO     | codette.pipeline | ------------------------------------------------------------------------
+2026-05-26 04:41:32 | INFO     | codette.pipeline | consciousness           FAIL   
+2026-05-26 04:41:32 | INFO     | codette.pipeline | davinci                 FAIL   
+2026-05-26 04:41:32 | INFO     | codette.pipeline | empathy                 FAIL   
+2026-05-26 04:41:32 | INFO     | codette.pipeline | multi_perspective       FAIL   
+2026-05-26 04:41:32 | INFO     | codette.pipeline | newton                  FAIL   
+2026-05-26 04:41:32 | INFO     | codette.pipeline | orchestrator            FAIL   
+2026-05-26 04:41:32 | INFO     | codette.pipeline | philosophy              FAIL   
+2026-05-26 04:41:32 | INFO     | codette.pipeline | quantum                 FAIL   
+2026-05-26 04:41:32 | INFO     | codette.pipeline | systems_architecture    FAIL   
+2026-05-26 04:41:32 | INFO     | codette.pipeline | ------------------------------------------------------------------------
+2026-05-26 04:41:32 | INFO     | codette.pipeline | 
+2026-05-26 04:41:32 | INFO     | codette.pipeline |   validate    : 0 ok, 9 failed, 0 skipped
+2026-05-26 04:41:32 | INFO     | codette.pipeline | 
+2026-05-26 04:41:32 | INFO     | codette.pipeline |   Validation Details:
+2026-05-26 04:41:32 | INFO     | codette.pipeline | 
+2026-05-26 04:41:32 | INFO     | codette.pipeline | ========================================================================
+2026-05-26 04:41:32 | INFO     | codette.pipeline | Pipeline results saved to: logs\pipeline_results.json
+2026-05-26 04:41:32 | INFO     | codette.pipeline | Pipeline completed successfully.

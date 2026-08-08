@@ -1,0 +1,105 @@
+\begin{thebibliography}{15}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Baars(1997)]{baars1997theatre}
+Bernard~J Baars.
+\newblock In the theatre of consciousness: Global workspace theory, a rigorous
+  scientific theory of consciousness.
+\newblock \emph{Journal of Consciousness Studies}, 4\penalty0 (4):\penalty0
+  292--309, 1997.
+
+\bibitem[Bender et~al.(2021)Bender, Gebru, McMillan-Major, and
+  Shmitchell]{bender2021dangers}
+Emily~M Bender, Timnit Gebru, Angelina McMillan-Major, and Shmargaret
+  Shmitchell.
+\newblock On the dangers of stochastic parrots: Can language models be too big?
+\newblock In \emph{Proceedings of the 2021 ACM Conference on Fairness,
+  Accountability, and Transparency}, pages 610--623, 2021.
+
+\bibitem[Bommasani et~al.(2021)]{bommasani2021opportunities}
+Rishi Bommasani et~al.
+\newblock On the opportunities and risks of foundation models.
+\newblock \emph{arXiv preprint arXiv:2108.07258}, 2021.
+
+\bibitem[Dettmers et~al.(2023)Dettmers, Pagnoni, Holtzman, and
+  Zettlemoyer]{dettmers2023qlora}
+Tim Dettmers, Artidoro Pagnoni, Ari Holtzman, and Luke Zettlemoyer.
+\newblock {QLoRA}: Efficient finetuning of quantized language models.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2023.
+
+\bibitem[Friston(2010)]{friston2010free}
+Karl Friston.
+\newblock The free-energy principle: A unified brain theory?
+\newblock \emph{Nature Reviews Neuroscience}, 11:\penalty0 127--138, 2010.
+
+\bibitem[Grattafiori et~al.(2024)]{grattafiori2024llama}
+Aaron Grattafiori et~al.
+\newblock The {Llama} 3 herd of models.
+\newblock \emph{arXiv preprint arXiv:2407.21783}, 2024.
+
+\bibitem[Hockey(1997)]{hockey1997compensatory}
+G~Robert~J Hockey.
+\newblock Compensatory control in the regulation of human performance under
+  stress and high workload: A cognitive-energetical framework.
+\newblock \emph{Biological Psychology}, 45\penalty0 (1-3):\penalty0 73--93,
+  1997.
+
+\bibitem[Hu et~al.(2021)Hu, Shen, Wallis, Allen-Zhu, Li, Wang, Wang, and
+  Chen]{hu2021lora}
+Edward~J Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean
+  Wang, Lu~Wang, and Weizhu Chen.
+\newblock {LoRA}: Low-rank adaptation of large language models.
+\newblock \emph{arXiv preprint arXiv:2106.09685}, 2021.
+
+\bibitem[Pfeiffer et~al.(2020)Pfeiffer, R{\"u}ckl{\'e}, Poth, Kamath,
+  Vuli{\'c}, Ruder, Cho, and Gurevych]{pfeiffer2020adapterhub}
+Jonas Pfeiffer, Andreas R{\"u}ckl{\'e}, Clifton Poth, Aishwarya Kamath, Ivan
+  Vuli{\'c}, Sebastian Ruder, Kyunghyun Cho, and Iryna Gurevych.
+\newblock {AdapterHub}: A framework for adapting transformers.
+\newblock In \emph{Proceedings of the 2020 Conference on Empirical Methods in
+  Natural Language Processing: System Demonstrations}, pages 46--54, 2020.
+
+\bibitem[Shinn et~al.(2023)Shinn, Cassano, Gopinath, Narasimhan, and
+  Yao]{shinn2023reflexion}
+Noah Shinn, Federico Cassano, Ashwin Gopinath, Karthik Narasimhan, and Shunyu
+  Yao.
+\newblock Reflexion: Language agents with verbal reinforcement learning.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2023.
+
+\bibitem[Sterling(2012)]{sterling2012allostasis}
+Peter Sterling.
+\newblock Allostasis: A model of predictive regulation.
+\newblock \emph{Physiology \& Behavior}, 106\penalty0 (1):\penalty0 5--15,
+  2012.
+
+\bibitem[Tononi(2004)]{tononi2004information}
+Giulio Tononi.
+\newblock An information integration theory of consciousness.
+\newblock \emph{BMC Neuroscience}, 5\penalty0 (42), 2004.
+
+\bibitem[Wei et~al.(2022)Wei, Wang, Schuurmans, Bosma, Ichter, Xia, Chi, Le,
+  and Zhou]{wei2022chain}
+Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten Bosma, Brian Ichter, Fei Xia,
+  Ed~Chi, Quoc~V Le, and Denny Zhou.
+\newblock Chain-of-thought prompting elicits reasoning in large language
+  models.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2022.
+
+\bibitem[Wooldridge(2009)]{wooldridge2009introduction}
+Michael Wooldridge.
+\newblock \emph{An Introduction to {MultiAgent} Systems}.
+\newblock John Wiley \& Sons, 2009.
+
+\bibitem[Wu et~al.(2023)Wu, Bansal, Zhang, Wu, Li, Zhu, Jiang, Zhang, Zhang,
+  Liu, et~al.]{wu2023autogen}
+Qingyun Wu, Gagan Bansal, Jieyu Zhang, Yiran Wu, Beibin Li, Erkang Zhu,
+  Li~Jiang, Xiaoyun Zhang, Shaokun Zhang, Jiale Liu, et~al.
+\newblock {AutoGen}: Enabling next-gen {LLM} applications via multi-agent
+  conversation.
+\newblock \emph{arXiv preprint arXiv:2308.08155}, 2023.
+
+\end{thebibliography}

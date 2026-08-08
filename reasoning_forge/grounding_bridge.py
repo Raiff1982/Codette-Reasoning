@@ -34,6 +34,7 @@ from typing import List, Optional
 from reasoning_forge.grounding import (
     verify, extract_claims, verify_consistency, GroundingResult, Verdict,
 )
+from reasoning_forge.semantic_grounding import ground_claim, SemanticVerdict
 
 
 # Honest three-state status for a whole forged thought.
@@ -55,6 +56,13 @@ class GroundingReport:
     results: List[dict] = field(default_factory=list)
     note: str = ""
     ts: float = field(default_factory=time.time)
+    # Optional semantic enrichment (only set by ground_text_with_evidence, and
+    # only when the symbolic status is UNGROUNDED). This NEVER changes `status`:
+    # it sub-classifies an UNGROUNDED qualitative thought as echoing her stored
+    # evidence vs being novel. Support is not truth — see semantic_grounding.py.
+    evidence_verdict: Optional[str] = None   # SemanticVerdict value or None
+    evidence_score: Optional[float] = None
+    evidence: List[dict] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -105,6 +113,51 @@ def ground_text(text: str, *, source_kind: str = "text", source_id: str = "") ->
         results=[r.to_dict() for r in results],
         note=note,
     )
+
+
+def ground_text_with_evidence(text, retriever, *, source_kind: str = "text",
+                              source_id: str = "") -> GroundingReport:
+    """Symbolic grounding + semantic evidence enrichment. Pure (no logging).
+
+    The symbolic status stays authoritative and UNCHANGED. Only when it is
+    UNGROUNDED — i.e. a qualitative thought sympy/z3 cannot speak to — do we
+    additionally ask her evidence base whether the thought ECHOES anything she
+    has stored, sub-classifying UNGROUNDED into 'echoes prior evidence' vs
+    'novel/unprecedented'. This is transparency, never a verdict change:
+    UNGROUNDED remains UNGROUNDED, and evidence support is reported as support,
+    never as truth.
+
+    `retriever` may be a UnifiedMemory-like object exposing
+    recall_relevant(query, max_results=...) OR a callable claim -> list[evidence].
+    Any retrieval failure degrades to no enrichment — never invented support.
+    """
+    report = ground_text(text, source_kind=source_kind, source_id=source_id)
+    if report.status != UNGROUNDED:
+        return report  # symbolic already spoke; do not muddy it with weaker signal
+
+    try:
+        if callable(retriever):
+            evidence = retriever(text) or []
+        else:
+            evidence = retriever.recall_relevant(text, max_results=5) or []
+    except Exception:
+        evidence = []
+
+    sem = ground_claim(text or "", evidence)
+    report.evidence_verdict = sem.verdict.value
+    report.evidence_score = sem.support_score
+    report.evidence = sem.evidence
+    if sem.verdict is SemanticVerdict.SUPPORTED_BY_EVIDENCE:
+        report.note += (
+            " | semantic: this qualitative thought ECHOES stored evidence "
+            "(support, not truth) — still UNGROUNDED symbolically."
+        )
+    else:
+        report.note += (
+            " | semantic: no stored evidence echoes this thought — it is novel "
+            "here (honest silence, not a contradiction)."
+        )
+    return report
 
 
 def ground_reasoning_path(path) -> GroundingReport:

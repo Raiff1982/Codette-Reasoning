@@ -36,3 +36,14 @@ gradio>=5.34.0,<6.0.0
 # SQLite FTS5 is built into Python's standard library sqlite3 (no extra install needed)
 sympy>=1.12  # grounding verifier (reasoning_forge/grounding.py)
 z3-solver>=4.12  # grounding logical layer (reasoning_forge/grounding.py)
+
+# NexisSignalEngine hardened path (reasoning_forge/nexis_signal_engine.py).
+# All four are optional — the module guards each import and degrades:
+#   filelock  absent -> no cross-process locking (single-process use only)
+#   rapidfuzz absent -> exact term matching only, no fuzzy/obfuscation match
+#   nltk      absent -> whitespace tokenisation, no lemmatisation
+#   tenacity  absent -> no automatic retry on transient DB errors
+filelock>=3.13.0,<4.0.0
+rapidfuzz>=3.6.0,<4.0.0
+nltk>=3.8.0,<4.0.0
+tenacity>=8.2.0,<9.0.0
