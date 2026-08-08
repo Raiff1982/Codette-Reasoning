@@ -796,11 +796,27 @@ class CodetteForgeBridge:
                     echo_risk = "unknown"
                     perspective_collapse_detected = False
                     pairwise_tensions: dict = {}
+                    # None means "not measured this turn" and must stay
+                    # distinguishable from a measured value. See the derivation
+                    # block below for why that distinction was being lost.
+                    _mean_pairwise_sim = None
                     if perspectives_dict:
                         try:
                             echo_result = EchoCollapseDetector().check(query, perspectives_dict)
                             echo_risk = echo_result.echo_risk
                             perspective_collapse_detected = echo_result.perspective_collapse_detected
+                            # Mean cosine similarity across EVERY perspective
+                            # pair — the unbiased per-turn number. The detector
+                            # has always computed and exposed this; nothing here
+                            # ever read it.
+                            _mean_pairwise_sim = echo_result.mean_pairwise_similarity
+                            # NOTE: `collapse_pairs` carries SIMILARITIES, and
+                            # only for pairs above collapse_threshold (0.80).
+                            # It is a record of which pairs collapsed, not a
+                            # tension measurement. The persisted schema field is
+                            # named `pairwise_tensions`; renaming a field that is
+                            # already on disk in 1867 cocoons is a separate
+                            # decision, so the contents are left as they were.
                             pairwise_tensions = {
                                 f"{a}_vs_{b}": round(s, 4)
                                 for a, b, s in echo_result.collapse_pairs
@@ -825,12 +841,42 @@ class CodetteForgeBridge:
                     # Derive metrics from available runtime data rather than
                     # leaving them as schema defaults (which produce identical
                     # values across every lightweight cocoon).
-                    _epsilon = (
-                        sum(pairwise_tensions.values()) / len(pairwise_tensions)
-                        if pairwise_tensions else 0.35
-                    )
-                    _gamma = round(max(0.0, min(1.0, 1.0 - _epsilon)), 4)
-                    _epsilon = round(_epsilon, 4)
+                    #
+                    # 2026-08-06 — this block was doing three wrong things at
+                    # once, measured over the 1867 v3 cocoons on disk:
+                    #
+                    #   1. INVERTED. It averaged `collapse_pairs`, whose values
+                    #      are cosine SIMILARITIES, and assigned the mean to
+                    #      epsilon (epistemic TENSION). Two perspectives that
+                    #      agree completely have similarity 1.0 and tension 0.
+                    #   2. BIASED SAMPLE. `collapse_pairs` only contains pairs
+                    #      above 0.80, so whenever epsilon was computed it was
+                    #      >= 0.80 by construction and gamma <= 0.20. The stored
+                    #      data agrees: every non-default gamma on disk is below
+                    #      0.20 (0.1982, 0.1872, 0.1867, 0.1807, 0.1111, 0.0986,
+                    #      0.0426) — the arithmetic showing up seven times.
+                    #   3. HEALTHY READ AS NO-DATA. An empty `collapse_pairs`
+                    #      means nothing collapsed, i.e. the good turn. It fell
+                    #      to the 0.35 placeholder, and 1 - 0.35 = 0.65 was
+                    #      written into 1177 cocoons looking like a measurement
+                    #      because it had been through arithmetic.
+                    #
+                    # `mean_pairwise_similarity` is the unbiased number, over
+                    # every pair, on every turn, and was already on the result.
+                    if _mean_pairwise_sim is not None and len(perspectives_dict) >= 2:
+                        _sim = max(0.0, min(1.0, float(_mean_pairwise_sim)))
+                        _gamma = round(_sim, 4)             # ensemble coherence
+                        _epsilon = round(1.0 - _sim, 4)     # epistemic tension
+                        _metrics_status = "partial"         # eta/psi_r still absent
+                    else:
+                        # Genuinely not measurable: fewer than two perspectives,
+                        # or the detector raised. Use the schema defaults so the
+                        # value is a recognisable sentinel rather than a fresh
+                        # number that looks derived, and say so in the status
+                        # field instead of leaving it constant.
+                        _gamma = 0.72
+                        _epsilon = 0.35
+                        _metrics_status = "failed"
 
                     _complexity_to_importance = {
                         "simple": 2.0, "low": 2.0,
@@ -882,7 +928,7 @@ class CodetteForgeBridge:
                         importance_score=_importance,
                         epsilon_value=_epsilon,
                         gamma_coherence=_gamma,
-                        metrics_population_status="partial",
+                        metrics_population_status=_metrics_status,
                     )
 
                     # Score integrity immediately so it's written to disk non-zero

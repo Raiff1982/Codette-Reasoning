@@ -298,6 +298,13 @@ class OpenVINOBackend:
 
         if system_prompt is None:
             system_prompt = ADAPTER_PROMPTS.get(adapter_name, ADAPTER_PROMPTS["_base"])
+        # Observable from outside the model — see codette_shared.prompt_carries_goal.
+        try:
+            from codette_shared import prompt_carries_goal as _pcg
+            print(f"  [PROMPT] single adapter={adapter_name} "
+                  f"goal_block={_pcg(system_prompt)} len={len(system_prompt)}", flush=True)
+        except Exception:
+            pass
 
         primary_query = extract_primary_user_query(query)
         constraints = extract_constraints(primary_query)
@@ -479,8 +486,35 @@ class OpenVINOBackend:
         blend = {name: a / total for name, a in adjusted.items()}
 
         if system_prompt is None:
-            system_prompt = ADAPTER_PROMPTS.get("multi_perspective",
-                                                ADAPTER_PROMPTS["_base"])
+            # 2026-08-03: this used ADAPTER_PROMPTS["multi_perspective"] for
+            # EVERY blend, whatever was in it. So a request for davinci got
+            # davinci-weighted LoRA deltas underneath multi_perspective's
+            # system prompt, and davinci's own prompt — its goal, its
+            # obligations, its limits — was never sent at all.
+            #
+            # That is a structural cause of the perspectives converging, and it
+            # is upstream of everything else looked at today: the weights
+            # differed while the instruction was identical. It also explains
+            # why an explicit adapter= request behaved like a generic one.
+            #
+            # A genuinely mixed blend SHOULD get the synthesis prompt — that is
+            # what multi_perspective is for, and it is the honest description
+            # of what is happening. But when one adapter dominates, the honest
+            # description is that adapter, so it gets its own prompt.
+            dominant, dom_alpha = max(blend.items(), key=lambda kv: kv[1])
+            if dom_alpha >= 0.6 and dominant in ADAPTER_PROMPTS:
+                system_prompt = ADAPTER_PROMPTS[dominant]
+            else:
+                system_prompt = ADAPTER_PROMPTS.get("multi_perspective",
+                                                    ADAPTER_PROMPTS["_base"])
+
+        try:
+            from codette_shared import prompt_carries_goal as _pcg
+            _dom, _da = max(blend.items(), key=lambda kv: kv[1])
+            print(f"  [PROMPT] blend dominant={_dom}@{_da:.2f} "
+                  f"goal_block={_pcg(system_prompt)} len={len(system_prompt)}", flush=True)
+        except Exception:
+            pass
 
         mem_ctx = self._build_memory_context()
         full_system = system_prompt + (mem_ctx or "")
@@ -672,6 +706,41 @@ class OpenVINOBackend:
             except Exception:
                 pass
 
+            # ── Distinctiveness, 2026-08-04 — OBSERVED, NOT ACTED ON ──
+            #
+            # `QualitySignal.distinctiveness` landed in 1b7f63a and has never
+            # been computed anywhere. This is the call site the handoff meant:
+            # `perspectives` is fully populated above, which is the only place
+            # every answer for a turn exists at once.
+            #
+            # It reads the same dict `tension_from_texts` does and changes
+            # nothing. The synthesis threshold below is untouched, the returned
+            # response is untouched. It is a second measurement of the same
+            # moment, recorded so the optimizer finally has a signal that is not
+            # coherence — which over 167 shadow turns carried 0.013 of signal
+            # inside 0.063 of noise, so "best adapter" was chosen by coin flip.
+            #
+            # None when unmeasurable, never 0.0. An absent measurement and a
+            # measurement of zero are different facts.
+            #
+            # Offline baseline over the clean 20-probe set, taken before this
+            # was wired so there is a before: mean 0.3439, sd 0.1702,
+            # range 0.1296-0.7210; empathy highest at 0.4083, newton lowest at
+            # 0.3139.
+            #
+            # Cost: first call loads all-MiniLM-L6-v2 (~90 MB, ~2 s), cached
+            # thereafter. On a 15.7 GB unified-memory machine that is real but
+            # small; if it ever matters, this is the line to remove and the
+            # measurement stops with nothing else affected.
+            _distinct = None
+            try:
+                from reasoning_forge.distinctiveness import distinctiveness
+                _d = distinctiveness(perspectives)
+                if _d:
+                    _distinct = {k: round(v, 4) for k, v in _d.items()}
+            except Exception as _de:
+                print(f"  [DISTINCT] not measured: {type(_de).__name__}", flush=True)
+
             _DISPERSION_SYNTH_THRESHOLD = 0.20  # tunable once field data accumulates
             if len(perspectives) > 1 and _upsilon >= _DISPERSION_SYNTH_THRESHOLD:
                 synthesis = self._synthesize(query, perspectives)
@@ -686,6 +755,12 @@ class OpenVINOBackend:
             print(f"  [DISPERSION] upsilon={_upsilon:.4f} gamma={_gamma:.4f} — "
                   f"{'synthesis (perspectives disagree)' if _synthesis_used else 'primary direct (perspectives agree)'}",
                   flush=True)
+            if _distinct is not None:
+                _dsorted = sorted(_distinct.items(), key=lambda kv: -kv[1])
+                print("  [DISTINCT] " + "  ".join(f"{k}={v:.3f}" for k, v in _dsorted),
+                      flush=True)
+            else:
+                print("  [DISTINCT] not measured this turn", flush=True)
 
             return {
                 "response": synthesis,
@@ -699,6 +774,9 @@ class OpenVINOBackend:
                 "measured_tension": round(_upsilon, 4),  # deprecated alias of Υ
                 "measured_coherence": round(_gamma, 4),
                 "synthesis_used": _synthesis_used,
+                # None when unmeasurable — callers must not read absence as zero.
+                "distinctiveness": _distinct,
+                "distinctiveness_measured": _distinct is not None,
             }
 
         text, tokens, _ = self.generate(query, adapter_name=route.primary)

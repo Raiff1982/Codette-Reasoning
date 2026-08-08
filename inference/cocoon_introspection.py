@@ -83,7 +83,8 @@ class CocoonIntrospectionEngine:
             conn = sqlite3.connect(f"file:{self._SQLITE_DB}?mode=ro", uri=True)
             conn.row_factory = sqlite3.Row
             rows = conn.execute(
-                "SELECT id, query, response, adapter, timestamp, metadata_json FROM cocoons"
+                "SELECT id, query, response, adapter, domain, complexity, "
+                "emotion, importance, timestamp, metadata_json FROM cocoons"
             ).fetchall()
             conn.close()
         except Exception:
@@ -93,6 +94,27 @@ class CocoonIntrospectionEngine:
                 meta = json.loads(r["metadata_json"] or "{}")
             except Exception:
                 meta = {}
+            # 2026-08-07: domain, complexity, emotion and importance are
+            # first-class COLUMNS on this table and are populated on every row.
+            # This loader selected only metadata_json, and every caller below
+            # then did c["metadata"].get("domain", "unknown") — but domain
+            # appears inside that blob on just 154 of 3569 rows.
+            #
+            # So the whole self-model was computed from 4.3% of her memory and
+            # the other 96% rendered as "unknown". The arithmetic is exact: her
+            # report showed domain unknown=3414 (3569 - 154 = 3415), and a
+            # complexity breakdown of 0 simple + 135 medium + 19 complex = 154.
+            # Meanwhile unified_memory.full_introspection() reads the columns
+            # and reports a real distribution off the same table, which is why
+            # the two views disagreed.
+            #
+            # Overlay the columns on top of the blob rather than changing five
+            # call sites: the column is authoritative where present, and blob-
+            # only keys (code7e, substrate) keep working untouched.
+            for _key in ("domain", "complexity", "emotion", "importance"):
+                _val = r[_key]
+                if _val is not None and _val != "":
+                    meta[_key] = _val
             self._cocoons.append({
                 "id": r["id"],
                 "timestamp": r["timestamp"] or 0,
@@ -485,10 +507,28 @@ class CocoonIntrospectionEngine:
         # Adapter usage
         dom = data["adapter_dominance"]
         if dom.get("all_adapters"):
+            # 2026-08-07: the bar was `"█" * min(20, count)` — capped, not
+            # scaled. Every entry at or above 20 rendered exactly 20 blocks, so
+            # base (1200) and quantum (52) drew identical bars and the chart
+            # read as an even wall. This is the one place Codette looks at her
+            # own usage, and the picture was wrong in the direction of "we're
+            # balanced" when one entry carried 46% of everything.
+            #
+            # Scale to the largest entry and print the share, so the shape is
+            # the data. Percentages are of this tally, which is what the caller
+            # already summed.
+            _counts = dom["all_adapters"]
+            _max = max(_counts.values()) if _counts else 0
+            _total = sum(_counts.values()) if _counts else 0
             lines.append(f"\n**Adapter Usage:**")
-            for adapter, count in dom["all_adapters"].items():
-                bar = "█" * min(20, count)
-                lines.append(f"  {adapter:.<25s} {count:>3d} {bar}")
+            for adapter, count in _counts.items():
+                # A non-zero count always shows at least one block: "used once"
+                # and "never used" are different facts and must not render the
+                # same way.
+                width = max(1, round(20 * count / _max)) if count and _max else 0
+                share = (100.0 * count / _total) if _total else 0.0
+                bar = "█" * width
+                lines.append(f"  {adapter:.<25s} {count:>5d} ({share:4.1f}%) {bar}")
 
         # Domain clusters
         domains = data["domain_clusters"]
