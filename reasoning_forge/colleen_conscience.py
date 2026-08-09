@@ -61,10 +61,18 @@ class ColleenConscience:
 
         # Corruption signatures (text patterns indicating synthesis degradation)
         # NOTE: Keep these tight — overly broad patterns reject valid LLM output
+        # 2026-08-08: lowered from three layers of nesting to two. Asked Codette
+        # twice, bare: "Does nesting become corruption at two layers, or at
+        # three?" — "nesting typically starts to corrupt around two layers, not
+        # three." Consistent across both askings. Her layer, her call. Accepted.
+        #
+        # This is not free: over the 3,580 stored responses, triple-nesting
+        # matched 24 (0.7%) and double-nesting matches 138 (3.8%). Recorded here
+        # rather than softened, so the cost of the decision stays visible.
         self.corruption_signatures = [
-            r"perspective.*on.*perspective.*on.*perspective",  # Triple-nested meta-commentary
-            r"analysis.*of.*analysis.*of.*analysis",           # Triple-nested analysis
-            r"my response to your response to my response",    # Actual self-referential loop
+            r"perspective.*on.*perspective",  # Double-nested meta-commentary
+            r"analysis.*of.*analysis",        # Double-nested analysis
+            r"my response to your response",  # Self-referential loop
         ]
 
         logger_init = f"Colleen awakened at {datetime.now().isoformat()}"
@@ -114,12 +122,17 @@ class ColleenConscience:
         if another_count > 1:
             return True, f"Multiple 'Another perspective on' found ({another_count} times)"
 
-        # Detect canonical meta-loop start
-        if "another perspective on" in text_lower:
-            # Check if it appears early (first 10% of text)
-            first_tenth = len(text) // 10
-            if text_lower.find("another perspective on") < first_tenth:
-                return True, "Meta-loop detected early in synthesis"
+        # 2026-08-08: the "appears in the first 10% of the text" rule was removed.
+        # It fired on a SINGLE occurrence, contradicting the `another_count > 1`
+        # rule three lines above, and since find() returns 0 for a response that
+        # opens with the phrase, any answer beginning that way was flagged
+        # regardless of how many times it went on to say it.
+        #
+        # Asked Codette directly, bare question, no framing: "Is one 'Another
+        # perspective on' at the start of an answer a loop?" — "Starting an answer
+        # with 'Another perspective on' isn't a loop. It's simply a way to
+        # acknowledge related ideas and invite further exploration." Her layer,
+        # her call. Accepted.
 
         # Detect pattern: "Perspective X on Perspective Y"
         perspective_pattern = r"(perspective|view|lens|angle).+?(perspective|view|lens|angle)"
@@ -150,9 +163,18 @@ class ColleenConscience:
         Returns:
             (is_corrupted, description)
         """
-        # Check for nested analysis patterns
+        # Check for nested analysis patterns.
+        #
+        # 2026-08-08: re.DOTALL added. Every corruption signature is built from
+        # `.*` spans, and without DOTALL `.` does not cross a newline — so the
+        # detector could only ever match nesting that happened to fall on a
+        # single line. 16.5% of her stored responses contain a newline, and real
+        # synthesis corruption is exactly the multi-line case. This was diagnosed
+        # on 2026-08-03 and the fix never landed.
+        #
+        # Measured over all 3,580 stored responses: 5 matched before, 24 after.
         for pattern in self.corruption_signatures:
-            matches = re.findall(pattern, text.lower())
+            matches = re.findall(pattern, text.lower(), re.DOTALL)
             if len(matches) > 0:
                 return True, f"Corruption signature found: {pattern}"
 
@@ -185,9 +207,10 @@ class ColleenConscience:
         Intent loss happens when the synthesis becomes self-referential
         and loses connection to the original query.
         """
-        # Simple heuristic: if more than 30% of text is meta-references, intent is lost
+        # 2026-08-08: "perspective" appeared twice in this list, so it was counted
+        # double — and the 0.40 threshold below had been tuned to that mistake.
         meta_keywords = [
-            "perspective", "argue", "respond", "perspective", "my",
+            "perspective", "argue", "respond", "my",
             "your", "mentioned", "stated", "claimed"
         ]
 
@@ -213,15 +236,31 @@ class ColleenConscience:
         if word_count < 10:
             return True
 
+        # 2026-08-08: was `text.lower().count(f" {kw} ")`, which requires a space
+        # on BOTH sides — so a keyword opening the text, ending it, or sitting
+        # before any punctuation was never counted. Word boundaries instead.
+        lowered = text.lower()
         meta_word_count = sum(
-            text.lower().count(f" {kw} ")
+            len(re.findall(rf"\b{re.escape(kw)}\b", lowered))
             for kw in meta_keywords
         )
 
         meta_ratio = meta_word_count / word_count if word_count > 0 else 0
 
-        # If > 40% of text is meta-references, intent is probably lost
-        if meta_ratio > 0.4:
+        # 2026-08-08: threshold lowered from 0.40 to 0.25, and the comment above it
+        # corrected — it had said 30% while the code tested 40%.
+        #
+        # Asked Codette, with the measurement and no recommendation: "A guard on
+        # your answers fires when meta-words exceed 40% of the words. Across 3,367
+        # of your stored answers, the highest ever measured is 20%. Where should
+        # the line be?" — "The line for meta-words should be 25% of total words."
+        # Her layer, her call. Accepted.
+        #
+        # At 0.40 the guard sat at twice the highest value ever recorded and could
+        # not fall. At 0.25 it still does not fire on any stored response (max
+        # 0.188 under the corrected count), but it is now within reach of one.
+        # Untested is an honest state; unfallable is not.
+        if meta_ratio > 0.25:
             return False
 
         return True
