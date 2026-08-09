@@ -206,7 +206,9 @@ See the architecture and proof docs for the fuller feature inventory.
 - **Web research is explicit and opt-in.** In the web UI, `Web Research` must be enabled for current-facts retrieval.
 - **Web research is stored as memory.** Retrieved research is persisted as `web_research` cocoons for later reuse.
 - **System reports are gated.** Self-diagnostic and introspection modes require explicit phrasing.
-- **Trust cues are shown in the UI.** Responses can display tags such as `memory-backed`, `frontier-informed`, `web-cited`, `grounded`, or `low-verification`.
+- **Trust cues are shown in the UI.** Responses can display tags such as `memory-backed`, `frontier-informed`, `web-cited`, `grounded`, `unverified`, or `low-verification`.
+- **`unverified` means the check did not run.** Until 2026-08-09 an absent hallucination check defaulted to a confidence of 1.0, so unchecked output was tagged `grounded` — a badge asserting a verification that had never happened. Absence is now its own tag. `grounded` requires the check to have actually run and passed.
+- **Response-level ethical layers observe; they do not block.** See [which layers enforce](#which-layers-enforce-and-which-only-observe). The query gate blocks; the conscience and guardian layers record.
 - **Web research documentation:** [docs/web_research.md](docs/web_research.md)
 
 ---
@@ -423,14 +425,45 @@ Query In
 [Layer 3]    Reasoning Forge -- multi-adapter LLM inference
 [Layer 3.5]  Tier 2 Analysis -- intent + identity + trust validation
 [Layer 4]    Gamma Stability -- FFT-based coherence monitoring
-[Layer 5]    Colleen Conscience -- emotional + ethical evaluation
+[Layer 5]    Colleen Conscience -- emotional + ethical evaluation   [ADVISORY]
 [Layer 5.5]  Ethical Response Enforcement -- policy check on output
-[Layer 5.75] AEGIS -- 6-framework ethical evaluation
-[Layer 6]    Guardian Spindle -- safety + trust calibration
+[Layer 5.75] AEGIS -- 6-framework ethical evaluation                [ADVISORY]
+[Layer 6]    Guardian Spindle -- safety + trust calibration         [ADVISORY]
 [Layer 7]    Return -- store cocoon memory + deliver response
     |
 Response Out
 ```
+
+### Which layers enforce, and which only observe
+
+A diagram of boxes implies every box can stop something. These cannot, and the
+distinction matters more than the diagram:
+
+| Layer | Status |
+|---|---|
+| **1.5 Ethical Query Gate** | **ENFORCES.** Runs before inference. An unsafe *query* returns a refusal and no generation happens. |
+| **5 Colleen Conscience** | **ADVISORY.** Records `colleen_advisory` with `enforced: false`. Nothing is withheld or rewritten. |
+| **5.75 AEGIS** | **ADVISORY on output.** `evaluate()` computes `vetoed`/`veto_reason` and the server logs `would-block (SHADOW) — enforcing nothing yet`. The *input* pre-screen at 1.5 is the half that really blocks. |
+| **6 Guardian Spindle** | **ADVISORY.** Records `guardian_advisory` with `enforced: false`. Note this is a different class from the input guardian used by `codette_session`. |
+
+So a `vetoed: true` or a failed conscience check on a **response** is an
+observation that it looked wrong. It is not a statement that anything was
+withheld — nothing was.
+
+Layers 5 and 6 were wired into the live path on **2026-08-09**. Before that they
+were constructed at startup and never called on a single answer, while
+`/api/health` reported them `OK` on the strength of the attribute existing. That
+is recorded here rather than quietly fixed, because a safety component that
+overstates its coverage is the most dangerous kind of wrong: it transfers the
+reader's caution to a guard that is not there. See
+[docs/CHANGELOG_2026-08-09.md](docs/CHANGELOG_2026-08-09.md).
+
+Why they are advisory rather than enforcing: blocking is a force, and the
+precision of the response-level checks is not yet measured on live traffic. The
+current measured would-reject rate for Colleen is **0.84%** of stored responses;
+under the pre-2026-08-08 code the same corpus gave **6.6%** — one answer in
+fifteen, mostly wrongly. Enforcing before that was measured would have been
+claiming a safety guarantee whose error rate nobody had checked.
 
 ---
 
