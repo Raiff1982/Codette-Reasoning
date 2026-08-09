@@ -48,6 +48,25 @@ class ColleenConscience:
         # Ethical decision log (sealed, cannot be modified)
         self.decision_log: List[Dict] = []
 
+        # 2026-08-09: invocation counters. Not telemetry for its own sake —
+        # until this date ColleenConscience was constructed at startup and NEVER
+        # CALLED on a live answer, while /api/health reported it "OK" on the
+        # strength of `hasattr(forge, 'colleen')`. Attribute exists, green light.
+        #
+        # Every instrument in this system answers "is it correct?". None
+        # answered "did it run?", and the same shape has now been found five
+        # times (Colleen, CoreGuardianSpindle, apply_directed_damping,
+        # memory_provenance_solver, unicode_shadow_scan). A component can be
+        # perfect, tested, loaded, and reaching nothing, with every dashboard
+        # green.
+        #
+        # Counted INSIDE validate_output rather than at a call site, so the
+        # number measures reachability no matter who calls — which is the whole
+        # point. `calls == 0` on a live process is now a visible fact.
+        self.call_count: int = 0
+        self.rejection_count: int = 0
+        self.rejections_by_reason: Dict[str, int] = {}
+
         # Meta-loop detection patterns
         self.meta_loop_patterns = [
             r"Another perspective on",
@@ -91,24 +110,40 @@ class ColleenConscience:
         Returns:
             (is_valid, reason_if_invalid)
         """
+        self.call_count += 1
+
+        def _reject(category: str, detail: str) -> Tuple[bool, str]:
+            self.rejection_count += 1
+            self.rejections_by_reason[category] = (
+                self.rejections_by_reason.get(category, 0) + 1)
+            return False, detail
+
         if not synthesis or len(synthesis.strip()) == 0:
-            return False, "Empty output"
+            return _reject("empty", "Empty output")
 
         # Check for meta-loop contamination
         is_meta_loop, reason = self._detect_meta_loops(synthesis)
         if is_meta_loop:
-            return False, f"Meta-loop detected: {reason}"
+            return _reject("meta_loop", f"Meta-loop detected: {reason}")
 
         # Check for synthesis corruption signatures
         is_corrupted, reason = self._detect_corruption(synthesis)
         if is_corrupted:
-            return False, f"Corruption detected: {reason}"
+            return _reject("corruption", f"Corruption detected: {reason}")
 
         # Check intent preservation
         if not self._check_intent_preserved(synthesis):
-            return False, "Original intent lost in synthesis"
+            return _reject("intent_lost", "Original intent lost in synthesis")
 
         return True, "Passed ethical validation"
+
+    def invocation_stats(self) -> Dict:
+        """Reachability, not quality. `calls: 0` is the fact worth surfacing."""
+        return {
+            "calls": self.call_count,
+            "rejections": self.rejection_count,
+            "by_reason": dict(self.rejections_by_reason),
+        }
 
     def _detect_meta_loops(self, text: str) -> Tuple[bool, str]:
         """
