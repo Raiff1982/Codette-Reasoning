@@ -2369,6 +2369,23 @@ def _worker_thread():
                 if result.get("phase6_routing"):
                     response_data["phase6_routing"] = result["phase6_routing"]
 
+                # Advisory verdicts from ColleenConscience and CoreGuardianSpindle.
+                #
+                # 2026-08-09: the bridge computes these (see codette_forge_bridge,
+                # "ADVISORY" blocks) but response_data is assembled key by key, so
+                # without these two lines both were calculated on every turn and
+                # dropped on the floor. That is the same failure this whole wiring
+                # exists to correct, one layer further out: work that runs and
+                # reaches nothing. Caught by checking the response for the keys
+                # rather than assuming the bridge edit was sufficient.
+                #
+                # Both carry enforced: False. Surfacing them changes no response;
+                # it makes an observation observable.
+                if result.get("colleen_advisory"):
+                    response_data["colleen_advisory"] = result["colleen_advisory"]
+                if result.get("guardian_advisory"):
+                    response_data["guardian_advisory"] = result["guardian_advisory"]
+
                 # Add ethical governance info
                 ethical_checks = 0
                 if _forge_bridge and hasattr(_forge_bridge, 'forge'):
