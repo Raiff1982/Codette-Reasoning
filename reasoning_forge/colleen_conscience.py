@@ -192,8 +192,26 @@ class ColleenConscience:
         ]
 
         word_count = len(text.split())
-        if word_count < 10:  # Only reject extremely short/empty responses
-            return False
+        if word_count == 0:
+            return False  # genuinely empty — there is no intent left to preserve
+
+        # 2026-08-08: this used to be `if word_count < 10: return False`, labelled
+        # "only reject extremely short/empty responses". It rejected every short
+        # response as INTENT LOST, which is a different and much stronger claim.
+        #
+        # Measured against all 3,580 stored responses in data/codette_memory.db:
+        # 213 were flagged "Original intent lost in synthesis", and 213 were under
+        # ten words. Compared by id, not by count — the two sets were identical,
+        # and the count of flagged-but-not-short was 0. Every intent-loss verdict
+        # Colleen has ever reached was this line. The check has never once fired
+        # for the reason it exists.
+        #
+        # Short is not self-referential. Below the length where the ratio below
+        # carries any signal, the honest answer is that there is no evidence of
+        # intent loss — not that intent was lost. Emptiness is still caught above,
+        # and by validate_output before this is ever reached.
+        if word_count < 10:
+            return True
 
         meta_word_count = sum(
             text.lower().count(f" {kw} ")
