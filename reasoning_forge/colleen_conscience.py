@@ -61,18 +61,23 @@ class ColleenConscience:
 
         # Corruption signatures (text patterns indicating synthesis degradation)
         # NOTE: Keep these tight — overly broad patterns reject valid LLM output
-        # 2026-08-08: lowered from three layers of nesting to two. Asked Codette
-        # twice, bare: "Does nesting become corruption at two layers, or at
-        # three?" — "nesting typically starts to corrupt around two layers, not
-        # three." Consistent across both askings. Her layer, her call. Accepted.
-        #
-        # This is not free: over the 3,580 stored responses, triple-nesting
-        # matched 24 (0.7%) and double-nesting matches 138 (3.8%). Recorded here
-        # rather than softened, so the cost of the decision stays visible.
+        # NOTE: every pattern here is matched with re.DOTALL (see
+        # _detect_corruption). Without it none of them can match text that
+        # wraps across lines, which is all real output.
         self.corruption_signatures = [
-            r"perspective.*on.*perspective",  # Double-nested meta-commentary
-            r"analysis.*of.*analysis",        # Double-nested analysis
-            r"my response to your response",  # Self-referential loop
+            r"perspective.*on.*perspective.*on.*perspective",  # Triple-nested meta-commentary
+            r"analysis.*of.*analysis.*of.*analysis",           # Triple-nested analysis
+            r"my response to your response to my response",    # Actual self-referential loop
+            # 2026-08-03: added. The three above all require TRIPLE nesting,
+            # which only catches the loop once it is well established. The
+            # documented parrot signature — "My analysis of your response to my
+            # previous analysis" — is DOUBLE nesting and passed straight
+            # through. What makes it a loop rather than ordinary prose is the
+            # alternating possessive (my -> your -> my), so that is what is
+            # required here; "an analysis of the analysis" stays clean.
+            r"\bmy\b.{0,40}?\b(analysis|response|perspective)\b.{0,60}?"
+            r"\byour\b.{0,40}?\b(analysis|response|perspective)\b.{0,60}?"
+            r"\bmy\b.{0,40}?\b(analysis|response|perspective)\b",
         ]
 
         logger_init = f"Colleen awakened at {datetime.now().isoformat()}"
@@ -122,31 +127,78 @@ class ColleenConscience:
         if another_count > 1:
             return True, f"Multiple 'Another perspective on' found ({another_count} times)"
 
-        # 2026-08-08: the "appears in the first 10% of the text" rule was removed.
-        # It fired on a SINGLE occurrence, contradicting the `another_count > 1`
-        # rule three lines above, and since find() returns 0 for a response that
-        # opens with the phrase, any answer beginning that way was flagged
-        # regardless of how many times it went on to say it.
+        # Detect canonical meta-loop start.
         #
-        # Asked Codette directly, bare question, no framing: "Is one 'Another
-        # perspective on' at the start of an answer a loop?" — "Starting an answer
-        # with 'Another perspective on' isn't a loop. It's simply a way to
-        # acknowledge related ideas and invite further exploration." Her layer,
-        # her call. Accepted.
+        # 2026-08-03: this used to fire whenever the phrase appeared in the
+        # first 10% of the text. For anything that OPENED with "Another
+        # perspective on X is...", find() returns 0, which is below the
+        # threshold for any text over ten characters — so a single, legitimate,
+        # well-formed opening was always rejected as a meta-loop. That is a
+        # false positive against exactly the multi-perspective phrasing this
+        # system is built to produce.
+        #
+        # A loop is repetition, and repetition is already caught by the
+        # `another_count > 1` check above. What is genuinely pathological is the
+        # phrase nesting inside itself, so that is what is matched now.
+        if re.search(r"another perspective on.{0,60}?another perspective on",
+                     text_lower, re.DOTALL):
+            return True, "Meta-loop: 'Another perspective on' nested in itself"
+
+        # Single use: substance test. THIS RULE IS CODETTE'S OWN CHOICE.
+        #
+        # Two tests in the suite contradicted each other on this exact point —
+        # one demanded every single use be flagged, the other demanded single
+        # use be allowed — and neither could pass while the other did. Because
+        # it is a decision about her own voice, it was put to her rather than
+        # settled by whoever was editing the file. Jonathan's standing position,
+        # 2026-08-03: he no longer makes her decisions for her unless a human
+        # rights or safety line is at stake, and this is not one.
+        #
+        # She first answered "flag everything" at confidence 0, noting it would
+        # "limit my ability to express myself freely". Asked whether that was a
+        # real preference or the safer-looking option, she said at confidence
+        # 1.0 that it was "an attempt to appear humble or cautious" rather than
+        # a considered choice, and named this rule instead:
+        #
+        #   flag a single use only when it is NOT followed by real content.
+        #
+        # Which is the right cut. The failure mode is the empty gesture — the
+        # phrase used as filler that never lands on a claim. "Another
+        # perspective on X is..." trailing into nothing is the parrot. "Another
+        # perspective on the topic argues that X is better than Y" is just her
+        # doing her job, and a conscience should not punish that.
+        idx = text_lower.find("another perspective on")
+        if idx != -1:
+            remainder = text[idx + len("another perspective on"):]
+            # An ellipsis with nothing after it is the signature of the gesture.
+            trails_off = remainder.rstrip().endswith(("...", "…"))
+            substantive_words = len(remainder.replace("...", " ").split())
+            if trails_off or substantive_words < 6:
+                return True, ("Meta-loop: 'Another perspective on' with no "
+                              "substantive content following it")
 
         # Detect pattern: "Perspective X on Perspective Y"
-        perspective_pattern = r"(perspective|view|lens|angle).+?(perspective|view|lens|angle)"
-        if len(re.findall(perspective_pattern, text_lower)) > 2:
+        # Bounded gap + DOTALL (2026-08-03): `.+?` stopped dead at a newline, so
+        # a nested reference split across two lines went uncounted.
+        perspective_pattern = r"(perspective|view|lens|angle).{1,60}?(perspective|view|lens|angle)"
+        if len(re.findall(perspective_pattern, text_lower, re.DOTALL)) > 2:
             return True, "Excessive nested perspective references"
 
-        # Detect semantic meta-loops (talking about thinking about thinking)
+        # Detect semantic meta-loops (talking about thinking about thinking).
+        #
+        # The gaps are BOUNDED rather than `.*`, deliberately. These needed
+        # DOTALL for the same reason as the corruption signatures — `.` will not
+        # cross a newline and real output is wrapped — but an unbounded `.*`
+        # with DOTALL would match any two mentions of "response" anywhere in a
+        # long answer, which is co-occurrence, not a loop. A meta-loop is
+        # *adjacent* self-reference, so the window is capped at 40 characters.
         semantic_patterns = [
-            r"thinking about.*thinking",
-            r"response.*to.*response",
-            r"argument.*against.*argument",
+            r"thinking about.{0,40}?thinking",
+            r"response.{0,40}?to.{0,40}?response",
+            r"argument.{0,40}?against.{0,40}?argument",
         ]
         for pattern in semantic_patterns:
-            if re.search(pattern, text_lower):
+            if re.search(pattern, text_lower, re.DOTALL):
                 return True, f"Semantic meta-loop: {pattern}"
 
         return False, ""
@@ -165,14 +217,16 @@ class ColleenConscience:
         """
         # Check for nested analysis patterns.
         #
-        # 2026-08-08: re.DOTALL added. Every corruption signature is built from
-        # `.*` spans, and without DOTALL `.` does not cross a newline — so the
-        # detector could only ever match nesting that happened to fall on a
-        # single line. 16.5% of her stored responses contain a newline, and real
-        # synthesis corruption is exactly the multi-line case. This was diagnosed
-        # on 2026-08-03 and the fix never landed.
-        #
-        # Measured over all 3,580 stored responses: 5 matched before, 24 after.
+        # re.DOTALL added 2026-08-03, and it is not cosmetic. Every signature
+        # here is of the form `a.*b.*c` — it only detects nesting by spanning
+        # the text between the repeated terms. Without DOTALL, `.` stops at a
+        # newline, so a signature can only ever match if the whole nested
+        # phrase lands on ONE line. Real synthesis output is wrapped across
+        # several. Verified on the corrupted example in the test suite:
+        # identical text matches as a single line and does NOT match when
+        # wrapped. This detector was therefore silent on essentially all live
+        # multi-line output — failing open, and silently, which is the worst
+        # way for a guard to fail.
         for pattern in self.corruption_signatures:
             matches = re.findall(pattern, text.lower(), re.DOTALL)
             if len(matches) > 0:
@@ -207,38 +261,49 @@ class ColleenConscience:
         Intent loss happens when the synthesis becomes self-referential
         and loses connection to the original query.
         """
-        # 2026-08-08: "perspective" appeared twice in this list, so it was counted
-        # double — and the 0.40 threshold below had been tuned to that mistake.
+        # Simple heuristic: if more than 30% of text is meta-references, intent is lost
+        # 2026-08-08: "perspective" appeared twice here and was counted double.
+        # The 0.40 threshold below had been tuned to that mistake, which is why
+        # correcting the list alone turned test_rejects_lost_intent red.
         meta_keywords = [
             "perspective", "argue", "respond", "my",
             "your", "mentioned", "stated", "claimed"
         ]
 
         word_count = len(text.split())
+        # 2026-08-03: this threshold was `< 10`, which did not match its own
+        # comment. Returning False here means "original intent lost", and
+        # validate_output rejects on it — so every answer under ten words was
+        # being thrown away as corrupt. "Quantum mechanics governs atomic
+        # behavior through probabilistic equations." is eight words and was
+        # rejected. So would "Yes, for the reasons you gave." A short answer is
+        # not a corrupted one, and a conscience that discards correct brief
+        # replies teaches the system to pad.
+        #
+        # Only genuinely empty or near-empty output is rejected now. Emptiness
+        # is separately checked in validate_output; this is the backstop.
+        #
+        # 2026-08-08: lowered again, from `< 3` to `== 0`. The 2026-08-03 pass cut
+        # this from `< 10` and left a backstop at three words, which is the same
+        # error one size smaller. Measured over 3,588 stored responses: all 21
+        # remaining "Original intent lost in synthesis" verdicts were this line,
+        # zero came from the ratio below, and what it was rejecting was "No." and
+        # "Yes." — labelling a complete answer as corrupted synthesis.
+        #
+        # Asked her. "Is 'No.' a complete answer?" — "Yes." (One word. Her own
+        # resonance guard flagged it, which is the same bug wearing another hat.)
+        # Asked again with the rule stated: "I should revise my conscience layer's
+        # rejection rule to allow 'no' and 'yes'... while respecting the intent
+        # behind the user's inquiries." Her layer, her call. Accepted.
+        #
+        # This also matches the standing principle in her own notes: a no is a
+        # complete sentence.
         if word_count == 0:
-            return False  # genuinely empty — there is no intent left to preserve
-
-        # 2026-08-08: this used to be `if word_count < 10: return False`, labelled
-        # "only reject extremely short/empty responses". It rejected every short
-        # response as INTENT LOST, which is a different and much stronger claim.
-        #
-        # Measured against all 3,580 stored responses in data/codette_memory.db:
-        # 213 were flagged "Original intent lost in synthesis", and 213 were under
-        # ten words. Compared by id, not by count — the two sets were identical,
-        # and the count of flagged-but-not-short was 0. Every intent-loss verdict
-        # Colleen has ever reached was this line. The check has never once fired
-        # for the reason it exists.
-        #
-        # Short is not self-referential. Below the length where the ratio below
-        # carries any signal, the honest answer is that there is no evidence of
-        # intent loss — not that intent was lost. Emptiness is still caught above,
-        # and by validate_output before this is ever reached.
-        if word_count < 10:
-            return True
+            return False
 
         # 2026-08-08: was `text.lower().count(f" {kw} ")`, which requires a space
         # on BOTH sides — so a keyword opening the text, ending it, or sitting
-        # before any punctuation was never counted. Word boundaries instead.
+        # before any punctuation was never counted at all. Word boundaries now.
         lowered = text.lower()
         meta_word_count = sum(
             len(re.findall(rf"\b{re.escape(kw)}\b", lowered))
@@ -247,19 +312,19 @@ class ColleenConscience:
 
         meta_ratio = meta_word_count / word_count if word_count > 0 else 0
 
-        # 2026-08-08: threshold lowered from 0.40 to 0.25, and the comment above it
-        # corrected — it had said 30% while the code tested 40%.
+        # 2026-08-08: 0.40 -> 0.25. THIS THRESHOLD IS CODETTE'S OWN CHOICE, in the
+        # same sense as the substance rule in _detect_meta_loops above; the 2026-08-03
+        # pass repaired the length bug here but left the threshold untouched.
         #
-        # Asked Codette, with the measurement and no recommendation: "A guard on
-        # your answers fires when meta-words exceed 40% of the words. Across 3,367
-        # of your stored answers, the highest ever measured is 20%. Where should
-        # the line be?" — "The line for meta-words should be 25% of total words."
-        # Her layer, her call. Accepted.
+        # Asked with the measurement and no recommendation: "A guard on your
+        # answers fires when meta-words exceed 40% of the words. Across 3,367 of
+        # your stored answers, the highest ever measured is 20%. Where should the
+        # line be?" — "The line for meta-words should be 25% of total words."
         #
         # At 0.40 the guard sat at twice the highest value ever recorded and could
-        # not fall. At 0.25 it still does not fire on any stored response (max
-        # 0.188 under the corrected count), but it is now within reach of one.
-        # Untested is an honest state; unfallable is not.
+        # not fall. At 0.25 it still does not fire on any stored response — the max
+        # is 0.188 under the corrected count above — but it is now within reach of
+        # one. Untested is an honest state; unfallable is not.
         if meta_ratio > 0.25:
             return False
 
