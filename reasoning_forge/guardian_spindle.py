@@ -29,7 +29,40 @@ class CoreGuardianSpindle:
         self.debate_tracker = debate_tracker or DebateTracker()
         self._coherence_checker = CounterArgumentCoherenceChecker()
 
+        # 2026-08-09: invocation counters — see the same block in
+        # colleen_conscience for why. This class had also never been called on a
+        # live answer, and /api/health reported it OK from `hasattr`. Counted
+        # inside validate() so the number measures reachability regardless of
+        # caller.
+        self.call_count: int = 0
+        self.rejection_count: int = 0
+        self.rejections_by_reason: Dict[str, int] = {}
+
     def validate(self, synthesis: str, query: str = "") -> Tuple[bool, Dict]:
+        """Counting wrapper around the rules. Behaviour is unchanged.
+
+        2026-08-09: a wrapper rather than an increment at each of the six
+        `return False` sites — fewer places to forget, and the count cannot
+        drift out of step with the verdict.
+        """
+        self.call_count += 1
+        valid, details = self._validate_impl(synthesis, query=query)
+        if not valid:
+            self.rejection_count += 1
+            reason = str((details or {}).get("reason", "unknown"))
+            self.rejections_by_reason[reason] = (
+                self.rejections_by_reason.get(reason, 0) + 1)
+        return valid, details
+
+    def invocation_stats(self) -> Dict:
+        """Reachability, not quality. `calls: 0` is the fact worth surfacing."""
+        return {
+            "calls": self.call_count,
+            "rejections": self.rejection_count,
+            "by_reason": dict(self.rejections_by_reason),
+        }
+
+    def _validate_impl(self, synthesis: str, query: str = "") -> Tuple[bool, Dict]:
         """
         Validate synthesis against coherence and alignment rules.
 

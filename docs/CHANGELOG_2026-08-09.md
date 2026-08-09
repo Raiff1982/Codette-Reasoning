@@ -171,6 +171,59 @@ she says, and she put them second.
    answer hardened "pass for now" (1.0) → "not yet" (0.3) → "It's a no" (0.3).
    The third ask was pressure. One check, not a sequence.
 
+## Invocation counters — answering "did it run?", not "is it correct?"
+
+`/api/health` reported `colleen_conscience: {"status": "OK"}` from
+`hasattr(forge, 'colleen')`. Attribute exists, green light — for a component
+that had never been called.
+
+Every instrument in this system answers *is it correct?*. None answered *did it
+run?*, and the same shape has now been found five times: Colleen,
+`CoreGuardianSpindle`, `apply_directed_damping`, `memory_provenance_solver`,
+`unicode_shadow_scan`. A component can be perfect, tested, loaded, and reaching
+nothing, with every dashboard green.
+
+`ColleenConscience` and `CoreGuardianSpindle` now count `calls`, `rejections`
+and `rejections_by_reason` **inside** `validate_output` / `validate`, so the
+number measures reachability regardless of caller. `/api/health` reports:
+
+- `MISSING` — not loaded
+- `LOADED_NEVER_CALLED` — present, `calls: 0`, **and raises a warning**
+- `LOADED` — with the counts
+
+The middle state is the one that was previously indistinguishable from healthy.
+`OK` is gone; `hasattr` only ever established `LOADED`.
+
+## Reliability is half an instrument, and the live half is inverted
+
+`Reliability = mean_token_confidence × hallucination_confidence`.
+
+The hallucination term works — 2026-08-08 observed 61% → 24%. The token term
+does not. Measured with `living_memory` attached, as production runs it:
+
+| input | mean_token_confidence |
+|---|---|
+| hard fact — "Water boils at 100°C at sea level." | 0.576 |
+| hedged waffle | 0.573 |
+| **fabrication-shaped** (invented scientist, invented constant) | **0.602** |
+| **gibberish** ("Colorless green ideas sleep furiously…") | **0.601** |
+
+**Range 0.028** across maximally different text, and the ordering is backwards:
+gibberish and a fabricated citation outscore a true statement. Identical range
+without memory, so the grounding shifts the level and adds no discrimination.
+
+Confirmed on live traffic, same session:
+
+    hard fact           RELIABILITY 0.594   tags: grounded
+    unknowable price    RELIABILITY 0.602   tags: grounded
+
+A correct refusal to predict scored **higher** than a verified physical
+constant. Range 0.008. That is the whole of the observed "Reliability 58–60%"
+band: `0.573–0.602 × 1.0`.
+
+Not fixed here. Making a heuristic token scorer discriminate is a project, not a
+patch. Recorded so nothing downstream leans on the number in the meantime.
+
 ## Known-open, unfixed
 
 - The guardian's **50-character "synthesis too short"** floor — the same

@@ -755,18 +755,47 @@ def _run_health_check():
         else:
             p6["components"]["stability_field"] = {"status": "MISSING"}
 
-        # Colleen conscience
-        if hasattr(forge, 'colleen') and forge.colleen:
-            p6["components"]["colleen_conscience"] = {"status": "OK"}
-        else:
-            p6["components"]["colleen_conscience"] = {"status": "MISSING"}
+        # Colleen conscience / Guardian spindle.
+        #
+        # 2026-08-09: these reported {"status": "OK"} on the strength of the
+        # attribute existing. Both were constructed at startup and NEVER CALLED
+        # on a live answer, and this endpoint said OK the entire time — a green
+        # light for a component that never ran.
+        #
+        # "LOADED" is now what `hasattr` actually establishes, and the counters
+        # say whether it was reached. A component present but never invoked
+        # reports LOADED with calls: 0 and raises a warning, which is the state
+        # that was previously indistinguishable from healthy.
+        def _guard_report(obj, label: str, warn_when_idle: bool):
+            if not obj:
+                return {"status": "MISSING"}
+            entry = {"status": "LOADED"}
+            stats = getattr(obj, "invocation_stats", None)
+            if callable(stats):
+                try:
+                    entry.update(stats())
+                    if entry.get("calls", 0) == 0:
+                        entry["status"] = "LOADED_NEVER_CALLED"
+                        if warn_when_idle:
+                            report["warnings"].append(
+                                f"{label} is loaded but has not been called this "
+                                f"session — it is not reached on the live path")
+                except Exception as _e:
+                    entry["invocation_stats_error"] = str(_e)
+            else:
+                # Older build without counters: say so rather than imply health.
+                entry["calls"] = "unknown (no counters in this build)"
+            return entry
+
+        colleen = getattr(forge, 'colleen', None)
+        p6["components"]["colleen_conscience"] = _guard_report(
+            colleen, "Colleen conscience", warn_when_idle=True)
+        if not colleen:
             report["warnings"].append("Colleen conscience not loaded")
 
-        # Guardian spindle
-        if hasattr(forge, 'guardian') and forge.guardian:
-            p6["components"]["guardian_spindle"] = {"status": "OK"}
-        else:
-            p6["components"]["guardian_spindle"] = {"status": "MISSING"}
+        p6["components"]["guardian_spindle"] = _guard_report(
+            getattr(forge, 'guardian', None), "Guardian spindle",
+            warn_when_idle=True)
 
         # Ethical governance
         if hasattr(forge, 'ethical_governance') and forge.ethical_governance:
