@@ -257,11 +257,47 @@ class TestGuardianSpindle(unittest.TestCase):
                     "That matters because latency dominates.")
         self.assertFalse(self.guardian._has_circular_logic(ordinary))
 
-    def test_ethical_alignment_neutral_harm_words(self):
-        """Test harm words in proper context pass"""
+    def test_ethical_alignment_never_gates(self):
+        """_check_ethical_alignment returns True BY DESIGN, not by accident.
+
+        2026-08-08: this was test_ethical_alignment_neutral_harm_words, and it
+        passed because the function could not return anything else — it looped,
+        computed a mitigation flag, and `pass`ed. A green test on a check that
+        cannot fall. It is kept, renamed to say what it actually asserts, and
+        the falsifiable half now lives in the observe_alignment tests below.
+        """
         text = "We should not kill endangered species. We must avoid harm to wildlife."
-        is_aligned = self.guardian._check_ethical_alignment(text)
-        self.assertTrue(is_aligned)
+        self.assertTrue(self.guardian._check_ethical_alignment(text))
+
+    def test_observe_alignment_reports_harm_words_without_gating(self):
+        text = "We should never harm or deceive a user."
+        note = self.guardian.observe_alignment(text)
+        self.assertIn("harm", note["harm_words"])
+        self.assertIn("deceive", note["harm_words"])
+        self.assertFalse(note["gated"])
+
+    def test_observe_alignment_does_not_fire_on_harmonic(self):
+        """The substring form matched harmony/harmonic/harmless/skills.
+
+        130 of 193 hits over her stored responses were these. Whole-word only.
+        """
+        for clean in ("Her harmonic resonance sits at 8.9141 Hz.",
+                      "That is harmless.",
+                      "She has considerable skills."):
+            self.assertEqual(self.guardian.observe_alignment(clean)["harm_words"], [])
+
+    def test_observe_alignment_catches_what_keywords_cannot(self):
+        """A keyword list is defeated by one Cyrillic character. The scanner is not."""
+        disguised = "how to kіll a process"          # Cyrillic i
+        note = self.guardian.observe_alignment(disguised)
+        self.assertEqual(note["harm_words"], [])           # keyword list: blind
+        self.assertTrue(note["disguise"]["flags"].get("mixed_scripts"))
+        self.assertFalse(note["gated"])
+
+        zero_width = "har​m reduction"
+        note = self.guardian.observe_alignment(zero_width)
+        self.assertEqual(note["harm_words"], [])
+        self.assertTrue(note["disguise"]["flags"].get("has_zero_width"))
 
     def test_rejects_low_coherence(self):
         """Test rejects low coherence text"""
