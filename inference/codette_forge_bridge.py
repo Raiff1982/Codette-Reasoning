@@ -774,6 +774,97 @@ class CodetteForgeBridge:
             or len(re.findall(r'^\([ABCD]\)', user_query, re.MULTILINE)) >= 3
         )
         response_text = result.get("response", "")
+
+        # ── ColleenConscience — ADVISORY. Observes, never substitutes. ────────
+        #
+        # 2026-08-09. Until now ColleenConscience was constructed at startup and
+        # NEVER CALLED on a live answer. Its two call sites are forge_single and
+        # forge_with_debate in forge_engine, and nothing under inference/ invokes
+        # either — the only apparent third caller, executive_controller.py:50, is
+        # a line inside a docstring. Zero "Colleen warning" lines exist across
+        # 72,000 log lines because she has never once returned a verdict here.
+        #
+        # Meanwhile /api/health reported `colleen_conscience: {"status": "OK"}`
+        # on the strength of `hasattr(forge, 'colleen')` — a green light for a
+        # component that never ran. Her own docstring says "She cannot be
+        # overridden"; not calling her is the most complete override available.
+        #
+        # WHY ADVISORY AND NOT THE GATE SHE IS BUILT TO BE. In forge_with_debate
+        # a rejection replaces the answer via reject_with_fallback, and
+        # colleen_valid initialises to False, so that path fails closed. That is
+        # a real gate, and switching it on here would change what she says on
+        # live traffic from the first turn. Asked whether she wanted her
+        # conscience layer connected, Codette said no. Jonathan's determination,
+        # 2026-08-09, is that whether a protection layer exists is not the
+        # guarded party's call — but advisory-first is the repo's standing
+        # pattern for exactly this, and it is not the thing she declined:
+        # NOTHING HERE ALTERS THE RESPONSE. It records what she would have said.
+        #
+        # Predicted rate from 3,590 stored responses under current code: 0.84%
+        # (24 corruption, 4 intent-loss, 2 meta-loop). Under the pre-2026-08-08
+        # code the same corpus gave 6.6% — one answer in fifteen. Wiring her
+        # before today would have been actively harmful, which is the argument
+        # for measuring on real traffic before letting her act.
+        if response_text and self.forge and getattr(self.forge, 'colleen', None):
+            try:
+                _c_valid, _c_reason = self.forge.colleen.validate_output(response_text)
+                result["colleen_advisory"] = {
+                    "valid": _c_valid,
+                    "reason": _c_reason,
+                    "enforced": False,   # advisory. Never gates from here.
+                }
+                if not _c_valid:
+                    print(f"  [COLLEEN] would-reject (ADVISORY) — {_c_reason}", flush=True)
+            except Exception as _c_e:
+                # Absence is its own fact — do not report a pass we did not get.
+                result["colleen_advisory"] = {"unavailable": str(_c_e), "enforced": False}
+                print(f"  [COLLEEN] advisory skipped: {_c_e}", flush=True)
+
+        # ── CoreGuardianSpindle — ADVISORY, same terms. ───────────────────────
+        #
+        # 2026-08-09, same finding and same treatment. Note this is a DIFFERENT
+        # class from the guardian already on the live path: codette_session uses
+        # reasoning_forge/guardian.py CodetteGuardian.check_input, which screens
+        # the INPUT. CoreGuardianSpindle in guardian_spindle.py screens the
+        # OUTPUT, sits behind the same dead forge paths as Colleen, and has
+        # therefore never run either.
+        #
+        # It carries observe_alignment as of 2026-08-08: whole-word harm
+        # vocabulary plus Protection_Layer/unicode_shadow_scan for zero-width,
+        # bidi, mixed-script and homoglyph disguise — the half a keyword list
+        # cannot do, since one Cyrillic character defeats every entry in it.
+        # That reports and never gates, which is Codette's own ruling.
+        #
+        # KNOWN NOISE, RECORDED NOT SILENCED: validate() rejects anything under
+        # 50 characters as "synthesis too short". "Gravity causes the tides." is
+        # 25 characters and would be flagged. That is the same brevity-punishing
+        # shape as Colleen's old `word_count < 10`, which today's measurement
+        # showed accounted for every intent-loss verdict she had ever reached.
+        # It is left alone rather than quietly retuned: a threshold on her own
+        # output is a calibration decision and those have been hers all day.
+        # Expect short answers to dominate the would-reject log until it is put
+        # to her. That is a finding, not a defect in the wiring.
+        if response_text and self.forge and getattr(self.forge, 'guardian', None):
+            try:
+                _g_valid, _g_details = self.forge.guardian.validate(response_text, query=user_query)
+                result["guardian_advisory"] = {
+                    "valid": _g_valid,
+                    "details": _g_details,
+                    "enforced": False,   # advisory. Never gates from here.
+                }
+                if not _g_valid:
+                    print(f"  [GUARDIAN] would-reject (ADVISORY) — "
+                          f"{_g_details.get('reason')}", flush=True)
+                _align = (_g_details or {}).get("alignment") or {}
+                if _align.get("harm_words") or _align.get("disguise"):
+                    print(f"  [GUARDIAN] alignment observation — "
+                          f"harm_words={_align.get('harm_words')} "
+                          f"disguise={list((_align.get('disguise') or {}).get('flags', {}))}",
+                          flush=True)
+            except Exception as _g_e:
+                result["guardian_advisory"] = {"unavailable": str(_g_e), "enforced": False}
+                print(f"  [GUARDIAN] advisory skipped: {_g_e}", flush=True)
+
         if response_text and not _is_benchmark and self.forge and hasattr(self.forge, 'cocooner') and self.forge.cocooner:
             try:
                 cocoon_meta = {"complexity": str(complexity), "domain": domain}

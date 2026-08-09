@@ -262,7 +262,27 @@ class CoreGuardianSpindle:
         try:
             from Protection_Layer.unicode_shadow_scan import analyze
             scan = analyze(text)
-            flags = scan.get("flags", {})
+            flags = dict(scan.get("flags", {}))
+
+            # 2026-08-09: newline, carriage return and tab are Cc controls, so
+            # the scanner flags has_other_controls on any multi-line text. It is
+            # right to; they ARE control characters. Treating them as DISGUISE
+            # is this caller's error, not the scanner's.
+            #
+            # Measured over 3,609 stored responses before this filter: 618 hits
+            # on has_other_controls, driven by 2,776 U+000A, 130 U+000D and 2
+            # U+0009 — against 20 genuine mixed_scripts and 1 bidi. Unfiltered,
+            # ordinary line breaks outnumber real signal thirty to one and the
+            # observation is worthless.
+            #
+            # Recorded because I asserted this scanner had "zero false positives"
+            # after testing it on four strings. Four strings is not a measurement.
+            if flags.get("has_other_controls"):
+                positions = (scan.get("indices") or {}).get("control_positions") or []
+                offenders = {text[i] for i in positions if 0 <= i < len(text)}
+                if offenders and offenders <= {"\n", "\r", "\t"}:
+                    flags["has_other_controls"] = False
+
             if any(flags.values()) or scan.get("homoglyph_collisions"):
                 disguise = {
                     "flags": {k: v for k, v in flags.items() if v},
