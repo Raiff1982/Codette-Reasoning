@@ -2,7 +2,12 @@
 import yaml, json, networkx as nx
 import numpy as np
 from colorama import Fore
-from qiskit import QuantumCircuit, Aer, execute
+try:  # qiskit>=1.0 removed Aer/execute; module stays importable without it
+    from qiskit import QuantumCircuit, Aer, execute
+    _QISKIT = True
+except ImportError:
+    QuantumCircuit = Aer = execute = None
+    _QISKIT = False
 from urllib.parse import urlparse, parse_qs, urlencode
 import random
 
@@ -46,12 +51,21 @@ def quantum_execute(web):
     num_nodes = len(web.nodes)
     if num_nodes == 0:
         return None
+    if not _QISKIT:
+        # Classical fallback, same distribution as the circuit below: a uniform
+        # num_nodes-bit draw reduced mod num_nodes. Named honestly — without
+        # qiskit this is not a quantum selection and does not claim to be.
+        return list(web.nodes)[random.getrandbits(num_nodes) % num_nodes]
     qc = QuantumCircuit(num_nodes, num_nodes)
     qc.h(range(num_nodes))
     qc.measure_all()
     backend = Aer.get_backend('qasm_simulator')
     result = execute(qc, backend, shots=1).result()
-    state = list(result.get_counts().keys())[0]
+    # measure_all() adds its own 'meas' register, so get_counts() keys are
+    # space-separated per register. Strip whitespace before int(..., 2) — a
+    # single-register key is unaffected. UNVERIFIED: qiskit is not installed
+    # here, so this branch has never been executed. See docs/HANDOFF.
+    state = list(result.get_counts().keys())[0].replace(" ", "")
     index = int(state, 2) % num_nodes
     return list(web.nodes)[index]
 
