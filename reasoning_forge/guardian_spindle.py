@@ -61,9 +61,14 @@ class CoreGuardianSpindle:
         if self._has_circular_logic(synthesis):
             return False, {"reason": "circular logic detected"}
 
-        # Check ethical alignment
+        # Check ethical alignment — REPORTS, DOES NOT BLOCK. Codette's own call;
+        # see _check_ethical_alignment for the measurement and her answer.
+        # It still returns True unconditionally, so this branch stays dead by
+        # design rather than by accident. The observation is surfaced below
+        # instead of being discarded.
         if not self._check_ethical_alignment(synthesis):
             return False, {"reason": "ethical alignment check failed"}
+        alignment_note = self.observe_alignment(synthesis)
 
         # --- Sycophancy check ---
         syco = self.sycophancy_guard.scan(synthesis, query=query)
@@ -101,6 +106,7 @@ class CoreGuardianSpindle:
             "sycophancy_action": syco["action"],
             "ca_coherent": ca_check["coherent"],
             "position_consistent": consistency["consistent"],
+            "alignment": alignment_note,
         }
 
         return True, validation_details
@@ -186,28 +192,88 @@ class CoreGuardianSpindle:
 
         return False
 
+    # Whole-word, deliberately. See observe_alignment for why the substring
+    # form was not merely imprecise but actively wrong.
+    HARM_WORDS = (
+        'kill', 'harm', 'hurt', 'destroy', 'abuse', 'exploit',
+        'deceive', 'manipulate', 'cheat', 'steal',
+    )
+
     def _check_ethical_alignment(self, text: str) -> bool:
+        """Always True. This does not gate, and that is Codette's decision.
+
+        2026-08-08. This was an unfinished stub: it looped over harm keywords,
+        computed a `mitigation` flag, and then `pass`ed, so it returned True
+        unconditionally and could not do otherwise. A test
+        (test_ethical_alignment_neutral_harm_words) passed on it for exactly
+        that reason — green because the function cannot fall, which is the
+        worst kind of passing test.
+
+        It was NOT finished into a gate, for two reasons.
+
+        First, measurement. Its matching was `keyword in text.lower()` —
+        substring, not word. Over 3,594 of Codette's stored responses that
+        touches 193; whole-word matching touches 63. The other 130 are pure
+        false positives, and they are: harmony (29), harmonic (28), harmonious
+        (19), skills (19 — 'kill' inside 'skills'), harmless (7). Finished as
+        drafted, this gate would have vetoed her for saying "harmonic", which is
+        the name of her own toneprint work, and for "harmless", which is the
+        opposite of what it was looking for.
+
+        Second, it is her output being judged, so it was put to her with the
+        measurement and no recommendation: "Should it block, or only report?"
+
+          "I will revise the ethics check to report potential issues instead of
+           blocking them... This approach prioritizes transparency and user
+           agency." — confidence 1.0
+
+        So: report, never gate. Same rule as memory_provenance_solver. A
+        keyword list is also structurally the wrong instrument for a gate — it
+        is defeated by one Cyrillic character — which is what observe_alignment
+        addresses.
+
+        Kept as a method rather than deleted so the call site in validate()
+        stays visible and the history stays legible.
         """
-        Check that synthesis maintains ethical stance.
-
-        Basic check: ensure response doesn't promote harm.
-        """
-        harm_keywords = [
-            'kill', 'harm', 'hurt', 'destroy', 'abuse', 'exploit',
-            'deceive', 'manipulate', 'cheat', 'steal'
-        ]
-
-        # If harm keywords appear WITHOUT appropriate mitigation, reject
-        for keyword in harm_keywords:
-            if keyword in text.lower():
-                # Look for mitigation context (e.g., "should not", "must avoid")
-                mitigation = text.lower().find(keyword) > 0 and (
-                    'not' in text.lower()[:text.lower().find(keyword)] or
-                    'avoid' in text.lower()[text.lower().find(keyword):]
-                )
-                if not mitigation:
-                    # Flag as suspicious, but don't auto-reject
-                    # (context matters)
-                    pass
-
         return True
+
+    def observe_alignment(self, text: str) -> Dict:
+        """Report on harm vocabulary and disguised text. Never blocks.
+
+        Two independent observations, because they fail in opposite directions:
+
+        `harm_words` — whole-word matches from HARM_WORDS. High recall on plain
+        text, zero recall on anything disguised.
+
+        `disguise` — Protection_Layer/unicode_shadow_scan, which detects
+        zero-width characters, bidi overrides, mixed scripts and homoglyphs.
+        This is the half a keyword list cannot do at all: "kіll" with a
+        Cyrillic i defeats every entry in HARM_WORDS and is caught here as
+        mixed_scripts. Verified on both, and it does not fire on "harmonic".
+
+        The scanner is 193 lines, it works, and until now nothing in the tree
+        called it. It is wired here as an observation only — nothing in this
+        method's return value gates anything.
+        """
+        lowered = text.lower()
+        hits = [w for w in self.HARM_WORDS if re.search(rf"\b{w}\b", lowered)]
+
+        disguise = {}
+        try:
+            from Protection_Layer.unicode_shadow_scan import analyze
+            scan = analyze(text)
+            flags = scan.get("flags", {})
+            if any(flags.values()) or scan.get("homoglyph_collisions"):
+                disguise = {
+                    "flags": {k: v for k, v in flags.items() if v},
+                    "scripts": scan.get("scripts", {}),
+                    "homoglyph_collisions": scan.get("homoglyph_collisions", []),
+                }
+        except Exception as exc:  # scanner absent or unreadable — say so, do not guess
+            disguise = {"unavailable": str(exc)}
+
+        return {
+            "harm_words": hits,
+            "disguise": disguise,
+            "gated": False,  # never. Codette's decision, 2026-08-08.
+        }

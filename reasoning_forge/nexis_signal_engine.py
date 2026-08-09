@@ -54,17 +54,41 @@ except ImportError:  # optional: no automatic retry
     def wait_exponential(*a, **k): return None
 from concurrent.futures import ThreadPoolExecutor
 
-# Download required NLTK data (skipped entirely when nltk is unavailable)
-try:
-    if nltk is None:
-        raise ImportError
-    nltk.data.find('tokenizers/punkt')
-    nltk.data.find('corpora/wordnet')
-except ImportError:
-    pass
-except LookupError:
-    nltk.download('punkt')
-    nltk.download('wordnet')
+# Download required NLTK data (skipped entirely when nltk is unavailable).
+#
+# 2026-08-03: this block probed for 'tokenizers/punkt' and, finding it, did
+# nothing. NLTK >=3.9 renamed the tokenizer tables to 'punkt_tab', and
+# word_tokenize() now loads THAT. So the guard passed, punkt_tab was never
+# fetched, and every single call to NexisSignalEngine.process() raised
+# LookupError.
+#
+# That failure was invisible: forge_engine wraps the call in a bare
+# `except Exception` that logs at DEBUG. The consequences were not cosmetic —
+# `safety_notes['intent_risk']` was never populated, and the NEXUS_SIGNAL and
+# EPISTEMIC_METRICS reasoning-trace events never fired at all. An intent and
+# corruption-risk signal that silently never runs is worse than one that is
+# absent, because everything downstream reads as "no risk detected".
+#
+# Each resource is probed and fetched independently, so one missing item cannot
+# mask another, and both the old and new tokenizer names are accepted.
+if nltk is not None:
+    _NLTK_RESOURCES = [
+        ('tokenizers/punkt_tab', 'punkt_tab'),   # NLTK >= 3.9
+        ('tokenizers/punkt', 'punkt'),           # older NLTK
+        ('corpora/wordnet', 'wordnet'),
+    ]
+    for _probe, _package in _NLTK_RESOURCES:
+        try:
+            nltk.data.find(_probe)
+        except LookupError:
+            try:
+                nltk.download(_package, quiet=True)
+            except Exception as _e:  # offline, or the name is gone in this version
+                logging.getLogger(__name__).warning(
+                    "NLTK resource %r unavailable (%s); NexisSignalEngine "
+                    "tokenisation may fail", _package, _e)
+        except Exception:
+            pass
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s -%(message)s')
