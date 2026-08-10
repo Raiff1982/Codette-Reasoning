@@ -129,7 +129,8 @@ Codette is a modular reasoning system with published demos, tests, benchmarks, p
 - **Automated tests:** [tests](tests)
 - **Benchmark suites:** [benchmarks](benchmarks)
 - **Saved benchmark reports:** [data/results](data/results)
-- **Change transparency:** latest — [docs/CHANGELOG_2026-07-24.md](docs/CHANGELOG_2026-07-24.md) · [docs/CHANGELOG_2026-07-21.md](docs/CHANGELOG_2026-07-21.md) · [docs/CHANGELOG_2026-07-17.md](docs/CHANGELOG_2026-07-17.md); every release summarized in [docs/VERSION_HISTORY.md](docs/VERSION_HISTORY.md); all dated changelogs in [docs/](docs/)
+- **Change transparency:** latest — [docs/CHANGELOG_2026-08-09.md](docs/CHANGELOG_2026-08-09.md) · [docs/CHANGELOG_2026-08-03.md](docs/CHANGELOG_2026-08-03.md) · [docs/CHANGELOG_2026-07-24.md](docs/CHANGELOG_2026-07-24.md) · [docs/CHANGELOG_2026-07-21.md](docs/CHANGELOG_2026-07-21.md); every release summarized in [docs/VERSION_HISTORY.md](docs/VERSION_HISTORY.md); all dated changelogs in [docs/](docs/)
+- **Current handoff / open items:** [docs/HANDOFF_2026-08-09.md](docs/HANDOFF_2026-08-09.md) — what is live, what is known-broken, and what was got wrong
 - **Contributing guide:** [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ### Reproduce key claims
@@ -413,6 +414,19 @@ These are trained into every adapter and reinforced at runtime:
 
 Each adapter is a LoRA fine-tune of Llama 3.1 8B, hot-swappable in under 1ms via llama.cpp.
 
+> **Counts, reconciled 2026-08-09.** This README stated three different numbers —
+> "9 specialized adapters", "9/9 adapters trained", and "10 total". The **running
+> system loads 13**: the nine above, plus `constraint_tracker` and the three
+> `newton-star` STaR research variants (`newton-star`, `newton-star-hard`,
+> `newton-star-r`). The nine in the table are the *perspective* adapters; the
+> others are functional or experimental and are not reasoning lenses.
+>
+> Do not trust this paragraph either — ask the runtime, which is authoritative:
+>
+> ```bash
+> curl -s localhost:7860/api/status | python -c "import sys,json;a=json.load(sys.stdin)['adapters'];print(len(a),a)"
+> ```
+
 ### Consciousness stack (7 layers)
 
 ```text
@@ -589,18 +603,42 @@ Note for 8GB-UMA systems: the GPU shares system RAM. Keep ≥5GB free when loadi
 | STaR study (three arms, controlled) | easy 25.0% < hard 28.0% < untrained 34.0% — negative result, published |
 | Live cognition signals per response | ξ, Γ, σ, η, render fidelity, hardware P — measured-only, provenance-tagged |
 | Sustained throughput (OpenVINO INT4, Arc 140V iGPU) | 9.3 tok/s |
-| Phase Coherence (Gamma) | 0.9835 |
+| Phase Coherence (Gamma) | 0.9835 — **source not traced; see note below** |
 | AEGIS Ethical Alignment (Eta) | 0.961 |
 | Cocoon Coherence | 0.994 |
 | Memory Phase Stability | 0.969 |
 | Multi-Perspective Improvement | +108.8% (p < 0.0001) |
 | Cohen's d (Effect Size) | 8.31 |
-| Behavioral Lock Compliance | 9/9 adapters trained |
+| Behavioral Lock Compliance | 9/9 perspective adapters trained (runtime loads 13 total — see note above) |
 | Adapter Hot-Swap Time | <1ms |
 | Consciousness Stack Layers | 12 including sub-layers |
 | Health Check Subsystems | 9 real-time checks |
 
 Note: cocoon memory counts change over time; prefer introspection or health endpoints over hard-coded README totals.
+
+> **On Phase Coherence 0.9835 — a traceability gap, stated plainly.**
+> This figure appears here and in the frontmatter `model-index`, and **its source
+> has not been traced to a reproducible run.** It may well be legitimate: a live
+> perspective web with real nodes during the canonical May 2026 benchmark is a
+> different measurement from anything the cocoon store persists. But we cannot
+> currently point at the command that produced it, so it is labelled rather than
+> quoted as settled.
+>
+> Three distinct quantities have carried the name "gamma" in this system. What
+> the runtime shows per turn today, and how to reproduce it:
+>
+> - **Γ** (`gamma_coherence`, written to each cocoon) — mean pairwise similarity
+>   over perspective outputs. Observed live 2026-08-09: **0.68–0.77**.
+> - **webΓ** (`quantum_spiderweb.phase_coherence()`) — the Kuramoto order
+>   parameter, `r = |1/N Σ e^{iθ}|`. Observed live the same day: **0.67–0.94**.
+> - **0.9835** — this figure. Traced to neither of the above.
+>
+> Both Γ and webΓ appear in her header every turn and move independently, which
+> is itself the evidence that they are different quantities rather than one under
+> two names. **Any analysis over cocoons written before 2026-08-06 must treat
+> `gamma_coherence` as absent, not as data** — 667 records carry a schema default
+> of 0.72 and 1,177 carry a 0.65 fallback. Detail:
+> [docs/CHANGELOG_2026-08-09.md](docs/CHANGELOG_2026-08-09.md).
 
 ---
 
@@ -646,7 +684,19 @@ Note: cocoon memory counts change over time; prefer introspection or health endp
 
 ## License
 
-MIT — Created by **Jonathan Harrison** (Raiff1982)
+**Codette Source-Available License (CSAL) v1.0** (2026-07-29) — see [LICENSE](LICENSE).
+Created by **Jonathan Harrison** (Raiff1982).
+
+> **Corrected 2026-08-09.** This section previously read "MIT". That was wrong and
+> contradicted both the `LICENSE` file and this README's own frontmatter
+> (`license: CSAL`), in the same document. MIT is permissive and CSAL is
+> source-available — not a cosmetic difference — so anyone reading only this
+> section could have believed they held rights they do not. The frontmatter and
+> `LICENSE` were always correct; only this line was wrong.
+>
+> Note also that CSAL v1.0 **replaced** the earlier *Sovereign Innovation
+> License*. Any document still naming SIL is out of date, not describing a
+> second licence.
 
 Research project in advanced multi-perspective AI reasoning, ethical governance, and behavioral discipline.
 
