@@ -1,8 +1,29 @@
+"""Codette API — NON-FUNCTIONAL. Kept as a record, not as a service.
+
+This module cannot start. Line 5 imports ``codette.codette_core``, and no such
+package exists anywhere in this repository — ``webapp/codette.py`` is a flat
+module, not that package. Nothing references ``main:app``: no Dockerfile, no CI
+job, no script. It originated in a hackathon build (first committed in #14,
+be01c22) and was never wired up here.
+
+Labelled rather than deleted, per the house rule in CLAUDE.md.
+
+One thing was NOT left as found. This file previously hardcoded the API key that
+``verify_api_key`` compares against — the only authentication on
+``/codette/respond`` — as a literal, alongside a comment saying it should be in
+an environment variable. Dead code or not, a live-looking credential does not
+belong in a public repository, so it now reads from the environment and fails
+closed when unset. The literal that was here is in git history and should be
+treated as disclosed: rotate it wherever it was ever used.
+"""
+
+import os
+
 from fastapi import FastAPI, HTTPException, Security, Depends
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel
 from typing import Optional
-from codette.codette_core import AICore
+from codette.codette_core import AICore  # noqa: F401 — absent; see module docstring
 import hmac
 import logging
 from datetime import datetime
@@ -17,9 +38,11 @@ logger = logging.getLogger(__name__)
 app = FastAPI(title="Codette API")
 codette = AICore()
 
-# Security configuration
+# Security configuration.
+# No default. An unset key must not silently degrade to a guessable shared
+# secret, so verify_api_key rejects every request until CODETTE_API_KEY is set.
 API_KEY_NAME = "X-API-Key"
-API_KEY = "99f978bd84fbae83d49f4e5d3f042680"  # Store this securely in environment variables
+API_KEY = os.environ.get("CODETTE_API_KEY")
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=True)
 
 class PromptRequest(BaseModel):
@@ -32,6 +55,12 @@ class ErrorResponse(BaseModel):
     request_id: str
 
 async def verify_api_key(api_key: str = Security(api_key_header)) -> str:
+    if not API_KEY:
+        logger.error("CODETTE_API_KEY is unset; refusing all authenticated requests")
+        raise HTTPException(
+            status_code=503,
+            detail="Server is not configured for authentication"
+        )
     if not hmac.compare_digest(api_key, API_KEY):
         logger.warning(f"Invalid API key attempt at {datetime.utcnow()}")
         raise HTTPException(

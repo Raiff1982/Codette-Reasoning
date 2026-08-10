@@ -6,7 +6,10 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src')
+      // import.meta.dirname, not __dirname: Vite 8 warns that __dirname is
+      // unsupported by configLoader: 'native', which becomes the default in a
+      // future major. Changing it now keeps the config loading after that.
+      '@': path.resolve(import.meta.dirname, './src')
     }
   },
   optimizeDeps: {
