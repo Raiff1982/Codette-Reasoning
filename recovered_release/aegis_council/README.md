@@ -82,7 +82,32 @@ mistaken for loadable source.
     Copy
     import json
 
-Repaired in `aegis8.py` by dropping those three lines. Nothing else altered.
+Repaired in `aegis8.py` by dropping those three lines.
+
+**Amendment, 2026-08-10.** The sentence here originally read "Nothing else
+altered." That stopped being true between this file being written and the branch
+merging, and the correction is recorded rather than quietly applied.
+
+Copilot Autofix committed `46a5ca2` ("Potential fix for pull request finding",
+authored under Jonathan's name) on top, changing `aegis8.py` by 29 insertions
+and 18 deletions: the module-level demo block was wrapped in a `_demo()`
+function behind an `if __name__ == "__main__":` guard, and the bare
+`import pandas` / `import IPython.display` were put behind a `try/except
+ImportError` with a JSON fallback.
+
+**That change is kept**, for two reasons. Fidelity is not lost — the untouched
+`aegis8.as-found.txt` sits beside it and is the authoritative as-found copy.
+And the original genuinely executed `AegisCouncil()`, `dispatch()` and
+`draw_explainability_graph()` **at import time**; reverting would restore that
+hazard for no gain.
+
+`aegis8` was the only file in the family with that problem. Every other
+revision already carried a `__main__` guard, and the one import-time call each
+of them makes is `logging.basicConfig`, which is harmless.
+
+So `aegis8.py` is now a repaired *and* restructured copy, and is the one file
+here that is not a minimal repair. Read `aegis8.as-found.txt` if you want what
+the archive actually held.
 
 **`aegis_council (1)`** — `aegis_council_1.as-found.txt` fails to parse at line
 414, because the identifier `collaborate` is split across a line break at render
