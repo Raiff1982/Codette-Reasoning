@@ -35,27 +35,42 @@ def _make_cocoon(query: str, response: str, domain: str = "general") -> dict:
     }
 
 
+# 2026-08-03: these fixtures were described in the test as "signal-rich" but
+# contained almost none of the signals the synthesizer actually looks for, so
+# extract_patterns correctly returned 0 patterns and the test correctly failed.
+#
+# The synthesizer matches STRUCTURAL archetypes (tension_resolution,
+# feedback_loop, layered_emergence, ...), each needing >=2 of its own signal
+# words present in a domain, in >=2 domains. The old fixtures used
+# domain-flavoured vocabulary (fear, empathy, evidence, imagination) that hit at
+# most one signal in any archetype. That is a fixture that never exercised the
+# mechanism, not a defect in the mechanism — it finds patterns fine on real
+# cocoons (217 -> 4 on its original run).
+#
+# Rewritten so the `tension_resolution` archetype genuinely spans emotional,
+# analytical and creative, in language natural to each domain. The signal words
+# are real content here, not keyword stuffing.
 def _emotional_cocoons():
     return [
-        _make_cocoon("I feel afraid of uncertainty", "Fear arises from uncertainty and lack of control. Compassion helps.", "emotional"),
-        _make_cocoon("She cares deeply about human experience", "Empathy and trust anchor our ability to connect.", "emotional"),
-        _make_cocoon("The child felt joy at learning", "Joy emerges from discovery and human experience shared.", "emotional"),
+        _make_cocoon("I feel afraid of uncertainty", "Fear arises from the tension between wanting control and lacking it. Compassion helps resolve that conflict.", "emotional"),
+        _make_cocoon("She cares deeply about human experience", "Empathy holds opposing needs in balance, and trust lets us reconcile them.", "emotional"),
+        _make_cocoon("The child felt joy at learning", "Joy emerges when curiosity and fear find harmony rather than conflict.", "emotional"),
     ]
 
 
 def _analytical_cocoons():
     return [
-        _make_cocoon("Analyse the system boundary conditions", "Logic and systematic analysis reveal cause and effect.", "analytical"),
-        _make_cocoon("Measure the evidence for this claim", "Evidence-based reasoning requires systematic proof of cause.", "analytical"),
-        _make_cocoon("Mathematical proof of convergence", "Convergence is demonstrated by induction and logical evidence.", "analytical"),
+        _make_cocoon("Analyse the system boundary conditions", "Logic resolves the tension between competing constraints at the boundary.", "analytical"),
+        _make_cocoon("Measure the evidence for this claim", "Systematic proof must balance sensitivity against specificity; the two are opposing.", "analytical"),
+        _make_cocoon("Mathematical proof of convergence", "Convergence is the synthesis where opposing error terms reconcile and cancel.", "analytical"),
     ]
 
 
 def _creative_cocoons():
     return [
-        _make_cocoon("Compose a novel melody", "Creative imagination leads to novel musical design.", "creative"),
-        _make_cocoon("Invent a new art form", "Artistic invention requires imagination and creative dreaming.", "creative"),
-        _make_cocoon("Generate new ideas for this design", "Novel design emerges from imagination and creative composition.", "creative"),
+        _make_cocoon("Compose a novel melody", "A melody works by holding tension and release in balance.", "creative"),
+        _make_cocoon("Invent a new art form", "Invention comes from the conflict between constraint and freedom, and the synthesis that resolves it.", "creative"),
+        _make_cocoon("Generate new ideas for this design", "Good design reconciles opposing demands into harmony.", "creative"),
     ]
 
 
@@ -136,14 +151,22 @@ class TestForgeStrategy(unittest.TestCase):
         self.synth = CocoonSynthesizer()
 
     def _patterns(self):
+        # 2026-08-03: updated to the actual CocoonPattern signature. These
+        # tests were written against an older API and had drifted:
+        # `source_cocoon_ids` -> `source_cocoons`, `tension_score` ->
+        # `tension_signature`, and `structural_similarity` was missing
+        # altogether. The dataclass is the source of truth here — the
+        # synthesizer is working code (217 cocoons -> 4 patterns on its
+        # original run), so the tests were stale, not the implementation.
         return [
             CocoonPattern(
                 name="Resonant Tension",
                 description="Pattern of oscillation between certainty and doubt.",
+                source_cocoons=["c1", "c2"],
                 source_domains=["emotional", "analytical"],
-                source_cocoon_ids=["c1", "c2"],
+                structural_similarity="oscillation between opposed poles",
+                tension_signature=0.6,
                 novelty_score=0.75,
-                tension_score=0.6,
                 evidence=["[emotional] fear and uncertainty...", "[analytical] systematic proof..."],
             )
         ]
@@ -187,45 +210,70 @@ class TestApplyAndCompare(unittest.TestCase):
     def setUp(self):
         self.synth = CocoonSynthesizer()
 
+    # 2026-08-03: `apply_and_compare` takes (problem, strategy, patterns).
+    # These calls omitted `patterns` entirely, which is a required positional
+    # argument, so every one raised TypeError before reaching an assertion.
+    def _pattern(self):
+        return CocoonPattern(
+            name="Test Pattern",
+            description="desc",
+            source_cocoons=[],
+            source_domains=["a", "b"],
+            structural_similarity="shared oscillation",
+            tension_signature=0.4,
+            novelty_score=0.5,
+            evidence=[],
+        )
+
     def test_returns_strategy_comparison(self):
-        strategy = self.synth.forge_strategy([
-            CocoonPattern(
-                name="Test Pattern",
-                description="desc",
-                source_domains=["a", "b"],
-                source_cocoon_ids=[],
-                novelty_score=0.5,
-                tension_score=0.4,
-                evidence=[],
-            )
-        ])
+        patterns = [self._pattern()]
+        strategy = self.synth.forge_strategy(patterns)
         comparison = self.synth.apply_and_compare(
             "How should we approach complex ethical problems?",
             strategy,
+            patterns,
         )
         self.assertIsInstance(comparison, StrategyComparison)
 
     def test_comparison_has_improvement_delta(self):
+        # 2026-08-03: there is no `improvement_delta` attribute and there never
+        # was on this class. StrategyComparison reports improvement as
+        # `improvement_assessment` (prose) plus `differences` (itemised), and
+        # the numeric deltas live on the two ReasoningPath objects. Asserting
+        # against the real shape, including that the depth delta is genuinely
+        # numeric — which is what the original test was reaching for.
         strategy = self.synth.forge_strategy([])
         comparison = self.synth.apply_and_compare(
             "Explain the relationship between emotion and logic.",
             strategy,
+            [],
         )
-        self.assertIsInstance(comparison.improvement_delta, float)
+        self.assertIsInstance(comparison.improvement_assessment, str)
+        self.assertGreater(len(comparison.improvement_assessment), 0)
+        self.assertIsInstance(comparison.differences, list)
+        delta = comparison.new_path.depth_score - comparison.original_path.depth_score
+        self.assertIsInstance(delta, float)
 
     def test_comparison_to_readable_is_string(self):
         strategy = self.synth.forge_strategy([])
-        comparison = self.synth.apply_and_compare("Test problem.", strategy)
+        comparison = self.synth.apply_and_compare("Test problem.", strategy, [])
         readable = comparison.to_readable()
         self.assertIsInstance(readable, str)
         self.assertGreater(len(readable), 0)
 
     def test_comparison_to_dict_is_serializable(self):
+        # 2026-08-03: keys corrected to what to_dict() actually emits —
+        # "new_strategy" not "strategy", "improvement_assessment" not
+        # "improvement_delta". Also actually asserts serialisability, which the
+        # test's own name claimed but never checked.
+        import json
         strategy = self.synth.forge_strategy([])
-        comparison = self.synth.apply_and_compare("Test problem.", strategy)
+        comparison = self.synth.apply_and_compare("Test problem.", strategy, [])
         d = comparison.to_dict()
-        self.assertIn("strategy", d)
-        self.assertIn("improvement_delta", d)
+        self.assertIn("new_strategy", d)
+        self.assertIn("improvement_assessment", d)
+        self.assertIn("evidence_chain", d)
+        json.dumps(d)  # raises if any value is not serialisable
 
 
 # ---------------------------------------------------------------------------
@@ -242,9 +290,11 @@ class TestRunFullSynthesis(unittest.TestCase):
         self.assertIsInstance(result, StrategyComparison)
 
     def test_result_to_dict_contains_strategy(self):
+        # 2026-08-03: key is "new_strategy", not "strategy".
         result = self.synth.run_full_synthesis("Explain recursive consciousness.")
         d = result.to_dict()
-        self.assertIn("strategy", d)
+        self.assertIn("new_strategy", d)
+        self.assertIn("name", d["new_strategy"])
 
     def test_valuation_context_is_embedded(self):
         result = self.synth.run_full_synthesis(

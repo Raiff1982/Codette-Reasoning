@@ -1,4 +1,33 @@
 
+"""
+SUPERSEDED for production use — kept deliberately, not dead code.
+================================================================
+
+Superseded by `reasoning_forge/nexis_signal_engine.py` (733 lines), which
+`forge_engine.py` imports and instantiates. That switch was made in PR #18; the
+note in CLAUDE.md and the incorporation handoff saying forge_engine "still
+imports nexis_signal_engine_local" is out of date as of 2026-08-03.
+
+This 165-line version remains for two honest reasons:
+
+1. **Lineage.** It is the earlier revision, and this repository preserves
+   version history rather than collapsing it. Which supersedes which is on the
+   record here rather than inferred from file size.
+
+2. **It is still used, on purpose.** `tests/test_consciousness_stack.py` and
+   `tests/test_integration.py` import it as a lightweight stand-in: no NLTK
+   corpora, no SQLite file, no network. That keeps those suites fast and
+   hermetic.
+
+Point 2 carries a real caveat, recorded rather than hidden: those tests
+therefore do NOT exercise the engine that actually runs in production. That gap
+mattered on 2026-08-03, when the production engine was found to be raising
+LookupError on every single call — NLTK renamed `punkt` to `punkt_tab` — while
+these tests passed throughout, because they were never touching it.
+
+So: safe to keep, safe to use as a stub, and not to be mistaken for coverage of
+the live path.
+"""
 import json
 import os
 import hashlib

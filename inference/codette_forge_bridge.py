@@ -137,6 +137,98 @@ class CodetteForgeBridge:
     def generate(self, query: str, adapter: Optional[str] = None,
                  max_adapters: int = 2, memory_budget: int = 3,
                  max_response_tokens: int = 512) -> Dict:
+        """Advisory wrapper. Runs the guards on EVERY return path, then returns.
+
+        2026-08-09. The advisory calls were originally placed inline, late in the
+        method, and `calls` then read 5 against 6 turns. The counter — added the
+        same day precisely to answer "did it run?" — found the gap in one turn.
+
+        `_generate_impl` has FIVE early returns before that point:
+
+            216  greeting fast-path
+            270  memory/identity fast-path ("who am I", "what's my name")
+            343  system self-report / health
+            471  substrate cognition (CognitionSubstrate -> RenderLayer)
+            544  AEGIS pre-cognitive block (a refusal, not generated reasoning)
+
+        So the guards were reached only by traffic that took the long route, and
+        the escaping paths are the ones that need watching most. The greeting
+        path carries a DOCUMENTED hallucination — its own comment reads
+        `(observed: "Hi Emily")`, the model inventing a person — mitigated by a
+        prompt instruction and nothing else. The memory/identity path answers
+        questions about Jonathan from the memory kernel, where a fabrication is
+        most concrete and least forgivable.
+
+        A wrapper rather than five inline calls: it cannot be forgotten when a
+        sixth early return is added, and `calls` now tracks turns 1:1, which is
+        what made this visible in the first place.
+
+        Two paths carry their own guarantees and are noted, not skipped:
+        substrate has a render-integrity check of its own, and the AEGIS return
+        is a block message rather than her reasoning. Both are still counted and
+        labelled, so analysis can slice them out — but silently exempting a path
+        is how the original gap happened.
+        """
+        result = self._generate_impl(
+            query, adapter=adapter, max_adapters=max_adapters,
+            memory_budget=memory_budget, max_response_tokens=max_response_tokens,
+        )
+        try:
+            self._run_output_advisory(result, query)
+        except Exception as _adv_e:
+            print(f"  [ADVISORY] wrapper failed: {_adv_e}", flush=True)
+        return result
+
+    def _run_output_advisory(self, result: Dict, user_query: str) -> None:
+        """Record what the guards would have said. Alters nothing."""
+        if not isinstance(result, dict):
+            return
+        response_text = result.get("response", "")
+        if not response_text:
+            return
+
+        # Which of the five routes produced this, so a reader can slice by it.
+        route = str(result.get("complexity") or "")
+        if result.get("aegis_precognitive_block"):
+            route = "AEGIS_BLOCK"
+        result["advisory_route"] = route
+
+        if self.forge and getattr(self.forge, 'colleen', None):
+            try:
+                _c_valid, _c_reason = self.forge.colleen.validate_output(response_text)
+                result["colleen_advisory"] = {
+                    "valid": _c_valid, "reason": _c_reason, "enforced": False,
+                }
+                if not _c_valid:
+                    print(f"  [COLLEEN] would-reject (ADVISORY, route={route}) — "
+                          f"{_c_reason}", flush=True)
+            except Exception as _c_e:
+                result["colleen_advisory"] = {"unavailable": str(_c_e), "enforced": False}
+                print(f"  [COLLEEN] advisory skipped: {_c_e}", flush=True)
+
+        if self.forge and getattr(self.forge, 'guardian', None):
+            try:
+                _g_valid, _g_details = self.forge.guardian.validate(
+                    response_text, query=user_query)
+                result["guardian_advisory"] = {
+                    "valid": _g_valid, "details": _g_details, "enforced": False,
+                }
+                if not _g_valid:
+                    print(f"  [GUARDIAN] would-reject (ADVISORY, route={route}) — "
+                          f"{(_g_details or {}).get('reason')}", flush=True)
+                _align = (_g_details or {}).get("alignment") or {}
+                if _align.get("harm_words") or _align.get("disguise"):
+                    print(f"  [GUARDIAN] alignment observation — "
+                          f"harm_words={_align.get('harm_words')} "
+                          f"disguise={list((_align.get('disguise') or {}).get('flags', {}))}",
+                          flush=True)
+            except Exception as _g_e:
+                result["guardian_advisory"] = {"unavailable": str(_g_e), "enforced": False}
+                print(f"  [GUARDIAN] advisory skipped: {_g_e}", flush=True)
+
+    def _generate_impl(self, query: str, adapter: Optional[str] = None,
+                       max_adapters: int = 2, memory_budget: int = 3,
+                       max_response_tokens: int = 512) -> Dict:
         """Generate response with optional Phase 6 routing.
 
         Args:
@@ -468,7 +560,7 @@ class CodetteForgeBridge:
                 pass
 
             elapsed = time.time() - start_time
-            return {
+            _v2_result = {
                 "response":           response_text,
                 "adapter":            authored.strategy,
                 "phase6_used":        True,
@@ -481,6 +573,18 @@ class CodetteForgeBridge:
                 "tokens":             len(response_text.split()),
                 "time":               elapsed,
             }
+            # 2026-08-09: generate_v2 has ZERO callers today — the server calls
+            # generate(). Its failure path falls back to generate() and so would
+            # be covered, but this success path returns directly and would not.
+            # Wired now rather than left as a trap for whoever enables Phase 8:
+            # the entire finding today was guards that existed and were not
+            # reached, and a bypass that only opens later is the same bug on a
+            # timer. Advisory only; alters nothing.
+            try:
+                self._run_output_advisory(_v2_result, query)
+            except Exception as _adv_e:
+                print(f"  [ADVISORY] v2 wrapper failed: {_adv_e}", flush=True)
+            return _v2_result
 
         except Exception as e:
             _log.warning(f"[v2] generate_v2 failed, falling back: {e}")
@@ -774,6 +878,11 @@ class CodetteForgeBridge:
             or len(re.findall(r'^\([ABCD]\)', user_query, re.MULTILINE)) >= 3
         )
         response_text = result.get("response", "")
+
+        # The Colleen and Guardian advisory calls that used to sit here now run in
+        # `_run_output_advisory`, invoked from the `generate` wrapper — inline here
+        # they were reached only by traffic that survived five earlier returns.
+
         if response_text and not _is_benchmark and self.forge and hasattr(self.forge, 'cocooner') and self.forge.cocooner:
             try:
                 cocoon_meta = {"complexity": str(complexity), "domain": domain}

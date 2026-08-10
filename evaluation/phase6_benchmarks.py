@@ -362,6 +362,19 @@ class Phase6Benchmarks:
             summary += f"    Specialists: {len(sp.get('specialist_adapters', []))}\n"
             summary += f"    Convergence risks: {sp.get('convergence_risk_count', 0)}\n"
 
+        # 2026-08-03: with no benchmarks run, every section above is skipped and
+        # this returned a header and a rule and nothing else — a document that
+        # reads like a completed report showing no problems, when in fact
+        # nothing was measured. "No results" and "results were all fine" must
+        # not render identically.
+        if not any(self.results.get(k) for k in (
+            "multi_round_convergence", "memory_weighting_impact",
+            "semantic_tension_quality", "specialization_metrics",
+        )):
+            summary += "\nNO BENCHMARKS HAVE BEEN RUN — this summary is empty.\n"
+            summary += "Nothing below was measured. Run the benchmarks first;\n"
+            summary += "an empty report is not a passing one.\n"
+
         summary += "\n" + "=" * 60 + "\n"
         return summary
 

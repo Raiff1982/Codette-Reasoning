@@ -11,13 +11,28 @@ somewhere sane before flipping it live.
 Going live is one env flag: CODETTE_OPTIMIZER_LIVE=1. Until then this is a
 pure observer with a persisted state file, safe to leave running for weeks.
 
-Signal honesty:
-  coherence, tension  -> REAL (measured every turn, from LiveCognitionState)
-  productivity        -> proxy: render_fidelity overlap if present, else the
-                         neutral 0.5 placeholder (flagged in the log; NOT a
-                         measured productivity signal yet)
-  user_continued      -> True placeholder (real cross-turn engagement wiring
-                         is future work; flagged in the log)
+Signal honesty (corrected 2026-08-03 — this block had drifted from the code):
+  coherence     -> REAL, every turn, from LiveCognitionState. Required.
+  tension (Xi)  -> REAL when present. None on single-adapter turns, because it
+                   is variance ACROSS perspectives and there is none to measure.
+                   Omitted from the reward; weights renormalize.
+  productivity  -> REAL only when render_fidelity is supplied. Otherwise None.
+                   It previously defaulted to a neutral 0.5, which the log
+                   flagged as a placeholder but the reward still scored at
+                   weight 0.25. Fixed: unmeasured means omitted.
+  user_continued-> REAL when the follow-up carries evidence either way, None
+                   when it does not. Measured by
+                   reasoning_forge/engagement_signal.py at the moment the next
+                   query arrives — not deferred, because the user's message is
+                   simultaneously this turn's input and the last turn's
+                   outcome. It is emphatically NOT "the user sent another
+                   message": a re-ask or a correction scores FALSE, since
+                   chasing a bad answer is failure, not engagement. Silence at
+                   session end stays None — the user may have got exactly what
+                   they needed and left.
+
+The invariant, in one line: a signal that was not measured is omitted, never
+defaulted to a value that fabricates a measurement.
 """
 from __future__ import annotations
 
@@ -116,7 +131,9 @@ class ShadowOptimizer:
                 tension: Optional[float], multi_perspective: bool,
                 render_fidelity: Optional[float] = None,
                 response_length: int = 0,
-                is_benchmark: bool = False) -> None:
+                is_benchmark: bool = False,
+                user_continued: Optional[bool] = None,
+                engagement_reason: str = "") -> None:
         """Record one turn. Real signals only where measured; placeholders flagged.
 
         Benchmark turns are DROPPED, not recorded. GPQA and similar exams route to
@@ -137,7 +154,12 @@ class ShadowOptimizer:
         # sample it learns routing from. The reward renormalizes without it.
 
         productivity_is_proxy = render_fidelity is None
-        productivity = 0.5 if productivity_is_proxy else float(render_fidelity)
+        # 2026-08-03: was `0.5 if productivity_is_proxy else ...`. The 0.5 was
+        # flagged in the log as a placeholder but still fed to the reward at
+        # weight 0.25 — a fabricated measurement, scored. Now it is None when
+        # unmeasured, exactly as tension and user_continued already were, and
+        # the reward renormalizes over the terms that are real.
+        productivity = None if productivity_is_proxy else float(render_fidelity)
         tension_val = None if tension is None else float(tension)
 
         n_hist = len(self.opt.history)
@@ -147,9 +169,23 @@ class ShadowOptimizer:
                 coherence=float(coherence), tension=tension_val,
                 productivity=productivity, response_length=int(response_length),
                 multi_perspective=bool(multi_perspective),
-                # user_continued omitted (None): engagement is only knowable on the
-                # NEXT turn. Passing True was a constant +0.10 on every score.
-                user_continued=None,
+                # 2026-08-03: this was hardwired None, with the note that
+                # engagement is "only knowable on the NEXT turn". That framing
+                # was what kept it unmeasured — it treated the follow-up as a
+                # future event to wait for.
+                #
+                # It is not. The user's message is simultaneously the input to
+                # this turn and the outcome of the last one; the same event read
+                # from two frames. By the time a query is in hand, the previous
+                # query and response are already in session history, so the
+                # previous turn's outcome is fully determined at that instant.
+                # See reasoning_forge/engagement_signal.py.
+                #
+                # Still None whenever the classifier ABSTAINS — session end,
+                # bare acknowledgement, topic change. Absence of evidence stays
+                # absence. The invariant is unchanged: never default to a value
+                # that fabricates a measurement.
+                user_continued=user_continued,
             ))
         except Exception:
             return
@@ -157,7 +193,8 @@ class ShadowOptimizer:
         # Any NEW proposed adjustment this turn?
         new_steps = self.opt.history[n_hist:]
         self._log_turn(adapter, coherence, tension_val, productivity,
-                       productivity_is_proxy, new_steps)
+                       productivity_is_proxy, new_steps,
+                       user_continued, engagement_reason)
         if self._telemetry is not None:
             self._telemetry.record(
                 mode="live" if self.live else "shadow",
@@ -181,7 +218,8 @@ class ShadowOptimizer:
         return self.opt.get_adapter_boost(adapter)
 
     def _log_turn(self, adapter, coherence, tension, productivity,
-                  productivity_is_proxy, new_steps) -> None:
+                  productivity_is_proxy, new_steps,
+                  user_continued=None, engagement_reason="") -> None:
         try:
             _LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
             rec = {
@@ -197,9 +235,12 @@ class ShadowOptimizer:
                     "tension_measured": tension is not None,
                     "productivity": round(float(productivity), 4),
                     "productivity_is_placeholder": productivity_is_proxy,
-                    # Omitted from the reward entirely (weights renormalized),
-                    # rather than fabricated as True and silently scored.
-                    "user_continued_measured": False,
+                    # Measured from the follow-up when there is evidence either
+                    # way; None (and _measured false) when the classifier
+                    # abstains. Still never fabricated.
+                    "user_continued": user_continued,
+                    "user_continued_measured": user_continued is not None,
+                    "engagement_reason": engagement_reason or None,
                 },
                 "proposed_adjustments": [
                     {"param": s.parameter, "old": round(s.old_value, 4),

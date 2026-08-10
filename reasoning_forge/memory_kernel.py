@@ -1,4 +1,4 @@
-"""
+r"""
 Codette Memory Kernel — Recovered Foundational System
 ======================================================
 

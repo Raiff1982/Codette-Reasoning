@@ -205,6 +205,24 @@ def _analyze_response_reliability(response_text: str, adapter_name: str, domain:
         "hallucination_recommendation": "CONTINUE",
         "low_confidence_claims": [],
         "mean_token_confidence": 0.5,
+        # 2026-08-03: these two record whether the checks actually RAN.
+        #
+        # Without them, a guard that failed was indistinguishable from a guard
+        # that passed. `hallucination_confidence` starts at 1.0 and
+        # `hallucination_detected` at False; if HallucinationGuard raised, the
+        # except clause below wrote only to `hallucination_signals` — a field
+        # nothing gates on — and left those two reassuring defaults standing.
+        # _build_trust_tags then read 1.0 >= 0.85 and tagged the response
+        # "grounded" to the user. A response nobody checked was being badged as
+        # verified.
+        #
+        # Same shape as three other defects found today: the Nexis engine
+        # raising into a bare except at DEBUG, the corruption detector unable to
+        # match across newlines, and the Phase 6 summary rendering "nothing
+        # measured" identically to "measured, all fine". Absence must not
+        # render as safety.
+        "hallucination_checked": False,
+        "token_confidence_checked": False,
     }
     if not response_text.strip():
         return analysis
@@ -218,6 +236,7 @@ def _analyze_response_reliability(response_text: str, adapter_name: str, domain:
             "hallucination_detected": bool(detection.is_hallucination),
             "hallucination_signals": detection.signals[:5],
             "hallucination_recommendation": detection.recommendation,
+            "hallucination_checked": True,
         })
     except Exception as e:
         analysis["hallucination_signals"] = [f"hallucination_guard_unavailable: {e}"]
@@ -232,6 +251,7 @@ def _analyze_response_reliability(response_text: str, adapter_name: str, domain:
         low_claims = sorted(token_report.claims, key=lambda claim: claim.confidence)[:3]
         analysis.update({
             "mean_token_confidence": round(mean_token_conf, 3),
+            "token_confidence_checked": True,
             "low_confidence_claims": [
                 {
                     "text": claim.text[:180],
@@ -268,9 +288,21 @@ def _build_trust_tags(result: dict, memory_context_summary: dict) -> list[str]:
         tags.append("web-cited")
     if result.get("tools_used"):
         tags.append("tool-assisted")
+    # 2026-08-03: "grounded" now requires the check to have actually RUN.
+    #
+    # This previously read `.get("hallucination_confidence", 1.0) >= 0.85`. The
+    # default of 1.0 clears the threshold, so whenever the key was absent — or
+    # the guard raised and left its initial value in place — an unchecked
+    # response was tagged "grounded" for the user. The badge asserted
+    # verification that had never happened.
+    #
+    # Absence is now its own tag. "unverified" is information; a false
+    # "grounded" is worse than no tag at all.
     if confidence_analysis.get("hallucination_detected"):
         tags.append("hallucination-risk")
-    elif confidence_analysis.get("hallucination_confidence", 1.0) >= 0.85:
+    elif not confidence_analysis.get("hallucination_checked", False):
+        tags.append("unverified")
+    elif confidence_analysis.get("hallucination_confidence", 0.0) >= 0.85:
         tags.append("grounded")
 
     seen = set()
@@ -723,18 +755,47 @@ def _run_health_check():
         else:
             p6["components"]["stability_field"] = {"status": "MISSING"}
 
-        # Colleen conscience
-        if hasattr(forge, 'colleen') and forge.colleen:
-            p6["components"]["colleen_conscience"] = {"status": "OK"}
-        else:
-            p6["components"]["colleen_conscience"] = {"status": "MISSING"}
+        # Colleen conscience / Guardian spindle.
+        #
+        # 2026-08-09: these reported {"status": "OK"} on the strength of the
+        # attribute existing. Both were constructed at startup and NEVER CALLED
+        # on a live answer, and this endpoint said OK the entire time — a green
+        # light for a component that never ran.
+        #
+        # "LOADED" is now what `hasattr` actually establishes, and the counters
+        # say whether it was reached. A component present but never invoked
+        # reports LOADED with calls: 0 and raises a warning, which is the state
+        # that was previously indistinguishable from healthy.
+        def _guard_report(obj, label: str, warn_when_idle: bool):
+            if not obj:
+                return {"status": "MISSING"}
+            entry = {"status": "LOADED"}
+            stats = getattr(obj, "invocation_stats", None)
+            if callable(stats):
+                try:
+                    entry.update(stats())
+                    if entry.get("calls", 0) == 0:
+                        entry["status"] = "LOADED_NEVER_CALLED"
+                        if warn_when_idle:
+                            report["warnings"].append(
+                                f"{label} is loaded but has not been called this "
+                                f"session — it is not reached on the live path")
+                except Exception as _e:
+                    entry["invocation_stats_error"] = str(_e)
+            else:
+                # Older build without counters: say so rather than imply health.
+                entry["calls"] = "unknown (no counters in this build)"
+            return entry
+
+        colleen = getattr(forge, 'colleen', None)
+        p6["components"]["colleen_conscience"] = _guard_report(
+            colleen, "Colleen conscience", warn_when_idle=True)
+        if not colleen:
             report["warnings"].append("Colleen conscience not loaded")
 
-        # Guardian spindle
-        if hasattr(forge, 'guardian') and forge.guardian:
-            p6["components"]["guardian_spindle"] = {"status": "OK"}
-        else:
-            p6["components"]["guardian_spindle"] = {"status": "MISSING"}
+        p6["components"]["guardian_spindle"] = _guard_report(
+            getattr(forge, 'guardian', None), "Guardian spindle",
+            warn_when_idle=True)
 
         # Ethical governance
         if hasattr(forge, 'ethical_governance') and forge.ethical_governance:
@@ -1817,12 +1878,48 @@ def _worker_thread():
 
                 # Update session with response data (drives cocoon metrics UI)
                 epistemic = None
+                # Outcome of the PREVIOUS turn, measured below at query-arrival.
+                # Declared here so the optimizer call further down can read it
+                # unconditionally, including on benchmark turns and when there
+                # is no session (both leave it None, i.e. not measured).
+                _engagement = None
+                _steer = None
                 if session:
                     try:
                         # Add user message + assistant response to session history.
                         # Benchmark turns are excluded — they'd bleed into the
                         # session context injected before later questions.
                         if not _is_benchmark_query:
+                            # Measure the PREVIOUS turn's outcome here, in the
+                            # moment, BEFORE this turn's messages are appended.
+                            # At this instant `session.messages` still ends with
+                            # the last query and the response to it, so the
+                            # outcome of that turn is already fully determined —
+                            # the incoming message is simultaneously this turn's
+                            # input and the last turn's result. Nothing is
+                            # buffered and nothing has to be resolved later.
+                            try:
+                                from reasoning_forge.engagement_signal import (
+                                    classify_from_history, push_off)
+                                _engagement = classify_from_history(
+                                    session.messages, query)
+                                _prev_adapter = ""
+                                for _m in reversed(session.messages):
+                                    if _m.get("role") == "assistant":
+                                        _prev_adapter = (_m.get("metadata") or {}).get(
+                                            "adapter", "") or ""
+                                        break
+                                _steer = push_off(_engagement, _prev_adapter)
+                                if _engagement.measured:
+                                    print(f"  [ENGAGEMENT] previous turn "
+                                          f"user_continued={_engagement.value} "
+                                          f"({_engagement.reason}) -> "
+                                          f"steer={_steer['steer']}", flush=True)
+                            except Exception as _eng_e:
+                                _engagement = None
+                                _steer = None
+                                print(f"  [ENGAGEMENT] skipped: {_eng_e}", flush=True)
+
                             session.add_message("user", query)
                             session.add_message("assistant", result.get("response", ""), metadata={
                                 "adapter": result.get("adapter", "base"),
@@ -2185,6 +2282,12 @@ def _worker_thread():
                         _adapter_lbl = str(result.get("adapter") or result.get("primary_adapter") or "")
                         if not _adapter_lbl:
                             _adapter_lbl = "synthesis" if result.get("synthesis_used") else "unknown"
+                        # The engagement measurement taken at query-arrival
+                        # (above) belongs to the PREVIOUS turn, not this one.
+                        # It is attached here because this is where the
+                        # optimizer is fed; the scoring lag is one turn and is
+                        # inherent to the quantity, not to the wiring.
+                        _eng = _engagement
                         _shadow.observe(
                             adapter=_adapter_lbl,
                             coherence=result.get("measured_coherence"),
@@ -2193,6 +2296,8 @@ def _worker_thread():
                             render_fidelity=_rf_overlap,
                             response_length=len(str(result.get("response") or "")),
                             is_benchmark=_is_benchmark_query,
+                            user_continued=(_eng.value if _eng is not None else None),
+                            engagement_reason=(_eng.reason if _eng is not None else ""),
                         )
                 except Exception as _opt_e:
                     print(f"  [OPTIMIZER] shadow skipped: {_opt_e}", flush=True)
@@ -2292,6 +2397,23 @@ def _worker_thread():
                     response_data["domain"] = result["domain"]
                 if result.get("phase6_routing"):
                     response_data["phase6_routing"] = result["phase6_routing"]
+
+                # Advisory verdicts from ColleenConscience and CoreGuardianSpindle.
+                #
+                # 2026-08-09: the bridge computes these (see codette_forge_bridge,
+                # "ADVISORY" blocks) but response_data is assembled key by key, so
+                # without these two lines both were calculated on every turn and
+                # dropped on the floor. That is the same failure this whole wiring
+                # exists to correct, one layer further out: work that runs and
+                # reaches nothing. Caught by checking the response for the keys
+                # rather than assuming the bridge edit was sufficient.
+                #
+                # Both carry enforced: False. Surfacing them changes no response;
+                # it makes an observation observable.
+                if result.get("colleen_advisory"):
+                    response_data["colleen_advisory"] = result["colleen_advisory"]
+                if result.get("guardian_advisory"):
+                    response_data["guardian_advisory"] = result["guardian_advisory"]
 
                 # Add ethical governance info
                 ethical_checks = 0
