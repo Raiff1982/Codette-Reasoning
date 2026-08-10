@@ -521,7 +521,7 @@ for token in tokens) for t in self.config["virtue_terms"])
         return self.metrics.get_stats()
 
     def _process_impl(self, input_signal):
-        """Uninstrumented analysis. Called only via process(); see there."""
+        """Core analysis logic; process() wraps this to record Metrics and errors."""
         start_time = time.perf_counter()
         signal_lower = input_signal.lower()
         tokens = self._tokenize_and_lemmatize(signal_lower)
