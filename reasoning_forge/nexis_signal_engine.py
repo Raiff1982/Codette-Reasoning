@@ -94,6 +94,39 @@ if nltk is not None:
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s -%(message)s')
 logger = logging.getLogger(__name__)
 
+class Metrics:
+    """Process-time and error counters for NexisSignalEngine.
+
+    RECOVERED 2026-08-10, verbatim, from a divergent copy of this engine found at
+    `OneDrive_2_8-10-2026.zip!Nexus/import json.py` (byte-identical twin at
+    `codette_remaining_files.zip!nexus23.py`). That copy shares 47 of 63 symbols
+    with this file; `Metrics` and its four call-sites were among the symbols it
+    had and this one did not. See docs/RECOVERY_2026-08-10.md.
+
+    `process()` already measured `time.perf_counter()` on both of its return
+    paths and logged the result, so the duration existed but was not retrievable
+    by anything. This makes it queryable.
+    """
+
+    def __init__(self):
+        self.process_times = []
+        self.error_count = 0
+
+    def record_process_time(self, duration):
+        self.process_times.append(duration)
+        if len(self.process_times) > 1000:
+            self.process_times.pop(0)
+
+    def record_error(self):
+        self.error_count += 1
+
+    def get_stats(self):
+        return {
+            "avg_process_time": sum(self.process_times) / max(len(self.process_times), 1),
+            "error_count": self.error_count
+        }
+
+
 class LockManager:
     """Abstract locking mechanism for file or database operations. """
     def __init__(self, lock_path):
@@ -132,6 +165,7 @@ max_db_size_mb=100):
         self.token_cache = {}
         self.config = self._load_config(config_path)
         self.cache = defaultdict(list)
+        self.metrics = Metrics()
         self.perspectives = ["Colleen", "Luke", "Kellyanne"]
         self._init_sqlite()          # create schema before first read
         self.memory = self._load_memory()
@@ -466,6 +500,28 @@ for token in tokens) for t in self.config["virtue_terms"])
         Returns:
             dict: Analysis results including hash, intent, perspectives, and verdict.
         """
+        # Instrumentation wrapper (2026-08-10). The analysis itself is unchanged
+        # and lives in _process_impl; this only records timing and errors.
+        # Deliberately re-raises: counting a failure must not swallow it.
+        start = time.perf_counter()
+        try:
+            return self._process_impl(input_signal)
+        except Exception:
+            self.metrics.record_error()
+            raise
+        finally:
+            self.metrics.record_process_time(time.perf_counter() - start)
+
+    def get_metrics(self):
+        """Return process-time and error statistics.
+
+        Returns:
+            dict: {"avg_process_time": float, "error_count": int}
+        """
+        return self.metrics.get_stats()
+
+    def _process_impl(self, input_signal):
+        """Uninstrumented analysis. Called only via process(); see there."""
         start_time = time.perf_counter()
         signal_lower = input_signal.lower()
         tokens = self._tokenize_and_lemmatize(signal_lower)
