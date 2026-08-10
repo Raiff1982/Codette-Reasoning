@@ -23,7 +23,7 @@ from fastapi import FastAPI, HTTPException, Security, Depends
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel
 from typing import Optional
-from codette.codette_core import AICore  # noqa: F401 — absent; see module docstring
+from codette.codette_core import AICore  # Non-functional: package is not present in this repository; see module docstring
 import hmac
 import logging
 from datetime import datetime
