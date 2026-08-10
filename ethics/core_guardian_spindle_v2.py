@@ -52,10 +52,9 @@ def quantum_execute(web):
     if num_nodes == 0:
         return None
     if not _QISKIT:
-        # Classical fallback, same distribution as the circuit below: a uniform
-        # num_nodes-bit draw reduced mod num_nodes. Named honestly — without
-        # qiskit this is not a quantum selection and does not claim to be.
-        return list(web.nodes)[random.getrandbits(num_nodes) % num_nodes]
+        # Classical fallback — uniform selection (no quantum claim without qiskit).
+        nodes = list(web.nodes)
+        return nodes[random.randrange(len(nodes))]
     qc = QuantumCircuit(num_nodes, num_nodes)
     qc.h(range(num_nodes))
     qc.measure_all()
