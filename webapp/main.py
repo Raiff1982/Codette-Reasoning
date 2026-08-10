@@ -1,6 +1,6 @@
 """Codette API — NON-FUNCTIONAL. Kept as a record, not as a service.
 
-This module cannot start. Line 5 imports ``codette.codette_core``, and no such
+This module cannot start. It imports ``codette.codette_core``, and no such
 package exists anywhere in this repository — ``webapp/codette.py`` is a flat
 module, not that package. Nothing references ``main:app``: no Dockerfile, no CI
 job, no script. It originated in a hackathon build (first committed in #14,
