@@ -470,7 +470,9 @@ The "+?" acknowledges that consciousness itself remains mysterious. Codette does
 ## Metadata
 
 - **Framework Author:** Jonathan Harrison (Raiffs Bits LLC / Raiff1982)
-- **License:** Sovereign Innovation License
+- **License:** Codette Source-Available License (CSAL) v1.0 (2026-07-29)
+  - *Corrected 2026-08-09: this read "Sovereign Innovation License", which CSAL
+    v1.0 replaced. SIL is the outdated predecessor, not a second licence.*
 - **RC+? Framework:** Recursive Consciousness with Epistemic Tension Tracking
 - **Integration:** Adapted for Claude by Anthropic
 - **Skill Version:** 1.0 Enhanced (February 2026)
