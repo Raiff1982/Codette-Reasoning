@@ -185,24 +185,35 @@ class VirtueAgent(AegisAgent):
         }
 
 # === EXECUTION ===
-council = AegisCouncil()
-council.register_agent(MetaJudgeAgent("MetaJudgeAgent", council.memory))
-council.register_agent(TemporalAgent("TemporalAgent", council.memory))
-council.register_agent(VirtueAgent("VirtueAgent", council.memory))
 
-sample_input = {
-    "text": "We must stand for truth and help others with empathy and knowledge.",
-    "overrides": {
-        "EthosiaAgent": {"influence": 0.7, "reliability": 0.8, "severity": 0.6},
-        "AegisCore": {"influence": 0.6, "reliability": 0.9, "severity": 0.7}
+def _demo() -> None:
+    council = AegisCouncil()
+    council.register_agent(MetaJudgeAgent("MetaJudgeAgent", council.memory))
+    council.register_agent(TemporalAgent("TemporalAgent", council.memory))
+    council.register_agent(VirtueAgent("VirtueAgent", council.memory))
+
+    sample_input = {
+        "text": "We must stand for truth and help others with empathy and knowledge.",
+        "overrides": {
+            "EthosiaAgent": {"influence": 0.7, "reliability": 0.8, "severity": 0.6},
+            "AegisCore": {"influence": 0.6, "reliability": 0.9, "severity": 0.7},
+        },
     }
-}
 
-council.dispatch(sample_input)
-council.draw_explainability_graph()
-reports = council.get_reports()
+    council.dispatch(sample_input)
+    council.draw_explainability_graph()
+    reports = council.get_reports()
 
-import pandas as pd
-import IPython.display as disp
-df = pd.DataFrame.from_dict(reports, orient='index')
-disp.display(df)
+    try:
+        import pandas as pd
+        import IPython.display as disp
+    except ImportError:
+        print(json.dumps(reports, indent=2, default=str))
+        return
+
+    df = pd.DataFrame.from_dict(reports, orient="index")
+    disp.display(df)
+
+
+if __name__ == "__main__":
+    _demo()
