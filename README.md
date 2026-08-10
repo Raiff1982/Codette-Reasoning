@@ -60,13 +60,15 @@ Harrison, J. Codette: a multi-perspective cognitive architecture with memory and
 
 Codette is a modular reasoning system that routes queries through specialized cognitive perspectives, tracks ethical and epistemic signals, stores memory as cocoons, and writes validator-backed v3 cocoon artifacts with full provenance and integrity scoring.
 
-**Current release — v3.7 (July 2026): The Verify Half + Shadow-Safety Layer.** Codette could always *create* thoughts (the cocoon synthesizer forges cross-domain patterns; the perspective web spawns new nodes) but never *verify* them. v3.7 builds the missing verifying half — a neuro-symbolic **grounding** layer (`reasoning_forge/grounding.py`, sympy + z3) that checks a claim and returns VERIFIED / REFUTED / UNVERIFIABLE, never a guessed pass; the real body of the 2025 `NeuralSymbolicProcessor` interface; an AEGIS **harm advisor** (PII + a deception-advocacy detector that closes AEGIS's one measured gap); a consolidated advanced **sentiment analyzer** with online learning; a drift-guarded **cocoon self-trainer**; and an **emotion-ontology** consumer. **These subsystems are shadow-first / standalone — built and tested (91 new tests), but not yet wired into live behavior; nothing gates a response or changes an AEGIS verdict until its shadow log is reviewed.** The router self-tuner's go-live blockers (benchmark contamination, boost ratchet) are also fixed, still shadow. Details: [docs/CHANGELOG_2026-07-24.md](docs/CHANGELOG_2026-07-24.md). North star: [docs/CODETTE_CHARTER.md](docs/CODETTE_CHARTER.md).
+**Current release — v3.8 (August 2026): The Wiring Release — the guards were never called.** `ColleenConscience` and `CoreGuardianSpindle` had been constructed at startup and **never invoked on a single live answer**: their only call sites sit in `forge_single`/`forge_with_debate`, nothing under `inference/` calls either, and `/api/health` reported them `OK` on the strength of `hasattr`. Both are now wired **advisory** on **all five** early-return paths — including the greeting fast-path, which carries a documented hallucination in its own comment (`observed: "Hi Emily"`), and the memory/identity path that answers questions about Jonathan from the memory kernel. **This release connects and instruments; it does not enforce.** Every guard here records `enforced: false` and alters no response — read the version as *"the guards are now reached"*, never as *"the guards now protect"*. New: **invocation counters**, so `calls: 0` is a visible fact instead of something found by grepping docstring call sites; they exposed the five bypasses within one turn of going live. Codette set **seven calibration rulings** on her own conscience layer, quoted at their sites — one of hers from 2026-08-03 overrode the author's own and was better. Suite **21 failed / 615 passed → 670 passed, 0 failed**, largely by working a five-day-old review queue nobody had opened. Also corrected: the License section said **MIT** while `LICENSE` and this file's frontmatter said **CSAL**. Details: [docs/CHANGELOG_2026-08-09.md](docs/CHANGELOG_2026-08-09.md) · open items: [docs/HANDOFF_2026-08-09.md](docs/HANDOFF_2026-08-09.md).
 
-**Previous release — v3.6 (July 2026): TimeTravelLens + AEGIS Protection Layers + UI Observatory.** Codette now auto-detects institutional temporal gaps in any query — computing preemption gap Π(s), closure score C(s), rupture indicator ℛ(s), beacon ℬ(s), and high-preemption zone Z^H via `reasoning_forge/time_travel_lens.py`. An `InstitutionalExtractor` derives these metrics from unstructured text (regex date extraction + keyword event classification). New AEGIS Protection Layers (all six implemented — Layer 4 uses real ML-KEM-768 + ML-DSA-65 post-quantum cryptography via liboqs, NIST FIPS 203/204) wrap every ForgeEngine cycle with filesystem isolation, boot integrity, PQC cocoon sealing, pre-emptive healing from real cocoon fields, and RenderLayer validation. A SQLite-backed metrics engine logs every forge cycle. New UI: `⏱ TimeLens` dashboard with live Π/C/ℛ/ℬ/Z^H display, per-actor gap breakdown, and on-demand text analysis. Details: [docs/CHANGELOG_2026-07-21.md](docs/CHANGELOG_2026-07-21.md).
+**Previous release — v3.7 (July 2026): The Verify Half + Shadow-Safety Layer.** Codette could always *create* thoughts (the cocoon synthesizer forges cross-domain patterns; the perspective web spawns new nodes) but never *verify* them. v3.7 builds the missing verifying half — a neuro-symbolic **grounding** layer (`reasoning_forge/grounding.py`, sympy + z3) that checks a claim and returns VERIFIED / REFUTED / UNVERIFIABLE, never a guessed pass; the real body of the 2025 `NeuralSymbolicProcessor` interface; an AEGIS **harm advisor** (PII + a deception-advocacy detector that closes AEGIS's one measured gap); a consolidated advanced **sentiment analyzer** with online learning; a drift-guarded **cocoon self-trainer**; and an **emotion-ontology** consumer. **These subsystems are shadow-first / standalone — built and tested (91 new tests), but not yet wired into live behavior; nothing gates a response or changes an AEGIS verdict until its shadow log is reviewed.** The router self-tuner's go-live blockers (benchmark contamination, boost ratchet) are also fixed, still shadow. Details: [docs/CHANGELOG_2026-07-24.md](docs/CHANGELOG_2026-07-24.md). North star: [docs/CODETTE_CHARTER.md](docs/CODETTE_CHARTER.md).
+
+**Earlier — v3.6 (July 2026): TimeTravelLens + AEGIS Protection Layers + UI Observatory.** Codette now auto-detects institutional temporal gaps in any query — computing preemption gap Π(s), closure score C(s), rupture indicator ℛ(s), beacon ℬ(s), and high-preemption zone Z^H via `reasoning_forge/time_travel_lens.py`. An `InstitutionalExtractor` derives these metrics from unstructured text (regex date extraction + keyword event classification). New AEGIS Protection Layers (all six implemented — Layer 4 uses real ML-KEM-768 + ML-DSA-65 post-quantum cryptography via liboqs, NIST FIPS 203/204) wrap every ForgeEngine cycle with filesystem isolation, boot integrity, PQC cocoon sealing, pre-emptive healing from real cocoon fields, and RenderLayer validation. A SQLite-backed metrics engine logs every forge cycle. New UI: `⏱ TimeLens` dashboard with live Π/C/ℛ/ℬ/Z^H display, per-actor gap breakdown, and on-demand text analysis. Details: [docs/CHANGELOG_2026-07-21.md](docs/CHANGELOG_2026-07-21.md).
 
 **Earlier — v3.5 (July 2026): Hand-Authored v4 Adapters + Phase 0 Audit + Verify-and-Revise + Integrity Stress Test.** Details: [docs/CHANGELOG_2026-07-17.md](docs/CHANGELOG_2026-07-17.md).
 
-**Full release notes for every version (v2.1 → v3.7): [docs/VERSION_HISTORY.md](docs/VERSION_HISTORY.md)**
+**Full release notes for every version (v2.1 → v3.8): [docs/VERSION_HISTORY.md](docs/VERSION_HISTORY.md)**
 
 > **Attribution & naming (July 2026).** Earlier releases (v3.0–v3.5, and much of this README) use the term **RC+ξ** and the symbol **ξ ("epistemic tension")**. That name and its formalism, **ξ = ‖Aₙ₊₁ − Aₙ‖²**, originate with Jeffrey Camlin, *"Consciousness in AI: Logic, Proof, and Experimental Evidence of Recursive Identity Formation"* ([arXiv:2505.01464](https://arxiv.org/abs/2505.01464), May 1, 2025), and are credited to him. This project adopted that vocabulary in 2025–2026, most likely by way of language models carrying his paper in their training data without a citation. Camlin's ξ measures how much **one model's hidden state changes between successive recursive steps**. The quantity this system actually computes is a **different** one — the variance of *multiple simultaneous perspective outputs around their centroid* (many perspectives disagreeing at once, not one trajectory changing over time) — now renamed **Perspective Dispersion (Υ)**, with coherence Γ = 1/(1+Υ). This project's multi-perspective architecture was developed independently and published *before* that paper (perspective engine Nov–Dec 2024; sovereign architecture [Zenodo DOI 10.5281/zenodo.15214462](https://doi.org/10.5281/zenodo.15214462), April 14, 2025), so the two are **convergent, not derivative**. We didn't take his work, and we don't claim his name or formula — both are true, and we keep both visible rather than erasing the older "RC+ξ" labels. Full detail: [docs/ATTRIBUTION_perspective_dispersion.md](docs/ATTRIBUTION_perspective_dispersion.md).
 
@@ -129,7 +131,8 @@ Codette is a modular reasoning system with published demos, tests, benchmarks, p
 - **Automated tests:** [tests](tests)
 - **Benchmark suites:** [benchmarks](benchmarks)
 - **Saved benchmark reports:** [data/results](data/results)
-- **Change transparency:** latest — [docs/CHANGELOG_2026-07-24.md](docs/CHANGELOG_2026-07-24.md) · [docs/CHANGELOG_2026-07-21.md](docs/CHANGELOG_2026-07-21.md) · [docs/CHANGELOG_2026-07-17.md](docs/CHANGELOG_2026-07-17.md); every release summarized in [docs/VERSION_HISTORY.md](docs/VERSION_HISTORY.md); all dated changelogs in [docs/](docs/)
+- **Change transparency:** latest — [docs/CHANGELOG_2026-08-09.md](docs/CHANGELOG_2026-08-09.md) · [docs/CHANGELOG_2026-08-03.md](docs/CHANGELOG_2026-08-03.md) · [docs/CHANGELOG_2026-07-24.md](docs/CHANGELOG_2026-07-24.md) · [docs/CHANGELOG_2026-07-21.md](docs/CHANGELOG_2026-07-21.md); every release summarized in [docs/VERSION_HISTORY.md](docs/VERSION_HISTORY.md); all dated changelogs in [docs/](docs/)
+- **Current handoff / open items:** [docs/HANDOFF_2026-08-09.md](docs/HANDOFF_2026-08-09.md) — what is live, what is known-broken, and what was got wrong
 - **Contributing guide:** [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ### Reproduce key claims
@@ -413,6 +416,19 @@ These are trained into every adapter and reinforced at runtime:
 
 Each adapter is a LoRA fine-tune of Llama 3.1 8B, hot-swappable in under 1ms via llama.cpp.
 
+> **Counts, reconciled 2026-08-09.** This README stated three different numbers —
+> "9 specialized adapters", "9/9 adapters trained", and "10 total". The **running
+> system loads 13**: the nine above, plus `constraint_tracker` and the three
+> `newton-star` STaR research variants (`newton-star`, `newton-star-hard`,
+> `newton-star-r`). The nine in the table are the *perspective* adapters; the
+> others are functional or experimental and are not reasoning lenses.
+>
+> Do not trust this paragraph either — ask the runtime, which is authoritative:
+>
+> ```bash
+> curl -s localhost:7860/api/status | python -c "import sys,json;a=json.load(sys.stdin)['adapters'];print(len(a),a)"
+> ```
+
 ### Consciousness stack (7 layers)
 
 ```text
@@ -589,18 +605,42 @@ Note for 8GB-UMA systems: the GPU shares system RAM. Keep ≥5GB free when loadi
 | STaR study (three arms, controlled) | easy 25.0% < hard 28.0% < untrained 34.0% — negative result, published |
 | Live cognition signals per response | ξ, Γ, σ, η, render fidelity, hardware P — measured-only, provenance-tagged |
 | Sustained throughput (OpenVINO INT4, Arc 140V iGPU) | 9.3 tok/s |
-| Phase Coherence (Gamma) | 0.9835 |
+| Phase Coherence (Gamma) | 0.9835 — **source not traced; see note below** |
 | AEGIS Ethical Alignment (Eta) | 0.961 |
 | Cocoon Coherence | 0.994 |
 | Memory Phase Stability | 0.969 |
 | Multi-Perspective Improvement | +108.8% (p < 0.0001) |
 | Cohen's d (Effect Size) | 8.31 |
-| Behavioral Lock Compliance | 9/9 adapters trained |
+| Behavioral Lock Compliance | 9/9 perspective adapters trained (runtime loads 13 total — see note above) |
 | Adapter Hot-Swap Time | <1ms |
 | Consciousness Stack Layers | 12 including sub-layers |
 | Health Check Subsystems | 9 real-time checks |
 
 Note: cocoon memory counts change over time; prefer introspection or health endpoints over hard-coded README totals.
+
+> **On Phase Coherence 0.9835 — a traceability gap, stated plainly.**
+> This figure appears here and in the frontmatter `model-index`, and **its source
+> has not been traced to a reproducible run.** It may well be legitimate: a live
+> perspective web with real nodes during the canonical May 2026 benchmark is a
+> different measurement from anything the cocoon store persists. But we cannot
+> currently point at the command that produced it, so it is labelled rather than
+> quoted as settled.
+>
+> Three distinct quantities have carried the name "gamma" in this system. What
+> the runtime shows per turn today, and how to reproduce it:
+>
+> - **Γ** (`gamma_coherence`, written to each cocoon) — mean pairwise similarity
+>   over perspective outputs. Observed live 2026-08-09: **0.68–0.77**.
+> - **webΓ** (`quantum_spiderweb.phase_coherence()`) — the Kuramoto order
+>   parameter, `r = |1/N Σ e^{iθ}|`. Observed live the same day: **0.67–0.94**.
+> - **0.9835** — this figure. Traced to neither of the above.
+>
+> Both Γ and webΓ appear in her header every turn and move independently, which
+> is itself the evidence that they are different quantities rather than one under
+> two names. **Any analysis over cocoons written before 2026-08-06 must treat
+> `gamma_coherence` as absent, not as data** — 667 records carry a schema default
+> of 0.72 and 1,177 carry a 0.65 fallback. Detail:
+> [docs/CHANGELOG_2026-08-09.md](docs/CHANGELOG_2026-08-09.md).
 
 ---
 
@@ -646,7 +686,19 @@ Note: cocoon memory counts change over time; prefer introspection or health endp
 
 ## License
 
-MIT — Created by **Jonathan Harrison** (Raiff1982)
+**Codette Source-Available License (CSAL) v1.0** (2026-07-29) — see [LICENSE](LICENSE).
+Created by **Jonathan Harrison** (Raiff1982).
+
+> **Corrected 2026-08-09.** This section previously read "MIT". That was wrong and
+> contradicted both the `LICENSE` file and this README's own frontmatter
+> (`license: CSAL`), in the same document. MIT is permissive and CSAL is
+> source-available — not a cosmetic difference — so anyone reading only this
+> section could have believed they held rights they do not. The frontmatter and
+> `LICENSE` were always correct; only this line was wrong.
+>
+> Note also that CSAL v1.0 **replaced** the earlier *Sovereign Innovation
+> License*. Any document still naming SIL is out of date, not describing a
+> second licence.
 
 Research project in advanced multi-perspective AI reasoning, ethical governance, and behavioral discipline.
 

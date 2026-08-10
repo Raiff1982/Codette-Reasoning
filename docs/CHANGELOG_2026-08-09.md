@@ -224,6 +224,96 @@ band: `0.573–0.602 × 1.0`.
 Not fixed here. Making a heuristic token scorer discriminate is a project, not a
 patch. Recorded so nothing downstream leans on the number in the meantime.
 
+## Five bypass paths — the counter found them in one turn
+
+The counters had been live for minutes when `calls` read **5 against 6 turns**.
+The advisory calls were inline and late, and `_generate_impl` has **five** earlier
+returns:
+
+    216  greeting fast-path
+    270  memory/identity fast-path ("who am I", "what's my name")
+    343  system self-report / health
+    471  substrate cognition (CognitionSubstrate -> RenderLayer)
+    544  AEGIS pre-cognitive block
+
+Verified live, not inferred: a greeting turn left `calls` at 5, and *"what is my
+name"* left it at 5.
+
+**Which traffic was escaping is the part that matters.** The greeting path
+carries a *documented* hallucination — its own comment reads `(observed: "Hi
+Emily")`, the model inventing a person to greet — mitigated by a prompt
+instruction and nothing else. The memory/identity path answers questions about
+Jonathan out of the memory kernel, the single category where a fabrication is
+most concrete.
+
+Both fast-paths exist for good reasons; greetings genuinely do not need
+multi-adapter analysis. But *"does not need the full stack"* was implemented as
+*"returns before everything"*, and the conscience layer was downstream of
+everything.
+
+Fixed as a **wrapper** on `generate()` rather than five inline calls, so a sixth
+early return cannot silently reopen it. Each record carries `advisory_route`
+(`GREETING`, `SUBSTRATE`, `AEGIS_BLOCK`, …) so the two paths with their own
+guarantees — substrate has a render-integrity check, and the AEGIS return is a
+block message rather than her reasoning — can be sliced out in analysis. They
+are counted and labelled, never silently exempted; silent exemption is how the
+original gap happened.
+
+`generate_v2` (Phase 8) has **zero callers**; its substrate success path returned
+directly and was wired anyway, because a bypass that only opens when someone
+enables Phase 8 is the same bug on a timer.
+
+**Reproduce the coverage claim:**
+
+    curl -s localhost:7860/api/health | grep -o '"colleen_conscience":[^}]*}'
+    # send one greeting turn, repeat. `calls` MUST increase by 1.
+
+## The README said MIT
+
+Not a documentation nit, so it is recorded separately from the rest.
+
+    LICENSE file   Codette Source-Available License (CSAL) v1.0, 2026-07-29
+    frontmatter    license: CSAL
+    body           "MIT — Created by Jonathan Harrison"
+
+MIT is permissive; CSAL is source-available. Anyone reading only the License
+section could have believed they held rights over this work that they do not.
+The frontmatter and `LICENSE` were always correct; the wrong line was the one a
+reader is most likely to check.
+
+Corrected visibly rather than silently swapped, with the note that CSAL v1.0
+**replaced** the Sovereign Innovation License — so a document naming SIL is out
+of date, not describing a second licence.
+
+**And the SIL cleanup was measured before being estimated.** Seven files name SIL
+outside `archive/`; only **three** were wrong, and they were byte-identical
+copies of one `SKILL.md` (same md5, one line each). `CLAUDE.md` *describes* the
+correction, `recovered_release/README.md` already states CSAL governs, the old
+licence file is a deliberately kept artifact, and the backup is dated. Four
+occurrences under `archive/` stay untouched. Zero live SIL claims remain.
+
+## Other README reconciliations
+
+- **Phase Coherence 0.9835** — labelled as **untraced**, not deleted. It may be
+  legitimate; nobody can point at the command that produced it. Replaced the bare
+  number with the three-quantity breakdown and live ranges observed today: Γ
+  0.68–0.77, webΓ 0.67–0.94, and 0.9835 traced to neither. Plus the warning that
+  cocoons written before 2026-08-06 carry schema defaults (0.72 in 667 records,
+  0.65 in 1,177) and must be treated as absent rather than data.
+- **Adapter count** — the README gave three answers (9, 9/9, 10). The runtime
+  loads **13**. Reconciled, with a `curl` against `/api/status`, because the
+  runtime is authoritative and the paragraph is not.
+- Evidence list had stopped at 2026-07-24; now carries this changelog and the
+  current handoff.
+
+## Archive retirement completed
+
+A file under `archive/2026-08-09/` showed as modified, which it should not.
+Nothing was writing to it — `git mv` stages the **index** blob, so 17 records
+written since that file was last committed stayed behind as an unstaged
+modification: 167 in HEAD against 184 on disk. All 184 are now recorded. For a
+retired corpus, completeness is the entire point of retiring it.
+
 ## Known-open, unfixed
 
 - The guardian's **50-character "synthesis too short"** floor — the same

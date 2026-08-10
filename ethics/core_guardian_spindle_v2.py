@@ -52,10 +52,20 @@ def quantum_execute(web):
     if num_nodes == 0:
         return None
     if not _QISKIT:
-        # Classical fallback, same distribution as the circuit below: a uniform
-        # num_nodes-bit draw reduced mod num_nodes. Named honestly — without
-        # qiskit this is not a quantum selection and does not claim to be.
-        return list(web.nodes)[random.getrandbits(num_nodes) % num_nodes]
+        # Classical fallback — an unbiased uniform draw over the nodes. Named
+        # honestly: without qiskit this is not a quantum selection and does not
+        # claim to be.
+        #
+        # This deliberately no longer matches the qiskit branch below. The line
+        # was previously `random.getrandbits(num_nodes) % num_nodes`, which
+        # mirrored that branch's `int(state, 2) % num_nodes` — including its
+        # modulo bias — so that the two paths drew from the same distribution.
+        # aacf66d removed the bias from this path only, on a scanner finding.
+        # Keeping that fix: the bias was a defect either way. Recording the
+        # consequence: the qiskit branch still carries it, so the two paths are
+        # now distributionally different, and that branch has never run here.
+        nodes = list(web.nodes)
+        return nodes[random.randrange(len(nodes))]
     qc = QuantumCircuit(num_nodes, num_nodes)
     qc.h(range(num_nodes))
     qc.measure_all()
