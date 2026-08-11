@@ -520,12 +520,25 @@ class ForgeEngine:
             return SYSTEM_PROMPT
 
         sk = self.awareness.get("self_knowledge", {})
+        # 2026-08-10: the last line read
+        #   f"Core philosophy: {self.awareness.get('project_genesis', {})
+        #                          .get('philosophy', '')}"
+        # and there is no `project_genesis` key in the cocoon — the top level is
+        # self_knowledge / architecture / evolution_journey / version_info / ...
+        # So every system prompt at all five call sites carried the bare label
+        # "Core philosophy: " with nothing after it. Emit the field only when it
+        # actually resolves, and fall back to my_values, which does exist.
+        philosophy = (
+            self.awareness.get("project_genesis", {}).get("philosophy", "")
+            or sk.get("my_values", "")
+        )
         identity = (
             f" Your name is {sk.get('my_name', 'Codette')}. "
             f"{sk.get('my_nature', '')} "
-            f"Your purpose: {sk.get('my_purpose', '')} "
-            f"Core philosophy: {self.awareness.get('project_genesis', {}).get('philosophy', '')}"
+            f"Your purpose: {sk.get('my_purpose', '')}"
         )
+        if philosophy:
+            identity += f" Core philosophy: {philosophy}"
         return SYSTEM_PROMPT + identity
 
     def synthesize_from_cocoons(
