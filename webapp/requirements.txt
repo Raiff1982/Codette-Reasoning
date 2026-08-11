@@ -1,5 +1,9 @@
 fastapi==0.109.0
 uvicorn==0.27.0
 pydantic==2.5.3
-python-multipart==0.0.6
-python-jose==3.3.0
+# python-multipart and python-jose are declared but imported nowhere in webapp/.
+# Bumped rather than removed: they carried 11 Dependabot alerts between them
+# (python-jose CVE-2024-33663 is critical), and removing a declared dependency
+# is a decision about intent, not a security fix. See docs/SECURITY_DEPS.md.
+python-multipart==0.0.31
+python-jose==3.4.0

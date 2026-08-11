@@ -202,7 +202,12 @@ class ShadowOptimizer:
                 coherence=float(coherence),
                 # telemetry schema wants a number; -1.0 sentinel = not measured
                 tension=(-1.0 if tension_val is None else tension_val),
-                productivity=float(productivity),
+                # Same sentinel for productivity, and for the same reason. This
+                # read `float(productivity)` and raised TypeError whenever
+                # render_fidelity was unmeasured — unlike _log_turn's, this
+                # exception escaped observe() entirely, so _persist() below never
+                # ran and the optimizer's own state stopped being saved too.
+                productivity=(-1.0 if productivity is None else float(productivity)),
                 response_length=int(response_length),
                 multi_perspective=bool(multi_perspective),
                 proposed_count=len(new_steps),
@@ -233,7 +238,20 @@ class ShadowOptimizer:
                     # reward; weights renormalize.
                     "tension": None if tension is None else round(float(tension), 4),
                     "tension_measured": tension is not None,
-                    "productivity": round(float(productivity), 4),
+                    # None when render_fidelity was not measured. This line read
+                    # `round(float(productivity), 4)` until 2026-08-10, which
+                    # raised TypeError on exactly those turns — and the bare
+                    # `except Exception: pass` below turned the crash into
+                    # SILENT DATA LOSS: the whole record was dropped, taking its
+                    # user_continued measurement with it.
+                    #
+                    # That is why user_continued looked like it was never
+                    # measured. It was being measured and then discarded. The
+                    # 2026-08-03 change that made productivity honest (None
+                    # instead of a fabricated 0.5) was right; this logger was
+                    # never updated to match it.
+                    "productivity": None if productivity is None else round(float(productivity), 4),
+                    "productivity_measured": productivity is not None,
                     "productivity_is_placeholder": productivity_is_proxy,
                     # Measured from the follow-up when there is evidence either
                     # way; None (and _measured false) when the classifier

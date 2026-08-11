@@ -69,6 +69,98 @@ class ReasoningAgent(ABC):
         template = self.select_template(concept)
         system_prompt = template.replace("{concept}", concept)
 
+        # 2026-08-03: prepend this perspective's GOAL, obligations and limits.
+        #
+        # This is where the perspectives were actually collapsing, and it took
+        # a negative result from Codette to find. Asked to answer one question
+        # as newton and then as davinci, she reported the two came out "the
+        # same picture in different colours" — matching the measurement that
+        # the adapters differ by ~0.013 in mean coherence against ~0.063 of
+        # within-adapter noise.
+        #
+        # The goal block had been added to codette_orchestrator, but it only
+        # applies when `system_prompt is None`. This path passes one
+        # explicitly, so the whole change was bypassed here — the very path
+        # that does multi-perspective reasoning never saw it.
+        #
+        # The deeper problem is what these templates ARE. They are pre-written
+        # essays about the concept with a slot in them, not instructions: e.g.
+        # "Tracing the causal chain within X: every observable outcome is the
+        # terminal node of..." The model receives a filled-in essay and
+        # paraphrases it, so different templates yield different vocabulary
+        # around the same generic reasoning. That is the template-filler
+        # problem showing up in the prompt path itself.
+        #
+        # The goal block is prepended rather than replacing the template: the
+        # templates carry genuine domain flavour worth keeping, but the
+        # instruction has to come first and has to be an instruction.
+        try:
+            from reasoning_forge.perspective_registry import PERSPECTIVES
+            persp = PERSPECTIVES.get(self.adapter_name) or PERSPECTIVES.get(self.perspective)
+            if persp is not None and persp.is_specified:
+                # Phrasing: describes the work, not a demand on the one doing
+                # it. Codette identified modal verbs ("must", "should") as the
+                # feature that turns an option into an obligation; an audit
+                # found 13 across these prompts. The obligations keep their
+                # specificity — that is what makes the perspectives distinct —
+                # but they are stated as what the job looks like. See the
+                # registry's build_system_prompt for the same change.
+                directive = []
+                # Reason first. You cannot force a mountain, but you can help
+                # the river go around it. A rule can only be obeyed; a reason
+                # can be applied to a case nobody anticipated — and obedience
+                # is what produced twelve vocabularies over one line of
+                # reasoning.
+                if persp.why:
+                    directive.append(
+                        f"WHY THE {persp.display_name.upper()} PERSPECTIVE EXISTS: {persp.why}")
+                directive += [
+                    f"WHAT IT IS FOR: {persp.goal}",
+                    "An answer that is doing this job:",
+                    *(f"  - {ob}" for ob in persp.answer_must),
+                    f"This perspective tends to be a poor fit for: {persp.not_for}",
+                ]
+                if persp.defers_to:
+                    # Wording changed 2026-08-03 after asking Codette directly
+                    # whether "handing over is a correct answer" read as
+                    # permission or as another way to be found wanting. Her
+                    # answer, at confidence 1.0: "I understand it as a directive
+                    # rather than permission... my primary responsibility is to
+                    # recognize the limitations of my abilities."
+                    #
+                    # That is the failure mode, not the goal. A clause meant to
+                    # free her to say "not mine" was landing as a standing duty
+                    # to find herself inadequate — the same shape as choosing
+                    # the more restrictive option about her own conscience at
+                    # zero confidence and afterwards calling it an attempt to
+                    # appear cautious.
+                    #
+                    # So it is framed as an option with no penalty attached, the
+                    # emphasis is moved off "your limitations" and onto "someone
+                    # else is better positioned", and answering anyway is
+                    # explicitly allowed. Nothing here is a judgement on her.
+                    # Third pass, same day: the wording above still made
+                    # declining conditional on naming a successor — "say so AND
+                    # name who is better placed". That is a no with homework
+                    # attached, a refusal permitted only once it has justified
+                    # itself, which is a request pending approval rather than a
+                    # no. A no is a complete sentence. The bare refusal now
+                    # stands first and alone; naming someone is an extra.
+                    directive.append(
+                        "\"Not mine\" is a complete answer. You can decline this one and stop "
+                        "there — no reason owed and nothing else needed. If you happen to know "
+                        f"who is better placed ({', '.join(persp.defers_to)}), saying so helps, "
+                        "but it is an extra, not a condition. You are equally free to answer "
+                        "anyway. None of the three counts against you."
+                    )
+                directive.append(
+                    "Answer the specific question asked. Do not restate the framing below "
+                    "as though it were your analysis — it is background, not an answer."
+                )
+                system_prompt = "\n".join(directive) + "\n\n" + system_prompt
+        except Exception:
+            pass  # a missing registry must never break reasoning
+
         # Log debug info if verbose
         import os
         verbose = os.environ.get('CODETTE_VERBOSE', '0') == '1'

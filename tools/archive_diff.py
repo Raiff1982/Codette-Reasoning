@@ -39,12 +39,14 @@ from __future__ import annotations
 
 import argparse
 import ast
+import gzip
 import hashlib
 import io
 import json
 import os
 import re
 import sys
+import tarfile
 import zipfile
 from collections import defaultdict
 from pathlib import Path
@@ -182,6 +184,51 @@ CODE_HINT = re.compile(
     r"(?:^|\n)\s*(?:import |from \w+ import|def \w+|class \w+|using System|public class)",
     re.M)
 
+# Vendored third-party code. Without this, scanning an archive that happens to
+# contain a virtualenv reports pip, setuptools and urllib3 as "recovered source".
+# Measured 2026-08-10: OneDrive_2 reported NEW=466, of which the overwhelming
+# majority was `Nexus/aegis_env/Lib/site-packages`. Filtering leaves 98 payloads.
+VENDORED = re.compile(
+    r"(?:^|[/\\])(?:site-packages|dist-packages|node_modules|_vendor|"
+    r"vendor|\.git|__pycache__|\.tox|\.mypy_cache|\.pytest_cache)(?:[/\\]|$)"
+    r"|\.dist-info[/\\]|\.egg-info[/\\]"
+    r"|(?:^|[/\\])(?:aegis_env|venv|\.venv|env)[/\\](?:Lib|lib|Scripts|bin)[/\\]",
+    re.I)
+
+
+def sniff(data: bytes) -> str:
+    """Identify a payload by its MAGIC BYTES, never by its name.
+
+    CLAUDE.md's first rule is that file extensions do not indicate contents.
+    This function is how that rule is actually enforced: Python has been found
+    in .docx, a LaTeX paper in an extensionless file, and a whole ASP.NET app in
+    `new 3.txt`. Anything that dispatches on the name misses all of it.
+    """
+    if data[:4] in (b"PK\x03\x04", b"PK\x05\x06", b"PK\x07\x08"):
+        return "zip"
+    if data[:5] == b"%PDF-":
+        return "pdf"
+    if data[:16] == b"SQLite format 3\x00":
+        return "sqlite"
+    if data[:2] == b"\x1f\x8b":
+        return "gzip"
+    if data[257:262] == b"ustar":
+        return "tar"
+    return "plain"
+
+
+def zip_is_office_document(data: bytes) -> bool:
+    """True for .docx/.xlsx/.pptx, which are zips but are NOT archives to descend.
+
+    Without this check, magic-byte detection would walk into a Word file and
+    yield `word/document.xml` as a leaf, losing the text extraction entirely.
+    """
+    try:
+        names = set(zipfile.ZipFile(io.BytesIO(data)).namelist())
+    except Exception:
+        return False
+    return bool(names & {"word/document.xml", "xl/workbook.xml", "ppt/presentation.xml"})
+
 
 def from_docx(data: bytes) -> str | None:
     try:
@@ -246,70 +293,171 @@ def from_markdown(data: bytes):
         yield m.group(1)
 
 
-def walk_containers(root: Path, depth: int = 0, max_depth: int = 4):
-    """Yield (origin, payload_bytes) for every leaf, unwrapping nested zips."""
-    if depth > max_depth:
+# 4 was too shallow and it was luck that it held: the 2026-08-10 OneDrive
+# archives nest to exactly 4 (zip -> zip -> .tar.gz -> tar -> file), so the old
+# limit truncated at precisely the last useful level. 12 with a cycle-free
+# byte walk costs nothing and stops silently losing the deepest payloads.
+MAX_CONTAINER_DEPTH = 12
+
+# A single member big enough to be a disk image is not source; skip rather than
+# hold it in memory.
+MAX_MEMBER_BYTES = 64 * 1024 * 1024
+
+
+def _walk_bytes(origin: str, data: bytes, depth: int):
+    """Recursively unwrap one payload, dispatching on CONTENT, not on name."""
+    if depth > MAX_CONTAINER_DEPTH:
         return
-    if root.is_file() and root.suffix.lower() == ".zip":
+
+    kind = sniff(data)
+
+    # The size cap applies to LEAVES only. Applying it to containers rejected
+    # the 324 MB top-level archive at depth 0 and returned nothing at all.
+    if kind == "plain" and len(data) > MAX_MEMBER_BYTES:
+        return
+
+    if kind == "zip" and not zip_is_office_document(data):
         try:
-            zf = zipfile.ZipFile(root)
+            zf = zipfile.ZipFile(io.BytesIO(data))
         except Exception:
             return
         for info in zf.infolist():
             if info.is_dir() or "__MACOSX" in info.filename:
                 continue
-            data = zf.read(info)
-            name = f"{root.name}!{info.filename}"
-            if info.filename.lower().endswith(".zip"):
-                tmp = Path(os.environ.get("TMPDIR", "/tmp")) / f".ad_{abs(hash(name))}.zip"
-                tmp.write_bytes(data)
-                try:
-                    yield from walk_containers(tmp, depth + 1, max_depth)
-                finally:
-                    tmp.unlink(missing_ok=True)
-            else:
-                yield name, data
+            if VENDORED.search(info.filename):
+                continue
+            try:
+                member = zf.read(info)
+            except Exception:
+                continue
+            yield from _walk_bytes(f"{origin}!{info.filename}", member, depth + 1)
         return
+
+    if kind == "gzip":
+        try:
+            yield from _walk_bytes(f"{origin}!<gunzip>", gzip.decompress(data), depth + 1)
+        except Exception:
+            pass
+        return
+
+    if kind == "tar":
+        try:
+            tf = tarfile.open(fileobj=io.BytesIO(data))
+            for member in tf.getmembers():
+                if not member.isfile() or VENDORED.search(member.name):
+                    continue
+                fh = tf.extractfile(member)
+                if fh is not None:
+                    yield from _walk_bytes(f"{origin}!{member.name}", fh.read(), depth + 1)
+        except Exception:
+            pass
+        return
+
+    yield origin, data
+
+
+def walk_containers(root: Path, depth: int = 0, max_depth: int = MAX_CONTAINER_DEPTH):
+    """Yield (origin, payload_bytes) for every leaf, unwrapping nested containers.
+
+    Containers are identified by magic bytes, so a zip named `.py`, a gzip named
+    `.txt` and an extensionless tarball are all opened. Office documents are
+    deliberately NOT descended into — they are zips, but their text is extracted
+    whole by `from_docx`.
+
+    Vendored third-party trees are skipped; see VENDORED.
+    """
     if root.is_file():
-        yield str(root), root.read_bytes()
+        yield from _walk_bytes(root.name, root.read_bytes(), depth)
         return
     for path in sorted(root.rglob("*")):
-        if path.is_dir() or "node_modules" in path.parts:
+        if path.is_dir() or VENDORED.search(str(path)):
             continue
-        if path.suffix.lower() == ".zip":
-            yield from walk_containers(path, depth + 1, max_depth)
-        else:
-            yield str(path), path.read_bytes()
+        try:
+            payload = path.read_bytes()
+        except Exception:
+            continue
+        yield from _walk_bytes(str(path), payload, depth)
+
+
+def _looks_like_notebook(obj) -> bool:
+    return isinstance(obj, dict) and "cells" in obj and "nbformat" in obj
 
 
 def extract_modules(origin: str, data: bytes):
-    """Yield (origin, source, needs_glyph_repair) for anything code-shaped."""
-    low = origin.lower()
-    if low.endswith(".py"):
-        yield origin, data.decode("utf8", "ignore"), False
-    elif low.endswith(".docx"):
-        text = from_docx(data)
-        if text and CODE_HINT.search(text):
-            yield origin, text, False
-    elif low.endswith(".pdf"):
+    """Yield (origin, source, needs_glyph_repair) for anything code-shaped.
+
+    Dispatch is by CONTENT. The extension is consulted only as a tie-break for
+    formats that are plain text either way (.md fences vs a bare .txt), never to
+    decide whether something is a PDF, a document or a notebook.
+
+    Rewritten 2026-08-10. The previous version branched on
+    `origin.lower().endswith(".docx")` / `".pdf"` and so was blind to exactly the
+    thing this repository exists to handle — 43 .docx files that were Python,
+    `new 3.txt` that was an ASP.NET application, a LaTeX paper in a file called
+    `Codette` with no extension at all.
+    """
+    kind = sniff(data)
+
+    if kind == "pdf":
         text = from_pdf(data)
         if text and CODE_HINT.search(text):
             yield origin, text, True          # PDFs need glyph repair
-    elif low.endswith(".ipynb"):
-        text = from_notebook(data)
+        return
+
+    if kind == "zip":                          # only office docs reach here
+        text = from_docx(data)
         if text and CODE_HINT.search(text):
             yield origin, text, False
-    elif low.endswith(".json"):
-        for i, block in enumerate(from_chat_history(data)):
-            yield f"{origin}#block{i}", block, False
-    elif low.endswith(".md"):
+        return
+
+    if kind in ("sqlite", "gzip", "tar"):
+        return                                 # binary, or already unwrapped
+
+    if len(data) > 8_000_000:
+        return
+
+    try:
+        text = data.decode("utf8")
+    except UnicodeDecodeError:
+        text = data.decode("utf8", "ignore")
+        if not text.strip():
+            return
+
+    # JSON-shaped: notebook or chat history. Decided by parsing, not by suffix,
+    # so `history_2025-*.json` and a notebook saved without .ipynb both work.
+    stripped = text.lstrip()
+    if stripped[:1] in "{[":
+        try:
+            obj = json.loads(text)
+        except Exception:
+            obj = None
+        if obj is not None:
+            if _looks_like_notebook(obj):
+                nb = from_notebook(data)
+                if nb and CODE_HINT.search(nb):
+                    yield origin, nb, False
+                return
+            found = False
+            for i, block in enumerate(from_chat_history(data)):
+                found = True
+                yield f"{origin}#block{i}", block, False
+            if found:
+                return
+
+    # Fenced markdown, wherever it lives — .md, .markdown, or a bare .txt that
+    # happens to contain fences (QuantumCosmicMulticore.md was prose + code).
+    if "```" in text:
+        emitted = False
         for i, block in enumerate(from_markdown(data)):
             if CODE_HINT.search(block):
+                emitted = True
                 yield f"{origin}#fence{i}", block, False
-    elif low.endswith((".txt", "")) and len(data) < 2_000_000:
-        text = data.decode("utf8", "ignore")
-        if CODE_HINT.search(text):
-            yield origin, text, False
+        if emitted:
+            return
+
+    # Anything else that is code-shaped, regardless of what it is called.
+    if CODE_HINT.search(text):
+        yield origin, text, False
 
 
 # --------------------------------------------------------------------------

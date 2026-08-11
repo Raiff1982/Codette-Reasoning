@@ -35,6 +35,19 @@ EXPLICIT_WEB_RESEARCH_PATTERNS = [
     re.compile(r"\bcheck online\b", re.I),
     re.compile(r"\bbrowse the web\b", re.I),
     re.compile(r"\bfind (?:this|that|it) online\b", re.I),
+    # 2026-08-03: the patterns above only recognise a narrow set of phrasings,
+    # and missing an explicit request is not a neutral failure — she answers
+    # from memory instead of looking, which is a hallucination path.
+    #
+    # "find online resources about X" was missed because the rule demanded
+    # find + this/that/it + online. Allow a short object between the two words,
+    # in either order ("find online resources", "find resources online").
+    re.compile(r"\bfind\b[^.?!]{0,40}\bonline\b", re.I),
+    # Bare "look up X" is an explicit instruction to go and look, whether or
+    # not the user says "online". Anchored to the verb phrase so that
+    # "the lookup table" and "I looked up to him" do not match.
+    re.compile(r"\blook up\b(?! to\b)", re.I),
+    re.compile(r"\bgoogle\b(?! (?:docs|drive|sheets|scholar)\b)", re.I),
 ]
 CURRENT_FACT_HINT_PATTERNS = [
     re.compile(r"\blatest\b", re.I),
@@ -50,6 +63,16 @@ CURRENT_FACT_HINT_PATTERNS = [
     re.compile(r"\bprice\b", re.I),
     re.compile(r"\bavailability\b", re.I),
     re.compile(r"\bstatus\b", re.I),
+    # 2026-08-03: recency expressed as a time window rather than the word
+    # "latest". "What happened in AI research this week?" is unmistakably a
+    # request for current fact and matched nothing here.
+    re.compile(r"\bthis (?:week|month|year|morning)\b", re.I),
+    re.compile(r"\b(?:last|past) (?:week|month|year|few (?:days|weeks|months))\b", re.I),
+    re.compile(r"\bwhat(?:'s| is| has| have)? happen(?:ed|ing|s)?\b", re.I),
+    re.compile(r"\bright now\b", re.I),
+    re.compile(r"\bas of\b", re.I),
+    re.compile(r"\bnowadays\b", re.I),
+    re.compile(r"\b20\d{2}\b", re.I),   # an explicit recent year
 ]
 NON_FACTUAL_CONVERSATION_PATTERNS = [
     re.compile(r"\bhow do you like\b", re.I),

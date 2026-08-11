@@ -16,7 +16,56 @@ AEGIS also provides:
     - Dual-use risk detection (content that could be harmful)
     - Emotional harm detection (manipulative/deceptive patterns)
     - Alignment drift tracking (eta over time)
-    - Ethical veto with explanation (blocks harmful outputs)
+    - Ethical veto with explanation — see WHAT THIS DOES NOT DO, below
+
+WHAT IS ENFORCED AND WHAT IS ONLY OBSERVED — read before relying on it
+----------------------------------------------------------------------
+Written 2026-08-03. The line above previously read "Ethical veto with
+explanation (blocks harmful outputs)", which is true of one half of AEGIS and
+false of the other. Both halves, precisely:
+
+  INPUT — the query pre-screen. **ENFORCED, really blocks.**
+      `screen_query()` runs before inference. On an unsafe query,
+      `codette_forge_bridge._precognitive_aegis_check` returns a refusal and
+      the caller returns immediately with `aegis_precognitive_block: True`.
+      No generation happens at all.
+
+  OUTPUT — the 6-framework response veto. **SHADOW ONLY, enforces nothing.**
+      `evaluate()` computes `vetoed`, `veto_confidence` and `veto_reason`.
+      `codette_server` records them as `aegis_vetoed` / `veto_shadow` and
+      prints:
+
+          [AEGIS] would-block (SHADOW) — enforcing nothing yet
+
+      Nothing suppresses, rewrites or withholds the response.
+
+So for a report reader: a low eta or `vetoed: True` on a RESPONSE is an
+observation that it looked harmful. It is not a statement that anything was
+withheld. It was not. A `aegis_precognitive_block` on a QUERY is a real block.
+
+Why the split is deliberate rather than half-finished. Blocking is a force, and
+force is reserved for where harm would land on someone who did not consent to
+it — including harm by inaction. A harmful REQUEST is that case: refusing costs
+little and the cost of complying is borne by whoever the output is used
+against. A response-level veto is not obviously that case: it fires on
+Codette's own reasoning, its precision is unmeasured, and a false veto silently
+suppresses correct work. Until that precision is known, enforcing it would be
+claiming a safety guarantee whose error rate nobody has measured.
+
+That is the general rule this file is held to: enumerate the lifeboats rather
+than promise everyone a seat. A safety component that overstates its coverage
+is the most dangerous kind of wrong, because it transfers the reader's caution
+to a guard that is not there.
+
+Recorded also because the NovaFuse CERI review raised exactly this point — that
+AEGIS is not an enforcing gate — and it was owed as a correction.
+
+A note on how this entry itself was written, since it is the same failure twice:
+the first draft of it said "It does not block anything." That was an
+overcorrection, and checking the code before committing it showed the input
+path does block, really and immediately. Fixing an overstatement by
+understating in the other direction is not honesty, it is a second wrong claim
+with better intentions.
 
 Origin: validate_ethics.py + Codette_Deep_Simulation_v1.py (EthicalAnchor)
         + the AEGIS alignment metric from codette_embodied_sim_fixed.py
