@@ -374,9 +374,16 @@ class ForgeEngine:
 
         # Initialize NexisSignalEngine intent prediction (must be before Tier2Bridge)
         try:
-            self.nexis_signal_engine = NexisSignalEngine(
-                memory_path="reasoning_forge/.logs/nexis_signal_memory.db"
-            )
+            # 2026-08-10: this passed the RELATIVE path
+            # "reasoning_forge/.logs/nexis_signal_memory.db", so it resolved
+            # against the process CWD rather than the repository. Launched from
+            # anywhere but the repo root, sqlite raises "unable to open database
+            # file" and the whole engine is dropped — seen live in the 22:45
+            # restart log. Anchor to this file, and make sure the directory
+            # exists before sqlite is asked to open anything inside it.
+            _nexis_db = Path(__file__).resolve().parent / ".logs" / "nexis_signal_memory.db"
+            _nexis_db.parent.mkdir(parents=True, exist_ok=True)
+            self.nexis_signal_engine = NexisSignalEngine(memory_path=str(_nexis_db))
             logger.info("  ✓ NexisSignalEngine signal analysis initialized")
         except Exception as e:
             logger.warning(f"Could not initialize NexisSignalEngine: {e}")
