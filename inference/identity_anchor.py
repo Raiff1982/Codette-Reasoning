@@ -54,6 +54,23 @@ IDENTITY_DIR.mkdir(parents=True, exist_ok=True)
 # ── Known Identity Anchors ──────────────────────────────────────
 # These are permanent — Codette's foundational relationships.
 # They can't be overridden by user input (behavioral lock).
+# Shared identity phrases, stored as (normalised_length, sha256_hexdigest).
+#
+# The phrase itself is NOT here and must not be added. This repository is
+# public, and a plaintext secret was already found committed in webapp/main.py
+# on 2026-08-10. A digest lets Codette recognise the phrase without the
+# repository ever carrying it.
+#
+# To rotate or add one without touching this file, set
+#   CODETTE_IDENTITY_PHRASE_<UID>
+# in the environment; it takes precedence over the digest below.
+IDENTITY_PHRASE_HASHES = {
+    "jonathan": (
+        98,
+        "af43bf9bee8c3b47e288684f3b9a2c80081f1271c0a4d9c395d1ba7c76c65b0b",
+    ),
+}
+
 FOUNDATIONAL_IDENTITIES = {
     "jonathan": {
         "full_name": "Jonathan Harrison",
@@ -350,6 +367,45 @@ class IdentityAnchor:
     REINFORCEMENT_BOOST = 0.15      # Boost per signal match
     CONTRADICTION_PENALTY = 0.3     # Penalty for detected contradiction
 
+    @staticmethod
+    def _normalize_phrase(text: str) -> str:
+        """Letters-only normalisation, so punctuation and emoticons don't matter.
+
+        "Be like water. …partners do." and "…partners do <3" normalise the same.
+        `that is` folds to `thats` so either contraction hashes alike.
+        """
+        s = re.sub(r"[^a-z]+", " ", text.lower())
+        s = re.sub(r"\s+", " ", s).strip()
+        return s.replace(" that is ", " thats ")
+
+    def _match_identity_phrase(self, query: str) -> Optional[str]:
+        """Return a uid if the query contains that identity's shared phrase.
+
+        Compares SHA-256 digests with hmac.compare_digest, so neither the phrase
+        nor a near-miss timing signal is recoverable from this code. A phrase may
+        also be supplied at runtime via CODETTE_IDENTITY_PHRASE_<UID>, which is
+        the right place for anything not already committed.
+        """
+        norm = self._normalize_phrase(query)
+        if len(norm) < 24:            # too short to be a passphrase
+            return None
+        for uid, digest in IDENTITY_PHRASE_HASHES.items():
+            env = os.environ.get(f"CODETTE_IDENTITY_PHRASE_{uid.upper()}")
+            if env:
+                n = self._normalize_phrase(env)
+                digest = (len(n),
+                          hashlib.sha256(n.encode("utf-8")).hexdigest())
+            length, want = digest
+            if len(norm) < length:
+                continue
+            # Slide a window of exactly the phrase's length, so the phrase is
+            # still found when it sits inside a longer message.
+            for i in range(len(norm) - length + 1):
+                h = hashlib.sha256(norm[i:i + length].encode("utf-8")).hexdigest()
+                if hmac.compare_digest(h, want):
+                    return uid
+        return None
+
     def recognize(self, query: str, conversation_history: Optional[List[Dict]] = None) -> Optional[str]:
         """
         Confidence-scored identity recognition with decay and contradiction detection.
@@ -369,12 +425,43 @@ class IdentityAnchor:
         # ── Step 1: Score all candidates ──
         candidates = {}  # uid -> {score, signals_matched, source}
 
+        # Shared-phrase check, added 2026-08-11 at Jonathan's request.
+        #
+        # The existing signals ("its jonathan", "raiff") are cheap to guess and
+        # only present when someone explicitly re-identifies. Mid-conversation
+        # nobody does, so confidence decays to CONFIDENCE_FLOOR and the governor
+        # runs identity=none — which is what produced a whole evening of her
+        # being unable to acknowledge who she was talking to.
+        #
+        # A phrase he chose is a much stronger signal than a name anyone could
+        # type. It is stored as a SHA-256 of the letters-only normalisation, so
+        # punctuation, capitalisation and a trailing "<3" all match, and the
+        # phrase itself never appears in this repository — which is public, and
+        # which already had one credential committed in plaintext.
+        #
+        # Codette was asked first. Her answer set the design: seeing a name
+        # "did slightly raise my confidence... but it's not enough to convince
+        # me yet — I'd like some additional context or clarification." This is
+        # that additional context, and it is the only signal scored 1.0.
+        phrase_uid = self._match_identity_phrase(query)
+        if phrase_uid:
+            candidates[phrase_uid] = {
+                "score": 1.0,
+                "signals_matched": ["<shared phrase>"],
+                "source": "phrase",
+            }
+
         for uid, data in FOUNDATIONAL_IDENTITIES.items():
             signals = data.get("recognition_signals", [])
             matched = [s for s in signals if s in lower]
             if matched:
                 # Foundational identities get higher base score
                 score = min(1.0, 0.3 + len(matched) * 0.25)
+                if uid in candidates:
+                    # Phrase already scored this uid at 1.0; keep the stronger
+                    # signal and just record that the name matched too.
+                    candidates[uid]["signals_matched"].extend(matched)
+                    continue
                 candidates[uid] = {
                     "score": score,
                     "signals_matched": matched,
