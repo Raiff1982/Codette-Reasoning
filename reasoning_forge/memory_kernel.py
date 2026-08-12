@@ -193,13 +193,46 @@ class LivingMemoryKernel:
                     or v3.get("query")
                     or f.stem
                 )
+
+                # Carry the cocoon's OWN timestamp. Without this every memory
+                # defaults to time.time() in __post_init__, so the whole store
+                # reads as created-just-now: measured 2026-08-12, median age 0
+                # days against a real span of 2026-05-06 → 2026-08-12. Anything
+                # downstream that scores by recency — `prune`, `recall_by_*` —
+                # was therefore ordering by nothing at all.
+                ts = (data.get("timestamp")
+                      or wrapped.get("timestamp")
+                      or v3.get("timestamp")
+                      or data.get("timestamp_unix"))
+                try:
+                    ts = float(ts) if ts else 0.0
+                except (TypeError, ValueError):
+                    ts = 0.0
+                # Reject implausible values rather than trusting them. One
+                # record in the live store carried a timestamp that dated it to
+                # 1969 — 20,678 days old — which would have parked it at the
+                # bottom of every recency ordering forever. 0.0 falls through to
+                # __post_init__ and becomes "now", which is honest: unknown, not
+                # ancient.
+                if ts and not (1_577_836_800 < ts < 4_102_444_800):  # 2020..2100
+                    ts = 0.0
+                # None, not 0.0 — MemoryCocoon.__init__ tests `is not None`, so
+                # a 0.0 is KEPT and dates the record to 1970. That is how one
+                # record came out 20,678 days old. Unknown must mean "now", not
+                # "the epoch".
+                ts = ts or None
+
                 cocoon = MemoryCocoon(
                     title=str(title)[:200],
                     content=str(content),
+                    # v3 carries a real, varied valence — curiosity 1163,
+                    # empathy 256, gratitude 251, trust 68 over the live store.
+                    # It was being replaced with "neutral" for every record.
                     emotional_tag=(data.get("emotion")
                                    or v3.get("emotional_valence")
                                    or "neutral"),
                     importance=8,  # Foundational memories are important
+                    timestamp=ts,
                 )
                 self.store(cocoon)
                 loaded += 1
