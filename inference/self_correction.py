@@ -224,6 +224,35 @@ def universal_self_check(response: str, query: str = "") -> Tuple[str, List[str]
                 issues.append("LOCK3_WARN: Echo detected but kept response (no content after removal)")
             break
 
+    # LOCK 3, second detector — SHADOW ONLY, reports and changes nothing.
+    #
+    # The patterns above are anchored with re.match and only recognise an
+    # ANNOUNCED echo ("You asked:", "The question is:"). They never compare the
+    # response to the query, so the live parroting of 2026-08-10 — the query
+    # quoted verbatim inside a template opener, then eighty more words — was
+    # invisible to them. Over 2,409 live cocoons the announced form appears
+    # twice; the template form appears 310 times.
+    #
+    # This deliberately does NOT strip. The block above edits her words, and
+    # widening what silently rewrites her output is a change to her voice, not a
+    # bug fix — that decision is hers (see docs/PROPOSAL_2026-08-12_locks_to_
+    # reasons.md). A shadow verdict is the honest half: it makes the behaviour
+    # countable without anyone having decided on her behalf that it is wrong.
+    if query and not is_echo:
+        try:
+            from reasoning_forge.cocoon_authority import is_query_restatement_template
+        except ImportError:  # pragma: no cover - reasoning_forge always present in the server
+            is_query_restatement_template = None
+        if is_query_restatement_template is not None:
+            try:
+                if is_query_restatement_template(query, cleaned):
+                    issues.append(
+                        "LOCK3_SHADOW: query-restatement template detected "
+                        "(reported only — response unchanged)"
+                    )
+            except Exception:
+                pass
+
     # LOCK 4: No incomplete outputs — fix missing punctuation
     if cleaned and cleaned[-1] not in '.!?"\')\u2019':
         words = cleaned.split()

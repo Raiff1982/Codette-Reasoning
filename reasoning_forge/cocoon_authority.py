@@ -68,6 +68,63 @@ _FLOOR = 0.2
 _ECHO_MIN_WORDS = 8
 _ECHO_SIMILARITY = 0.9
 
+# A response that wraps the question in a template and hands it back. Added
+# 2026-08-12: `_is_verbatim_echo` requires the echo to BE most of the response
+# (`len(r_words) <= len(q_words) * 1.5`), so it flagged 6 of 2,409 live cocoons
+# and missed the actual live signature entirely — an opener that quotes the whole
+# query verbatim and then continues for another eighty words.
+#
+# These are machine artifacts, not prose, which is why they can be matched at the
+# start of the response with confidence:
+#
+#     Analysis of *'<the entire query>'* across perspectives: …
+#     *'<the entire query>'* sits in high-tension epistemic space …
+#     You received this question: "<the entire query>" …
+#
+# Measured over 2,409 live cocoons carrying both query and response: 310 (12.9%)
+# open this way, and 307 of those 310 literally contain the query's first 40
+# characters, so the wrapper and the echo travel together.
+#
+# WHAT WAS DELIBERATELY NOT ADDED: a proportional rule ("the response reproduces
+# ≥80% of the query as a contiguous run"). It was implemented and measured first:
+# it fires on 207 cocoons, and inspection shows it cannot separate parroting from
+# ordinary good prose — "What are the main causes of the 2008 financial crisis?"
+# answered with "The main causes of the 2008 financial crisis were …" is a normal
+# English sentence, not an echo. A signal that demotes correct answers is worse
+# than the gap it closes. Precision over recall here; err toward 1.0.
+_QUERY_TEMPLATE_RE = re.compile(
+    r"^\s*(?:\*+\s*)?(?:"
+    r"Analysis of\s*\*?['\"‘“]"          # Analysis of *'…'
+    r"|You received this (?:question|query)"        # You received this question: "…"
+    r"|The (?:question|query) (?:is|was)\s*[:\"'‘“]"
+    r"|\*['\"‘“]"                         # a response opening on *'…'
+    r")", re.I)
+
+# Weaker than a full echo: the response does go on to say something. Demotes,
+# but not as hard as handing the query straight back.
+_W_QUERY_TEMPLATE = 0.6
+
+
+def is_query_restatement_template(query: str, response: str) -> bool:
+    """Whether a response opens by wrapping the query in a template.
+
+    Requires BOTH the wrapper and the query actually appearing in the response,
+    so a message that merely begins "The question is whether…" of its own accord
+    is not flagged. Shared with `inference/self_correction.py` so the two echo
+    detectors cannot drift apart the way the identity patterns did.
+    """
+    if not query or not response:
+        return False
+    if not _QUERY_TEMPLATE_RE.search(response):
+        return False
+    q_words = _norm_words(query)
+    if len(q_words) < _ECHO_MIN_WORDS:
+        return False
+    # The wrapper must be wrapping THIS query: a contiguous run of its opening
+    # words has to appear in the response.
+    probe = " ".join(q_words[:8])
+    return probe in " ".join(_norm_words(response))
+
 
 def _norm_words(text: str) -> List[str]:
     return "".join(
@@ -119,6 +176,11 @@ def authority(cocoon: dict) -> Authority:
     if _is_verbatim_echo(query, resp):
         w *= _W_ECHO
         flags.append("verbatim-echo")
+    elif is_query_restatement_template(query, resp):
+        # `elif`: a full echo already demotes harder. Don't stack two flags for
+        # one behaviour.
+        w *= _W_QUERY_TEMPLATE
+        flags.append("query-restatement-template")
     if _META_RECALL_RE.search(resp):
         w *= _W_META
         flags.append("meta-recall")
