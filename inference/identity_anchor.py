@@ -41,6 +41,14 @@ from pathlib import Path
 from typing import Dict, List, Optional, Any
 from collections import defaultdict
 
+# Stranger-detection patterns, defined once in the governor so this module and
+# the identity gate cannot drift apart. See the note at Step 3 below for why
+# this module uses only the denial half.
+from reasoning_forge.behavior_governor import (
+    CONTINUITY_MARKERS,
+    SELF_DENIAL_PATTERNS,
+)
+
 # Encryption for identity data at rest
 try:
     from cryptography.fernet import Fernet
@@ -494,12 +502,24 @@ class IdentityAnchor:
                     candidates[uid]["score"] = max(0, candidates[uid]["score"] - self.CONTRADICTION_PENALTY)
 
         # ── Step 3: Check for identity denial / correction ──
-        denial_patterns = [
-            "i'm not ", "i am not ", "that's not me", "wrong person",
-            "you don't know me", "we haven't met", "first time",
-            "who do you think i am", "you're confusing me",
-        ]
-        is_denial = any(p in lower for p in denial_patterns)
+        # These patterns are shared with the governor's identity gate rather
+        # than duplicated. They were two copies of one list, and both matched
+        # as bare substrings: "first time" fired on "the first time you met
+        # Daniel", and "i'm not " fired on "i'm not sure".
+        #
+        # The consequence here is not the governor's. That gate thins one
+        # answer and recovers next turn; this zeroes stored recognition
+        # confidence, writes it to disk and forgets the person. So it takes
+        # only explicit DENIALS — someone saying the stored identity is wrong.
+        # An introduction ("hi, my name is John") is evidence about who is
+        # speaking now, not a claim that the record is wrong, so it lets the
+        # governor withhold familiarity for the turn and leaves the record
+        # intact.
+        references_shared_history = any(m in lower for m in CONTINUITY_MARKERS)
+        is_denial = (
+            any(p in lower for p in SELF_DENIAL_PATTERNS)
+            and not references_shared_history
+        )
 
         if is_denial:
             # User is denying identity — respect that, reset

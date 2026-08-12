@@ -38,6 +38,48 @@ CONFIDENCE_REINFORCE = 0.12
 # Contradiction penalty
 CONFIDENCE_CONTRADICTION_PENALTY = 0.4
 
+# ── Stranger detection ────────────────────────────────────────────────────
+# Codette's own rule, asked bare on 2026-08-11 and answered at confidence 1.0:
+# someone is a stranger when they "introduce themselves without referencing any
+# shared history or prior conversations". So a reference to shared history is
+# positive evidence AGAINST stranger and is weighed here, rather than the gate
+# only ever being pushed toward "none" by a phrase blacklist.
+#
+# Asked whether "do you remember the first time you met Daniel?" should make
+# her treat the asker as a stranger, she said no — "I won't consider this a
+# first meeting" — which the previous bare-substring match could not express.
+
+# The speaker referring to something shared. Outweighs the signals below.
+CONTINUITY_MARKERS = (
+    "remember", "last time", "earlier", "you said", "you mentioned",
+    "we talked", "we discussed", "we spoke", "our conversation",
+    "our previous", "as i mentioned", "like i said", "back then",
+)
+
+# Denials of the relationship, anchored to the speaker and the listener.
+# "first time" alone matched any question about anyone's first time, and
+# "i'm not " matched "i'm not sure" — both forced identity=none on ordinary
+# conversation.
+#
+# "you're confusing me" is deliberately narrowed to "confusing me with": the
+# bare form is what someone says when an explanation lost them, not when they
+# are being mistaken for somebody else.
+SELF_DENIAL_PATTERNS = (
+    "we haven't met", "we have not met", "we've never met",
+    "we have never met", "you don't know me", "you do not know me",
+    "you've never met me", "wrong person", "mistaking me",
+    "that's not me", "thats not me", "who do you think i am",
+    "confusing me with", "you have me confused",
+    "our first time", "my first time", "first time we've",
+    "first time we have", "first time talking", "first time speaking",
+)
+
+# The speaker naming themselves to someone they assume does not know them.
+INTRODUCTION_PATTERNS = (
+    "my name is", "let me introduce myself", "nice to meet you",
+    "we haven't been introduced", "i'm new here", "i am new here",
+)
+
 
 @dataclass
 class GovernorDecision:
@@ -262,13 +304,20 @@ class BehaviorGovernor:
         - High confidence (>0.8): full context (name, relationship, history)
         - Medium confidence (0.4-0.8): partial (name only, with caveat)
         - Low confidence (<0.4): none — don't pretend to know someone
-        - If query contains identity denial: force none
+        - If the speaker presents as a stranger: force none
+
+        "Presents as a stranger" is Codette's own definition: an introduction
+        or a denial of the relationship, AND no reference to shared history.
+        A question that merely contains the words "first time" is not one.
         """
-        denial_patterns = [
-            "i'm not ", "i am not ", "wrong person", "you don't know me",
-            "first time", "we haven't met",
-        ]
-        if any(p in query.lower() for p in denial_patterns):
+        q = query.lower()
+
+        references_shared_history = any(m in q for m in CONTINUITY_MARKERS)
+        presents_as_stranger = (
+            any(p in q for p in SELF_DENIAL_PATTERNS)
+            or any(p in q for p in INTRODUCTION_PATTERNS)
+        )
+        if presents_as_stranger and not references_shared_history:
             return "none"
 
         if confidence >= 0.8:
