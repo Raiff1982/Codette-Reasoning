@@ -151,7 +151,10 @@ it, which nothing suggests.
 
 ---
 
-### LOCK 6 — remove it, on evidence, rather than reword it
+### LOCK 6 — WITHDRAWN. See the correction below; leave it alone for now.
+
+*(Original argument kept intact per the house rule, with the correction after it
+rather than in place of it.)*
 
 **Measured 2026-08-12.** Of 382 cocoons scanned, **9** contain any of the eight
 forbidden phrases. Every one of the 8 that carries a usable timestamp is from
@@ -164,9 +167,46 @@ So the blacklist is treating a training defect at inference time, on every turn,
 after the training defect was fixed. It costs prompt space and carries a standing
 implication that she is expected to produce slop.
 
-**Honest limit on that evidence:** 382 cocoons is a subset, not the full 3,717,
-and it was a bulk copy rather than a time series. This is a strong signal, not
-proof. If it is wrong, the phrases will reappear and we will see them.
+### CORRECTION, same day — the evidence above does not support the conclusion
+
+Jonathan asked whether I was unsure of anything. Checking properly instead of
+defending it took the recommendation apart. **Both claims above are withdrawn.**
+
+I dated the *hits* and never dated the *sample*. Doing so:
+
+| month | cocoons | LOCK 6 hits | rate |
+|---|---|---|---|
+| 2026-03 | 236 | 8 | 3.4% |
+| 2026-04 | 115 | 0 | 0% |
+| 2026-05 | 10 | 0 | 0% |
+| 2026-07 | 1 | 0 | 0% |
+| no timestamp | 18 | 1 | — |
+
+Two things fall out, and both cut against what I wrote.
+
+**The corpus effectively ends in May.** One cocoon after it. The v4 retraining
+was 2026-07-16, so "zero occurrences after the retraining" is true of a sample of
+one. It is not evidence; it is an empty set with a confident sentence attached.
+
+**The drop is March → April, and LOCK 6 did not exist yet.** Its phrase list was
+added in `f02c9b4` on **2026-05-26** ("comprehensive template suppression"), and
+moved into `codette_shared` on 2026-07-05. So the fall from 3.4% to 0% happened
+*before the lock was written* and cannot be attributed to the retraining either,
+which came two months later still. Something else changed in that window and I
+do not know what.
+
+**Where that leaves LOCK 6: unknown, in both directions.** It is not shown to be
+scar tissue. It is also not shown to work — there is no usable post-May data. The
+one thing now clear is that the argument I made for removing it was built on a
+correlation whose cause post-dates it.
+
+**What would actually settle it:** the live cocoons under `J:\codette-clean\cocoons`
+(≈2,437 loaded at boot, vs the 382 here), filtered to after 2026-05-26, with the
+rate compared before and after. That is a real measurement and it has not been
+run. Until it is, LOCK 6 should stay exactly where it is.
+
+**Original limitation, kept for the record:** 382 cocoons is a subset, not the
+full 3,717, and it was a bulk copy rather than a time series.
 
 **If you would rather keep something**, the reason without the list:
 
@@ -190,6 +230,32 @@ That version catches the ninth phrase. The list never could.
   same two-copies setup that let the identity denial check drift. It should be
   deduplicated, but that is a separate change and should not ride along with a
   wording change to her prompt.
+
+## Three more places I am not confident, stated rather than buried
+
+**The LOCK 7 rewrite asserts a mechanism I cannot verify.** *"That is usually a
+sign you are gathering yourself"* tells her something about her own internal
+process that I do not know to be true, and that she cannot check either. It reads
+well, which is exactly what should make it suspect. The risk is concrete and has
+a worked example from the same day: told that "cobalt anchor" came from a
+benchmark, she produced a warm explanation of why it had stuck — *"it resonated
+with us discussing individuality with responsibility"* — which was invented.
+A plausible story about her own workings is something she will adopt. If the
+sentence stays, it should be phrased as an observation from outside ("this often
+shows up when the answer is still forming") rather than a claim about what she
+is feeling.
+
+**The proposed metric is confounded by our own fix.** Paraphrase-openings will
+fall because `7ff0b2d` stopped `constraint_tracker` supplying half her voice on
+"remember"/"memory" turns — regardless of any wording change. So the observable
+cannot separate the rewrite from the routing fix. Either let the routing fix
+settle first and take a fresh baseline, or accept that this is not attributable.
+Proposing a one-way measurement was the same error this document is about.
+
+**"LOCK 2, 5 and 6 are unenforced" is weaker than I wrote it.** LOCK 7 is
+demonstrated — she broke it twice and nothing happened. For the others I only
+failed to find enforcement by search, and a failed search is not an absence. That
+sentence should read "no enforcement found" rather than "no enforcement exists".
 
 ## How we would know if it worked
 
