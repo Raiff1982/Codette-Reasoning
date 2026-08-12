@@ -2636,35 +2636,73 @@ class CodetteHandler(SimpleHTTPRequestHandler):
             if not q:
                 self._json_response({"error": "q parameter required", "results": []})
             else:
+                # This block returned [] unconditionally until 2026-08-12, and
+                # was recorded in the handoff as "two stores, the search covers
+                # one". There is one store and nothing was searching it. Two
+                # independent faults, both silent:
+                #   1. `UnifiedMemory` had no `search` method, and the fallback
+                #      kernel (`memory_kernel.LivingMemoryKernel`) has none
+                #      either — so both `hasattr` guards were False and neither
+                #      branch ever ran.
+                #   2. Both branches read dicts with `getattr(row, 'title')`,
+                #      which yields the default for a dict, so even a working
+                #      backend would have returned rows of empty strings.
+                # Any past conclusion of the form "it isn't in her memory" that
+                # rested on this endpoint is void.
                 results = []
-                try:
-                    # FTS5 search via UnifiedMemory
-                    if _unified_memory and hasattr(_unified_memory, 'search'):
-                        for cocoon in _unified_memory.search(q, limit=10):
+                consulted = []
+                errors = []
+
+                if _unified_memory is not None and hasattr(_unified_memory, 'search'):
+                    consulted.append("unified")
+                    try:
+                        for c in _unified_memory.search(q, limit=10):
                             results.append({
                                 "source": "unified",
-                                "title": getattr(cocoon, 'title', ''),
-                                "content": getattr(cocoon, 'content', '')[:200],
-                                "domain": getattr(cocoon, 'domain', ''),
-                                "timestamp": getattr(cocoon, 'timestamp', 0),
+                                "title": (c.get("query") or "")[:120],
+                                "content": (c.get("response") or "")[:200],
+                                "domain": c.get("domain") or c.get("adapter") or "",
+                                "timestamp": c.get("timestamp", 0),
                             })
-                    # Fallback: kernel full-text search
-                    if not results:
-                        kernel = None
-                        if _forge_bridge and hasattr(_forge_bridge, 'forge'):
-                            kernel = getattr(_forge_bridge.forge, 'memory_kernel', None)
-                        if kernel and hasattr(kernel, 'search'):
-                            for m in kernel.search(q, limit=10):
-                                results.append({
-                                    "source": "kernel",
-                                    "title": getattr(m, 'title', ''),
-                                    "content": getattr(m, 'content', '')[:200],
-                                    "domain": getattr(m, 'adapter_used', ''),
-                                    "timestamp": getattr(m, 'timestamp', 0),
-                                })
-                except Exception as e:
-                    results = [{"error": str(e)}]
-                self._json_response({"query": q, "results": results})
+                    except Exception as e:
+                        errors.append(f"unified: {e}")
+
+                # Optional second backend. Some builds ship a kernel with a text
+                # search (living_memory.py / living_memory_v2.py); the one wired
+                # into forge_engine does not. Kept, but no longer the thing that
+                # decides whether this endpoint answers at all.
+                kernel = None
+                if _forge_bridge is not None and hasattr(_forge_bridge, 'forge'):
+                    kernel = getattr(_forge_bridge.forge, 'memory_kernel', None)
+                if kernel is not None and hasattr(kernel, 'search'):
+                    consulted.append("kernel")
+                    try:
+                        for m in kernel.search(q, limit=10):
+                            _get = (m.get if isinstance(m, dict)
+                                    else lambda k, d=None: getattr(m, k, d))
+                            results.append({
+                                "source": "kernel",
+                                "title": str(_get("title", "") or "")[:120],
+                                "content": str(_get("content", "") or "")[:200],
+                                "domain": _get("adapter_used", "") or "",
+                                "timestamp": _get("timestamp", 0) or 0,
+                            })
+                    except Exception as e:
+                        errors.append(f"kernel: {e}")
+
+                payload = {
+                    "query": q,
+                    "results": results,
+                    "backends_consulted": consulted,
+                }
+                if errors:
+                    payload["errors"] = errors
+                if not consulted:
+                    # An empty result must never be indistinguishable from
+                    # "nothing was asked".
+                    payload["error"] = ("no search backend available — "
+                                        "UnifiedMemory.search and kernel.search both missing")
+                self._json_response(payload)
         elif path == "/api/drift":
             self._json_response(self._build_drift_payload())
         elif path == "/api/cocoon-audit":

@@ -350,6 +350,64 @@ class UnifiedMemory:
             logger.debug(f"FTS5 ranked search failed: {e}")
             return self.recall_recent(max_results)
 
+    def search(self, query: str, limit: int = 10) -> List[Dict]:
+        """Literal full-text search over the cocoon store.
+
+        This is the method `/api/search` (and therefore the `cocoon_search` MCP
+        tool) has always called. It did not exist, and the call site guarded it
+        with `hasattr`, so the endpoint returned an empty list unconditionally
+        from the day it was written — see the 2026-08-12 note in
+        `docs/HANDOFF_2026-08-12.md`, which recorded the symptom as "two stores,
+        the search covers one". There is one store; nothing was searching it.
+
+        Deliberately NOT `recall_relevant`:
+
+        * no recency/identity/authority re-ranking — this answers "is it in
+          there", not "what should she remember now";
+        * **no fallback to `recall_recent`**. `recall_relevant` substitutes the
+          most recent cocoons when FTS matches nothing, which is right for
+          recall and wrong for a search box: it turns "no match" into a page of
+          unrelated results. An empty list here means an empty result.
+
+        Returns dicts, not objects. Callers must use `row["field"]`.
+        """
+        if not query or not query.strip():
+            return []
+
+        # FTS5 needs its own escaping: a bare apostrophe or hyphen in user text
+        # is syntax, not literal. Quote every term and double internal quotes.
+        terms = [
+            w.strip(".,!?;:\"'()[]{}").replace('"', '""')
+            for w in query.split()
+        ]
+        terms = [t for t in terms if t]
+        if not terms:
+            return []
+        fts_query = " OR ".join(f'"{t}"' for t in terms[:16])
+
+        try:
+            cur = self._conn.cursor()
+            cur.execute("""
+                SELECT c.id, c.query, c.response, c.adapter, c.domain,
+                       c.complexity, c.emotion, c.importance, c.timestamp,
+                       c.metadata_json, rank
+                FROM cocoons_fts
+                JOIN cocoons c ON cocoons_fts.rowid = c.rowid
+                WHERE cocoons_fts MATCH ?
+                ORDER BY rank
+                LIMIT ?
+            """, (fts_query, limit))
+            results = []
+            for row in cur.fetchall():
+                cocoon = dict(row)
+                cocoon["metadata"] = json.loads(cocoon.pop("metadata_json", None) or "{}")
+                cocoon.pop("rank", None)
+                results.append(cocoon)
+            return results
+        except Exception as e:
+            logger.warning("UnifiedMemory.search failed for %r: %s", query, e)
+            raise
+
     def recall_recent(self, limit: int = 5) -> List[Dict]:
         """Get N most recent cocoons."""
         try:
@@ -731,25 +789,46 @@ class UnifiedMemory:
     # LEGACY MIGRATION
     # ─────────────────────────────────────────────────────────
     def _migrate_legacy(self):
-        """Migrate legacy JSON cocoons and .cocoon files into SQLite."""
-        migrated = 0
+        """Migrate legacy JSON cocoons and .cocoon files into SQLite.
 
-        # Migrate JSON reasoning cocoons
+        Only runs on a cold start (`_total_stored == 0`); live writes go
+        straight to SQLite via `store()`. That one-shot behaviour is deliberate
+        and is NOT changed here — re-running it against a populated database
+        would duplicate every cocoon, and `store()` does not deduplicate.
+        """
+        migrated = 0
+        skipped_types: Dict[str, int] = {}
+
+        # Migrate JSON reasoning cocoons.
+        #
+        # This matched `type == "reasoning"` exactly until 2026-08-12. The
+        # schema moved to `reasoning_v3` (cocoon_schema_v3.py) and the check was
+        # never updated, so on a cold start 1,992 of 2,452 files on disk — 81% —
+        # fell through to the `summary`/`quote` branch, failed that too, and
+        # were dropped without a log line. Match the family, not one spelling.
         for f in sorted(self.legacy_dir.glob("cocoon_*.json")):
             try:
                 with open(f, "r", encoding="utf-8") as fh:
                     data = json.load(fh)
 
-                if data.get("type") == "reasoning":
-                    wrapped = data.get("wrapped", {})
+                _type = str(data.get("type") or "")
+                if _type.startswith("reasoning"):
+                    # v3 keeps the same `wrapped` block; fall back to the `v3`
+                    # block for any record that carries only the newer shape.
+                    wrapped = data.get("wrapped") or {}
+                    _v3 = data.get("v3") or {}
+                    _meta = wrapped.get("metadata") or {}
                     self.store(
-                        query=wrapped.get("query", ""),
-                        response=wrapped.get("response", ""),
-                        adapter=wrapped.get("adapter", "unknown"),
-                        domain=wrapped.get("metadata", {}).get("domain", "general"),
-                        complexity=wrapped.get("metadata", {}).get("complexity", "MEDIUM"),
+                        query=wrapped.get("query") or _v3.get("query", ""),
+                        response=(wrapped.get("response")
+                                  or _v3.get("user_response_text")
+                                  or _v3.get("response_summary", "")),
+                        adapter=(wrapped.get("adapter")
+                                 or _v3.get("dominant_perspective") or "unknown"),
+                        domain=_meta.get("domain", "general"),
+                        complexity=_meta.get("complexity", "MEDIUM"),
                         importance=7,
-                        metadata=wrapped.get("metadata"),
+                        metadata=_meta or None,
                     )
                     migrated += 1
                 elif "summary" in data or "quote" in data:
@@ -762,8 +841,14 @@ class UnifiedMemory:
                         importance=8,
                     )
                     migrated += 1
+                else:
+                    # Count what we decline to import instead of dropping it in
+                    # silence. This is how the v3 gap stayed invisible.
+                    key = _type or "<no type>"
+                    skipped_types[key] = skipped_types.get(key, 0) + 1
             except Exception as e:
                 logger.debug(f"Migration skip {f.name}: {e}")
+                skipped_types["<error>"] = skipped_types.get("<error>", 0) + 1
 
         # Migrate .cocoon files (EMG format)
         for f in sorted(self.legacy_dir.glob("*.cocoon")):
@@ -785,6 +870,12 @@ class UnifiedMemory:
         if migrated > 0:
             logger.info(f"Migrated {migrated} legacy cocoons to SQLite")
             self._total_stored = self._count()
+        if skipped_types:
+            logger.warning(
+                "Migration left %d cocoon file(s) unimported: %s",
+                sum(skipped_types.values()),
+                ", ".join(f"{k}={v}" for k, v in sorted(skipped_types.items())),
+            )
 
     # ─────────────────────────────────────────────────────────
     # CACHE
