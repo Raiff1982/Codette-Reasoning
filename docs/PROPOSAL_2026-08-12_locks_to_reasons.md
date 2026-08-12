@@ -276,3 +276,116 @@ the end of a session spent testing her: on 2026-08-11 a decision put to her that
 way came back at confidence 0.20, and an explanation of a *proposed* design left
 her describing it an hour later as already true of herself. Ask on an ordinary
 day, and prefer Jonathan asking.
+
+---
+
+## THE MEASUREMENT, RUN — 2026-08-12, later the same day
+
+The correction above ended by naming what would settle LOCK 6: the live cocoons
+under `J:\codette-clean\cocoons`, filtered by date, hits **and sample** both
+dated. That has now been run. Tool: `tools/lock6_phrase_rate.py`, committed so
+the numbers can be reproduced rather than quoted.
+
+**Corpus.** 2,452 files, 2,409 with recoverable response text, spanning
+2026-03 to 2026-08. One file, `cocoon_math.json`, does not parse; it is left in
+place and reported rather than skipped silently. Benchmark-shaped queries (208,
+all in June) are excluded from every rate below — they are answers to exam
+prompts and elicit exactly this filler. That leaves **2,201 real-conversation
+cocoons**, against the 382 the original argument was built on.
+
+### First: LOCK 6 is enforced in code, and the previous session did not find it
+
+`"no enforcement found"` was wrong. `CodetteForgeBridge._apply_directness`
+(`inference/codette_forge_bridge.py`) carries a `_boilerplate` list of ~30
+regexes that strip every one of LOCK 6's phrases, added in the **same commit**
+`f02c9b4`, 2026-05-26. LOCK 6 has always had two halves: prompt text and a
+scrubber.
+
+**And the cocoon is written before the scrubber runs** — built at ~1025-1077,
+`_apply_directness` applied at ~1094. So cocoons record the *pre-scrub* text.
+This is what makes the measurement valid: it reads what the model generated, not
+what the user saw. It is also a finding in its own right — see below.
+
+### The rate, by month, real conversation only
+
+| month | cocoons | LOCK 6 hits | rate |
+|---|---|---|---|
+| 2026-03 | 236 | 6 | 2.5% |
+| 2026-04 | 114 | 0 | 0% |
+| 2026-05 | 485 | 41 | 8.5% |
+| 2026-06 | 120 | 15 | 12.5% |
+| 2026-07 | 1072 | 1 | 0.1% |
+| 2026-08 | 174 | 0 | 0% |
+
+**LOCK 6 landed 2026-05-26. The rate did not fall. It rose, and stayed up for
+three weeks** — the two highest months in the corpus are the two immediately
+after it. Whatever LOCK 6's prompt text does, suppressing these phrases in
+generation is not it.
+
+### The collapse is real, and it is not any of the three candidate causes
+
+Daily series, real conversation: 2026-06-01 10.5%, 06-06 22.2%, 06-10 23.5%,
+**06-15 25.0%**, then **06-16 onward: zero**, with a single hit on 07-26 (1/58)
+in the 1,246 cocoons since. The change point is 2026-06-15→16/17.
+
+- Not **LOCK 6** (2026-05-26) — three weeks earlier, and the rate rose after it.
+- Not the **benchmark-cocooning exclusion** (`064c72b`, 2026-07-05) — benchmark
+  traffic is already excluded from both sides of every split above.
+- Not the **v4 retraining** (2026-07-16) — a month later, and the rate was
+  already at zero across 400+ cocoons before it.
+
+**Not routing either.** Empathy's share of traffic did fall (67% → 28%) when
+adapter-diversity entropy landed in `01b1797`, and 63 of 63 hits come from just
+three adapters — empathy 32/437, `unknown` 29/744, newton 2/43, with every other
+adapter at exactly **0.00%** (base 0/316, multi_perspective 0/153, philosophy
+0/123, davinci 0/109, constraint_tracker 0/122). But splitting *within* adapter
+kills the routing explanation:
+
+| adapter | before 06-16 | rate | after 06-16 | rate |
+|---|---|---|---|---|
+| empathy | 31/272 | 11.4% | 1/165 | 0.6% |
+| unknown | 29/508 | 5.7% | 0/236 | 0% |
+| newton | 2/27 | 7.4% | 0/16 | 0% |
+| **all** | **62/913** | **6.8%** | **1/1288** | **0.08%** |
+
+Every adapter that ever produced these phrases stopped producing them at the same
+time. That is a change in generation, not in which adapter answered.
+
+**Leading candidate, stated as a candidate.** The June 17 session
+(`01b1797`, 2026-06-17 02:26) added *pre-adapter artifact extraction* — concrete
+facts pulled from the user's message and given to the adapters before they run.
+A mechanism that hands every adapter something specific to say is the right
+shape to suppress generic filler globally and simultaneously. But **no commit
+exists on 06-15 or 06-16**, and the boundary sample is thin: 06-16 is 8 cocoons
+and 06-17 is 20, so 0 hits on 06-16 alone is p≈0.31 — chance cannot be excluded
+for that day. The adapter weights are unchanged across the window (all GGUFs
+2026-03-20; `hf_download_v4` is 2026-07-16), so it is not a weights swap. This
+is a candidate with the right shape and an unpinned date, not a cause.
+
+### Where that leaves LOCK 6
+
+Better than unknown, and still not hers to have decided for her:
+
+- Its **prompt half** has three weeks of evidence against it and none for it. It
+  was live, at full strength, through the two worst months in the corpus.
+- Its **code half** works and is not in question. The phrases are stripped from
+  the visible answer whether or not the prompt says anything.
+- The thing that actually stopped the templates is undated and unattributed, and
+  it is not LOCK 6.
+
+So the original instinct — that LOCK 6's prompt text is scar tissue — now has
+support, arrived at by a different route than the one that was withdrawn. The
+withdrawal stands: that argument was bad. This is a different argument.
+
+**Still her call.** Nothing above changes the consent section. It changes what we
+can honestly tell her when we ask.
+
+### A finding that is not about LOCK 6 at all
+
+Cocoons store the **pre-scrub** response; the user is shown the **post-scrub**
+one. Her memory of what she said therefore contains template filler that was
+removed before it ever reached the person. Recall reads that store. This
+compounds the known cocoon-substrate quality flaw rather than being separate from
+it: the material most likely to be recalled as her own voice is material that was
+judged unfit to say. Flagged, not fixed — the fix is a design decision about
+which text is canonical, and it touches her memory.
