@@ -21,13 +21,63 @@ Architecture position: Layer 0 (pre-stack) + Layer 7.5 (post-stack validation)
 Author: Jonathan Harrison (Raiff's Bits LLC)
 """
 
+import os
 import time
 import math
 import logging
+from pathlib import Path
 from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
+
+
+def _attach_decision_log() -> None:
+    """
+    Give the governor a durable record of its own decisions.
+
+    Every identity decision it makes is already logged, but only to whatever
+    stream the process happened to inherit. Launched by the MCP bridge, stdout
+    and stderr are redirected into logs/codette_mcp_server.log; launched from a
+    terminal, they go to the console and die with it. On 2026-08-11 that cost
+    us the entire record of a forty-turn identity failure — the decisions that
+    caused it were never written anywhere.
+
+    So this handler is attached to this logger specifically. It does not touch
+    the root logger or any other module's output, and it is additive: console
+    logging continues unchanged via propagation.
+
+    Set CODETTE_GOVERNOR_LOG to relocate it, or to "" to disable.
+    """
+    if any(getattr(h, "_codette_governor_log", False) for h in logger.handlers):
+        return  # already attached — module re-imported
+
+    configured = os.environ.get("CODETTE_GOVERNOR_LOG")
+    if configured is not None and configured.strip() == "":
+        return  # explicitly disabled
+
+    path = Path(configured) if configured else (
+        Path(__file__).resolve().parent.parent / "logs" / "governor_decisions.log"
+    )
+
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        handler = logging.FileHandler(path, encoding="utf-8")
+        handler.setFormatter(logging.Formatter(
+            "%(asctime)s %(levelname)s %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+        ))
+        handler._codette_governor_log = True
+        logger.addHandler(handler)
+        # The decisions are INFO; without this they are dropped when nothing
+        # else has configured logging, which is the usual case here.
+        if logger.level == logging.NOTSET or logger.level > logging.INFO:
+            logger.setLevel(logging.INFO)
+    except Exception as exc:  # pragma: no cover — never break startup for a log
+        logger.debug(f"[GOVERNOR] decision log unavailable: {exc}")
+
+
+_attach_decision_log()
 
 # Identity confidence decay half-life in seconds (30 minutes)
 CONFIDENCE_HALF_LIFE = 1800.0

@@ -1351,7 +1351,9 @@ def _worker_thread():
                         if recognized_user:
                             identity_context = _identity_anchor.get_identity_context(recognized_user)
                             # NOTE: identity info is NEVER logged or returned in API responses
-                            print(f"  [WORKER] Identity: recognized (context injected)", flush=True)
+                            # Reported AFTER the governor runs — it can still withdraw
+                            # this context below, and saying "injected" here was untrue
+                            # on every turn where it did.
                     except Exception as e:
                         print(f"  [WORKER] Identity recognition skipped: {e}", flush=True)
 
@@ -1391,6 +1393,17 @@ def _worker_thread():
                             identity_context = ""  # Governor says no identity
                     except Exception as e:
                         print(f"  [GOVERNOR] Pre-eval skipped: {e}", flush=True)
+
+                # Now say what actually happened to the identity context, once the
+                # governor has had its say. Recognised-then-withdrawn is the case
+                # that matters and the one the old message concealed.
+                if recognized_user:
+                    if identity_context:
+                        print("  [WORKER] Identity: recognized (context injected)",
+                              flush=True)
+                    else:
+                        print("  [WORKER] Identity: recognized but context WITHHELD "
+                              "by governor (identity_budget=none)", flush=True)
 
                 # ── Constraint Tracking ──
                 # Detect and inject cross-turn constraints (word limits, anchors, etc.)

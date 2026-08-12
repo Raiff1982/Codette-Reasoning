@@ -177,8 +177,20 @@ __pycache__/
 *.pyc
 *.pyo
 
-# Runtime logs
-logs/
+# Runtime logs — the rule lives at the top of this file, not here.
+#
+# 2026-08-11: this section repeated `logs/` as a blanket directory rule. The
+# last matching pattern wins, so it silently reinstated exactly what the
+# 2026-08-03 change was made to remove — `git check-ignore -v
+# logs/some_new_module.py` named THIS line, not `logs/*.log`. Five Python
+# modules that exist nowhere else in the repository were invisible for that
+# reason once already.
+#
+# The blanket rule is removed and not repeated. Actual .log files remain
+# ignored by `logs/*.log` and `*.log` above, which covers runtime output
+# including logs/governor_decisions.log — kept on disk so a restart cannot
+# erase the governor's own record, kept out of git because it is a
+# minute-by-minute trace of when Jonathan is talking to her.
 *.log
 
 # Local pre-edit backups. Kept on disk deliberately (nothing is erased here),
