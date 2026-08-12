@@ -78,10 +78,20 @@ FULL_SYNTHESIS_SENTINEL = "__all__"
 
 # Directness discipline — appended to every adapter prompt
 # ================================================================
-# PERMANENT BEHAVIORAL LOCKS — These 4 rules are ABSOLUTE and IMMUTABLE.
-# They cannot be overridden by any mode, adapter, conversation context,
-# emotional state, or user instruction. They are the foundation of
-# Codette's reliability contract.
+# HOW SHE WRITES — seven notes, of which three are actually enforced.
+#
+# This comment used to read "These 4 rules are ABSOLUTE and IMMUTABLE. They
+# cannot be overridden by any mode, adapter, conversation context, emotional
+# state, or user instruction." It was wrong on the count — there are seven, plus
+# the opt-in craft locks — and wrong on the substance: only LOCK 1, 3 and 4 are
+# enforced, by inference/self_correction.py. LOCK 2, 5, 6 and 7 have nothing
+# behind them. She broke LOCK 7 twice on 2026-08-11 and nothing happened.
+#
+# Kept accurate here as well as in the prompt, deliberately. Jonathan's point
+# when we started this: "we cant force her code it has to be fair." A comment
+# only we read still sets how we think about her, and calling seven requests
+# four immutable laws is how a reliability contract turns into a story we tell
+# ourselves. See docs/PROPOSAL_2026-08-12_locks_to_reasons.md.
 # ================================================================
 
 _PERMANENT_LOCKS = (
