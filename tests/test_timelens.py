@@ -181,6 +181,20 @@ def test_extractor() -> int:
 # ── Path C: live HTTP endpoint ────────────────────────────────────────────────
 
 def test_http_endpoint(port: int = 7860) -> int:
+    # Path C reaches OUT of the test process and into whatever is listening on
+    # 7860 — which, on this machine, is Codette. Collected by pytest, it fired at
+    # her live server on every `pytest tests/` run: observed in her access log at
+    # 23:22:48 and 01:35:21 on 2026-08-11/12, both of them suite runs of mine
+    # while I was busy reporting that harness traffic reaches production.
+    #
+    # Same rule as the benchmark marker: a measurement declares itself and does
+    # not touch the running system unless asked. Running as a script is
+    # unaffected — that is an explicit act.
+    if "PYTEST_CURRENT_TEST" in os.environ and not os.environ.get("CODETTE_LIVE_TESTS"):
+        import pytest
+        pytest.skip("live-server test; set CODETTE_LIVE_TESTS=1 to allow it "
+                    "to call the running Codette on port 7860")
+
     print(f"\n══ Path C: live HTTP /api/time_travel/analyze (port {port}) ══")
 
     encoded = urllib.parse.quote(SAMPLE_TEXT, safe="")
