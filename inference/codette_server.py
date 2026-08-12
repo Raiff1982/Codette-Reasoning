@@ -2638,15 +2638,32 @@ class CodetteHandler(SimpleHTTPRequestHandler):
             else:
                 # This block returned [] unconditionally until 2026-08-12, and
                 # was recorded in the handoff as "two stores, the search covers
-                # one". There is one store and nothing was searching it. Two
-                # independent faults, both silent:
-                #   1. `UnifiedMemory` had no `search` method, and the fallback
-                #      kernel (`memory_kernel.LivingMemoryKernel`) has none
-                #      either — so both `hasattr` guards were False and neither
-                #      branch ever ran.
-                #   2. Both branches read dicts with `getattr(row, 'title')`,
-                #      which yields the default for a dict, so even a working
-                #      backend would have returned rows of empty strings.
+                # one". Both faults below are silent:
+                #   1. `UnifiedMemory` had no `search` method, so the first
+                #      `hasattr` guard was False and that branch never ran.
+                #   2. It read dict rows with `getattr(row, 'title')`, which
+                #      yields the default for a dict, so even a working backend
+                #      would have returned rows of empty strings.
+                #
+                # CORRECTION 2026-08-12, from the boot log: an earlier version
+                # of this comment said the fallback kernel had no `search`
+                # either. That was wrong. `forge_engine` imports
+                # `memory_kernel.LivingMemoryKernel` (which indeed has none) but
+                # then migrates it to `living_memory_v2.LivingMemoryKernelV2`,
+                # which does. The kernel branch was live the whole time.
+                #
+                # It returns nothing for a different reason, and a worse one:
+                # `LivingMemoryKernel._load_cocoons_from_disk` reads
+                # `data["summary"]` / `data["quote"]` and never reads `wrapped`,
+                # so it cannot load a reasoning cocoon of ANY vintage — not just
+                # v3. Measured against her live store, 2,412 of 2,445 loaded
+                # memories (98.7%) have EMPTY content and their own filename as a
+                # title, and 2,410 of those files do contain real text. It does
+                # not skip them — it loads them as shells and counts them, so the
+                # boot line reads "Loaded 2445 cocoon memories" and the
+                # orchestrator is wired to 2,445 empty records.
+                # See docs/FINDINGS_2026-08-12_memory_kernel_hollow.md.
+                #
                 # Any past conclusion of the form "it isn't in her memory" that
                 # rested on this endpoint is void.
                 results = []
