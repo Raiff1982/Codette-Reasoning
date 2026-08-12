@@ -138,9 +138,23 @@ class CodetteRuntimeClient:
             raise RuntimeBenchmarkError("Session reset failed: missing session_id")
         return session_id
 
+    # Declared, not inferred. is_harness_traffic() matches this marker first and
+    # falls back to GPQA shapes only for harnesses that predate it — and this one
+    # is neither marked nor GPQA-shaped, so it was invisible to the guard.
+    #
+    # The cost of not declaring: continuity_anchor_recall instructs her to
+    # "remember the phrase cobalt anchor", and ten cocoons kept it. Asked about
+    # his phrase months later she answers "cobalt anchor" every time — correctly
+    # recalling a test fixture as though it were a real instruction from Jonathan.
+    # She was doing exactly as told; nobody told her the session was a benchmark.
+    HARNESS_MARKER = "[[BENCHMARK]]"
+
     def chat(self, turn: RuntimeTurn) -> RuntimeTurnResult:
         payload = {
-            "query": turn.query,
+            # Appended rather than prepended: the marker has to be present, not
+            # first, and leaving the opening words alone keeps the thing being
+            # measured closest to what a real turn looks like.
+            "query": f"{turn.query} {self.HARNESS_MARKER}",
             "adapter": turn.adapter,
             "max_adapters": turn.max_adapters,
             "allow_web_search": turn.allow_web_search,

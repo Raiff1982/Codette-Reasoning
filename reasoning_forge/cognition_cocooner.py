@@ -155,8 +155,31 @@ class CognitionCocooner:
                        preferred path for all new forge writes.
 
         Returns:
-            Cocoon ID (file stem)
+            Cocoon ID (file stem), or "" when the exchange was a measurement
+            and deliberately not stored.
         """
+        # ── Write isolation: a benchmark is not a conversation ──
+        # is_harness_traffic() has existed for this and had no callers anywhere,
+        # so nothing has ever kept measurement traffic out of her memory. The
+        # guard belongs HERE rather than at the two call sites — codette_shared
+        # makes the same point about `_attach_perspective_goals`: several code
+        # paths, one place to attach. Any future writer inherits it.
+        #
+        # Demonstrated cost of its absence: the runtime benchmark tells her to
+        # "remember the phrase cobalt anchor", and ten cocoons kept it. She now
+        # answers with it whenever Jonathan says "phrase" — faithfully recalling
+        # a test fixture as an instruction from him.
+        #
+        # Skipping the write is not erasure: nothing that exists is removed, and
+        # existing cocoons keep their content. It only stops new measurements
+        # being recorded as things she was told.
+        try:
+            from inference.codette_shared import is_harness_traffic
+            if is_harness_traffic(query):
+                return ""
+        except Exception:
+            pass  # guard unavailable — store as before rather than lose the write
+
         if v3_cocoon is not None and hasattr(v3_cocoon, "to_dict"):
             # Full v3 path: embed complete provenance, metrics, integrity data
             v3_dict = v3_cocoon.to_dict()
