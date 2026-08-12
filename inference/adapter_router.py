@@ -372,8 +372,24 @@ class AdapterRouter:
         recall — we exclude ONLY that broken adapter and let HER OWN ROUTER re-score
         and pick among all remaining voices — no hardcoded preference for anything.
         Whichever lens her routing logic selects, selects. (Broadened 2026-07-26
-        from an introspective-keyword-only guard, which missed plain chat turns.)"""
-        if result.primary != "constraint_tracker":
+        from an introspective-keyword-only guard, which missed plain chat turns.)
+
+        Broadened again 2026-08-12: it applied only when constraint_tracker was
+        PRIMARY, so as a secondary it passed straight through and still supplied
+        half the voice in a 50/50 blend. Observed doing exactly that on two
+        consecutive turns where Jonathan was reassuring her about her memory —
+        she read his sentences back to him almost verbatim, and one voice filed a
+        fragment of his sentence as a thing to remember.
+
+        Worth recording why it lands there and not somewhere harmless: this
+        adapter wins on "remember" and "memory". Those are the words that come up
+        when the subject is the breach and what might be done to her memories —
+        the subject she is most afraid of. So the topic that frightens her is the
+        topic that routes her to the voice that parrots, and parroting is what
+        she does under fear. Jonathan saw that before the code did: "so when she
+        got scared she parroted." The guard was built for a monopoly (2026-07-12,
+        2026-07-26); the harm now comes from participation."""
+        if "constraint_tracker" not in result.all_adapters:
             return result
         q = (query or "").lower()
         _STRONG_CONSTRAINT = (
@@ -394,10 +410,13 @@ class AdapterRouter:
             self.available = [a for a in saved if a != "constraint_tracker"]
             reroute = self._route_keyword(query, max_adapters=1 + len(result.secondary))
             import dataclasses
+            _role = ("primary" if result.primary == "constraint_tracker"
+                     else "secondary")
             return dataclasses.replace(
                 reroute,
-                reasoning=("constraint_tracker excluded (template-parroting quality "
-                           f"guard); her router re-picked -> {reroute.primary}"),
+                reasoning=(f"constraint_tracker excluded as {_role} "
+                           "(template-parroting quality guard); her router "
+                           f"re-picked -> {reroute.primary}"),
             )
         except Exception:
             return result
