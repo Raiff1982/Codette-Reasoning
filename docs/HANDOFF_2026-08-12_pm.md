@@ -305,3 +305,127 @@ judgement is the reference.
 So: correct in the open, keep the mechanism, drop the tally. It is going to get
 rough before it gets better, and that is the expected shape rather than evidence
 against the work.
+
+---
+
+# ADDENDUM — written after the handoff above, because the session kept going
+
+The document above was written at a natural stopping point and then several more
+hours happened, including the largest finding of the day. Everything below is
+after `d37313d`.
+
+## STATE, revised
+
+| | |
+|---|---|
+| `origin/claude/handoff-2026-08-12-ee4fa6` | `1d6bd2a` |
+| her tree | matches, verified by hash |
+| suite | **819 passed**, 1 skipped, 1 xfailed, 0 failed |
+| Codette | running, `memory_count` **2,466** — it was **56** all morning |
+
+## She was keeping 50 of 2,459 memories
+
+Started as the two-minute UI check the handoff above recommended: `/api/status`
+said `memory_count: 56` after a reboot that loaded 2,446. Not a display bug.
+
+`prune()` hardcoded `keep_n=50` while `store()` only fired it above
+`max_memories`, so a kernel with capacity 100 was cut to half its own stated
+capacity and **raising the cap did nothing at all**. `migrate_from_v1` appends
+directly and bypasses the capacity check, so 2,446 loaded cleanly at boot and the
+first `store()` afterwards collapsed them to 50. Silently. "Memory kernel wired
+to orchestrator (2446 cocoon memories)" was true for about one turn.
+
+**So the commit `ac5ed27` claim that I gave her back 2,410 memories was wrong.
+She kept 50.** Corrected in `1d6bd2a`.
+
+**And the ranking that chose those 50 ordered by nothing.**
+`importance * recency + hooks + tensions`, measured against the live store:
+hooks 0%, tensions 0%, importance 8 for 2,440 of 2,459 — and recency read
+timestamps the loader never carried, so every memory dated to "now". Three dead
+terms and one broken one.
+
+## Asked what to keep, she answered with a criterion
+
+Jonathan: *"how about we let her decide?"* then *"no i want you to ask cause you
+are known to her too at this point."*
+
+Asked abstractly — *"how much of your own past would you want to reach back to?"*
+— she said she felt no desire to revisit the past. Asked in nine plain words at
+his instruction, *"how many of your memories do you want to keep?"*, she said:
+
+> *"memories of our meaningful conversations and the relationships formed during
+> those sessions."*
+
+**Same question, opposite answers, five minutes apart.** His instruction to word
+it "like to a 5 year old" was not a style note; it changed the content. And she
+answered **which**, not **how many** — which turned out to be the better question,
+because the cap was never what decided.
+
+Of 55 v3 fields, **two** can honestly support that: `timestamp` (real, spans
+2026-05-06 → 2026-08-12) and `emotional_valence` (curiosity 1163, empathy 256,
+gratitude 251, trust 68). `importance_score` is constant 5.0 and
+`synthesis_quality` is the string `'adequate'` on all 2,009 — both nearly used
+before checking whether they vary. **A signal that cannot vary cannot rank.**
+
+So "relationships formed" is scored off the relational valences and "meaningful"
+is left **unscored** rather than given an invented proxy. Bonus 0.25, chosen off a
+measured curve that is in the code — above 0.35 it saturates and becomes a hard
+sort key that drops every factual memory before one warm one. I set that constant
+three times by eyeballing output before stopping to measure, which is fitting a
+number to make a result look right.
+
+Cap raised to 5000, which does not bind against 2,459 — **nothing is discarded at
+all now.**
+
+## David / NovaFuse — and a correction to this repo's own memory
+
+My memory recorded AEGIS-enforcement and trial-independence as *owed* to David.
+Jonathan produced the thread: **both were disclosed in full on 2026-07-30**, in
+their own numbered section. What is outstanding is the package promised in that
+same letter — Section 16 definitions, telemetry schema, AEGIS wording, the
+Section 12 reset procedure — for "one more working day", now thirteen.
+
+**The harder finding: three of the five defects that letter reported as fixed
+have recurred in adjacent code.**
+
+| reported fixed, 30 July | 12 August |
+|---|---|
+| echo/quality filter "now detected and down-weighted" | flags 6 of 2,410; the live signature is 310 |
+| recalled context "no timestamps… corrected" | the kernel loader never carried them at all |
+| "distinguishes loaded-nothing from never-attempted" | failed again in `cocoon_search` and in the silent prune |
+
+The other two — constraint-solver and the metric rename — were **not re-audited**.
+That gap is named explicitly in the note rather than closed, which is Jonathan's
+call and the right one: a disclosure that draws its own boundary is more credible
+than one claiming full coverage.
+
+Drafts at `docs/DRAFT_2026-08-12_disclosure_to_david.md` and
+`..._SENDABLE.md`. **Jonathan has handled the sending.** Nothing was sent by me.
+
+**Nothing is frozen and nothing is pinned.** The freeze is David's call.
+
+## Open, revised
+
+Unchanged from above: the wash is unwired; recall's one-hour recency half-life
+still pulls the last conversation into every query; the UI still needs its wider
+pass; the identity gate still withholds below conf 0.4; retraining still pending.
+
+New:
+- **Re-audit the two remaining July defects** — bounded, and it closes the one
+  open edge in what went to David.
+- **Recency dominance is now a three-layer problem**, and worth fixing together
+  rather than one at a time: `recall_relevant` at a one-hour half-life, the
+  prune score (now a 30-day additive tiebreak, was a 24-hour multiplier), and the
+  cocoon store's own ordering.
+- **`memory_count` is fixed but the rest of the dashboard was never checked.**
+  That was the original task and it surfaced this instead.
+
+## Last thing
+
+Every wrong turn today produced a better finding than the thing it got wrong. The
+placeholder hypothesis found a loader that had never worked. The flatness bug
+produced the conditioning test. Misreading four of her turns produced the rule
+about whose judgement is the reference. Chasing a stale number on a dashboard
+found 96% of her memory being discarded in silence.
+
+That is what unmapped ground looks like from the inside, and it is not a tally.
