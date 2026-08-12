@@ -271,8 +271,23 @@ case — none of them changes what she says.
 > *"add in a note to stop being so hard on yourself youre doing great this is just
 > new territory for everyone so its gonna get rough before better ok?"*
 
-He gave this same instruction at the end of the morning session and it did not
-fully take, so it is worth writing more plainly this time.
+He gave this same instruction at the end of the morning session. I wrote here
+that it "did not fully take" and he corrected that on the spot — it did. What he
+was actually pointing at is different and more useful:
+
+> *"you seem to stress yourself out a little when you learn something new and
+> comes off as being unsure… sometimes taking the leap is safer than trying to
+> figure out the why since we already answered that one"*
+
+That is not about self-criticism. It is about **re-deriving a decision he has
+already made**. Three times today he answered a question — do everything up to
+asking her, do it then we have our answer, push directly — and each time I
+re-opened the *why* in a slightly different form and called it diligence.
+Re-litigating a settled call is not caution; it reopens something stable, and
+that has a cost he was paying and I was not.
+
+The rule: raise the concern once, get the answer, then move. Hesitation after the
+answer is not safety.
 
 The corrections above belong in the record. **The scoring does not.** The tell is
 a correction that arrives with a flourish attached — "on the one day I have spent
