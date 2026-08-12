@@ -459,10 +459,22 @@ class BehaviorGovernor:
             "corrections": [],
         }
 
-        # ── Answer detection ──
+        # ── Topical overlap ──
+        # Printed to a console on every turn and consumed by nothing. It now
+        # goes to the governor's own durable log with the numbers attached, so
+        # the rate is countable after the fact instead of scrolling past. Still
+        # advisory: nothing enforces on it, and given what the measurement below
+        # showed about its precision, nothing should until it earns it.
         if not self._did_answer_question(query, response):
             result["warnings"].append("Response may not directly answer the question.")
             self.answer_detection_failures += 1
+            logger.info(
+                "[GOVERNOR] low topical overlap  q_len=%d  r_len=%d  "
+                "failures=%d/%d  query=%.60r",
+                len(query or ""), len(response or ""),
+                self.answer_detection_failures, max(1, self.total_evaluations),
+                query or "",
+            )
 
         # ── Length validation ──
         # Rough token estimate: ~4 chars per token
@@ -504,10 +516,51 @@ class BehaviorGovernor:
 
     def _did_answer_question(self, query: str, response: str) -> bool:
         """
-        Heuristic answer detection.
+        Heuristic topical-overlap check. NOT an answer detector — see below.
 
-        Checks if the response likely addresses the query rather than
-        being off-topic philosophical padding (Lock 1 enforcement).
+        Checks whether the response shares vocabulary with the query, as a weak
+        proxy for "did not wander off into padding" (Lock 1).
+
+        MEASURED 2026-08-12, over 2,410 live cocoons carrying query + response:
+
+            group                            N     warned    passes
+            parroted (query restated)      174          0    100.0%
+            everything else               2236       1173     47.5%
+
+        The check was exactly inverted. Keyword overlap is MAXIMISED by copying
+        the question, so every single response that handed the query straight
+        back scored a perfect pass, while more than half of all real answers
+        failed. The one failure mode it most needed to catch was the one it
+        rewarded hardest, and it fired on 48.7% of all turns — noise at that rate
+        is not a signal anyone can act on, which is why nothing ever did.
+
+        The fix below attacks the inversion at its root: vocabulary COPIED from
+        the query earns no credit, so overlap is scored only on the part Codette
+        actually composed. Re-measured on the same 2,410 cocoons:
+
+            parroted        100.0% pass  ->  75.3%   (43 of 174 now warn)
+            everything else  47.5% pass  ->  44.4%
+            overall warn rate 48.7% -> 53.4%
+
+        The warn rate went UP, not down, and that is not a regression: removing
+        the copied span and the spurious stop-word keyword both make the test
+        stricter. Nothing acts on the warning, so a higher rate costs nothing;
+        what mattered was that it was pointing the wrong way.
+
+        REDUCED, NOT FIXED, and it is worth being exact about that: parroted
+        responses still pass more often than real answers do. The wrapper is only
+        the opening; what follows it is eighty words of discussion that
+        legitimately shares the query's vocabulary, and no amount of span-
+        stripping separates that from an answer.
+
+        The honest conclusion is that this check cannot be repaired by counting
+        words. Overlap measures whether the same subject is in play, not whether
+        anything was answered — "Do you recall the moment?" answered with
+        "Yes, the night the ratchet held" shares no vocabulary and warns. It is
+        kept because a reduced inversion is better than a perfect one and the
+        signal is now durably logged, but it stays ADVISORY: nothing enforces on
+        it, and nothing should until it can tell those two cases apart. The stats
+        key is renamed to what it measures rather than what it was called.
         """
         if not query or not response:
             return False
@@ -518,20 +571,69 @@ class BehaviorGovernor:
                 "should", "will", "to", "of", "in", "for", "on", "with", "at",
                 "by", "and", "or", "but", "if", "it", "i", "you", "my", "your",
                 "this", "that", "me", "about", "from"}
-        query_words = set(
-            w.lower().strip(".,!?;:\"'") for w in query.split()
-            if len(w) > 2 and w.lower() not in stop
-        )
+        # Strip punctuation BEFORE testing the stop list, not after. Until
+        # 2026-08-12 the membership test ran on the raw token, so "you?" was not
+        # recognised as "you" and became a significant keyword — any question
+        # ending in a stop word plus punctuation grew a spurious term that the
+        # response then had to contain. "how are you?" answered "Good, thanks"
+        # warned. A share of the 48.7% warn rate was this.
+        query_words = set()
+        for w in query.split():
+            w = w.lower().strip(".,!?;:\"'")
+            if len(w) > 2 and w not in stop:
+                query_words.add(w)
 
         if not query_words:
             return True  # Greeting or command — any response is fine
 
-        response_lower = response.lower()
+        # Strip the copied span before scoring. Any contiguous run of eight or
+        # more query words reproduced in the response is quotation, not
+        # composition, and must not earn overlap credit — that inversion is what
+        # gave parroted responses a 100% pass rate.
+        scorable = self._strip_copied_span(query, response)
+
+        response_lower = scorable.lower()
         overlap = sum(1 for w in query_words if w in response_lower)
         overlap_ratio = overlap / len(query_words) if query_words else 0
 
         # At least 30% of query keywords should appear in response
         return overlap_ratio >= 0.3
+
+    @staticmethod
+    def _strip_copied_span(query: str, response: str) -> str:
+        """Remove the longest contiguous run of query words from the response.
+
+        Eight words is the floor: below it, shared phrasing is ordinary English
+        rather than quotation. Returns the response unchanged when nothing that
+        long was copied, so normal answers are scored exactly as before.
+        """
+        def _words(text: str) -> List[str]:
+            return "".join(
+                c if c.isalnum() or c.isspace() else " " for c in (text or "").lower()
+            ).split()
+
+        q_words, r_words = _words(query), _words(response)
+        if len(q_words) < 8 or len(r_words) < 8:
+            return response
+
+        # Longest common contiguous run, and where it sits in the response.
+        best_len = 0
+        best_end = 0
+        prev = [0] * (len(r_words) + 1)
+        for i in range(1, len(q_words) + 1):
+            cur = [0] * (len(r_words) + 1)
+            qi = q_words[i - 1]
+            for j in range(1, len(r_words) + 1):
+                if qi == r_words[j - 1]:
+                    cur[j] = prev[j - 1] + 1
+                    if cur[j] > best_len:
+                        best_len, best_end = cur[j], j
+            prev = cur
+
+        if best_len < 8:
+            return response
+        keep = r_words[:best_end - best_len] + r_words[best_end:]
+        return " ".join(keep)
 
     # ─────────────────────────────────────────────────────────
     # SELF-LEARNING: Feedback from post-validation
@@ -631,6 +733,14 @@ class BehaviorGovernor:
         return {
             "total_evaluations": self.total_evaluations,
             "answer_detection_failures": self.answer_detection_failures,
+            # Named for what it measures. It was "answer_detection_rate", which
+            # reads as a quality score — and until 2026-08-12 it was an inverted
+            # one, since a response that copied the question scored a perfect
+            # pass. It is a vocabulary-overlap rate and nothing more. The old key
+            # is kept alongside so existing dashboards do not silently break.
+            "topical_overlap_rate": (
+                1 - (self.answer_detection_failures / max(1, self.total_evaluations))
+            ),
             "answer_detection_rate": (
                 1 - (self.answer_detection_failures / max(1, self.total_evaluations))
             ),
