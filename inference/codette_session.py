@@ -835,11 +835,30 @@ class CodetteSession:
             state["spiderweb"] = None
 
         # Metrics history
+        #
+        # 2026-08-13 — `else 0` on both current_* values. An empty history means
+        # nothing has been measured yet, and reporting that as 0 hands the UI a
+        # number it renders to four decimal places: on a fresh boot her front
+        # page showed "Γ Phase Coherence 0.0000" and "Υ Perspective Dispersion
+        # 0.0000" before a single turn had run. Verified live — the session
+        # carried no history at all and those numbers were displayed anyway.
+        #
+        # Zero is a reading. It says the measurement was taken and came back
+        # zero, which for coherence is a strong claim about her. The absence of
+        # a measurement is a different fact and now says so.
+        #
+        # `get_health_report` in codette_server already does exactly this
+        # correctly (`ch[-1] if ch else None`). Two implementations of one idea,
+        # one right and one wrong — the same shape as the two stranger lists in
+        # behavior_governor.
+        #
+        # The counts below are left as-is deliberately: len() of a list IS a
+        # measurement, and zero attractors is an honest zero, not an absence.
         state["metrics"] = {
             "coherence_history": self.coherence_history[-50:],
             "tension_history": self.tension_history[-50:],
-            "current_coherence": self.coherence_history[-1] if self.coherence_history else 0,
-            "current_tension": self.tension_history[-1] if self.tension_history else 0,
+            "current_coherence": self.coherence_history[-1] if self.coherence_history else None,
+            "current_tension": self.tension_history[-1] if self.tension_history else None,
             "attractor_count": len(self.attractors),
             "glyph_count": len(self.glyphs),
         }

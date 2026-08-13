@@ -1040,20 +1040,56 @@ function togglePerspectives(id) {
 }
 
 // ── Cocoon UI Updates ──
+
+// An absent measurement is not zero.
+//
+// 2026-08-13. These read `metrics.current_coherence || 0` and then rendered
+// `.toFixed(4)`, so before a single turn had run the front page displayed
+// Γ 0.0000 and Υ 0.0000 — nothing measured, shown to four decimal places with
+// the precision of a reading. Verified live on a fresh boot: the session
+// carried no metrics at all and the panel showed those numbers anyway.
+//
+// It is the same defect as `success` defaulting to True and `gamma = 1 - 0.35`
+// wearing the shape of arithmetic, and it sits where it does the most damage —
+// the first thing anyone sees. A zero says "measured, and it came back zero".
+// The honest render is that no measurement exists yet.
+//
+// Bars go to zero width and get a not-measured class rather than reading as an
+// empty gauge, which is itself a claim.
+function _renderMetric(valueId, barId, value, opts) {
+    const el = document.getElementById(valueId);
+    const bar = barId ? document.getElementById(barId) : null;
+    const measured = typeof value === 'number' && isFinite(value);
+    if (el) {
+        el.textContent = measured ? value.toFixed(4) : '—';
+        el.classList.toggle('metric-unmeasured', !measured);
+        el.title = measured ? '' : 'No measurement yet — not zero';
+    }
+    if (bar) {
+        const pct = measured ? Math.min(Math.max(value, 0) * 100, 100) : 0;
+        bar.style.width = pct + '%';
+        bar.classList.toggle('bar-unmeasured', !measured);
+    }
+    return measured;
+}
+
+function _renderCount(id, value) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const measured = typeof value === 'number' && isFinite(value);
+    el.textContent = measured ? String(value) : '—';
+    el.classList.toggle('metric-unmeasured', !measured);
+    el.title = measured ? '' : 'Not reported yet — not zero';
+}
+
 function updateCocoonUI(state) {
     // Metrics
     const metrics = state.metrics || {};
-    const coherence = metrics.current_coherence || 0;
-    const tension = metrics.current_tension || 0;
 
-    document.getElementById('metric-coherence').textContent = coherence.toFixed(4);
-    document.getElementById('bar-coherence').style.width = (coherence * 100) + '%';
-
-    document.getElementById('metric-tension').textContent = tension.toFixed(4);
-    document.getElementById('bar-tension').style.width = Math.min(tension * 100, 100) + '%';
-
-    document.getElementById('cocoon-attractors').textContent = metrics.attractor_count || 0;
-    document.getElementById('cocoon-glyphs').textContent = metrics.glyph_count || 0;
+    _renderMetric('metric-coherence', 'bar-coherence', metrics.current_coherence);
+    _renderMetric('metric-tension', 'bar-tension', metrics.current_tension);
+    _renderCount('cocoon-attractors', metrics.attractor_count);
+    _renderCount('cocoon-glyphs', metrics.glyph_count);
 
     // Cocoon status
     const cocoon = state.cocoon || {};

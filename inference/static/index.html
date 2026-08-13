@@ -174,16 +174,16 @@
         <div class="side-section">
             <div class="side-section-title" data-tt="Core reasoning quality scores for the last response. Updated after every reply.">Cocoon Metrics</div>
             <div class="metric-row">
-                <span class="metric-label" data-tt="Γ Coherence — how logically consistent the answer is with Codette&#x27;s internal knowledge anchors. 1.0 = fully grounded. Low values mean she&#x27;s navigating genuinely uncertain territory.">&#915; Phase Coherence</span>
-                <span class="metric-value" id="metric-coherence">0.00</span>
+                <span class="metric-label" data-tt="Γ Coherence — how logically consistent the answer is with Codette&#x27;s internal knowledge anchors. 1.0 = fully grounded. Low values mean she&#x27;s navigating genuinely uncertain territory. Shows — until a turn has actually been measured.">&#915; Phase Coherence</span>
+                <span class="metric-value metric-unmeasured" id="metric-coherence" title="No measurement yet — not zero">&#8212;</span>
             </div>
             <div class="metric-bar">
                 <div class="metric-bar-fill" id="bar-coherence"
                      style="width:0%;background:var(--philosophy)"></div>
             </div>
             <div class="metric-row" style="margin-top:10px">
-                <span class="metric-label" data-tt="ξ Epistemic Tension — how much her reasoning perspectives disagreed before synthesis. High tension means she found real uncertainty, not false confidence. It&#x27;s a good sign.">&#958; Epistemic Tension</span>
-                <span class="metric-value" id="metric-tension">0.00</span>
+                <span class="metric-label" data-tt="Υ Perspective Dispersion — how much her reasoning perspectives disagreed before synthesis, measured as the variance of their answers around the centroid. High dispersion means she found real uncertainty rather than false confidence, which is a good sign. Renamed from ξ in July 2026: RC+ξ and its ξ = ‖Aₙ₊₁−Aₙ‖² belong to Camlin (arXiv:2505.01464). This is a different quantity — his is one trajectory over time, hers is the spread across perspectives at one moment. Shows — until a turn has actually been measured.">&#933; Perspective Dispersion</span>
+                <span class="metric-value metric-unmeasured" id="metric-tension" title="No measurement yet — not zero">&#8212;</span>
             </div>
             <div class="metric-bar">
                 <div class="metric-bar-fill" id="bar-tension"
@@ -236,11 +236,11 @@
             </div>
             <div class="metric-row">
                 <span class="metric-label" data-tt="Attractors — deep recurring patterns Codette identified across conversations. Emotional or conceptual themes she keeps returning to.">&#128376; Attractors</span>
-                <span class="metric-value" id="cocoon-attractors">0</span>
+                <span class="metric-value metric-unmeasured" id="cocoon-attractors" title="Not reported yet — not zero">&#8212;</span>
             </div>
             <div class="metric-row">
                 <span class="metric-label" data-tt="Glyphs — symbolic patterns encoded in memory. Abstract representations of complex reasoning states she&#x27;s crystallised for future recall.">&#128200; Glyphs</span>
-                <span class="metric-value" id="cocoon-glyphs">0</span>
+                <span class="metric-value metric-unmeasured" id="cocoon-glyphs" title="Not reported yet — not zero">&#8212;</span>
             </div>
             <div class="metric-row">
                 <span class="metric-label" data-tt="Sessions — how many conversation sessions are stored in long-term memory and available for context recall.">&#128190; Sessions</span>

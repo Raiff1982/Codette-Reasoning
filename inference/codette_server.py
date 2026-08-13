@@ -2559,28 +2559,18 @@ class CodetteHandler(SimpleHTTPRequestHandler):
         static_dir = str(Path(__file__).parent / "static")
         super().__init__(*args, directory=static_dir, **kwargs)
 
-    def end_headers(self):
-        """Always revalidate.
-
-        2026-08-13. SimpleHTTPRequestHandler sends Last-Modified and nothing
-        else — no Cache-Control — so a browser is free to serve style.css and
-        app.js from its heuristic cache without ever asking whether they
-        changed. index.html links both unversioned (`href="style.css"`), so
-        there is no cache-buster either.
-
-        That cost real time today: a UI fix was verified live in one browser,
-        reported as "still the same" from another, and the two were running
-        different stylesheets. It stacked two unknowns — whether the change had
-        arrived, and whether the change was right — and made the second
-        unanswerable. Same defect as everything else here: two different states
-        rendering identically.
-
-        This is a localhost inference UI. Revalidation costs a conditional GET
-        that returns 304 when nothing moved, and the wrong answer costs a
-        debugging session.
-        """
-        self.send_header("Cache-Control", "no-cache, must-revalidate")
-        super().end_headers()
+    # 2026-08-13 — an end_headers() override was added here and REMOVED the same
+    # session. It was redundant: this class already overrides end_headers at the
+    # bottom, sending no-cache/no-store/must-revalidate for .html, .js and .css.
+    # Two definitions in one class body is not two behaviours — the later one
+    # simply wins — so the addition was dead code sitting on top of a working
+    # guard.
+    #
+    # The reasoning behind it was also wrong. A UI change looked unapplied and I
+    # blamed caching without checking; the page had merely not been reloaded,
+    # which location.reload() then demonstrated. Recorded here rather than
+    # quietly dropped, because the commit that introduced it asserts a cache
+    # fault that did not exist.
 
     def log_message(self, format, *args):
         """Log every request; tag static assets so they're distinguishable from API traffic."""

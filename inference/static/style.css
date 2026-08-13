@@ -213,6 +213,25 @@ body::after {
     gap: 14px;
 }
 
+/* Not measured yet.
+   Deliberately quiet rather than alarming — an absent reading is the normal
+   state before a turn, not a fault. It just must not be readable as a number.
+   The em dash sits at the same size and position a value would, so the row
+   does not reflow when the first real measurement arrives. */
+.metric-value.metric-unmeasured {
+    color: var(--text-muted);
+    opacity: 0.55;
+    text-shadow: none;
+    letter-spacing: 0.1em;
+}
+
+.metric-bar-fill.bar-unmeasured,
+.bar-unmeasured {
+    width: 0 !important;
+    background: none;
+    box-shadow: none;
+}
+
 /* The wordmark is an <svg> (see index.html). Gradient-clipped HTML text was
    painting as a solid rectangle: -webkit-background-clip:text paints the
    background and clips it to the glyphs, and any compositing-layer promotion —
