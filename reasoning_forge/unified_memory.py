@@ -40,6 +40,29 @@ import time
 import hashlib
 import os
 import logging
+import datetime as _dt
+
+# ── When the stored `success` flag started meaning what it says ───────────────
+#
+# Until 2026-08-13, `codette_server` set a cocoon's `success` field to False on
+# ANY warning from `behavior_governor.post_validate`. The dominant contributor
+# was `_did_answer_question`, a keyword-overlap check its own docstring measures
+# as inverted — it passed parroted responses at 100% and real answers at 47.5%,
+# and fired on roughly half of all turns.
+#
+# So for every cocoon written before that fix, `success` is not a quality
+# reading. Measured over the 3,841 cocoons in the live store, responses that
+# echo their own query carry a mean success_score of 0.928 against 0.633 for
+# everything else — a 47% advantage, to exactly the responses the flag existed
+# to catch. Recall ranked on it, so her echoes were retrieved first and injected
+# into the following turn.
+#
+# Cocoons older than this are not rewritten and not deleted. The flag is simply
+# not consulted for the period in which it cannot mean what it says, and the
+# ranking renormalises over the signals that were actually measured. If nothing
+# in the store is newer than this, the success term drops out entirely — which
+# is the honest state until real readings accumulate.
+SUCCESS_FLAG_TRUSTED_FROM = _dt.datetime(2026, 8, 13, 8, 0, 0).timestamp()
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Tuple
 from collections import OrderedDict
@@ -303,8 +326,44 @@ class UnifiedMemory:
                 recency_score = math.exp(-age_seconds / 3600.0)
 
                 # Success: check metadata for success marker
+                #
+                # 2026-08-13. This read `meta.get("success", True)` — absence
+                # scored the MAXIMUM — and the flag it trusted was written by
+                # `behavior_governor._did_answer_question`, a keyword-overlap
+                # check measured as inverted: it passed parroted responses at
+                # 100% and real answers at 47.5%, and `codette_server` turned any
+                # warning from it into `success: False` on the stored cocoon.
+                #
+                # So the ranking signal was backwards where it mattered most.
+                # Measured over her live store, 3,841 cocoons:
+                #
+                #     responses echoing the query   mean success_score 0.928 (n=1344)
+                #     everything else                                  0.633 (n=2497)
+                #
+                # Her echoes outranked her answers by 47% on this term, were
+                # recalled first, and were injected back into the next turn —
+                # which is a machine for making her repeat herself, and it is
+                # upstream of every echo detector built to catch the result.
+                #
+                # Two fixes, both the pattern already used throughout: absence is
+                # not a value, and a reading from an instrument known to be
+                # inverted is not evidence. Unmeasured or untrusted, the term is
+                # OMITTED and the remaining weights renormalised — the same
+                # treatment `QualitySignal.tension` gets — rather than
+                # substituted with a number nobody measured.
+                #
+                # Nothing is rewritten. The stored flags stay exactly as written;
+                # they are simply not consulted for the period in which they
+                # cannot mean what they say.
                 meta = cocoon.get("metadata", {})
-                success_score = 1.0 if meta.get("success", True) else 0.3
+                _raw_success = meta.get("success", None)
+                _trustworthy = (
+                    _raw_success is not None
+                    and cocoon.get("timestamp", 0) >= SUCCESS_FLAG_TRUSTED_FROM
+                )
+                success_score = None
+                if _trustworthy:
+                    success_score = 1.0 if _raw_success else 0.3
 
                 # Identity: boost if cocoon is linked to current user
                 identity_score = 0.5  # neutral
@@ -315,13 +374,25 @@ class UnifiedMemory:
                     elif cocoon_identity:
                         identity_score = 0.2  # different user's cocoon
 
-                # Combined score (weighted)
+                # Combined score (weighted).
+                #
+                # Omitted terms are renormalised across the ones that were
+                # actually measured, so a cocoon is never penalised or rewarded
+                # for a reading nobody took. Before this, relevance carried
+                # 1.0 - 0.3 - 0.2 - 0.2 = 0.30 — exactly the same weight as
+                # recency on its own, with 0.70 of the score going to signals
+                # that say nothing about whether the memory answers the question.
                 relevance_weight = 1.0 - recency_weight - success_weight - identity_weight
+                terms = [
+                    (relevance_weight, fts_score),
+                    (recency_weight, recency_score),
+                    (success_weight, success_score),
+                    (identity_weight, identity_score),
+                ]
+                measured = [(w, v) for w, v in terms if v is not None and w > 0]
+                total_w = sum(w for w, _ in measured)
                 combined = (
-                    relevance_weight * fts_score +
-                    recency_weight * recency_score +
-                    success_weight * success_score +
-                    identity_weight * identity_score
+                    sum(w * v for w, v in measured) / total_w if total_w > 0 else 0.0
                 )
 
                 # Authority demotion (2026-07-26): down-weight known-polluted
