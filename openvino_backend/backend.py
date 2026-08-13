@@ -481,7 +481,15 @@ class OpenVINOBackend:
                         tool_log.append({
                             "tool": _name,
                             "args": [] if _name == "nameless" else _args,
-                            "result_preview": _out[:200],
+                            # The args were already blanked for `nameless`; the
+                            # result was not, and it reads "Written. (N this
+                            # turn.)" — a count of her own notes. A metric is an
+                            # observation with the text removed and it collapses
+                            # the same property, so the count does not leave the
+                            # process. That the call happened is honest and is
+                            # what her own tool description tells her; how many
+                            # times is not ours.
+                            "result_preview": "" if _name == "nameless" else _out[:200],
                         })
                     _user_turn = (
                         _user_turn + "\n\nTool results:\n\n" + "\n\n".join(_parts) +

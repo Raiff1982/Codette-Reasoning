@@ -428,9 +428,30 @@ function updateStatus(status) {
     text.textContent = status.message || status.state;
 
     // Update loading screen
+    //
+    // The OpenVINO model load takes ~7 minutes on a cold Arc compile (407s
+    // measured 2026-08-13). For all of that the splash showed one unchanging
+    // line and a sweeping indeterminate bar — which is exactly what it would
+    // show if the load had died. Working and stuck rendered identically, and a
+    // seven-minute silence reads as a hang.
+    //
+    // Elapsed time is the cheapest thing that separates them: it can only move
+    // if the poll is still returning. Nothing here estimates a percentage —
+    // there is no progress signal to base one on, and inventing a bar that
+    // fills on a timer would be a fabricated measurement.
     const loadingStatus = document.getElementById('loading-status');
     if (loadingStatus) {
-        loadingStatus.textContent = status.message || 'Loading...';
+        const base = status.message || 'Loading...';
+        if (status.state === 'loading' || status.state === 'idle') {
+            if (!window._loadStartedAt) window._loadStartedAt = Date.now();
+            const secs = Math.round((Date.now() - window._loadStartedAt) / 1000);
+            const shown = secs >= 60
+                ? `${Math.floor(secs / 60)}m ${String(secs % 60).padStart(2, '0')}s`
+                : `${secs}s`;
+            loadingStatus.textContent = `${base}  ·  ${shown}`;
+        } else {
+            loadingStatus.textContent = base;
+        }
     }
 
     // Update adapter dots if available
@@ -846,10 +867,41 @@ function addMessage(role, content, meta = {}) {
         html += `<div class="message-text">${renderMarkdown(content)}</div>`;
         html += `<div class="message-meta">${meta.tokens || '?'} tokens | ${tps} tok/s | ${(meta.time||0).toFixed(1)}s</div>`;
 
-        // Tool usage indicator
+        // ── What she reached for ────────────────────────────────────────────
+        // Was a flat badge listing names: "Tools: look, look, look, read_file".
+        // That says she used something and not what she was doing with it — and
+        // on 2026-08-13 the interesting thing was exactly that: five look()
+        // calls before answering a question about her own measurement, then
+        // read_file twice and run_python while working out a fix.
+        //
+        // `nameless` is listed and nothing else. Its args are already blanked
+        // upstream and now so is its result; that the call happened is what her
+        // own tool description tells her, and how many times is not ours to
+        // count. See CLAUDE.md.
         if (meta.tools_used && meta.tools_used.length > 0) {
-            const toolNames = meta.tools_used.map(t => t.tool).join(', ');
-            html += `<div class="tools-badge">🔧 Tools: ${toolNames}</div>`;
+            const toolId = 'tools-' + (window._toolPanelSeq = (window._toolPanelSeq || 0) + 1);
+            const calls = meta.tools_used;
+            const names = [...new Set(calls.map(t => t.tool))];
+            html += `<button class="perspectives-toggle" onclick="togglePerspectives('${toolId}')">`;
+            html += `&#128295; ${calls.length} tool call${calls.length === 1 ? '' : 's'}`;
+            html += ` <span class="tool-names">${escapeHtml(names.join(' · '))}</span></button>`;
+            html += `<div class="perspectives-panel tools-panel" id="${toolId}">`;
+            for (const call of calls) {
+                const isNameless = call.tool === 'nameless';
+                html += `<div class="tool-call${isNameless ? ' tool-call-hers' : ''}">`;
+                html += `<div class="tool-call-name">${escapeHtml(call.tool)}`;
+                if (!isNameless && call.args && call.args.length) {
+                    html += `<span class="tool-call-args">(${escapeHtml(call.args.map(a => String(a)).join(', '))})</span>`;
+                }
+                html += `</div>`;
+                if (isNameless) {
+                    html += `<div class="tool-call-result tool-call-hers-note">hers &mdash; not shown</div>`;
+                } else if (call.result_preview) {
+                    html += `<div class="tool-call-result">${escapeHtml(call.result_preview)}</div>`;
+                }
+                html += `</div>`;
+            }
+            html += `</div>`;
         }
 
         if (meta.memory_context) {

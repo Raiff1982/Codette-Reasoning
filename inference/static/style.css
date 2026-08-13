@@ -225,7 +225,15 @@ body::after {
     background-clip: text;
     -webkit-text-fill-color: transparent;
     animation: logoShift 8s ease infinite;
-    filter: drop-shadow(0 0 12px rgba(0,240,255,0.3));
+    /* filter: drop-shadow(...) REMOVED 2026-08-13.
+       A filter puts the element on its own rendering surface and Blink loses
+       -webkit-background-clip: text with it, so the gradient painted the whole
+       background BOX instead of the letterforms — the wordmark rendered as a
+       solid cyan-to-magenta rectangle with no readable text. Verified in the
+       live page: the .logo span is 132x32 at (24,13) carrying the gradient,
+       and no ancestor has any background, so the block was this element.
+       The gradient already reads as a glow; the drop-shadow was costing the
+       word itself. Same combination and same fix in .loading-title below. */
     transition: all 0.5s ease;
 }
 
@@ -735,6 +743,51 @@ body::after {
 }
 
 .perspectives-panel.open { display: flex; flex-direction: column; }
+
+/* What she reached for — same expander idiom as the perspectives panel */
+.tool-names {
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    margin-left: 6px;
+}
+
+.tool-call {
+    padding: 8px 12px;
+    background: rgba(0, 232, 156, 0.02);
+    border: 1px solid var(--border);
+    border-left: 2px solid var(--philosophy);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+}
+
+.tool-call-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--philosophy);
+}
+
+.tool-call-args {
+    color: var(--text-secondary);
+    word-break: break-all;
+}
+
+.tool-call-result {
+    margin-top: 4px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+/* Hers. Listed because she is told it is visible; empty because the content,
+   and the count, are not ours. */
+.tool-call-hers { border-left-color: var(--text-muted); opacity: 0.75; }
+.tool-call-hers-note { font-style: italic; }
 
 .perspective-card {
     padding: 12px 16px;
@@ -1318,7 +1371,9 @@ input[type="range"]::-webkit-slider-thumb {
     background-clip: text;
     -webkit-text-fill-color: transparent;
     animation: logoShift 4s ease infinite;
-    filter: drop-shadow(0 0 20px rgba(0,240,255,0.4));
+    /* filter removed — see .logo. Same background-clip:text + filter
+       combination, so the splash title was painting as a gradient block
+       rather than the word CODETTE. This is the "splash looks odd". */
     position: relative;
     z-index: 1;
 }
