@@ -25,6 +25,7 @@ let reconnectTimer = null;
 let _totalEthicalChecks = 0;
 let _startupCocoonCount = 0;
 let _selectedVoice = null;
+let _scoredVoices = [];   // current voice list in score order; see initTTS
 
 // File attachment state
 let attachedFiles = [];
@@ -310,10 +311,22 @@ function initTTS() {
 
         // Auto-select best voice
         _selectedVoice = scored[0]?.voice || null;
+        _scoredVoices = scored;
+    }
 
+    // Registered ONCE, outside populateVoices.
+    //
+    // 2026-08-13: this listener was inside populateVoices(), which runs on
+    // every `voiceschanged` event as well as once directly — so a new listener
+    // was added each time and they accumulated for the life of the page. They
+    // all did the same thing, so nothing misbehaved visibly, which is exactly
+    // why it would have kept accumulating. It reads the current scored list
+    // rather than one captured in a closure, so it stays correct when the
+    // voice list changes underneath it.
+    if (voiceSelect) {
         voiceSelect.addEventListener('change', () => {
-            const idx = parseInt(voiceSelect.value);
-            _selectedVoice = scored[idx]?.voice || null;
+            const idx = parseInt(voiceSelect.value, 10);
+            _selectedVoice = (_scoredVoices[idx] || {}).voice || null;
         });
     }
 
@@ -723,6 +736,28 @@ function sendMessage(opts) {
         const ttsOn = document.getElementById('tts-toggle');
         if (ttsOn && ttsOn.checked) {
             speakText(data.response);
+        }
+
+        // ── Light the web from what actually ran ─────────────────────────────
+        // A node ignites only for a perspective the backend reports as
+        // consulted, in the order they answered. Nothing here animates on a
+        // clock; if a field was not measured it is passed as undefined and the
+        // web declines to draw a magnitude for it.
+        if (spiderwebViz) {
+            const cm = (data.cognition_state && data.cognition_state.metrics) || {};
+            const num = v => (typeof v === 'number' && isFinite(v)) ? v : undefined;
+            const consulted = data.perspectives && Object.keys(data.perspectives).length
+                ? Object.keys(data.perspectives)
+                : (Array.isArray(data.adapters) ? data.adapters
+                   : (data.adapter ? [data.adapter] : []));
+            spiderwebViz.igniteTurn({
+                adapters: consulted,
+                dispersion: num(data.perspective_dispersion) ?? num(cm.upsilon)
+                            ?? num(cm.perspective_dispersion) ?? num(data.measured_tension),
+                coherence: num(data.measured_coherence) ?? num(cm.gamma)
+                           ?? num(cm.coherence),
+                distinctiveness: data.distinctiveness || undefined,
+            });
         }
 
         // Update cocoon state
@@ -1247,7 +1282,12 @@ function newChat() {
             // Reset spiderweb
             if (spiderwebViz) {
                 spiderwebViz._initDefaultState();
-                spiderwebViz.coherence = 0;
+                // null, not 0 — a new conversation has measured nothing, and 0
+                // would draw a coherence ring claiming it had.
+                spiderwebViz.coherence = null;
+                spiderwebViz.dispersion = null;
+                spiderwebViz.distinct = null;
+                spiderwebViz.turn = { order: [], firedAt: {}, startedAt: 0 };
                 spiderwebViz.attractors = [];
             }
             // Reset status chips

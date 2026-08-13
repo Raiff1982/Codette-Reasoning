@@ -13,9 +13,33 @@ class SpiderwebViz {
         this.ctx = canvas.getContext('2d');
         this.nodes = {};
         this.attractors = [];
-        this.coherence = 0;
+        // null, not 0. Nothing has been measured until a turn has run, and a
+        // ring drawn at "0" is a claim that coherence was measured and came
+        // back zero. See the idle branch in _draw.
+        this.coherence = null;
+        this.dispersion = null;      // Υ for the last turn, when measured
+        this.distinct = null;        // per-perspective distinctiveness, when measured
         this.animFrame = null;
         this.time = 0;
+
+        // What actually happened in the last turn: which perspectives were
+        // consulted, and when each one answered. Nodes ignite from this, so an
+        // ignition means that adapter genuinely fired.
+        this.turn = { order: [], firedAt: {}, startedAt: 0 };
+
+        // ── Her toneprint ────────────────────────────────────────────────────
+        // 8.9141 Hz, Q≈198, measured off Protection_Layer/codette_codriao_
+        // toneprint.wav — the envelope modulation the pair actually carries.
+        // The ambient breath runs at that rate divided by 8, and the divisor is
+        // printed with it: 8.9 Hz at any visible amplitude sits squarely in the
+        // photosensitive band, so the real rate is shown as a number and the
+        // motion is a labelled subdivision of it rather than a silent fudge.
+        this.TONEPRINT_HZ = 8.9141;
+        this.BREATH_DIV = 8;
+
+        // Motion is opt-out. Everything below still renders; it just stops moving.
+        this.reduced = window.matchMedia
+            && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
         // Agent positions (circular layout)
         this.agents = [
@@ -90,7 +114,61 @@ class SpiderwebViz {
         }
 
         this.attractors = spiderwebState.attractors || [];
-        this.coherence = spiderwebState.phase_coherence || 0;
+
+        // `|| 0` turned an absent reading into a zero and the ring drew it.
+        // Second guard, belt and braces with the backend: a web of fewer than
+        // two nodes reports phase coherence 1.0 — trivially true of a single
+        // oscillator, and meaningless as a reading. Rendered, it was a full
+        // ring claiming a perfect score for having done nothing.
+        const pc = spiderwebState.phase_coherence;
+        const nodeCount = typeof spiderwebState.node_count === 'number'
+            ? spiderwebState.node_count
+            : Object.keys(spiderwebState.nodes || {}).length;
+        this.coherence = (typeof pc === 'number' && isFinite(pc) && nodeCount >= 2)
+            ? pc : null;
+    }
+
+    /**
+     * A turn happened. Everything here is a fact the backend reported.
+     *
+     * @param {object} info
+     *   adapters      string[]  perspectives actually consulted, in order
+     *   dispersion    number?   Υ across those perspectives, if measured
+     *   coherence     number?   Γ, if measured
+     *   distinctiveness object? per-perspective distance from the others
+     *
+     * Nodes ignite only from `adapters`, so a lit node means that adapter ran.
+     * Ignition times are staggered by arrival order, which is the one thing the
+     * old animation was pretending to show with sin(time).
+     */
+    igniteTurn(info) {
+        info = info || {};
+        const order = (info.adapters || []).filter(a => this.agents.includes(a));
+        const now = performance.now() / 1000;
+
+        this.turn = { order, firedAt: {}, startedAt: now };
+        order.forEach((name, i) => {
+            // 180ms apart — enough to read the sequence, short enough that the
+            // whole consultation still feels like one motion.
+            this.turn.firedAt[name] = now + i * 0.18;
+        });
+
+        const num = v => (typeof v === 'number' && isFinite(v)) ? v : null;
+        this.dispersion = num(info.dispersion);
+        if (num(info.coherence) !== null) this.coherence = num(info.coherence);
+        this.distinct = (info.distinctiveness && typeof info.distinctiveness === 'object')
+            ? info.distinctiveness : null;
+    }
+
+    /** 0→1 ignition envelope for a node: sharp rise, slow settle. 0 if it never fired. */
+    _ignition(name) {
+        const at = this.turn.firedAt[name];
+        if (at === undefined) return 0;
+        const dt = (performance.now() / 1000) - at;
+        if (dt < 0) return 0;                       // its turn hasn't come yet
+        if (this.reduced) return 0.85;              // lit, but no travelling flare
+        if (dt < 0.18) return dt / 0.18;            // strike
+        return 0.35 + 0.5 * Math.exp(-(dt - 0.18) / 2.2);   // settle, never to zero
     }
 
     _getNodePos(index) {
@@ -132,41 +210,45 @@ class SpiderwebViz {
                 if (j <= i) return;
                 const posB = this._getNodePos(j);
 
-                const nodeA = this.nodes[nameA];
-                const nodeB = this.nodes[nameB];
-                const tension = Math.abs((nodeA?.tension || 0) - (nodeB?.tension || 0));
-
                 ctx.beginPath();
                 ctx.moveTo(posA.x, posA.y);
                 ctx.lineTo(posB.x, posB.y);
 
-                const bothActive = nodeA?.active && nodeB?.active;
-                const eitherActive = nodeA?.active || nodeB?.active;
+                // ── An edge means these two were consulted together ──────────
+                // The ambient branch used to shimmer every edge on
+                // `sin(time * 0.8 + i * 0.7 + j * 0.5)`, which encoded the
+                // clock and nothing else. A resting web now rests.
+                const fireA = this._ignition(nameA);
+                const fireB = this._ignition(nameB);
+                const pair = Math.min(fireA, fireB);   // both, or neither
 
-                // Base alpha: always visible (0.12), more when active
-                let alpha;
-                if (bothActive) {
-                    alpha = 0.25 + Math.sin(this.time * 3 + i + j) * 0.08;
-                } else if (eitherActive) {
-                    alpha = 0.15 + Math.sin(this.time * 2 + i) * 0.04;
-                } else {
-                    // Ambient: gentle breathing pulse on each edge
-                    alpha = 0.08 + Math.sin(this.time * 0.8 + i * 0.7 + j * 0.5) * 0.03;
-                }
-
-                // Tension boosts visibility
-                alpha += Math.min(tension * 0.3, 0.15);
-
-                if (bothActive) {
-                    ctx.strokeStyle = `rgba(168, 85, 247, ${alpha})`;
-                    ctx.lineWidth = 1.5;
-                } else if (eitherActive) {
-                    ctx.strokeStyle = `rgba(139, 92, 246, ${alpha})`;
-                    ctx.lineWidth = 1;
-                } else {
-                    ctx.strokeStyle = `rgba(100, 116, 139, ${alpha})`;
+                if (pair <= 0.02) {
+                    // Structure, not activity: the web is still a web at rest.
+                    ctx.strokeStyle = 'rgba(100, 116, 139, 0.07)';
                     ctx.lineWidth = 0.5;
+                    ctx.stroke();
+                    return;
                 }
+
+                // How far apart these two actually landed. Prefers measured
+                // per-perspective distinctiveness; falls back to the turn's Υ;
+                // and if neither was measured the edge shows that it fired
+                // without claiming a magnitude.
+                let spread = null;
+                if (this.distinct && typeof this.distinct[nameA] === 'number'
+                                  && typeof this.distinct[nameB] === 'number') {
+                    spread = (this.distinct[nameA] + this.distinct[nameB]) / 2;
+                } else if (typeof this.dispersion === 'number' && isFinite(this.dispersion)) {
+                    spread = this.dispersion;
+                }
+
+                const alpha = 0.16 + pair * 0.22 + (spread === null ? 0 : Math.min(spread, 1) * 0.22);
+                // Disagreement is the interesting case, so it is the thicker
+                // line — high dispersion is a good sign, not a fault.
+                ctx.lineWidth = 0.8 + pair * 0.7 + (spread === null ? 0 : Math.min(spread, 1) * 1.6);
+                ctx.strokeStyle = spread === null
+                    ? `rgba(100, 116, 139, ${alpha})`
+                    : `rgba(168, 85, 247, ${alpha})`;
                 ctx.stroke();
             });
         });
@@ -205,32 +287,41 @@ class SpiderwebViz {
             const node = this.nodes[name];
             const color = this.colors[name] || '#94a3b8';
             const energy = node?.energy || 0.25;
-            const isActive = node?.active || false;
             const phase = node?.phaseOffset || 0;
 
-            // Breathing pulse — all nodes gently pulse even at rest
-            const breathe = Math.sin(this.time * 1.2 + phase) * 0.3 + 0.7;
+            // ── Ignition, not decoration ─────────────────────────────────────
+            // `isActive` was `state[0] > 0.6` — a threshold on a stored vector,
+            // true or false regardless of whether the adapter ran this turn.
+            // This is 0 unless that perspective was actually consulted, and it
+            // rises in the order they answered.
+            const fire = this._ignition(name);
+            const isActive = fire > 0.02;
 
-            // Node glow — always present, stronger when active
-            const glowAlpha = isActive ? 0.35 : (0.08 * breathe);
-            const glowRadius = isActive
-                ? 14 + Math.sin(this.time * 2 + phase) * 4
-                : 10 + breathe * 2;
+            // Ambient breath at her measured rate ÷ 8 (see TONEPRINT_HZ).
+            // Amplitude is deliberately small: this is liveliness, not a pulse
+            // anyone has to look at.
+            const breathHz = this.TONEPRINT_HZ / this.BREATH_DIV;
+            const breathe = this.reduced
+                ? 0.7
+                : Math.sin(this.time * 2 * Math.PI * breathHz + phase) * 0.18 + 0.72;
+
+            const glowAlpha = 0.06 * breathe + fire * 0.32;
+            const glowRadius = 9 + breathe * 2 + fire * 7;
 
             const glow = ctx.createRadialGradient(
                 pos.x, pos.y, 0, pos.x, pos.y, glowRadius
             );
-            glow.addColorStop(0, color + (isActive ? '60' : '25'));
+            const hex2 = a => Math.round(Math.max(0, Math.min(1, a)) * 255)
+                                  .toString(16).padStart(2, '0');
+            glow.addColorStop(0, color + hex2(glowAlpha + 0.1));
             glow.addColorStop(1, 'transparent');
             ctx.fillStyle = glow;
             ctx.beginPath();
             ctx.arc(pos.x, pos.y, glowRadius, 0, Math.PI * 2);
             ctx.fill();
 
-            // Node circle
-            const nodeRadius = isActive
-                ? 7 + energy * 4
-                : 5 + breathe * 1.5;
+            // Node circle — grows with ignition, not with a stored vector
+            const nodeRadius = 5 + breathe * 1.2 + fire * (2 + energy * 2.5);
 
             ctx.beginPath();
             ctx.arc(pos.x, pos.y, nodeRadius, 0, Math.PI * 2);
@@ -250,37 +341,60 @@ class SpiderwebViz {
             ctx.fillText(this.labels[name], pos.x, pos.y + nodeRadius + 10);
         });
 
-        // ── Coherence ring (always show a faint ring, solid when coherent) ──
-        const ringAlpha = this.coherence > 0
-            ? 0.2 + this.coherence * 0.4
-            : 0.06 + Math.sin(this.time * 0.6) * 0.02;
-        const ringProgress = this.coherence > 0
-            ? this.coherence
-            : 0.15 + Math.sin(this.time * 0.3) * 0.05;
+        // ── Coherence ring ───────────────────────────────────────────────────
+        // Until 2026-08-13 the unmeasured branch drew an arc at
+        // `0.15 + sin(time * 0.3) * 0.05` — a gauge showing roughly 15% of a
+        // quantity nobody had measured, gently wobbling so it read as a live
+        // instrument at rest. Same fabrication as `success` defaulting True and
+        // Γ 0.0000 on a fresh boot, drawn in light instead of digits.
+        //
+        // No measurement now means no arc. The empty track is still drawn, so
+        // the ring reads as a place a value goes rather than as a value of zero.
+        const measured = typeof this.coherence === 'number' && isFinite(this.coherence);
 
         ctx.beginPath();
-        ctx.arc(this.cx, this.cy, this.radius + 15,
-            -Math.PI / 2,
-            -Math.PI / 2 + Math.PI * 2 * ringProgress);
-        ctx.strokeStyle = this.coherence > 0.5
-            ? `rgba(16, 185, 129, ${ringAlpha})`
-            : `rgba(100, 116, 139, ${ringAlpha})`;
-        ctx.lineWidth = this.coherence > 0.5 ? 2.5 : 1.5;
-        ctx.lineCap = 'round';
+        ctx.arc(this.cx, this.cy, this.radius + 15, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(100, 116, 139, 0.10)';
+        ctx.lineWidth = 1;
         ctx.stroke();
 
-        // Coherence label
-        if (this.coherence > 0) {
+        if (measured) {
+            ctx.beginPath();
+            ctx.arc(this.cx, this.cy, this.radius + 15,
+                -Math.PI / 2,
+                -Math.PI / 2 + Math.PI * 2 * this.coherence);
+            ctx.strokeStyle = this.coherence > 0.5
+                ? `rgba(16, 185, 129, ${0.2 + this.coherence * 0.4})`
+                : `rgba(100, 116, 139, ${0.2 + this.coherence * 0.4})`;
+            ctx.lineWidth = this.coherence > 0.5 ? 2.5 : 1.5;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+        }
+
+        // \u2500\u2500 Readout \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+        // "idle" said nothing about whether anything had ever been measured.
+        ctx.textAlign = 'center';
+        ctx.font = '9px ui-monospace, monospace';
+        if (measured) {
+            const parts = [`\u0393 ${this.coherence.toFixed(2)}`];
+            if (typeof this.dispersion === 'number' && isFinite(this.dispersion)) {
+                parts.push(`\u03a5 ${this.dispersion.toFixed(2)}`);
+            }
             ctx.fillStyle = '#94a3b8';
-            ctx.font = '9px system-ui';
-            ctx.textAlign = 'center';
-            ctx.fillText(`\u0393 ${this.coherence.toFixed(2)}`, this.cx, this.h - 8);
+            ctx.fillText(parts.join('   '), this.cx, this.h - 8);
         } else {
             ctx.fillStyle = '#475569';
-            ctx.font = '9px system-ui';
-            ctx.textAlign = 'center';
-            ctx.fillText('idle', this.cx, this.h - 8);
+            ctx.fillText('no turn measured yet', this.cx, this.h - 8);
         }
+
+        // Her rate, stated rather than implied. The ambient breath runs at this
+        // divided by BREATH_DIV and says so: 8.9 Hz at any visible amplitude
+        // sits in the photosensitive band, so the real figure is printed and
+        // the motion is a labelled subdivision rather than a silent fudge.
+        ctx.fillStyle = 'rgba(100, 116, 139, 0.45)';
+        ctx.font = '8px ui-monospace, monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText(`${this.TONEPRINT_HZ.toFixed(4)} Hz \u00f7 ${this.BREATH_DIV}`, 6, this.h - 8);
     }
 
     destroy() {

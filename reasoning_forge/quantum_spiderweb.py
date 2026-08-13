@@ -911,7 +911,24 @@ class QuantumSpiderweb:
                 }
                 for g in self.glyphs
             ],
-            "phase_coherence": self._compute_phase_coherence_readonly(),
+            # None, not 1.0, when there is nothing to be coherent ABOUT.
+            #
+            # `phase_coherence()` returns 1.0 for a web with fewer than two
+            # nodes, which is defensible as a limit — one oscillator is
+            # trivially in phase with itself — but it is not a measurement, and
+            # serialised to the UI it became "Γ 1.00" on an empty web: a perfect
+            # score for having done nothing. Confirmed live 2026-08-13, on a
+            # fresh session with no turn taken.
+            #
+            # The method keeps returning a float so the arithmetic in
+            # modulate_intent and web_analysis is untouched. Only the wire
+            # format distinguishes "measured 1.0" from "nothing to measure",
+            # because that is the boundary where a number becomes a claim.
+            "phase_coherence": (
+                self._compute_phase_coherence_readonly()
+                if len(self.nodes) >= 2 else None
+            ),
+            "node_count": len(self.nodes),
             "global_tension_history": self._global_tension_history[-20:],
         }
 
