@@ -293,33 +293,65 @@ class CocoonValidator:
         )
         return dest
 
+    @staticmethod
+    def _field(data: dict, key: str):
+        """Read a cocoon field from wherever it actually lives.
+
+        2026-08-13: this audit read every metric at the top level. On the live
+        store `eta_score`, `epsilon_value`, `gamma_coherence` and `echo_risk`
+        appear there **zero** times out of 2,448 — they are inside `v3`, and have
+        been since the schema moved. So four panels averaged empty lists and
+        rendered 0.000, while real values with an order of magnitude of spread
+        sat one level down. Same defect as the memory kernel loader that never
+        read `wrapped`.
+        """
+        v3 = data.get("v3")
+        if isinstance(v3, dict) and v3.get(key) is not None:
+            return v3[key]
+        return data.get(key)
+
     def audit_store(self, limit: int = 100) -> dict:
-        """Scan cocoon store and return aggregate integrity stats."""
-        files = sorted(
+        """Scan cocoon store and return aggregate integrity stats.
+
+        Every average is reported with the `n` it was computed over, and is
+        `None` — never 0.0 — when nothing was measurable. A zero that means
+        "no data" is indistinguishable from a zero that means zero, and this
+        dashboard spent eight weeks proving how far that goes.
+        """
+        all_files = sorted(
             self.store_path.glob("*.json"),
             key=lambda f: f.stat().st_mtime,
             reverse=True,
-        )[:limit]
+        )
+        files = all_files[:limit]
 
         stats = {
-            "total": 0,
+            # `store_total` is the whole store; `audited` is what this scan read.
+            # These were previously the same key, so the sample size was rendered
+            # under a card labelled "Total Cocoons".
+            "store_total": len(all_files),
+            "audited": 0,
+            "limit": limit,
             "complete": 0,
             "partial": 0,
             "failed": 0,
+            "integrity_unknown": 0,
             "low_confidence": len(list(self.low_confidence_path.glob("*.json"))),
-            "avg_integrity_score": 0.0,
-            "avg_eta": 0.0,
-            "avg_epsilon": 0.0,
-            "avg_gamma": 0.0,
+            "avg_integrity_score": None,
+            "avg_eta": None,
+            "avg_epsilon": None,
+            "avg_gamma": None,
+            "n_integrity_score": 0,
+            "n_eta": 0,
+            "n_epsilon": 0,
+            "n_gamma": 0,
             "execution_paths": {},
             "echo_risk_distribution": {"low": 0, "medium": 0, "high": 0, "unknown": 0},
+            "metrics_population_status": {},
             "missing_field_frequency": {},
         }
 
-        scores = []
-        etas = []
-        epsilons = []
-        gammas = []
+        scores, etas, epsilons, gammas = [], [], [], []
 
         for fpath in files:
             try:
@@ -328,50 +360,64 @@ class CocoonValidator:
             except Exception:
                 continue
 
-            stats["total"] += 1
-            integrity = data.get("cocoon_integrity", "unknown")
+            stats["audited"] += 1
+
+            integrity = self._field(data, "cocoon_integrity") or "unknown"
             if integrity in ("complete", "partial", "failed"):
                 stats[integrity] += 1
+            else:
+                stats["integrity_unknown"] += 1
 
-            score = data.get("cocoon_integrity_score")
-            if isinstance(score, (int, float)):
-                scores.append(score)
+            for key, bucket in (
+                ("cocoon_integrity_score", scores),
+                ("eta_score", etas),
+                ("epsilon_value", epsilons),
+                ("gamma_coherence", gammas),
+            ):
+                value = self._field(data, key)
+                if isinstance(value, (int, float)) and not isinstance(value, bool):
+                    bucket.append(float(value))
 
-            eta = data.get("eta_score")
-            if isinstance(eta, (int, float)):
-                etas.append(eta)
-
-            eps = data.get("epsilon_value")
-            if isinstance(eps, (int, float)):
-                epsilons.append(eps)
-
-            gam = data.get("gamma_coherence")
-            if isinstance(gam, (int, float)):
-                gammas.append(gam)
-
-            ep = data.get("execution_path", "unknown")
+            ep = self._field(data, "execution_path") or "unknown"
             stats["execution_paths"][ep] = stats["execution_paths"].get(ep, 0) + 1
 
-            er = data.get("echo_risk", "unknown")
+            er = self._field(data, "echo_risk") or "unknown"
             if er in stats["echo_risk_distribution"]:
                 stats["echo_risk_distribution"][er] += 1
 
-            validation = data.get("_validation", {})
+            # The store's own account of whether its metrics got populated.
+            # `partial` on 2,012 and `complete` on none, and nothing displayed it
+            # — the one field that explains every blank card on this page.
+            mps = self._field(data, "metrics_population_status") or "unrecorded"
+            stats["metrics_population_status"][mps] = (
+                stats["metrics_population_status"].get(mps, 0) + 1
+            )
+
+            validation = data.get("_validation") or {}
             for mf in validation.get("missing_fields", []):
                 stats["missing_field_frequency"][mf] = (
                     stats["missing_field_frequency"].get(mf, 0) + 1
                 )
 
-        if scores:
-            stats["avg_integrity_score"] = round(sum(scores) / len(scores), 4)
-        if etas:
-            stats["avg_eta"] = round(sum(etas) / len(etas), 4)
-        if epsilons:
-            stats["avg_epsilon"] = round(sum(epsilons) / len(epsilons), 4)
-        if gammas:
-            stats["avg_gamma"] = round(sum(gammas) / len(gammas), 4)
+        for key, bucket in (
+            ("integrity_score", scores),
+            ("eta", etas),
+            ("epsilon", epsilons),
+            ("gamma", gammas),
+        ):
+            stats[f"n_{key}"] = len(bucket)
+            if bucket:
+                mean = sum(bucket) / len(bucket)
+                stats[f"avg_{key}"] = round(mean, 4)
+                # A signal that cannot vary cannot inform. `importance_score` is
+                # 5.0 on every cocoon, `confidence` 0.75 on every cocoon, and both
+                # were nearly used as rankings before anyone checked whether they
+                # moved. Ship the spread next to the average so a constant is
+                # visible as a constant instead of reading like a measurement.
+                var = sum((v - mean) ** 2 for v in bucket) / len(bucket)
+                stats[f"sd_{key}"] = round(var ** 0.5, 4)
+                stats[f"distinct_{key}"] = len(set(bucket))
 
-        # Sort missing fields by frequency
         stats["missing_field_frequency"] = dict(
             sorted(stats["missing_field_frequency"].items(), key=lambda x: -x[1])
         )

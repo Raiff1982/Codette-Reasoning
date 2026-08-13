@@ -272,9 +272,41 @@ class TestCocoonValidator:
         for _ in range(3):
             self.validator.write(make_full_v3_cocoon())
         stats = self.validator.audit_store()
-        assert stats["total"] == 3
+        # `total` was renamed on 2026-08-13. It counted only the audited slice
+        # while the dashboard rendered it under a card labelled "Total Cocoons",
+        # so a 200-cocoon sample of a 2,451-cocoon store displayed as the total.
+        # Now `store_total` is the store and `audited` is what this scan read.
+        assert stats["store_total"] == 3
+        assert stats["audited"] == 3
         assert stats["complete"] >= 1
         assert stats["avg_integrity_score"] > 0
+
+    def test_sample_size_is_not_reported_as_the_total(self):
+        """The bug the rename exists to prevent, pinned.
+
+        With a limit below the store size the two numbers must diverge — if they
+        are ever equal again, the sample is masquerading as the total.
+        """
+        for _ in range(5):
+            self.validator.write(make_full_v3_cocoon())
+        stats = self.validator.audit_store(limit=2)
+        assert stats["store_total"] == 5
+        assert stats["audited"] == 2
+        assert stats["limit"] == 2
+
+    def test_unmeasurable_averages_are_none_not_zero(self):
+        """Absence must be distinguishable from a measured zero.
+
+        An empty store has no integrity score. Reporting 0.0 makes "no data" and
+        "scored zero" identical, which is how the dev dashboard showed a clean,
+        healthy, empty store for eight weeks while its backend was raising
+        TypeError on every request.
+        """
+        stats = self.validator.audit_store()
+        assert stats["audited"] == 0
+        assert stats["avg_integrity_score"] is None
+        assert stats["avg_eta"] is None
+        assert stats["n_eta"] == 0
 
 
 # ── 3. Echo / collapse detection ─────────────────────────────────────────────

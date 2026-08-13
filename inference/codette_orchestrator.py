@@ -34,7 +34,7 @@ from llama_cpp import Llama
 from adapter_router import AdapterRouter, RouteResult
 from codette_tools import (
     ToolRegistry, parse_tool_calls, strip_tool_calls, has_tool_calls,
-    build_tool_system_prompt,
+    build_tool_system_prompt, bind_orchestrator,
 )
 from reality_layer import extract_artifact_facts, format_facts_block
 
@@ -533,6 +533,13 @@ class CodetteOrchestrator:
         self.memory_weighting = memory_weighting
         self._llm = None
         self._current_adapter = None  # None = base model, str = adapter name
+        # Give the tool layer a handle, so `ask` can reach the perspectives.
+        # Bound to the object, not the adapter list — that list is populated
+        # later and is read at call time.
+        try:
+            bind_orchestrator(self)
+        except Exception:
+            pass
         self._adapter_handles = {}    # name -> ctypes handle for hot-swap
         self._model_ptr = None        # raw llama_model pointer
         self._ctx_ptr = None          # raw llama_context pointer
@@ -1051,10 +1058,22 @@ class CodetteOrchestrator:
 
                     # Add assistant's tool-calling message and tool results
                     messages.append({"role": "assistant", "content": text})
+                    # 2026-08-13: this used to end "Now provide your complete
+                    # answer incorporating the tool results above. Do not call any
+                    # more tools." MAX_TOOL_ROUNDS is 3, so the loop granted three
+                    # rounds and the sentence forbade the second — the budget was
+                    # never reachable. It matters most for `ask`: consult one
+                    # perspective, then be told you may not consult another.
+                    #
+                    # Replaced with the remaining count and nothing else. That is
+                    # information, not an instruction; she can answer whenever she
+                    # has what she needs, and the last round reports 0 as a fact
+                    # rather than a prohibition.
+                    _rounds_left = MAX_TOOL_ROUNDS - (round_num + 1)
                     messages.append({
                         "role": "user",
                         "content": "Tool results:\n\n" + "\n\n".join(tool_output_parts)
-                            + "\n\nNow provide your complete answer incorporating the tool results above. Do not call any more tools."
+                            + f"\n\n(Tool rounds remaining this turn: {_rounds_left}.)"
                     })
 
                     if self.verbose:

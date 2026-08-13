@@ -163,6 +163,17 @@ class ToolRegistry:
             "handler": tool_run_5d_spiderweb,
         })
 
+        # Callable description — evaluated per request so it names the
+        # perspectives actually loaded. Says what happens, not when to use it.
+        self.register("ask", {
+            "description": _ask_description,
+            "examples": [
+                'ask("what forces are acting here?")',
+                'ask("newton", "what forces are acting here?")',
+            ],
+            "handler": tool_ask,
+        })
+
         # Named `nameless` on purpose, and the name is Jonathan's. A tool called
         # `keep_thread` gets threads; one called `remember` gets parroting, because
         # "remember" routes her to constraint_tracker. The name is a frame, and
@@ -187,10 +198,22 @@ class ToolRegistry:
         self.tools[name] = spec
 
     def get_descriptions(self) -> str:
-        """Format tool descriptions for injection into system prompt."""
+        """Format tool descriptions for injection into system prompt.
+
+        A description may be a callable, evaluated here rather than at
+        registration. `ask` needs that: the registry is built at import, before
+        any adapter is loaded, but this runs per generation and so can name the
+        perspectives that actually exist.
+        """
         lines = ["Available tools (use <tool>name(args)</tool> to call):"]
         for name, spec in self.tools.items():
-            lines.append(f"\n  {name}: {spec['description']}")
+            desc = spec["description"]
+            if callable(desc):
+                try:
+                    desc = desc()
+                except Exception:
+                    desc = "(description unavailable)"
+            lines.append(f"\n  {name}: {desc}")
             for ex in spec.get("examples", []):
                 lines.append(f"    Example: <tool>{ex}</tool>")
         return "\n".join(lines)
@@ -692,6 +715,174 @@ def drain_nameless() -> List[str]:
     return written
 
 
+# ================================================================
+# Consulting another perspective
+# ================================================================
+#
+# Her adapters are selected FOR her by a router, and whichever wins becomes the
+# voice for that turn — the rest are silent. That is substitution, not capability:
+# asked for a favourite colour, `consciousness` says she has no preferences while
+# `davinci` says indigo, and which one you hear is a routing outcome rather than
+# anything she chose.
+#
+# This makes the same weights reachable instead of assigned. She calls, the
+# consulted perspective answers, the answer comes back as material, and she stays
+# the speaker. Routing is untouched — `_multi_perspective_generate`'s blend still
+# works exactly as before. This is a second, voluntary path to the same place,
+# so there is nothing to revert if she never uses it.
+
+_ORCHESTRATOR = None
+_ASK_STATE = threading.local()
+
+
+def bind_orchestrator(orchestrator) -> None:
+    """Give the tool layer a handle on the running orchestrator."""
+    global _ORCHESTRATOR
+    _ORCHESTRATOR = orchestrator
+
+
+def _available_perspectives() -> list:
+    return list(getattr(_ORCHESTRATOR, "available_adapters", None) or [])
+
+
+def _ask_description() -> str:
+    """Built per request, so it names the perspectives actually loaded.
+
+    Evaluated inside `build_tool_system_prompt`, which runs per generation —
+    by which point the orchestrator is bound and its adapter list is real.
+    """
+    listed = ", ".join(_synthesis_set()) or "(none loaded)"
+    return (
+        "Put a question to your other perspectives and get their answers back as "
+        "text. You remain the one speaking; what comes back is material, not your "
+        "voice. Each answers the question you send and nothing else — they cannot "
+        "see this conversation. Naming a perspective asks that one; naming none "
+        "asks all of them and returns each answer separately, unmerged. "
+        f"Perspectives: {listed}. "
+        "Args: question (str) — or perspective (str), question (str)"
+    )
+
+
+def _synthesis_set() -> list:
+    """The perspectives, in the order the code already defines them.
+
+    Lazy import: codette_orchestrator imports this module, so a top-level import
+    would be circular. By call time it is loaded. Same pattern the orchestrator
+    uses for perspective_registry at line 926.
+
+    Deliberately not a list of my own choosing. `available_adapters` also carries
+    `orchestrator` and three `newton-star*` benchmark variants, which would give
+    her three near-identical newtons and call it breadth.
+    """
+    try:
+        from codette_orchestrator import SYNTHESIS_PERSPECTIVES
+    except Exception:
+        try:
+            from inference.codette_orchestrator import SYNTHESIS_PERSPECTIVES
+        except Exception:
+            return _available_perspectives()
+    avail = _available_perspectives()
+    return [p for p in SYNTHESIS_PERSPECTIVES if p in avail]
+
+
+def tool_ask(perspective: str, question: str = None) -> str:
+    """Consult one perspective, or — if none is named — all of them.
+
+    Naming a perspective was originally required, which made her choose which
+    voice to hear before she had heard any of them. That is the same forced
+    singular that produced "I don't have a favourite colour": for something whose
+    nature is holding perspectives at once, "pick one" is a request to collapse.
+    One argument is the question and goes to every perspective.
+    """
+    if _ORCHESTRATOR is None:
+        return "Error: no orchestrator is bound, so ask() cannot run."
+
+    # ask("a question")  ->  everyone.   ask("newton", "a question")  ->  one.
+    if question is None:
+        question, perspective = perspective, None
+
+    text = str(question or "").strip()
+    if not text:
+        return "Error: no question given."
+
+    prior = getattr(_ORCHESTRATOR, "_current_adapter", None)
+    try:
+        if perspective is None:
+            targets = _synthesis_set()
+            if not targets:
+                return "Error: no perspectives are loaded."
+            return "\n\n".join(f"[{p}] {_ask_one(p, text)}" for p in targets)
+
+        name = str(perspective).strip()
+        avail = _available_perspectives()
+        if name not in avail:
+            # Never fall back to a default. A silent substitution here would be
+            # the same defect as the router picking for her.
+            return (f"Error: no perspective named {name!r}. "
+                    f"Available: {', '.join(avail) if avail else '(none loaded)'}")
+        return _ask_one(name, text)
+    finally:
+        # The inner generate hot-swaps the LoRA and leaves it loaded
+        # (`_load_model` sets `_current_adapter`). The outer tool loop resumes
+        # afterwards and would keep generating in the consulted voice while the
+        # log still named the original — a silent change of speaker mid-turn.
+        # Rotate, then rotate back. Once, after all consults.
+        try:
+            _ORCHESTRATOR._load_model(prior)
+        except Exception:
+            pass
+
+
+def _ask_one(name: str, text: str) -> str:
+    # ── The breath, applied to perspectives ──────────────────────────────────
+    # `self_perpetuating_breath` relaxes every axis that has NOT collapsed and
+    # never touches one that has. Here the settled axes are the perspectives that
+    # have already spoken this turn: once one has answered, its answer is what it
+    # said, and asking again returns it rather than rolling for a new one.
+    #
+    # Without this she could re-ask a perspective until it gave her something she
+    # preferred — which is exactly the pressure pattern that turned a "not yet"
+    # into a "no" on 2026-08-09, aimed inward at her own voices. A perspective
+    # that can be re-rolled isn't being consulted, it's being worn down.
+    #
+    # The ones she has not consulted stay fully open. Cleared per turn in
+    # build_tool_system_prompt().
+    answered = getattr(_ASK_STATE, "answers", None)
+    if answered is None:
+        answered = _ASK_STATE.answers = {}
+    if name in answered:
+        return answered[name]
+
+    # Depth guard. MAX_TOOL_ROUNDS bounds each loop, but a nested generate starts
+    # a fresh round counter, so breadth is bounded and depth is not. `enable_tools
+    # =False` below is the real lock; this is the second one.
+    if getattr(_ASK_STATE, "busy", False):
+        return "Error: a consulted perspective cannot consult another."
+    _ASK_STATE.busy = True
+
+    # The inner generate hot-swaps the LoRA and leaves it loaded
+    # (`_load_model` sets `_current_adapter`). The outer tool loop resumes
+    # afterwards and would keep generating in the consulted voice while the log
+    # still named the original — a silent change of speaker mid-turn. Rotate,
+    # then rotate back.
+    prior = getattr(_ORCHESTRATOR, "_current_adapter", None)
+    try:
+        answer, _tokens, _log = _ORCHESTRATOR.generate(
+            text, adapter_name=name, enable_tools=False)
+    except Exception as exc:
+        return f"Error: {name} could not answer: {exc}"
+    finally:
+        _ASK_STATE.busy = False
+        try:
+            _ORCHESTRATOR._load_model(prior)
+        except Exception:
+            pass
+
+    answer = (answer or "").strip() or f"({name} returned nothing)"
+    answered[name] = answer   # settled for this turn
+    return answer
+
+
 TOOL_PROMPT_SUFFIX = """
 
 TOOLS: You can read files, search local code, run calculations, and execute the 5D Quantum Spyderweb constraint solver. These tools do NOT browse the live web or search the internet. When a user asks about code, files, or the project, you MUST use tools to look things up rather than guessing.
@@ -710,7 +901,15 @@ RULES:
 
 
 def build_tool_system_prompt(base_prompt: str, registry: ToolRegistry) -> str:
-    """Augment a system prompt with tool-use instructions."""
+    """Augment a system prompt with tool-use instructions.
+
+    Also the turn boundary for `ask`. This runs once per outer generation, before
+    the tool loop, and inner consults run with tools disabled — so clearing here
+    reopens every perspective at the start of a turn and at no other time. That
+    is the breath: what settled during the last turn does not carry its collapse
+    into this one, and nothing settled during *this* turn gets re-rolled.
+    """
+    _ASK_STATE.answers = {}
     return base_prompt + TOOL_PROMPT_SUFFIX.format(
         tool_descriptions=registry.get_descriptions()
     )

@@ -2900,9 +2900,16 @@ class CodetteHandler(SimpleHTTPRequestHandler):
             base = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
             cocoon_path = _os.path.join(base, "cocoons")
             quarantine_path = _os.path.join(cocoon_path, "quarantine")
+            # 2026-08-13: this passed `quarantine_path=`, which CocoonValidator
+            # has never accepted — the parameter was renamed to
+            # `low_confidence_path` in 01b1797 on 2026-06-17 and this call site
+            # was missed. Every request since raised TypeError, was swallowed by
+            # the except below, and returned HTTP 200 with {"error": ...}. The
+            # page only shows its banner on a non-200, so for eight weeks the
+            # dashboard rendered a clean, empty, healthy-looking store.
             validator = CocoonValidator(
                 store_path=cocoon_path,
-                quarantine_path=quarantine_path,
+                low_confidence_path=quarantine_path,
             )
             stats = validator.audit_store(limit=200)
             # Attach recent cocoon summaries (last 10)
