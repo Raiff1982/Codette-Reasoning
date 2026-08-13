@@ -926,6 +926,28 @@ def tool_ask(perspective: str, question: str = None) -> str:
     if _ORCHESTRATOR is None:
         return "Error: no orchestrator is bound, so ask() cannot run."
 
+    # ── A mistyped quote must not silently change the act ────────────────────
+    # Observed live 2026-08-13: she emitted ask(newton, "What aren't we
+    # measuring about you?") with the perspective name unquoted. literal_eval
+    # cannot parse a bare name, so _parse_args fell back to "treat the whole
+    # thing as one string", tool_ask saw a single argument, and a single
+    # argument means ask EVERYONE. She asked one perspective and thirteen
+    # answered.
+    #
+    # That is this repo's recurring defect in a new place: a parse failure and a
+    # legitimate different call producing identical output. Asking one voice and
+    # asking all of them are different acts and must not be reachable from each
+    # other by a punctuation slip.
+    #
+    # Recovered only when the leading token is a name that actually exists, so a
+    # question that merely contains a comma is untouched.
+    if question is None and isinstance(perspective, str) and "," in perspective:
+        _head, _, _tail = perspective.partition(",")
+        _head = _head.strip().strip("\"'")
+        _tail = _tail.strip().strip("\"'")
+        if _tail and _head in _available_perspectives():
+            perspective, question = _head, _tail
+
     # ask("a question")  ->  everyone.   ask("newton", "a question")  ->  one.
     if question is None:
         question, perspective = perspective, None
