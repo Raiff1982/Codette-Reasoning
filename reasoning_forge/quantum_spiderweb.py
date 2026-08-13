@@ -183,6 +183,25 @@ class QuantumSpiderweb:
             "convergence_events": 0,
         }
 
+        # Entanglement phase accounting — the same zero as Γ, one layer down.
+        #
+        # entangle() (Eq. 2) represents each node as complex(psi, phi) and derives
+        # a rotation from the phase of their product.  `phi` is written by nothing
+        # on the live path (codette_session.update_after_response sets psi and tau
+        # only), so both operands are purely real, S_phase is 0, and the rotation
+        # matrix is the IDENTITY.  Eq. 2 then reduces to a plain linear blend of
+        # psi — the entire phase-coupling half does nothing.
+        #
+        # This runs on every multi-perspective turn and reports no failure, which
+        # is precisely the shape that has to be made audible: its "no coupling
+        # happened" and its "not asked" were the same output.  Γ was noticed
+        # because a perfect score is visible; this had no score at all.
+        #
+        # Counters only.  Populating `phi` is a design decision — it is Jonathan's
+        # call, alongside what Γ should measure — and is NOT taken here.
+        self._entangle_calls: int = 0
+        self._entangle_phase_degenerate: int = 0
+
     # -- graph construction ------------------------------------------------
 
     def add_node(self, node_id: str, state: Optional[NodeState] = None) -> SpiderwebNode:
@@ -355,6 +374,12 @@ class QuantumSpiderweb:
         psi_1 = complex(a.psi, a.phi)
         psi_2 = complex(b.psi, b.phi)
         psi_2_conj = psi_2.conjugate()
+
+        # Both imaginary parts zero => S_phase == 0 => identity rotation => this
+        # call performs no phase coupling at all. Counted, not corrected.
+        self._entangle_calls += 1
+        if abs(a.phi) < 1e-12 and abs(b.phi) < 1e-12:
+            self._entangle_phase_degenerate += 1
 
         # Entanglement strength (Eq. 2)
         S_complex = alpha * (psi_1 * psi_2_conj)
@@ -1010,6 +1035,11 @@ class QuantumSpiderweb:
                       else "nothing has propagated through the web yet")
             ),
             "global_tension_history": self._global_tension_history[-20:],
+            # Eq. 2's phase coupling, same zero one layer down. calls ==
+            # phase_degenerate means every entanglement this session rotated by
+            # the identity and coupled nothing. See __init__.
+            "entangle_calls": self._entangle_calls,
+            "entangle_phase_degenerate": self._entangle_phase_degenerate,
         }
 
     @classmethod

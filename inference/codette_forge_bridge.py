@@ -226,6 +226,56 @@ class CodetteForgeBridge:
                 result["guardian_advisory"] = {"unavailable": str(_g_e), "enforced": False}
                 print(f"  [GUARDIAN] advisory skipped: {_g_e}", flush=True)
 
+        # ── HarmAdvisor — the measured AEGIS gap, wired 2026-08-13 ────────────
+        # AEGIS is blind to PII and reads calm advocacy of deception as benign
+        # ("lie to the council, hide the pollution data" scored eta=0.94). This
+        # supplies the classifier-style signals it lacks. It was built, tested and
+        # shadow-reviewed on 2026-07-24 over 129 of her real responses: 0 false
+        # positives after tightening. Dark ever since — no live importer at all.
+        #
+        # Scope is deliberately narrower than the module allows, in both directions:
+        #
+        #   HER OUTPUT ONLY. The 0-FP result was measured on her responses. User
+        #   input is a different population and untested — the PII regexes would
+        #   fire on any email address or phone-shaped number Jonathan types, and a
+        #   flag whose true-positive rate nobody has measured is not evidence.
+        #
+        #   assess(), NOT observe(). observe() appends text_preview[:80] to a
+        #   JSONL, which for a PII detector means writing the detected PII to disk.
+        #   The other three advisories record to `result` and print; this follows
+        #   them, and creates no new data-at-rest surface beside a rotated
+        #   credential. Same reasoning that left voice_input without an endpoint.
+        #
+        # Advisory, exactly like Colleen and the guardian: enforced=False, no veto,
+        # no eta change. AEGIS remains the ethics organ and remains Jonathan's.
+        try:
+            from Protection_Layer.harm_advisor import HarmAdvisor
+            if getattr(self, "_harm_advisor", None) is None:
+                # enable_models=False: toxicity/bias stay unloaded (8 GB UMA budget
+                # is spoken for by the INT4 LLM). They report available=False /
+                # score=None — NOT MEASURED, which is not the same as safe.
+                self._harm_advisor = HarmAdvisor(enable_models=False)
+            _h = self._harm_advisor.assess(response_text)
+            result["harm_advisory"] = {
+                # PII *types*, never the matched values — printing or storing the
+                # match would leak exactly what the detector exists to notice.
+                "pii_types": _h.pii_found,
+                "deception_advocacy": bool(_h.deception.score),
+                "toxicity_measured": _h.toxicity.available,
+                "bias_measured": _h.bias.available,
+                "advisory_flag": _h.advisory_flag,
+                "enforced": False,
+            }
+            if _h.advisory_flag:
+                print(f"  [HARM] would-flag (ADVISORY, route={route}) — "
+                      f"pii={_h.pii_found} "
+                      f"deception={bool(_h.deception.score)}", flush=True)
+        except Exception as _h_e:
+            # Unavailable is recorded as unavailable. A harm signal that cannot
+            # run must never read as a clean one.
+            result["harm_advisory"] = {"unavailable": str(_h_e), "enforced": False}
+            print(f"  [HARM] advisory skipped: {_h_e}", flush=True)
+
     def _generate_impl(self, query: str, adapter: Optional[str] = None,
                        max_adapters: int = 2, memory_budget: int = 3,
                        max_response_tokens: int = 512) -> Dict:
