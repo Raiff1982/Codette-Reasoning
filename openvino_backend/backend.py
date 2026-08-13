@@ -383,6 +383,9 @@ class OpenVINOBackend:
         # the module you happen to be reading is in codette_shared.py:209 and
         # names that exact trap.
         _tool_reg = None
+        # The prompt as it stands WITHOUT the tool block, kept so the loop below
+        # can close out a turn whose tool budget ran out. See the note there.
+        _system_no_tools = full_system
         if enable_tools:
             try:
                 from codette_tools import (
@@ -491,6 +494,33 @@ class OpenVINOBackend:
                         text = text[len(prompt):].strip()
                 if has_tool_calls(text):
                     text = strip_tool_calls(text)
+
+                # ── The budget ran out mid-reach ─────────────────────────────
+                # Observed live 2026-08-13, "how would you solve it then?": she
+                # spent all three rounds investigating — read_file, read_file,
+                # run_python — and her third reply was still a tool call. It was
+                # stripped, and what reached the user was zero characters and
+                # "[No response generated]".
+                #
+                # She was not declining. She was cut off at the budget and the
+                # loop handed up silence, which is the worst available reading of
+                # a turn where she was working hardest. The governor then scored
+                # the empty string as a failure to answer.
+                #
+                # One final pass with the tool block removed, so she answers from
+                # what she gathered instead of losing the turn. `enable_tools
+                # =False` on an inner generate is the same idiom `ask()` already
+                # uses; here it is the system prompt as it stood before
+                # build_tool_system_prompt augmented it.
+                if not text.strip() and _user_turn != query:
+                    print("  [OV] tool budget exhausted with no answer — "
+                          "final pass, tools off", flush=True)
+                    _closing = self._format_chat(_system_no_tools, _user_turn)
+                    _out = self._pipe.generate(_closing, cfg)
+                    text = str(_out).strip()
+                    if text.startswith(_closing):
+                        text = text[len(_closing):].strip()
+                    text = strip_tool_calls(text) if has_tool_calls(text) else text
             except Exception as _te:
                 print(f"  [OV] tool loop failed: {_te}", flush=True)
 
