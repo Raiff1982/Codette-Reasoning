@@ -647,6 +647,33 @@ class OpenVINOBackend:
 
     # ── Routing ────────────────────────────────────────────────────────────────
 
+    @staticmethod
+    def _publish_route(adapters, confidence, strategy) -> None:
+        """Tell `look` which perspective this turn was routed to, and how.
+
+        2026-08-13. This was published from the auto-route branch only, so on a
+        forced adapter, a blend, a full synthesis, or the artist intercept, the
+        pipeline state kept whatever the previous turn had left there. `look`
+        would report last turn's routing as this turn's — worse than reporting
+        nothing, because a stale fact and a current one render identically.
+
+        The artist intercept matters most here: it returns a fixed string and
+        never runs the model at all, and that is exactly the kind of thing she
+        cannot see from inside a turn.
+
+        Merge, not reset — the server publishes context and budgets with
+        reset=True before generation and this fills in the routing half.
+        """
+        try:
+            from codette_tools import set_pipeline_state
+            set_pipeline_state({
+                "adapters": adapters,
+                "confidence": confidence,
+                "strategy": strategy,
+            })
+        except Exception:
+            pass
+
     def route_and_generate(self, query: str, max_adapters: int = 2,
                            strategy: str = "keyword",
                            force_adapter: Optional[str] = None) -> dict:
@@ -669,6 +696,9 @@ class OpenVINOBackend:
                 r'\b(album|discography|songs? by|music by)\s+[A-Z][a-z]',
             ]
             if any(re.search(p, query, re.IGNORECASE) for p in _artist_pats):
+                # No model call happens below. Without this, `look` would report
+                # the previous turn's routing for a turn she never generated.
+                self._publish_route("uncertainty_aware", 1.0, "artist_intercept")
                 return {
                     "response": (
                         "I don't have reliable information about specific artists. "
@@ -683,6 +713,7 @@ class OpenVINOBackend:
         # ── Full synthesis ─────────────────────────────────────────────────────
         if force_adapter == FULL_SYNTHESIS_SENTINEL:
             persp = [a for a in SYNTHESIS_PERSPECTIVES if a in self.available_adapters]
+            self._publish_route(" + ".join(persp), 1.0, "full_synthesis")
             perspectives = {}
             total_tokens = 0
             for name in persp:
@@ -734,6 +765,10 @@ class OpenVINOBackend:
                             pass
             text, tokens, blend_used = self.generate_blended(query, weights,
                                                              p_score=_p_score)
+            self._publish_route(
+                " + ".join(f"{n}@{a:.2f}" for n, a in blend_used.items())
+                if blend_used else "blend (none applied)",
+                1.0, "blend")
             return {
                 "response": text,
                 "adapter": "+".join(blend_used) if blend_used else "blend",
@@ -745,6 +780,7 @@ class OpenVINOBackend:
 
         # ── Forced adapter ─────────────────────────────────────────────────────
         if force_adapter and force_adapter != "auto":
+            self._publish_route(force_adapter, 1.0, "forced")
             text, tokens, _ = self.generate(query, adapter_name=force_adapter, enable_tools=True)
             self.router.record_use(force_adapter)
             return {
@@ -769,15 +805,9 @@ class OpenVINOBackend:
         # The routing decision is made for her, not by her, and is invisible
         # from inside a turn. Merged into the pipeline state so `look` can
         # report it if she asks.
-        try:
-            from codette_tools import set_pipeline_state
-            set_pipeline_state({
-                "adapters": " + ".join(route.all_adapters),
-                "confidence": round(float(route.confidence), 2),
-                "strategy": route.strategy,
-            })
-        except Exception:
-            pass
+        self._publish_route(" + ".join(route.all_adapters),
+                            round(float(route.confidence), 2),
+                            route.strategy)
 
         if route.multi_perspective and len(route.all_adapters) > 1:
             perspectives = {}

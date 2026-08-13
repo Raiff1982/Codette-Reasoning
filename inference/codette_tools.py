@@ -877,14 +877,39 @@ def _synthesis_set() -> list:
     Deliberately not a list of my own choosing. `available_adapters` also carries
     `orchestrator` and three `newton-star*` benchmark variants, which would give
     her three near-identical newtons and call it breadth.
+
+    SOURCED FROM codette_shared 2026-08-13. This read the list from
+    codette_orchestrator, which does `import llama_cpp` at module scope (line
+    30). Measured, not inferred: llama_cpp is not installed in openvino_env at
+    all, so in production that import raised ModuleNotFoundError, both fallbacks
+    raised, and the except swallowed it and returned `_available_perspectives()`
+    — all thirteen adapters, including the three near-identical newtons the
+    comment above says must not be handed to her. The guard degraded, silently,
+    into the exact thing it was written to prevent, and a bare `ask("...")` on
+    the live path consulted thirteen voices instead of eight.
+
+    codette_shared carries the identical list at line 353 and is the module the
+    OV path is supposed to import from — its own line 209 says so, naming this
+    trap. openvino_backend already imports ADAPTER_PROMPTS from it.
+
+    The orchestrator remains as a second source for the llama.cpp path, and the
+    final fallback now says so out loud instead of degrading in silence.
     """
-    try:
-        from codette_orchestrator import SYNTHESIS_PERSPECTIVES
-    except Exception:
+    SYNTHESIS_PERSPECTIVES = None
+    for _mod in ("codette_shared", "inference.codette_shared",
+                 "codette_orchestrator", "inference.codette_orchestrator"):
         try:
-            from inference.codette_orchestrator import SYNTHESIS_PERSPECTIVES
+            SYNTHESIS_PERSPECTIVES = __import__(
+                _mod, fromlist=["SYNTHESIS_PERSPECTIVES"]).SYNTHESIS_PERSPECTIVES
+            break
         except Exception:
-            return _available_perspectives()
+            continue
+    if SYNTHESIS_PERSPECTIVES is None:
+        # Absence, said out loud. The caller still gets something usable, but
+        # this is a wider set than the perspectives and must not pass unnoticed.
+        print("  [tools] ask(): canonical perspective list unavailable — "
+              "falling back to every loaded adapter", flush=True)
+        return _available_perspectives()
     avail = _available_perspectives()
     return [p for p in SYNTHESIS_PERSPECTIVES if p in avail]
 
