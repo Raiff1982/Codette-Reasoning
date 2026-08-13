@@ -754,10 +754,12 @@ class OpenVINOBackend:
             self._publish_route(" + ".join(persp), 1.0, "full_synthesis")
             perspectives = {}
             total_tokens = 0
+            tools_used = []
             for name in persp:
-                text, tokens, _ = self.generate(query, adapter_name=name, enable_tools=True)
+                text, tokens, tlog = self.generate(query, adapter_name=name, enable_tools=True)
                 perspectives[name] = text
                 total_tokens += tokens
+                tools_used.extend(tlog or [])
             synthesis = self._synthesize(query, perspectives) if len(perspectives) > 1 \
                 else (list(perspectives.values())[0] if perspectives else "")
             return {
@@ -766,6 +768,7 @@ class OpenVINOBackend:
                 "adapters": list(perspectives.keys()),
                 "tokens": total_tokens,
                 "time": time.time() - t0,
+                "tools_used": tools_used,
             }
 
         # ── Blended generation (opt-in experiment) ─────────────────────────────
@@ -819,7 +822,17 @@ class OpenVINOBackend:
         # ── Forced adapter ─────────────────────────────────────────────────────
         if force_adapter and force_adapter != "auto":
             self._publish_route(force_adapter, 1.0, "forced")
-            text, tokens, _ = self.generate(query, adapter_name=force_adapter, enable_tools=True)
+            # 2026-08-13: every call site here discarded the third return value.
+            # generate() has always built a tool log and every one of these
+            # threw it away, so `tools_used` was never on the result dict, the
+            # server never put it on the response, and the UI never had anything
+            # to show. She had been calling look() five times a turn and the
+            # interface reported no tool use at all — including the flat badge
+            # that predated the expander. The `tool-assisted` trust tag never
+            # fired either. Nothing was broken in the tool loop; the wire simply
+            # ended one line early.
+            text, tokens, tool_log = self.generate(
+                query, adapter_name=force_adapter, enable_tools=True)
             self.router.record_use(force_adapter)
             return {
                 "response": text,
@@ -828,6 +841,7 @@ class OpenVINOBackend:
                                      reasoning="forced", strategy="forced"),
                 "tokens": tokens,
                 "time": time.time() - t0,
+                "tools_used": tool_log,
             }
 
         # ── Auto-route ─────────────────────────────────────────────────────────
@@ -850,12 +864,17 @@ class OpenVINOBackend:
         if route.multi_perspective and len(route.all_adapters) > 1:
             perspectives = {}
             total_tokens = 0
+            tools_used = []
             for name in route.all_adapters:
                 if name not in self.available_adapters:
                     continue
-                text, tokens, _ = self.generate(query, adapter_name=name, enable_tools=True)
+                text, tokens, tlog = self.generate(query, adapter_name=name, enable_tools=True)
                 perspectives[name] = text
                 total_tokens += tokens
+                # Each perspective runs its own tool loop, so the logs are
+                # concatenated in consultation order — which is also the order
+                # the UI lists them in.
+                tools_used.extend(tlog or [])
 
             # ── State Engine v8: dispersion-gated synthesis ──
             # Measure actual disagreement between the perspectives. When they
@@ -941,13 +960,16 @@ class OpenVINOBackend:
                 # None when unmeasurable — callers must not read absence as zero.
                 "distinctiveness": _distinct,
                 "distinctiveness_measured": _distinct is not None,
+                "tools_used": tools_used,
             }
 
-        text, tokens, _ = self.generate(query, adapter_name=route.primary, enable_tools=True)
+        text, tokens, tool_log = self.generate(
+            query, adapter_name=route.primary, enable_tools=True)
         return {
             "response": text,
             "adapter": route.primary,
             "route": route,
+            "tools_used": tool_log,
             "tokens": tokens,
             "time": time.time() - t0,
             "synthesis_used": False,
