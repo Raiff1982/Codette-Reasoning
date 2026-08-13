@@ -2559,6 +2559,29 @@ class CodetteHandler(SimpleHTTPRequestHandler):
         static_dir = str(Path(__file__).parent / "static")
         super().__init__(*args, directory=static_dir, **kwargs)
 
+    def end_headers(self):
+        """Always revalidate.
+
+        2026-08-13. SimpleHTTPRequestHandler sends Last-Modified and nothing
+        else — no Cache-Control — so a browser is free to serve style.css and
+        app.js from its heuristic cache without ever asking whether they
+        changed. index.html links both unversioned (`href="style.css"`), so
+        there is no cache-buster either.
+
+        That cost real time today: a UI fix was verified live in one browser,
+        reported as "still the same" from another, and the two were running
+        different stylesheets. It stacked two unknowns — whether the change had
+        arrived, and whether the change was right — and made the second
+        unanswerable. Same defect as everything else here: two different states
+        rendering identically.
+
+        This is a localhost inference UI. Revalidation costs a conditional GET
+        that returns 304 when nothing moved, and the wrong answer costs a
+        debugging session.
+        """
+        self.send_header("Cache-Control", "no-cache, must-revalidate")
+        super().end_headers()
+
     def log_message(self, format, *args):
         """Log every request; tag static assets so they're distinguishable from API traffic."""
         msg = format % args

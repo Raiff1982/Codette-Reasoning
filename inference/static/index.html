@@ -11,7 +11,20 @@
 
 <!-- Loading Screen -->
 <div class="loading-screen" id="loading-screen">
-    <div class="loading-title">CODETTE</div>
+    <!-- Same treatment as the header wordmark: SVG gradient fill, not
+         gradient-clipped HTML text. This one carried both the broken clip AND
+         a filter AND an animation. -->
+    <svg class="loading-title" width="272" height="48" viewBox="0 0 272 48"
+         role="img" aria-label="Codette">
+        <defs>
+            <linearGradient id="loading-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#00f0ff"/>
+                <stop offset="50%" stop-color="#ff00e5"/>
+                <stop offset="100%" stop-color="#00f0ff"/>
+            </linearGradient>
+        </defs>
+        <text x="0" y="36" fill="url(#loading-grad)">CODETTE</text>
+    </svg>
     <div class="loading-status" id="loading-status">Initializing neural substrate...</div>
     <div class="loading-bar"><div class="loading-bar-fill"></div></div>
 </div>
@@ -23,7 +36,25 @@
         <!-- Header -->
         <div class="header">
             <div class="header-left">
-                <span class="logo" id="logo">CODETTE</span>
+                <!-- Painted as SVG, not as gradient-clipped HTML text.
+                     `-webkit-background-clip: text` paints the background and
+                     clips it to the glyphs, and anything that promotes the
+                     element to its own compositing layer can defeat that clip —
+                     leaving the full background box painted, which is why this
+                     wordmark rendered as a solid cyan-to-magenta rectangle with
+                     no readable letters. An SVG gradient `fill` is ordinary
+                     paint on ordinary glyphs; there is no clip to lose. -->
+                <svg class="logo" id="logo" width="136" height="24"
+                     viewBox="0 0 136 24" role="img" aria-label="Codette">
+                    <defs>
+                        <linearGradient id="logo-grad" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#00f0ff"/>
+                            <stop offset="50%" stop-color="#ff00e5"/>
+                            <stop offset="100%" stop-color="#00f0ff"/>
+                        </linearGradient>
+                    </defs>
+                    <text x="0" y="18" fill="url(#logo-grad)">CODETTE</text>
+                </svg>
                 <div class="adapter-dots" id="adapter-dots"></div>
             </div>
             <div class="header-right">

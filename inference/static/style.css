@@ -213,28 +213,27 @@ body::after {
     gap: 14px;
 }
 
+/* The wordmark is an <svg> (see index.html). Gradient-clipped HTML text was
+   painting as a solid rectangle: -webkit-background-clip:text paints the
+   background and clips it to the glyphs, and any compositing-layer promotion —
+   a filter, an animation — can drop the clip and leave the whole box painted.
+   Removing the filter alone did not fix it, so the technique was replaced
+   rather than patched a second time. An SVG gradient fill has no clip to lose.
+
+   The 8s logoShift sweep is gone with it. It was decoration, it was itself a
+   layer-promoting animation and therefore a live suspect, and losing it means
+   the mark needs no reduced-motion carve-out. The gradient is the brand; the
+   sweep was not. */
 .logo {
+    display: block;
+    overflow: visible;   /* a wider font fallback must not clip the mark */
+}
+
+.logo text {
     font-family: 'Orbitron', sans-serif;
     font-size: 20px;
     font-weight: 700;
     letter-spacing: 0.15em;
-    text-transform: uppercase;
-    background: linear-gradient(135deg, var(--neon-cyan), var(--neon-magenta), var(--neon-cyan));
-    background-size: 200% 200%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: logoShift 8s ease infinite;
-    /* filter: drop-shadow(...) REMOVED 2026-08-13.
-       A filter puts the element on its own rendering surface and Blink loses
-       -webkit-background-clip: text with it, so the gradient painted the whole
-       background BOX instead of the letterforms — the wordmark rendered as a
-       solid cyan-to-magenta rectangle with no readable text. Verified in the
-       live page: the .logo span is 132x32 at (24,13) carrying the gradient,
-       and no ancestor has any background, so the block was this element.
-       The gradient already reads as a glow; the drop-shadow was costing the
-       word itself. Same combination and same fix in .loading-title below. */
-    transition: all 0.5s ease;
 }
 
 @keyframes logoShift {
@@ -1359,23 +1358,22 @@ input[type="range"]::-webkit-slider-thumb {
     pointer-events: none;
 }
 
+/* SVG now — see .logo and index.html. This one had the broken clip, a filter,
+   and an animation all at once, which is why the splash read as a gradient
+   slab. */
 .loading-title {
+    display: block;
+    overflow: visible;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.loading-title text {
     font-family: 'Orbitron', sans-serif;
     font-size: 36px;
     font-weight: 800;
     letter-spacing: 0.2em;
-    margin-bottom: 20px;
-    background: linear-gradient(135deg, var(--neon-cyan), var(--neon-magenta), var(--neon-cyan));
-    background-size: 200% 200%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: logoShift 4s ease infinite;
-    /* filter removed — see .logo. Same background-clip:text + filter
-       combination, so the splash title was painting as a gradient block
-       rather than the word CODETTE. This is the "splash looks odd". */
-    position: relative;
-    z-index: 1;
 }
 
 .loading-status {
