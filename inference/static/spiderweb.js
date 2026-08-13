@@ -116,15 +116,24 @@ class SpiderwebViz {
         this.attractors = spiderwebState.attractors || [];
 
         // `|| 0` turned an absent reading into a zero and the ring drew it.
-        // Second guard, belt and braces with the backend: a web of fewer than
-        // two nodes reports phase coherence 1.0 — trivially true of a single
-        // oscillator, and meaningless as a reading. Rendered, it was a full
-        // ring claiming a perfect score for having done nothing.
+        //
+        // Second guard, belt and braces with the backend. Measured live on a
+        // fresh boot: nine nodes, every one holding the identical default state,
+        // none with any tension history — so phase coherence computed to exactly
+        // 1.0 and the ring drew a full green arc for a web that had never
+        // thought. A node-count check does not catch this; the nodes are all
+        // present, they have simply never diverged.
+        //
+        // Coherence counts only once something has propagated, which
+        // tension_history records. Falls back to the node data when the backend
+        // has not yet been restarted with `measured` on the wire.
         const pc = spiderwebState.phase_coherence;
-        const nodeCount = typeof spiderwebState.node_count === 'number'
-            ? spiderwebState.node_count
-            : Object.keys(spiderwebState.nodes || {}).length;
-        this.coherence = (typeof pc === 'number' && isFinite(pc) && nodeCount >= 2)
+        const nodes = spiderwebState.nodes || {};
+        const propagated = typeof spiderwebState.measured === 'boolean'
+            ? spiderwebState.measured
+            : Object.keys(nodes).length >= 2
+              && Object.values(nodes).some(n => (n.tension_history || []).length > 0);
+        this.coherence = (typeof pc === 'number' && isFinite(pc) && propagated)
             ? pc : null;
     }
 

@@ -460,6 +460,23 @@ class QuantumSpiderweb:
         self._global_tension_history.append(1.0 - gamma)
         return round(gamma, 4)
 
+    def _has_been_measured(self) -> bool:
+        """Has anything actually propagated through this web yet?
+
+        Phase coherence over nodes that all still hold their default state is
+        1.0 by construction — identical vectors, identical angles, perfect
+        order — and that is not a reading, it is the absence of one. Node count
+        cannot tell the difference: the nodes are all there, they have just
+        never diverged.
+
+        `tension_history` is appended by propagate_belief, so a node carrying
+        any history is a node that has taken part in something real. Two are
+        needed before coherence between them means anything.
+        """
+        if len(self.nodes) < 2:
+            return False
+        return any(len(n.tension_history) > 0 for n in self.nodes.values())
+
     def _compute_phase_coherence_readonly(self) -> float:
         """Compute phase coherence without mutating global tension history."""
         if len(self.nodes) < 2:
@@ -913,22 +930,31 @@ class QuantumSpiderweb:
             ],
             # None, not 1.0, when there is nothing to be coherent ABOUT.
             #
-            # `phase_coherence()` returns 1.0 for a web with fewer than two
-            # nodes, which is defensible as a limit — one oscillator is
-            # trivially in phase with itself — but it is not a measurement, and
-            # serialised to the UI it became "Γ 1.00" on an empty web: a perfect
-            # score for having done nothing. Confirmed live 2026-08-13, on a
-            # fresh session with no turn taken.
+            # Measured live 2026-08-13 on a freshly rebooted session: nine nodes
+            # existed, every one of them holding the identical default state
+            # [0, 0, 1, 0, 0], not one with any tension history, and
+            # coherence_history empty. Nine identical vectors give nine
+            # identical angles, so the Kuramoto order parameter is exactly 1.0.
+            # The web was reporting PERFECT COHERENCE FOR HAVING NEVER THOUGHT,
+            # and the UI drew it as a full ring.
             #
-            # The method keeps returning a float so the arithmetic in
+            # A first attempt guarded on `len(self.nodes) >= 2` and missed this
+            # entirely — the nodes are all present, they have simply never
+            # diverged. Node count is not the question. The question is whether
+            # anything has ever propagated, and `tension_history` answers it:
+            # it is appended by propagate_belief, so a node with history is a
+            # node that has actually taken part in something.
+            #
+            # The method keeps returning a float, so the arithmetic in
             # modulate_intent and web_analysis is untouched. Only the wire
-            # format distinguishes "measured 1.0" from "nothing to measure",
-            # because that is the boundary where a number becomes a claim.
+            # format distinguishes "measured 1.0" from "nothing to measure" —
+            # that is the boundary where a number becomes a claim.
             "phase_coherence": (
                 self._compute_phase_coherence_readonly()
-                if len(self.nodes) >= 2 else None
+                if self._has_been_measured() else None
             ),
             "node_count": len(self.nodes),
+            "measured": self._has_been_measured(),
             "global_tension_history": self._global_tension_history[-20:],
         }
 
