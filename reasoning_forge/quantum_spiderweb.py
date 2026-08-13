@@ -460,6 +460,50 @@ class QuantumSpiderweb:
         self._global_tension_history.append(1.0 - gamma)
         return round(gamma, 4)
 
+    def _phase_is_degenerate(self) -> bool:
+        """Is the phase dimension unpopulated, making coherence unfalsifiable?
+
+        MEASURED ON THE LIVE SESSION, 2026-08-13, after three real turns:
+
+            node                  psi       phi   atan2(phi, psi)
+            newton             0.0789       0.0             0.0
+            davinci            0.0789       0.0             0.0
+            empathy            0.1834       0.0             0.0
+            philosophy         0.0790       0.0             0.0
+            quantum            0.0789       0.0             0.0
+            consciousness      0.1595       0.0             0.0
+            multi_perspective  0.0789       0.0             0.0
+            systems_arch       0.0789       0.0             0.0
+            constraint_tracker 0.0789       0.0             0.0
+
+            coherence_history: [1, 1, 1]      tension_history: [0, 0, 0]
+
+        `phi` is emotional valence and NOTHING WRITES IT. It is 0 on every node,
+        so atan2(phi, psi) is 0 on every node, so the Kuramoto order parameter
+        is exactly 1.0 — not because the perspectives agree, but because the
+        angle is constant by construction. Recomputed independently from the
+        wire data: 1.0.
+
+        Note what this throws away. psi DOES vary — empathy at 0.1834 and
+        consciousness at 0.1595 are plainly separated from the 0.0789 the rest
+        sit at — and that variation is the only signal present. Taking the
+        angle discards it.
+
+        So Γ here cannot fall. Per the standing rule, a quantity that can only
+        come back one way is not evidence, and this one has been reading a
+        perfect score on every turn since the metric existed. A zero is easy to
+        spot because it looks broken; a one is not, because it looks like
+        success.
+
+        This method does not redefine the metric — what Γ *should* measure is a
+        design decision and belongs to Jonathan, alongside the three-different-
+        quantities-called-gamma problem already on record. It only refuses to
+        report a number that is structurally incapable of being anything else.
+        """
+        if not self.nodes:
+            return True
+        return all(abs(n.state.phi) < 1e-12 for n in self.nodes.values())
+
     def _has_been_measured(self) -> bool:
         """Has anything actually propagated through this web yet?
 
@@ -951,10 +995,20 @@ class QuantumSpiderweb:
             # that is the boundary where a number becomes a claim.
             "phase_coherence": (
                 self._compute_phase_coherence_readonly()
-                if self._has_been_measured() else None
+                if (self._has_been_measured() and not self._phase_is_degenerate())
+                else None
             ),
             "node_count": len(self.nodes),
-            "measured": self._has_been_measured(),
+            "measured": self._has_been_measured() and not self._phase_is_degenerate(),
+            # Said out loud rather than hidden behind the None, because these
+            # are different absences and the difference is the whole finding.
+            "phase_degenerate": self._phase_is_degenerate(),
+            "unmeasured_reason": (
+                None if (self._has_been_measured() and not self._phase_is_degenerate())
+                else ("phi is zero on every node — coherence cannot vary"
+                      if self._phase_is_degenerate()
+                      else "nothing has propagated through the web yet")
+            ),
             "global_tension_history": self._global_tension_history[-20:],
         }
 

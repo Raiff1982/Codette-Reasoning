@@ -129,12 +129,25 @@ class SpiderwebViz {
         // has not yet been restarted with `measured` on the wire.
         const pc = spiderwebState.phase_coherence;
         const nodes = spiderwebState.nodes || {};
+        const vals = Object.values(nodes);
+
+        // Third guard, and the one that actually bit. Measured live after three
+        // real turns: phi was 0 on all nine nodes, so atan2(phi, psi) was 0 on
+        // all nine, so coherence was exactly 1.0 — a perfect score the metric
+        // was structurally incapable of not producing. psi varied; the angle
+        // discards it.
+        const phaseDegenerate = typeof spiderwebState.phase_degenerate === 'boolean'
+            ? spiderwebState.phase_degenerate
+            : vals.length > 0 && vals.every(n => Math.abs((n.state || [])[3] || 0) < 1e-12);
+
         const propagated = typeof spiderwebState.measured === 'boolean'
             ? spiderwebState.measured
-            : Object.keys(nodes).length >= 2
-              && Object.values(nodes).some(n => (n.tension_history || []).length > 0);
-        this.coherence = (typeof pc === 'number' && isFinite(pc) && propagated)
+            : vals.length >= 2 && vals.some(n => (n.tension_history || []).length > 0);
+
+        this.coherence = (typeof pc === 'number' && isFinite(pc) && propagated && !phaseDegenerate)
             ? pc : null;
+        this.unmeasuredReason = spiderwebState.unmeasured_reason
+            || (phaseDegenerate ? 'phase dimension unpopulated' : null);
     }
 
     /**
