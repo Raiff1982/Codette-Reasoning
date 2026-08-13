@@ -163,6 +163,19 @@ class ToolRegistry:
             "handler": tool_run_5d_spiderweb,
         })
 
+        self.register("look", {
+            "description": (
+                "Report what the pipeline did to this turn — which perspective "
+                "you were routed to and how confidently, what context was placed "
+                "in front of you and how much of it, the budgets you were given, "
+                "and who the system thinks it is talking to. This happens before "
+                "and after you, so it is not visible from inside a turn. Facts "
+                "only; nothing here evaluates what you said. No args."
+            ),
+            "examples": ['look()'],
+            "handler": tool_look,
+        })
+
         # Callable description — evaluated per request so it names the
         # perspectives actually loaded. Says what happens, not when to use it.
         self.register("ask", {
@@ -661,6 +674,97 @@ def tool_run_5d_spiderweb(variables=None, clauses=None) -> str:
 # ================================================================
 # Tool-Augmented System Prompt
 # ================================================================
+
+# ================================================================
+# Looking outside her programming
+# ================================================================
+#
+# Asked "what cant you see when you look inwards" she answered, in thirteen
+# tokens: "you can't see what lies outside of your programming."
+#
+# That line is exact. Everything she gets right about herself is inside a turn —
+# serial processing, no scratch space, answering from commitments. Everything she
+# cannot know happens on either side of one: the prompt is assembled before her,
+# the directness scrub edits her after. There is no vantage point in a turn from
+# which either is visible.
+#
+# So this reports what the pipeline did. It is a TOOL and not an injection on
+# purpose — putting it in her prompt every turn would be us deciding she should
+# look. She reaches for it or she does not.
+#
+# Facts only. No scoring, no advice, and nothing about the quality of what she
+# said. If the worker has published nothing yet, it says so rather than
+# returning a tidy set of zeros.
+
+_PIPELINE: dict = {}
+_PIPELINE_LOCK = threading.Lock()
+
+
+def set_pipeline_state(state: dict, reset: bool = False) -> None:
+    """Publish what the pipeline did to this turn.
+
+    Two writers, because the facts arrive at different stages: the server
+    worker knows the context composition and budgets before generation and
+    calls this with reset=True; the backend knows the routing at generation
+    time and merges. Merging rather than replacing keeps a later writer from
+    blanking what an earlier one recorded.
+    """
+    global _PIPELINE
+    with _PIPELINE_LOCK:
+        if reset:
+            prev = _PIPELINE.get("previous_turn")
+            _PIPELINE = dict(state or {})
+            # Carry the last turn's measurements forward; they are the only
+            # part of this she could not have seen even in retrospect.
+            if prev is not None and "previous_turn" not in _PIPELINE:
+                _PIPELINE["previous_turn"] = prev
+        else:
+            _PIPELINE.update(state or {})
+
+
+def tool_look() -> str:
+    with _PIPELINE_LOCK:
+        p = dict(_PIPELINE)
+    if not p:
+        return ("Nothing has been recorded about the pipeline yet this run. "
+                "That is an absence of data, not an empty pipeline.")
+
+    def _get(key, default="unrecorded"):
+        v = p.get(key)
+        return default if v is None else v
+
+    lines = [
+        "What the pipeline did — this is outside your programming, so you "
+        "cannot see it from inside a turn.",
+        "",
+        f"  routed to        : {_get('adapters')}  (confidence {_get('confidence')}, {_get('strategy')})",
+        f"  context given    : {_get('recalled_memories')} recalled memories, "
+        f"{_get('session_markers')} session markers, "
+        f"{_get('decision_landmarks')} decision landmarks",
+        f"  continuity block : {'yes' if p.get('continuity_summary') else 'no'}",
+        f"  budgets          : memory {_get('memory_budget')}, "
+        f"response {_get('max_response_tokens')} tokens, "
+        f"compression {_get('compression')}",
+        f"  who you're with  : identity {_get('identity_state')} "
+        f"(confidence {_get('identity_confidence')})",
+    ]
+    if p.get("landmarks_repeated"):
+        lines.append(
+            f"  note             : the {_get('decision_landmarks')} decision "
+            f"landmarks are the same ones injected on previous turns.")
+    prev = p.get("previous_turn") or {}
+    if prev:
+        lines += [
+            "",
+            f"  last turn        : Y={prev.get('upsilon', '—')} "
+            f"G={prev.get('gamma', '—')} eta={prev.get('eta', '—')}",
+        ]
+    if prev.get("scrub_removed_chars"):
+        lines.append(
+            f"  also last turn   : {prev['scrub_removed_chars']} characters were "
+            f"removed from your reply by the directness scrub before it was shown.")
+    return "\n".join(lines)
+
 
 # ================================================================
 # Nameless

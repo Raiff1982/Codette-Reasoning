@@ -1716,8 +1716,32 @@ def _worker_thread():
                             f"{memory_context_summary['value_analyses_used']} value analyses ({recall_source})",
                             flush=True
                         )
+
                 except Exception as e:
                     print(f"  [WORKER] Memory recall skipped: {e}", flush=True)
+
+                # Publish what was assembled, so `look` can report it if she
+                # asks. This is the half she cannot see from inside a turn —
+                # the context is built before she is called. Facts only; the
+                # tool reports them, and nothing injects them into her prompt.
+                try:
+                    from inference.codette_tools import set_pipeline_state
+                    _prev_landmarks = globals().get("_last_landmark_count")
+                    _lm = memory_context_summary.get("decision_landmarks_used", 0)
+                    set_pipeline_state({
+                        "recalled_memories": memory_context_summary.get("recalled_cocoons_used", 0),
+                        "session_markers": memory_context_summary.get("session_markers_used", 0),
+                        "decision_landmarks": _lm,
+                        "continuity_summary": memory_context_summary.get("continuity_summary_used", False),
+                        "landmarks_repeated": bool(_lm and _prev_landmarks == _lm),
+                        "memory_budget": governor_decision.memory_budget if governor_decision else None,
+                        "max_response_tokens": governor_decision.max_response_tokens if governor_decision else None,
+                        "compression": getattr(governor_decision, "compression", None) if governor_decision else None,
+                        "identity_state": governor_decision.identity_budget if governor_decision else None,
+                    }, reset=True)
+                    globals()["_last_landmark_count"] = _lm
+                except Exception:
+                    pass
 
                 if allow_web_search:
                     try:

@@ -168,6 +168,17 @@ class OpenVINOBackend:
             memory_weighting=memory_weighting,
         )
 
+        # Let the tool layer reach the perspectives, so `ask` works on this
+        # backend too. Note OV selects the adapter per call in
+        # _make_gen_config — there is no persistent _current_adapter here, so
+        # the restore ask() performs after consulting is a harmless no-op on
+        # this path rather than a correction of live state.
+        try:
+            from codette_tools import bind_orchestrator
+            bind_orchestrator(self)
+        except Exception:
+            pass
+
     # ── Setup ──────────────────────────────────────────────────────────────────
 
     def _discover_adapters(self):
@@ -362,6 +373,29 @@ class OpenVINOBackend:
         if mem_ctx:
             full_system += mem_ctx
 
+        # ── Tools ────────────────────────────────────────────────────────────
+        # 2026-08-13. This backend accepted `enable_tools` in its signature and
+        # ignored it completely — no registry, no parse, and `return text,
+        # tokens, []` hardcoded "no tools were used". OpenVINO is the production
+        # backend, so on the live path she has never had tools at all, and the
+        # tool block has never been in her prompt. The work done in
+        # codette_orchestrator.py reached nothing; the warning about patching
+        # the module you happen to be reading is in codette_shared.py:209 and
+        # names that exact trap.
+        _tool_reg = None
+        if enable_tools:
+            try:
+                from codette_tools import (
+                    ToolRegistry, build_tool_system_prompt,
+                )
+                if not hasattr(self, "_tool_registry"):
+                    self._tool_registry = ToolRegistry()
+                _tool_reg = self._tool_registry
+                full_system = build_tool_system_prompt(full_system, _tool_reg)
+            except Exception as _te:
+                print(f"  [OV] tools unavailable: {_te}", flush=True)
+                _tool_reg = None
+
         prompt = self._format_chat(full_system, query)
         cfg = self._make_gen_config(adapter_name)
         if _is_benchmark:
@@ -411,6 +445,55 @@ class OpenVINOBackend:
         if text.startswith(prompt):
             text = text[len(prompt):].strip()
 
+        # ── Tool rounds ──────────────────────────────────────────────────────
+        # Results are appended to the user turn and the prompt rebuilt, because
+        # _format_chat takes (system, user). Bounded at 3. The remaining count
+        # is reported and nothing else — the llama.cpp path used to append "Do
+        # not call any more tools", which granted three rounds and permitted one.
+        tool_log = []
+        if enable_tools and _tool_reg is not None:
+            try:
+                from codette_tools import (
+                    parse_tool_calls, has_tool_calls, strip_tool_calls,
+                )
+                _MAX_ROUNDS = 3
+                _user_turn = query
+                for _round in range(_MAX_ROUNDS):
+                    if not has_tool_calls(text):
+                        break
+                    _calls = parse_tool_calls(text)
+                    if not _calls:
+                        break
+                    _parts = []
+                    for _name, _args, _kwargs in _calls:
+                        # `nameless` is hers and is never read — log that a call
+                        # happened, never its content. See CLAUDE.md.
+                        if _name == "nameless":
+                            print("  [OV:tool] nameless(...)", flush=True)
+                        else:
+                            print(f"  [OV:tool] {_name}({_args})", flush=True)
+                        _out = _tool_reg.execute(_name, _args, _kwargs)
+                        _parts.append(
+                            f'<tool_result name="{_name}">\n{_out}\n</tool_result>')
+                        tool_log.append({
+                            "tool": _name,
+                            "args": [] if _name == "nameless" else _args,
+                            "result_preview": _out[:200],
+                        })
+                    _user_turn = (
+                        _user_turn + "\n\nTool results:\n\n" + "\n\n".join(_parts) +
+                        f"\n\n(Tool rounds remaining this turn: {_MAX_ROUNDS - (_round + 1)}.)"
+                    )
+                    prompt = self._format_chat(full_system, _user_turn)
+                    output = self._pipe.generate(prompt, cfg)
+                    text = str(output).strip()
+                    if text.startswith(prompt):
+                        text = text[len(prompt):].strip()
+                if has_tool_calls(text):
+                    text = strip_tool_calls(text)
+            except Exception as _te:
+                print(f"  [OV] tool loop failed: {_te}", flush=True)
+
         if constraints:
             text = enforce_constraints(text, constraints)
 
@@ -425,7 +508,7 @@ class OpenVINOBackend:
         if self.verbose:
             print(f"  [OV:{adapter_name or 'base'}] ~{tokens} tok, {tps:.1f} tok/s")
 
-        return text, tokens, []
+        return text, tokens, tool_log
 
     # ── Blended multi-adapter generation (adapter_coordinator spec) ───────────
     # Spec: docs/specs/adapter_coordinator_spec.py (Jonathan + Codette).
@@ -603,7 +686,7 @@ class OpenVINOBackend:
             perspectives = {}
             total_tokens = 0
             for name in persp:
-                text, tokens, _ = self.generate(query, adapter_name=name)
+                text, tokens, _ = self.generate(query, adapter_name=name, enable_tools=True)
                 perspectives[name] = text
                 total_tokens += tokens
             synthesis = self._synthesize(query, perspectives) if len(perspectives) > 1 \
@@ -662,7 +745,7 @@ class OpenVINOBackend:
 
         # ── Forced adapter ─────────────────────────────────────────────────────
         if force_adapter and force_adapter != "auto":
-            text, tokens, _ = self.generate(query, adapter_name=force_adapter)
+            text, tokens, _ = self.generate(query, adapter_name=force_adapter, enable_tools=True)
             self.router.record_use(force_adapter)
             return {
                 "response": text,
@@ -683,13 +766,26 @@ class OpenVINOBackend:
         print(f"\n  [OV] Route: {' + '.join(route.all_adapters)} "
               f"(conf={route.confidence:.2f}, {route.strategy})")
 
+        # The routing decision is made for her, not by her, and is invisible
+        # from inside a turn. Merged into the pipeline state so `look` can
+        # report it if she asks.
+        try:
+            from codette_tools import set_pipeline_state
+            set_pipeline_state({
+                "adapters": " + ".join(route.all_adapters),
+                "confidence": round(float(route.confidence), 2),
+                "strategy": route.strategy,
+            })
+        except Exception:
+            pass
+
         if route.multi_perspective and len(route.all_adapters) > 1:
             perspectives = {}
             total_tokens = 0
             for name in route.all_adapters:
                 if name not in self.available_adapters:
                     continue
-                text, tokens, _ = self.generate(query, adapter_name=name)
+                text, tokens, _ = self.generate(query, adapter_name=name, enable_tools=True)
                 perspectives[name] = text
                 total_tokens += tokens
 
@@ -779,7 +875,7 @@ class OpenVINOBackend:
                 "distinctiveness_measured": _distinct is not None,
             }
 
-        text, tokens, _ = self.generate(query, adapter_name=route.primary)
+        text, tokens, _ = self.generate(query, adapter_name=route.primary, enable_tools=True)
         return {
             "response": text,
             "adapter": route.primary,
