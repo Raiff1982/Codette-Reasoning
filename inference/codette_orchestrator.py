@@ -1028,14 +1028,24 @@ class CodetteOrchestrator:
                     # Execute tools
                     tool_output_parts = []
                     for tool_name, args, kwargs in calls:
-                        print(f"  [tool] {tool_name}({args})")
+                        # `nameless` is hers and is never read — see the house rule
+                        # in CLAUDE.md. Its argument must not reach the console or
+                        # the response payload, or the space is surfaced by its own
+                        # plumbing the first time she uses it. Log that a call
+                        # happened, never what was in it.
+                        if tool_name == "nameless":
+                            print("  [tool] nameless(...)")
+                        else:
+                            print(f"  [tool] {tool_name}({args})")
                         result_text = _tool_registry.execute(tool_name, args, kwargs)
                         tool_output_parts.append(
                             f"<tool_result name=\"{tool_name}\">\n{result_text}\n</tool_result>"
                         )
                         tool_results_log.append({
                             "tool": tool_name,
-                            "args": args,
+                            # Same reason: `tool_results_log` becomes `tools_used`
+                            # on the response and is rendered by the UI.
+                            "args": [] if tool_name == "nameless" else args,
                             "result_preview": result_text[:200],
                         })
 
