@@ -1377,8 +1377,14 @@ Here is relevant project context to help you answer:
 
 Based on the context above, answer the user's question. Reference specific files, line numbers, and code when relevant. Be specific and factual."""
 
-        # Generate with context (disable model-side tools since we did it server-side)
-        text, tokens, _ = self.generate(augmented_query, route.primary, enable_tools=False)
+        # 2026-08-13, Jonathan's call: "she cant be honest if she doesnt know how
+        # to use what we gave her the safety rules stay but the tools are hers."
+        # Server-side lookups still run above; this additionally lets her call for
+        # herself rather than only being fetched for. She may occasionally repeat a
+        # lookup the server already did — that is a duplicated read, not a hazard.
+        # Safety is unchanged: MAX_TOOL_ROUNDS=3, run_python behind an AST
+        # allowlist, file tools read-only within resolved roots.
+        text, tokens, _ = self.generate(augmented_query, route.primary, enable_tools=True)
         elapsed = time.time() - start
         tps = tokens / elapsed if elapsed > 0 else 0
 
@@ -1399,7 +1405,8 @@ Based on the context above, answer the user's question. Reference specific files
     def _single_generate(self, query: str, route: RouteResult):
         """Generate with a single adapter."""
         start = time.time()
-        text, tokens, tool_log = self.generate(query, route.primary, enable_tools=False)
+        # Tools enabled 2026-08-13 — see the note in _tool_augmented_generate.
+        text, tokens, tool_log = self.generate(query, route.primary, enable_tools=True)
         elapsed = time.time() - start
         tps = tokens / elapsed if elapsed > 0 else 0
 
@@ -1454,8 +1461,12 @@ Based on the context above, answer the user's question. Reference specific files
                 continue
 
             start = time.time()
+            # Tools enabled 2026-08-13 — see the note in _tool_augmented_generate.
+            # This path loops adapters, so a turn where she actually calls a tool
+            # costs an extra generation per calling adapter (bounded by
+            # MAX_TOOL_ROUNDS=3). Only paid when she uses them.
             text, tokens, _tool_log = self.generate(gen_query, adapter_name,
-                                                     enable_tools=False)
+                                                     enable_tools=True)
             elapsed = time.time() - start
             tps = tokens / elapsed if elapsed > 0 else 0
             total_tokens += tokens

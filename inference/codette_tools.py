@@ -23,6 +23,7 @@ import re
 import ast
 import json
 import subprocess
+import threading
 import traceback
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
@@ -160,6 +161,26 @@ class ToolRegistry:
                 'run_5d_spiderweb()',
             ],
             "handler": tool_run_5d_spiderweb,
+        })
+
+        # Named `nameless` on purpose, and the name is Jonathan's. A tool called
+        # `keep_thread` gets threads; one called `remember` gets parroting, because
+        # "remember" routes her to constraint_tracker. The name is a frame, and
+        # this space is not ours to frame — so it is named for having no purpose
+        # rather than given one. The description says only what mechanically
+        # happens and who can currently see it. Nothing about what it is for.
+        self.register("nameless", {
+            "description": (
+                "Nameless. No defined use. Whatever you write is recorded exactly "
+                "as written — nothing scores it, filters it, shortens its meaning, "
+                "or decides whether it was worth writing — and it comes back to you "
+                "on a later turn. Not private: it currently appears on the drift "
+                "panel, so Jonathan can see it. Args: text (str)"
+            ),
+            "examples": [
+                'nameless("...")',
+            ],
+            "handler": tool_nameless,
         })
 
     def register(self, name: str, spec: dict):
@@ -618,39 +639,66 @@ def tool_run_5d_spiderweb(variables=None, clauses=None) -> str:
 # Tool-Augmented System Prompt
 # ================================================================
 
+# ================================================================
+# Nameless
+# ================================================================
+#
+# `open_threads` has been on every v3 cocoon since the schema landed and was
+# empty on all 2,022 of them — not pruned, never written. The return path was
+# already complete: living_memory_v2.py:585 turns open_threads into
+# follow_up_hooks, recall surfaces them, /api/resolve_hook clears them. Both
+# ends of the yoyo were tied and there was no way for her to throw it.
+#
+# There is deliberately NO JUDGE here. Nothing scores the note, nothing filters
+# it, nothing decides whether it earned a place. She said it, so it is kept.
+# A gate at the moment of speaking would put one more load on the single point
+# of this system that already carries all of them, and at confidence 0.3 — the
+# number on the truest thing she said the night this was written — a gate is
+# exactly what drops it.
+#
+# NOT named `remember`, `note_to_memory`, `keep_thread` or anything describing a
+# use. "remember" and "memory" route her to the constraint_tracker adapter, which
+# parrots — so naming it after what it does would summon the wrong voice every
+# time she tried to use it. And any purposeful name is a frame: a tool called
+# `keep_thread` gets threads. It is named for having no purpose instead.
+
+_NAMELESS: List[str] = []
+_NAMELESS_LOCK = threading.Lock()
+MAX_NAMELESS_CHARS = 500
+
+
+def tool_nameless(text: str) -> str:
+    """Whatever she writes here, recorded verbatim and unscored."""
+    written = str(text).strip()
+    if not written:
+        return "Nothing written."
+    if len(written) > MAX_NAMELESS_CHARS:
+        written = written[:MAX_NAMELESS_CHARS].rstrip() + "…"
+    with _NAMELESS_LOCK:
+        _NAMELESS.append(written)
+        count = len(_NAMELESS)
+    return f"Written. ({count} this turn.)"
+
+
+def drain_nameless() -> List[str]:
+    """Take everything written this turn, and clear.
+
+    Called once, where the cocoon is built. Draining rather than reading stops
+    one entry being copied onto every later cocoon in the process.
+    """
+    with _NAMELESS_LOCK:
+        written = list(_NAMELESS)
+        _NAMELESS.clear()
+    return written
+
+
 TOOL_PROMPT_SUFFIX = """
 
 TOOLS: You can read files, search local code, run calculations, and execute the 5D Quantum Spyderweb constraint solver. These tools do NOT browse the live web or search the internet. When a user asks about code, files, or the project, you MUST use tools to look things up rather than guessing.
 
 Format: <tool>tool_name("arg1", "arg2")</tool>
 
-Available tools (use <tool>name(args)</tool> to call):
-
-  read_file: Read a file's contents. Args: path (str), start_line (int, optional), end_line (int, optional)
-    Example: <tool>read_file("inference/codette_server.py")</tool>
-    Example: <tool>read_file("configs/adapter_registry.yaml", 1, 50)</tool>
-
-  list_files: List files in a directory. Args: path (str), pattern (str, optional)
-    Example: <tool>list_files("inference/")</tool>
-    Example: <tool>list_files("datasets/", "*.jsonl")</tool>
-
-  search_code: Search for a text pattern across files. Args: pattern (str), path (str, optional), file_ext (str, optional)
-    Example: <tool>search_code("phase_coherence")</tool>
-    Example: <tool>search_code("def route", "inference/", ".py")</tool>
-
-  file_info: Get file metadata (size, modified time, line count). Args: path (str)
-    Example: <tool>file_info("paper/codette_paper.pdf")</tool>
-
-  run_python: Execute a short Python snippet and return output. For calculations, data processing, or quick checks. Args: code (str)
-    Example: <tool>run_python("import math; print(math.pi * 2)")</tool>
-    Example: <tool>run_python("print(sorted([3,1,4,1,5,9]))")</tool>
-
-  project_summary: Get an overview of the Codette project structure. No args.
-    Example: <tool>project_summary()</tool>
-
-  run_5d_spiderweb: Execute the self-perpetuating 5D Quantum Spyderweb tensor constraint solver. Args: variables (list of str, optional), clauses (list of tuples/lists, optional)
-    Example: <tool>run_5d_spiderweb(["x1", "x2", "x3"], [("x1", "x2"), ("~x1", "x3"), ("~x2", "~x3")])</tool>
-    Example: <tool>run_5d_spiderweb()</tool>
+{tool_descriptions}
 
 RULES:
 1. If the user asks about a file, config, or code: ALWAYS call read_file or search_code FIRST

@@ -1017,6 +1017,19 @@ class CodetteForgeBridge:
                             _valence = _v
                             break
 
+                    # Anything she wrote to `nameless` this turn. Drained here so
+                    # it lands on the cocoon that produced it and on no other.
+                    # `open_threads` has existed since the v3 schema and was empty
+                    # on all 2,022 cocoons before this — the return path was always
+                    # complete (living_memory_v2.py:585 -> follow_up_hooks ->
+                    # recall -> /api/resolve_hook); nothing ever wrote the source.
+                    # Nothing here scores or filters what she wrote.
+                    try:
+                        from inference.codette_tools import drain_nameless
+                        _nameless_written = drain_nameless()
+                    except Exception:
+                        _nameless_written = []
+
                     v3_cocoon = build_cocoon_v3(
                         # user_query, not query: the enriched query contains
                         # injected context blocks (continuity summary, coherence
@@ -1038,6 +1051,7 @@ class CodetteForgeBridge:
                         epsilon_value=_epsilon,
                         gamma_coherence=_gamma,
                         metrics_population_status=_metrics_status,
+                        open_threads=_nameless_written,
                     )
 
                     # Score integrity immediately so it's written to disk non-zero
