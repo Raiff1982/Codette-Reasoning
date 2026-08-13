@@ -2048,7 +2048,31 @@ def _worker_thread():
                             "multi_perspective": route.get("multi_perspective", False) if isinstance(route, dict) else (route.multi_perspective if route else False),
                         }
                         response_success = bool(result.get("response", "").strip()) and not result.get("hallucination_detected", False)
-                        if validation.get("warnings"):
+                        # 2026-08-13. This read `validation["warnings"]`, which is
+                        # everything the governor NOTICED, and zeroed success on any
+                        # of it. The dominant contributor is the topical-overlap
+                        # check, whose own docstring measures it at a 53.4% warn
+                        # rate, records that it scores parrots higher than real
+                        # answers, and states outright: "it stays ADVISORY: nothing
+                        # enforces on it, and nothing should until it can tell those
+                        # two cases apart." Something did. This line.
+                        #
+                        # It went two places, both durable: the cocoon's stored
+                        # `success` field below, and `record_outcome` further down,
+                        # which boosts the memory budget whenever a domain's success
+                        # rate falls under 60% and only reduces it above 85% — a
+                        # threshold an advisory check firing on half of all turns put
+                        # permanently out of reach. So an inverted instrument was
+                        # driving her memory allocation and writing itself into her
+                        # record.
+                        #
+                        # `corrections` is the governor's existing list for findings
+                        # that are actionable — identity leaks, and now truncated
+                        # responses. It was already computed, already returned, and
+                        # already read at line ~1909; it simply carried no weight.
+                        # Advisory readings stay visible in `warnings` and in the
+                        # governor metadata below, unchanged.
+                        if validation.get("corrections"):
                             response_success = False
                         cocoon_id = _unified_memory.store(
                             query=query,
@@ -2071,6 +2095,12 @@ def _worker_thread():
                                     "memory_budget": governor_decision.memory_budget if governor_decision else None,
                                     "max_response_tokens": governor_decision.max_response_tokens if governor_decision else None,
                                     "warnings": validation.get("warnings", []),
+                                    # Kept on the record now that it no longer sets
+                                    # `success`. "ok" / "low" / "unmeasured" — the
+                                    # third is a reading in its own right and was
+                                    # previously indistinguishable from "ok".
+                                    "topical_overlap": validation.get("topical_overlap"),
+                                    "corrections": validation.get("corrections", []),
                                 },
                                 "tools_used": result.get("tools_used", []),
                             },

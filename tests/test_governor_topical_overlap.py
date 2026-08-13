@@ -83,9 +83,19 @@ def test_empty_inputs_are_not_scored_as_answers(gov):
     assert not gov._did_answer_question(QUERY, "")
 
 
-def test_greeting_with_no_significant_words_always_passes(gov):
-    """No keywords to overlap with — any response is fine."""
-    assert gov._did_answer_question("how are you?", "Good, thanks for asking.")
+def test_greeting_with_no_significant_words_is_never_a_failure(gov):
+    """No keywords to overlap with — so there is nothing here to measure.
+
+    This asserted `is True` until 2026-08-13, which was the old encoding of the
+    intent stated in the line above: a greeting must never be reported as a
+    failure to answer. True carried a second claim it had not earned — that the
+    check ran and the response passed — and that claim was counted into
+    `topical_overlap_rate` and, upstream, into the cocoon's stored `success`.
+
+    The return is now None, meaning unmeasured. The assertion is written against
+    the intent rather than the encoding, so it holds under both.
+    """
+    assert gov._did_answer_question("how are you?", "Good, thanks for asking.") is not False
 
 
 @pytest.mark.xfail(

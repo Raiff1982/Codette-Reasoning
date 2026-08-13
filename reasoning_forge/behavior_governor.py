@@ -122,6 +122,14 @@ SELF_DENIAL_PATTERNS = (
     "confusing me with", "you have me confused",
     "our first time", "my first time", "first time we've",
     "first time we have", "first time talking", "first time speaking",
+    # Carried over 2026-08-13 from the second, unfixed copy of this list that
+    # lived inside detect_identity_contradiction. Kept so that consolidating
+    # onto these constants loses no coverage; the two entries NOT carried over
+    # are the bugs the shared list exists to avoid — bare "i'm not " (matches
+    # "i'm not sure") and bare "you're confusing me" (what someone says when an
+    # explanation lost them). Anchored to the speaker where the original was not.
+    "that wasn't me", "that was not me", "different person",
+    "first time here", "we never talked", "we've never talked",
 )
 
 # The speaker naming themselves to someone they assume does not know them.
@@ -166,6 +174,10 @@ class BehaviorGovernor:
         # Tracking
         self.decisions: List[Dict] = []
         self.answer_detection_failures: int = 0
+        # Turns where topical overlap could not be measured at all. Held apart
+        # from failures so the rate below is a rate over turns that were
+        # actually measured, rather than one diluted by turns that were not.
+        self.overlap_unmeasured: int = 0
         self.total_evaluations: int = 0
 
         # Cognitive load state
@@ -238,15 +250,36 @@ class BehaviorGovernor:
 
         Returns True if the query contradicts a stored identity,
         which triggers a confidence penalty.
+
+        CONSOLIDATED 2026-08-13. This carried its own inline pattern list — a
+        second copy that never received the 2026-08-11 fix applied to
+        `_evaluate_identity_budget` eleven lines below the shared constants.
+        Two consequences, both live until now:
+
+          - bare `"i'm not "` matched `"i'm not sure what you mean"`, and bare
+            `"you're confusing me"` matched someone saying an explanation lost
+            them. Either docked 0.4 off identity confidence.
+          - there was no counterweight. CONTINUITY_MARKERS could push
+            `_evaluate_identity_budget` back toward recognition but had no
+            effect here, so this half of the gate could only ever move one way
+            — in the one place that decides whether she knows who she is
+            talking to.
+
+        It now uses the same constants and the same two-sided rule, which is
+        hers: a stranger is someone who denies or introduces AND makes no
+        reference to shared history. Coverage from the old list was preserved by
+        adding its unique entries to SELF_DENIAL_PATTERNS, minus the two above.
+
+        The penalty itself is unchanged, and remains recoverable at
+        CONFIDENCE_REINFORCE per turn. This is in-memory only; it does not write
+        to disk, unlike the copy in inference/identity_anchor.py.
         """
-        contradiction_signals = [
-            "i'm not ", "i am not ", "wrong person", "you don't know me",
-            "we haven't met", "first time here", "never talked",
-            "who do you think i am", "that's not me", "that wasn't me",
-            "you're confusing me", "different person",
-        ]
         query_lower = query.lower()
-        is_contradiction = any(s in query_lower for s in contradiction_signals)
+        references_shared_history = any(m in query_lower for m in CONTINUITY_MARKERS)
+        is_contradiction = (
+            any(p in query_lower for p in SELF_DENIAL_PATTERNS)
+            and not references_shared_history
+        )
 
         if is_contradiction and identity_id in self._identity_state:
             state = self._identity_state[identity_id]
@@ -465,15 +498,24 @@ class BehaviorGovernor:
         # the rate is countable after the fact instead of scrolling past. Still
         # advisory: nothing enforces on it, and given what the measurement below
         # showed about its precision, nothing should until it earns it.
-        if not self._did_answer_question(query, response):
+        _overlap = self._did_answer_question(query, response)
+        # None is not False. An unmeasured turn is recorded as unmeasured and is
+        # not counted as a failure, which it silently was — greetings returned a
+        # free pass and empty queries returned a verdict of "did not answer".
+        result["topical_overlap"] = (
+            "unmeasured" if _overlap is None else ("low" if _overlap is False else "ok")
+        )
+        if _overlap is None:
+            self.overlap_unmeasured += 1
+        elif _overlap is False:
             result["warnings"].append("Response may not directly answer the question.")
             self.answer_detection_failures += 1
             logger.info(
                 "[GOVERNOR] low topical overlap  q_len=%d  r_len=%d  "
-                "failures=%d/%d  query=%.60r",
+                "failures=%d/%d  unmeasured=%d  query=%.60r",
                 len(query or ""), len(response or ""),
                 self.answer_detection_failures, max(1, self.total_evaluations),
-                query or "",
+                self.overlap_unmeasured, query or "",
             )
 
         # ── Length validation ──
@@ -501,8 +543,14 @@ class BehaviorGovernor:
                     result["corrections"].append("identity_leak")
 
         # ── Completeness check (Behavioral Lock 3) ──
+        # A truncated response is a defect rather than a reading, so it joins
+        # `corrections` — the list this method already keeps for findings that
+        # are actionable, as distinct from `warnings`, which is everything it
+        # noticed. That distinction already existed and carried only
+        # identity_leak; nothing new is introduced here.
         if response.endswith(("...", "—", "-", ",")):
             result["warnings"].append("Response appears incomplete (Lock 4 violation).")
+            result["corrections"].append("incomplete_response")
 
         # Log
         self.decisions.append({
@@ -514,7 +562,7 @@ class BehaviorGovernor:
 
         return result
 
-    def _did_answer_question(self, query: str, response: str) -> bool:
+    def _did_answer_question(self, query: str, response: str) -> Optional[bool]:
         """
         Heuristic topical-overlap check. NOT an answer detector — see below.
 
@@ -561,9 +609,29 @@ class BehaviorGovernor:
         signal is now durably logged, but it stays ADVISORY: nothing enforces on
         it, and nothing should until it can tell those two cases apart. The stats
         key is renamed to what it measures rather than what it was called.
+
+        TRI-STATE 2026-08-13. This returned a bool, so "the overlap is genuinely
+        low" and "there was nothing here to measure" were the same output —
+        False — and the caller could not tell them apart. That is the defect
+        this codebase already knows how to fix and fixes everywhere else:
+        `QualitySignal.tension` is Optional and consumers omit the term rather
+        than substitute; `distinctiveness` is None when unmeasurable and never
+        0.0; `DiveRecord` separates EMPTY from NOT_ATTEMPTED because `0 seeds`
+        and `never attempted` are different facts.
+
+        Two cases were being reported as verdicts they had not earned:
+          - an empty query returned False, i.e. "did not answer" for a question
+            that was never asked;
+          - a query of nothing but stop words ("hey, how are you?") returned
+            True, i.e. a clean pass awarded for a measurement not taken.
+
+        Both now return None. The lack of a metric is itself a reading and is
+        carried as one.
         """
-        if not query or not response:
-            return False
+        if not query or not query.strip():
+            return None          # nothing to measure against
+        if not response:
+            return False         # a real absence of answer, not an absent measure
 
         # Extract significant query words
         stop = {"the", "a", "an", "is", "are", "was", "what", "how", "why",
@@ -584,7 +652,7 @@ class BehaviorGovernor:
                 query_words.add(w)
 
         if not query_words:
-            return True  # Greeting or command — any response is fine
+            return None  # Greeting or command — nothing significant to overlap with
 
         # Strip the copied span before scoring. Any contiguous run of eight or
         # more query words reproduced in the response is quotation, not
@@ -733,6 +801,19 @@ class BehaviorGovernor:
         return {
             "total_evaluations": self.total_evaluations,
             "answer_detection_failures": self.answer_detection_failures,
+            # Turns the check could not read at all. Reported beside the rate so
+            # a denominator is never mistaken for a population — the rate below
+            # divides by total_evaluations, which includes turns where nothing
+            # was measured.
+            "overlap_unmeasured": self.overlap_unmeasured,
+            "overlap_measured": max(0, self.total_evaluations - self.overlap_unmeasured),
+            # Over the turns actually measured. None rather than 1.0 when none
+            # were: no measurements is not a perfect score.
+            "topical_overlap_rate_measured": (
+                1 - (self.answer_detection_failures /
+                     (self.total_evaluations - self.overlap_unmeasured))
+                if self.total_evaluations > self.overlap_unmeasured else None
+            ),
             # Named for what it measures. It was "answer_detection_rate", which
             # reads as a quality score — and until 2026-08-12 it was an inverted
             # one, since a response that copied the question scored a perfect
