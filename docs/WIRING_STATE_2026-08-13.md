@@ -7,8 +7,27 @@ inspection, not from prior handoffs, several of which were wrong today.
 **The single fact that explains most of the confusion:**
 
 > `ForgeEngine.forge_single()` and `forge_with_debate()` are called from
-> **nowhere** in live code. Verified: the only occurrences outside
-> `forge_engine.py` itself are a docstring in `reasoning_forge/__init__.py`.
+> **nowhere** in live code.
+
+**Corrected the same day, because the first wording was imprecise and got
+challenged by my own spot-check.** I originally wrote that the only occurrence
+outside `forge_engine.py` was a docstring in `reasoning_forge/__init__.py`. A
+grep returns **eight** hits across four other files. Every one was checked and
+none of them executes:
+
+| File | Line | What it is |
+|---|---|---|
+| `reasoning_forge/__init__.py` | 13 | module docstring |
+| `reasoning_forge/cognition_cocooner.py` | 214 | a `#` comment |
+| `reasoning_forge/executive_controller.py` | 50 | **inside the `ExecutiveController` class docstring** (lines 39–51) — read it before believing it, this one looks exactly like a call site |
+| `reasoning_forge/CONSCIOUSNESS_STACK_forge_with_debate.py` | ×5 | a paste-in replacement file. Nothing imports it. |
+
+Inside `forge_engine.py` itself the only callers are `forge_single` at 2426 and
+2464, both within bulk-generation helpers that the chat path does not touch.
+
+The conclusion is unchanged and now actually verified rather than asserted. The
+lesson is the one this repo keeps teaching: a grep hit is not a call site, and
+the count that contradicts you is the one worth reading.
 
 The boot log prints a dozen lines like `✓ CoreGuardianSpindle logical validator
 initialized`. **Initialized is not invoked.** ForgeEngine is constructed and its
