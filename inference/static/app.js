@@ -1039,6 +1039,48 @@ function togglePerspectives(id) {
     document.getElementById(id).classList.toggle('open');
 }
 
+// ── Instrument rail tabs ────────────────────────────────────────────────────
+// Switching sets one attribute on the panel; CSS does the rest. No section is
+// shown or hidden imperatively here, so every section keeps whatever logic
+// already governs it.
+function initRailTabs() {
+    const panel = document.getElementById('side-panel');
+    const tabs = [...document.querySelectorAll('.rail-tab')];
+    if (!panel || !tabs.length) return;
+
+    const select = (name) => {
+        panel.setAttribute('data-tab', name);
+        for (const t of tabs) {
+            const on = t.dataset.go === name;
+            t.classList.toggle('is-active', on);
+            t.setAttribute('aria-selected', on ? 'true' : 'false');
+        }
+        try { localStorage.setItem('codette.railTab', name); } catch (e) { /* private mode */ }
+    };
+
+    tabs.forEach(t => t.addEventListener('click', () => select(t.dataset.go)));
+
+    // Left/right arrows move between tabs — the rail is a tablist and should
+    // behave like one for anyone not using a mouse.
+    tabs.forEach((t, i) => t.addEventListener('keydown', ev => {
+        if (ev.key !== 'ArrowRight' && ev.key !== 'ArrowLeft') return;
+        ev.preventDefault();
+        const next = tabs[(i + (ev.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+        next.focus();
+        select(next.dataset.go);
+    }));
+
+    let saved = null;
+    try { saved = localStorage.getItem('codette.railTab'); } catch (e) { /* ignore */ }
+    select(tabs.some(t => t.dataset.go === saved) ? saved : 'watch');
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initRailTabs);
+} else {
+    initRailTabs();
+}
+
 // ── Cocoon UI Updates ──
 
 // An absent measurement is not zero.

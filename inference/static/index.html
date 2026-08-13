@@ -163,15 +163,36 @@
     </div>
 
     <!-- Side Panel (Cocoon Dashboard) -->
-    <div class="side-panel" id="side-panel">
+    <div class="side-panel" id="side-panel" data-tab="watch">
+
+        <!-- Grouped by WHEN the information is true, not by subsystem: what
+             happened in this turn, what persists across turns, and the state of
+             the instruments themselves. Sixteen sections were previously stacked
+             in one scroll with seven of them permanently hidden.
+
+             Sections carry data-tab and are hidden by CSS, so each one keeps
+             whatever show/hide logic already governs it — a section that hides
+             itself when empty still does. -->
+        <nav class="rail-tabs" role="tablist" aria-label="Instrument panel">
+            <button class="rail-tab is-active" role="tab" data-go="watch"
+                    aria-selected="true"
+                    data-tt="What happened in the turn just now — routing, dispersion between perspectives, and the governor's reading.">Watch</button>
+            <button class="rail-tab" role="tab" data-go="memory"
+                    aria-selected="false"
+                    data-tt="What she recalled and carried across turns, and the state of the cocoon store behind it.">Memory</button>
+            <button class="rail-tab" role="tab" data-go="record"
+                    aria-selected="false"
+                    data-tt="The instruments themselves — ethics layer, guardian, signal analysis. What is measured, and what is not.">Record</button>
+        </nav>
+
         <!-- Spiderweb Visualization -->
-        <div class="side-section">
+        <div data-tab="watch" class="side-section">
             <div class="side-section-title" data-tt="Web of active reasoning adapters. Node size = contribution weight. Lines = which perspectives were synthesized together this turn.">Agent Network</div>
             <canvas id="spiderweb-canvas"></canvas>
         </div>
 
         <!-- Metrics -->
-        <div class="side-section">
+        <div data-tab="watch" class="side-section">
             <div class="side-section-title" data-tt="Core reasoning quality scores for the last response. Updated after every reply.">Cocoon Metrics</div>
             <div class="metric-row">
                 <span class="metric-label" data-tt="Γ Coherence — how logically consistent the answer is with Codette&#x27;s internal knowledge anchors. 1.0 = fully grounded. Low values mean she&#x27;s navigating genuinely uncertain territory. Shows — until a turn has actually been measured.">&#915; Phase Coherence</span>
@@ -195,7 +216,7 @@
             </div>
         </div>
 
-        <div class="side-section">
+        <div data-tab="record" class="side-section">
             <div class="side-section-title" data-tt="Event-Embedded Value analysis — integrates welfare intervals and discrete suffering events without smoothing. Preserves singular moments that averaging would erase (e.g. acute distress spikes, existential events).">Singularity Lab</div>
             <p class="lab-copy">Analyze mixed continuous value and discrete suffering without smoothing singular events away.</p>
             <label class="lab-label" for="value-mode">Mode</label>
@@ -222,13 +243,13 @@
         </div>
 
         <!-- Perspective Coverage -->
-        <div class="side-section">
+        <div data-tab="watch" class="side-section">
             <div class="side-section-title" data-tt="Which reasoning adapters fired on the last response. Each color corresponds to a different perspective domain — hover a dot to see which adapter it represents.">Perspective Coverage</div>
             <div class="coverage-dots" id="coverage-dots"></div>
         </div>
 
         <!-- Cocoon Status -->
-        <div class="side-section">
+        <div data-tab="memory" class="side-section">
             <div class="side-section-title" data-tt="State of Codette&#x27;s long-term memory system. Cocoons are memory artifacts that hold past reasoning patterns, emotions, and context — sealed with post-quantum cryptography.">Cocoon Status</div>
             <div class="metric-row">
                 <span class="metric-label" data-tt="Encryption — post-quantum cryptographic protection status. &#x27;PQC-Active&#x27; means cocoon memories are sealed with ML-KEM-768 (NIST FIPS 203) quantum-resistant cryptography.">&#128274; Encryption</span>
@@ -249,7 +270,7 @@
         </div>
 
         <!-- AEGIS Ethical Alignment -->
-        <div class="side-section" id="section-aegis" style="display:none">
+        <div data-tab="record" class="side-section" id="section-aegis" style="display:none">
             <div class="side-section-title" data-tt="AEGIS Layer 2–6 ethical monitoring. Tracks alignment score η, veto count, and intervention trend. Vetoes fire when a response violates deontological constraints.">AEGIS Ethics</div>
             <div class="metric-row">
                 <span class="metric-label">&#951; Alignment</span>
@@ -274,7 +295,7 @@
         </div>
 
         <!-- Governor & Memory Dashboard -->
-        <div class="side-section" id="section-governor">
+        <div data-tab="watch" class="side-section" id="section-governor">
             <div class="side-section-title" data-tt="Runtime governor that monitors Codette&#x27;s identity stability, answer quality, and cognitive load. Intervenes if reasoning quality drops below acceptable thresholds.">Behavior Governor</div>
             <div class="metric-row">
                 <span class="metric-label">Identity Confidence</span>
@@ -306,7 +327,7 @@
             </div>
         </div>
 
-        <div class="side-section" id="section-memory-markers">
+        <div data-tab="memory" class="side-section" id="section-memory-markers">
             <div class="side-section-title" data-tt="Active memory from this conversation — continuity summaries and decision landmarks Codette has flagged as important to remember across turns.">Session Recall</div>
             <div class="continuity-summary" id="continuity-summary">No active continuity summary yet.</div>
             <div class="decision-landmarks" id="decision-landmarks">
@@ -318,7 +339,7 @@
         </div>
 
         <!-- Nexus Signal Intelligence -->
-        <div class="side-section" id="section-nexus" style="display:none">
+        <div data-tab="record" class="side-section" id="section-nexus" style="display:none">
             <div class="side-section-title">Nexus Signals</div>
             <div class="metric-row">
                 <span class="metric-label">Processed</span>
@@ -336,7 +357,7 @@
         </div>
 
         <!-- Resonant Continuity -->
-        <div class="side-section" id="section-resonance" style="display:none">
+        <div data-tab="watch" class="side-section" id="section-resonance" style="display:none">
             <div class="side-section-title">Resonance &#936;<sub>r</sub></div>
             <div class="metric-row">
                 <span class="metric-label">&#936;<sub>r</sub> Wavefunction</span>
@@ -365,7 +386,7 @@
         </div>
 
         <!-- Living Memory -->
-        <div class="side-section" id="section-memory" style="display:none">
+        <div data-tab="memory" class="side-section" id="section-memory" style="display:none">
             <div class="side-section-title">Living Memory</div>
             <div class="metric-row">
                 <span class="metric-label">Cocoons</span>
@@ -375,7 +396,7 @@
         </div>
 
         <!-- Drift Analysis -->
-        <div class="side-section" id="drift-panel" style="display:none">
+        <div data-tab="watch" class="side-section" id="drift-panel" style="display:none">
             <div class="side-section-title">Resonant Drift</div>
             <div class="metric-row">
                 <span class="metric-label">&#968;_r</span>
@@ -401,7 +422,7 @@
         </div>
 
         <!-- Guardian -->
-        <div class="side-section" id="section-guardian" style="display:none">
+        <div data-tab="record" class="side-section" id="section-guardian" style="display:none">
             <div class="side-section-title" data-tt="Guardian layer — final ethical and trust checkpoint before any response is delivered. Tracks trust interaction count and overall ethics score across the session.">Guardian</div>
             <div class="metric-row">
                 <span class="metric-label">Ethics Score</span>
@@ -419,7 +440,7 @@
              to open. Numbers are always visible; the tables sit behind details.
              Absent values render as "—", never 0 — the old panel used `|| 0` on
              every field, which is how a dead endpoint reads as a healthy zero. -->
-        <div class="side-section" id="aegis-metrics-tab">
+        <div data-tab="record" class="side-section" id="aegis-metrics-tab">
             <div class="side-section-title" data-tt="AEGIS Protection Layers — post-quantum cryptography status (ML-KEM-768 + ML-DSA-65), forge-cycle integrity, and Layer 5 self-healing events.">AEGIS Metrics <span style="opacity:.5;font-weight:400">24h</span></div>
             <div class="metric-row">
                 <span class="metric-label">Forge calls</span>
@@ -467,7 +488,7 @@
         </div>
 
         <!-- Time Travel Lens — /api/time_travel/last -->
-        <div class="side-section" id="time-travel-tab">
+        <div data-tab="record" class="side-section" id="time-travel-tab">
             <div class="side-section-title" data-tt="Institutional TimeTravelLens — auto-fires when you ask about cover-ups, recalls, or regulatory suppression. Shows preemption gap Π (days between knowing and telling), closure score C(s), and rupture indicators ℛ.">Time Travel Lens</div>
             <div id="tt-status-banner" style="font-size:11px;opacity:.7;margin-bottom:8px">No observation yet.</div>
             <div id="tt-metrics-grid">
@@ -518,7 +539,7 @@
         </div>
 
         <!-- Recent Sessions -->
-        <div class="side-section" style="flex:1;min-height:0;overflow-y:auto">
+        <div data-tab="memory" class="side-section" style="flex:1;min-height:0;overflow-y:auto">
             <div class="side-section-title">Recent Sessions</div>
             <div id="session-list"></div>
         </div>

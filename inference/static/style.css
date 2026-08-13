@@ -213,6 +213,61 @@ body::after {
     gap: 14px;
 }
 
+/* ── Instrument rail tabs ────────────────────────────────────────────────────
+   Deliberately quiet. The rail used to be sixteen sections in one scroll with
+   seven permanently hidden; this groups them by when the information is true.
+   The tab bar is chrome and gets no glow — the sparkle budget belongs to the
+   web, where motion is driven by something real. */
+.rail-tabs {
+    display: flex;
+    gap: 0;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--bg-void);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 14px;
+}
+
+.rail-tab {
+    flex: 1;
+    appearance: none;
+    background: none;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    padding: 9px 4px 8px;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    transition: color 0.18s ease, border-color 0.18s ease;
+}
+
+.rail-tab:hover { color: var(--text-secondary); }
+
+.rail-tab.is-active {
+    color: var(--neon-cyan);
+    border-bottom-color: var(--neon-cyan);
+}
+
+.rail-tab:focus-visible {
+    outline: 1px solid var(--neon-cyan);
+    outline-offset: -2px;
+}
+
+/* Tab visibility.
+   !important beats the inline `display` a section sets for itself, so an
+   inactive tab always hides. When the tab IS active the rule does not apply at
+   all, and each section's own show/hide logic governs exactly as before —
+   nothing that hides itself when empty starts appearing. */
+.side-panel[data-tab="watch"]  .side-section:not([data-tab~="watch"]),
+.side-panel[data-tab="memory"] .side-section:not([data-tab~="memory"]),
+.side-panel[data-tab="record"] .side-section:not([data-tab~="record"]) {
+    display: none !important;
+}
+
 /* Not measured yet.
    Deliberately quiet rather than alarming — an absent reading is the normal
    state before a turn, not a fault. It just must not be readable as a number.
