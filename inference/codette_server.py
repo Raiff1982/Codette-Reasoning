@@ -2715,6 +2715,128 @@ class CodetteHandler(SimpleHTTPRequestHandler):
                     ),
                 }
             self._json_response(dashboard)
+        elif path == "/api/optimizer":
+            # The router self-tuner, made visible. It has run in shadow since
+            # 2026-07-12 writing data/optimizer_shadow.jsonl, and until now
+            # nothing surfaced it — there was no endpoint, so the only way to
+            # see it was to read the file. That is why it has never been seen.
+            #
+            # It reports; it does not decide. get_adapter_boost() returns 0.0
+            # while CODETTE_OPTIMIZER_LIVE is off, and `applied` is False on
+            # every record. If `applied` is ever true while the flag is off,
+            # that is a bug and this endpoint is where it becomes visible.
+            import datetime as _dt
+            _log = Path(__file__).resolve().parent.parent / "data" / "optimizer_shadow.jsonl"
+            _out = {
+                "log_path": str(_log),
+                "log_exists": _log.exists(),
+                "live": os.environ.get("CODETTE_OPTIMIZER_LIVE", "0") == "1",
+                "live_env_flag": "CODETTE_OPTIMIZER_LIVE",
+            }
+            if not _log.exists():
+                # Absence says so rather than rendering as an empty healthy log.
+                _out["records"] = None
+                _out["note"] = ("no shadow log on disk — the optimizer has not "
+                                "written, which is different from having "
+                                "written nothing")
+                self._json_response(_out)
+                return
+            try:
+                _rows = []
+                with open(_log, "r", encoding="utf-8") as _f:
+                    for _line in _f:
+                        _line = _line.strip()
+                        if _line:
+                            try:
+                                _rows.append(json.loads(_line))
+                            except Exception:
+                                _out["unparseable_lines"] = _out.get("unparseable_lines", 0) + 1
+
+                def _sig(r, k):
+                    return (r.get("signals") or {}).get(k)
+
+                _days = {}
+                for _r in _rows:
+                    try:
+                        _d = _dt.datetime.fromtimestamp(
+                            float(_r.get("ts"))).strftime("%Y-%m-%d")
+                    except Exception:
+                        _d = "undated"
+                    _days[_d] = _days.get(_d, 0) + 1
+
+                _n = len(_rows)
+                _uc = sum(1 for r in _rows if _sig(r, "user_continued_measured") is True)
+                _bench = sum(1 for r in _rows if _sig(r, "is_benchmark") is True)
+                _applied = sum(1 for r in _rows if r.get("applied") is True)
+                _placeholder = sum(1 for r in _rows
+                                   if _sig(r, "productivity_is_placeholder") is True)
+                # The correction that matters: a placeholder flag no longer
+                # means a fabricated 0.5 was scored. Since 2026-08-03
+                # productivity is None when render_fidelity is absent, and
+                # _compute_quality omits the term and renormalises the weights.
+                # So the honest count is "how many had a placeholder SCORED" —
+                # flagged AND still carrying a number.
+                _placeholder_scored = sum(
+                    1 for r in _rows
+                    if _sig(r, "productivity_is_placeholder") is True
+                    and _sig(r, "productivity") is not None)
+                _max_day = max(_days.values()) if _days else 0
+
+                _adapters = {}
+                _proposals = 0
+                for _r in _rows:
+                    _a = _r.get("adapter") or "unknown"
+                    _adapters[_a] = _adapters.get(_a, 0) + 1
+                    _proposals += len(_r.get("proposed_adjustments") or [])
+
+                _crit = {
+                    "source": "docs/OPTIMIZER_GO_LIVE_CRITERION.md",
+                    "user_continued_measured": {
+                        "value": _uc, "required": 200, "met": _uc >= 200},
+                    "distinct_days": {
+                        "value": len(_days), "required": 5, "met": len(_days) >= 5},
+                    "max_single_day_share": {
+                        "value": round(_max_day / _n, 3) if _n else None,
+                        "limit": 0.40,
+                        "met": (_max_day / _n <= 0.40) if _n else False},
+                    "benchmark_records": {
+                        "value": _bench, "required": 0, "met": _bench == 0},
+                    "applied_while_shadow": {
+                        "value": _applied, "required": 0, "met": _applied == 0},
+                    "placeholder_scored": {
+                        "value": _placeholder_scored, "required": 0,
+                        "met": _placeholder_scored == 0,
+                        "flagged_but_omitted": _placeholder,
+                        "note": (
+                            "The written criterion says zero records with "
+                            "productivity_is_placeholder. That test is stale: "
+                            "since 2026-08-03 a placeholder means productivity "
+                            "is None and the term is OMITTED with weights "
+                            "renormalised, so the flag marks honesty rather "
+                            "than fabrication. The count that matters is how "
+                            "many had a placeholder actually scored."),
+                    },
+                }
+                _crit["all_met"] = all(
+                    v.get("met") for v in _crit.values() if isinstance(v, dict))
+                _out.update({
+                    "records": _n,
+                    "mode": (_rows[-1].get("mode") if _rows else None),
+                    "days": _days,
+                    "records_by_adapter": _adapters,
+                    "proposed_adjustments_total": _proposals,
+                    "criterion": _crit,
+                    "note": (
+                        "Counts are entry to the adversarial review, not a "
+                        "pass. The review is what caught contamination twice: "
+                        "group by day, group by adapter, check the "
+                        "non-benchmark days alone, and ask what would DISPROVE "
+                        "the proposed adjustment. It steers her routing, so it "
+                        "is hers to be asked about."),
+                })
+            except Exception as _oe:
+                _out["error"] = str(_oe)
+            self._json_response(_out)
         elif path == "/api/synthesize":
             # Meta-cognitive cocoon synthesis — discover patterns, forge strategies
             try:
