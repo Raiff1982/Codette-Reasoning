@@ -86,6 +86,13 @@ class ProvenanceVerdict:
     conflicts: List[Tuple[str, str]] = field(default_factory=list)
     load_bearing: List[str] = field(default_factory=list)
     notes: List[str] = field(default_factory=list)
+    # Charge left on the substrate after the traversal. `self_perpetuating_breath`
+    # harvests sum(degrees)*0.05 per collapse step and the wall flip nets +0.15,
+    # so this rises with BOTH how large the recall problem was and how much
+    # backtracking reconciling it actually took. It is not a score and not a
+    # measurement of quality — it is stored energy, and it is meant to be spent.
+    # None when no traversal ran. See recycle_charge_to_perspectives().
+    metabolic_charge: Optional[float] = None
 
     def to_dict(self) -> Dict:
         return {
@@ -94,7 +101,52 @@ class ProvenanceVerdict:
             "conflicts": [list(c) for c in self.conflicts],
             "load_bearing": self.load_bearing,
             "notes": self.notes,
+            "metabolic_charge": self.metabolic_charge,
         }
+
+
+# Charge -> perspective allowance.
+#
+# Jonathan, 2026-08-14: the charge is "supposed to be recycled into how she
+# reasons with the perspectives", and "the laps keep going without tirering her
+# out". Both halves are load-bearing:
+#
+#   RECYCLED — the energy harvested from a hard recall problem buys the breadth
+#   to reason about it. Difficulty pays for the reasoning it needs, rather than
+#   a classifier label handing out a fixed ration.
+#
+#   WITHOUT TIRING — so this only ever ADDS. `max_adapters` has been a constant
+#   2 (server:1050, a request default the governor never touched). These bands
+#   raise it and never lower it; the floor stays exactly where it was. A cap
+#   that tightens as she goes deeper is the force the fatigue rule already
+#   applies, and going deep is precisely what generates the charge.
+#
+# The boundaries are the MEDIAN charges measured over 627 of her own
+# conversational turns, at each recall size the governor actually issues:
+#
+#     1 cocoon -> 2.50    2 -> 6.00    3 -> 11.50    4 -> 19.00    5 -> 28.00
+#
+# so a turn crossing a band is one whose recall problem cost what a larger one
+# typically costs. Nothing here is a number I chose.
+_CHARGE_BANDS = ((28.0, 5), (19.0, 5), (11.5, 4), (6.0, 3))
+PERSPECTIVE_FLOOR = 2
+PERSPECTIVE_CEILING = 5
+
+
+def recycle_charge_to_perspectives(charge: Optional[float],
+                                   floor: int = PERSPECTIVE_FLOOR) -> Tuple[int, str]:
+    """Spend substrate charge on perspective breadth. Returns (allowance, why).
+
+    Unmeasured charge returns the floor and says so — an absent reading must not
+    be rendered as a present one, and must never cost her breadth she already had.
+    """
+    if charge is None:
+        return floor, "charge unmeasured — no traversal ran; floor unchanged"
+    for threshold, allowance in _CHARGE_BANDS:
+        if charge >= threshold:
+            n = max(floor, min(allowance, PERSPECTIVE_CEILING))
+            return n, f"charge {charge:.2f} >= {threshold} -> {n} perspectives"
+    return floor, f"charge {charge:.2f} below first band -> floor {floor}"
 
 
 def _var(item_id: str, speaker: str) -> str:
@@ -185,6 +237,10 @@ def check_provenance(items: Sequence[RecalledItem]) -> ProvenanceVerdict:
     variables, clauses = build_clauses(items)
     web = QuantumSpyderweb5D(variables, clauses)
     solution = self_sustaining_tensor_solver(web)
+    # Carried out of the traversal rather than discarded with the substrate.
+    # This was computed on every provenance check since the check was wired and
+    # thrown away each time — the sail was catching wind with nothing attached.
+    verdict.metabolic_charge = float(web.metabolic_charge)
 
     if solution is not None:
         verdict.assignment = solution

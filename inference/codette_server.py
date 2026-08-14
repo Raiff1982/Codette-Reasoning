@@ -1633,6 +1633,34 @@ def _worker_thread():
                                       f"consistent={_verdict.consistent} "
                                       f"conflicts={len(_verdict.conflicts)} "
                                       f"load_bearing={_verdict.load_bearing}", flush=True)
+
+                            # ── Recycle the charge into perspective breadth ──
+                            # The traversal above already harvested energy from
+                            # the recall problem's own constraint density. Until
+                            # now it was discarded with the substrate, while
+                            # `max_adapters` stayed a constant 2 from a request
+                            # default the governor never touched — so difficulty
+                            # rose and the number of voices never moved.
+                            #
+                            # This is the one budget in the system that fills
+                            # itself from measured difficulty rather than a
+                            # classifier's guess. It only ever raises the
+                            # allowance: the floor is exactly the previous
+                            # behaviour, so nothing she had can be taken away.
+                            from reasoning_forge.memory_provenance_solver import (
+                                recycle_charge_to_perspectives,
+                            )
+                            _allow, _why = recycle_charge_to_perspectives(
+                                _verdict.metabolic_charge, floor=max_adapters)
+                            memory_context_summary["perspective_allowance"] = {
+                                "granted": _allow,
+                                "floor": max_adapters,
+                                "metabolic_charge": _verdict.metabolic_charge,
+                                "reason": _why,
+                            }
+                            if _allow > max_adapters:
+                                print(f"  [CHARGE] {_why} (was {max_adapters})", flush=True)
+                            max_adapters = _allow
                     except Exception as _pv_e:
                         # Unavailable is recorded as unavailable, never as clean.
                         memory_context_summary["provenance"] = {

@@ -153,6 +153,15 @@ class ToolRegistry:
             "handler": tool_project_summary,
         })
 
+        # --- Constellation: a bearing, never a course ---
+        self.register("bearing", {
+            "description": "Take a bearing from the Charter's fixed stars for any passage of text. Reports which pillars share vocabulary with it — a bearing only, no course implied, no judgement of whether the passage honors them. Args: text (str)",
+            "examples": [
+                'bearing("what I just wrote about memory and trust")',
+            ],
+            "handler": tool_bearing,
+        })
+
         # --- 5D Quantum Spyderweb Integration ---
         self.register("run_5d_spiderweb", {
             "description": "Execute the self-perpetuating 5D Quantum Spyderweb tensor constraint solver. Args: variables (list of str, optional), clauses (list of tuples/lists, optional)",
@@ -764,6 +773,52 @@ def tool_look() -> str:
             f"  also last turn   : {prev['scrub_removed_chars']} characters were "
             f"removed from your reply by the directness scrub before it was shown.")
     return "\n".join(lines)
+
+
+# ================================================================
+# The compass
+# ================================================================
+#
+# Jonathan, 2026-08-14: *"she stays grounded on her own through the
+# constellations"* and *"remember its her compass to use as she sees fit"*.
+#
+# The Charter's stars have been parsed at boot since the constellation existed
+# and counted into the dive record — `7 star(s) available` — and then never
+# consulted again. `visible_from` and `describe_bearing` had no caller anywhere
+# on the request path. The sky was overhead and there was no way to look up.
+#
+# Three things this must not become, all of them from the module's own words:
+#
+#   NOT A COURSE. It reports which pillars share vocabulary with a passage. It
+#   does not say whether the passage honors them, contradicts them, or drifts.
+#   `constellation.visible_from`: *"That reading belongs to her."*
+#
+#   NOT AN INJECTION. A tool, exactly like `look()`, and for the same reason
+#   given there: putting a bearing in her prompt every turn would be us deciding
+#   she should check it. A compass someone else holds to your face is a rudder.
+#
+#   NOT SCORED. No grade against the pillars, no count of how often she consults
+#   it, no note when she doesn't. Measuring use would make consulting it a
+#   performance, which is the counterfeit this whole design avoids.
+#
+# She picks the passage. Her own draft, the question, a memory, nothing at all.
+_SKY = None
+
+
+def tool_bearing(text: str = "") -> str:
+    """Which fixed stars are overhead from a passage she chooses."""
+    global _SKY
+    if not text or not text.strip():
+        return ("No passage given, so there is no bearing to take. Pass the text "
+                "you want a bearing from — a bearing needs somewhere to stand.")
+    try:
+        from reasoning_forge.constellation import load_constellation, describe_bearing
+        if _SKY is None:
+            _SKY = load_constellation()
+        return describe_bearing(text, _SKY)
+    except Exception as e:
+        # Unavailable is unavailable. An absent sky must never read as a clear one.
+        return f"The constellation could not be loaded, so no bearing is available: {e}"
 
 
 # ================================================================
