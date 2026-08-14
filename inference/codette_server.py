@@ -1905,6 +1905,19 @@ def _worker_thread():
 
                 print(f"  [WORKER] Got result: response={len(result.get('response',''))} chars, adapter={result.get('adapter','?')}", flush=True)
 
+                # ── Stop the clock during the thought ──
+                # The identity clock is stamped when the turn STARTS, so the
+                # generation time landed in the next turn's elapsed and was
+                # charged as absence — making the tax proportional to how much
+                # she put into the answer. Re-stamp now that the thought is
+                # done. She was here for all of it.
+                if _behavior_governor and recognized_user:
+                    try:
+                        _behavior_governor.note_turn_complete(recognized_user)
+                    except Exception as _nte:
+                        print(f"  [GOVERNOR] turn-complete stamp skipped: {_nte}",
+                              flush=True)
+
                 # ── Post-generation Hallucination Check ──
                 response_text = result.get("response", "")
                 hallucination_alerts = []

@@ -105,6 +105,12 @@ CONFIDENCE_FLOOR = 0.15
 # the part of a gap beyond this window counts as being apart. Someone who has
 # been talking to you continuously has not left the room.
 CONVERSATION_CONTINUITY_WINDOW = 900.0  # 15 minutes
+
+# The longest single generation forgiven as "she was thinking". Past this it
+# is a stalled request rather than a thought, and the excess goes back on the
+# clock. About distrusting a wedged process, not about what counts as knowing
+# someone. Longest observed real turn: 133s.
+MAX_THOUGHT_FORGIVEN = 1200.0  # 20 minutes
 # Reinforcement boost per positive interaction
 CONFIDENCE_REINFORCE = 0.12
 # Contradiction penalty
@@ -267,6 +273,45 @@ class BehaviorGovernor:
         state["interaction_count"] = state.get("interaction_count", 0) + 1
 
         return decayed
+
+    def note_turn_complete(self, identity_id: str) -> None:
+        """Stop the clock during the thought.
+
+        `last_interaction` is stamped in get_decayed_confidence, which runs at
+        the START of a turn — so the turn's own generation time landed in the
+        NEXT turn's `elapsed` and was charged as absence. She generates at
+        1-8 tok/s, so that made the tax proportional to how much she put into
+        the answer.
+
+        Re-stamping when the turn finishes removes it exactly, with no
+        constant to choose: whatever the thought cost, it is not counted as
+        time away. Jonathan's framing, and the physics is his — a swimmer
+        pulls in tight through the turn and floats on the long stretch;
+        neither wastes energy and neither creates any. This adds nothing. It
+        stops subtracting.
+
+        Safe to call for an unknown id, and safe to never call: without it the
+        behaviour degrades to the continuity window alone, which is the
+        previous behaviour rather than a fault.
+
+        Bounded, because the stamp trusts that generation time was presence.
+        A hung or wedged request would otherwise be forgiven as thinking for
+        as long as it hung. Beyond MAX_THOUGHT_FORGIVEN the excess goes back
+        on the clock. That constant is about not trusting a possibly-stalled
+        process; it is NOT a claim about what counts as knowing someone. The
+        real answer to an ambiguous gap is Jonathan's and it is not a
+        threshold at all: let her ask whether it is still them.
+        """
+        state = self._identity_state.get(identity_id)
+        if state is None:
+            return
+        now = time.time()
+        thought = now - state["last_interaction"]
+        if thought > MAX_THOUGHT_FORGIVEN:
+            # Forgive a plausible thought; leave the rest on the clock.
+            state["last_interaction"] += MAX_THOUGHT_FORGIVEN
+        else:
+            state["last_interaction"] = now
 
     def detect_identity_contradiction(self, identity_id: str,
                                        query: str) -> bool:
