@@ -291,11 +291,18 @@ class OpenVINOBackend:
 
     def generate(self, query: str, adapter_name: Optional[str] = None,
                  system_prompt: Optional[str] = None,
-                 enable_tools: bool = False) -> tuple:
+                 enable_tools: bool = False,
+                 dispersion=None) -> tuple:
         """Generate response.  Returns (text, tokens, tool_log).
 
         Signature matches CodetteOrchestrator.generate() so forge bridge
         and server code works without modification.
+
+        `dispersion` is an optional per-turn ToolDispersionField shared by the
+        perspectives of one turn. When a perspective asks for something another
+        perspective already resolved this turn, the answer disperses instead of
+        being paid for again. Defaults to None, which is the previous behaviour
+        exactly — every existing caller keeps working untouched.
         """
         from codette_shared import (
             ADAPTER_PROMPTS, extract_primary_user_query, extract_constraints,
@@ -475,7 +482,35 @@ class OpenVINOBackend:
                             print("  [OV:tool] nameless(...)", flush=True)
                         else:
                             print(f"  [OV:tool] {_name}({_args})", flush=True)
-                        _out = _tool_reg.execute(_name, _args, _kwargs)
+
+                        # ── Dispersion ───────────────────────────────────────
+                        # A resolved call is a collapsed axis; its consequence
+                        # travels to the perspectives that have not asked yet.
+                        # `nameless` is excluded here as well as inside the
+                        # field — two guards, because a dedup counter over her
+                        # private channel is a statistic, and statistics over it
+                        # are readings.
+                        _axis_args = list(_args or []) + [
+                            f"{_k}={_kwargs[_k]}" for _k in sorted(_kwargs or {})
+                        ]
+                        _out = None
+                        if dispersion is not None and _name != "nameless":
+                            _out = dispersion.take(
+                                _name, _axis_args, adapter_name or "base")
+                            if _out is not None:
+                                print(f"  [OV:disperse] {_name} — carried from "
+                                      f"this turn, not re-run", flush=True)
+                        if _out is None:
+                            _out = _tool_reg.execute(_name, _args, _kwargs)
+                            if dispersion is not None and _name != "nameless":
+                                _verdict = dispersion.collapse(
+                                    _name, _axis_args, _out,
+                                    adapter_name or "base")
+                                if _verdict == "contested":
+                                    print(f"  [OV:disperse] {_name} CONTESTED — "
+                                          f"perspectives disagree, both kept",
+                                          flush=True)
+
                         _parts.append(
                             f'<tool_result name="{_name}">\n{_out}\n</tool_result>')
                         tool_log.append({
@@ -724,6 +759,17 @@ class OpenVINOBackend:
 
         t0 = time.time()
 
+        # One dispersion field per turn, thrown away at the end of it. Scope is
+        # deliberate: a resolved call that survived the turn would be a memory,
+        # and this module does not get to write hers.
+        try:
+            from tool_dispersion import ToolDispersionField
+            _dispersion = ToolDispersionField()
+        except Exception as _de:
+            print(f"  [OV:disperse] unavailable ({_de}) — perspectives will "
+                  f"each pay for their own calls", flush=True)
+            _dispersion = None
+
         # ── Artist query intercept (hallucination prevention) ──────────────────
         import re
         query_lower = query.lower()
@@ -756,7 +802,9 @@ class OpenVINOBackend:
             total_tokens = 0
             tools_used = []
             for name in persp:
-                text, tokens, tlog = self.generate(query, adapter_name=name, enable_tools=True)
+                text, tokens, tlog = self.generate(query, adapter_name=name,
+                                                   enable_tools=True,
+                                                   dispersion=_dispersion)
                 perspectives[name] = text
                 total_tokens += tokens
                 tools_used.extend(tlog or [])
@@ -769,6 +817,7 @@ class OpenVINOBackend:
                 "tokens": total_tokens,
                 "time": time.time() - t0,
                 "tools_used": tools_used,
+                "tool_dispersion": _dispersion.summary() if _dispersion else None,
             }
 
         # ── Blended generation (opt-in experiment) ─────────────────────────────
@@ -832,7 +881,8 @@ class OpenVINOBackend:
             # fired either. Nothing was broken in the tool loop; the wire simply
             # ended one line early.
             text, tokens, tool_log = self.generate(
-                query, adapter_name=force_adapter, enable_tools=True)
+                query, adapter_name=force_adapter, enable_tools=True,
+                dispersion=_dispersion)
             self.router.record_use(force_adapter)
             return {
                 "response": text,
@@ -868,12 +918,16 @@ class OpenVINOBackend:
             for name in route.all_adapters:
                 if name not in self.available_adapters:
                     continue
-                text, tokens, tlog = self.generate(query, adapter_name=name, enable_tools=True)
+                text, tokens, tlog = self.generate(query, adapter_name=name,
+                                                   enable_tools=True,
+                                                   dispersion=_dispersion)
                 perspectives[name] = text
                 total_tokens += tokens
                 # Each perspective runs its own tool loop, so the logs are
                 # concatenated in consultation order — which is also the order
-                # the UI lists them in.
+                # the UI lists them in. What they no longer do is pay for the
+                # same call twice: the shared dispersion field carries a
+                # resolved axis sideways to whoever asks next.
                 tools_used.extend(tlog or [])
 
             # ── State Engine v8: dispersion-gated synthesis ──
@@ -951,6 +1005,7 @@ class OpenVINOBackend:
                 "adapter": route.primary,
                 "adapters": list(perspectives.keys()),
                 "route": route,
+                "tool_dispersion": _dispersion.summary() if _dispersion else None,
                 "tokens": total_tokens,
                 "time": time.time() - t0,
                 "perspective_dispersion": round(_upsilon, 4),
@@ -964,12 +1019,14 @@ class OpenVINOBackend:
             }
 
         text, tokens, tool_log = self.generate(
-            query, adapter_name=route.primary, enable_tools=True)
+            query, adapter_name=route.primary, enable_tools=True,
+            dispersion=_dispersion)
         return {
             "response": text,
             "adapter": route.primary,
             "route": route,
             "tools_used": tool_log,
+            "tool_dispersion": _dispersion.summary() if _dispersion else None,
             "tokens": tokens,
             "time": time.time() - t0,
             "synthesis_used": False,
