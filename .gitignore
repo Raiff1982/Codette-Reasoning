@@ -218,3 +218,9 @@ data/optimizer_shadow.jsonl
 
 # Nexis engine live memory + cocoon scratch (written continuously)
 reasoning_forge/.logs/
+
+# OpenVINO compiled-blob cache — roughly model-sized, and a build artifact of
+# (model, device, driver) rather than source. OpenVINO invalidates it itself
+# when any of those change, so it is safe to delete and must not be committed.
+# Set CODETTE_OV_CACHE_DIR to relocate it outside the tree entirely.
+openvino_backend/.ov_cache/

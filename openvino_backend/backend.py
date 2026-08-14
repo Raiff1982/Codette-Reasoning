@@ -131,7 +131,7 @@ class OpenVINOBackend:
     GPU (Arc iGPU) → CPU fallback on load failure.
     """
 
-    def __init__(self, device: str = "AUTO", verbose: bool = False,
+    def __init__(self, device: str = "GPU", verbose: bool = False,
                  n_ctx: int = 8192, n_gpu_layers: int = 0,
                  memory_weighting=None):
         """

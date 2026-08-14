@@ -486,7 +486,20 @@ def _get_orchestrator():
                 _sys.path.insert(0, str(Path(__file__).parent.parent / "openvino_backend"))
                 from openvino_backend.backend import OpenVINOBackend
                 _orchestrator = OpenVINOBackend(
-                    device="AUTO",
+                    # GPU by name, not AUTO. AUTO was assumed to be the neutral
+                    # default; it is not — it begins inference on CPU while the
+                    # GPU compiles, and she pays for that on every restart.
+                    # Measured 2026-08-15, 3 reps, fresh process each,
+                    # interleaved (n=3): load median 137.2s AUTO -> 64.9s GPU,
+                    # ranges [134-227] and [62-126] non-overlapping.
+                    # Throughput medians moved 8.79 -> 10.11 tok/s but the
+                    # ranges overlap, so that difference is NOT established
+                    # and is deliberately not claimed here.
+                    # The Arc iGPU is the intended device, so it is named.
+                    # Falling back stays explicit in _load_pipeline, which is
+                    # where a fallback belongs: visible, and printed when it
+                    # happens.
+                    device="GPU",
                     verbose=True,
                     n_ctx=_orchestrator_args.n_ctx if _orchestrator_args else 8192,
                     memory_weighting=memory_weighting,
