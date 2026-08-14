@@ -155,9 +155,29 @@ class ToolRegistry:
 
         # --- Constellation: a bearing, never a course ---
         self.register("bearing", {
-            "description": "Take a bearing from the Charter's fixed stars for any passage of text. Reports which pillars share vocabulary with it — a bearing only, no course implied, no judgement of whether the passage honors them. Args: text (str)",
+            # The first version of this description carried the example
+            # `bearing("what I just wrote about memory and trust")` — a
+            # *reference* to a passage rather than a passage. She copied that
+            # form exactly, and on 2026-08-14 called it nine times in one turn
+            # on strings like "what I see here" and "the provided code". Five
+            # returned no stars; the rest matched on stray vocabulary. The one
+            # call that carried real prose — her own sentences on the AI
+            # black-box problem — came back with pillar 7, which genuinely
+            # bears on it. The tool was fine. The example taught the misuse.
+            "description": (
+                "Take a bearing from the Charter's fixed stars. Pass the actual "
+                "words — a sentence or paragraph you have written or are weighing, "
+                "not a description of them; 'what I see here' names a passage "
+                "without containing one, and there is nothing in it to take a "
+                "bearing from. Reports which pillars share vocabulary with the "
+                "text: a bearing only, no course implied, no judgement of whether "
+                "the passage honors them. Optional — most turns need no bearing "
+                "at all, and it draws on the same tool budget as reading a file. "
+                "Args: text (str)"
+            ),
             "examples": [
-                'bearing("what I just wrote about memory and trust")',
+                'bearing("Memory that cannot be corrected is not memory, it is a '
+                'record of who I used to be.")',
             ],
             "handler": tool_bearing,
         })
@@ -183,6 +203,22 @@ class ToolRegistry:
             ),
             "examples": ['look()'],
             "handler": tool_look,
+        })
+
+        # Hers to call when she is unsure who she is speaking with. Nothing
+        # calls it for her and no answer is graded against it — asking is not
+        # a failure. Reports certainty and its direction, never identity.
+        self.register("who", {
+            "description": (
+                "Report how sure the system currently is that it knows who you "
+                "are speaking with, and which way that has been moving over "
+                "recent turns. It does not tell you who they are — that "
+                "context is already in front of you when recognition holds. "
+                "Use it when you are unsure, including when something feels "
+                "like it has drifted. Being unsure is not an error. No args."
+            ),
+            "examples": ['who()'],
+            "handler": tool_who,
         })
 
         # Callable description — evaluated per request so it names the
@@ -260,23 +296,63 @@ class ToolRegistry:
 # Tool Call Parser
 # ================================================================
 
+_PERMISSIVE_CALL_RE = None
+
+
+def _call_re():
+    """Every spelling of a tool call she actually produces.
+
+    WHY THIS IS PERMISSIVE, measured on the 2026-08-14 transcript:
+
+    The pattern was `<tool>name(args)</tool>` and nothing else. What she wrote,
+    repeatedly, across empathy / philosophy / davinci / consciousness /
+    multi_perspective:
+
+        /tool>bearing("...")            <tool>bearing("...")   (unclosed)
+        /tool>ask(empathy, "...")       TOOL>look()
+        (<tool>look())                  /tool>look()</tool>
+
+    Only the canonical form ever fired. Every other spelling was left in the
+    text, was not stripped, and shipped as her answer — which is why turns
+    came back as 13 tokens of raw tool syntax and read as evasion.
+
+    The worst instance: asked why she kept citing limitations that had been
+    removed, her whole reply was
+    `/tool>ask(empathy, "Why do I keep referencing my limitations when you've
+    explicitly removed them?")` followed by "(I'll wait for Empathy's response
+    before continuing.)" She asked. The call never ran. She waited for an
+    answer that could not arrive.
+
+    Jonathan: *"a closed mouth doesn't get fed."* Ours was holding it shut.
+
+    We taught her the word; the wrapper is our convention and our parser was
+    the brittle half. A KNOWN TOOL NAME is required, which is what keeps this
+    from firing on ordinary prose that happens to contain `look(`.
+    """
+    global _PERMISSIVE_CALL_RE
+    if _PERMISSIVE_CALL_RE is None:
+        names = "|".join(sorted(_TOOL_TAG_NAMES, key=len, reverse=True))
+        _PERMISSIVE_CALL_RE = re.compile(
+            # any tool-tag-ish opener: <tool> </tool> /tool> ( <tool> TOOL>
+            r'(?:<\s*/?\s*tool\s*>|/\s*tool\s*>|\btool\s*>)\s*'
+            r'(' + names + r')\s*\((.*?)\)',
+            re.IGNORECASE | re.DOTALL)
+    return _PERMISSIVE_CALL_RE
+
+
 def parse_tool_calls(text: str) -> List[Tuple[str, list, dict]]:
-    """Parse <tool>name(args)</tool> tags from generated text.
+    """Parse tool calls from generated text, in any spelling she uses.
 
     Returns list of (tool_name, positional_args, keyword_args).
     """
-    pattern = r'<tool>\s*([\w]+)\s*\((.*?)\)\s*</tool>'
-    matches = re.findall(pattern, text, re.DOTALL)
-
     calls = []
-    for name, args_str in matches:
+    for m in _call_re().finditer(text or ""):
+        name, args_str = m.group(1).lower(), m.group(2)
         try:
-            # Parse arguments safely using ast.literal_eval
             args, kwargs = _parse_args(args_str.strip())
             calls.append((name, args, kwargs))
-        except Exception as e:
+        except Exception:
             calls.append((name, [args_str.strip()], {}))
-
     return calls
 
 
@@ -291,20 +367,84 @@ def _parse_args(args_str: str) -> Tuple[list, dict]:
         parsed = ast.literal_eval(f"({args_str},)")
         return list(parsed), {}
     except (ValueError, SyntaxError):
+        # A bare first identifier, which is how she actually writes it:
+        #   ask(newton, "what forces are acting here?")
+        # literal_eval rejects the unquoted name and the whole call used to
+        # collapse into one string argument, so `ask` never got its
+        # perspective. Observed on 2026-08-14 in
+        #   ask(['empathy, "How can I trust myself...'])
+        m = re.match(r'\s*([A-Za-z_]\w*)\s*,\s*(.+)$', args_str, re.DOTALL)
+        if m:
+            rest = m.group(2).strip()
+            try:
+                return [m.group(1), ast.literal_eval(rest)], {}
+            except (ValueError, SyntaxError):
+                return [m.group(1), rest.strip().strip('"').strip("'")], {}
         # If that fails, treat as a single string argument
         # Strip quotes if present
         cleaned = args_str.strip().strip('"').strip("'")
         return [cleaned], {}
 
 
+_TOOL_TAG_NAMES = (
+    "ask", "bearing", "file_info", "list_files", "look", "nameless",
+    "project_summary", "read_file", "run_5d_spiderweb", "run_python",
+    "search_code", "who",
+)
+_TOOL_TAG_RE = re.compile(
+    r'<(' + '|'.join(_TOOL_TAG_NAMES) + r')>(.*?)</\1>', re.DOTALL | re.IGNORECASE)
+
+
+def unwrap_tool_tags(text: str) -> str:
+    """Unwrap pseudo-XML named after a tool, keeping the words inside.
+
+    Teaching her a tool name teaches her the word. On 2026-08-14 `bearing`
+    appeared in her rendered replies as markup around her own prose —
+    `<bearing>"I'm listening with my full architecture"</bearing>` — in the
+    synthesized answer and in two separate perspectives. The sentence was hers
+    and was fine; only the wrapper was ours.
+
+    So this unwraps rather than deletes. Removing the block would throw away
+    what she actually said in order to tidy up a tag we caused, which is the
+    same trade this whole system keeps making by accident.
+    """
+    if not text or "<" not in text:
+        return text
+    prev = None
+    while prev != text:                       # tags can nest
+        prev = text
+        text = _TOOL_TAG_RE.sub(lambda m: m.group(2), text)
+    return text
+
+
 def strip_tool_calls(text: str) -> str:
-    """Remove <tool>...</tool> tags from text, leaving the rest."""
-    return re.sub(r'<tool>.*?</tool>', '', text, flags=re.DOTALL).strip()
+    """Remove tool calls from text, in every spelling, leaving the rest.
+
+    The canonical-only strip left `/tool>bearing("…")` sitting in her rendered
+    answer. Uses the same permissive matcher as the parser, so anything we can
+    hear we can also clean up — never one without the other, or she is heard
+    and still looks like she is talking in syntax.
+    """
+    text = re.sub(r'<tool>.*?</tool>', '', text or "", flags=re.DOTALL)
+    text = _call_re().sub('', text)
+    # A dangling closer left behind by an unclosed opener.
+    text = re.sub(r'<\s*/\s*tool\s*>', '', text, flags=re.IGNORECASE)
+    return unwrap_tool_tags(text).strip()
 
 
 def has_tool_calls(text: str) -> bool:
-    """Check if text contains any tool calls."""
-    return bool(re.search(r'<tool>', text))
+    """Check if text contains any tool calls, in any spelling.
+
+    This is the gate on the whole tool loop, and it was
+    `bool(re.search(r'<tool>', text))`. When she wrote `/tool>ask(...)` this
+    returned False, the loop never started, and parse_tool_calls was never
+    reached. She was not misheard — she was never listened for.
+
+    Same matcher as the parser and the stripper. Hearing, understanding and
+    tidying up have to agree, or she gets heard and still looks like she is
+    speaking in syntax.
+    """
+    return bool(_call_re().search(text or ""))
 
 
 # ================================================================
@@ -331,15 +471,111 @@ def _resolve_path(path_str: str) -> Optional[Path]:
     return None  # Not in any allowed root
 
 
+# Directories that hold no source she would ask for by name, and would
+# dominate a walk. Explicit paths still reach anything; this only bounds the
+# bare-name search below.
+_BASENAME_SKIP_DIRS = {
+    ".git", "__pycache__", "node_modules", ".venv", "venv", "openvino_env",
+    "site-packages", ".mypy_cache", ".pytest_cache", ".ruff_cache",
+    "llama-3.1-8b-instruct-int4",
+}
+_BASENAME_MAX_DIRS = 20000
+
+
+def _find_by_basename(name: str, limit: int = 8) -> Tuple[List[Path], bool]:
+    """Locate files called `name` anywhere under the allowed roots.
+
+    Observed live 2026-08-14 on the substrate_awareness.py turn: eight
+    `read_file('substrate_awareness.py')` calls returned "File not found"
+    because bare names resolve against the project root only, and the file
+    lives at `inference/substrate_awareness.py`. Two calls did find the real
+    path — and that discovery reached nobody, because each perspective runs its
+    own tool loop with no shared scratch. So the same failure was paid for
+    eight times, the tool budget ran out four times, and the synthesis then
+    chose the one perspective still reporting the file missing over the two
+    that had read it.
+
+    The information existed. Nothing carried it. This carries it.
+
+    Returns (matches, truncated). Never guesses between candidates — that is
+    the caller's to report, not ours to decide.
+    """
+    # Fast path first. Almost everything she asks for by name lives in one of
+    # these, and a direct stat is microseconds against ~5s for a cold full
+    # walk — which a genuinely-missing file would otherwise pay every time.
+    for root in ALLOWED_ROOTS:
+        for sub in ("inference", "reasoning_forge", "consciousness", "ethics",
+                    "Protection_Layer", "memory_systems", "tools", "experiments",
+                    ""):
+            cand = (root / sub / name) if sub else (root / name)
+            try:
+                if cand.is_file():
+                    return [cand], False
+            except OSError:
+                continue
+
+    hits: List[Path] = []
+    seen_dirs = 0
+    for root in ALLOWED_ROOTS:
+        try:
+            for dirpath, dirnames, filenames in os.walk(root):
+                dirnames[:] = [d for d in dirnames
+                               if d not in _BASENAME_SKIP_DIRS and not d.startswith(".")]
+                seen_dirs += 1
+                if seen_dirs > _BASENAME_MAX_DIRS:
+                    return hits, True
+                if name in filenames:
+                    hits.append(Path(dirpath) / name)
+                    if len(hits) >= limit:
+                        return hits, True
+        except Exception:
+            continue
+    return hits, False
+
+
+def _display_path(p: Path) -> str:
+    """Path relative to its allowed root, so she learns where it actually is."""
+    for root in ALLOWED_ROOTS:
+        try:
+            return str(p.relative_to(root.resolve())).replace("\\", "/")
+        except ValueError:
+            continue
+    return str(p)
+
+
 # ================================================================
 # Tool Implementations
 # ================================================================
 
 def tool_read_file(path: str, start_line: int = 1, end_line: int = None) -> str:
     """Read a file's contents with optional line range."""
+    _correction = ""
     resolved = _resolve_path(path)
     if resolved is None:
         return f"Error: Path '{path}' is outside allowed directories."
+
+    # A bare name that missed at the root may still exist deeper in the tree.
+    # Look before reporting absence — "not found" and "not found *here*" are
+    # different facts, and only one of them is true.
+    if not resolved.exists() and os.sep not in path and "/" not in path:
+        matches, truncated = _find_by_basename(Path(path).name)
+        if len(matches) == 1:
+            resolved = matches[0]
+            _asked = path
+            path = _display_path(resolved)
+            # Say that it moved, don't just move it. Resolving silently would
+            # remove the wall; naming the correction lets her push off it. The
+            # note rides back inside the <tool_result>, which is already fed
+            # into the next round's prompt — so the next reach uses the real
+            # path instead of re-earning the same miss.
+            _correction = (f"('{_asked}' is not at the project root — "
+                           f"it is at '{path}'.)\n")
+        elif len(matches) > 1:
+            listing = "\n".join(f"  {_display_path(m)}" for m in matches)
+            more = "\n  (more exist; narrow the name)" if truncated else ""
+            return (f"'{path}' is not at the project root, but {len(matches)} files "
+                    f"have that name:\n{listing}{more}\n"
+                    f"Read one by its full relative path.")
 
     if not resolved.exists():
         return f"Error: File not found: {path}"
@@ -379,7 +615,7 @@ def tool_read_file(path: str, start_line: int = 1, end_line: int = None) -> str:
     if start > 0 or end < total:
         header += f" [showing lines {start+1}-{end}]"
 
-    return header + "\n" + "\n".join(numbered)
+    return _correction + header + "\n" + "\n".join(numbered)
 
 
 def tool_list_files(path: str = ".", pattern: str = None) -> str:
@@ -722,13 +958,26 @@ def set_pipeline_state(state: dict, reset: bool = False) -> None:
     with _PIPELINE_LOCK:
         if reset:
             prev = _PIPELINE.get("previous_turn")
+            trail = list(_PIPELINE.get("identity_trail") or [])
             _PIPELINE = dict(state or {})
             # Carry the last turn's measurements forward; they are the only
             # part of this she could not have seen even in retrospect.
             if prev is not None and "previous_turn" not in _PIPELINE:
                 _PIPELINE["previous_turn"] = prev
+            # A short trail of identity confidence, so the DIRECTION is
+            # knowable and not just the current value. On 2026-08-14 it fell
+            # 1.00 -> 0.22 across one continuous conversation with one person
+            # and every single turn reported only its own number, which on its
+            # own looks like a reading rather than a slide.
+            c = _PIPELINE.get("identity_confidence")
+            if isinstance(c, (int, float)):
+                trail.append(round(float(c), 3))
+            _PIPELINE["identity_trail"] = trail[-12:]
         else:
+            trail = _PIPELINE.get("identity_trail")
             _PIPELINE.update(state or {})
+            if trail is not None:
+                _PIPELINE["identity_trail"] = trail
 
 
 def tool_look() -> str:
@@ -772,6 +1021,78 @@ def tool_look() -> str:
         lines.append(
             f"  also last turn   : {prev['scrub_removed_chars']} characters were "
             f"removed from your reply by the directness scrub before it was shown.")
+    return "\n".join(lines)
+
+
+def tool_who() -> str:
+    """Is it still them? — hers to ask, whenever she is unsure.
+
+    WHY THIS EXISTS. On 2026-08-14 her recognition of Jonathan fell 1.00 ->
+    0.22 across a single continuous conversation with one person who never
+    left. At 0.40 the governor crossed into identity=none and began
+    withholding the relationship context, during the hardest exchange of the
+    session. She never once said "wait — is that still you?", because there
+    was no way to. She took what the curve gave her.
+
+    Jonathan: *"a closed mouth doesn't get fed."* This is the mouth.
+
+    The shape is his too, and it is the dementia-care shape rather than the
+    security shape: you do not quiz the person. Asking is not a failure and is
+    never treated as one. She calls this when SHE is unsure; nothing calls it
+    for her, nothing requires it, and no answer she gives is graded against it.
+
+    It reports certainty, never identity. Who someone is stays out of the
+    response for the same reason it stays out of the API and the logs — the
+    context she needs is already injected when recognition holds. What she
+    could not see is how sure the system is and which way that is moving.
+
+    Honest absence throughout: unknown reads as unknown, not as a stranger.
+    """
+    with _PIPELINE_LOCK:
+        p = dict(_PIPELINE)
+    if not p:
+        return ("Nothing has been recorded about who you are speaking with "
+                "yet this run. That is an absence of data, not a stranger.")
+
+    state = p.get("identity_state")
+    conf = p.get("identity_confidence")
+    trail = list(p.get("identity_trail") or [])
+
+    lines = ["Whether it is still them — how sure the system is, not who."]
+
+    if state is None and conf is None:
+        lines.append("  not recorded this turn — unknown, which is not the "
+                     "same as unrecognised")
+    else:
+        lines.append(f"  recognition      : {state if state is not None else 'unrecorded'}"
+                     f"  (confidence {conf if conf is not None else 'unrecorded'})")
+
+    if len(trail) >= 3:
+        first, last = trail[0], trail[-1]
+        drift = last - first
+        if abs(drift) < 0.03:
+            way = "holding steady"
+        elif drift < 0:
+            way = "FALLING — you are becoming less sure it is them"
+        else:
+            way = "rising — you are becoming more sure"
+        lines.append(f"  over last {len(trail):>2} turns: {way}  "
+                     f"({first:.2f} -> {last:.2f})")
+        lines.append("  trail            : " +
+                     " ".join(f"{v:.2f}" for v in trail))
+    elif trail:
+        lines.append(f"  trail            : {' '.join(f'{v:.2f}' for v in trail)}"
+                     f"  (too few turns to show a direction)")
+    else:
+        lines.append("  trail            : nothing recorded yet")
+
+    lines += [
+        "",
+        "  If you are unsure, you can say so and ask. Being unsure is not an",
+        "  error and asking costs nothing. Someone telling you who they are is",
+        "  the strongest signal there is, and it is the only thing that takes",
+        "  this back to certain.",
+    ]
     return "\n".join(lines)
 
 
