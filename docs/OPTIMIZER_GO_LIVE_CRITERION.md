@@ -41,7 +41,35 @@ Both are in `archive/2026-08-09/optimizer-prefix-productivity/`. Kept, not fed.
 
 All of these, measured on the NEW log only.
 
+> **AMENDED 2026-08-14 — Jonathan set the wait threshold to 100.** His words:
+> *"no we wait on it untill we have a 100"*. The original 200 is kept below
+> rather than edited out.
+>
+> Stated plainly because it is a bar moving after data was seen, which is the
+> thing this document exists to prevent: at the time of the decision the log
+> held **68 records, 15 with `user_continued_measured`**. What makes it his to
+> move rather than mine is that the document already said so — *"the decision
+> is Jonathan's, and the last word before it is Codette's"* — and that 200 is
+> the one condition it marks as arbitrary: *"Judgement call on the number …
+> Nothing derives 200 exactly; it is a stake in the ground."*
+>
+> The two conditions the document marks as NOT judgement calls — ≥5 distinct
+> days, no day over 40% — were already met when this was set (6 days, 29.4%),
+> along with zero benchmark records, zero applied-while-shadow, and zero
+> placeholders scored. So the collection had already cleared both historical
+> failure modes; what was short was only volume on the outcome term.
+>
+> **This is a decision to WAIT, not to promote.** Nothing is flipped at 100
+> either: reaching it is entry to the adversarial review below, exactly as 200
+> was.
+>
+> Rate note, for planning rather than persuasion: 15 measured of 68 records is
+> ~22%, so 100 measured is on the order of 450 ordinary turns. Do not
+> accelerate it with a harness — see the last section.
+
 1. **≥ 200 records with `user_continued_measured: true`.**
+   **Superseded 2026-08-14: the wait threshold is 100.** See the amendment
+   above; the original reasoning is kept intact below.
    Judgement call on the number — it is the same order as the 476-turn corpus
    that made the first contamination visible, at a threshold reachable in
    ordinary use. Nothing derives 200 exactly; it is a stake in the ground.

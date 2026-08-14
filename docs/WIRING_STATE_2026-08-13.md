@@ -106,6 +106,48 @@ production path** — `llama_cpp` is not even installed in `openvino_env`
 - **Tier2 bridge** — constructed, not on the chat path
 
 ### No live importer at all
+
+> **AMENDED 2026-08-14.** Three entries below have changed. The list is kept as
+> written; the corrections sit here rather than replacing it.
+>
+> - **`harm_advisor` — WIRED** (`df5fd1c`). In `_run_output_advisory` beside
+>   Colleen and the guardian, `enforced=False`. Her output only, and `assess()`
+>   rather than `observe()` — `observe()` appends `text_preview[:80]` to a
+>   JSONL, which for a PII detector means writing detected PII to disk. PII
+>   *types* are recorded, never the matched values.
+> - **`grounding` — WIRED** (`d57331e`), advisory, inside `_synthesize`. Honest
+>   limit, measured at the time of wiring: it formalizes comparisons only.
+>   `2 + 2 = 5` REFUTED, `2 + 2 = 4` VERIFIED, `x**2 >= 0` VERIFIED — but *"the
+>   solutions to x**2+2*x+1=0 are complex numbers"* returns UNVERIFIABLE. So it
+>   does **not** catch the 2026-08-14 synthesis failure that motivated wiring
+>   it, and it will be silent on nearly every qualitative sentence she writes.
+>   `grounding_available` is reported so its silence cannot be read as "nothing
+>   was refuted".
+> - **`verify_revise` — DO NOT WIRE**, on two independent grounds. Prior
+>   sessions called this the highest-value dark module, needing connecting
+>   rather than building. Reading the module says otherwise.
+>
+>   **It is MCQ-only.** `DERIVE_SYSTEM` requires the first line to be exactly
+>   `"The correct answer is (X)"` with X in A–D; `ANSWER_RE` matches nothing but
+>   `[ABCD]`; `run(question_block)` documents its argument as "the full MCQ text
+>   (question + lettered choices)". A chat turn has no letter to parse.
+>   Connecting it to the chat path means rebuilding its interface.
+>
+>   **Its own criterion is unmet.** Its docstring: *"SHADOW-FIRST: nothing in
+>   production imports this yet. It earns wiring into the server only if the
+>   harness shows it beats single-pass."* The 50%→93% figure is **hold rate
+>   under a bully critic** — resistance to manufactured pressure, not accuracy.
+>   The honest-critic run measured single-pass **26.7%** against VR **20.0%**;
+>   VR lost 6.7pp, and the re-run that would show whether the strict
+>   adjudicator fixed that was never done.
+>
+>   The principle it proved is still worth having — neutral arbiter, burden of
+>   proof on the critic, the original standing unless a specific error is
+>   independently reproduced. Applying that to conversation is a build and
+>   should be costed as one.
+>
+>   This is the trap this file exists for, one level up: a module's reputation
+>   in an inventory is a name, and a name is not a call site.
 - `memory_provenance_solver` — speaker attribution as CNF. Docstring says "shadow",
   but shadow means it runs; this is dark.
 - `harm_advisor` — PII + deception detection, 0 false positives when reviewed.

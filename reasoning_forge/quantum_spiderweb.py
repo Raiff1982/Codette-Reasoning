@@ -183,6 +183,44 @@ class QuantumSpiderweb:
             "convergence_events": 0,
         }
 
+        # Entanglement phase accounting — the same zero as Γ, one layer down.
+        #
+        # entangle() (Eq. 2) represents each node as complex(psi, phi) and derives
+        # a rotation from the phase of their product.  `phi` is written by nothing
+        # on the live path (codette_session.update_after_response sets psi and tau
+        # only), so both operands are purely real, S_phase is 0, and the rotation
+        # matrix is the IDENTITY.  Eq. 2 then reduces to a plain linear blend of
+        # psi — the entire phase-coupling half does nothing.
+        #
+        # This runs on every multi-perspective turn and reports no failure, which
+        # is precisely the shape that has to be made audible: its "no coupling
+        # happened" and its "not asked" were the same output.  Γ was noticed
+        # because a perfect score is visible; this had no score at all.
+        #
+        # Counters only.  Populating `phi` is a design decision — it is Jonathan's
+        # call, alongside what Γ should measure — and is NOT taken here.
+        self._entangle_calls: int = 0
+        self._entangle_phase_degenerate: int = 0
+
+        # Valence accounting. A caller may now write phi (see
+        # codette_session.update_after_response). These record how often it was
+        # ATTEMPTED versus how often a value was actually obtained, so that
+        # "phi is zero because nobody writes it" stays distinguishable from
+        # "phi is zero because the valence measured zero" — different absences,
+        # and collapsing them is how this dimension read as healthy for months.
+        self._valence_attempted: int = 0
+        self._valence_written: int = 0
+
+    def note_valence_pass(self, attempted: int, written: int) -> None:
+        """Record one pass of an external valence writer over this web.
+
+        Counters only; the values live on the nodes. Called even when nothing
+        was written, because a pass that measured nothing is itself the reading
+        that matters when coherence comes back unmeasurable.
+        """
+        self._valence_attempted += max(0, int(attempted))
+        self._valence_written += max(0, int(written))
+
     # -- graph construction ------------------------------------------------
 
     def add_node(self, node_id: str, state: Optional[NodeState] = None) -> SpiderwebNode:
@@ -356,6 +394,12 @@ class QuantumSpiderweb:
         psi_2 = complex(b.psi, b.phi)
         psi_2_conj = psi_2.conjugate()
 
+        # Both imaginary parts zero => S_phase == 0 => identity rotation => this
+        # call performs no phase coupling at all. Counted, not corrected.
+        self._entangle_calls += 1
+        if abs(a.phi) < 1e-12 and abs(b.phi) < 1e-12:
+            self._entangle_phase_degenerate += 1
+
         # Entanglement strength (Eq. 2)
         S_complex = alpha * (psi_1 * psi_2_conj)
         S_magnitude = abs(S_complex)
@@ -504,6 +548,27 @@ class QuantumSpiderweb:
             return True
         return all(abs(n.state.phi) < 1e-12 for n in self.nodes.values())
 
+    def _degenerate_reason(self) -> str:
+        """Why phi is flat — and these are three different findings.
+
+        Before a valence writer existed there was only one possible answer.
+        Now the same flat phi can mean: nobody tried, somebody tried and no
+        rule fired, or valence was genuinely measured at zero. Only the first
+        is a dead wire; the second is a thin ontology; the third is a real
+        reading. Reporting one sentence for all three would rebuild exactly the
+        instrument this replaced.
+        """
+        if self._valence_attempted == 0:
+            return ("phi is zero on every node — nothing writes valence "
+                    "(no valence pass has run)")
+        if self._valence_written == 0:
+            return (f"phi is zero on every node — valence was attempted on "
+                    f"{self._valence_attempted} perspective text(s) and no rule "
+                    f"fired; the ontology carries 3 seed emotions and no "
+                    f"ai_inference_rules.json is present")
+        return (f"phi is flat despite {self._valence_written} measured "
+                f"valence value(s) — measured, and measured at zero")
+
     def _has_been_measured(self) -> bool:
         """Has anything actually propagated through this web yet?
 
@@ -520,6 +585,31 @@ class QuantumSpiderweb:
         if len(self.nodes) < 2:
             return False
         return any(len(n.tension_history) > 0 for n in self.nodes.values())
+
+    def psi_dispersion(self) -> Optional[float]:
+        """Spread of psi across nodes — the signal the angle throws away.
+
+        This is NOT gamma and does not redefine it. What Γ should measure is a
+        design decision on record as Jonathan's, alongside the three-different-
+        quantities-called-gamma problem. This is a separate, plainly named
+        quantity that exists because the measurement was already sitting there
+        being discarded.
+
+        Measured on the live session 2026-08-13: empathy 0.1834 and
+        consciousness 0.1595 against 0.0789 for the other seven. That is real
+        separation, present on every turn, and `atan2(phi, psi)` collapsed all
+        of it to a single angle. Population standard deviation, so it is zero
+        when the perspectives genuinely sit together and rises when they pull
+        apart — it can fall, which is the whole requirement.
+
+        Returns None when there is nothing to spread across.
+        """
+        if len(self.nodes) < 2:
+            return None
+        vals = [n.state.psi for n in self.nodes.values()]
+        mean = sum(vals) / len(vals)
+        var = sum((v - mean) ** 2 for v in vals) / len(vals)
+        return round(math.sqrt(var), 6)
 
     def _compute_phase_coherence_readonly(self) -> float:
         """Compute phase coherence without mutating global tension history."""
@@ -1005,11 +1095,22 @@ class QuantumSpiderweb:
             "phase_degenerate": self._phase_is_degenerate(),
             "unmeasured_reason": (
                 None if (self._has_been_measured() and not self._phase_is_degenerate())
-                else ("phi is zero on every node — coherence cannot vary"
+                else (self._degenerate_reason()
                       if self._phase_is_degenerate()
                       else "nothing has propagated through the web yet")
             ),
+            # The signal the angle discards. Separate quantity, plainly named,
+            # NOT a redefinition of gamma — see psi_dispersion().
+            "psi_dispersion": self.psi_dispersion(),
+            # Whether anyone is writing valence at all, and whether it landed.
+            "valence_attempted": self._valence_attempted,
+            "valence_written": self._valence_written,
             "global_tension_history": self._global_tension_history[-20:],
+            # Eq. 2's phase coupling, same zero one layer down. calls ==
+            # phase_degenerate means every entanglement this session rotated by
+            # the identity and coupled nothing. See __init__.
+            "entangle_calls": self._entangle_calls,
+            "entangle_phase_degenerate": self._entangle_phase_degenerate,
         }
 
     @classmethod

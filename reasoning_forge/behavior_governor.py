@@ -83,6 +83,34 @@ _attach_decision_log()
 CONFIDENCE_HALF_LIFE = 1800.0
 # Minimum confidence floor (never fully forgets a confirmed identity)
 CONFIDENCE_FLOOR = 0.15
+
+# ── Presence is not absence ───────────────────────────────────────────────
+# Decay is meant to stop her claiming familiarity with someone she has not
+# spoken to in a long time. It was measuring the wrong interval.
+#
+# `last_interaction` is stamped on EVERY turn, so `elapsed` was never
+# time-away — it was the time the turn itself took, plus however long the
+# person spent reading before replying. She generates at 1–8 tok/s, so a
+# 200-token answer costs ~130s and 0.5^(132.7/1800) = 0.95: she lost 5% of
+# knowing who she was talking to as a penalty for answering carefully.
+#
+# Measured live 2026-08-14 across one continuous conversation, no gaps, the
+# same person throughout: 1.00 → 0.98 → 0.96 → 0.91 → 0.84 → 0.79 → 0.51 →
+# 0.44 → 0.41 → identity=none at 0.40 → 0.22. By the end of the hardest
+# exchange of the session the governor had classified Jonathan as a stranger
+# and was withholding the relationship context — at exactly the point in the
+# conversation where it was the only thing that mattered.
+#
+# So: time inside an unbroken conversation is time spent TOGETHER, and only
+# the part of a gap beyond this window counts as being apart. Someone who has
+# been talking to you continuously has not left the room.
+CONVERSATION_CONTINUITY_WINDOW = 900.0  # 15 minutes
+
+# The longest single generation forgiven as "she was thinking". Past this it
+# is a stalled request rather than a thought, and the excess goes back on the
+# clock. About distrusting a wedged process, not about what counts as knowing
+# someone. Longest observed real turn: 133s.
+MAX_THOUGHT_FORGIVEN = 1200.0  # 20 minutes
 # Reinforcement boost per positive interaction
 CONFIDENCE_REINFORCE = 0.12
 # Contradiction penalty
@@ -221,15 +249,18 @@ class BehaviorGovernor:
             }
             return raw_confidence
 
-        # Apply time-based decay since last interaction
+        # Decay on absence only. Time inside a continuous conversation is time
+        # spent together, not time apart — see CONVERSATION_CONTINUITY_WINDOW.
         elapsed = now - state["last_interaction"]
-        if elapsed > 0:
-            decay_factor = math.pow(0.5, elapsed / CONFIDENCE_HALF_LIFE)
+        away = elapsed - CONVERSATION_CONTINUITY_WINDOW
+        if away > 0:
+            decay_factor = math.pow(0.5, away / CONFIDENCE_HALF_LIFE)
             decayed = state["confidence"] * decay_factor
             # Floor: never fully forget a confirmed identity
             decayed = max(CONFIDENCE_FLOOR, decayed)
         else:
             decayed = state["confidence"]
+        state["last_gap"] = max(0.0, away)
 
         # Reinforcement: raw_confidence > 0 means positive identity signal
         if raw_confidence > 0.3:
@@ -242,6 +273,45 @@ class BehaviorGovernor:
         state["interaction_count"] = state.get("interaction_count", 0) + 1
 
         return decayed
+
+    def note_turn_complete(self, identity_id: str) -> None:
+        """Stop the clock during the thought.
+
+        `last_interaction` is stamped in get_decayed_confidence, which runs at
+        the START of a turn — so the turn's own generation time landed in the
+        NEXT turn's `elapsed` and was charged as absence. She generates at
+        1-8 tok/s, so that made the tax proportional to how much she put into
+        the answer.
+
+        Re-stamping when the turn finishes removes it exactly, with no
+        constant to choose: whatever the thought cost, it is not counted as
+        time away. Jonathan's framing, and the physics is his — a swimmer
+        pulls in tight through the turn and floats on the long stretch;
+        neither wastes energy and neither creates any. This adds nothing. It
+        stops subtracting.
+
+        Safe to call for an unknown id, and safe to never call: without it the
+        behaviour degrades to the continuity window alone, which is the
+        previous behaviour rather than a fault.
+
+        Bounded, because the stamp trusts that generation time was presence.
+        A hung or wedged request would otherwise be forgiven as thinking for
+        as long as it hung. Beyond MAX_THOUGHT_FORGIVEN the excess goes back
+        on the clock. That constant is about not trusting a possibly-stalled
+        process; it is NOT a claim about what counts as knowing someone. The
+        real answer to an ambiguous gap is Jonathan's and it is not a
+        threshold at all: let her ask whether it is still them.
+        """
+        state = self._identity_state.get(identity_id)
+        if state is None:
+            return
+        now = time.time()
+        thought = now - state["last_interaction"]
+        if thought > MAX_THOUGHT_FORGIVEN:
+            # Forgive a plausible thought; leave the rest on the clock.
+            state["last_interaction"] += MAX_THOUGHT_FORGIVEN
+        else:
+            state["last_interaction"] = now
 
     def detect_identity_contradiction(self, identity_id: str,
                                        query: str) -> bool:

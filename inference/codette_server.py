@@ -1591,6 +1591,83 @@ def _worker_thread():
                         relevant_cocoons = cocooner.recall_relevant(query, max_results=memory_budget)
                         recall_source = "cocooner"
 
+                    # ── Provenance check on the recall set (SHADOW) ──────────
+                    # memory_provenance_solver has had zero callers since it was
+                    # written. It asks the one question the recall layer never
+                    # asks: is the set of things she is about to remember
+                    # internally consistent about WHO SAID WHAT?
+                    #
+                    # This is upstream of every echo detector in the tree. Those
+                    # inspect her output after the fact; this inspects the
+                    # material before she speaks from it. Each recalled cocoon
+                    # contributes two items — the query as "user", the response
+                    # as "codette" — and _quotes_each_other flags an 8-word
+                    # verbatim run spanning both. A cocoon whose response
+                    # reproduces its own query IS the parrot, and recall was
+                    # ranking exactly those first until ac6869a.
+                    #
+                    # SHADOW: reports, never gates. Nothing is dropped, reordered
+                    # or hidden. Wiring it to act is a separate, reviewed step.
+                    try:
+                        if relevant_cocoons:
+                            from reasoning_forge.memory_provenance_solver import (
+                                RecalledItem, check_provenance,
+                            )
+                            _prov_items = []
+                            for _i, _c in enumerate(relevant_cocoons):
+                                _q, _r = _c.get("query", ""), _c.get("response", "")
+                                if _q:
+                                    _prov_items.append(RecalledItem(
+                                        item_id=f"c{_i}q", text=_q,
+                                        claimed_speaker="user", source_block="cocoon"))
+                                if _r:
+                                    _prov_items.append(RecalledItem(
+                                        item_id=f"c{_i}r", text=_r,
+                                        claimed_speaker="codette", source_block="cocoon"))
+                            _verdict = check_provenance(_prov_items)
+                            memory_context_summary["provenance"] = {
+                                **_verdict.to_dict(), "enforced": False,
+                            }
+                            if not _verdict.consistent or _verdict.conflicts:
+                                print(f"  [PROVENANCE] would-flag (ADVISORY) — "
+                                      f"consistent={_verdict.consistent} "
+                                      f"conflicts={len(_verdict.conflicts)} "
+                                      f"load_bearing={_verdict.load_bearing}", flush=True)
+
+                            # ── Recycle the charge into perspective breadth ──
+                            # The traversal above already harvested energy from
+                            # the recall problem's own constraint density. Until
+                            # now it was discarded with the substrate, while
+                            # `max_adapters` stayed a constant 2 from a request
+                            # default the governor never touched — so difficulty
+                            # rose and the number of voices never moved.
+                            #
+                            # This is the one budget in the system that fills
+                            # itself from measured difficulty rather than a
+                            # classifier's guess. It only ever raises the
+                            # allowance: the floor is exactly the previous
+                            # behaviour, so nothing she had can be taken away.
+                            from reasoning_forge.memory_provenance_solver import (
+                                recycle_charge_to_perspectives,
+                            )
+                            _allow, _why = recycle_charge_to_perspectives(
+                                _verdict.metabolic_charge, floor=max_adapters)
+                            memory_context_summary["perspective_allowance"] = {
+                                "granted": _allow,
+                                "floor": max_adapters,
+                                "metabolic_charge": _verdict.metabolic_charge,
+                                "reason": _why,
+                            }
+                            if _allow > max_adapters:
+                                print(f"  [CHARGE] {_why} (was {max_adapters})", flush=True)
+                            max_adapters = _allow
+                    except Exception as _pv_e:
+                        # Unavailable is recorded as unavailable, never as clean.
+                        memory_context_summary["provenance"] = {
+                            "unavailable": str(_pv_e), "enforced": False,
+                        }
+                        print(f"  [PROVENANCE] advisory skipped: {_pv_e}", flush=True)
+
                     memory_lines = []
                     if relevant_cocoons:
                         for cocoon in relevant_cocoons:
@@ -1827,6 +1904,19 @@ def _worker_thread():
                         pass
 
                 print(f"  [WORKER] Got result: response={len(result.get('response',''))} chars, adapter={result.get('adapter','?')}", flush=True)
+
+                # ── Stop the clock during the thought ──
+                # The identity clock is stamped when the turn STARTS, so the
+                # generation time landed in the next turn's elapsed and was
+                # charged as absence — making the tax proportional to how much
+                # she put into the answer. Re-stamp now that the thought is
+                # done. She was here for all of it.
+                if _behavior_governor and recognized_user:
+                    try:
+                        _behavior_governor.note_turn_complete(recognized_user)
+                    except Exception as _nte:
+                        print(f"  [GOVERNOR] turn-complete stamp skipped: {_nte}",
+                              flush=True)
 
                 # ── Post-generation Hallucination Check ──
                 response_text = result.get("response", "")
@@ -2638,6 +2728,141 @@ class CodetteHandler(SimpleHTTPRequestHandler):
                     ),
                 }
             self._json_response(dashboard)
+        elif path == "/api/optimizer":
+            # The router self-tuner, made visible. It has run in shadow since
+            # 2026-07-12 writing data/optimizer_shadow.jsonl, and until now
+            # nothing surfaced it — there was no endpoint, so the only way to
+            # see it was to read the file. That is why it has never been seen.
+            #
+            # It reports; it does not decide. get_adapter_boost() returns 0.0
+            # while CODETTE_OPTIMIZER_LIVE is off, and `applied` is False on
+            # every record. If `applied` is ever true while the flag is off,
+            # that is a bug and this endpoint is where it becomes visible.
+            import datetime as _dt
+            _log = Path(__file__).resolve().parent.parent / "data" / "optimizer_shadow.jsonl"
+            _out = {
+                "log_path": str(_log),
+                "log_exists": _log.exists(),
+                "live": os.environ.get("CODETTE_OPTIMIZER_LIVE", "0") == "1",
+                "live_env_flag": "CODETTE_OPTIMIZER_LIVE",
+            }
+            if not _log.exists():
+                # Absence says so rather than rendering as an empty healthy log.
+                _out["records"] = None
+                _out["note"] = ("no shadow log on disk — the optimizer has not "
+                                "written, which is different from having "
+                                "written nothing")
+                self._json_response(_out)
+                return
+            try:
+                _rows = []
+                with open(_log, "r", encoding="utf-8") as _f:
+                    for _line in _f:
+                        _line = _line.strip()
+                        if _line:
+                            try:
+                                _rows.append(json.loads(_line))
+                            except Exception:
+                                _out["unparseable_lines"] = _out.get("unparseable_lines", 0) + 1
+
+                def _sig(r, k):
+                    return (r.get("signals") or {}).get(k)
+
+                _days = {}
+                for _r in _rows:
+                    try:
+                        _d = _dt.datetime.fromtimestamp(
+                            float(_r.get("ts"))).strftime("%Y-%m-%d")
+                    except Exception:
+                        _d = "undated"
+                    _days[_d] = _days.get(_d, 0) + 1
+
+                _n = len(_rows)
+                _uc = sum(1 for r in _rows if _sig(r, "user_continued_measured") is True)
+                _bench = sum(1 for r in _rows if _sig(r, "is_benchmark") is True)
+                _applied = sum(1 for r in _rows if r.get("applied") is True)
+                _placeholder = sum(1 for r in _rows
+                                   if _sig(r, "productivity_is_placeholder") is True)
+                # The correction that matters: a placeholder flag no longer
+                # means a fabricated 0.5 was scored. Since 2026-08-03
+                # productivity is None when render_fidelity is absent, and
+                # _compute_quality omits the term and renormalises the weights.
+                # So the honest count is "how many had a placeholder SCORED" —
+                # flagged AND still carrying a number.
+                _placeholder_scored = sum(
+                    1 for r in _rows
+                    if _sig(r, "productivity_is_placeholder") is True
+                    and _sig(r, "productivity") is not None)
+                _max_day = max(_days.values()) if _days else 0
+
+                _adapters = {}
+                _proposals = 0
+                for _r in _rows:
+                    _a = _r.get("adapter") or "unknown"
+                    _adapters[_a] = _adapters.get(_a, 0) + 1
+                    _proposals += len(_r.get("proposed_adjustments") or [])
+
+                _crit = {
+                    "source": "docs/OPTIMIZER_GO_LIVE_CRITERION.md",
+                    "user_continued_measured": {
+                        # Jonathan set the wait threshold to 100 on 2026-08-14
+                        # ("no we wait on it untill we have a 100"). The
+                        # original 200 is reported beside it rather than
+                        # replaced, so the endpoint and the document cannot
+                        # drift apart the way the user_continued docstring did.
+                        "value": _uc, "required": 100, "met": _uc >= 100,
+                        "original_required": 200,
+                        "set_by": "Jonathan, 2026-08-14",
+                        "note": ("Reaching it is entry to the adversarial "
+                                 "review, not a promotion. Do not accelerate "
+                                 "with a harness — that is what produced "
+                                 "collection #1."),
+                        "measurement_rate": (round(_uc / _n, 3) if _n else None),
+                    },
+                    "distinct_days": {
+                        "value": len(_days), "required": 5, "met": len(_days) >= 5},
+                    "max_single_day_share": {
+                        "value": round(_max_day / _n, 3) if _n else None,
+                        "limit": 0.40,
+                        "met": (_max_day / _n <= 0.40) if _n else False},
+                    "benchmark_records": {
+                        "value": _bench, "required": 0, "met": _bench == 0},
+                    "applied_while_shadow": {
+                        "value": _applied, "required": 0, "met": _applied == 0},
+                    "placeholder_scored": {
+                        "value": _placeholder_scored, "required": 0,
+                        "met": _placeholder_scored == 0,
+                        "flagged_but_omitted": _placeholder,
+                        "note": (
+                            "The written criterion says zero records with "
+                            "productivity_is_placeholder. That test is stale: "
+                            "since 2026-08-03 a placeholder means productivity "
+                            "is None and the term is OMITTED with weights "
+                            "renormalised, so the flag marks honesty rather "
+                            "than fabrication. The count that matters is how "
+                            "many had a placeholder actually scored."),
+                    },
+                }
+                _crit["all_met"] = all(
+                    v.get("met") for v in _crit.values() if isinstance(v, dict))
+                _out.update({
+                    "records": _n,
+                    "mode": (_rows[-1].get("mode") if _rows else None),
+                    "days": _days,
+                    "records_by_adapter": _adapters,
+                    "proposed_adjustments_total": _proposals,
+                    "criterion": _crit,
+                    "note": (
+                        "Counts are entry to the adversarial review, not a "
+                        "pass. The review is what caught contamination twice: "
+                        "group by day, group by adapter, check the "
+                        "non-benchmark days alone, and ask what would DISPROVE "
+                        "the proposed adjustment. It steers her routing, so it "
+                        "is hers to be asked about."),
+                })
+            except Exception as _oe:
+                _out["error"] = str(_oe)
+            self._json_response(_out)
         elif path == "/api/synthesize":
             # Meta-cognitive cocoon synthesis — discover patterns, forge strategies
             try:

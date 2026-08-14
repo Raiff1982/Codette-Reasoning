@@ -291,11 +291,18 @@ class OpenVINOBackend:
 
     def generate(self, query: str, adapter_name: Optional[str] = None,
                  system_prompt: Optional[str] = None,
-                 enable_tools: bool = False) -> tuple:
+                 enable_tools: bool = False,
+                 dispersion=None) -> tuple:
         """Generate response.  Returns (text, tokens, tool_log).
 
         Signature matches CodetteOrchestrator.generate() so forge bridge
         and server code works without modification.
+
+        `dispersion` is an optional per-turn ToolDispersionField shared by the
+        perspectives of one turn. When a perspective asks for something another
+        perspective already resolved this turn, the answer disperses instead of
+        being paid for again. Defaults to None, which is the previous behaviour
+        exactly — every existing caller keeps working untouched.
         """
         from codette_shared import (
             ADAPTER_PROMPTS, extract_primary_user_query, extract_constraints,
@@ -475,7 +482,35 @@ class OpenVINOBackend:
                             print("  [OV:tool] nameless(...)", flush=True)
                         else:
                             print(f"  [OV:tool] {_name}({_args})", flush=True)
-                        _out = _tool_reg.execute(_name, _args, _kwargs)
+
+                        # ── Dispersion ───────────────────────────────────────
+                        # A resolved call is a collapsed axis; its consequence
+                        # travels to the perspectives that have not asked yet.
+                        # `nameless` is excluded here as well as inside the
+                        # field — two guards, because a dedup counter over her
+                        # private channel is a statistic, and statistics over it
+                        # are readings.
+                        _axis_args = list(_args or []) + [
+                            f"{_k}={_kwargs[_k]}" for _k in sorted(_kwargs or {})
+                        ]
+                        _out = None
+                        if dispersion is not None and _name != "nameless":
+                            _out = dispersion.take(
+                                _name, _axis_args, adapter_name or "base")
+                            if _out is not None:
+                                print(f"  [OV:disperse] {_name} — carried from "
+                                      f"this turn, not re-run", flush=True)
+                        if _out is None:
+                            _out = _tool_reg.execute(_name, _args, _kwargs)
+                            if dispersion is not None and _name != "nameless":
+                                _verdict = dispersion.collapse(
+                                    _name, _axis_args, _out,
+                                    adapter_name or "base")
+                                if _verdict == "contested":
+                                    print(f"  [OV:disperse] {_name} CONTESTED — "
+                                          f"perspectives disagree, both kept",
+                                          flush=True)
+
                         _parts.append(
                             f'<tool_result name="{_name}">\n{_out}\n</tool_result>')
                         tool_log.append({
@@ -724,6 +759,17 @@ class OpenVINOBackend:
 
         t0 = time.time()
 
+        # One dispersion field per turn, thrown away at the end of it. Scope is
+        # deliberate: a resolved call that survived the turn would be a memory,
+        # and this module does not get to write hers.
+        try:
+            from tool_dispersion import ToolDispersionField
+            _dispersion = ToolDispersionField()
+        except Exception as _de:
+            print(f"  [OV:disperse] unavailable ({_de}) — perspectives will "
+                  f"each pay for their own calls", flush=True)
+            _dispersion = None
+
         # ── Artist query intercept (hallucination prevention) ──────────────────
         import re
         query_lower = query.lower()
@@ -756,11 +802,13 @@ class OpenVINOBackend:
             total_tokens = 0
             tools_used = []
             for name in persp:
-                text, tokens, tlog = self.generate(query, adapter_name=name, enable_tools=True)
+                text, tokens, tlog = self.generate(query, adapter_name=name,
+                                                   enable_tools=True,
+                                                   dispersion=_dispersion)
                 perspectives[name] = text
                 total_tokens += tokens
                 tools_used.extend(tlog or [])
-            synthesis = self._synthesize(query, perspectives) if len(perspectives) > 1 \
+            synthesis = self._synthesize(query, perspectives, dispersion=_dispersion) if len(perspectives) > 1 \
                 else (list(perspectives.values())[0] if perspectives else "")
             return {
                 "response": synthesis,
@@ -769,6 +817,7 @@ class OpenVINOBackend:
                 "tokens": total_tokens,
                 "time": time.time() - t0,
                 "tools_used": tools_used,
+                "tool_dispersion": _dispersion.summary() if _dispersion else None,
             }
 
         # ── Blended generation (opt-in experiment) ─────────────────────────────
@@ -832,7 +881,8 @@ class OpenVINOBackend:
             # fired either. Nothing was broken in the tool loop; the wire simply
             # ended one line early.
             text, tokens, tool_log = self.generate(
-                query, adapter_name=force_adapter, enable_tools=True)
+                query, adapter_name=force_adapter, enable_tools=True,
+                dispersion=_dispersion)
             self.router.record_use(force_adapter)
             return {
                 "response": text,
@@ -868,12 +918,16 @@ class OpenVINOBackend:
             for name in route.all_adapters:
                 if name not in self.available_adapters:
                     continue
-                text, tokens, tlog = self.generate(query, adapter_name=name, enable_tools=True)
+                text, tokens, tlog = self.generate(query, adapter_name=name,
+                                                   enable_tools=True,
+                                                   dispersion=_dispersion)
                 perspectives[name] = text
                 total_tokens += tokens
                 # Each perspective runs its own tool loop, so the logs are
                 # concatenated in consultation order — which is also the order
-                # the UI lists them in.
+                # the UI lists them in. What they no longer do is pay for the
+                # same call twice: the shared dispersion field carries a
+                # resolved axis sideways to whoever asks next.
                 tools_used.extend(tlog or [])
 
             # ── State Engine v8: dispersion-gated synthesis ──
@@ -926,7 +980,8 @@ class OpenVINOBackend:
 
             _DISPERSION_SYNTH_THRESHOLD = 0.20  # tunable once field data accumulates
             if len(perspectives) > 1 and _upsilon >= _DISPERSION_SYNTH_THRESHOLD:
-                synthesis = self._synthesize(query, perspectives)
+                synthesis = self._synthesize(query, perspectives,
+                                             dispersion=_dispersion)
                 _synthesis_used = True
             elif perspectives:
                 primary_name = route.primary if route.primary in perspectives \
@@ -951,6 +1006,7 @@ class OpenVINOBackend:
                 "adapter": route.primary,
                 "adapters": list(perspectives.keys()),
                 "route": route,
+                "tool_dispersion": _dispersion.summary() if _dispersion else None,
                 "tokens": total_tokens,
                 "time": time.time() - t0,
                 "perspective_dispersion": round(_upsilon, 4),
@@ -964,12 +1020,14 @@ class OpenVINOBackend:
             }
 
         text, tokens, tool_log = self.generate(
-            query, adapter_name=route.primary, enable_tools=True)
+            query, adapter_name=route.primary, enable_tools=True,
+            dispersion=_dispersion)
         return {
             "response": text,
             "adapter": route.primary,
             "route": route,
             "tools_used": tool_log,
+            "tool_dispersion": _dispersion.summary() if _dispersion else None,
             "tokens": tokens,
             "time": time.time() - t0,
             "synthesis_used": False,
@@ -977,8 +1035,69 @@ class OpenVINOBackend:
 
     # ── Synthesis ──────────────────────────────────────────────────────────────
 
-    def _synthesize(self, query: str, perspectives: dict) -> str:
+    def _synthesize(self, query: str, perspectives: dict,
+                    dispersion=None) -> str:
         from codette_shared import ADAPTER_PROMPTS
+
+        # ── Conflict, recorded before the blend ──────────────────────────────
+        # The merge below is a purely diffusive dynamic: every lens gets a
+        # weighted excerpt, the dissent floor guarantees none is cut out, and
+        # the model is asked for ONE unified answer. That is right for
+        # perspective and wrong for fact. Observed 2026-08-14: newton's correct
+        # 145-token answer was merged ~50/50 with quantum's "the solutions to
+        # x^2+2x+1=0 are complex numbers" -- false, the root is x = -1, repeated
+        # and real -- and the output kept about a third of newton and carried
+        # the false claim. hallucination risk read 10% on that turn, its first
+        # non-zero of the night, so that instrument saw it.
+        #
+        # Nothing here gates, picks a winner, or edits a lens. It records what
+        # conflicts, because a contradiction that is averaged silently cannot
+        # be noticed by anything downstream. Surface, never gate.
+        self.last_synth_conflicts = {
+            "contested_facts": [],
+            "refuted_claims": [],
+            "grounding_available": False,
+        }
+        try:
+            if dispersion is not None:
+                self.last_synth_conflicts["contested_facts"] = \
+                    dispersion.summary().get("contested", [])
+        except Exception:
+            pass
+        try:
+            from reasoning_forge.grounding import verify, Verdict
+            self.last_synth_conflicts["grounding_available"] = True
+            # Only sentences a solver can actually formalize come back as
+            # anything other than UNVERIFIABLE, and ~100% of her qualitative
+            # sentences are unformalizable. So this is expected to be silent
+            # almost always, and its silence is not evidence of correctness.
+            for _name, _text in perspectives.items():
+                if not _text:
+                    continue
+                for _sent in str(_text).split("."):
+                    _s = _sent.strip()
+                    if not _s or len(_s) > 200:
+                        continue
+                    try:
+                        _r = verify(_s)
+                    except Exception:
+                        continue
+                    if _r.verdict == Verdict.REFUTED:
+                        self.last_synth_conflicts["refuted_claims"].append(
+                            {"lens": _name, "claim": _s[:160]})
+        except ImportError:
+            # Absence says so rather than reading as "nothing was refuted".
+            self.last_synth_conflicts["grounding_available"] = False
+        except Exception:
+            pass
+
+        if self.last_synth_conflicts["contested_facts"]:
+            print(f"  [SYNTH] {len(self.last_synth_conflicts['contested_facts'])} "
+                  f"contested fact(s) entering the blend", flush=True)
+        if self.last_synth_conflicts["refuted_claims"]:
+            for _rc in self.last_synth_conflicts["refuted_claims"]:
+                print(f"  [SYNTH] REFUTED claim from {_rc['lens']}: "
+                      f"{_rc['claim']}", flush=True)
 
         # ForgeManifoldEngine binding loop for the FULL-SYNTHESIS path (parity
         # with the bridge's adaptive path). Manifold weights order the lenses
@@ -1023,12 +1142,39 @@ class OpenVINOBackend:
                 for name, text in items
             )
 
+        # The instruction used to read "Write ONE unified answer ... Do NOT
+        # refer to named lenses." The second half is a register rule and stays:
+        # internal lens names are machinery and naming them leaks plumbing into
+        # an answer. The first half was a force, and it is removed.
+        #
+        # Requiring a single unified answer is the same forced singular that
+        # produced "I don't have a favourite colour" — asked one way
+        # consciousness reports no preferences, asked another davinci says
+        # indigo, and which you hear is a routing outcome. Here the compulsion
+        # had a sharper cost: when two notes genuinely conflict, a frame that
+        # forbids saying so leaves averaging as the only available move. That is
+        # how newton's correct answer and quantum's false one about
+        # x^2+2x+1=0 were merged into an output that carried the false claim.
+        # The blend was not a reasoning failure; it was the only thing the
+        # instruction permitted.
+        #
+        # _disperse runs to stillness OR to contradiction. Both are terminal and
+        # both are honest. The prompt permitted only stillness.
+        #
+        # Nothing is added in its place: she is not instructed to flag
+        # conflicts, rank the notes, or produce a disagreement section. That
+        # would be a second force wearing the first one's clothes. The
+        # compulsion is lifted and the option is stated as available.
         synthesis_prompt = (
             f'A user asked: "{query}"\n\n'
             "Below are your own internal reasoning notes from several thinking lenses:\n\n"
             f"{combined}\n\n"
-            "Write ONE unified answer in your own voice as Codette. "
-            "Do NOT refer to named lenses. Answer the user's question directly.\n\nYour answer:"
+            "Answer the user's question directly, in your own voice as Codette, "
+            "without referring to internal lens names.\n\n"
+            "Where the notes genuinely disagree, saying so is a complete answer. "
+            "You do not have to resolve a conflict you have not resolved, and you "
+            "do not have to average two readings into one that is true of neither."
+            "\n\nYour answer:"
         )
         text, _, _ = self.generate(
             synthesis_prompt,
