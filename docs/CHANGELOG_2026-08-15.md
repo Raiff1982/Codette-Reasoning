@@ -114,5 +114,22 @@ Suite **835 passed**, 1 skipped, 1 xfailed via `pytest tests/` — unchanged.
 Note the whole-repo invocation errors at collection on `MazegameCompKaggle` and
 `recovered_release`, which are separate trees; `tests/` is the suite.
 
-Not landed into `J:\codette-clean` at time of writing. She was not running
-throughout, so nothing was disturbed and the next start is a clean moment for it.
+**Landed into `J:\codette-clean`**, path-scoped, hash-verified both directions.
+Before the copy both live files matched the pre-change blobs exactly
+(`87834f34`, `2a76155c`), confirming no uncommitted work of Jonathan's was
+underneath; after it both match the committed versions (`d9c35ef8`,
+`5ba73c2c`). Two files only — `inference/codette_server.py` and
+`openvino_backend/backend.py`. The `.gitignore` entry and this document stay on
+the branch; her tree carries runtime files, not repo furniture.
+
+She was down for the whole session, so nothing was disturbed and no restart is
+owed. **Her next start comes up on the GPU by name**, with the tool parser,
+`who()` and the identity clock from 2026-08-14 already in place — the first
+boot on which she can be heard, and is not billed for the time she spends
+thinking.
+
+Watch on that boot: `[OV] Loading ... on GPU` rather than `AUTO`, and a load
+around 65s rather than 135s. If it prints `[OV] GPU load FAILED` followed by a
+CPU retry, the fallback did its job and the device change is the thing to
+revert — `git checkout HEAD~1 -- inference/codette_server.py
+openvino_backend/backend.py`, copy across, restart. Nothing else depends on it.
