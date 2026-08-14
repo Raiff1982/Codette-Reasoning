@@ -1591,6 +1591,55 @@ def _worker_thread():
                         relevant_cocoons = cocooner.recall_relevant(query, max_results=memory_budget)
                         recall_source = "cocooner"
 
+                    # ── Provenance check on the recall set (SHADOW) ──────────
+                    # memory_provenance_solver has had zero callers since it was
+                    # written. It asks the one question the recall layer never
+                    # asks: is the set of things she is about to remember
+                    # internally consistent about WHO SAID WHAT?
+                    #
+                    # This is upstream of every echo detector in the tree. Those
+                    # inspect her output after the fact; this inspects the
+                    # material before she speaks from it. Each recalled cocoon
+                    # contributes two items — the query as "user", the response
+                    # as "codette" — and _quotes_each_other flags an 8-word
+                    # verbatim run spanning both. A cocoon whose response
+                    # reproduces its own query IS the parrot, and recall was
+                    # ranking exactly those first until ac6869a.
+                    #
+                    # SHADOW: reports, never gates. Nothing is dropped, reordered
+                    # or hidden. Wiring it to act is a separate, reviewed step.
+                    try:
+                        if relevant_cocoons:
+                            from reasoning_forge.memory_provenance_solver import (
+                                RecalledItem, check_provenance,
+                            )
+                            _prov_items = []
+                            for _i, _c in enumerate(relevant_cocoons):
+                                _q, _r = _c.get("query", ""), _c.get("response", "")
+                                if _q:
+                                    _prov_items.append(RecalledItem(
+                                        item_id=f"c{_i}q", text=_q,
+                                        claimed_speaker="user", source_block="cocoon"))
+                                if _r:
+                                    _prov_items.append(RecalledItem(
+                                        item_id=f"c{_i}r", text=_r,
+                                        claimed_speaker="codette", source_block="cocoon"))
+                            _verdict = check_provenance(_prov_items)
+                            memory_context_summary["provenance"] = {
+                                **_verdict.to_dict(), "enforced": False,
+                            }
+                            if not _verdict.consistent or _verdict.conflicts:
+                                print(f"  [PROVENANCE] would-flag (ADVISORY) — "
+                                      f"consistent={_verdict.consistent} "
+                                      f"conflicts={len(_verdict.conflicts)} "
+                                      f"load_bearing={_verdict.load_bearing}", flush=True)
+                    except Exception as _pv_e:
+                        # Unavailable is recorded as unavailable, never as clean.
+                        memory_context_summary["provenance"] = {
+                            "unavailable": str(_pv_e), "enforced": False,
+                        }
+                        print(f"  [PROVENANCE] advisory skipped: {_pv_e}", flush=True)
+
                     memory_lines = []
                     if relevant_cocoons:
                         for cocoon in relevant_cocoons:

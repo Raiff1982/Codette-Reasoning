@@ -67,6 +67,17 @@ try:
 except ImportError:
     HAS_GUARDIAN = False
 
+# EmotionOntology supplies the one quantity the web has been missing.
+# NodeState.phi is declared as "Emotional valence (-1 to +1)" and nothing has
+# ever written it; EmotionOntology.valence_of() returns exactly that range, and
+# returns None rather than guessing when no rule fires. Same units, same
+# honesty rule. See update_after_response for what is and isn't claimed.
+try:
+    from reasoning_forge.emotion_ontology import EmotionOntology
+    HAS_EMOTION_ONTOLOGY = True
+except ImportError:
+    HAS_EMOTION_ONTOLOGY = False
+
 try:
     from reasoning_forge.resonant_continuity import ResonantContinuityEngine
     HAS_RESONANCE = True
@@ -207,6 +218,15 @@ class CodetteSession:
 
         if HAS_MEMORY:
             self.memory_kernel = LivingMemoryKernel(max_memories=100)
+
+        if HAS_EMOTION_ONTOLOGY:
+            # Seeded with the three emotions Jonathan has populated. There is no
+            # ai_inference_rules.json in the tree, so it runs on those three and
+            # will return None for most text — which is the correct behaviour,
+            # not a failure. Absence is recorded as absence downstream.
+            self.emotion_ontology = EmotionOntology()
+        else:
+            self.emotion_ontology = None
 
         if HAS_GUARDIAN:
             self.guardian = CodetteGuardian()
@@ -645,6 +665,39 @@ class CodetteSession:
 
         if not HAS_SPIDERWEB or self.spiderweb is None:
             return
+
+        # ── Emotional valence -> phi ─────────────────────────────────────────
+        # The web's fifth dimension has been dead since it existed. NodeState
+        # declares phi as "Emotional valence (-1 to +1)"; nothing wrote it, so
+        # atan2(phi, psi) was 0 on every node, phase_coherence was 1.0 by
+        # construction, and entangle()'s rotation matrix was the identity — Eq.2
+        # coupled nothing on every multi-perspective turn.
+        #
+        # EmotionOntology.valence_of returns the same quantity in the same range
+        # and returns None when no rule fires. None means UNWRITTEN and is left
+        # alone: a guessed 0.0 would be indistinguishable from the dead state we
+        # are trying to leave, which is the failure this repo keeps finding.
+        #
+        # Written before propagation on purpose, so valence travels the web the
+        # same way psi and tau already do. Note the consequence honestly: after
+        # propagation a node may carry phi it did not measure itself. The
+        # counters below record what was actually MEASURED, which is the only
+        # part that can be called a reading.
+        try:
+            _v_attempted = _v_written = 0
+            if self.emotion_ontology is not None and perspectives:
+                for _pname, _ptext in perspectives.items():
+                    if _pname not in self.spiderweb.nodes or not _ptext:
+                        continue
+                    _v_attempted += 1
+                    _val = self.emotion_ontology.valence_of(_ptext)
+                    if _val is None:
+                        continue          # omit, never guess
+                    self.spiderweb.nodes[_pname].state.phi = float(_val)
+                    _v_written += 1
+            self.spiderweb.note_valence_pass(_v_attempted, _v_written)
+        except Exception as _ve:
+            print(f"  [cocoon] valence pass error: {_ve}")
 
         # Propagate belief through the spiderweb from the active adapter
         try:
