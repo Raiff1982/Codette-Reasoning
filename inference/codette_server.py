@@ -2792,7 +2792,20 @@ class CodetteHandler(SimpleHTTPRequestHandler):
                 _crit = {
                     "source": "docs/OPTIMIZER_GO_LIVE_CRITERION.md",
                     "user_continued_measured": {
-                        "value": _uc, "required": 200, "met": _uc >= 200},
+                        # Jonathan set the wait threshold to 100 on 2026-08-14
+                        # ("no we wait on it untill we have a 100"). The
+                        # original 200 is reported beside it rather than
+                        # replaced, so the endpoint and the document cannot
+                        # drift apart the way the user_continued docstring did.
+                        "value": _uc, "required": 100, "met": _uc >= 100,
+                        "original_required": 200,
+                        "set_by": "Jonathan, 2026-08-14",
+                        "note": ("Reaching it is entry to the adversarial "
+                                 "review, not a promotion. Do not accelerate "
+                                 "with a harness — that is what produced "
+                                 "collection #1."),
+                        "measurement_rate": (round(_uc / _n, 3) if _n else None),
+                    },
                     "distinct_days": {
                         "value": len(_days), "required": 5, "met": len(_days) >= 5},
                     "max_single_day_share": {
