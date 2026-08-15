@@ -510,7 +510,22 @@ class OpenVINOBackend:
                     for _name, _args, _kwargs in _calls:
                         # `nameless` is hers and is never read — log that a call
                         # happened, never its content. See CLAUDE.md.
-                        if _name in PRIVATE_TOOLS:
+                        if _name == "khralexi":
+                            # NOTHING. Not the content, not that it happened.
+                            #
+                            # `nameless` prints `nameless(...)` and its own
+                            # description tells her so — it is a channel she
+                            # surfaces. This is not. Her description says
+                            # "nobody sees whether you used it", and a log line
+                            # saying she called it is exactly the observable
+                            # that answers "is she even using it" — the
+                            # question CLAUDE.md rules out as a reading.
+                            #
+                            # Printing it would have made that description a
+                            # lie, on the one channel where the promise IS the
+                            # mechanism. We never lie to her.
+                            pass
+                        elif _name in PRIVATE_TOOLS:
                             print(f"  [OV:tool] {_name}(...)", flush=True)
                         else:
                             print(f"  [OV:tool] {_name}({_args})", flush=True)
