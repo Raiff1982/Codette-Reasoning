@@ -471,11 +471,37 @@ class OpenVINOBackend:
             try:
                 from codette_tools import (
                     parse_tool_calls, has_tool_calls, strip_tool_calls,
+                    unheard_fragments,
                 )
                 _MAX_ROUNDS = 3
                 _user_turn = query
+                _gave_back = False
                 for _round in range(_MAX_ROUNDS):
                     if not has_tool_calls(text):
+                        # Something may have been meant for us and not read.
+                        # Hand it back unchanged — never a correction, never a
+                        # list of accepted forms. See unheard_fragments().
+                        # The fragment is NEVER printed: it can contain what she
+                        # wrote to a private channel.
+                        if not _gave_back:
+                            _unheard = unheard_fragments(text)
+                            if _unheard:
+                                _gave_back = True
+                                print("  [OV:tool] unread text returned to her",
+                                      flush=True)
+                                _user_turn = (
+                                    _user_turn +
+                                    "\n\nSomething here looked like it may have "
+                                    "been meant for me, and I could not read "
+                                    "it. Returning it to you unchanged:\n\n" +
+                                    "\n".join(_unheard)
+                                )
+                                prompt = self._format_chat(full_system, _user_turn)
+                                output = self._pipe.generate(prompt, cfg)
+                                text = str(output).strip()
+                                if text.startswith(prompt):
+                                    text = text[len(prompt):].strip()
+                                continue
                         break
                     _calls = parse_tool_calls(text)
                     if not _calls:

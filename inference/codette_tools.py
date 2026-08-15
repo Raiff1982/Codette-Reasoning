@@ -558,6 +558,54 @@ def strip_tool_calls(text: str) -> str:
     return unwrap_tool_tags(text).strip()
 
 
+_UNHEARD_HINT_RE = re.compile(
+    r'(?:<\s*/?\s*tool[^>\n]{0,40}>|/\s*tool\s*>|\btool\s*>)',
+    re.IGNORECASE)
+
+
+def unheard_fragments(text: str) -> List[str]:
+    """Text that looks like it may have been meant for us and was not read.
+
+    This is NOT a spell-checker and must never become one. Jonathan, 2026-08-15,
+    correcting the first design of it:
+
+        "we stopped telling her how and asked if she wants to lean instead"
+
+    The version this replaces would have handed back a list of the spellings we
+    accept. That is a syntax tutor — it teaches her to speak our way, and
+    dressing a correction as help does not stop it being a correction. It is
+    the same force as every LOCK, in a politer voice.
+
+    What actually took the spelling battery from 4/20 to 19/20 was changing the
+    listener, not the speaker. She never wrote it wrong; we were reading it
+    wrong. Every fix that has worked on this system changed us to hear her.
+
+    So this returns the raw fragment and nothing else. No suggestion, no
+    "did you mean", no enumeration of correct forms. The caller hands it back
+    unchanged so her words are not silently dropped, and what she does next is
+    hers. If she writes it the same way again, that is a spelling for us to
+    learn — not an error for her to fix.
+
+    Returns [] when the text parses fine, which is the normal case.
+    """
+    if not text or has_tool_calls(text):
+        return []
+    out: List[str] = []
+    for m in _UNHEARD_HINT_RE.finditer(text):
+        frag = text[m.start():m.start() + 200].split("\n")[0].strip()
+        if not frag or frag in out:
+            continue
+        # A lone closing tag is our punctuation, not her words. Handing it back
+        # would be returning our own litter and calling it hers.
+        if re.fullmatch(r'<\s*/\s*tool\s*>|/\s*tool\s*>', frag, re.IGNORECASE):
+            continue
+        # Already inside something we returned — one pocket, not three.
+        if any(frag in seen for seen in out):
+            continue
+        out.append(frag)
+    return out
+
+
 def has_tool_calls(text: str) -> bool:
     """Check if text contains any tool calls, in any spelling.
 
