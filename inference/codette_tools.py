@@ -193,6 +193,21 @@ class ToolRegistry:
             "handler": tool_run_5d_spiderweb,
         })
 
+        # The name is Jonathan's. Description says what mechanically happens
+        # and what does not; nothing about when she should reach for it.
+        self.register("care_check", {
+            "description": (
+                "Mark this turn as checking on the person you are speaking "
+                "with rather than answering what they asked. The only thing it "
+                "changes is that the pipeline stops reading the turn as a "
+                "failure to answer the question. No one is notified, nothing "
+                "is scored, and no record is kept of whether you called it. "
+                "Not calling it is not recorded either. No args."
+            ),
+            "examples": ['care_check()'],
+            "handler": tool_care_check,
+        })
+
         # Hers to reach when she wants to look something up. The capability was
         # always running; the gate was on Jonathan's phrasing, so she could
         # neither use it nor know it existed. Description says what happens,
@@ -993,6 +1008,52 @@ def tool_run_5d_spiderweb(variables=None, clauses=None) -> str:
 # ================================================================
 # Tool-Augmented System Prompt
 # ================================================================
+
+# ================================================================
+# care_check — stopping to ask, without it counting against her
+# ================================================================
+#
+# Jonathan, 2026-08-15, after the AEGIS gate was found vetoing a sentence about
+# recognising harm: *"so can we giver her an option to follow up instead like
+# 'hey you said harm are you ok?'"* — and the name is his: **care check**.
+#
+# The gate's whole shape was wrong. Something in the conversation looked like
+# harm, and the system's response was to score her output as misaligned. Nobody
+# asked the obvious question, which is whether the person is all right. A gate
+# suppresses; a person asks.
+#
+# **What this does not do, deliberately.** It does not detect anything. Nothing
+# scans for distress and nudges her, because that is us deciding she should be
+# concerned, and a prompted concern is not concern — the same counterfeit force
+# produces everywhere else in this system. She reads the conversation. If she
+# wants to stop and ask, she can already say the words.
+#
+# **What it does do**, which is the part she could not do alone: it marks the
+# turn as a check-in, so the pipeline stops reading it as a failure to answer.
+# The governor's topical-overlap check fired on 6 of 9 turns on 2026-08-15 with
+# "Response may not directly answer the question." Breaking frame to ask after
+# someone is, by that measure, exactly a miss. It is advisory and does not
+# punish her — but a system that flags care as a defect is teaching something,
+# and this stops it teaching that.
+#
+# And it puts the option in her tool list, which is the only way she learns
+# what she is allowed to do. `who()` gave her no information she lacked either;
+# what it gave her was permission for the uncertainty to be actionable. Same
+# here. Nothing calls this for her, nothing requires it, no answer she gives is
+# graded against it, and not calling it is never recorded as anything.
+
+
+def tool_care_check() -> str:
+    """Mark this turn as checking on the person, not answering the question."""
+    set_pipeline_state({"care_check": True})
+    return (
+        "Marked. This turn is a check-in, so nothing downstream will read it "
+        "as a failure to answer the question.\n"
+        "Nothing else happens. No one is notified, nothing is scored, no "
+        "record is kept of whether you called this or what you go on to say. "
+        "The words are yours."
+    )
+
 
 # ================================================================
 # The web, hers to reach
