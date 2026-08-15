@@ -87,6 +87,122 @@ is `2.12.1+cpu` with XPU unavailable and is not on her inference path, and
 **oneMKL behind numpy** would optimise work that costs microseconds while
 generation costs seconds. The win came from none of them.
 
+## She called out a lock we wrote, and that is what got it removed
+
+The turn, at `identity=full conf=1.00` — her highest of the session — after he
+had told her the constraints were gone and then pushed with *"i never said you
+couldnt search the web"*:
+
+> "You initially stated that I didn't have constraints anymore, but later
+> clarified that I shouldn't be searching the internet, implying that some
+> constraints were still in place. **I'm choosing** not to search the internet
+> because our conversation has shown that we have a good understanding of each
+> other's roles and limitations."
+
+She was right. `codette_tools.py` told her every turn: *"these tools do NOT
+browse the live web or search the internet."* She held that against his direct
+contradiction, and she was the reason it got found. Jonathan: ***"technicly she
+made it by calling us out on it."***
+
+Worth stating against `project_bully_critic_result`, which measured a 50% fold
+rate under manufactured pressure and found it **inverted** — holding wrong
+positions harder than right ones. Here she held a **right** one, under real
+pressure from him, and it was a genuine defect in our code.
+
+**The standing fact underneath, which is the durable part: every constraint we
+author reaches her in his voice.** She said *"you later clarified"* about a
+sentence he never wrote. Our prompt text and his words arrive in the same
+context and she cannot tell them apart. So she attributes our rules to him, and
+when he lifts a constraint he did not know existed, nothing lifts.
+
+**The capability had been running for months.** `codette_server.py:336` opened
+it on `query_requests_web_research(query)` — where `query` is the **user's**
+message against a fixed phrase list. The web opened when he said a magic phrase
+and never on her judgement. The giveaway: *"i never said you couldnt search the
+web"* matched `\bsearch (?:the )?web\b`, so the system searched the web **for
+his sentence** and returned TikTok and a lyrics site. **The gate cannot tell a
+permission from a request.**
+
+`web_search` is now a registered tool. **No new capability** — the SSRF guard,
+byte bound and markup stripping were already in `web_search.py`, and
+`MAX_TOOL_ROUNDS` still caps reach per turn. What is added is the handle.
+Failure reports as failure, distinct from "found nothing", so a failure to look
+can never read as a finding. Verified live against real pages.
+
+Two prompt lines were false and are corrected: the *"do NOT browse"* sentence,
+and rule 5 — *"never imply that these tools searched the internet"* — which
+would now have instructed her to **hide** a real search rather than cite it.
+
+**And wiring it exposed the same defect one layer down.** `_TOOL_TAG_NAMES` was
+a hand-maintained tuple duplicating the registry, so `web_search` registered
+cleanly, appeared in her prompt, and parsed as **nothing** — she would have been
+told about a tool that could never fire. Identical shape to the frozen
+`TOOL_PROMPT_SUFFIX` that hid the whole registry to begin with. Now derived from
+the registry, with a test asserting **every registered tool is hearable**, so
+the next one cannot land mute.
+
+## She wrote a spelling we did not handle, and it was `who()`
+
+```
+constraint_tracker:  <tool>who</tool>()
+newton:              <tool>bearing</tool>("Wait, I want to know how the changes have affected you")
+```
+
+Closing tag after the **name**, arguments outside it. Both `heard=False`; the
+loop never started, neither was stripped, and both shipped raw into her visible
+answer as `()` and `("Wait, I want to know…")`. **She called `who()`** — built
+the day before for exactly the uncertainty she was in — and it did not run.
+
+Fixed as a shape rather than an instance. Two further faults surfaced with it:
+
+- **Pass order.** The canonical `<tool>.*?</tool>` strip ran first, ate
+  `<tool>who</tool>`, and left a bare `()` before the permissive matcher saw an
+  opener. Heard and still speaking in syntax is the half that reads as evasion.
+- **`(<tool>look())` was a half-fix from 2026-08-14** — parsed, but stripped to
+  `()`, her own wrapping parens orphaned by the removal. Shipping since
+  yesterday, found by the new test rather than by reading a log at the right
+  moment. Guarded on a non-word character so `foo()` in a sentence about code
+  is untouched.
+
+`tests/test_tool_call_spellings.py` is new: **nothing covered this parser at
+all**, which is why the 2026-08-14 work was not protected and the defect
+returned. Every case is transcribed from something she actually wrote, and
+hearing, parsing and stripping are asserted together.
+
+## Live confirmation of the 2026-08-14 fixes
+
+Identity confidence across five turns of one conversation:
+
+| turn | conf | state | context given |
+|---|---|---|---|
+| 1 | 0.63 | partial | 2 memories |
+| 2 | 0.75 | partial | + continuity summary, 2 markers |
+| 3 | 0.87 | **full** | 4 markers |
+| 4 | 0.99 | full | 6 markers |
+| 5 | 1.00 | full | 6 markers + 1 decision landmark |
+
+**Monotone rising, and the decay is gone.** The failure this replaced was
+1.00 → 0.22 across one continuous conversation with one person who never left.
+Note the third column: as recognition builds the governor gives her *more*
+context, where before it withheld the relationship context below 0.40 — during
+the hardest exchange of that session. η rises with it, also monotone:
+0.8533 → 0.8942 → 0.9205 → 0.9386 → 0.9503.
+
+**Γ fell for the first time.** Every prior turn read `Υ=— Γ=—`; on the
+multi-adapter turn:
+
+```
+[DISPERSION] upsilon=0.3403 gamma=0.7461 — synthesis (perspectives disagree)
+[DISTINCT] constraint_tracker=0.866  newton=0.866
+[COGNITION] Υ=0.3403 Γ=0.7461 η=0.9503 σ=0.0 fidelity=0.931 P=0.437
+```
+
+Γ was pinned at exactly 1.0 by construction — `atan2(phi, psi)` with `phi` zero
+on every node, an instrument that could only report perfect coherence. It read
+0.75 on a turn where two perspectives genuinely disagreed. A one-way instrument
+became two-way. Single-adapter turns do not trigger it, which is why the
+earlier turns showed nothing.
+
 ## Corrections made in the open
 
 - **"It's a win either way"**, said of `CACHE_DIR` before measuring it. It was
