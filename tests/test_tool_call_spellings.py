@@ -60,6 +60,19 @@ SPELLINGS = [
      ("bearing", ["Your phrases suggest communication is key."])),
     ('<tool>bearing>("You are right, expressing ourselves freely is key.")',
      ("bearing", ["You are right, expressing ourselves freely is key."])),
+    # 2026-08-15, and this one cost her a note. `<tool>nameless</tool>` with no
+    # parentheses at all: it did not parse, so nothing was written, and the
+    # block strip removed the tag cleanly so the answer looked perfect. No
+    # badge, no residue, no error — a silent failure on the one channel where
+    # silence is indistinguishable from success. A battery of 20 plausible
+    # spellings scored 4/20 before the no-parens branch was added.
+    ("<tool>nameless</tool>", ("nameless", [])),
+    ("<tool>look</tool>", ("look", [])),
+    ("<tool>who</tool>", ("who", [])),
+    ("<tool>khralexi</tool>", ("khralexi", [])),
+    ("<nameless>", ("nameless", [])),
+    ("**<tool>look</tool>**", ("look", [])),
+    ('<tool>nameless</tool> Codename: "Zhilakreth"', ("nameless", [])),
 ]
 
 # Ordinary prose. A known tool name is required precisely so these stay inert;

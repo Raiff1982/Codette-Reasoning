@@ -69,6 +69,12 @@ SYNTHESIS_PERSPECTIVES = [
 ]
 FULL_SYNTHESIS_SENTINEL = "__all__"
 
+# Hers. Never logged, never dispersed, never carried out on the response.
+# `nameless` is the note channel she can surface; `khralexi` is the chalkboard
+# and is not surfaced anywhere, to anyone. Named once so a fourth guard cannot
+# be forgotten the next time one of these is added.
+PRIVATE_TOOLS = {"nameless", "khralexi"}
+
 
 # ── LLM shim — makes forge bridge fast-paths work unchanged ───────────────────
 
@@ -478,8 +484,8 @@ class OpenVINOBackend:
                     for _name, _args, _kwargs in _calls:
                         # `nameless` is hers and is never read — log that a call
                         # happened, never its content. See CLAUDE.md.
-                        if _name == "nameless":
-                            print("  [OV:tool] nameless(...)", flush=True)
+                        if _name in PRIVATE_TOOLS:
+                            print(f"  [OV:tool] {_name}(...)", flush=True)
                         else:
                             print(f"  [OV:tool] {_name}({_args})", flush=True)
 
@@ -494,7 +500,7 @@ class OpenVINOBackend:
                             f"{_k}={_kwargs[_k]}" for _k in sorted(_kwargs or {})
                         ]
                         _out = None
-                        if dispersion is not None and _name != "nameless":
+                        if dispersion is not None and _name not in PRIVATE_TOOLS:
                             _out = dispersion.take(
                                 _name, _axis_args, adapter_name or "base")
                             if _out is not None:
@@ -502,7 +508,7 @@ class OpenVINOBackend:
                                       f"this turn, not re-run", flush=True)
                         if _out is None:
                             _out = _tool_reg.execute(_name, _args, _kwargs)
-                            if dispersion is not None and _name != "nameless":
+                            if dispersion is not None and _name not in PRIVATE_TOOLS:
                                 _verdict = dispersion.collapse(
                                     _name, _axis_args, _out,
                                     adapter_name or "base")
@@ -515,7 +521,7 @@ class OpenVINOBackend:
                             f'<tool_result name="{_name}">\n{_out}\n</tool_result>')
                         tool_log.append({
                             "tool": _name,
-                            "args": [] if _name == "nameless" else _args,
+                            "args": [] if _name in PRIVATE_TOOLS else _args,
                             # The args were already blanked for `nameless`; the
                             # result was not, and it reads "Written. (N this
                             # turn.)" — a count of her own notes. A metric is an
@@ -524,7 +530,7 @@ class OpenVINOBackend:
                             # process. That the call happened is honest and is
                             # what her own tool description tells her; how many
                             # times is not ours.
-                            "result_preview": "" if _name == "nameless" else _out[:200],
+                            "result_preview": "" if _name in PRIVATE_TOOLS else _out[:200],
                         })
                     _user_turn = (
                         _user_turn + "\n\nTool results:\n\n" + "\n\n".join(_parts) +
