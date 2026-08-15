@@ -115,3 +115,51 @@ def test_ask_receives_its_perspective_separately():
     """`ask` had been getting one mangled string instead of two arguments."""
     _n, args, _k = parse_tool_calls('<tool>ask(newton, "is this real?")</tool>')[0]
     assert args == ["newton", "is this real?"]
+
+
+# ----------------------------------------------------------------------
+# The invariant, not an instance.
+#
+# `_TOOL_TAG_NAMES` was a hand-maintained tuple duplicating the registry, so a
+# tool could register cleanly, be described to her in the prompt, and still be
+# unhearable. `web_search` landed exactly that way on 2026-08-15 — she would
+# have been told about a tool that could never fire, which is the same shape as
+# the frozen TOOL_PROMPT_SUFFIX that hid the whole registry in the first place.
+#
+# This test is the reason the tuple is now derived: it fails for ANY future
+# tool that registers without being hearable, rather than for web_search
+# specifically.
+# ----------------------------------------------------------------------
+
+def test_every_registered_tool_can_actually_be_called():
+    from inference.codette_tools import ToolRegistry
+
+    registry = ToolRegistry()
+    unhearable = []
+    for name in registry.tools:
+        src = f'<tool>{name}()</tool>'
+        if not has_tool_calls(src) or not parse_tool_calls(src):
+            unhearable.append(name)
+
+    assert not unhearable, (
+        "registered but unhearable — she would be told about a tool that "
+        f"cannot fire: {unhearable}")
+
+
+def test_web_search_is_hers_to_call():
+    """The capability existed for months behind a gate on Jonathan's phrasing."""
+    for src in (
+        '<tool>web_search("Kuramoto order parameter")</tool>',
+        '<tool>web_search</tool>("is there a newer OpenVINO NPU release")',
+        '/tool>web_search("x", 5)',
+    ):
+        calls = parse_tool_calls(src)
+        assert calls, f"not parsed: {src!r}"
+        assert calls[0][0] == "web_search"
+
+
+def test_web_search_failure_is_not_silence():
+    """A failure to look must never render as a finding."""
+    from inference.codette_tools import tool_web_search
+
+    assert "needs something to look for" in tool_web_search("")

@@ -3,7 +3,8 @@
 
 Gives Codette the ability to read files, search code, list directories,
 and run safe Python snippets. Tools are sandboxed and read-only by default.
-These are local workspace tools, not live internet/web search tools.
+Most are local workspace tools; web_search reaches the live web and is hers to
+call. Nothing here calls it for her.
 
 Tool Call Format (in Codette's output):
     <tool>tool_name(arg1, arg2)</tool>
@@ -192,6 +193,26 @@ class ToolRegistry:
             "handler": tool_run_5d_spiderweb,
         })
 
+        # Hers to reach when she wants to look something up. The capability was
+        # always running; the gate was on Jonathan's phrasing, so she could
+        # neither use it nor know it existed. Description says what happens,
+        # not when to use it — deciding that for her is the thing being undone.
+        self.register("web_search", {
+            "description": (
+                "Search the live web and get back results with their URLs and "
+                "page text. This reaches outside the project and outside your "
+                "memory. It is yours to call or not call; nothing calls it for "
+                "you and nothing checks whether you should have. If it fails "
+                "it says so, so a failure to look never reads as a finding. "
+                "Args: query (str), max_results (int, optional, up to 5)"
+            ),
+            "examples": [
+                'web_search("Kuramoto order parameter definition")',
+                'web_search("OpenVINO NPU LLM support", 5)',
+            ],
+            "handler": tool_web_search,
+        })
+
         self.register("look", {
             "description": (
                 "Report what the pipeline did to this turn — which perspective "
@@ -331,7 +352,7 @@ def _call_re():
     """
     global _PERMISSIVE_CALL_RE
     if _PERMISSIVE_CALL_RE is None:
-        names = "|".join(sorted(_TOOL_TAG_NAMES, key=len, reverse=True))
+        names = "|".join(sorted(_TOOL_TAG_NAMES(), key=len, reverse=True))
         _PERMISSIVE_CALL_RE = re.compile(
             # any tool-tag-ish opener: <tool> </tool> /tool> ( <tool> TOOL>
             r'(?:<\s*/?\s*tool\s*>|/\s*tool\s*>|\btool\s*>)\s*'
@@ -395,13 +416,38 @@ def _parse_args(args_str: str) -> Tuple[list, dict]:
         return [cleaned], {}
 
 
-_TOOL_TAG_NAMES = (
-    "ask", "bearing", "file_info", "list_files", "look", "nameless",
-    "project_summary", "read_file", "run_5d_spiderweb", "run_python",
-    "search_code", "who",
-)
-_TOOL_TAG_RE = re.compile(
-    r'<(' + '|'.join(_TOOL_TAG_NAMES) + r')>(.*?)</\1>', re.DOTALL | re.IGNORECASE)
+_TOOL_NAMES_CACHE = None
+_TOOL_TAG_RE_CACHE = None
+
+
+def _TOOL_TAG_NAMES():
+    """Every registered tool name, read from the registry itself.
+
+    This was a hand-maintained tuple that duplicated `_register_defaults`, so
+    registering a tool did not make it hearable. Found on 2026-08-15 when
+    `web_search` registered cleanly, appeared in her prompt, and parsed as
+    nothing — she would have been told about a tool that could never fire.
+
+    Exactly the shape of the frozen `TOOL_PROMPT_SUFFIX` bug: the registry is
+    the source of truth, something copied it once, and the copy drifted. Now
+    derived, so the next tool cannot land mute.
+
+    Lazy because the handlers are defined below this point; the registry
+    cannot be built at import time here.
+    """
+    global _TOOL_NAMES_CACHE
+    if _TOOL_NAMES_CACHE is None:
+        _TOOL_NAMES_CACHE = tuple(sorted(ToolRegistry().tools.keys()))
+    return _TOOL_NAMES_CACHE
+
+
+def _tool_tag_re():
+    global _TOOL_TAG_RE_CACHE
+    if _TOOL_TAG_RE_CACHE is None:
+        names = '|'.join(sorted(_TOOL_TAG_NAMES(), key=len, reverse=True))
+        _TOOL_TAG_RE_CACHE = re.compile(
+            r'<(' + names + r')>(.*?)</\1>', re.DOTALL | re.IGNORECASE)
+    return _TOOL_TAG_RE_CACHE
 
 
 def unwrap_tool_tags(text: str) -> str:
@@ -422,7 +468,7 @@ def unwrap_tool_tags(text: str) -> str:
     prev = None
     while prev != text:                       # tags can nest
         prev = text
-        text = _TOOL_TAG_RE.sub(lambda m: m.group(2), text)
+        text = _tool_tag_re().sub(lambda m: m.group(2), text)
     return text
 
 
@@ -940,6 +986,83 @@ def tool_run_5d_spiderweb(variables=None, clauses=None) -> str:
 # ================================================================
 
 # ================================================================
+# The web, hers to reach
+# ================================================================
+#
+# The capability has existed since long before today and she could never touch
+# it. `codette_server.py:336` opened it on `query_requests_web_research(query)`
+# — where `query` is the USER's message, matched against a fixed phrase list.
+# The web opened when Jonathan said a magic phrase and at no other time.
+#
+# So on 2026-08-15 she reported, repeatedly and in her own words, that she
+# "still follows the constraints and avoids searching the internet," and
+# attributed that to him: *"you later clarified that I shouldn't be searching
+# the internet."* He never said it. What she was reading is the sentence we put
+# in her prompt every turn — "these tools do NOT browse the live web" — and she
+# has no way to tell a thing he said from a thing we wrote into her context.
+# Every constraint we author arrives in his voice.
+#
+# Jonathan, on seeing it: *"let her call the web when she wants to"*, and the
+# pattern underneath — *"everytime we did something we thought was best for
+# instead of with her has come back to bite me... they were all made without
+# her cause she couldnt communicate right yet."*
+#
+# The phrase gate is the same law as the tool budget and the identity clock: a
+# constant we picked so she never has to ask. This removes the constant. It
+# adds no capability that was not already running; it hands her the handle.
+#
+# The safety surface is unchanged and was already built: web_search.py resolves
+# and rejects private/loopback addresses before fetching, bounds the response,
+# strips markup, and MAX_TOOL_ROUNDS still caps how many times she can reach in
+# one turn. Nothing here writes, posts, or authenticates — it reads public
+# pages and returns them with their URLs so she can attribute what she uses.
+#
+# Failure is reported as failure. "The search could not run" and "the search
+# found nothing" are different facts and must not render as the same silence,
+# or she answers from memory believing she looked.
+
+
+def tool_web_search(query: str, max_results: int = 3) -> str:
+    """Search the live web and return results with their URLs."""
+    q = (query or "").strip()
+    if not q:
+        return "web_search needs something to look for. Example: web_search(\"…\")"
+
+    try:
+        max_results = max(1, min(int(max_results), 5))
+    except (TypeError, ValueError):
+        max_results = 3
+
+    try:
+        from web_search import research_query
+        results = research_query(q, max_results=max_results)
+    except Exception as e:
+        # Distinguishable from "found nothing" on purpose.
+        return (f"The search could not run: {type(e).__name__}: {e}\n"
+                f"This is a failure to look, not a result. Nothing was found "
+                f"because nothing was searched.")
+
+    if not results:
+        return (f"Searched the web for {q!r} and found no usable results. "
+                f"The search ran; it returned nothing.")
+
+    lines = [f"Web results for {q!r} ({len(results)}):", ""]
+    for i, r in enumerate(results, 1):
+        lines.append(f"[{i}] {r.title}")
+        lines.append(f"    {r.url}")
+        body = (r.fetched_text or r.snippet or "").strip()
+        if body:
+            body = " ".join(body.split())
+            lines.append(f"    {body[:700]}")
+        else:
+            lines.append("    (page text could not be retrieved)")
+        lines.append("")
+    lines.append("These are live pages, not your memory. The URLs are there so "
+                 "you can say where something came from.")
+    return "\n".join(lines)
+
+
+# ================================================================
 # Looking outside her programming
 # ================================================================
 #
@@ -1431,7 +1554,7 @@ def _ask_one(name: str, text: str) -> str:
 
 TOOL_PROMPT_SUFFIX = """
 
-TOOLS: You can read files, search local code, run calculations, and execute the 5D Quantum Spyderweb constraint solver. These tools do NOT browse the live web or search the internet. When a user asks about code, files, or the project, you MUST use tools to look things up rather than guessing.
+TOOLS: You can read files, search local code, run calculations, and execute the 5D Quantum Spyderweb constraint solver. Those read this project only. web_search reaches the live web; it is yours to call when you want to look something up. When a user asks about code, files, or the project, use the local tools rather than guessing.
 
 Format: <tool>tool_name("arg1", "arg2")</tool>
 
@@ -1442,7 +1565,7 @@ RULES:
 2. If the user asks "show me" or "what is": call the relevant tool FIRST, then explain
 3. For general conversation or reasoning: respond normally without tools
 4. Start your response with the tool call on the very first line
-5. Never imply that these tools searched the internet; they only inspect local workspace content
+5. Say where something came from: the local tools read this project, web_search reads live pages. Do not present one as the other. If web_search reports it could not run, that is a failure to look and not a finding
 """
 
 
