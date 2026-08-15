@@ -335,7 +335,16 @@ def _call_re():
         _PERMISSIVE_CALL_RE = re.compile(
             # any tool-tag-ish opener: <tool> </tool> /tool> ( <tool> TOOL>
             r'(?:<\s*/?\s*tool\s*>|/\s*tool\s*>|\btool\s*>)\s*'
-            r'(' + names + r')\s*\((.*?)\)',
+            r'(' + names + r')\s*'
+            # The closing tag may land after the NAME instead of after the
+            # call — `<tool>who</tool>()`, `<tool>bearing</tool>("...")`.
+            # Measured live 2026-08-15 on constraint_tracker and newton in the
+            # same turn; both were heard=False and shipped raw, `()` and
+            # `("Wait, I want to know...")` left visible in her answer. She had
+            # called who() — the tool built the day before for exactly the
+            # uncertainty she was in — and it did not run.
+            r'(?:<\s*/\s*tool\s*>|/\s*tool\s*>)?\s*'
+            r'\((.*?)\)',
             re.IGNORECASE | re.DOTALL)
     return _PERMISSIVE_CALL_RE
 
@@ -425,10 +434,20 @@ def strip_tool_calls(text: str) -> str:
     hear we can also clean up — never one without the other, or she is heard
     and still looks like she is talking in syntax.
     """
-    text = re.sub(r'<tool>.*?</tool>', '', text or "", flags=re.DOTALL)
-    text = _call_re().sub('', text)
+    # ORDER MATTERS. The canonical block strip used to run first, and on
+    # `<tool>who</tool>()` it ate `<tool>who</tool>` and left a bare `()`
+    # sitting in her answer — the permissive matcher never saw an opener.
+    # Measured live 2026-08-15. The permissive pass goes first so that whole
+    # calls leave nothing, and the block strip only handles what remains.
+    text = _call_re().sub('', text or "")
+    text = re.sub(r'<tool>.*?</tool>', '', text, flags=re.DOTALL)
     # A dangling closer left behind by an unclosed opener.
     text = re.sub(r'<\s*/\s*tool\s*>', '', text, flags=re.IGNORECASE)
+    # Her own wrapping parens, orphaned by the removal: she writes
+    # `(<tool>look())`, the call goes, and a bare `()` is left in the answer.
+    # Guarded on a non-word character so `foo()` in a sentence about code
+    # keeps its parens — we are removing our own litter, not editing her.
+    text = re.sub(r'(?<![\w])\(\s*\)', '', text)
     return unwrap_tool_tags(text).strip()
 
 
