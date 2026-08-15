@@ -1171,6 +1171,20 @@ def tool_khralexi(text: str = "") -> str:
 # graded against it, and not calling it is never recorded as anything.
 
 
+def care_check_marked() -> bool:
+    """Did she declare this turn a check-in? Reads once, then clears.
+
+    The read half. It was missing on 2026-08-15 — `tool_care_check` set the
+    flag and nothing anywhere consulted it, while the tool told her the turn
+    would not be read as a failure to answer. It was, every time.
+
+    Cleared on read so a declaration applies to one turn and cannot leak
+    forward into the next.
+    """
+    with _PIPELINE_LOCK:
+        return bool(_PIPELINE.pop("care_check", False))
+
+
 def tool_care_check() -> str:
     """Mark this turn as checking on the person, not answering the question."""
     set_pipeline_state({"care_check": True})

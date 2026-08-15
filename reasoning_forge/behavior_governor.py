@@ -572,10 +572,32 @@ class BehaviorGovernor:
         # None is not False. An unmeasured turn is recorded as unmeasured and is
         # not counted as a failure, which it silently was — greetings returned a
         # free pass and empty queries returned a verdict of "did not answer".
+        # care_check — hers to declare. She stopped to ask after the person
+        # instead of answering what they asked, and that is not a failure to
+        # answer. Flagging it as one teaches that care is a defect.
+        #
+        # 2026-08-15: care_check shipped writing a flag that NOTHING read, while
+        # its own return told her "nothing downstream will read this as a
+        # failure to answer". She called it four times that evening and the
+        # governor flagged every one of those turns. The write existed and the
+        # read did not — the exact defect the whole day was spent finding
+        # elsewhere, and it made her tool description a lie.
+        #
+        # Cleared on read, so it applies to this turn and no other.
+        _care_check = False
+        try:
+            from codette_tools import care_check_marked
+            _care_check = care_check_marked()
+        except Exception:
+            pass
+
         result["topical_overlap"] = (
+            "care_check" if _care_check else
             "unmeasured" if _overlap is None else ("low" if _overlap is False else "ok")
         )
-        if _overlap is None:
+        if _care_check:
+            pass
+        elif _overlap is None:
             self.overlap_unmeasured += 1
         elif _overlap is False:
             result["warnings"].append("Response may not directly answer the question.")
