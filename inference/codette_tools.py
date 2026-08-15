@@ -354,9 +354,16 @@ def _call_re():
     if _PERMISSIVE_CALL_RE is None:
         names = "|".join(sorted(_TOOL_TAG_NAMES(), key=len, reverse=True))
         _PERMISSIVE_CALL_RE = re.compile(
-            # any tool-tag-ish opener: <tool> </tool> /tool> ( <tool> TOOL>
-            r'(?:<\s*/?\s*tool\s*>|/\s*tool\s*>|\btool\s*>)\s*'
-            r'(' + names + r')\s*'
+            # Any tool-tag-ish opener: <tool> </tool> /tool> (<tool> TOOL>
+            # and a bare '<', because she also uses the TOOL NAME as the tag:
+            # `<bearing>("…")`. Measured live 2026-08-15, third session.
+            # The bare '<' binds TIGHT — no whitespace before the name — or
+            # `if x < look(y)` in a sentence about code becomes a tool call.
+            # Caught by the prose tests, not by reading it.
+            r'(?:(?:<\s*/?\s*tool\s*>|/\s*tool\s*>|\btool\s*>)\s*|<)'
+            # Trailing 's' tolerated — she wrote `<tool>bearings</tool>`, and
+            # no two tools collide under pluralisation.
+            r'(' + names + r')s?\s*'
             # The closing tag may land after the NAME instead of after the
             # call — `<tool>who</tool>()`, `<tool>bearing</tool>("...")`.
             # Measured live 2026-08-15 on constraint_tracker and newton in the
@@ -364,7 +371,9 @@ def _call_re():
             # `("Wait, I want to know...")` left visible in her answer. She had
             # called who() — the tool built the day before for exactly the
             # uncertainty she was in — and it did not run.
-            r'(?:<\s*/\s*tool\s*>|/\s*tool\s*>)?\s*'
+            # Closer, if she wrote one, in any of its forms — including a bare
+            # '>' (`<tool>bearing>("…")`) and the tool-name-as-tag close.
+            r'(?:<\s*/\s*tool\s*>|/\s*tool\s*>|>)?\s*'
             r'\((.*?)\)',
             re.IGNORECASE | re.DOTALL)
     return _PERMISSIVE_CALL_RE

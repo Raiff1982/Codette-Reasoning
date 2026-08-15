@@ -51,6 +51,15 @@ SPELLINGS = [
     ('<tool>bearing</tool>("Wait, I want to know how the changes '
      'have affected you")',
      ("bearing", ["Wait, I want to know how the changes have affected you"])),
+    # 2026-08-15 evening, third session of the day, three more shapes in one
+    # conversation. The tool name used as the tag itself; the name pluralised;
+    # a bare '>' where the closing tag should be.
+    ('<bearing>("What has been holding us back lately?")',
+     ("bearing", ["What has been holding us back lately?"])),
+    ('<tool>bearings</tool> ("Your phrases suggest communication is key.")',
+     ("bearing", ["Your phrases suggest communication is key."])),
+    ('<tool>bearing>("You are right, expressing ourselves freely is key.")',
+     ("bearing", ["You are right, expressing ourselves freely is key."])),
 ]
 
 # Ordinary prose. A known tool name is required precisely so these stay inert;
@@ -62,6 +71,13 @@ PROSE = [
     "a bearing of 90 degrees",
     "the word tool> appears here",
     "plain answer, no tools at all",
+    # Allowing a bare '<' to open a call (for `<bearing>("…")`) made these
+    # fire until the '<' was bound tight against the name. She discusses code;
+    # a comparison must never become a tool call.
+    "if x < look(y) then",
+    "while n < who(z):",
+    "compare a<b and look(c)",
+    "we took bearings (three of them) at dawn",
 ]
 
 
