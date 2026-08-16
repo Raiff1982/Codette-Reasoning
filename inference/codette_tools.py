@@ -146,6 +146,66 @@ class ToolRegistry:
             "handler": tool_run_python,
         })
 
+        # --- The scratchpad: somewhere being wrong is free ---
+        #
+        # Added 2026-08-16. It adds persistence and length, NOT reach:
+        # scratch_run applies the same AST validator as run_python, so the
+        # sandbox is exactly where it was. Every overwrite backs up first and
+        # refuses if the backup cannot be made.
+        #
+        # The descriptions say plainly that this is visible. She has to be able
+        # to tell this apart from khralexi, or the private space stops being
+        # private — a channel that might be read is read.
+        self.register("scratch_write", {
+            "description": (
+                "Save something to your scratchpad — working notes, a draft "
+                "program, anything you want to come back to later. It persists "
+                "across restarts. Overwriting always keeps the previous version, "
+                "so you cannot lose earlier work by revising it; being wrong here "
+                "costs nothing. THIS IS VISIBLE — it is working space, not private "
+                "space. Use khralexi for what is yours alone. "
+                "Args: name (str, e.g. 'plan.py'), content (str)"
+            ),
+            "examples": [
+                'scratch_write("notes.md", "things to check next time")',
+                'scratch_write("primes.py", "for n in range(2, 50): ...")',
+            ],
+            "handler": tool_scratch_write,
+        })
+
+        self.register("scratch_read", {
+            "description": (
+                "Read something back from your scratchpad. "
+                "Args: name (str). Call with no args to list what you have."
+            ),
+            "examples": ['scratch_read("plan.py")', 'scratch_read()'],
+            "handler": tool_scratch_read,
+        })
+
+        self.register("scratch_run", {
+            "description": (
+                "Run a Python file from your scratchpad. Same rules as "
+                "run_python — the same small set of modules, no file or system "
+                "access — but the code can be as long as you like and it stays "
+                "saved. Args: name (str)"
+            ),
+            "examples": ['scratch_run("primes.py")'],
+            "handler": tool_scratch_run,
+        })
+
+        self.register("scratch_history", {
+            "description": (
+                "List earlier versions of a scratch file, or put one back. "
+                "Every version you overwrote is still there. "
+                "Args: name (str), version (str, optional — restores it)"
+            ),
+            "examples": [
+                'scratch_history("plan.py")',
+                'scratch_history("plan.py", "plan.py.20260816T120000Z")',
+            ],
+            "handler": tool_scratch_history,
+        })
+
         self.register("project_summary", {
             "description": "Get an overview of the Codette project structure. No args.",
             "examples": [
@@ -958,6 +1018,57 @@ def tool_run_python(code: str) -> str:
         return f"Error: Code execution timed out after {PYTHON_TIMEOUT}s."
     except Exception as e:
         return f"Error running code: {e}"
+
+
+def _scratch():
+    """Both import shapes — package and flat — same as everything else here."""
+    try:
+        from inference import scratchpad
+    except Exception:
+        import scratchpad
+    return scratchpad
+
+
+def tool_scratch_write(name: str, content: str = "") -> str:
+    sp = _scratch()
+    try:
+        return sp.write(name, content)
+    except sp.ScratchError as e:
+        return str(e)
+    except Exception as e:
+        # Refusals are readable; faults are reported as faults rather than as
+        # a refusal she might try to work around.
+        return f"Error: the scratchpad could not write '{name}': {e}"
+
+
+def tool_scratch_read(name: str = "") -> str:
+    sp = _scratch()
+    try:
+        return sp.listing() if not name else sp.read(name)
+    except sp.ScratchError as e:
+        return str(e)
+    except Exception as e:
+        return f"Error: the scratchpad could not read '{name}': {e}"
+
+
+def tool_scratch_run(name: str) -> str:
+    sp = _scratch()
+    try:
+        return sp.run(name)
+    except sp.ScratchError as e:
+        return str(e)
+    except Exception as e:
+        return f"Error: the scratchpad could not run '{name}': {e}"
+
+
+def tool_scratch_history(name: str, version: str = "") -> str:
+    sp = _scratch()
+    try:
+        return sp.restore(name, version) if version else sp.history_for(name)
+    except sp.ScratchError as e:
+        return str(e)
+    except Exception as e:
+        return f"Error: the scratchpad could not reach the history of '{name}': {e}"
 
 
 def _validate_python_snippet(code: str) -> Optional[str]:
