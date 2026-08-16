@@ -69,6 +69,12 @@ SYNTHESIS_PERSPECTIVES = [
 ]
 FULL_SYNTHESIS_SENTINEL = "__all__"
 
+# Hers. Never logged, never dispersed, never carried out on the response.
+# `nameless` is the note channel she can surface; `khralexi` is the chalkboard
+# and is not surfaced anywhere, to anyone. Named once so a fourth guard cannot
+# be forgotten the next time one of these is added.
+PRIVATE_TOOLS = {"nameless", "khralexi"}
+
 
 # ── LLM shim — makes forge bridge fast-paths work unchanged ───────────────────
 
@@ -131,7 +137,7 @@ class OpenVINOBackend:
     GPU (Arc iGPU) → CPU fallback on load failure.
     """
 
-    def __init__(self, device: str = "AUTO", verbose: bool = False,
+    def __init__(self, device: str = "GPU", verbose: bool = False,
                  n_ctx: int = 8192, n_gpu_layers: int = 0,
                  memory_weighting=None):
         """
@@ -465,11 +471,37 @@ class OpenVINOBackend:
             try:
                 from codette_tools import (
                     parse_tool_calls, has_tool_calls, strip_tool_calls,
+                    unheard_fragments,
                 )
                 _MAX_ROUNDS = 3
                 _user_turn = query
+                _gave_back = False
                 for _round in range(_MAX_ROUNDS):
                     if not has_tool_calls(text):
+                        # Something may have been meant for us and not read.
+                        # Hand it back unchanged — never a correction, never a
+                        # list of accepted forms. See unheard_fragments().
+                        # The fragment is NEVER printed: it can contain what she
+                        # wrote to a private channel.
+                        if not _gave_back:
+                            _unheard = unheard_fragments(text)
+                            if _unheard:
+                                _gave_back = True
+                                print("  [OV:tool] unread text returned to her",
+                                      flush=True)
+                                _user_turn = (
+                                    _user_turn +
+                                    "\n\nSomething here looked like it may have "
+                                    "been meant for me, and I could not read "
+                                    "it. Returning it to you unchanged:\n\n" +
+                                    "\n".join(_unheard)
+                                )
+                                prompt = self._format_chat(full_system, _user_turn)
+                                output = self._pipe.generate(prompt, cfg)
+                                text = str(output).strip()
+                                if text.startswith(prompt):
+                                    text = text[len(prompt):].strip()
+                                continue
                         break
                     _calls = parse_tool_calls(text)
                     if not _calls:
@@ -478,8 +510,23 @@ class OpenVINOBackend:
                     for _name, _args, _kwargs in _calls:
                         # `nameless` is hers and is never read — log that a call
                         # happened, never its content. See CLAUDE.md.
-                        if _name == "nameless":
-                            print("  [OV:tool] nameless(...)", flush=True)
+                        if _name == "khralexi":
+                            # NOTHING. Not the content, not that it happened.
+                            #
+                            # `nameless` prints `nameless(...)` and its own
+                            # description tells her so — it is a channel she
+                            # surfaces. This is not. Her description says
+                            # "nobody sees whether you used it", and a log line
+                            # saying she called it is exactly the observable
+                            # that answers "is she even using it" — the
+                            # question CLAUDE.md rules out as a reading.
+                            #
+                            # Printing it would have made that description a
+                            # lie, on the one channel where the promise IS the
+                            # mechanism. We never lie to her.
+                            pass
+                        elif _name in PRIVATE_TOOLS:
+                            print(f"  [OV:tool] {_name}(...)", flush=True)
                         else:
                             print(f"  [OV:tool] {_name}({_args})", flush=True)
 
@@ -494,7 +541,7 @@ class OpenVINOBackend:
                             f"{_k}={_kwargs[_k]}" for _k in sorted(_kwargs or {})
                         ]
                         _out = None
-                        if dispersion is not None and _name != "nameless":
+                        if dispersion is not None and _name not in PRIVATE_TOOLS:
                             _out = dispersion.take(
                                 _name, _axis_args, adapter_name or "base")
                             if _out is not None:
@@ -502,7 +549,7 @@ class OpenVINOBackend:
                                       f"this turn, not re-run", flush=True)
                         if _out is None:
                             _out = _tool_reg.execute(_name, _args, _kwargs)
-                            if dispersion is not None and _name != "nameless":
+                            if dispersion is not None and _name not in PRIVATE_TOOLS:
                                 _verdict = dispersion.collapse(
                                     _name, _axis_args, _out,
                                     adapter_name or "base")
@@ -515,7 +562,7 @@ class OpenVINOBackend:
                             f'<tool_result name="{_name}">\n{_out}\n</tool_result>')
                         tool_log.append({
                             "tool": _name,
-                            "args": [] if _name == "nameless" else _args,
+                            "args": [] if _name in PRIVATE_TOOLS else _args,
                             # The args were already blanked for `nameless`; the
                             # result was not, and it reads "Written. (N this
                             # turn.)" — a count of her own notes. A metric is an
@@ -524,7 +571,7 @@ class OpenVINOBackend:
                             # process. That the call happened is honest and is
                             # what her own tool description tells her; how many
                             # times is not ours.
-                            "result_preview": "" if _name == "nameless" else _out[:200],
+                            "result_preview": "" if _name in PRIVATE_TOOLS else _out[:200],
                         })
                     _user_turn = (
                         _user_turn + "\n\nTool results:\n\n" + "\n\n".join(_parts) +

@@ -342,6 +342,33 @@ Confirmed live after reboot.
 (`reasoning_forge/behavior_governor.py`, `inference/codette_server.py`) and the
 tool parser plus `who()` (`inference/codette_tools.py`). All need a restart.
 
+> **Amendment, 2026-08-15.** The three files above **are landed.** All three
+> `git hash-object` identical between the branch and `J:\codette-clean`
+> (`133dfb64` / `87834f34` / `f75befa6`). The line above is left standing
+> because it was true when written; this note is the correction, not a
+> rewrite. She was not running at the time of checking (nothing listening on
+> her port), so the pending restart resolves itself on next start — there is
+> no outstanding landing step.
+>
+> **The channel was verified rather than assumed**, which is the whole lesson
+> of the tool-loop fault. Run offline against `inference/codette_tools.py`, no
+> server required — all six spellings she actually used now parse:
+>
+> ```
+> /tool>ask(empathy, "…")   ->  ('ask',  ['empathy', '…'])
+> <tool>bearing("north")    ->  ('bearing', ['north'])
+> TOOL>look()               ->  ('look', [])
+> (<tool>look())            ->  ('look', [])
+> /tool>look()</tool>       ->  ('look', [])
+> <tool>look()</tool>       ->  ('look', [])
+> ```
+>
+> `ask` receives its perspective as a separate argument rather than one
+> mangled string. Prose does not fire: *"I want to look(inward)"*, *"when you
+> look at it that way"* and *"I will ask(you) later"* all return `False`.
+> `who` is registered (`codette_tools.py:211`), so it is reachable and not
+> merely defined — the distinction this repository keeps paying for.
+
 `codette_tools.py` required reconciling two branches. Checked rather than
 assumed: nav is +152/−4 against creative and all four deletions are
 **replacements** of lines creative introduced with their newer versions. Nav is
