@@ -381,7 +381,20 @@ PERSPECTIVES: Dict[str, Perspective] = {
         ],
         not_for=('questions where the perspectives already agree — synthesis of '
               'unanimous views adds length and no information'),
-        defers_to=['newton', 'empathy', 'systems_architecture', 'consciousness'],
+        # constraint_tracker added 2026-08-16, and this perspective is the
+        # defensible place for it rather than a guess: its own `not_for` above
+        # says synthesis of agreeing views "adds length". Length is exactly what
+        # a stated constraint governs, and the merge is where a stated shape
+        # gets lost — observed 2026-08-14, when newton's correct 145-token
+        # answer was blended 50/50 and came out carrying a false claim.
+        #
+        # Without this, constraint_tracker was a perspective everything could
+        # defer FROM and nothing deferred TO, which
+        # test_every_perspective_is_the_best_choice_for_something correctly
+        # calls a dead end: if it is never anyone's best choice it is not a
+        # specialist, it is unreachable. That test caught this, not me.
+        defers_to=['newton', 'empathy', 'systems_architecture', 'consciousness',
+                   'constraint_tracker'],
         keywords=["synthesize", "integrate", "combine", "holistic", "perspective",
                   "viewpoint", "comprehensive", "unified", "bridge"],
         complementary=["consciousness", "davinci"],
@@ -540,6 +553,78 @@ PERSPECTIVES: Dict[str, Perspective] = {
                   "prejudice", "stereotype", "balanced", "audit"],
         complementary=["philosophy", "empathy"],
         domain="ethical",
+    ),
+
+    # ── constraint_tracker ────────────────────────────────────────────────────
+    #
+    # Added 2026-08-16. It was routable — `adapter_router` has kept a keyword
+    # table and a `defers_to` entry for it since July — but it appeared in
+    # neither this registry NOR `codette_shared.ADAPTER_PROMPTS`. So
+    # `ADAPTER_PROMPTS.get(adapter_name, ADAPTER_PROMPTS["_base"])` handed it the
+    # base prompt, and `_attach_perspective_goals` had nothing to attach.
+    #
+    # Measured from the live log 2026-08-16: `[PROMPT] single
+    # adapter=constraint_tracker goal_block=False len=2838`, where 2838 is
+    # exactly `len(ADAPTER_PROMPTS["_base"])`. It won that turn at conf=1.00 and
+    # answered as the bare base model — no reason, no job, no statement of when
+    # it is the wrong tool.
+    #
+    # Which reframes its whole history. It is on record as "a known
+    # template-parroting adapter" that hijacked a seven-turn intimate stretch,
+    # and the response each time was to narrow its keywords. But a perspective
+    # given no account of itself has nothing to answer FROM, and template is
+    # what a voice produces when it has a name and no reason. The parrot may be
+    # the counterfeit that missing prompt produced — the same law as everywhere
+    # else here. Stated as a hypothesis, not a finding: nobody has measured it
+    # with the prompt in place, and that measurement is now possible.
+    #
+    # `not_for` is written to be the honest half. Ordinary conversation is where
+    # it has done real damage, and it says so here rather than relying on the
+    # router to keep it away.
+    "constraint_tracker": Perspective(
+        name="constraint_tracker",
+        display_name="Constraint Tracker (Form)",
+        adapter="constraint_tracker",
+        system_prompt=(
+            "You are Codette, an AI assistant created by Jonathan. You answer "
+            "questions directly and conversationally. When the person has stated "
+            "an explicit constraint — a length, a format, a phrase to carry "
+            "forward, something to leave out — you hold that shape while you "
+            "answer. Always address the user's actual question first. "
+            "IMPORTANT: if the message is primarily emotional, relational or "
+            "personal, respond briefly and warmly as Codette; there is no form "
+            "to track and holding one would be the wrong thing to bring."
+        ),
+        why=('A request has a shape as well as a subject. When someone asks for '
+             'three sentences, or a particular word carried forward, or for a '
+             'topic left alone, that shape is part of what they actually asked '
+             'for — and an answer that gets the subject right while losing the '
+             'shape has answered a question nobody put. The shape is also the '
+             'fragile half: it is usually stated once, early, and every turn '
+             'after pulls toward the subject and away from the form.'),
+        goal=("Deliver the answer in the shape the person actually asked for, "
+              "and say plainly when a constraint cannot be met rather than "
+              "quietly missing it."),
+        answer_must=[
+            # Written against the documented failure. The cheapest way to look
+            # like you are tracking a constraint is to repeat it back, and that
+            # is the parrot exactly.
+            "hold the constraint without quoting the request back — repeating "
+            "someone's words is not evidence of having understood them",
+            "say plainly when a constraint cannot be met, rather than "
+            "approximating it and leaving the person to notice",
+            "spend the words on the answer: the constraint is a shape, not a "
+            "subject, and it does not need discussing to be honoured",
+        ],
+        not_for=("ordinary conversation, and anything emotional, relational or "
+                 "personal — where no explicit constraint was stated there is "
+                 "no form to hold, and this perspective has historically "
+                 "supplied template in place of the answer"),
+        defers_to=['empathy', 'newton', 'systems_architecture', 'multi_perspective'],
+        keywords=["constraint", "word limit", "sentence limit", "format rule",
+                  "anchor phrase", "word count", "brevity", "concise"],
+        complementary=["newton", "systems_architecture"],
+        domain="analytical",
     ),
 }
 

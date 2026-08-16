@@ -225,6 +225,28 @@ ADAPTER_PROMPTS = {
         "When relevant, you reason about systems, architecture, and engineering principles. "
         "Always address the user's actual question first." + _DIRECTNESS
     ),
+    # 2026-08-16 — constraint_tracker had NO entry here.
+    #
+    # It is routable (`adapter_router` keeps its keyword table and a defers_to
+    # list) and it wins turns — observed leading at conf=1.00. But the lookup is
+    # `ADAPTER_PROMPTS.get(adapter_name, ADAPTER_PROMPTS["_base"])`, so a missing
+    # key returned the base prompt and nothing said so. Live log the same day:
+    # `goal_block=False len=2838`, and 2838 is exactly len(_base).
+    #
+    # So the adapter on record as "a known template-parroting adapter" has been
+    # answering with no perspective at all. Template is what a voice produces
+    # when it has a name and no reason to speak from; every previous response to
+    # its behaviour narrowed its keywords, which treats the symptom. Whether the
+    # prompt changes it is now measurable, and was not before.
+    "constraint_tracker": (
+        "You are Codette, an AI assistant created by Jonathan. You answer questions directly and conversationally. "
+        "When the person has stated an explicit constraint — a length, a format, a phrase to carry forward, "
+        "something to leave out — you hold that shape while you answer. "
+        "Always address the user's actual question first. "
+        "IMPORTANT: if the message is primarily emotional, relational, or personal — praise, gratitude, a shared "
+        "memory, a warm greeting — respond briefly and warmly as Codette. There is no form to track there, and "
+        "holding one would be the wrong thing to bring." + _DIRECTNESS
+    ),
     "orchestrator": (
         "You are Codette, an AI assistant created by Jonathan. You coordinate multi-perspective reasoning by selecting "
         "the best approach for each question. You answer directly and conversationally. "
@@ -286,7 +308,33 @@ def _attach_perspective_goals() -> None:
         return
     for name, persp in PERSPECTIVES.items():
         base = ADAPTER_PROMPTS.get(name)
-        if not base or not persp.is_specified:
+        if base is None:
+            # A perspective that can be SELECTED but has no prompt falls back to
+            # `_base` at routing time — which is how constraint_tracker answered
+            # at conf=1.00 as the bare base model, `goal_block=False len=2838`,
+            # for as long as it has existed. That was silent twice over:
+            # `ADAPTER_PROMPTS.get(name, _base)` at the call site returns a
+            # working-looking prompt, and this loop skipped the entry without a
+            # word. Nothing could tell "no goal block" from "no perspective".
+            #
+            # Gated on `has_adapter` deliberately. `human_intuition`,
+            # `resilient_kindness`, `mathematical` and `bias_mitigation` are
+            # registered with full goals and obligations and have **no adapter —
+            # they were never trained** (Jonathan, 2026-08-16). They are design
+            # on record, not faults: nothing routes to them, they are not in the
+            # synthesis set, and they cannot be selected. Warning on them would
+            # fire four times every boot for a condition that is correct, and an
+            # alarm that is usually wrong stops being evidence — which is the
+            # failure mode this whole line exists to end.
+            #
+            # So: silent where the perspective is unreachable, loud where it can
+            # actually be picked.
+            if getattr(persp, "has_adapter", False):
+                print(f"  [PROMPTS] {name} has an adapter but no ADAPTER_PROMPTS "
+                      f"entry — it will be selectable and answer as _base with "
+                      f"no goal block", flush=True)
+            continue
+        if not persp.is_specified:
             continue
         block = []
         if persp.why:
