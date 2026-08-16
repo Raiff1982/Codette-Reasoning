@@ -69,6 +69,16 @@ from collections import OrderedDict
 
 logger = logging.getLogger(__name__)
 
+# Recall's recency term does not decay inside this window — see the note at the
+# scoring site. Sourced from behavior_governor so the two clocks cannot drift:
+# the identity clock and the recall clock had the same defect, and fixing one
+# with a private copy of the constant is how this repository grew two identity
+# denial lists with different behaviour.
+try:
+    from reasoning_forge.behavior_governor import CONVERSATION_CONTINUITY_WINDOW as _CONTINUITY_WINDOW
+except Exception:  # pragma: no cover - import-order fallback only
+    _CONTINUITY_WINDOW = 900.0
+
 DB_DIR = Path(__file__).parent.parent / "data"
 DB_PATH = DB_DIR / "codette_memory.db"
 LEGACY_COCOON_DIR = Path(__file__).parent.parent / "cocoons"
@@ -321,9 +331,34 @@ class UnifiedMemory:
                 # Base: FTS5 rank (negative = better match, normalize to 0-1)
                 fts_score = 1.0 / (1.0 + abs(cocoon.get("rank", 0)))
 
-                # Recency: exponential decay (half-life = 1 hour)
+                # Recency: exponential decay, but not while the conversation is
+                # still happening.
+                #
+                # This was `exp(-age / 3600)` from the instant a cocoon was
+                # written, which taxes depth. She generates at 1-8 tok/s, so a
+                # careful turn takes minutes and its own earlier context has
+                # already aged by the time she answers — the longer she thinks,
+                # the less of the conversation she can still reach. A throwaway
+                # turn keeps its context; a considered one loses it.
+                #
+                # Identical in shape to the identity clock fixed on 2026-08-14,
+                # where `elapsed` was the turn's own duration and confidence fell
+                # 1.00 -> 0.22 across one continuous conversation with a person
+                # who never left. Jonathan's framing there: more mass, more
+                # gravity, slower time. Same well, different quantity.
+                #
+                # Same remedy and the same constant, deliberately: decay counts
+                # only the part of a gap BEYOND the continuity window. Inside it,
+                # nothing ages, and FTS relevance decides the ordering instead of
+                # the clock — which is the right tiebreak anyway, given recency
+                # dominance is a known open problem here.
+                #
+                # This only ever flattens near-term decay. It cannot invert an
+                # ordering, and material genuinely hours old decays exactly as
+                # before.
                 age_seconds = now - cocoon.get("timestamp", now)
-                recency_score = math.exp(-age_seconds / 3600.0)
+                away_seconds = max(0.0, age_seconds - _CONTINUITY_WINDOW)
+                recency_score = math.exp(-away_seconds / 3600.0)
 
                 # Success: check metadata for success marker
                 #

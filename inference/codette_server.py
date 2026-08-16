@@ -116,7 +116,27 @@ except Exception as _aegis_import_err:
 
 bootstrap_environment()
 try:
-    sys.stdout.reconfigure(line_buffering=True)
+    # utf-8 + errors="replace" as well as line buffering.
+    #
+    # This file prints 126 times and logs zero times, and ten of the characters
+    # it prints cannot be encoded in cp1252: Γ Π Υ η ξ σ → ∞ ≥ ─. Those are the
+    # metrics — coherence, dispersion, eta — plus the rule used for section
+    # headers a hundred times over.
+    #
+    # On a UTF-8 terminal none of that matters. But Python falls back to the
+    # locale encoding when stdout is REDIRECTED, and on Windows that is cp1252.
+    # So `codette_server.py > run.log` raises UnicodeEncodeError from inside the
+    # print, on exactly the lines carrying the measurements — the run reads as
+    # having died where in fact only the console did.
+    #
+    # errors="replace" is the load-bearing half: an unencodable character
+    # becomes "?" and the line survives. Degrade the display, never the record.
+    # Set here because it fixes all 126 call sites at once and cannot drift, in
+    # a file where the same text living in two places has caused real faults.
+    #
+    # Nothing has been written to stdout at this point, so changing the encoding
+    # is safe; reconfigure() only forbids it after a stream has been read.
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace", line_buffering=True)
 except Exception:
     pass
 
@@ -2282,6 +2302,47 @@ def _worker_thread():
                             )
                     except Exception as e:
                         print(f"  [WORKER] Constraint compliance check failed (non-critical): {e}", flush=True)
+
+                # Reconcile the perspective allowance BEFORE memory_context is
+                # attached, so the record carries the outcome and not only the
+                # grant.
+                #
+                # `perspective_allowance` was written above from
+                # recycle_charge_to_perspectives, at which point nothing had run
+                # yet. Two clamps downstream — the complexity bucket and
+                # substrate pressure — can cut the count, and until now neither
+                # wrote back. So a turn that logged
+                #     [CHARGE]    19.00 -> 5 perspectives
+                #     [SUBSTRATE] max_adapters 5->2 (moderate pressure)
+                # stored `granted: 5` and answered with 2, with the difference
+                # recorded nowhere.
+                #
+                # This is not a veto of the clamp. Substrate pressure is real and
+                # the cap is honest. What was missing is that the reduction of an
+                # allowance she had EARNED, in measured difficulty, vanished
+                # without trace. Now `used` sits beside `granted` and disagrees
+                # out loud when they differ.
+                try:
+                    _applied = result.get("perspective_allowance_applied")
+                    if _applied and isinstance(
+                            memory_context_summary.get("perspective_allowance"), dict):
+                        memory_context_summary["perspective_allowance"].update({
+                            "used": _applied.get("final"),
+                            "reduced": bool(_applied.get("earned_allowance_reduced")),
+                            "reduced_by": (
+                                _applied.get("substrate_reasons") or None
+                                if _applied.get("substrate_clamped")
+                                else ("complexity" if _applied.get("complexity_clamped")
+                                      else None)
+                            ),
+                        })
+                    if _applied:
+                        # Key-by-key assembly: a bridge key that is not forwarded
+                        # here never reaches the wire. That is how the Colleen
+                        # advisory was computed and dropped for a day.
+                        response_data["perspective_allowance_applied"] = _applied
+                except Exception as _pa_e:
+                    print(f"  [ALLOWANCE] reconcile skipped: {_pa_e}", flush=True)
 
                 response_data["memory_context"] = memory_context_summary
 

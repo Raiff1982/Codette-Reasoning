@@ -318,29 +318,91 @@ class CodetteForgeBridge:
         # Adapters are fine-tuned for analysis and produce boilerplate on greetings.
         # Use base model + identity system prompt directly instead.
         #
-        # Pattern: starts with a greeting word (word-boundary anchored).
-        # Word-count guard (≤ 7 words) prevents "hey can you explain X" from
-        # triggering the fast-path.  This catches:
-        #   "hey codette its me", "hi there", "hello jonathan", "good morning", etc.
+        # The gate used to be "starts with a greeting word AND ≤ 7 words", and a
+        # word count cannot tell a greeting from a greeting with a question
+        # attached. Measured 2026-08-15:
+        #
+        #     "Hello. What would you name a diary?"   -> 7 words, fast-pathed,
+        #     GREETING -> _base, 4 tokens, confidence 0. Her reasoning never ran.
+        #
+        # Which inverts one of the house rules. "Say hello first" is the advice
+        # in feedback_how_to_ask_her — he comes in as a person, not as a query —
+        # and the routing punished exactly that: a polite opening got a worse
+        # answer than a blunt one. The count was also wrong in the other
+        # direction, since an eight-word pure greeting fell through to analysis.
+        #
+        # Replaced with the actual question: is there anything here BUT the
+        # greeting? Strip the opener and any vocative, and if what remains is
+        # empty or a known social enquiry, it is a greeting. Anything else —
+        # including a question — goes to full routing regardless of length.
         _GREETING_RE = re.compile(
             r"^\s*(hi|hey|hello|howdy|sup|what'?s\s+up|good\s+(?:morning|afternoon|evening|night)|"
             r"greetings|yo|hiya|hola|salut|ciao|hallo)\b",
             re.IGNORECASE,
         )
-        if _GREETING_RE.match(user_query) and len(user_query.split()) <= 7:
+        # Kept on the fast path deliberately: these ARE greetings, and sending
+        # them to an analytical adapter is what the fast path exists to prevent.
+        _SOCIAL_TAIL_RE = re.compile(
+            r"^(?:"
+            r"how(?:'?s| is| are)?(?:\s+(?:are\s+)?(?:you|u|it\s+going|things|we))?(?:\s+(?:doing|today|tonight|going|now))*"
+            r"|what'?s\s+up|how\s+do\s+you\s+do|good\s+to\s+see\s+you|nice\s+to\s+see\s+you"
+            r"|long\s+time\s+no\s+see|you\s+(?:there|around|up)"
+            r")[\s,!?.]*$",
+            re.IGNORECASE,
+        )
+        # Vocatives and self-identification that carry no request.
+        _VOCATIVE_RE = re.compile(
+            r"^(?:there|codette|friend|my\s+friend|everyone|all|again|girl|beautiful"
+            r"|it'?s\s+me|its\s+me|me\s+again)\b[\s,!.]*",
+            re.IGNORECASE,
+        )
+
+        def _is_pure_greeting(text: str) -> bool:
+            m = _GREETING_RE.match(text)
+            if not m:
+                return False
+            rest = text[m.end():]
+            # Peel vocatives repeatedly: "hey there codette its me" is still one.
+            prev = None
+            while prev != rest:
+                prev = rest
+                rest = _VOCATIVE_RE.sub("", rest.lstrip(" ,!.-—"))
+            rest = rest.strip(" ,!?.-—\n\t")
+            if not rest:
+                return True
+            return bool(_SOCIAL_TAIL_RE.match(rest))
+
+        if _is_pure_greeting(user_query):
             try:
                 from codette_shared import ADAPTER_PROMPTS
                 mem_ctx = self.orchestrator._build_memory_context() if hasattr(self.orchestrator, '_build_memory_context') else ""
-                # Identity guard: the greeting path strips server-injected identity
-                # context, so the base model has no idea who it's greeting and will
-                # invent a name (observed: "Hi Emily"). Assert the known user and
-                # forbid name-invention outright.
+                # Identity: carry the MEASURED block, never assert a name.
+                #
+                # This read "You are speaking with Jonathan, your creator" and
+                # "Greet him warmly and personally as Jonathan" unconditionally,
+                # with no check of who was there — then told her in the next breath
+                # never to assume a name. It was added for a real fault: this path
+                # drops the server's identity block, so the base model invented one
+                # ("Hi Emily"). But it answered a missing measurement with a
+                # constant, so anyone else greeting her was told they were Jonathan.
+                # On 2026-08-15 there was a second person in the room.
+                #
+                # `identity_anchor.get_identity_context` already scales with
+                # evidence: name and relationship above CONFIDENCE_HIGH, "you MAY be
+                # speaking with … do not assume — ask them to confirm" in the middle
+                # band, and the empty string below threshold. The governor can blank
+                # it outright. All of that was discarded here and replaced with us
+                # guessing on her behalf.
+                #
+                # An absent block means withheld or not measured. It never means
+                # "it is him" — that is the whole defect, and the reason nothing is
+                # substituted when it is empty.
+                identity_ctx = self._extract_identity_context(query)
                 identity_guard = (
-                    "\n\nWHO YOU ARE TALKING TO: You are speaking with Jonathan, your "
-                    "creator. Greet him warmly and personally as Jonathan. "
-                    "NEVER invent, guess, or assume a name for the person you are "
-                    "talking to. If you are ever unsure who you are speaking with, do "
-                    "not use any name at all — never make one up."
+                    (("\n" + identity_ctx) if identity_ctx else "")
+                    + "\n\nNEVER invent, guess, or assume a name for the person you "
+                      "are talking to. If you are unsure who you are speaking with, "
+                      "use no name at all — never make one up."
                 )
                 sys_prompt = ADAPTER_PROMPTS["_base"] + mem_ctx + identity_guard
                 result = self.orchestrator._llm.create_chat_completion(
@@ -669,7 +731,18 @@ class CodetteForgeBridge:
         if complexity == QueryComplexity.SIMPLE:
             effective_max_adapters = 1
         elif complexity == QueryComplexity.MEDIUM:
-            effective_max_adapters = min(max_adapters, 2)
+            # Was `min(max_adapters, 2)`, which threw away the charge grant.
+            # `max_adapters` arriving here is no longer a UI default: the
+            # provenance traversal harvests metabolic_charge from the recall
+            # and recycle_charge_to_perspectives converts it into a count
+            # (codette_server, [CHARGE]). Hard-capping at 2 discarded that
+            # measurement on every MEDIUM turn — which was every conversational
+            # turn observed on 2026-08-14.
+            #
+            # The floor still protects the trivial case: a turn whose recall
+            # earned no charge comes in at PERSPECTIVE_FLOOR=2 and is capped at
+            # 2 exactly as before. Only turns that paid for more get more.
+            effective_max_adapters = max_adapters
         else:
             effective_max_adapters = max_adapters
 
@@ -685,6 +758,49 @@ class CodetteForgeBridge:
             if substrate_adjustments:
                 for adj in substrate_adjustments:
                     print(f"  [SUBSTRATE] {adj}", flush=True)
+
+        # ── The override has to say so ────────────────────────────────────────
+        #
+        # `max_adapters` arriving here is not a UI default. The provenance
+        # traversal harvests metabolic_charge from the recall and
+        # recycle_charge_to_perspectives converts it into a count, which the
+        # server has already recorded as `perspective_allowance.granted` and
+        # printed as [CHARGE]. Two clamps then run over it — the complexity
+        # bucket, and substrate pressure — and either can cut it back.
+        #
+        # Observed live 2026-08-14/15:
+        #     [CHARGE]    19.00 -> 5 perspectives
+        #     [SUBSTRATE] max_adapters 5->2 (moderate pressure)
+        #
+        # Neither system knows about the other, and until now the reconciliation
+        # existed nowhere: `perspective_allowance` kept saying `granted: 5` for a
+        # turn that ran on 2. The record was of the grant, not of the outcome.
+        #
+        # This does NOT prevent the clamp. Substrate pressure is real and the
+        # cap is honest — `[SUBSTRATE] max_adapters 5->2 (moderate pressure)` is
+        # a true statement about a machine with 16 GB of shared memory. What was
+        # missing is that the reduction of an *earned* allowance disappeared.
+        # She paid for five voices in measured difficulty and answered with two,
+        # and nothing anywhere carried that fact.
+        #
+        # Recorded, not enforced — the same shape as every other advisory here.
+        _alloc = {
+            "requested": max_adapters,             # what the charge grant asked for
+            "after_complexity": max_adapters_initial,
+            "final": effective_max_adapters,
+            "complexity_clamped": max_adapters_initial < max_adapters,
+            "substrate_clamped": effective_max_adapters < max_adapters_initial,
+            "substrate_reasons": list(substrate_adjustments),
+            # True only when an allowance that was actually EARNED got cut. A
+            # clamp on the plain default is the previous behaviour and is not
+            # an override of anything.
+            "earned_allowance_reduced": effective_max_adapters < max_adapters,
+        }
+        if _alloc["earned_allowance_reduced"]:
+            _why = "; ".join(substrate_adjustments) if substrate_adjustments else \
+                   f"complexity {getattr(complexity_initial, 'name', complexity_initial)}"
+            print(f"  [ALLOWANCE] granted {max_adapters} -> ran {effective_max_adapters} "
+                  f"({_why})", flush=True)
 
         if self.verbose:
             print(f"[PHASE6] Domain: {domain}, max_adapters: {effective_max_adapters}", flush=True)
@@ -731,6 +847,12 @@ class CodetteForgeBridge:
             "max_adapters_effective": effective_max_adapters,
             "substrate_adjustments": substrate_adjustments,
         }
+
+        # What the charge grant asked for against what actually ran.
+        # `phase6_routing.max_adapters_initial` is the count AFTER the complexity
+        # clamp, so it cannot answer this on its own — the grant is upstream of
+        # it. Carried separately for that reason. See the [ALLOWANCE] block above.
+        result["perspective_allowance_applied"] = _alloc
 
         if route_decision:
             try:
@@ -1214,6 +1336,29 @@ class CodetteForgeBridge:
             print(f"[PHASE6] Done: {resp_len} chars, {result.get('tokens', 0)} tokens", flush=True)
 
         return result
+
+    @staticmethod
+    def _extract_identity_context(query: str) -> str:
+        """Recover the server's injected identity block, if it sent one.
+
+        The server appends it after the memory sections as
+        `\\n\\n---\\n<block>\\n---` (codette_server.py ~1852) and only when the
+        governor allows it — when identity is withheld the block is the empty
+        string and nothing is appended at all.
+
+        So the empty return is load-bearing: it means withheld or not measured,
+        and callers must not fill it in. Anchored on the block's own header
+        rather than on the `---` fence, because memory and web-research sections
+        use the same fence and arrive first.
+        """
+        if not query:
+            return ""
+        idx = query.find("## IDENTITY CONTEXT")
+        if idx == -1:
+            return ""
+        block = query[idx:]
+        end = block.find("\n---")
+        return (block[:end] if end != -1 else block).strip()
 
     @staticmethod
     def _extract_primary_user_query(query: str) -> str:
