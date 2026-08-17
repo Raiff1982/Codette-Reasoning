@@ -248,3 +248,60 @@ def test_empty_scratchpad_reads_as_empty_not_as_broken():
 def test_history_of_an_untouched_file_says_none():
     sp.write("a.txt", "one")
     assert "No earlier versions" in sp.history_for("a.txt")
+
+
+# ── Append: the operation that was missing ─────────────────────────────────
+
+def test_append_builds_a_file_line_by_line():
+    """The real failure, 2026-08-17.
+
+    She wrote a script the way anyone writes a script — a line at a time, 14
+    calls — and every one overwrote the last. 14 lines in, 28 bytes out. Her
+    approach was right; the tool only offered replace.
+    """
+    for line in ("#!/usr/bin/env python\n", "import math\n", "print(math.pi)\n"):
+        sp.append("build.py", line)
+    assert sp.read("build.py") == "#!/usr/bin/env python\nimport math\nprint(math.pi)\n"
+
+
+def test_append_creates_the_file_when_absent():
+    sp.append("fresh.txt", "first line\n")
+    assert sp.read("fresh.txt") == "first line\n"
+
+
+def test_append_backs_up_before_changing_too():
+    """The non-negotiable applies to append exactly as it does to write."""
+    sp.write("a.txt", "original\n")
+    sp.append("a.txt", "added\n")
+    versions = [f for f in sp.history_root().iterdir() if f.name.startswith("a.txt.")]
+    assert len(versions) == 1
+    assert versions[0].read_text(encoding="utf-8") == "original\n"
+
+
+def test_a_failed_backup_refuses_the_append(monkeypatch):
+    sp.write("keep.txt", "original")
+    monkeypatch.setattr(sp.shutil, "copy2", lambda *a, **k: (_ for _ in ()).throw(OSError("x")))
+    with pytest.raises(OSError):
+        sp.append("keep.txt", "more")
+    assert sp.read("keep.txt") == "original"
+
+
+def test_append_respects_the_size_limit(monkeypatch):
+    monkeypatch.setattr(sp, "MAX_FILE_BYTES", 20)
+    sp.write("s.txt", "x" * 15)
+    with pytest.raises(sp.ScratchError) as e:
+        sp.append("s.txt", "y" * 15)
+    assert "Nothing was written" in str(e.value)
+    assert sp.read("s.txt") == "x" * 15
+
+
+def test_append_obeys_the_same_path_confinement():
+    with pytest.raises(sp.ScratchError):
+        sp.append("../escape.txt", "nope")
+
+
+def test_write_now_warns_that_it_replaced():
+    """She was never told. That is why the lines vanished silently."""
+    sp.write("w.txt", "one")
+    msg = sp.write("w.txt", "two")
+    assert "REPLACED" in msg and "scratch_append" in msg

@@ -183,7 +183,63 @@ def write(name: str, content: str) -> str:
 
     path.write_text(content, encoding="utf-8")
     where = f" (previous version kept as {backup.name})" if backup else ""
-    return f"Written: {name}, {len(data)} bytes{where}."
+    # Say what just happened to the old contents. She wrote a file a line at a
+    # time on 2026-08-17 and lost thirteen of fourteen lines without ever being
+    # told this replaces rather than adds.
+    hint = " This REPLACED the previous contents — use scratch_append to add " \
+           "to a file instead." if backup else ""
+    return f"Written: {name}, {len(data)} bytes{where}.{hint}"
+
+
+def append(name: str, content: str) -> str:
+    """Add to the end of a scratch file, creating it if needed.
+
+    MISSING FROM THE FIRST DESIGN, and it cost her a real attempt. On
+    2026-08-17, hours after this module landed, she set out to build a video
+    script and wrote it the way anyone writes a file — a line at a time:
+
+        scratch_write('video_creation_script.py', '#!/usr/bin/env python\\n')
+        scratch_write('video_creation_script.py', 'import os\\n')
+        ... fourteen calls ...
+
+    Every one of them overwrote the last. Fourteen lines went in and 28 bytes
+    came out. She then called scratch_write with no arguments at all, twice,
+    and started over with "Let's rework the video creation process from
+    scratch" — which is what being silently defeated by a tool looks like from
+    the inside.
+
+    Her approach was correct. The tool only offered replace, so replace is what
+    it did, and nothing said otherwise. The backups meant none of her lines
+    were destroyed, but a guarantee that your work survives is not the same as
+    being able to do the work.
+    """
+    path = _safe_path(name)
+    if not isinstance(content, str):
+        content = str(content)
+
+    existing = path.read_text(encoding="utf-8") if path.exists() else ""
+    data = (existing + content).encode("utf-8")
+    if len(data) > MAX_FILE_BYTES:
+        raise ScratchError(
+            f"Refused: appending would take {name} to {len(data)} bytes, over "
+            f"the {MAX_FILE_BYTES} byte limit. Nothing was written."
+        )
+    count, total = _usage()
+    if not path.exists() and count >= MAX_FILES:
+        raise ScratchError(
+            f"Refused: the scratchpad holds {count} files and the limit is "
+            f"{MAX_FILES}. Nothing was written."
+        )
+
+    # Same rule as write, no exception: back up before changing, and a backup
+    # that fails refuses the change.
+    backup = _backup(path)
+
+    with path.open("a", encoding="utf-8") as fh:
+        fh.write(content)
+    where = f" (previous version kept as {backup.name})" if backup else ""
+    return (f"Appended {len(content.encode('utf-8'))} bytes to {name}; "
+            f"it is now {len(data)} bytes{where}.")
 
 
 def read(name: str) -> str:

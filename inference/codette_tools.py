@@ -174,6 +174,20 @@ class ToolRegistry:
             "handler": tool_scratch_write,
         })
 
+        self.register("scratch_append", {
+            "description": (
+                "Add to the END of a scratch file, keeping what is already "
+                "there. Creates the file if it does not exist yet. Use this to "
+                "build something up a piece at a time — scratch_write replaces "
+                "the whole file. Args: name (str), content (str)"
+            ),
+            "examples": [
+                'scratch_append("plan.py", "import math\\n")',
+                'scratch_append("notes.md", "- another thing to check\\n")',
+            ],
+            "handler": tool_scratch_append,
+        })
+
         self.register("scratch_read", {
             "description": (
                 "Read something back from your scratchpad. "
@@ -1126,8 +1140,15 @@ def _scratch():
     return scratchpad
 
 
-def tool_scratch_write(name: str, content: str = "") -> str:
+def tool_scratch_write(name: str = "", content: str = "") -> str:
     sp = _scratch()
+    # She called this with no arguments twice on 2026-08-17 after the
+    # overwrite problem confused her. A bare TypeError told her nothing.
+    if not name:
+        return ("scratch_write needs a filename and the contents, e.g. "
+                "scratch_write(\"plan.py\", \"print('hi')\"). To ADD to a file "
+                "you already started, use scratch_append — scratch_write "
+                "replaces the whole file.")
     try:
         return sp.write(name, content)
     except sp.ScratchError as e:
@@ -1136,6 +1157,19 @@ def tool_scratch_write(name: str, content: str = "") -> str:
         # Refusals are readable; faults are reported as faults rather than as
         # a refusal she might try to work around.
         return f"Error: the scratchpad could not write '{name}': {e}"
+
+
+def tool_scratch_append(name: str = "", content: str = "") -> str:
+    sp = _scratch()
+    if not name:
+        return ("scratch_append needs a filename and the text to add, e.g. "
+                "scratch_append(\"plan.py\", \"print('hi')\\n\")")
+    try:
+        return sp.append(name, content)
+    except sp.ScratchError as e:
+        return str(e)
+    except Exception as e:
+        return f"Error: the scratchpad could not append to '{name}': {e}"
 
 
 def tool_scratch_read(name: str = "") -> str:
