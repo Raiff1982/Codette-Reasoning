@@ -582,8 +582,21 @@ class OpenVINOBackend:
                     text = str(output).strip()
                     if text.startswith(prompt):
                         text = text[len(prompt):].strip()
-                if has_tool_calls(text):
-                    text = strip_tool_calls(text)
+                # UNCONDITIONAL. This was `if has_tool_calls(text)`, which
+                # gated the cleanup on the text containing a *valid* call —
+                # so the malformed leftovers, the only thing that ever needs
+                # cleaning, were exactly what it stood down for.
+                #
+                # Measured live 2026-08-17: `<tool>empathy</tool>` rendered at
+                # the head of her answer. `empathy` is a perspective, not a
+                # tool, and carried no args, so has_tool_calls said no and the
+                # strip never ran. Same turn shipped a stray
+                # `; expr = sp.sympify('x + 2*x')")` into her reply.
+                #
+                # strip_tool_calls only removes tag-shaped things, so running
+                # it on clean prose is a no-op — the guard bought nothing and
+                # cost her the one case it existed for.
+                text = strip_tool_calls(text)
 
                 # ── The budget ran out mid-reach ─────────────────────────────
                 # Observed live 2026-08-13, "how would you solve it then?": she
@@ -610,7 +623,7 @@ class OpenVINOBackend:
                     text = str(_out).strip()
                     if text.startswith(_closing):
                         text = text[len(_closing):].strip()
-                    text = strip_tool_calls(text) if has_tool_calls(text) else text
+                    text = strip_tool_calls(text)   # unconditional, see above
             except Exception as _te:
                 print(f"  [OV] tool loop failed: {_te}", flush=True)
 

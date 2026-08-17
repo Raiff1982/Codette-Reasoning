@@ -1074,7 +1074,10 @@ class CodetteOrchestrator:
 
             # No tool calls (or final round) — we're done
             # Strip any leftover tool tags from final response
-            clean_text = strip_tool_calls(text) if has_tool_calls(text) else text
+            # Unconditional: gating on has_tool_calls stands the cleanup down
+            # for exactly the malformed leftovers it exists to remove. See the
+            # note at openvino_backend/backend.py:585 (measured 2026-08-17).
+            clean_text = strip_tool_calls(text)
             break
 
         # SELF-CORRECTION LOOP: Detect violations and re-generate if needed (max 1 retry)

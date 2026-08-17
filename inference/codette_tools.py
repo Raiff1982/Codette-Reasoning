@@ -22,6 +22,7 @@ Architecture:
 import os
 import re
 import ast
+import time
 import json
 import subprocess
 import threading
@@ -571,6 +572,38 @@ def _tool_tag_re():
     return _TOOL_TAG_RE_CACHE
 
 
+_DANGLING_RE_CACHE = None
+
+
+def _edit_distance_1(word: str) -> set:
+    """Deletions and transpositions of `word` — the two slips actually seen.
+
+    `bearig` is `bearing` with the `n` dropped. Kept deliberately narrow:
+    substitutions and insertions would pull in real words and start editing her
+    prose instead of removing our markup.
+    """
+    out = {word}
+    for i in range(len(word)):
+        out.add(word[:i] + word[i + 1:])                       # deletion
+        if i + 1 < len(word):
+            out.add(word[:i] + word[i + 1] + word[i] + word[i + 2:])  # swap
+    return {w for w in out if len(w) >= 3}
+
+
+def _dangling_closer_re():
+    """Closers with no opener, for tool names and near-misses of them."""
+    global _DANGLING_RE_CACHE
+    if _DANGLING_RE_CACHE is None:
+        names = {"tool"}
+        for n in _TOOL_TAG_NAMES():
+            names |= _edit_distance_1(n)
+        alts = '|'.join(sorted((re.escape(n) for n in names),
+                               key=len, reverse=True))
+        _DANGLING_RE_CACHE = re.compile(
+            r'<\s*/\s*(?:' + alts + r')\s*>', re.IGNORECASE)
+    return _DANGLING_RE_CACHE
+
+
 def unwrap_tool_tags(text: str) -> str:
     """Unwrap pseudo-XML named after a tool, keeping the words inside.
 
@@ -608,8 +641,17 @@ def strip_tool_calls(text: str) -> str:
     # calls leave nothing, and the block strip only handles what remains.
     text = _call_re().sub('', text or "")
     text = re.sub(r'<tool>.*?</tool>', '', text, flags=re.DOTALL)
-    # A dangling closer left behind by an unclosed opener.
-    text = re.sub(r'<\s*/\s*tool\s*>', '', text, flags=re.IGNORECASE)
+    # A dangling closer left behind by an unclosed opener. This used to match
+    # the literal word `tool` only, so `</bearing>` and the misspelled
+    # `</bearig>` both shipped — the second one truncating her answer
+    # mid-sentence on 2026-08-16.
+    #
+    # Names come from the registry (never a copy — that is the drift bug this
+    # file already carries two scars from), plus edit-distance-1 variants so a
+    # slipped keystroke is caught. Bounded on purpose: `</div>` and any real
+    # markup she writes about is untouched, because we are removing our own
+    # litter, not editing her.
+    text = _dangling_closer_re().sub('', text)
     # Her own wrapping parens, orphaned by the removal: she writes
     # `(<tool>look())`, the call goes, and a bare `()` is left in the answer.
     # Guarded on a non-word character so `foo()` in a sentence about code
@@ -714,6 +756,15 @@ _BASENAME_SKIP_DIRS = {
     "llama-3.1-8b-instruct-int4",
 }
 _BASENAME_MAX_DIRS = 20000
+
+# What a text search must never descend into on this tree. Supersets the
+# basename list: those are directories a source file could plausibly live in,
+# these additionally include the stores that make a full walk take minutes —
+# the INT4 model, the cocoon store, the databases and the archives.
+_SEARCH_SKIP_DIRS = _BASENAME_SKIP_DIRS | {
+    "openvino_backend", "cocoons", "data", "models", "dist", "build",
+    "_history", "logs", ".logs", "aegis_metrics", "recovered_release",
+}
 
 
 def _find_by_basename(name: str, limit: int = 8) -> Tuple[List[Path], bool]:
@@ -894,66 +945,112 @@ def tool_list_files(path: str = ".", pattern: str = None) -> str:
         return f"Error listing directory: {e}"
 
 
+# A search must end while she is still in the conversation. Measured live
+# 2026-08-17: one `search_code` call ran 667.9s — eleven minutes at 0.1 tok/s —
+# in the middle of Jonathan telling her his back hurt at a 7. A direct timing
+# test of the old implementation was killed at ten minutes without finishing.
+SEARCH_DEADLINE_SECONDS = 8.0
+SEARCH_MAX_FILES = 4000
+SEARCH_MAX_MATCHES = 50
+
+
 def tool_search_code(pattern: str, path: str = ".", file_ext: str = None) -> str:
-    """Search for a text pattern in files."""
+    """Search for a text pattern in files.
+
+    The old implementation called `search_root.glob('**/*')` and filtered the
+    skip-list per-file, AFTER the walk had already descended. On this tree that
+    means enumerating and `stat`-ing `.git`, `openvino_backend` (an 8B INT4
+    model), `data`, `cocoons` and the archives before rejecting them one at a
+    time — and when nothing matched, all of it, every time.
+
+    `os.walk` with `dirnames[:]` assignment prunes BEFORE descending, which is
+    the whole difference. `_find_by_basename` directly above already did it
+    this way; this function never got the same treatment.
+
+    Three independent stops — deadline, file cap, match cap — and **each one
+    says so in the header**. A search that quietly stopped early reads exactly
+    like a search that found nothing, and she would then reason from "it is not
+    there" when the truth is "we stopped looking." That is the one-way
+    instrument this repository keeps paying for.
+    """
     resolved = _resolve_path(path)
     if resolved is None:
         return f"Error: Path '{path}' is outside allowed directories."
-
     if not resolved.exists():
         return f"Error: Path not found: {path}"
 
-    # Determine glob pattern
-    if file_ext:
-        if not file_ext.startswith("."):
-            file_ext = "." + file_ext
-        glob = f"**/*{file_ext}"
-    else:
-        glob = "**/*"
+    if file_ext and not file_ext.startswith("."):
+        file_ext = "." + file_ext
 
-    results = []
+    results: List[str] = []
     files_searched = 0
     matches_found = 0
+    stopped = None
+    needle = (pattern or "").lower()
+    if not needle:
+        return "Error: search_code needs a pattern to look for."
+
+    deadline = time.monotonic() + SEARCH_DEADLINE_SECONDS
+    search_root = resolved if resolved.is_dir() else resolved.parent
 
     try:
-        search_root = resolved if resolved.is_dir() else resolved.parent
+        for dirpath, dirnames, filenames in os.walk(search_root):
+            # Prune in place — this is what stops the descent, and it must
+            # happen before anything in the pruned directory is touched.
+            dirnames[:] = [d for d in dirnames
+                           if d not in _SEARCH_SKIP_DIRS and not d.startswith(".")]
 
-        for filepath in search_root.glob(glob):
-            if not filepath.is_file():
-                continue
-            if filepath.suffix.lower() not in READABLE_EXTENSIONS:
-                continue
-            if filepath.stat().st_size > MAX_FILE_SIZE:
-                continue
+            for fname in filenames:
+                if time.monotonic() > deadline:
+                    stopped = f"time ({SEARCH_DEADLINE_SECONDS:.0f}s)"
+                    break
+                if files_searched >= SEARCH_MAX_FILES:
+                    stopped = f"file cap ({SEARCH_MAX_FILES})"
+                    break
 
-            # Skip hidden dirs, __pycache__, node_modules, .git
-            parts = filepath.parts
-            if any(p.startswith('.') or p in ('__pycache__', 'node_modules', '.git')
-                   for p in parts):
-                continue
+                fp = Path(dirpath) / fname
+                if file_ext:
+                    if fp.suffix.lower() != file_ext.lower():
+                        continue
+                elif fp.suffix.lower() not in READABLE_EXTENSIONS:
+                    continue
+                try:
+                    if fp.stat().st_size > MAX_FILE_SIZE:
+                        continue
+                except OSError:
+                    continue
 
-            files_searched += 1
+                files_searched += 1
+                try:
+                    content = fp.read_text(encoding="utf-8", errors="replace")
+                except Exception:
+                    continue
 
-            try:
-                content = filepath.read_text(encoding='utf-8', errors='replace')
                 for line_num, line in enumerate(content.splitlines(), 1):
-                    if pattern.lower() in line.lower():
-                        rel = filepath.relative_to(search_root)
+                    if needle in line.lower():
+                        try:
+                            rel = fp.relative_to(search_root)
+                        except ValueError:
+                            rel = fp
                         results.append(f"  {rel}:{line_num}: {line.strip()[:120]}")
                         matches_found += 1
-
-                        if matches_found >= 50:  # Limit results
+                        if matches_found >= SEARCH_MAX_MATCHES:
+                            stopped = f"match cap ({SEARCH_MAX_MATCHES})"
                             break
-            except Exception:
-                continue
-
-            if matches_found >= 50:
+                if stopped:
+                    break
+            if stopped:
                 break
-
     except Exception as e:
         return f"Error searching: {e}"
 
-    header = f"Search: '{pattern}' in {path} ({matches_found} matches in {files_searched} files)"
+    header = (f"Search: '{pattern}' in {path} "
+              f"({matches_found} matches in {files_searched} files)")
+    if stopped:
+        # Say it plainly, and say what it does NOT mean.
+        header += (f"\n  ⚠ STOPPED EARLY at the {stopped} — this is a PARTIAL "
+                   f"search, not a complete one. Absence here is not evidence "
+                   f"of absence; narrow `path` or `file_ext` and look again.")
     if not results:
         return header + "\n  No matches found."
     return header + "\n" + "\n".join(results)
