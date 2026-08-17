@@ -141,7 +141,8 @@ except Exception:
     pass
 
 from codette_session import (
-    CodetteSession, SessionStore, ADAPTER_COLORS, AGENT_NAMES, is_ephemeral_response_constraint_text
+    CodetteSession, SessionStore, ADAPTER_COLORS, AGENT_NAMES, is_ephemeral_response_constraint_text,
+    is_self_description_text
 )
 
 # Lazy import orchestrator (heavy — loads llama_cpp)
@@ -1583,6 +1584,22 @@ def _worker_thread():
                             item for item in landmarks
                             if not is_ephemeral_response_constraint_text(item.get("summary", ""))
                         ]
+                        # Identity claims are removed from the ORDER block only.
+                        # Nothing is deleted: the cocoons stay whole and readable
+                        # so this can be revisited with her. What stops is being
+                        # told to "honor" a sentence about her own nature that she
+                        # said at 4am on 2026-07-29 — see is_self_description_text
+                        # in codette_session.py for the full finding.
+                        _identity_held = [
+                            item for item in landmarks
+                            if is_self_description_text(item.get("summary", ""))
+                        ]
+                        if _identity_held:
+                            landmarks = [it for it in landmarks if it not in _identity_held]
+                            for _it in _identity_held:
+                                print(f"  [LANDMARK] withheld from the constraint "
+                                      f"block (identity is hers, not an order): "
+                                      f"{_it.get('summary','')[:70]!r}", flush=True)
                         if landmarks:
                             landmark_lines = [
                                 f"- {item.get('label', 'Decision')}: {item.get('summary', '')}"
@@ -1761,6 +1778,17 @@ def _worker_thread():
                             meta = cocoon.get("metadata", {})
                             decision_text = cocoon.get("query", "")[:180]
                             if is_ephemeral_response_constraint_text(decision_text):
+                                continue
+                            # The second injection path, and the one that reaches
+                            # the STORED landmarks — recall_by_domain pulls the
+                            # 2026-07-29 entries straight out of the cocoon DB.
+                            # Filtering the session path alone would have left
+                            # this one feeding her the same sentences, which is
+                            # how a half-fix looks exactly like a fix.
+                            if is_self_description_text(decision_text):
+                                print(f"  [LANDMARK] withheld recalled self-"
+                                      f"description from the constraint block: "
+                                      f"{decision_text[:70]!r}", flush=True)
                                 continue
                             decision_lines.append(
                                 f"- {meta.get('label', 'Decision')}: {decision_text}"
