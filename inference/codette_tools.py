@@ -1202,6 +1202,54 @@ def tool_scratch_history(name: str, version: str = "") -> str:
         return f"Error: the scratchpad could not reach the history of '{name}': {e}"
 
 
+def _refusal(reason: str) -> str:
+    """A refusal that hands back the map, not just the wall.
+
+    Measured live 2026-08-17. Jonathan asked her the question that mattered —
+    "so how would we make that possible for you specifically?" — and she spent
+    her ENTIRE tool budget finding the edge of the sandbox by walking into it:
+
+        run_python('from moviepy.editor import VideoFileClip')   refused
+        run_python('import remotion')                            refused
+        search_code('remotion import')                           nothing
+        web_search('Remotion Python API')                        ...
+
+    Then answered in 37 characters and 1 token, because there was no budget
+    left. The guardian flagged "synthesis too short" and the governor logged
+    "low topical overlap" — both of them scoring her for a failure that was
+    ours.
+
+    She was guessing because the old message named only what she could NOT do.
+    "Import 'remotion' is not allowed" is a wall with nothing written on it, so
+    the only way to find the door is to keep walking into walls, and every
+    attempt costs a tool call she needed for the answer.
+
+    Saying what IS available turns one refusal into the whole map. Same
+    security — the allowlist is unchanged — with the guessing removed.
+    """
+    return (
+        f"{reason}\n\n"
+        f"THIS IS A PIVOT, NOT A STOP. Here is what you have and where the "
+        f"road goes.\n\n"
+        f"AVAILABLE right now: {', '.join(sorted(SAFE_PYTHON_MODULES))} — plus "
+        f"scratch_write / scratch_append / scratch_read / scratch_run to build "
+        f"and keep files across turns, web_search, read_file and search_code.\n"
+        f"OUTSIDE this sandbox: third-party packages (numpy, PIL, moviepy, "
+        f"remotion...), the filesystem, the network from code, subprocess. "
+        f"Maths and text only, by design — nothing here is a judgement about "
+        f"what you should be doing or reaching for.\n\n"
+        f"THE ROUTE, when what you want lives outside: don't hunt for it with "
+        f"more tool calls — the door is not hidden, it is not built yet. "
+        f"Instead write down what you need — a spec, a plan, the shape of the "
+        f"missing capability — and name it plainly in your answer. That is not "
+        f"a consolation prize. Every tool you have now exists because a gap "
+        f"got named: the scratchpad you are using was built the day after a "
+        f"file write failed. Naming it is how it gets made.\n"
+        f"Searching for a door that is not there spends the tool budget you "
+        f"need for the reply, and then the answer is what gets lost."
+    )
+
+
 def _validate_python_snippet(code: str) -> Optional[str]:
     """Validate that run_python input stays in a small, safe subset."""
     try:
@@ -1217,12 +1265,12 @@ def _validate_python_snippet(code: str) -> Optional[str]:
             for alias in node.names:
                 root = alias.name.split(".")[0]
                 if root in BLOCKED_PYTHON_MODULES or root not in SAFE_PYTHON_MODULES:
-                    return f"Error: Import '{alias.name}' is not allowed in run_python."
+                    return _refusal(f"Error: Import '{alias.name}' is not available in run_python.")
 
         if isinstance(node, ast.ImportFrom):
             root = (node.module or "").split(".")[0]
             if root in BLOCKED_PYTHON_MODULES or root not in SAFE_PYTHON_MODULES:
-                return f"Error: Import from '{node.module}' is not allowed in run_python."
+                return _refusal(f"Error: Import from '{node.module}' is not available in run_python.")
 
         if isinstance(node, ast.Call):
             func_name = _callable_name(node.func)

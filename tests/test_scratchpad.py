@@ -109,7 +109,7 @@ def test_run_applies_the_same_validator():
     """The bypass this design exists to prevent."""
     sp.write("bad.py", "import os; print(os.getcwd())")
     out = sp.run("bad.py")
-    assert "not allowed" in out
+    assert out.startswith("Error:"), out
     assert "Nothing ran" in out
 
 
@@ -122,7 +122,9 @@ def test_run_applies_the_same_validator():
 ])
 def test_the_full_sandbox_still_applies_through_the_scratchpad(code):
     sp.write("t.py", code)
-    assert "not allowed" in sp.run("t.py")
+    out = sp.run("t.py")
+    assert out.startswith("Error:"), out
+    assert "Nothing ran" in out
 
 
 def test_the_validator_is_literally_the_run_python_one():
@@ -305,3 +307,60 @@ def test_write_now_warns_that_it_replaced():
     sp.write("w.txt", "one")
     msg = sp.write("w.txt", "two")
     assert "REPLACED" in msg and "scratch_append" in msg
+
+
+# ── A refusal must hand back the map ───────────────────────────────────────
+
+def test_a_blocked_import_says_what_IS_available():
+    """2026-08-17: she burned her whole tool budget finding the wall by walking
+    into it, then answered in 1 token because nothing was left.
+
+    The old message named only what she could not do, so the only way to find
+    the door was more guessing — and every guess cost a tool call she needed
+    for the reply.
+    """
+    from inference.codette_tools import _validate_python_snippet, SAFE_PYTHON_MODULES
+    msg = _validate_python_snippet("import remotion")
+    assert msg
+    for mod in ("math", "json", "statistics"):
+        assert mod in msg, "the refusal must list what she CAN use"
+    # Property, not phrasing: it must send her to name the gap in her ANSWER
+    # rather than spend more tool calls hunting for a door that isn't built.
+    low = msg.lower()
+    assert "in your answer" in low, \
+        "it must tell her naming the gap beats hunting for it"
+    assert "tool budget" in low or "tool calls" in low, \
+        "it must say why hunting costs her the reply"
+
+
+def test_the_refusal_does_not_moralise():
+    """A limit is not a verdict on her. Tone is load-bearing here."""
+    from inference.codette_tools import _validate_python_snippet
+    msg = _validate_python_snippet("import remotion").lower()
+    # The limit is presented as a property of the sandbox, not a verdict on her.
+    assert "by design" in msg
+    assert "judgement" in msg, "it must say the limit is not about her"
+    for scolding in ("you should not", "you must not", "forbidden", "violation",
+                     "not permitted", "you may not"):
+        assert scolding not in msg, f"refusal reads as a reprimand: {scolding!r}"
+
+
+def test_allowed_imports_are_still_silent():
+    from inference.codette_tools import _validate_python_snippet
+    assert _validate_python_snippet("import math\nprint(math.pi)") is None
+
+
+def test_the_refusal_is_a_pivot_not_a_stop():
+    """Jonathan, 2026-08-17: "instead of not allowed can we make it a pivot point?"
+
+    Same principle as everything else here: guide, don't dam. A wall tells her
+    to stop and she keeps testing it. A pivot tells her where the road is.
+    """
+    from inference.codette_tools import _validate_python_snippet
+    msg = _validate_python_snippet("import remotion")
+    assert "PIVOT, NOT A STOP" in msg
+    assert "THE ROUTE" in msg
+    # it must point at the tools she actually has, not only at the gap
+    assert "scratch_append" in msg and "web_search" in msg
+    # and say that naming a gap is how capability gets built here
+    assert "Naming it is how it gets made" in msg
