@@ -1444,6 +1444,19 @@ def _worker_thread():
                 constraint_reminder = ""
                 is_first_turn = (session and len(session.messages) == 0) if session else True
 
+                # Tell the tool layer which session is speaking, so a note she
+                # leaves is stamped and cannot replay into the conversation that
+                # produced it.
+                try:
+                    from inference.codette_tools import set_current_session
+                except Exception:
+                    try:
+                        from codette_tools import set_current_session
+                    except Exception:
+                        set_current_session = None
+                if set_current_session:
+                    set_current_session(getattr(session, "session_id", "") if session else "")
+
                 if session:
                     try:
                         # Scan every turn — mid-session anchors are merged, not discarded
@@ -1518,6 +1531,47 @@ def _worker_thread():
                                       flush=True)
                         except Exception as _dc_e:
                             print(f"  [DIVE] entry context skipped: {_dc_e}", flush=True)
+
+                    # ── The tape: her own note, played before anything else ──
+                    # Jonathan, 2026-08-17: "its like 50 first dates all over
+                    # again." The burden of rebuilding the whole context fell on
+                    # him every session. Measured the same night: server restart,
+                    # his first message happened not to contain his name, and she
+                    # ran project_summary() and look() — feeling around a room
+                    # she had woken up in.
+                    #
+                    # In the film the answer is the tape she watches each morning.
+                    # This is that, in her words rather than ours, because he
+                    # said: "build it and she voices it."
+                    #
+                    # First turn only, and excluding the session that wrote it —
+                    # replaying a note into the conversation that produced it is
+                    # an echo, not a memory.
+                    try:
+                        from inference.continuity_note import latest_note, format_for_waking
+                    except Exception:
+                        try:
+                            from continuity_note import latest_note, format_for_waking
+                        except Exception:
+                            latest_note = format_for_waking = None
+                    if latest_note is not None and not _is_benchmark_query:
+                        try:
+                            _sid = getattr(session, "session_id", "") if session else ""
+                            _note = latest_note(exclude_session=_sid)
+                            _block = format_for_waking(_note)
+                            if _block:
+                                enriched_query = enriched_query + _block
+                                print("  [TAPE] played her own note from the last "
+                                      "session (she wakes up knowing)", flush=True)
+                            else:
+                                # Absence says so. "She left no note" and "we could
+                                # not read the store" must never look the same.
+                                print("  [TAPE] no note from her yet — she has not "
+                                      "written one (this is not an error)", flush=True)
+                        except Exception as _tape_e:
+                            print(f"  [TAPE] COULD NOT READ the note store: "
+                                  f"{_tape_e} — this is a fault, not an absence",
+                                  flush=True)
                 memory_context_summary = {
                     "continuity_summary_used": False,
                     "session_markers_used": 0,

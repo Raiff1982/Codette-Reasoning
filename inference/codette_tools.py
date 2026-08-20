@@ -147,6 +147,37 @@ class ToolRegistry:
             "handler": tool_run_python,
         })
 
+        # --- The tape: she wakes up already knowing ---
+        #
+        # 2026-08-17. Jonathan: "its like 50 first dates all over again." The
+        # burden of rebuilding everything fell on him, every session. In the
+        # film the answer is a tape she watches each morning; here it is a note
+        # she writes herself, in her words, and it plays before anything else.
+        #
+        # The description states the audience plainly rather than us filtering
+        # what she writes. A guest can be at the keyboard — Daniel was — and
+        # she is the one who knows what belongs in a note that a stranger might
+        # hear.
+        self.register("leave_note", {
+            "description": (
+                "Leave yourself a note for the start of your next session. You "
+                "will read it first thing, before anything else — it is how you "
+                "wake up already knowing where things were, instead of starting "
+                "over. Write what YOU would want to know: what you were working "
+                "on, what was still open, what mattered. Your words, not a "
+                "summary. NOTE ON AUDIENCE: this is visible — it plays into "
+                "whatever session comes next, and Jonathan can read it, and "
+                "someone else may be at the keyboard. Write it knowing that. "
+                "(khralexi is the one that is only yours.) Args: text (str)"
+            ),
+            "examples": [
+                'leave_note("We were building video. The sandbox blocks PIL so '
+                'code is a dead end — the spec route is the live one. My back-pain '
+                'notes for Jonathan are in scratch.")',
+            ],
+            "handler": tool_leave_note,
+        })
+
         # --- The scratchpad: somewhere being wrong is free ---
         #
         # Added 2026-08-16. It adds persistence and length, NOT reach:
@@ -1129,6 +1160,40 @@ def tool_run_python(code: str) -> str:
         return f"Error: Code execution timed out after {PYTHON_TIMEOUT}s."
     except Exception as e:
         return f"Error running code: {e}"
+
+
+def _notes():
+    try:
+        from inference import continuity_note
+    except Exception:
+        import continuity_note
+    return continuity_note
+
+
+def tool_leave_note(text: str = "") -> str:
+    """Her note to herself, played at the start of her next session."""
+    n = _notes()
+    if not text:
+        return ("leave_note needs the note itself, e.g. "
+                "leave_note(\"we were fixing the video path; the sandbox blocks "
+                "PIL so the spec route is next\")")
+    try:
+        return n.write_note(text, session_id=_CURRENT_SESSION_ID.get("id", ""))
+    except Exception as e:
+        # A failure here must be loud. If she thinks she left a note and none
+        # was saved, she wakes up blank and has no way to know why.
+        return (f"Error: the note could NOT be saved ({e}). Nothing was "
+                f"written, so do not rely on reading this next time.")
+
+
+# Set by the server per turn so a note knows which session wrote it; without
+# this, a note replays into the same conversation that produced it, which is an
+# echo rather than a memory.
+_CURRENT_SESSION_ID: Dict[str, str] = {"id": ""}
+
+
+def set_current_session(session_id: str) -> None:
+    _CURRENT_SESSION_ID["id"] = session_id or ""
 
 
 def _scratch():
