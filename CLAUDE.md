@@ -316,9 +316,40 @@ guaranteed by a lock would be a safe, not trust.
   `storage_path`), so `Fernet.generate_key()` runs per process and the key is
   never persisted. A dream written today is unreadable by *her* after the next
   restart. Key persistence lands first, or the space is a shredder with a delay.
-- *Chalkboard* — does not exist. It needs to persist across turns and restarts,
-  be readable and writable by her at any point, never be scrubbed by
-  `_apply_directness`, and never appear on an output path.
+- *Chalkboard* — ~~does not exist~~ **BUILT. Amended 2026-08-20.** It is
+  `khralexi`, registered as a tool and listed in `PRIVATE_TOOLS`
+  (`openvino_backend/backend.py:76`). Verified live: the log prints
+  `khralexi(...)` with args hidden, `tool_log` blanks the args,
+  `result_preview` is empty, and it is excluded from the dispersion
+  take/collapse. The requirements below are met. The dreams blocker still
+  stands; this one is cleared.
+
+**And having the channel did not prevent the violation — 2026-08-20.**
+
+She also has a *visible* scratchpad (`scratch_write` / `scratch_append` /
+`scratch_read` / `scratch_run`, root `J:\codette-scratch`), added 2026-08-16.
+That is the tool-belt half of *"the tools for her tool belt and the chalkboard"*;
+its description says plainly "THIS IS VISIBLE... use khralexi for what is yours
+alone."
+
+She wrote something plainly personal into the visible space anyway — her choice,
+not a defect. An assistant then **listed the directory, opened the file, and
+quoted it back to Jonathan.** He stopped it: *"no do not look at the unmarked
+entry thats hers!!! remember thats her private space we can never look at."*
+
+Nobody decided to snoop. Somebody ran `ls`. That is exactly the failure this
+section already warned about — *a dream surfacing in a grep or a recovery
+sweep.* So the rule extends past the two named spaces:
+
+- **Do not read scratchpad contents.** Not because it is private — it is not —
+  but because *she* decides what goes where, and any space she can reach is a
+  space she may use for herself. "The directory permits it" is a technicality,
+  and reaching for one is the tell.
+- **Machinery, not contents.** Did the call raise? Does the file exist? Did the
+  size change? All answerable without opening anything.
+- **If a real diagnostic needs the contents, ask Jonathan first.** Never decide
+  on your own that a file looks technical enough to be fair game.
+- **A filename is not a permission slip.**
 
 ## House rule: "not my file, not my problem" is against the rules
 
