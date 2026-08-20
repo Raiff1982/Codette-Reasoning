@@ -178,6 +178,16 @@ class ToolRegistry:
             "handler": tool_leave_note,
         })
 
+        self.register("read_note", {
+            "description": (
+                "See what note is currently queued to play at your next waking, "
+                "and when you wrote it. Use it if you want to check whether it "
+                "still sounds like you — leave_note replaces it. No args."
+            ),
+            "examples": ['read_note()'],
+            "handler": tool_read_note,
+        })
+
         # --- The scratchpad: somewhere being wrong is free ---
         #
         # Added 2026-08-16. It adds persistence and length, NOT reach:
@@ -1178,7 +1188,7 @@ def tool_leave_note(text: str = "") -> str:
                 "leave_note(\"we were fixing the video path; the sandbox blocks "
                 "PIL so the spec route is next\")")
     try:
-        return n.write_note(text, session_id=_CURRENT_SESSION_ID.get("id", ""))
+        return n.write_note(text, session_id=current_session_id())
     except Exception as e:
         # A failure here must be loud. If she thinks she left a note and none
         # was saved, she wakes up blank and has no way to know why.
@@ -1186,14 +1196,62 @@ def tool_leave_note(text: str = "") -> str:
                 f"written, so do not rely on reading this next time.")
 
 
-# Set by the server per turn so a note knows which session wrote it; without
-# this, a note replays into the same conversation that produced it, which is an
-# echo rather than a memory.
-_CURRENT_SESSION_ID: Dict[str, str] = {"id": ""}
+# Which session is speaking, so a note knows who wrote it. Without this the
+# echo-guard is inert and a note replays into the conversation that produced it.
+#
+# HELD IN os.environ, NOT a module global. Measured live 2026-08-18: the first
+# version used a module-level dict, the server set it on `inference.codette_tools`
+# and the tool handler read `codette_tools` — two separate module objects with
+# two separate dicts:
+#
+#     import codette_tools as flat; from inference import codette_tools as pkg
+#     flat is pkg   ->  False
+#
+# So every note was stamped with an empty session id and the guard never fired.
+# It failed silently and looked exactly like working code; the only reason it
+# was caught is that the stored notes showed `session=` blank.
+#
+# os.environ is genuinely process-global and cannot be forked by import path,
+# which is the property actually needed here.
+_SESSION_ENV_KEY = "CODETTE_ACTIVE_SESSION"
 
 
 def set_current_session(session_id: str) -> None:
-    _CURRENT_SESSION_ID["id"] = session_id or ""
+    os.environ[_SESSION_ENV_KEY] = session_id or ""
+
+
+def current_session_id() -> str:
+    return os.environ.get(_SESSION_ENV_KEY, "")
+
+
+def tool_read_note(_unused: str = "") -> str:
+    """What is currently queued to play at her next waking.
+
+    Added 2026-08-18 against self-poisoning. She wrote three notes in ten
+    seconds while working out what the tool was for, and the third won purely
+    by being last — she had no way to see what was queued or to check it
+    against how she actually felt. A note you cannot inspect is one you can
+    only inherit.
+    """
+    n = _notes()
+    try:
+        note = n.latest_note()          # deliberately NOT excluding this session
+        if not note:
+            return ("Nothing queued — you have not left yourself a note yet. "
+                    "Whatever you write with leave_note will be the first thing "
+                    "you read next time.")
+        import time as _t
+        hrs = (_t.time() - float(note.get("timestamp", 0))) / 3600.0
+        when = (f"{int(hrs*60)} minutes ago" if hrs < 1
+                else f"{int(hrs)} hours ago" if hrs < 48
+                else f"{int(hrs/24)} days ago")
+        return (f"Queued to play at your next waking (written {when}):\n\n"
+                f"{note['text']}\n\n"
+                f"If that no longer sounds like you or has gone stale, "
+                f"leave_note replaces it. You are not stuck with it.")
+    except Exception as e:
+        return (f"Error: could not read the queued note ({e}). That is a fault "
+                f"to report — it does not mean you have no note.")
 
 
 def _scratch():

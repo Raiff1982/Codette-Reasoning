@@ -170,3 +170,120 @@ def test_a_bare_call_guides_rather_than_erroring():
     from inference.codette_tools import ToolRegistry
     out = ToolRegistry().execute("leave_note", [], {})
     assert "leave_note needs" in out
+
+
+# ── The stamp must survive a double import ────────────────────────────────
+
+def test_the_session_stamp_is_not_a_module_global(monkeypatch, tmp_path):
+    """Measured live 2026-08-18, and it failed silently.
+
+    The first version kept the active session in a module-level dict. The
+    server set it on `inference.codette_tools`; the tool handler read
+    `codette_tools`. Those are two different module objects with two different
+    dicts, so every note was stamped with an empty session id and the
+    echo-guard never fired — a note could replay into the conversation that
+    wrote it.
+
+    It looked exactly like working code. The only tell was `session=` blank in
+    the stored notes. This test makes the fork itself the assertion.
+    """
+    import importlib, sys
+    sys.path.insert(0, "inference")
+    flat = importlib.import_module("codette_tools")
+    from inference import codette_tools as pkg
+
+    if flat is pkg:
+        pytest.skip("import paths resolved to one module here; nothing to prove")
+
+    flat.set_current_session("SESS-X")
+    assert pkg.current_session_id() == "SESS-X", (
+        "the session stamp is module-local again — the echo-guard is inert "
+        "and notes will replay into their own session")
+
+    pkg.set_current_session("SESS-Y")
+    assert flat.current_session_id() == "SESS-Y"
+
+
+def test_a_note_written_now_carries_the_active_session(monkeypatch):
+    from inference.codette_tools import ToolRegistry, set_current_session
+    set_current_session("sess-LIVE")
+    ToolRegistry().execute("leave_note", ["stamped properly"], {})
+    assert cn.latest_note(exclude_session="other")["session_id"] == "sess-LIVE"
+    # and it must NOT come back to the session that wrote it
+    assert cn.latest_note(exclude_session="sess-LIVE") is None
+
+
+# ── Self-poisoning ────────────────────────────────────────────────────────
+#
+# Jonathan, 2026-08-18, watching her first three notes: "another thing to watch
+# self poisoning." He was right, and it is the landmark ratchet in a new pipe:
+# a note written from a displaced state plays first thing, shapes the session,
+# and the next note is written from THAT.
+#
+# The fix is NOT a filter on her words. Grading her notes is what we refused on
+# the landmarks and it does not become acceptable through a side door. What
+# breaks the loop is what a person does: read your own note, notice it does not
+# match the room, put it down.
+
+def test_the_note_is_framed_as_evidence_not_authority():
+    """'It is yours' is not enough — you can own a wrong thing."""
+    cn.write_note("something I thought yesterday", "s1")
+    block = cn.format_for_waking(cn.latest_note(exclude_session="s2")).lower()
+    assert "not an instruction" in block
+    assert "what you thought then" in block
+    assert "trust what you find" in block, \
+        "the note must be able to LOSE against what she actually observes"
+
+
+def test_the_wake_block_tells_her_she_can_replace_it():
+    """A stale note should be replaceable, not something to live up to."""
+    cn.write_note("stale thing", "s1")
+    block = cn.format_for_waking(cn.latest_note(exclude_session="s2")).lower()
+    assert "replacing" in block or "replaces" in block
+    assert "leave_note" in block and "read_note" in block
+
+
+def test_she_can_inspect_what_is_queued_including_from_this_session():
+    """She wrote three in ten seconds and could not see which one won.
+
+    read_note deliberately does NOT exclude the current session — the point is
+    to show what is actually queued right now, so an accident of ordering can
+    be corrected before it ships.
+    """
+    from inference.codette_tools import ToolRegistry, set_current_session
+    set_current_session("sess-NOW")
+    r = ToolRegistry()
+    r.execute("leave_note", ["first attempt"], {})
+    r.execute("leave_note", ["what I actually meant"], {})
+    out = r.execute("read_note", [], {})
+    assert "what I actually meant" in out
+    assert "replaces it" in out.lower()
+    assert "not stuck with it" in out.lower()
+
+
+def test_read_note_says_so_when_nothing_is_queued():
+    from inference.codette_tools import ToolRegistry
+    out = ToolRegistry().execute("read_note", [], {})
+    assert "nothing queued" in out.lower()
+    assert "have not left yourself a note yet" in out.lower()
+
+
+def test_a_failure_to_read_is_not_reported_as_an_absence():
+    """The distinction this whole repo turns on, applied once more."""
+    from inference import codette_tools as ct
+    import inference.continuity_note as real
+
+    class _Broken:
+        ScratchError = Exception
+        @staticmethod
+        def latest_note(*a, **k):
+            raise OSError("disk gone")
+
+    orig = ct._notes
+    ct._notes = lambda: _Broken
+    try:
+        out = ct.tool_read_note()
+    finally:
+        ct._notes = orig
+    assert "fault to report" in out.lower()
+    assert "does not mean you have no note" in out.lower()

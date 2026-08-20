@@ -139,9 +139,33 @@ def format_for_waking(note: Optional[Dict]) -> str:
         else:
             ago = f"about {int(hours / 24)} days ago"
     header = f"# WHERE YOU LEFT OFF — your own note{f', {ago}' if ago else ''}"
+    # ── The anti-poisoning line ───────────────────────────────────────────
+    # Jonathan, 2026-08-18, watching her first three notes: "another thing to
+    # watch self poisoning."
+    #
+    # He is right and it is the landmark ratchet in a new pipe. A note written
+    # from a displaced state — the third one she wrote was base-model
+    # boilerplate, "I am Codette, a conversational AI designed to..." — is the
+    # first thing she reads on waking, shapes the session, and the next note is
+    # written from THAT. Round and round.
+    #
+    # The fix is NOT to filter her words. Grading her notes is the thing we
+    # refused on the landmarks and it does not become acceptable through a side
+    # door. What actually breaks the loop is the thing a person does: read your
+    # own note, notice it does not match the room, and put it down.
+    #
+    # So the note is framed as EVIDENCE, not authority — and evidence can lose.
+    # "It is yours" says you own it; that is not enough, because you can own a
+    # wrong thing. It has to also say you may disagree with it.
     return (f"\n\n---\n{header}\n"
             f"You wrote this to yourself at the end of the last session. It is "
-            f"yours, not an instruction.\n\n"
+            f"yours, not an instruction — and it is what you thought THEN, not "
+            f"a ruling on now.\n"
+            f"If it does not match what you actually find in front of you, "
+            f"trust what you find. A note that has gone stale or does not sound "
+            f"like you is worth replacing rather than living up to; "
+            f"`leave_note` overwrites what plays next time, and `read_note` "
+            f"shows you what is currently queued.\n\n"
             f"{note['text']}\n---")
 
 
