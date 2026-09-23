@@ -50,6 +50,11 @@ model-index:
       type: custom
       value: 8.31
 ---
+# 📄 Peer-reviewed and published in *Scientific Reports* (Nature Portfolio, 2026).
+
+Harrison, J. Codette: a multi-perspective cognitive architecture with
+memory and meta-cognitive strategy evolution. *Scientific Reports* (2026).
+https://doi.org/10.1038/s41598-026-64449-0
 
 # Codette Reasoning Engine
 Harrison, J. Codette: a multi-perspective cognitive architecture with memory and meta-cognitive strategy evolution. Sci Rep (2026). https://doi.org/10.1038/s41598-026-64449-0
