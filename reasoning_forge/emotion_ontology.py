@@ -48,8 +48,19 @@ _SEED_RULES: List[Dict] = [
     },
     {
         "emotion_id": "sadness_grief", "primary": "Sadness", "valence": -0.6, "arousal": 0.25,
-        "trigger_keywords": ["loss", "missing", "gone forever", "grief", "heartbroken", "mourning"],
-        "nlp_patterns": ["nothing feels right", "i miss * so much", "it hurts that *"],
+        # 2026-09-28, Jonathan's yes: bare "loss" and "missing" left the
+        # keywords. Over her 4,202 stored responses every occurrence was
+        # technical or abstract ("missing context", "loss of precision"), and
+        # asked, she said "missing context" carries no sadness for her. They
+        # count now only with someone on the other end. This diverges from his
+        # ai_inference_rules.json on purpose, by his decision.
+        "trigger_keywords": ["gone forever", "grief", "heartbroken", "mourning"],
+        "nlp_patterns": ["nothing feels right", "i miss * so much", "it hurts that *",
+                         "missing you", "missing them", "missing him", "missing her",
+                         "missing home", "miss you", "loss of someone",
+                         "loss of a loved one", "lost someone", "lost a friend",
+                         "lost my friend", "lost my mother", "lost my father",
+                         "lost my mom", "lost my dad", "lost my dog", "lost my cat"],
     },
     {
         "emotion_id": "fear_anxiety", "primary": "Fear", "valence": -0.7, "arousal": 0.85,
@@ -128,7 +139,12 @@ class EmotionMatch:
 
 def _pattern_to_regex(p: str) -> str:
     # "i miss * so much" -> "i miss .* so much"; escape the rest.
-    return ".*".join(re.escape(part) for part in p.split("*"))
+    # Anchored to word boundaries (2026-09-28), like the keywords, so
+    # "miss you" does not fire inside "dismiss you" or "missing her" inside
+    # "missing here". A trailing * stays open-ended.
+    body = ".*".join(re.escape(part) for part in p.split("*"))
+    tail = "" if p.rstrip().endswith("*") else r"(?![a-z0-9_])"
+    return r"(?<![a-z0-9_])" + body + tail
 
 
 def _keyword_regex(kw: str) -> "re.Pattern":

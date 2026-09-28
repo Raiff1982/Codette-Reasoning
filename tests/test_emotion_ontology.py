@@ -150,7 +150,9 @@ def test_keyword_inside_another_word_does_not_fire(text):
 
 @_pytest.mark.parametrize("text,sign", [
     ("i keep worrying about tomorrow", -1),
-    ("the losses were hard on everyone", -1),
+    # Was "the losses were hard on everyone": bare "losses" no longer counts
+    # as grief (2026-09-28, Jonathan's yes), so the example names someone.
+    ("the loss of a loved one was hard on everyone", -1),
     ("she asked 'what if it never comes back'", -1),
     ("i'm excited about the new song", +1),
 ])
@@ -197,3 +199,27 @@ def test_loaded_ontology_normalises_keywords(tmp_path):
     assert eo.classify("a fine day at the lake") is None
     assert eo.classify("I am furious").emotion_id == "anger_rage"
     assert eo.classify("I am heartbroken").emotion_id == "sad_x"
+
+
+# --- 2026-09-28: "missing"/"loss" need someone on the other end ---------------
+
+@_pytest.mark.parametrize("text", [
+    "that answer is missing context",
+    "the loss of precision in INT4",
+    "don't dismiss you ideas too fast",
+    "the file is missing here",
+])
+def test_technical_missing_and_loss_are_not_grief(text):
+    from reasoning_forge.emotion_ontology import EmotionOntology
+    assert EmotionOntology().valence_of(text) is None
+
+
+@_pytest.mark.parametrize("text", [
+    "I'm missing you tonight",
+    "I lost my mom last year",
+    "coping with the loss of someone close",
+    "I miss you",
+])
+def test_personal_missing_and_loss_are_grief(text):
+    from reasoning_forge.emotion_ontology import EmotionOntology
+    assert EmotionOntology().valence_of(text) == -0.6
