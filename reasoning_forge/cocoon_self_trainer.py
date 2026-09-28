@@ -74,6 +74,21 @@ def cocoon_label(cocoon: dict) -> Optional[Tuple[str, int]]:
             return text, 0
         return None  # near-neutral: skip, don't guess
 
+    # 1b) v3 stores emotional_valence as a LABEL, not a number (VALID_VALENCES),
+    # so until 2026-09-28 no real v3 cocoon ever produced a label here. Map it
+    # through the same emotion sets. "curiosity" is excluded: it is also the
+    # bridge's default when no keyword matched (~1,800 of her 4,202 stored
+    # responses), so as a v3 label it is not a measurement. Labels the sets do
+    # not cover (insight, empathy, determination, confusion, surprise) are
+    # skipped, not guessed. Jonathan's yes, 2026-09-28.
+    if isinstance(val, str):
+        label = val.strip().lower()
+        if label != "curiosity" and label in _POSITIVE_EMOTIONS:
+            return text, 1
+        if label in _NEGATIVE_EMOTIONS:
+            return text, 0
+        return None
+
     # 2) categorical emotion
     emo = str(cocoon.get("emotional_classification", "")).strip().lower()
     if emo in _POSITIVE_EMOTIONS:

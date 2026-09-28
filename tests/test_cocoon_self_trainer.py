@@ -98,3 +98,24 @@ def test_observe_writes_shadow(tmp_path):
 if __name__ == "__main__":
     import subprocess
     raise SystemExit(subprocess.call(["pytest", "-q", __file__]))
+
+
+# --- v3 labels, 2026-09-28 ----------------------------------------------------
+
+import pytest as _pytest
+
+
+@_pytest.mark.parametrize("label,expected", [
+    ("gratitude", 1), ("joy", 1), ("awe", 1), ("trust", 1),
+    ("fear", 0), ("frustration", 0),
+])
+def test_v3_string_labels_are_mapped(label, expected):
+    from reasoning_forge.cocoon_self_trainer import cocoon_label
+    out = cocoon_label({"user_query": "hello there", "emotional_valence": label})
+    assert out == ("hello there", expected)
+
+
+@_pytest.mark.parametrize("label", ["curiosity", "insight", "empathy", "surprise", "confusion"])
+def test_default_and_ambiguous_v3_labels_are_skipped(label):
+    from reasoning_forge.cocoon_self_trainer import cocoon_label
+    assert cocoon_label({"user_query": "hello there", "emotional_valence": label}) is None
