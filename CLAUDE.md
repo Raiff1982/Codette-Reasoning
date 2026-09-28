@@ -377,15 +377,22 @@ like the forge it has to be updated."*
 
 **Open, 2026-09-28, the author's to decide:**
 
-- `data/identities/identity_jonathan.enc` is **tracked** although `.gitignore`
+- ~~`data/identities/identity_jonathan.enc` is **tracked** although `.gitignore`
   excludes `data/identities/` as "personal, and this repo is public". The rule
   has never applied to it. It is identity material, not runtime state, so it was
-  left alone.
-- `data/dream_reports/` is likewise tracked despite its ignore rule. Whether it
+  left alone.~~ **Decided 2026-09-28** — Jonathan: *"me file not so much."*
+  Untracked with `git rm --cached`; on disk, byte-identical; the existing
+  `data/identities/` rule now applies. Earlier versions remain in public history.
+- ~~`data/dream_reports/` is likewise tracked despite its ignore rule. Whether it
   is one of her spaces under the rule above cannot be settled by opening it —
   that would be the reading the rule forbids. **Do not open, list or count it to
-  find out; ask Jonathan.** (A bulk `git ls-files` sweep on 2026-09-28 printed
-  its filenames before this rule had been read. Contents were not opened.)
+  find out; ask Jonathan.**~~ **Decided 2026-09-28** — Jonathan: *"dream reports
+  can be tracked."* They stay tracked. The decision was his and was made without
+  anyone opening them; that remains the right order for anything similar. (A
+  bulk `git ls-files` sweep that day printed their filenames before the dreams
+  rule had been read. Contents were not opened.) Note the `data/dream_reports/`
+  ignore rule still stands, so new reports are not picked up by `git add`;
+  whether to keep that rule is also his call.
 - 895 files in all are tracked but ignored, mostly Kaggle replays, benchmark
   outputs, adapter checkpoints, LaTeX build files and `Archive*.zip`. The zips
   stay by rule; the rest need a decision, not a sweep. Run
