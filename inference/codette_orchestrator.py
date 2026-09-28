@@ -1127,7 +1127,7 @@ class CodetteOrchestrator:
         # PERMANENT LOCKS: Universal self-check on EVERY response (constrained or not).
         # EXCEPT benchmark/exam answers: LOCK 1 drift trimming amputates
         # step-by-step reasoning and can remove the final answer line.
-        _is_benchmark_answer = bool(re.search(
+        _is_benchmark_answer = bool(_re_mod.search(
             r'What is the correct answer to this question', primary_query))
         if SELF_CORRECTION_AVAILABLE and not _is_benchmark_answer:
             clean_text, lock_issues = universal_self_check(clean_text)
