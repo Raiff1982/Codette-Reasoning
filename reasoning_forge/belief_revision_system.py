@@ -1849,6 +1849,73 @@ class TestBeliefRevisionSystem(unittest.TestCase):
 
         self.assertEqual(metadata["total_drift"], 0.0)
 
+    def test_governance_blocking(self):
+        """An extreme threshold blocks the update."""
+
+        state = self.base_state.copy()
+
+        state["core_axioms"] = {
+            "max_shift_threshold": 0.0001
+        }
+
+        params = {
+            "learning_rate": 0.5,
+            "max_iterations": 5,
+            "tolerance_threshold": 1e-4,
+        }
+
+        _, metadata = self.brs.run(
+            state,
+            params,
+        )
+
+        self.assertEqual(
+            metadata["governance_status"],
+            "BLOCKED",
+        )
+
+        stored_vec = WorldModel.store[
+            state["belief_key"]
+        ]["vector"]
+
+        np.testing.assert_array_equal(
+            stored_vec,
+            state["belief_vector"],
+        )
+
+    def test_metadata_is_stored_with_belief(self):
+        """Stored belief state includes a separate metadata copy."""
+
+        params = {
+            "learning_rate": 0.1,
+            "max_iterations": 1,
+            "tolerance_threshold": 1e-6,
+        }
+
+        final_vec, metadata = self.brs.run(
+            self.base_state,
+            params,
+        )
+
+        stored_record = WorldModel.store[
+            self.base_state["belief_key"]
+        ]
+
+        np.testing.assert_array_equal(
+            stored_record["vector"],
+            final_vec,
+        )
+
+        self.assertEqual(
+            stored_record["metadata"],
+            metadata,
+        )
+
+        self.assertIsNot(
+            stored_record["metadata"],
+            metadata,
+        )
+
 
 
 if __name__ == "__main__":
