@@ -1,0 +1,18 @@
+# Scoped exemption — added 2026-08-03, not part of the recovered material.
+#
+# The repository root .gitignore excludes LaTeX build artifacts (*.log line 82,
+# *.aux 89, *.bbl 90, *.blg 91, *.out 92). That is right for a build tree and
+# wrong here: this folder is an archive of the April 8 2026 submission, and these
+# eight files are the as-submitted state, not artifacts of a build anyone will
+# rerun. `codette_paper_v5.bbl` in particular exists nowhere else in the
+# repository and holds the *resolved* bibliography as it was submitted — losing
+# it means the manuscript cannot be rebuilt as sent.
+#
+# Without these negations `git add` skips all eight in silence, which is how
+# rescued content disappears.
+
+!*.log
+!*.aux
+!*.bbl
+!*.blg
+!*.out

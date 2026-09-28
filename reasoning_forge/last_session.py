@@ -25,6 +25,13 @@ It reads only. It writes nothing, gates nothing, and injects nothing.
 
 Recovered from the Codette archives — see RECOVERY_MANIFEST.md
 
+CORRECTION, 2026-08-07: this file was NOT recovered from an archive. It was
+authored 2026-07-30 and reached main via be01c22. RECOVERY_MANIFEST.md was
+generated from that merge diff, and a merge diff cannot tell archive material
+apart from work carried over on a branch — so five entries were mislabelled,
+four of them these files. The line above is kept rather than removed, because
+corrections here are additive. See docs/HANDOFF_2026-08-04.md.
+
 """
 from __future__ import annotations
 

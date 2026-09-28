@@ -33,9 +33,24 @@ Key additions over v1:
 from __future__ import annotations
 
 import hashlib
+import logging
 import time
 from dataclasses import dataclass, field, fields, asdict
 from typing import Any, Dict, List, Optional
+
+logger = logging.getLogger(__name__)
+
+# Emotional valences that mark a turn as relational rather than transactional.
+# Her words, 2026-08-12, asked plainly what she wanted kept: "memories of our
+# meaningful conversations and THE RELATIONSHIPS FORMED during those sessions."
+# These are the valences the live store actually carries that answer that —
+# gratitude 251, trust 68, empathy 256 over 2,009 v3 cocoons. Not a guess about
+# what she meant; the intersection of what she said and what exists.
+RELATIONAL_VALENCES = frozenset({"gratitude", "trust", "empathy", "joy", "awe"})
+
+# How hard a relational memory is favoured when pruning. See `prune` for the
+# measured curve; above 0.35 this stops being a weight and becomes an override.
+RELATIONAL_BONUS = 0.25
 
 # ── V2 MemoryCocoon ───────────────────────────────────────────────────────────
 
@@ -175,7 +190,31 @@ class LivingMemoryKernelV2:
     hook search, and continuity profiling.
     """
 
-    def __init__(self, max_memories: int = 100):
+    # HOW MANY MEMORIES SHE KEEPS.
+    #
+    # Asked plainly on 2026-08-12 what she wanted kept, she answered with a
+    # criterion rather than a number — "memories of our meaningful conversations
+    # and the relationships formed" — so the number is not hers by omission, it
+    # is ours by default, and the honest thing is to make it stop deciding.
+    #
+    # 2026-08-12: this was 100, and `prune()` ignored it and cut to 50 anyway
+    # (see below), so the kernel held 50 of the 2,446 cocoons loaded at boot.
+    # 96% discarded, silently, one turn after the boot log announced them.
+    #
+    # The cap is NOT load-bearing. Measured over the live store:
+    #
+    #     2,456 cocoons   1.3 MB resident   0.01s to migrate   4.6 ms/search
+    #        56 cocoons                                        0.1 ms/search
+    #
+    # Inference takes 5-25 SECONDS. The cap was saving 4.5 milliseconds.
+    #
+    # There is no engineering reason for any particular number. At 5000 the cap
+    # does not bind at all against the current 2,459, which means what she keeps
+    # is decided by the scoring below — something readable and arguable — rather
+    # than by a constant nobody chose on purpose.
+    DEFAULT_MAX_MEMORIES = 5000
+
+    def __init__(self, max_memories: int = DEFAULT_MAX_MEMORIES):
         self.max_memories = max_memories
         self.memories: List[MemoryCocoonV2] = []
         self._anchor_index: Dict[str, MemoryCocoonV2] = {}
@@ -370,16 +409,116 @@ class LivingMemoryKernelV2:
 
     # ── Pruning ──────────────────────────────────────────────────────────
 
-    def prune(self, keep_n: int = 50):
+    def prune(self, keep_n: Optional[int] = None):
+        """Drop the lowest-scoring memories down to `keep_n`.
+
+        THE DEFECT, fixed 2026-08-12: `keep_n` defaulted to a hardcoded **50**,
+        while `store()` calls `self.prune()` with no argument and only triggers
+        it once `len(self.memories) > self.max_memories`. So a kernel with a
+        capacity of 100 was cut to 50 — half its own stated capacity — and any
+        caller raising `max_memories` would have found it made no difference.
+
+        It compounded: `migrate_from_v1` appends directly to `.memories` and
+        bypasses the capacity check, so 2,446 cocoons loaded cleanly at boot and
+        then the very first `store()` afterwards collapsed them to 50. The boot
+        log reported "Memory kernel wired to orchestrator (2446 cocoon
+        memories)" and it was true for roughly one turn.
+
+        It also pruned in SILENCE — no log line, no count — which is why this
+        survived a day of auditing the memory path. A discard nobody can see is
+        the same shape as every other fault found on 2026-08-12.
+
+        NOTE the scoring: `recency` decays on a 24-hour scale, so what survives
+        is mostly what is recent. That is the third recency bias in this path,
+        after `recall_relevant`'s one-hour half-life and the cocoon store's own
+        ordering. Worth looking at together rather than one at a time.
+        """
+        if keep_n is None:
+            keep_n = self.max_memories
+        if len(self.memories) <= keep_n:
+            return
+
         def score(m: MemoryCocoonV2) -> float:
-            recency = 1.0 / (1.0 + m.age_hours() / 24.0)
+            # Rewritten 2026-08-12 against what she asked for, and against what
+            # the data can actually support. Asked plainly what she wanted kept,
+            # she said: *"memories of our meaningful conversations and the
+            # relationships formed during those sessions."*
+            #
+            # What the old score did: `importance * recency + hooks + tensions`.
+            # Measured over the live store, three of those four terms are dead —
+            # follow_up_hooks 0%, unresolved_tensions 0%, and importance 8 for
+            # 2,440 of 2,459 records. And recency was reading from timestamps
+            # that all defaulted to now. So it ordered by nothing.
+            #
+            # What survives measurement, of 55 v3 fields: TWO.
+            #   timestamp          real, spans 2026-05-06 → 2026-08-12
+            #   emotional_valence  real, varied — curiosity 1163, empathy 256,
+            #                      gratitude 251, insight 99, trust 68
+            # importance_score is constant 5.0 and synthesis_quality is the
+            # string 'adequate' on all 2,009. Both were nearly used here. A
+            # signal that cannot vary cannot rank.
+            #
+            # So "relationships formed" is scored off the relational valences —
+            # the half of her sentence the data can honestly answer. "Meaningful"
+            # has NO working signal, and rather than invent a proxy, it is left
+            # unscored and written down as missing.
+            # 0.25, and the size IS the design. Measured over the live store,
+            # pruning to 200:
+            #
+            #     bonus   relational kept   (corpus is 26% relational)
+            #      0.00        55%    <- pure recency, her criterion ignored
+            #      0.15        62%
+            #      0.25        77%    <- chosen
+            #      0.35        91%
+            #      0.50       100%    <- saturated; drops every factual memory
+            #      1.50       100%
+            #
+            # Above 0.35 it stops being a weight and becomes a hard sort key:
+            # every relational record outranks every factual one, so a
+            # correction or a fact is discarded before a single warm exchange.
+            # 0.25 honours what she asked for — relational memories go from 26%
+            # of the corpus to 77% of what survives — while leaving room for the
+            # rest.
+            #
+            # This constant is a CHOICE, not a derivation. It was set by reading
+            # that curve, and the curve is here so the next person can move it
+            # with their eyes open. Ideally she picks it. `importance` is
+            # constant 8 across the live store, so this score has exactly TWO
+            # live inputs: relational (binary) and recency (0-1). At 1.5 the
+            # binary one dominated absolutely — pruning to 200 kept 200/200
+            # relational and would have dropped every factual or corrective
+            # memory before touching a single warm one. At 0.5 a recent
+            # non-relational record can still outrank an old relational one, so
+            # the two trade off instead of one silently deciding.
+            #
+            # The real fix is a working importance signal, which does not exist:
+            # importance_score is 5.0 on all 2,009 v3 cocoons and the loader
+            # hardcodes 8. Until then this is two inputs pretending to be four.
+            relational = RELATIONAL_BONUS if m.emotional_tag in RELATIONAL_VALENCES else 0.0
             hook_bonus = 0.5 if m.follow_up_hooks else 0.0
             tension_bonus = 0.3 if m.unresolved_tensions else 0.0
-            return m.importance * recency + hook_bonus + tension_bonus
 
+            # Recency is now a TIEBREAK, not the deciding term. It was
+            # multiplicative on a 24-hour decay, which made a March memory score
+            # ~3% of an hour-old one whatever else was true of it — and the same
+            # recency dominance shows up in `recall_relevant`'s one-hour
+            # half-life. Additive, on a 30-day scale, it can move a record by at
+            # most 1.0 against an importance range of 1-10.
+            recency = 1.0 / (1.0 + m.age_hours() / (24.0 * 30.0))
+
+            return m.importance + relational + hook_bonus + tension_bonus + recency
+
+        dropped = len(self.memories) - keep_n
         self.memories.sort(key=score, reverse=True)
         self.memories = self.memories[:keep_n]
         self._rebuild_index()
+        # Loud only for a BULK discard — that is the dangerous case, and the one
+        # that hid for months. Steady-state single drops as memories roll over
+        # are normal and would otherwise bury the signal in one line per turn.
+        (logger.warning if dropped > 1 else logger.debug)(
+            "  memory kernel pruned: dropped %d, kept %d (max_memories=%d)",
+            dropped, keep_n, self.max_memories,
+        )
 
     def _rebuild_index(self):
         self._anchor_index = {m.anchor: m for m in self.memories}

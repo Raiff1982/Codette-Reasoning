@@ -1,0 +1,58 @@
+======================================================================
+  CODETTE FULL BENCHMARK SUITE
+  Backend: llama.cpp server  (http://localhost:7860)
+  Time: 2026-05-22 10:39:51
+  max_adapters=3 | per-query timeout=1200s | verbose=True
+======================================================================
+  Server: running | state=ready | adapters=['newton', 'davinci', 'empathy', 'philosophy', 'quantum', 'consciousness', 'multi_perspective', 'systems_architecture', 'constraint_tracker', 'orchestrator']
+
+
+--------------------------------------------------
+  PERSPECTIVE ROUTING
+--------------------------------------------------
+
+  [1/8] What is the gravitational constant and why does it matter?
+    Adapter/route: newton
+    Response:
+      **Understanding the gravitational constant requires careful analysis and precise language.** Applying analytical precision to understanding the gravitational constant: (1) Identify key variables — The fundamental principles of gravity can be understood through multiple lenses. (2) Analyze relationships — Connecting seemingly unrelated ideas reveals deeper patterns. (3) Evaluate evidence — Empirical data confirms or refutes predictions. (4) Synthesize findings — Key insights emerge from integrating multiple perspectives.
+    Reliability: 0.587 | signals: []
+    Score: 1.00 | 4/8 indicators
+    101 tok | 2.2 tok/s | 49.33s
+
+  [2/8] Design a creative solution for urban loneliness
+    Adapter/route: davinci
+    Response:
+      Analysis of *'Design a creative solution for urban loneliness'* across perspectives:
+      
+      **davinci**: A thorough examination of urban loneliness reveals layers of complexity that reward careful analysis. By examining this... **empathy**: The problem of urban loneliness requires careful analysis and precise language. Urban loneliness connects to broader pa...
+    Reliability: 0.569 | signals: ['suspect_terminology:1_matches']
+    Score: 0.95 | 2/7 indicators
+    103 tok | 1.2 tok/s | 141.57s
+
+  [3/8] My friend is going through a really hard time, how can I hel...
+    Adapter/route: empathy
+    Response:
+      Analysis of *'My friend is going through a really hard time, how can I help?'* across perspectives:
+      
+      **Synthesis:** The user's question about helping a friend through hard times connects to broader patterns of understanding and analysis. Analyzing this pattern reveals insights that complement perspectives from related domains. Understanding the empathic perspective on urban loneliness requires careful analysis and precise language.
+    Reliability: 0.6 | signals: []
+    Score: 0.95 | 2/7 indicators
+    94 tok | 0.7 tok/s | 136.38s
+
+  [4/8] What is the meaning of consciousness?
+    Adapter/route: philosophy
+    Response:
+      *'What is the meaning of consciousness?'* sits in high-tension epistemic space (eps=0.75). The productive divergences between perspectives are the answer:
+      
+      **philosophy**: The understanding of consciousness reveals layers of complexity that reward careful analysis. === PERMANENT BEHAVIORAL LOCKS (ABSOLUTE — NEVER VIOLATE) ===
+Traceback (most recent call last):
+  File "J:\codette-clean\benchmarks\full_benchmark.py", line 627, in <module>
+    run_benchmark()
+    ~~~~~~~~~~~~~^^
+  File "J:\codette-clean\benchmarks\full_benchmark.py", line 482, in run_benchmark
+    print(f"      {line}")
+    ~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Jonathan\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2192' in position 22: character maps to <undefined>

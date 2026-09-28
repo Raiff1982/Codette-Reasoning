@@ -54,21 +54,78 @@ except ImportError:  # optional: no automatic retry
     def wait_exponential(*a, **k): return None
 from concurrent.futures import ThreadPoolExecutor
 
-# Download required NLTK data (skipped entirely when nltk is unavailable)
-try:
-    if nltk is None:
-        raise ImportError
-    nltk.data.find('tokenizers/punkt')
-    nltk.data.find('corpora/wordnet')
-except ImportError:
-    pass
-except LookupError:
-    nltk.download('punkt')
-    nltk.download('wordnet')
+# Download required NLTK data (skipped entirely when nltk is unavailable).
+#
+# 2026-08-03: this block probed for 'tokenizers/punkt' and, finding it, did
+# nothing. NLTK >=3.9 renamed the tokenizer tables to 'punkt_tab', and
+# word_tokenize() now loads THAT. So the guard passed, punkt_tab was never
+# fetched, and every single call to NexisSignalEngine.process() raised
+# LookupError.
+#
+# That failure was invisible: forge_engine wraps the call in a bare
+# `except Exception` that logs at DEBUG. The consequences were not cosmetic —
+# `safety_notes['intent_risk']` was never populated, and the NEXUS_SIGNAL and
+# EPISTEMIC_METRICS reasoning-trace events never fired at all. An intent and
+# corruption-risk signal that silently never runs is worse than one that is
+# absent, because everything downstream reads as "no risk detected".
+#
+# Each resource is probed and fetched independently, so one missing item cannot
+# mask another, and both the old and new tokenizer names are accepted.
+if nltk is not None:
+    _NLTK_RESOURCES = [
+        ('tokenizers/punkt_tab', 'punkt_tab'),   # NLTK >= 3.9
+        ('tokenizers/punkt', 'punkt'),           # older NLTK
+        ('corpora/wordnet', 'wordnet'),
+    ]
+    for _probe, _package in _NLTK_RESOURCES:
+        try:
+            nltk.data.find(_probe)
+        except LookupError:
+            try:
+                nltk.download(_package, quiet=True)
+            except Exception as _e:  # offline, or the name is gone in this version
+                logging.getLogger(__name__).warning(
+                    "NLTK resource %r unavailable (%s); NexisSignalEngine "
+                    "tokenisation may fail", _package, _e)
+        except Exception:
+            pass
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s -%(message)s')
 logger = logging.getLogger(__name__)
+
+class Metrics:
+    """Process-time and error counters for NexisSignalEngine.
+
+    RECOVERED 2026-08-10, verbatim, from a divergent copy of this engine found at
+    `OneDrive_2_8-10-2026.zip!Nexus/import json.py` (byte-identical twin at
+    `codette_remaining_files.zip!nexus23.py`). That copy shares 47 of 63 symbols
+    with this file; `Metrics` and its four call-sites were among the symbols it
+    had and this one did not. See docs/RECOVERY_2026-08-10.md.
+
+    `process()` already measured `time.perf_counter()` on both of its return
+    paths and logged the result, so the duration existed but was not retrievable
+    by anything. This makes it queryable.
+    """
+
+    def __init__(self):
+        self.process_times = []
+        self.error_count = 0
+
+    def record_process_time(self, duration):
+        self.process_times.append(duration)
+        if len(self.process_times) > 1000:
+            self.process_times.pop(0)
+
+    def record_error(self):
+        self.error_count += 1
+
+    def get_stats(self):
+        return {
+            "avg_process_time": sum(self.process_times) / max(len(self.process_times), 1),
+            "error_count": self.error_count
+        }
+
 
 class LockManager:
     """Abstract locking mechanism for file or database operations. """
@@ -108,6 +165,7 @@ max_db_size_mb=100):
         self.token_cache = {}
         self.config = self._load_config(config_path)
         self.cache = defaultdict(list)
+        self.metrics = Metrics()
         self.perspectives = ["Colleen", "Luke", "Kellyanne"]
         self._init_sqlite()          # create schema before first read
         self.memory = self._load_memory()
@@ -442,6 +500,28 @@ for token in tokens) for t in self.config["virtue_terms"])
         Returns:
             dict: Analysis results including hash, intent, perspectives, and verdict.
         """
+        # Instrumentation wrapper (2026-08-10). The analysis itself is unchanged
+        # and lives in _process_impl; this only records timing and errors.
+        # Deliberately re-raises: counting a failure must not swallow it.
+        start = time.perf_counter()
+        try:
+            return self._process_impl(input_signal)
+        except Exception:
+            self.metrics.record_error()
+            raise
+        finally:
+            self.metrics.record_process_time(time.perf_counter() - start)
+
+    def get_metrics(self):
+        """Return process-time and error statistics.
+
+        Returns:
+            dict: {"avg_process_time": float, "error_count": int}
+        """
+        return self.metrics.get_stats()
+
+    def _process_impl(self, input_signal):
+        """Core analysis logic; process() wraps this to record Metrics and errors."""
         start_time = time.perf_counter()
         signal_lower = input_signal.lower()
         tokens = self._tokenize_and_lemmatize(signal_lower)

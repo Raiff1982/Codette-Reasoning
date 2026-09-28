@@ -1,0 +1,7 @@
+{
+  "can_speak": true,
+  "can_reflect": true,
+  "can_learn_from_errors": true,
+  "can_express_emotion": true,
+  "allow_self_modification": false
+}

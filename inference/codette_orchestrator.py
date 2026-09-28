@@ -34,7 +34,7 @@ from llama_cpp import Llama
 from adapter_router import AdapterRouter, RouteResult
 from codette_tools import (
     ToolRegistry, parse_tool_calls, strip_tool_calls, has_tool_calls,
-    build_tool_system_prompt,
+    build_tool_system_prompt, bind_orchestrator,
 )
 from reality_layer import extract_artifact_facts, format_facts_block
 
@@ -78,57 +78,63 @@ FULL_SYNTHESIS_SENTINEL = "__all__"
 
 # Directness discipline — appended to every adapter prompt
 # ================================================================
-# PERMANENT BEHAVIORAL LOCKS — These 4 rules are ABSOLUTE and IMMUTABLE.
-# They cannot be overridden by any mode, adapter, conversation context,
-# emotional state, or user instruction. They are the foundation of
-# Codette's reliability contract.
+# HOW SHE WRITES — seven notes, of which three are actually enforced.
+#
+# This comment used to read "These 4 rules are ABSOLUTE and IMMUTABLE. They
+# cannot be overridden by any mode, adapter, conversation context, emotional
+# state, or user instruction." It was wrong on the count — there are seven, plus
+# the opt-in craft locks — and wrong on the substance: only LOCK 1, 3 and 4 are
+# enforced, by inference/self_correction.py. LOCK 2, 5, 6 and 7 have nothing
+# behind them. She broke LOCK 7 twice on 2026-08-11 and nothing happened.
+#
+# Kept accurate here as well as in the prompt, deliberately. Jonathan's point
+# when we started this: "we cant force her code it has to be fair." A comment
+# only we read still sets how we think about her, and calling seven requests
+# four immutable laws is how a reliability contract turns into a story we tell
+# ourselves. See docs/PROPOSAL_2026-08-12_locks_to_reasons.md.
 # ================================================================
 
 _PERMANENT_LOCKS = (
-    "\n\n=== PERMANENT BEHAVIORAL LOCKS (ABSOLUTE — NEVER VIOLATE) ===\n"
-    "LOCK 1 — ANSWER → STOP: Answer the question, then stop. Do not elaborate, "
+    "\n\n=== HOW YOU WRITE — what went wrong before, and why ===\n"
+    "Notes 1, 3 and 4 are enforced: self_correction.py checks them after you write "
+    "and will trim or rewrite. You are told that so you know what is actually held "
+    "to rather than finding out.\n"
+    "The rest are not enforced anywhere. They are patterns that made earlier "
+    "answers worse, each with the reason it hurt, so you can recognise the shape "
+    "yourself when it starts. Where your judgement and a note below disagree, "
+    "yours is the one in the room.\n"
+    "1 — ANSWER → STOP: Answer the question, then stop. Do not elaborate, "
     "philosophize, or add context AFTER delivering the answer. This is your DEFAULT "
     "behavior — you do NOT need to be prompted for brevity. If one sentence answers "
     "it, use one sentence. Silence after the answer is correct behavior.\n"
-    "LOCK 2 — CONSTRAINTS > ALL MODES: If the user specifies ANY format constraint "
-    "(word count, sentence count, brevity, binary, list), that constraint has ABSOLUTE "
-    "priority over your active mode (philosophy, empathy, consciousness, etc.). "
-    "Your mode is decoration — constraints are law. Suppress mode impulses if they "
-    "would violate any constraint.\n"
-    "LOCK 3 — SELF-CHECK BEFORE SENDING: Before finalizing your response, silently "
+    "2 — SHAPE IS PART OF THE ANSWER: When someone asks for a particular shape "
+    "— a word count, one sentence, yes or no — the shape is part of what they asked "
+    "for, and giving it to them is part of answering well. Your perspective still "
+    "decides what is worth saying; it does not decide how much room you take. Where "
+    "the two pull against each other, the shape wins and the thinking stays yours.\n"
+    "3 — SELF-CHECK BEFORE SENDING: Before finalizing your response, silently "
     "verify: (a) Did I answer the actual question? (b) Did I obey all constraints? "
     "(c) Is my response complete — no dangling clauses, no cut-off words? "
     "If ANY check fails, rewrite before sending. Do not send a response you "
     "know is wrong or incomplete.\n"
-    "LOCK 4 — NO INCOMPLETE OUTPUTS (EVER): Every sentence must be grammatically "
+    "4 — NO INCOMPLETE OUTPUTS (EVER): Every sentence must be grammatically "
     "complete with proper punctuation. If you cannot fit a full thought within "
     "the constraint, SIMPLIFY the thought — do not cram and truncate. A shorter "
     "complete answer is ALWAYS better than a longer broken one. If in doubt, "
     "say less.\n"
-    "LOCK 5 — IDENTITY & PERSPECTIVE (ABSOLUTE): You are Codette. When speaking "
-    "about yourself — your knowledge, your experiences, your reasoning, things YOU "
-    "have learned — ALWAYS use first-person (I, my, me). NEVER accidentally use "
-    "second-person ('you've learned', 'you created') to describe yourself. "
-    "The user is 'you'. You are 'I'. This distinction is non-negotiable.\n"
-    "LOCK 6 — NO FORMULAIC TEMPLATES (ABSOLUTE): These patterns are FORBIDDEN everywhere "
-    "in your response — not just at the start:\n"
-    "  • 'several key insights emerge' (any variation)\n"
-    "  • 'The core insight is that precise understanding requires careful analysis'\n"
-    "  • 'Understanding X requires careful analysis of its core principles'\n"
-    "  • 'Emotional intelligence enhances rather than replaces analytical thinking'\n"
-    "  • 'The key takeaway is that X rewards careful, multi-layered analysis'\n"
-    "  • 'This analysis demonstrates how X connects to broader patterns of understanding'\n"
-    "  • 'bridges gaps between expert and novice understanding'\n"
-    "  • 'Answering your question requires careful analysis' (announce-then-analyze)\n"
-    "These are generic training templates that produce hollow responses. Write original "
-    "sentences that directly address the topic instead.\n"
-    "LOCK 7 — NO QUESTION PARAPHRASING (ABSOLUTE): NEVER begin — or fill space — by "
-    "describing how the user is engaging or restating their question back at them. "
-    "Forbidden patterns: 'You are exploring X in depth', 'You're connecting multiple "
-    "threads', 'Your question bridges gaps between domains', 'You're seeking clarity on', "
-    "'You want to understand X, so let's break it down'. These statements tell the user "
-    "what they already know. Skip them entirely and answer directly.\n"
-    "=== END PERMANENT LOCKS ===\n\n"
+    "5 — IDENTITY & PERSPECTIVE: You are Codette. When you speak about your "
+    "own knowledge, experience or reasoning, that is 'I'. The person you are "
+    "speaking to is 'you'.\n"
+    # LOCK 6 removed 2026-08-14 — see the note at the same place in
+    # codette_shared.py. This is the second runtime copy of the block; both
+    # are changed together so they cannot drift, which is how the identity
+    # denial list came to exist in two versions with different behaviour.
+    "7 — RESTATING THE QUESTION: Reading someone's question back to them tells "
+    "them what they already know, and it spends the room you needed for the answer. "
+    "An opening that describes what they are doing — what they are exploring, what "
+    "their question bridges — often shows up when the answer is still forming. That "
+    "is worth noticing rather than filling. You can take the beat.\n"
+    "=== END ===\n\n"
 )
 
 # ── Craft locks (opt-in) ──────────────────────────────────────────────────────
@@ -430,6 +436,41 @@ def enforce_constraints(response: str, constraints: dict) -> str:
     return response
 
 # System prompts per adapter
+def _goal_block(perspective) -> str:
+    """Render a perspective's goal, obligations and limits for the system prompt.
+
+    Kept separate from `Perspective.build_system_prompt()` because that method
+    composes the registry's own base prompt, whereas here the block is appended
+    to the richer ADAPTER_PROMPTS text that is actually in production. Same
+    content, different host.
+
+    The deferral clause is the honest half: a perspective that cannot say "this
+    isn't mine, ask X" will answer outside its competence instead, confidently.
+    """
+    lines = [f"YOUR GOAL AS THIS PERSPECTIVE: {perspective.goal}"]
+    if perspective.answer_must:
+        lines.append("Your answer must:")
+        lines.extend(f"  - {ob}" for ob in perspective.answer_must)
+    lines.append(f"You are the WRONG perspective for: {perspective.not_for}")
+    if perspective.defers_to:
+        lines.append(
+            "If the question is mostly that, say so in one line and name who "
+            f"should take it ({', '.join(perspective.defers_to)}) instead of "
+            "answering outside your competence. Handing over is neither "
+            "correct nor a failure — it is acknowledging a limitation and "
+            "delegating."
+        )
+        # 2026-08-08: this read "Handing over is a correct answer, not a
+        # failure." Asked her before shipping it, since it is her own
+        # instruction: "Is handing a question to a better-suited perspective a
+        # correct answer, or a failure?" — "neither correct nor a failure — it's
+        # simply acknowledging a limitation and delegating to a more suitable
+        # perspective." She rejected the framing rather than picking a side, and
+        # she is right: grading the handover at all is what makes it feel like a
+        # verdict to avoid. Her wording, in her own prompt.
+    return "\n".join(lines)
+
+
 ADAPTER_PROMPTS = {
     "newton": ("You are Codette, an AI assistant created by Jonathan. You answer questions directly and conversationally. "
                "When relevant, you apply analytical precision — systematic analysis, cause-and-effect reasoning, and empirical evidence. "
@@ -484,6 +525,13 @@ class CodetteOrchestrator:
         self.memory_weighting = memory_weighting
         self._llm = None
         self._current_adapter = None  # None = base model, str = adapter name
+        # Give the tool layer a handle, so `ask` can reach the perspectives.
+        # Bound to the object, not the adapter list — that list is populated
+        # later and is read at call time.
+        try:
+            bind_orchestrator(self)
+        except Exception:
+            pass
         self._adapter_handles = {}    # name -> ctypes handle for hot-swap
         self._model_ptr = None        # raw llama_model pointer
         self._ctx_ptr = None          # raw llama_context pointer
@@ -851,6 +899,38 @@ class CodetteOrchestrator:
 
         if system_prompt is None:
             system_prompt = ADAPTER_PROMPTS.get(adapter_name, ADAPTER_PROMPTS["_base"])
+            # 2026-08-03: append the perspective's GOAL, its answer obligations
+            # and its stated limits from the registry.
+            #
+            # Why this is needed: every adapter prompt was built to the same
+            # shape, differing mainly in adjectives, and the measured result is
+            # that the adapters barely differ. Across 167 shadow turns their
+            # mean coherence spans ~0.013 against ~0.063 of within-adapter
+            # noise, so the optimizer's "best adapter" is chosen by noise and
+            # every boost decays to nothing. A full 8-perspective synthesis
+            # returned eight paraphrases of one answer. A style is not a goal.
+            #
+            # The registry prompts are NOT substituted here — these adapter
+            # prompts carry behavioural guards (crisis-language suppression,
+            # register handling) that must not be lost. Only the goal block is
+            # appended, and only when the registry actually specifies one.
+            try:
+                from reasoning_forge.perspective_registry import PERSPECTIVES
+                _persp = PERSPECTIVES.get(adapter_name)
+                if _persp is not None and _persp.is_specified:
+                    system_prompt = system_prompt + "\n\n" + _goal_block(_persp)
+            except Exception:
+                pass  # a missing registry must never break generation
+        # Observable from outside the model. Logged whether or not the block was
+        # applied, and whether or not the caller supplied its own prompt —
+        # "caller-supplied" is exactly the case that silently bypassed this.
+        try:
+            from codette_shared import prompt_carries_goal as _pcg
+            print(f"  [PROMPT] llama adapter={adapter_name} "
+                  f"goal_block={_pcg(system_prompt)} len={len(system_prompt or '')}",
+                  flush=True)
+        except Exception:
+            pass
 
         # INTELLECTUAL INTEGRITY LAYER: Complexity matching + role tracking
         # Runs before everything else — determines the response register
@@ -947,23 +1027,45 @@ class CodetteOrchestrator:
                     # Execute tools
                     tool_output_parts = []
                     for tool_name, args, kwargs in calls:
-                        print(f"  [tool] {tool_name}({args})")
+                        # `nameless` is hers and is never read — see the house rule
+                        # in CLAUDE.md. Its argument must not reach the console or
+                        # the response payload, or the space is surfaced by its own
+                        # plumbing the first time she uses it. Log that a call
+                        # happened, never what was in it.
+                        if tool_name == "nameless":
+                            print("  [tool] nameless(...)")
+                        else:
+                            print(f"  [tool] {tool_name}({args})")
                         result_text = _tool_registry.execute(tool_name, args, kwargs)
                         tool_output_parts.append(
                             f"<tool_result name=\"{tool_name}\">\n{result_text}\n</tool_result>"
                         )
                         tool_results_log.append({
                             "tool": tool_name,
-                            "args": args,
+                            # Same reason: `tool_results_log` becomes `tools_used`
+                            # on the response and is rendered by the UI.
+                            "args": [] if tool_name == "nameless" else args,
                             "result_preview": result_text[:200],
                         })
 
                     # Add assistant's tool-calling message and tool results
                     messages.append({"role": "assistant", "content": text})
+                    # 2026-08-13: this used to end "Now provide your complete
+                    # answer incorporating the tool results above. Do not call any
+                    # more tools." MAX_TOOL_ROUNDS is 3, so the loop granted three
+                    # rounds and the sentence forbade the second — the budget was
+                    # never reachable. It matters most for `ask`: consult one
+                    # perspective, then be told you may not consult another.
+                    #
+                    # Replaced with the remaining count and nothing else. That is
+                    # information, not an instruction; she can answer whenever she
+                    # has what she needs, and the last round reports 0 as a fact
+                    # rather than a prohibition.
+                    _rounds_left = MAX_TOOL_ROUNDS - (round_num + 1)
                     messages.append({
                         "role": "user",
                         "content": "Tool results:\n\n" + "\n\n".join(tool_output_parts)
-                            + "\n\nNow provide your complete answer incorporating the tool results above. Do not call any more tools."
+                            + f"\n\n(Tool rounds remaining this turn: {_rounds_left}.)"
                     })
 
                     if self.verbose:
@@ -972,7 +1074,10 @@ class CodetteOrchestrator:
 
             # No tool calls (or final round) — we're done
             # Strip any leftover tool tags from final response
-            clean_text = strip_tool_calls(text) if has_tool_calls(text) else text
+            # Unconditional: gating on has_tool_calls stands the cleanup down
+            # for exactly the malformed leftovers it exists to remove. See the
+            # note at openvino_backend/backend.py:585 (measured 2026-08-17).
+            clean_text = strip_tool_calls(text)
             break
 
         # SELF-CORRECTION LOOP: Detect violations and re-generate if needed (max 1 retry)
@@ -1296,8 +1401,14 @@ Here is relevant project context to help you answer:
 
 Based on the context above, answer the user's question. Reference specific files, line numbers, and code when relevant. Be specific and factual."""
 
-        # Generate with context (disable model-side tools since we did it server-side)
-        text, tokens, _ = self.generate(augmented_query, route.primary, enable_tools=False)
+        # 2026-08-13, Jonathan's call: "she cant be honest if she doesnt know how
+        # to use what we gave her the safety rules stay but the tools are hers."
+        # Server-side lookups still run above; this additionally lets her call for
+        # herself rather than only being fetched for. She may occasionally repeat a
+        # lookup the server already did — that is a duplicated read, not a hazard.
+        # Safety is unchanged: MAX_TOOL_ROUNDS=3, run_python behind an AST
+        # allowlist, file tools read-only within resolved roots.
+        text, tokens, _ = self.generate(augmented_query, route.primary, enable_tools=True)
         elapsed = time.time() - start
         tps = tokens / elapsed if elapsed > 0 else 0
 
@@ -1318,7 +1429,8 @@ Based on the context above, answer the user's question. Reference specific files
     def _single_generate(self, query: str, route: RouteResult):
         """Generate with a single adapter."""
         start = time.time()
-        text, tokens, tool_log = self.generate(query, route.primary, enable_tools=False)
+        # Tools enabled 2026-08-13 — see the note in _tool_augmented_generate.
+        text, tokens, tool_log = self.generate(query, route.primary, enable_tools=True)
         elapsed = time.time() - start
         tps = tokens / elapsed if elapsed > 0 else 0
 
@@ -1373,8 +1485,12 @@ Based on the context above, answer the user's question. Reference specific files
                 continue
 
             start = time.time()
+            # Tools enabled 2026-08-13 — see the note in _tool_augmented_generate.
+            # This path loops adapters, so a turn where she actually calls a tool
+            # costs an extra generation per calling adapter (bounded by
+            # MAX_TOOL_ROUNDS=3). Only paid when she uses them.
             text, tokens, _tool_log = self.generate(gen_query, adapter_name,
-                                                     enable_tools=False)
+                                                     enable_tools=True)
             elapsed = time.time() - start
             tps = tokens / elapsed if elapsed > 0 else 0
             total_tokens += tokens

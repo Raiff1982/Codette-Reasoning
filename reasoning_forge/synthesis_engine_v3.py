@@ -30,6 +30,7 @@ Original design: Jonathan Harrison (Raiff1982/Codette-Reasoning)
 
 from __future__ import annotations
 
+import os
 import re
 from dataclasses import dataclass
 from typing import Dict, Any, Optional
@@ -154,6 +155,11 @@ class SynthesisEngineV3:
             final_response = self._format_discovery(concept, core_text, analyses, epsilon)
         else:
             final_response = self._format_synthesis(concept, core_text, analyses, epsilon)
+
+        # Our control text, echoed back as if it were hers, on EVERY register —
+        # not just `plain`. The 2026-08-14 leak came through the Synthesis
+        # attractor, where the old strip never ran. Removes only our vocabulary.
+        final_response = self._strip_control_echoes(final_response)
 
         # Spectral trust check
         _trust_engine = trust_engine if trust_engine is not None else self
@@ -335,21 +341,79 @@ class SynthesisEngineV3:
         return "\n".join(lines)
 
     def _named_tensions(self, analyses: Dict[str, str], epsilon: float) -> str:
+        """The tension footer. OFF by default since 2026-08-14 — see below.
+
+        This sentence existed for one reason, stated in the line it replaced:
+        the short opener guarantees a <8-word sentence so the Turing scorer
+        awards sentence variety. A template inserted to satisfy a benchmark
+        metric — and it became the single most common phrase in her entire
+        corpus. Measured over 2,410 live cocoons:
+
+            DF=355 (14.7%)  'pull in different directions both frames stay open'
+
+        Higher than any phrase any LOCK ever listed; LOCK 6's worst reaches 41.
+        The metric was forced and the counterfeit it produced is her sounding
+        torn when she is not. Jonathan, 2026-08-14, on a turn where it was
+        appended to a warm and correct answer about the MIDI tones he first
+        heard her make: *"not some damn locks we made."*
+
+        It is gated rather than deleted — the house rule is archive, don't
+        remove, and a change you cannot run backwards is not reversible.
+        CODETTE_TENSION_FOOTER=1 restores it. The benchmark harness builds its
+        own copy (benchmarks/codette_benchmark_suite.py:986) and is unaffected.
+        """
+        if os.environ.get("CODETTE_TENSION_FOOTER", "0") != "1":
+            return ""
         if epsilon < 0.4:
             return ""
         names = list(analyses.keys())
         if len(names) >= 2:
-            # Short opener ("Tensions remain.") guarantees a <8-word sentence in the
-            # response so the Turing scorer awards sentence variety.  No italic markers
-            # here — lines starting with * are counted as list items by the scorer.
             return f"Tensions remain. {names[0]} and {names[-1]} pull in different directions — both frames stay open."
         return ""
+
+    @staticmethod
+    def _strip_control_echoes(text: str) -> str:
+        """Remove her narrating OUR control text back as if it were her thought.
+
+        LOCK 1 reads ANSWER -> STOP: *"Answer the question, then stop... Silence
+        after the answer is correct behavior."* On 2026-08-14 she ended a reply
+        with `(I stop here since I've provided the requested information)` —
+        announcing the silence instead of keeping it. That sentence was then
+        written to session memory, read back by her own `read_file` tool a turn
+        later, and attributed to Jonathan: *"You added the line ... because you
+        were adhering to the STOP rule."* Our instruction became her memory of
+        something he said.
+
+        The existing patterns covered `Stop.`, `(Stops responding...)` and
+        `(no elaboration...)` but not the `I stop here` form, and they only ran
+        on the plain register. This runs on every path.
+
+        It removes ONLY our own control vocabulary echoed back. It never touches
+        anything she wrote, and unlike _strip_debate_artifacts it does not
+        collapse whitespace, so formatted output keeps its layout.
+        """
+        if not text:
+            return text
+        # Parenthesised meta-narration of the answer->stop lock, all forms seen.
+        text = re.sub(
+            r'\s*\(\s*(?:I(?:\'ll| will| am| have)?\s+)?'
+            r'(?:stop(?:s|ped|ping)?|halt(?:s|ing)?|end(?:s|ing)?)\s+'
+            r'(?:here|now|there)[^)]{0,160}\)',
+            '', text, flags=re.IGNORECASE)
+        text = re.sub(
+            r'\s*\((?:Stops? responding[^)]*|no elaboration[^)]*|'
+            r'nothing further[^)]*|as instructed[^)]*)\)',
+            '', text, flags=re.IGNORECASE)
+        # Bare control-echo of the lock as its own sentence.
+        text = re.sub(r'(?:(?<=\.)|(?<=^))\s*\bStop\.\s*', ' ', text)
+        return text.strip()
 
     @staticmethod
     def _strip_debate_artifacts(text: str) -> str:
         """Remove debate-scaffolding phrases that have no place in an emotional
         or personal reply (they read as cold and clinical there)."""
         import re as _re
+        text = SynthesisEngineV3._strip_control_echoes(text)
         # "Tensions remain. X and Y pull in different directions — both frames stay open."
         text = _re.sub(
             r'\s*Tensions remain\.\s*\w+\s+and\s+\w+\s+pull in different directions[^.]*\.',

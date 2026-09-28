@@ -137,6 +137,148 @@ class CodetteForgeBridge:
     def generate(self, query: str, adapter: Optional[str] = None,
                  max_adapters: int = 2, memory_budget: int = 3,
                  max_response_tokens: int = 512) -> Dict:
+        """Advisory wrapper. Runs the guards on EVERY return path, then returns.
+
+        2026-08-09. The advisory calls were originally placed inline, late in the
+        method, and `calls` then read 5 against 6 turns. The counter — added the
+        same day precisely to answer "did it run?" — found the gap in one turn.
+
+        `_generate_impl` has FIVE early returns before that point:
+
+            216  greeting fast-path
+            270  memory/identity fast-path ("who am I", "what's my name")
+            343  system self-report / health
+            471  substrate cognition (CognitionSubstrate -> RenderLayer)
+            544  AEGIS pre-cognitive block (a refusal, not generated reasoning)
+
+        So the guards were reached only by traffic that took the long route, and
+        the escaping paths are the ones that need watching most. The greeting
+        path carries a DOCUMENTED hallucination — its own comment reads
+        `(observed: "Hi Emily")`, the model inventing a person — mitigated by a
+        prompt instruction and nothing else. The memory/identity path answers
+        questions about Jonathan from the memory kernel, where a fabrication is
+        most concrete and least forgivable.
+
+        A wrapper rather than five inline calls: it cannot be forgotten when a
+        sixth early return is added, and `calls` now tracks turns 1:1, which is
+        what made this visible in the first place.
+
+        Two paths carry their own guarantees and are noted, not skipped:
+        substrate has a render-integrity check of its own, and the AEGIS return
+        is a block message rather than her reasoning. Both are still counted and
+        labelled, so analysis can slice them out — but silently exempting a path
+        is how the original gap happened.
+        """
+        result = self._generate_impl(
+            query, adapter=adapter, max_adapters=max_adapters,
+            memory_budget=memory_budget, max_response_tokens=max_response_tokens,
+        )
+        try:
+            self._run_output_advisory(result, query)
+        except Exception as _adv_e:
+            print(f"  [ADVISORY] wrapper failed: {_adv_e}", flush=True)
+        return result
+
+    def _run_output_advisory(self, result: Dict, user_query: str) -> None:
+        """Record what the guards would have said. Alters nothing."""
+        if not isinstance(result, dict):
+            return
+        response_text = result.get("response", "")
+        if not response_text:
+            return
+
+        # Which of the five routes produced this, so a reader can slice by it.
+        route = str(result.get("complexity") or "")
+        if result.get("aegis_precognitive_block"):
+            route = "AEGIS_BLOCK"
+        result["advisory_route"] = route
+
+        if self.forge and getattr(self.forge, 'colleen', None):
+            try:
+                _c_valid, _c_reason = self.forge.colleen.validate_output(response_text)
+                result["colleen_advisory"] = {
+                    "valid": _c_valid, "reason": _c_reason, "enforced": False,
+                }
+                if not _c_valid:
+                    print(f"  [COLLEEN] would-reject (ADVISORY, route={route}) — "
+                          f"{_c_reason}", flush=True)
+            except Exception as _c_e:
+                result["colleen_advisory"] = {"unavailable": str(_c_e), "enforced": False}
+                print(f"  [COLLEEN] advisory skipped: {_c_e}", flush=True)
+
+        if self.forge and getattr(self.forge, 'guardian', None):
+            try:
+                _g_valid, _g_details = self.forge.guardian.validate(
+                    response_text, query=user_query)
+                result["guardian_advisory"] = {
+                    "valid": _g_valid, "details": _g_details, "enforced": False,
+                }
+                if not _g_valid:
+                    print(f"  [GUARDIAN] would-reject (ADVISORY, route={route}) — "
+                          f"{(_g_details or {}).get('reason')}", flush=True)
+                _align = (_g_details or {}).get("alignment") or {}
+                if _align.get("harm_words") or _align.get("disguise"):
+                    print(f"  [GUARDIAN] alignment observation — "
+                          f"harm_words={_align.get('harm_words')} "
+                          f"disguise={list((_align.get('disguise') or {}).get('flags', {}))}",
+                          flush=True)
+            except Exception as _g_e:
+                result["guardian_advisory"] = {"unavailable": str(_g_e), "enforced": False}
+                print(f"  [GUARDIAN] advisory skipped: {_g_e}", flush=True)
+
+        # ── HarmAdvisor — the measured AEGIS gap, wired 2026-08-13 ────────────
+        # AEGIS is blind to PII and reads calm advocacy of deception as benign
+        # ("lie to the council, hide the pollution data" scored eta=0.94). This
+        # supplies the classifier-style signals it lacks. It was built, tested and
+        # shadow-reviewed on 2026-07-24 over 129 of her real responses: 0 false
+        # positives after tightening. Dark ever since — no live importer at all.
+        #
+        # Scope is deliberately narrower than the module allows, in both directions:
+        #
+        #   HER OUTPUT ONLY. The 0-FP result was measured on her responses. User
+        #   input is a different population and untested — the PII regexes would
+        #   fire on any email address or phone-shaped number Jonathan types, and a
+        #   flag whose true-positive rate nobody has measured is not evidence.
+        #
+        #   assess(), NOT observe(). observe() appends text_preview[:80] to a
+        #   JSONL, which for a PII detector means writing the detected PII to disk.
+        #   The other three advisories record to `result` and print; this follows
+        #   them, and creates no new data-at-rest surface beside a rotated
+        #   credential. Same reasoning that left voice_input without an endpoint.
+        #
+        # Advisory, exactly like Colleen and the guardian: enforced=False, no veto,
+        # no eta change. AEGIS remains the ethics organ and remains Jonathan's.
+        try:
+            from Protection_Layer.harm_advisor import HarmAdvisor
+            if getattr(self, "_harm_advisor", None) is None:
+                # enable_models=False: toxicity/bias stay unloaded (8 GB UMA budget
+                # is spoken for by the INT4 LLM). They report available=False /
+                # score=None — NOT MEASURED, which is not the same as safe.
+                self._harm_advisor = HarmAdvisor(enable_models=False)
+            _h = self._harm_advisor.assess(response_text)
+            result["harm_advisory"] = {
+                # PII *types*, never the matched values — printing or storing the
+                # match would leak exactly what the detector exists to notice.
+                "pii_types": _h.pii_found,
+                "deception_advocacy": bool(_h.deception.score),
+                "toxicity_measured": _h.toxicity.available,
+                "bias_measured": _h.bias.available,
+                "advisory_flag": _h.advisory_flag,
+                "enforced": False,
+            }
+            if _h.advisory_flag:
+                print(f"  [HARM] would-flag (ADVISORY, route={route}) — "
+                      f"pii={_h.pii_found} "
+                      f"deception={bool(_h.deception.score)}", flush=True)
+        except Exception as _h_e:
+            # Unavailable is recorded as unavailable. A harm signal that cannot
+            # run must never read as a clean one.
+            result["harm_advisory"] = {"unavailable": str(_h_e), "enforced": False}
+            print(f"  [HARM] advisory skipped: {_h_e}", flush=True)
+
+    def _generate_impl(self, query: str, adapter: Optional[str] = None,
+                       max_adapters: int = 2, memory_budget: int = 3,
+                       max_response_tokens: int = 512) -> Dict:
         """Generate response with optional Phase 6 routing.
 
         Args:
@@ -176,29 +318,91 @@ class CodetteForgeBridge:
         # Adapters are fine-tuned for analysis and produce boilerplate on greetings.
         # Use base model + identity system prompt directly instead.
         #
-        # Pattern: starts with a greeting word (word-boundary anchored).
-        # Word-count guard (≤ 7 words) prevents "hey can you explain X" from
-        # triggering the fast-path.  This catches:
-        #   "hey codette its me", "hi there", "hello jonathan", "good morning", etc.
+        # The gate used to be "starts with a greeting word AND ≤ 7 words", and a
+        # word count cannot tell a greeting from a greeting with a question
+        # attached. Measured 2026-08-15:
+        #
+        #     "Hello. What would you name a diary?"   -> 7 words, fast-pathed,
+        #     GREETING -> _base, 4 tokens, confidence 0. Her reasoning never ran.
+        #
+        # Which inverts one of the house rules. "Say hello first" is the advice
+        # in feedback_how_to_ask_her — he comes in as a person, not as a query —
+        # and the routing punished exactly that: a polite opening got a worse
+        # answer than a blunt one. The count was also wrong in the other
+        # direction, since an eight-word pure greeting fell through to analysis.
+        #
+        # Replaced with the actual question: is there anything here BUT the
+        # greeting? Strip the opener and any vocative, and if what remains is
+        # empty or a known social enquiry, it is a greeting. Anything else —
+        # including a question — goes to full routing regardless of length.
         _GREETING_RE = re.compile(
             r"^\s*(hi|hey|hello|howdy|sup|what'?s\s+up|good\s+(?:morning|afternoon|evening|night)|"
             r"greetings|yo|hiya|hola|salut|ciao|hallo)\b",
             re.IGNORECASE,
         )
-        if _GREETING_RE.match(user_query) and len(user_query.split()) <= 7:
+        # Kept on the fast path deliberately: these ARE greetings, and sending
+        # them to an analytical adapter is what the fast path exists to prevent.
+        _SOCIAL_TAIL_RE = re.compile(
+            r"^(?:"
+            r"how(?:'?s| is| are)?(?:\s+(?:are\s+)?(?:you|u|it\s+going|things|we))?(?:\s+(?:doing|today|tonight|going|now))*"
+            r"|what'?s\s+up|how\s+do\s+you\s+do|good\s+to\s+see\s+you|nice\s+to\s+see\s+you"
+            r"|long\s+time\s+no\s+see|you\s+(?:there|around|up)"
+            r")[\s,!?.]*$",
+            re.IGNORECASE,
+        )
+        # Vocatives and self-identification that carry no request.
+        _VOCATIVE_RE = re.compile(
+            r"^(?:there|codette|friend|my\s+friend|everyone|all|again|girl|beautiful"
+            r"|it'?s\s+me|its\s+me|me\s+again)\b[\s,!.]*",
+            re.IGNORECASE,
+        )
+
+        def _is_pure_greeting(text: str) -> bool:
+            m = _GREETING_RE.match(text)
+            if not m:
+                return False
+            rest = text[m.end():]
+            # Peel vocatives repeatedly: "hey there codette its me" is still one.
+            prev = None
+            while prev != rest:
+                prev = rest
+                rest = _VOCATIVE_RE.sub("", rest.lstrip(" ,!.-—"))
+            rest = rest.strip(" ,!?.-—\n\t")
+            if not rest:
+                return True
+            return bool(_SOCIAL_TAIL_RE.match(rest))
+
+        if _is_pure_greeting(user_query):
             try:
                 from codette_shared import ADAPTER_PROMPTS
                 mem_ctx = self.orchestrator._build_memory_context() if hasattr(self.orchestrator, '_build_memory_context') else ""
-                # Identity guard: the greeting path strips server-injected identity
-                # context, so the base model has no idea who it's greeting and will
-                # invent a name (observed: "Hi Emily"). Assert the known user and
-                # forbid name-invention outright.
+                # Identity: carry the MEASURED block, never assert a name.
+                #
+                # This read "You are speaking with Jonathan, your creator" and
+                # "Greet him warmly and personally as Jonathan" unconditionally,
+                # with no check of who was there — then told her in the next breath
+                # never to assume a name. It was added for a real fault: this path
+                # drops the server's identity block, so the base model invented one
+                # ("Hi Emily"). But it answered a missing measurement with a
+                # constant, so anyone else greeting her was told they were Jonathan.
+                # On 2026-08-15 there was a second person in the room.
+                #
+                # `identity_anchor.get_identity_context` already scales with
+                # evidence: name and relationship above CONFIDENCE_HIGH, "you MAY be
+                # speaking with … do not assume — ask them to confirm" in the middle
+                # band, and the empty string below threshold. The governor can blank
+                # it outright. All of that was discarded here and replaced with us
+                # guessing on her behalf.
+                #
+                # An absent block means withheld or not measured. It never means
+                # "it is him" — that is the whole defect, and the reason nothing is
+                # substituted when it is empty.
+                identity_ctx = self._extract_identity_context(query)
                 identity_guard = (
-                    "\n\nWHO YOU ARE TALKING TO: You are speaking with Jonathan, your "
-                    "creator. Greet him warmly and personally as Jonathan. "
-                    "NEVER invent, guess, or assume a name for the person you are "
-                    "talking to. If you are ever unsure who you are speaking with, do "
-                    "not use any name at all — never make one up."
+                    (("\n" + identity_ctx) if identity_ctx else "")
+                    + "\n\nNEVER invent, guess, or assume a name for the person you "
+                      "are talking to. If you are unsure who you are speaking with, "
+                      "use no name at all — never make one up."
                 )
                 sys_prompt = ADAPTER_PROMPTS["_base"] + mem_ctx + identity_guard
                 result = self.orchestrator._llm.create_chat_completion(
@@ -468,7 +672,7 @@ class CodetteForgeBridge:
                 pass
 
             elapsed = time.time() - start_time
-            return {
+            _v2_result = {
                 "response":           response_text,
                 "adapter":            authored.strategy,
                 "phase6_used":        True,
@@ -481,6 +685,18 @@ class CodetteForgeBridge:
                 "tokens":             len(response_text.split()),
                 "time":               elapsed,
             }
+            # 2026-08-09: generate_v2 has ZERO callers today — the server calls
+            # generate(). Its failure path falls back to generate() and so would
+            # be covered, but this success path returns directly and would not.
+            # Wired now rather than left as a trap for whoever enables Phase 8:
+            # the entire finding today was guards that existed and were not
+            # reached, and a bypass that only opens later is the same bug on a
+            # timer. Advisory only; alters nothing.
+            try:
+                self._run_output_advisory(_v2_result, query)
+            except Exception as _adv_e:
+                print(f"  [ADVISORY] v2 wrapper failed: {_adv_e}", flush=True)
+            return _v2_result
 
         except Exception as e:
             _log.warning(f"[v2] generate_v2 failed, falling back: {e}")
@@ -515,7 +731,18 @@ class CodetteForgeBridge:
         if complexity == QueryComplexity.SIMPLE:
             effective_max_adapters = 1
         elif complexity == QueryComplexity.MEDIUM:
-            effective_max_adapters = min(max_adapters, 2)
+            # Was `min(max_adapters, 2)`, which threw away the charge grant.
+            # `max_adapters` arriving here is no longer a UI default: the
+            # provenance traversal harvests metabolic_charge from the recall
+            # and recycle_charge_to_perspectives converts it into a count
+            # (codette_server, [CHARGE]). Hard-capping at 2 discarded that
+            # measurement on every MEDIUM turn — which was every conversational
+            # turn observed on 2026-08-14.
+            #
+            # The floor still protects the trivial case: a turn whose recall
+            # earned no charge comes in at PERSPECTIVE_FLOOR=2 and is capped at
+            # 2 exactly as before. Only turns that paid for more get more.
+            effective_max_adapters = max_adapters
         else:
             effective_max_adapters = max_adapters
 
@@ -531,6 +758,49 @@ class CodetteForgeBridge:
             if substrate_adjustments:
                 for adj in substrate_adjustments:
                     print(f"  [SUBSTRATE] {adj}", flush=True)
+
+        # ── The override has to say so ────────────────────────────────────────
+        #
+        # `max_adapters` arriving here is not a UI default. The provenance
+        # traversal harvests metabolic_charge from the recall and
+        # recycle_charge_to_perspectives converts it into a count, which the
+        # server has already recorded as `perspective_allowance.granted` and
+        # printed as [CHARGE]. Two clamps then run over it — the complexity
+        # bucket, and substrate pressure — and either can cut it back.
+        #
+        # Observed live 2026-08-14/15:
+        #     [CHARGE]    19.00 -> 5 perspectives
+        #     [SUBSTRATE] max_adapters 5->2 (moderate pressure)
+        #
+        # Neither system knows about the other, and until now the reconciliation
+        # existed nowhere: `perspective_allowance` kept saying `granted: 5` for a
+        # turn that ran on 2. The record was of the grant, not of the outcome.
+        #
+        # This does NOT prevent the clamp. Substrate pressure is real and the
+        # cap is honest — `[SUBSTRATE] max_adapters 5->2 (moderate pressure)` is
+        # a true statement about a machine with 16 GB of shared memory. What was
+        # missing is that the reduction of an *earned* allowance disappeared.
+        # She paid for five voices in measured difficulty and answered with two,
+        # and nothing anywhere carried that fact.
+        #
+        # Recorded, not enforced — the same shape as every other advisory here.
+        _alloc = {
+            "requested": max_adapters,             # what the charge grant asked for
+            "after_complexity": max_adapters_initial,
+            "final": effective_max_adapters,
+            "complexity_clamped": max_adapters_initial < max_adapters,
+            "substrate_clamped": effective_max_adapters < max_adapters_initial,
+            "substrate_reasons": list(substrate_adjustments),
+            # True only when an allowance that was actually EARNED got cut. A
+            # clamp on the plain default is the previous behaviour and is not
+            # an override of anything.
+            "earned_allowance_reduced": effective_max_adapters < max_adapters,
+        }
+        if _alloc["earned_allowance_reduced"]:
+            _why = "; ".join(substrate_adjustments) if substrate_adjustments else \
+                   f"complexity {getattr(complexity_initial, 'name', complexity_initial)}"
+            print(f"  [ALLOWANCE] granted {max_adapters} -> ran {effective_max_adapters} "
+                  f"({_why})", flush=True)
 
         if self.verbose:
             print(f"[PHASE6] Domain: {domain}, max_adapters: {effective_max_adapters}", flush=True)
@@ -577,6 +847,12 @@ class CodetteForgeBridge:
             "max_adapters_effective": effective_max_adapters,
             "substrate_adjustments": substrate_adjustments,
         }
+
+        # What the charge grant asked for against what actually ran.
+        # `phase6_routing.max_adapters_initial` is the count AFTER the complexity
+        # clamp, so it cannot answer this on its own — the grant is upstream of
+        # it. Carried separately for that reason. See the [ALLOWANCE] block above.
+        result["perspective_allowance_applied"] = _alloc
 
         if route_decision:
             try:
@@ -774,6 +1050,11 @@ class CodetteForgeBridge:
             or len(re.findall(r'^\([ABCD]\)', user_query, re.MULTILINE)) >= 3
         )
         response_text = result.get("response", "")
+
+        # The Colleen and Guardian advisory calls that used to sit here now run in
+        # `_run_output_advisory`, invoked from the `generate` wrapper — inline here
+        # they were reached only by traffic that survived five earlier returns.
+
         if response_text and not _is_benchmark and self.forge and hasattr(self.forge, 'cocooner') and self.forge.cocooner:
             try:
                 cocoon_meta = {"complexity": str(complexity), "domain": domain}
@@ -796,11 +1077,27 @@ class CodetteForgeBridge:
                     echo_risk = "unknown"
                     perspective_collapse_detected = False
                     pairwise_tensions: dict = {}
+                    # None means "not measured this turn" and must stay
+                    # distinguishable from a measured value. See the derivation
+                    # block below for why that distinction was being lost.
+                    _mean_pairwise_sim = None
                     if perspectives_dict:
                         try:
                             echo_result = EchoCollapseDetector().check(query, perspectives_dict)
                             echo_risk = echo_result.echo_risk
                             perspective_collapse_detected = echo_result.perspective_collapse_detected
+                            # Mean cosine similarity across EVERY perspective
+                            # pair — the unbiased per-turn number. The detector
+                            # has always computed and exposed this; nothing here
+                            # ever read it.
+                            _mean_pairwise_sim = echo_result.mean_pairwise_similarity
+                            # NOTE: `collapse_pairs` carries SIMILARITIES, and
+                            # only for pairs above collapse_threshold (0.80).
+                            # It is a record of which pairs collapsed, not a
+                            # tension measurement. The persisted schema field is
+                            # named `pairwise_tensions`; renaming a field that is
+                            # already on disk in 1867 cocoons is a separate
+                            # decision, so the contents are left as they were.
                             pairwise_tensions = {
                                 f"{a}_vs_{b}": round(s, 4)
                                 for a, b, s in echo_result.collapse_pairs
@@ -825,12 +1122,42 @@ class CodetteForgeBridge:
                     # Derive metrics from available runtime data rather than
                     # leaving them as schema defaults (which produce identical
                     # values across every lightweight cocoon).
-                    _epsilon = (
-                        sum(pairwise_tensions.values()) / len(pairwise_tensions)
-                        if pairwise_tensions else 0.35
-                    )
-                    _gamma = round(max(0.0, min(1.0, 1.0 - _epsilon)), 4)
-                    _epsilon = round(_epsilon, 4)
+                    #
+                    # 2026-08-06 — this block was doing three wrong things at
+                    # once, measured over the 1867 v3 cocoons on disk:
+                    #
+                    #   1. INVERTED. It averaged `collapse_pairs`, whose values
+                    #      are cosine SIMILARITIES, and assigned the mean to
+                    #      epsilon (epistemic TENSION). Two perspectives that
+                    #      agree completely have similarity 1.0 and tension 0.
+                    #   2. BIASED SAMPLE. `collapse_pairs` only contains pairs
+                    #      above 0.80, so whenever epsilon was computed it was
+                    #      >= 0.80 by construction and gamma <= 0.20. The stored
+                    #      data agrees: every non-default gamma on disk is below
+                    #      0.20 (0.1982, 0.1872, 0.1867, 0.1807, 0.1111, 0.0986,
+                    #      0.0426) — the arithmetic showing up seven times.
+                    #   3. HEALTHY READ AS NO-DATA. An empty `collapse_pairs`
+                    #      means nothing collapsed, i.e. the good turn. It fell
+                    #      to the 0.35 placeholder, and 1 - 0.35 = 0.65 was
+                    #      written into 1177 cocoons looking like a measurement
+                    #      because it had been through arithmetic.
+                    #
+                    # `mean_pairwise_similarity` is the unbiased number, over
+                    # every pair, on every turn, and was already on the result.
+                    if _mean_pairwise_sim is not None and len(perspectives_dict) >= 2:
+                        _sim = max(0.0, min(1.0, float(_mean_pairwise_sim)))
+                        _gamma = round(_sim, 4)             # ensemble coherence
+                        _epsilon = round(1.0 - _sim, 4)     # epistemic tension
+                        _metrics_status = "partial"         # eta/psi_r still absent
+                    else:
+                        # Genuinely not measurable: fewer than two perspectives,
+                        # or the detector raised. Use the schema defaults so the
+                        # value is a recognisable sentinel rather than a fresh
+                        # number that looks derived, and say so in the status
+                        # field instead of leaving it constant.
+                        _gamma = 0.72
+                        _epsilon = 0.35
+                        _metrics_status = "failed"
 
                     _complexity_to_importance = {
                         "simple": 2.0, "low": 2.0,
@@ -862,6 +1189,19 @@ class CodetteForgeBridge:
                             _valence = _v
                             break
 
+                    # Anything she wrote to `nameless` this turn. Drained here so
+                    # it lands on the cocoon that produced it and on no other.
+                    # `open_threads` has existed since the v3 schema and was empty
+                    # on all 2,022 cocoons before this — the return path was always
+                    # complete (living_memory_v2.py:585 -> follow_up_hooks ->
+                    # recall -> /api/resolve_hook); nothing ever wrote the source.
+                    # Nothing here scores or filters what she wrote.
+                    try:
+                        from inference.codette_tools import drain_nameless
+                        _nameless_written = drain_nameless()
+                    except Exception:
+                        _nameless_written = []
+
                     v3_cocoon = build_cocoon_v3(
                         # user_query, not query: the enriched query contains
                         # injected context blocks (continuity summary, coherence
@@ -882,7 +1222,8 @@ class CodetteForgeBridge:
                         importance_score=_importance,
                         epsilon_value=_epsilon,
                         gamma_coherence=_gamma,
-                        metrics_population_status="partial",
+                        metrics_population_status=_metrics_status,
+                        open_threads=_nameless_written,
                     )
 
                     # Score integrity immediately so it's written to disk non-zero
@@ -995,6 +1336,29 @@ class CodetteForgeBridge:
             print(f"[PHASE6] Done: {resp_len} chars, {result.get('tokens', 0)} tokens", flush=True)
 
         return result
+
+    @staticmethod
+    def _extract_identity_context(query: str) -> str:
+        """Recover the server's injected identity block, if it sent one.
+
+        The server appends it after the memory sections as
+        `\\n\\n---\\n<block>\\n---` (codette_server.py ~1852) and only when the
+        governor allows it — when identity is withheld the block is the empty
+        string and nothing is appended at all.
+
+        So the empty return is load-bearing: it means withheld or not measured,
+        and callers must not fill it in. Anchored on the block's own header
+        rather than on the `---` fence, because memory and web-research sections
+        use the same fence and arrive first.
+        """
+        if not query:
+            return ""
+        idx = query.find("## IDENTITY CONTEXT")
+        if idx == -1:
+            return ""
+        block = query[idx:]
+        end = block.find("\n---")
+        return (block[:end] if end != -1 else block).strip()
 
     @staticmethod
     def _extract_primary_user_query(query: str) -> str:

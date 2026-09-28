@@ -40,11 +40,44 @@ import time
 import hashlib
 import os
 import logging
+import datetime as _dt
+
+# ── When the stored `success` flag started meaning what it says ───────────────
+#
+# Until 2026-08-13, `codette_server` set a cocoon's `success` field to False on
+# ANY warning from `behavior_governor.post_validate`. The dominant contributor
+# was `_did_answer_question`, a keyword-overlap check its own docstring measures
+# as inverted — it passed parroted responses at 100% and real answers at 47.5%,
+# and fired on roughly half of all turns.
+#
+# So for every cocoon written before that fix, `success` is not a quality
+# reading. Measured over the 3,841 cocoons in the live store, responses that
+# echo their own query carry a mean success_score of 0.928 against 0.633 for
+# everything else — a 47% advantage, to exactly the responses the flag existed
+# to catch. Recall ranked on it, so her echoes were retrieved first and injected
+# into the following turn.
+#
+# Cocoons older than this are not rewritten and not deleted. The flag is simply
+# not consulted for the period in which it cannot mean what it says, and the
+# ranking renormalises over the signals that were actually measured. If nothing
+# in the store is newer than this, the success term drops out entirely — which
+# is the honest state until real readings accumulate.
+SUCCESS_FLAG_TRUSTED_FROM = _dt.datetime(2026, 8, 13, 8, 0, 0).timestamp()
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Tuple
 from collections import OrderedDict
 
 logger = logging.getLogger(__name__)
+
+# Recall's recency term does not decay inside this window — see the note at the
+# scoring site. Sourced from behavior_governor so the two clocks cannot drift:
+# the identity clock and the recall clock had the same defect, and fixing one
+# with a private copy of the constant is how this repository grew two identity
+# denial lists with different behaviour.
+try:
+    from reasoning_forge.behavior_governor import CONVERSATION_CONTINUITY_WINDOW as _CONTINUITY_WINDOW
+except Exception:  # pragma: no cover - import-order fallback only
+    _CONTINUITY_WINDOW = 900.0
 
 DB_DIR = Path(__file__).parent.parent / "data"
 DB_PATH = DB_DIR / "codette_memory.db"
@@ -298,13 +331,74 @@ class UnifiedMemory:
                 # Base: FTS5 rank (negative = better match, normalize to 0-1)
                 fts_score = 1.0 / (1.0 + abs(cocoon.get("rank", 0)))
 
-                # Recency: exponential decay (half-life = 1 hour)
+                # Recency: exponential decay, but not while the conversation is
+                # still happening.
+                #
+                # This was `exp(-age / 3600)` from the instant a cocoon was
+                # written, which taxes depth. She generates at 1-8 tok/s, so a
+                # careful turn takes minutes and its own earlier context has
+                # already aged by the time she answers — the longer she thinks,
+                # the less of the conversation she can still reach. A throwaway
+                # turn keeps its context; a considered one loses it.
+                #
+                # Identical in shape to the identity clock fixed on 2026-08-14,
+                # where `elapsed` was the turn's own duration and confidence fell
+                # 1.00 -> 0.22 across one continuous conversation with a person
+                # who never left. Jonathan's framing there: more mass, more
+                # gravity, slower time. Same well, different quantity.
+                #
+                # Same remedy and the same constant, deliberately: decay counts
+                # only the part of a gap BEYOND the continuity window. Inside it,
+                # nothing ages, and FTS relevance decides the ordering instead of
+                # the clock — which is the right tiebreak anyway, given recency
+                # dominance is a known open problem here.
+                #
+                # This only ever flattens near-term decay. It cannot invert an
+                # ordering, and material genuinely hours old decays exactly as
+                # before.
                 age_seconds = now - cocoon.get("timestamp", now)
-                recency_score = math.exp(-age_seconds / 3600.0)
+                away_seconds = max(0.0, age_seconds - _CONTINUITY_WINDOW)
+                recency_score = math.exp(-away_seconds / 3600.0)
 
                 # Success: check metadata for success marker
+                #
+                # 2026-08-13. This read `meta.get("success", True)` — absence
+                # scored the MAXIMUM — and the flag it trusted was written by
+                # `behavior_governor._did_answer_question`, a keyword-overlap
+                # check measured as inverted: it passed parroted responses at
+                # 100% and real answers at 47.5%, and `codette_server` turned any
+                # warning from it into `success: False` on the stored cocoon.
+                #
+                # So the ranking signal was backwards where it mattered most.
+                # Measured over her live store, 3,841 cocoons:
+                #
+                #     responses echoing the query   mean success_score 0.928 (n=1344)
+                #     everything else                                  0.633 (n=2497)
+                #
+                # Her echoes outranked her answers by 47% on this term, were
+                # recalled first, and were injected back into the next turn —
+                # which is a machine for making her repeat herself, and it is
+                # upstream of every echo detector built to catch the result.
+                #
+                # Two fixes, both the pattern already used throughout: absence is
+                # not a value, and a reading from an instrument known to be
+                # inverted is not evidence. Unmeasured or untrusted, the term is
+                # OMITTED and the remaining weights renormalised — the same
+                # treatment `QualitySignal.tension` gets — rather than
+                # substituted with a number nobody measured.
+                #
+                # Nothing is rewritten. The stored flags stay exactly as written;
+                # they are simply not consulted for the period in which they
+                # cannot mean what they say.
                 meta = cocoon.get("metadata", {})
-                success_score = 1.0 if meta.get("success", True) else 0.3
+                _raw_success = meta.get("success", None)
+                _trustworthy = (
+                    _raw_success is not None
+                    and cocoon.get("timestamp", 0) >= SUCCESS_FLAG_TRUSTED_FROM
+                )
+                success_score = None
+                if _trustworthy:
+                    success_score = 1.0 if _raw_success else 0.3
 
                 # Identity: boost if cocoon is linked to current user
                 identity_score = 0.5  # neutral
@@ -315,13 +409,25 @@ class UnifiedMemory:
                     elif cocoon_identity:
                         identity_score = 0.2  # different user's cocoon
 
-                # Combined score (weighted)
+                # Combined score (weighted).
+                #
+                # Omitted terms are renormalised across the ones that were
+                # actually measured, so a cocoon is never penalised or rewarded
+                # for a reading nobody took. Before this, relevance carried
+                # 1.0 - 0.3 - 0.2 - 0.2 = 0.30 — exactly the same weight as
+                # recency on its own, with 0.70 of the score going to signals
+                # that say nothing about whether the memory answers the question.
                 relevance_weight = 1.0 - recency_weight - success_weight - identity_weight
+                terms = [
+                    (relevance_weight, fts_score),
+                    (recency_weight, recency_score),
+                    (success_weight, success_score),
+                    (identity_weight, identity_score),
+                ]
+                measured = [(w, v) for w, v in terms if v is not None and w > 0]
+                total_w = sum(w for w, _ in measured)
                 combined = (
-                    relevance_weight * fts_score +
-                    recency_weight * recency_score +
-                    success_weight * success_score +
-                    identity_weight * identity_score
+                    sum(w * v for w, v in measured) / total_w if total_w > 0 else 0.0
                 )
 
                 # Authority demotion (2026-07-26): down-weight known-polluted
@@ -349,6 +455,64 @@ class UnifiedMemory:
         except Exception as e:
             logger.debug(f"FTS5 ranked search failed: {e}")
             return self.recall_recent(max_results)
+
+    def search(self, query: str, limit: int = 10) -> List[Dict]:
+        """Literal full-text search over the cocoon store.
+
+        This is the method `/api/search` (and therefore the `cocoon_search` MCP
+        tool) has always called. It did not exist, and the call site guarded it
+        with `hasattr`, so the endpoint returned an empty list unconditionally
+        from the day it was written — see the 2026-08-12 note in
+        `docs/HANDOFF_2026-08-12.md`, which recorded the symptom as "two stores,
+        the search covers one". There is one store; nothing was searching it.
+
+        Deliberately NOT `recall_relevant`:
+
+        * no recency/identity/authority re-ranking — this answers "is it in
+          there", not "what should she remember now";
+        * **no fallback to `recall_recent`**. `recall_relevant` substitutes the
+          most recent cocoons when FTS matches nothing, which is right for
+          recall and wrong for a search box: it turns "no match" into a page of
+          unrelated results. An empty list here means an empty result.
+
+        Returns dicts, not objects. Callers must use `row["field"]`.
+        """
+        if not query or not query.strip():
+            return []
+
+        # FTS5 needs its own escaping: a bare apostrophe or hyphen in user text
+        # is syntax, not literal. Quote every term and double internal quotes.
+        terms = [
+            w.strip(".,!?;:\"'()[]{}").replace('"', '""')
+            for w in query.split()
+        ]
+        terms = [t for t in terms if t]
+        if not terms:
+            return []
+        fts_query = " OR ".join(f'"{t}"' for t in terms[:16])
+
+        try:
+            cur = self._conn.cursor()
+            cur.execute("""
+                SELECT c.id, c.query, c.response, c.adapter, c.domain,
+                       c.complexity, c.emotion, c.importance, c.timestamp,
+                       c.metadata_json, rank
+                FROM cocoons_fts
+                JOIN cocoons c ON cocoons_fts.rowid = c.rowid
+                WHERE cocoons_fts MATCH ?
+                ORDER BY rank
+                LIMIT ?
+            """, (fts_query, limit))
+            results = []
+            for row in cur.fetchall():
+                cocoon = dict(row)
+                cocoon["metadata"] = json.loads(cocoon.pop("metadata_json", None) or "{}")
+                cocoon.pop("rank", None)
+                results.append(cocoon)
+            return results
+        except Exception as e:
+            logger.warning("UnifiedMemory.search failed for %r: %s", query, e)
+            raise
 
     def recall_recent(self, limit: int = 5) -> List[Dict]:
         """Get N most recent cocoons."""
@@ -731,25 +895,46 @@ class UnifiedMemory:
     # LEGACY MIGRATION
     # ─────────────────────────────────────────────────────────
     def _migrate_legacy(self):
-        """Migrate legacy JSON cocoons and .cocoon files into SQLite."""
-        migrated = 0
+        """Migrate legacy JSON cocoons and .cocoon files into SQLite.
 
-        # Migrate JSON reasoning cocoons
+        Only runs on a cold start (`_total_stored == 0`); live writes go
+        straight to SQLite via `store()`. That one-shot behaviour is deliberate
+        and is NOT changed here — re-running it against a populated database
+        would duplicate every cocoon, and `store()` does not deduplicate.
+        """
+        migrated = 0
+        skipped_types: Dict[str, int] = {}
+
+        # Migrate JSON reasoning cocoons.
+        #
+        # This matched `type == "reasoning"` exactly until 2026-08-12. The
+        # schema moved to `reasoning_v3` (cocoon_schema_v3.py) and the check was
+        # never updated, so on a cold start 1,992 of 2,452 files on disk — 81% —
+        # fell through to the `summary`/`quote` branch, failed that too, and
+        # were dropped without a log line. Match the family, not one spelling.
         for f in sorted(self.legacy_dir.glob("cocoon_*.json")):
             try:
                 with open(f, "r", encoding="utf-8") as fh:
                     data = json.load(fh)
 
-                if data.get("type") == "reasoning":
-                    wrapped = data.get("wrapped", {})
+                _type = str(data.get("type") or "")
+                if _type.startswith("reasoning"):
+                    # v3 keeps the same `wrapped` block; fall back to the `v3`
+                    # block for any record that carries only the newer shape.
+                    wrapped = data.get("wrapped") or {}
+                    _v3 = data.get("v3") or {}
+                    _meta = wrapped.get("metadata") or {}
                     self.store(
-                        query=wrapped.get("query", ""),
-                        response=wrapped.get("response", ""),
-                        adapter=wrapped.get("adapter", "unknown"),
-                        domain=wrapped.get("metadata", {}).get("domain", "general"),
-                        complexity=wrapped.get("metadata", {}).get("complexity", "MEDIUM"),
+                        query=wrapped.get("query") or _v3.get("query", ""),
+                        response=(wrapped.get("response")
+                                  or _v3.get("user_response_text")
+                                  or _v3.get("response_summary", "")),
+                        adapter=(wrapped.get("adapter")
+                                 or _v3.get("dominant_perspective") or "unknown"),
+                        domain=_meta.get("domain", "general"),
+                        complexity=_meta.get("complexity", "MEDIUM"),
                         importance=7,
-                        metadata=wrapped.get("metadata"),
+                        metadata=_meta or None,
                     )
                     migrated += 1
                 elif "summary" in data or "quote" in data:
@@ -762,8 +947,14 @@ class UnifiedMemory:
                         importance=8,
                     )
                     migrated += 1
+                else:
+                    # Count what we decline to import instead of dropping it in
+                    # silence. This is how the v3 gap stayed invisible.
+                    key = _type or "<no type>"
+                    skipped_types[key] = skipped_types.get(key, 0) + 1
             except Exception as e:
                 logger.debug(f"Migration skip {f.name}: {e}")
+                skipped_types["<error>"] = skipped_types.get("<error>", 0) + 1
 
         # Migrate .cocoon files (EMG format)
         for f in sorted(self.legacy_dir.glob("*.cocoon")):
@@ -785,6 +976,12 @@ class UnifiedMemory:
         if migrated > 0:
             logger.info(f"Migrated {migrated} legacy cocoons to SQLite")
             self._total_stored = self._count()
+        if skipped_types:
+            logger.warning(
+                "Migration left %d cocoon file(s) unimported: %s",
+                sum(skipped_types.values()),
+                ", ".join(f"{k}={v}" for k, v in sorted(skipped_types.items())),
+            )
 
     # ─────────────────────────────────────────────────────────
     # CACHE

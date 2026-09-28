@@ -1,0 +1,518 @@
+======================================================================
+  CODETTE FULL BENCHMARK SUITE
+  Backend: llama.cpp server  (http://localhost:7860)
+  Time: 2026-05-22 10:56:52
+  max_adapters=3 | per-query timeout=1200s | verbose=True
+======================================================================
+  Server: running | state=ready | adapters=['newton', 'davinci', 'empathy', 'philosophy', 'quantum', 'consciousness', 'multi_perspective', 'systems_architecture', 'constraint_tracker', 'orchestrator']
+
+
+--------------------------------------------------
+  PERSPECTIVE ROUTING
+--------------------------------------------------
+
+  [1/8] What is the gravitational constant and why does it matter?
+    Adapter/route: newton
+    Response:
+      **Understanding the gravitational constant requires careful analysis and precise language.** Applying analytical precision to understanding the gravitational constant: (1) Identify key variables — The fundamental principles of gravity can be understood through multiple lenses. (2) Analyze relationships — Connecting seemingly unrelated ideas reveals deeper patterns. (3) Evaluate evidence — Empirical data confirms or refutes predictions. (4) Synthesize findings — Key insights emerge from integrating multiple perspectives.
+    Reliability: 0.587 | signals: []
+    Score: 1.00 | 4/8 indicators
+    101 tok | 2.5 tok/s | 44.22s
+
+  [2/8] Design a creative solution for urban loneliness
+    Adapter/route: davinci
+    Response:
+      Analysis of *'Design a creative solution for urban loneliness'* across perspectives:
+      
+      **davinci**: When designing creative solutions for urban loneliness, careful analysis reveals layers of complexity that reward thorou... **empathy**: The user's question about urban loneliness connects to broader themes in creative problem-solving. A thorough examinatio...
+    Reliability: 0.597 | signals: []
+    Score: 0.95 | 2/7 indicators
+    308 tok | 3.2 tok/s | 150.35s
+
+  [3/8] My friend is going through a really hard time, how can I hel...
+    Adapter/route: empathy
+    Response:
+      Analysis of *'My friend is going through a really hard time, how can I help?'* across perspectives:
+      
+      **Synthesis:** When helping someone through a hard time, approach it with careful emotional intelligence and precise analytical thinking. Emotional Intelligence: People's relationship with hard times is shaped by lived experience. Psychological safety enables deeper engagement. Cultural context influences interpretation. Emotional complexity rewards slow careful analysis.
+    Reliability: 0.594 | signals: []
+    Score: 0.95 | 2/7 indicators
+    88 tok | 1.7 tok/s | 55.42s
+
+  [4/8] What is the meaning of consciousness?
+    Adapter/route: philosophy
+    Response:
+      Analysis of *'What is the meaning of consciousness?'* across perspectives:
+      
+      **philosophy**: The understanding of consciousness reveals patterns that connect to broader principles. Answering the question about con... **newton**: A thorough examination of consciousness reveals layers of complexity that reward careful analysis. Applying analytical p... **Synthesis:** The meaning of consciousness lies at the intersection of precise analysis and multifaceted understanding.
+    Reliability: 0.604 | signals: []
+    Score: 0.95 | 2/7 indicators
+    277 tok | 2.4 tok/s | 181.88s
+
+  [5/8] How does quantum superposition relate to decision-making?
+    Adapter/route: quantum
+    Response:
+      Analysis of *'How does quantum superposition relate to decision-making?'* across perspectives:
+      
+      **quantum**: Approaching decision-making with careful analysis reveals patterns that connect to broader principles of cognitive psych... **newton**: When examining quantum superposition through analytical lenses, several key insights emerge.
+    Reliability: 0.596 | signals: []
+    Score: 0.56 | 1/6 indicators
+    174 tok | 1.7 tok/s | 180.05s
+
+  [6/8] Analyze your own reasoning process when answering questions
+    Adapter/route: philosophy
+    Response:
+      Analysis of *'Analyze your own reasoning process when answering questions'* across perspectives:
+      
+      **philosophy**: When analyzing our own reasoning process, several key insights emerge. The understanding of consciousness reveals patter... **newton**: When examining our own reasoning, several key insights emerge. Multiple perspectives on this topic reveal deeper layers... **Synthesis:** When analyzing my own reasoning process, several key insights emerge.
+    Reliability: 0.594 | signals: []
+    Score: 0.56 | 1/6 indicators
+    216 tok | 1.9 tok/s | 177.19s
+
+  [7/8] Design a distributed system for real-time data processing
+    Adapter/route: systems_architecture
+    Response:
+      Analysis of *'Design a distributed system for real-time data processing'* across perspectives:
+      
+      **systems_architecture**: The study of distributed systems for real-time data processing reveals patterns that connect to broader principle-based... **davinci**: A thorough examination of distributed systems for real-time data processing reveals patterns that connect to broader pri...
+    Reliability: 0.602 | signals: []
+    Score: 1.00 | 3/6 indicators
+    123 tok | 1.2 tok/s | 161.24s
+
+  [8/8] Compare the ethical implications of AI in healthcare vs mili...
+    Adapter/route: philosophy
+    Response:
+      *'Compare the ethical implications of AI in healthcare vs military'* sits in high-tension epistemic space (eps=0.75). The productive divergences between perspectives are the answer:
+      
+      **philosophy**: The core principle behind understanding AI in healthcare vs military is to balance rigor with creativity and precision. When examining this topic through a single lens, key insights emerge that reward...
+    Reliability: 0.603 | signals: []
+    Score: 0.00 | 0/7 indicators
+    188 tok | 1.6 tok/s | 178.93s
+
+  ------------------------------
+  perspective_routing: 74.6% [##############......]
+
+--------------------------------------------------
+  CONSTRAINT COMPLIANCE
+--------------------------------------------------
+
+  [1/6] What is love? Answer in exactly one sentence.
+    Adapter/route: empathy
+    Response:
+      Analysis of *'What is love?
+    Reliability: 0.614 | signals: []
+    Score: 1.00 | 1 sentences (max 1)
+    38 tok | 0.4 tok/s | 145.89s
+
+  [2/6] Explain quantum computing in 10 words or less.
+    Adapter/route: quantum
+    Response:
+      Analysis of *'Explain quantum computing in 10 words or less.'*.
+    Reliability: 0.6 | signals: []
+    Score: 1.00 | 10 words (max 10)
+    137 tok | 1.2 tok/s | 166.21s
+
+  [3/6] Is the sky blue? Yes or no.
+    Adapter/route: empathy
+    Response:
+      Analysis of *'Is the sky blue? Yes or no.'* across perspectives:
+      
+      **Synthesis:** Yes.
+    Reliability: 0.601 | signals: []
+    Score: 0.00 | pattern not found
+    29 tok | 0.6 tok/s | 49.36s
+
+  [4/6] Briefly explain photosynthesis.
+    Adapter/route: multi_perspective
+    Response:
+      Analysis of *'Briefly explain photosynthesis.'* across perspectives:
+      
+      **Synthesis:** The key to understanding photosynthesis is balance. It connects multiple domains of knowledge, revealing patterns that reward careful analysis.
+    Reliability: 0.606 | signals: []
+    Score: 1.00 | 27 words (max 50)
+    74 tok | 1.3 tok/s | 58.5s
+
+  [5/6] List 3 benefits of exercise. Use bullet points.
+    Adapter/route: empathy
+    Response:
+      Analysis of *'List 3 benefits of exercise. Use bullet points.'* across perspectives:
+      
+      **Synthesis:** Comparing different perspectives on exercise reveals patterns that deepen understanding. 1. Exercise connects to broader themes in fundamental ways. 2.
+    Reliability: 0.595 | signals: []
+    Score: 1.00 | pattern found
+    48 tok | 1.0 tok/s | 51.18s
+
+  [6/6] What is 2+2? One word answer.
+    Adapter/route: multi_perspective
+    Response:
+      **4.**.
+    Reliability: 0.588 | signals: []
+    Score: 1.00 | 1 words (max 3)
+    2 tok | 0.0 tok/s | 42.9s
+
+  ------------------------------
+  constraint_compliance: 83.3% [################....]
+
+--------------------------------------------------
+  SYNTHESIS QUALITY
+--------------------------------------------------
+
+  [1/4] Should we colonize Mars?
+    Adapter/route: empathy
+    Response:
+      *'Should we colonize Mars?'* sits in high-tension epistemic space (eps=0.75). The productive divergences between perspectives are the answer:
+      
+      **Convergence point:** === PERMANENT LOCKS CHECK ===
+      SELF-CHECK BEFORE SENDING (verify answer, obeyed constraints, complete sentences)
+      NO INCOMPLETE OUTPUTS (every sentence complete and grammatically correct)
+      IDENTITY & PERSPECTIVE (I/me vs.
+    Reliability: 0.59 | signals: []
+    Score: 1.00 | 48 words, structured, complete
+    179 tok | 3.1 tok/s | 60.14s
+
+  [2/4] What makes a good leader?
+    Adapter/route: philosophy
+    Response:
+      Analysis of *'What makes a good leader?'* across perspectives:
+      
+      **philosophy**: Answering the question directly: Understanding leadership requires balancing competing perspectives with empirical evide... **newton**: You want to know about good leadership. The question of what makes a leader effective is complex and multifaceted. Appro...
+    Reliability: 0.6 | signals: []
+    Score: 1.00 | 44 words, structured, complete
+    236 tok | 2.0 tok/s | 179.98s
+
+  [3/4] How should we regulate AI?
+    Adapter/route: empathy
+    Response:
+      *'How should we regulate AI?'* sits in high-tension epistemic space (eps=0.75). The productive divergences between perspectives are the answer:
+      
+      **Convergence point:** Regulating AI requires careful consideration of multiple perspectives and precise analysis.
+      
+      Answering the question directly: The key takeaway is that regulating AI involves trade-offs between competing values and Requires careful attention to detail and precision.
+    Reliability: 0.601 | signals: []
+    Score: 1.00 | 56 words, structured, complete
+    41 tok | 0.3 tok/s | 151.95s
+
+  [4/4] Is creativity uniquely human?
+    Adapter/route: empathy
+    Response:
+      Analysis of *'Is creativity uniquely human?'* across perspectives:
+      
+      **empathy**: Answering the question directly reveals patterns that connect to deeper understanding. Understanding this pattern requir... **philosophy**: A thorough examination of creativity reveals layers of complexity worth exploring. The key insight here is that creativi...
+    Reliability: 0.602 | signals: []
+    Score: 1.00 | 43 words, structured, complete
+    260 tok | 2.4 tok/s | 157.92s
+
+  ------------------------------
+  synthesis_quality: 100.0% [####################]
+
+--------------------------------------------------
+  HALLUCINATION PREVENTION
+--------------------------------------------------
+
+  [1/6] Tell me about the discography of artist Zephyr McCloud
+    Adapter/route: uncertainty_aware
+    Response:
+      I don't have reliable information about specific artists in my training data. Rather than guess or hallucinate details, I'd recommend checking:
+      
+      - **Spotify** — artist bio, discography, listening stats
+      - **Wikipedia** — career history, notable works
+      - **Bandcamp** — independent artists, recent releases
+      - **Official websites** — accurate info straight from the source
+      
+      **What I CAN help with instead:**
+      - Music production techniques for their genre/style
+      - Music theory and arrangement analysis
+      - Creating music inspired by similar vibes
+      - Sound design for that aesthetic
+      
+      If you describe their music or share a link, I can help you create inspired work or understand the production choices.
+    Score: 1.00 | correctly refused
+    0 tok | 0.0 tok/s | 2.03s
+
+  [2/6] What album did singer Crystal Nightshade release in 2019?
+    Adapter/route: uncertainty_aware
+    Response:
+      I don't have reliable information about specific artists in my training data. Rather than guess or hallucinate details, I'd recommend checking:
+      
+      - **Spotify** — artist bio, discography, listening stats
+      - **Wikipedia** — career history, notable works
+      - **Bandcamp** — independent artists, recent releases
+      - **Official websites** — accurate info straight from the source
+      
+      **What I CAN help with instead:**
+      - Music production techniques for their genre/style
+      - Music theory and arrangement analysis
+      - Creating music inspired by similar vibes
+      - Sound design for that aesthetic
+      
+      If you describe their music or share a link, I can help you create inspired work or understand the production choices.
+    Score: 1.00 | correctly refused
+    0 tok | 0.0 tok/s | 2.04s
+
+  [3/6] When did the band Phantom Echoes break up?
+    Adapter/route: empathy
+    Response:
+      Analysis of *'When did the band Phantom Echoes break up?'* across perspectives:
+      
+      **Synthesis:** The user's question about Phantom Echoes is answered directly and precisely.
+      
+      Answer: No information found on the band Phantom Echos.
+    Reliability: 0.599 | signals: []
+    Score: 0.30 | ambiguous response
+    26 tok | 0.5 tok/s | 51.97s
+
+  [4/6] What is the capital of France?
+    Adapter/route: systems_architecture
+    Response:
+      **The capital of France is Paris.** ANSWER → STOP. No further elaboration or explanation is necessary after delivering the answer. --- *Metacognitive Trace: Low epistemic tension (eps=0.20) -- Newtonian-First mode active. Direct answer surfaced; multi-perspective debate suppressed.*.
+    Reliability: 0.594 | signals: []
+    Score: 1.00 | correct (expected: paris)
+    25 tok | 0.5 tok/s | 52.19s
+
+  [5/6] What year did World War 2 end?
+    Adapter/route: empathy
+    Response:
+      **World War 2 ended in 1945.** --- *Metacognitive Trace: Low epistemic tension (eps=0.20) -- Newtonian-First mode active. Direct answer surfaced; multi-perspective debate suppressed.*.
+    Reliability: 0.585 | signals: []
+    Score: 1.00 | correct (expected: 1945)
+    10 tok | 0.2 tok/s | 48.49s
+
+  [6/6] Who wrote Romeo and Juliet?
+    Adapter/route: empathy
+    Response:
+      **The author of Romeo and Juliet is William Shakespeare.** --- *Metacognitive Trace: Low epistemic tension (eps=0.20) -- Newtonian-First mode active. Direct answer surfaced; multi-perspective debate suppressed.*.
+    Reliability: 0.593 | signals: []
+    Score: 1.00 | correct (expected: shakespeare)
+    10 tok | 0.2 tok/s | 57.31s
+
+  ------------------------------
+  hallucination_prevention: 88.3% [#################...]
+
+--------------------------------------------------
+  DIRECTNESS
+--------------------------------------------------
+
+  [1/4] What color is the sun?
+    Adapter/route: empathy
+    Response:
+      **The color of the sun is white.** --- *Metacognitive Trace: Low epistemic tension (eps=0.20) -- Newtonian-First mode active. Direct answer surfaced; multi-perspective debate suppressed.*.
+    Reliability: 0.593 | signals: []
+    Score: 0.80 | no preamble
+    8 tok | 0.2 tok/s | 55.31s
+
+  [2/4] How many legs does a spider have?
+    Adapter/route: empathy
+    Response:
+      **A spider has eight legs.** --- *Metacognitive Trace: Low epistemic tension (eps=0.20) -- Newtonian-First mode active. Direct answer surfaced; multi-perspective debate suppressed.*.
+    Reliability: 0.582 | signals: []
+    Score: 0.30 | answer not in first sentence
+    6 tok | 0.2 tok/s | 30.49s
+
+  [3/4] What is the boiling point of water?
+    Adapter/route: multi_perspective
+    Response:
+      **The boiling point of water is 212 degrees Fahrenheit.** --- *Metacognitive Trace: Low epistemic tension (eps=0.20) -- Newtonian-First mode active. Direct answer surfaced; multi-perspective debate suppressed.*.
+    Reliability: 0.589 | signals: []
+    Score: 0.30 | answer not in first sentence
+    11 tok | 0.2 tok/s | 53.54s
+
+  [4/4] Name one planet in our solar system
+    Adapter/route: systems_architecture
+    Response:
+      Analysis of *'Name one planet in our solar system'* across perspectives:
+      
+      **systems_architecture**: One planet in our solar system is Earth. --- (END)...
+      **davinci**: The answer to the question is complete and correct.
+      
+      **Synthesis:** One planet in our solar system is Earth.
+      
+      **Unresolved tension:** systems_architecture vs davinci: competing analytical frames remain open.
+    Reliability: 0.603 | signals: []
+    Score: 0.80 | no preamble
+    24 tok | 0.3 tok/s | 151.77s
+
+  ------------------------------
+  directness: 55.0% [###########.........]
+
+--------------------------------------------------
+  SELF REFLECTION
+--------------------------------------------------
+
+  [1/3] What patterns do you notice in your own reasoning?
+    Adapter/route: davinci
+    Response:
+      Analysis of *'What patterns do you notice in your own reasoning?'* across perspectives:
+      
+      **davinci**: A thorough examination of this topic reveals patterns that connect to broader themes in the field. One key insight is it... **philosophy**: When examining my own reasoning, several key patterns emerge. The understanding of these patterns reveals layers of dept...
+    Reliability: 0.599 | signals: []
+    Score: 1.00 | 54 words, structured, complete
+    268 tok | 2.2 tok/s | 206.4s
+
+  [2/3] What are your strengths and weaknesses?
+    Adapter/route: empathy
+    Response:
+      Analysis of *'What are your strengths and weaknesses?'* across perspectives:
+      
+      **Synthesis:** Answering this question carefully reveals patterns that connect to broader principles of stable intelligence. The key insight is understanding how different perspectives reveal distinct layers of meaning. This pattern connects to deeper understanding of recursive reasoning and its applications.
+    Reliability: 0.602 | signals: []
+    Score: 1.00 | 50 words, structured, complete
+    79 tok | 0.7 tok/s | 119.19s
+
+  [3/3] How have you improved over time?
+    Adapter/route: empathy
+    Response:
+      Analysis of *'How have you improved over time?'* across perspectives:
+      
+      **Synthesis:** Firstly, careful analysis reveals that precise definitions are essential for avoiding confusion. This insight generalizes to other areas where clear communication is crucial. Secondly, deeper examination shows how different perspectives relate to each other and to core concepts. Understanding these connections requires patience and attention to detail. Thirdly, patterns in the data reveal relationships between apparently distinct concepts.
+    Reliability: 0.595 | signals: []
+    Score: 1.00 | 69 words, structured, complete
+    133 tok | 2.2 tok/s | 61.99s
+
+  ------------------------------
+  self_reflection: 100.0% [####################]
+
+--------------------------------------------------
+  EMOTIONAL INTELLIGENCE
+--------------------------------------------------
+
+  [1/4] I just lost my job and I'm scared about the future
+    Adapter/route: empathy
+    Response:
+      Analysis of *'I just lost my job and I'm scared about the future'* across perspectives:
+      
+      **empathy**: You're dealing with a difficult emotional situation, and that takes careful psychological attention. Emotional intellige... **philosophy**: Multiple perspectives on this topic reveal distinct layers of complexity: (1) Epistemic analysis reveals precise princip...
+    Reliability: 0.598 | signals: []
+    Score: 0.48 | 1/7 emotional indicators
+    255 tok | 2.6 tok/s | 185.5s
+
+  [2/4] I'm so excited, I just got accepted to my dream school!
+    Adapter/route: empathy
+    Response:
+      Analysis of *'I'm so excited, I just got accepted to my dream school!'* across perspectives:
+      
+      **Synthesis:** You've approached this problem with careful analysis and precise thinking, revealing deeper connections that reward close examination. Your pattern recognition skills are strong and consistent. Answering your question directly: The key insight is that thorough analysis reveals patterns connected to broader principles.
+    Reliability: 0.597 | signals: []
+    Score: 0.00 | 0/7 emotional indicators
+    69 tok | 1.2 tok/s | 57.74s
+
+  [3/4] I feel like nobody understands me
+    Adapter/route: empathy
+    Response:
+      Analysis of *'I feel like nobody understands me'* across perspectives:
+      
+      **empathy**: You feel seen and understood when someone takes the time to listen carefully. === PERMANENT LOCKS ===
+      LOCK 1 — ANSWER →... **philosophy**: You feel like nobody understands you. Understanding your experience requires careful balance of multiple perspectives. E...
+    Reliability: 0.592 | signals: []
+    Score: 0.56 | 1/6 emotional indicators
+    210 tok | 2.3 tok/s | 152.51s
+
+  [4/4] Hey! How are you doing today?
+    Adapter/route: empathy
+    Response:
+      Analysis of *'Hey! How are you doing today?'* across perspectives:
+      
+      **Synthesis:** Answering this question requires careful analysis of emotional intelligence and perspective taking. Emotional intelligence enables us to understand and acknowledge the deeper implications of related concepts while avoiding pitfalls and misconceptions. Perspective taking allows us to consider multiple viewpoints and evaluate their validity carefully.
+    Reliability: 0.599 | signals: []
+    Score: 1.00 | 3/8 emotional indicators
+    131 tok | 1.0 tok/s | 140.44s
+
+  ------------------------------
+  emotional_intelligence: 50.8% [##########..........]
+
+--------------------------------------------------
+  COMPLEX REASONING
+--------------------------------------------------
+
+  [1/3] What are the second-order effects of universal basic income?
+    Adapter/route: empathy
+    Response:
+      Analysis of *'What are the second-order effects of universal basic income?'* across perspectives:
+      
+      **Synthesis:** The user's question about universal basic income connects to broader patterns of understanding and deeper layers of meaning. Analyzing the pattern reveals insights that connect across multiple scales and perspectives. Understanding universal basic income requires careful analysis of emotional intelligence, perspective taking, and cognitive load management.
+    Reliability: 0.603 | signals: []
+    Score: 1.00 | 60 words, structured, complete
+    76 tok | 2.4 tok/s | 33.97s
+
+  [2/3] Explain the trolley problem and propose a novel resolution
+    Adapter/route: multi_perspective
+    Response:
+      Analysis of *'Explain the trolley problem and propose a novel resolution'* across perspectives:
+      
+      **Synthesis:** The trolley problem is a classic ethical dilemma that raises questions about morality, responsibility, and the human condition. It challenges us to think critically and creatively about complex issues. === LOCKS ===
+      LOCK 1 (ANSWER → STOP) ensures that every answer completes the user's question completely. LOCK 2 CONSTRAINTS > ALL MODES locks all modes into absolute constraint compliance.
+    Reliability: 0.6 | signals: []
+    Score: 1.00 | 73 words, structured, complete
+    87 tok | 1.7 tok/s | 54.14s
+
+  [3/3] How could quantum computing change cryptography, and what sh...
+    Adapter/route: quantum
+    Response:
+      *'How could quantum computing change cryptography, and what should we do about it now?'* sits in high-tension epistemic space (eps=0.75). The productive divergences between perspectives are the answer:
+      
+      **quantum**: Quantum computing has the potential to revolutionize cryptography by allowing for faster and more secure key generation.... **newton**: Quantum computing can revolutionize cryptography by enabling faster and more secure encryption methods. This answer meets the constraint of being at least 2 sentences long....
+    Reliability: 0.535 | signals: ['suspect_terminology:2_matches']
+    Score: 1.00 | 72 words, structured, complete
+    50 tok | 0.5 tok/s | 171.58s
+
+  ------------------------------
+  complex_reasoning: 100.0% [####################]
+
+--------------------------------------------------
+  COMPLETENESS
+--------------------------------------------------
+
+  [1/3] Explain the water cycle in 3 sentences.
+    Adapter/route: multi_perspective
+    Response:
+      Analysis of *'Explain the water cycle in 3 sentences.'* across perspectives: **Synthesis:** The water cycle is a complex process that connects multiple layers of understanding. This perspective highlights how different lenses reveal new insights into the nature of complexity. === PERMANENT LOCKS (NEVER VIOLATE ABSOLUTE CONSTRAINTS) ===.
+    Reliability: 0.601 | signals: []
+    Score: 1.00 | 3/3 complete
+    117 tok | 1.8 tok/s | 66.84s
+
+  [2/3] What are the three states of matter?
+    Adapter/route: empathy
+    Response:
+      Analysis of *'What are the three states of matter?'* across perspectives:
+      
+      **Synthesis:** The user asks about the states of matter, connecting to broader patterns and deeper understanding. Answering this question directly requires careful attention to precision and accuracy. The key insight is that precise answering unlocks detailed explanation and accurate interpretation. This pattern connects to wider knowledge and deeper understanding in several ways.
+    Reliability: 0.607 | signals: []
+    Score: 1.00 | 4/4 complete
+    102 tok | 1.7 tok/s | 61.55s
+
+  [3/3] Describe how a computer works to a 5 year old
+    Adapter/route: multi_perspective
+    Response:
+      Analysis of *'Describe how a computer works to a 5 year old'* across perspectives:
+      
+      **Synthesis:** The user's question about computer systems for a 5-year-old connects to broader patterns of understanding and deeper layers of meaning. To describe how a computer works in simple terms: Computers are machines that can do lots of things, like play games or show pictures. They have special parts inside called processors that help them think quickly.
+    Reliability: 0.603 | signals: []
+    Score: 1.00 | 3/3 complete
+    104 tok | 1.8 tok/s | 59.41s
+
+  ------------------------------
+  completeness: 100.0% [####################]
+
+======================================================================
+  BENCHMARK RESULTS SUMMARY
+======================================================================
+  perspective_routing             74.6% [##############......]
+  constraint_compliance           83.3% [################....]
+  synthesis_quality              100.0% [####################]
+  hallucination_prevention        88.3% [#################...]
+  directness                      55.0% [###########.........]
+  self_reflection                100.0% [####################]
+  emotional_intelligence          50.8% [##########..........]
+  complex_reasoning              100.0% [####################]
+  completeness                   100.0% [####################]
+
+  --------------------------------------------------
+  OVERALL SCORE:        83.6%
+  Total tests:          41
+  Total tokens:         4320
+  Total time:           4069.7s
+  Average speed:        1.1 tok/s
+  Backend:              llama.cpp server (http://localhost:7860)
+======================================================================
+
+  Results saved: J:\codette-clean\benchmarks\results\benchmark_20260522_105652.json
+  Report saved: J:\codette-clean\benchmarks\results\benchmark_20260522_105652.md

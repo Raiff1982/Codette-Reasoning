@@ -28,12 +28,18 @@ Write-Host ""
 
 # Check server is up
 Write-Host "Checking server..." -NoNewline
+# 2026-08-10: this probed $Url/health, which 404s — the route is /api/health.
+# Worse, -ErrorAction SilentlyContinue suppressed the error INSIDE the try, so
+# the catch never ran: the check printed nothing, the /api/status fallback was
+# dead code, and the script charged on even with the server down. Probe the real
+# route and let the error reach the catch.
 try {
-    $resp = Invoke-WebRequest -Uri "$Url/health" -TimeoutSec 3 -UseBasicParsing -ErrorAction SilentlyContinue
+    $resp = Invoke-WebRequest -Uri "$Url/api/health" -TimeoutSec 5 -UseBasicParsing
     if ($resp.StatusCode -eq 200) { Write-Host " OK" -ForegroundColor Green }
+    else { throw "unexpected status $($resp.StatusCode)" }
 } catch {
     try {
-        $resp = Invoke-WebRequest -Uri "$Url/api/status" -TimeoutSec 3 -UseBasicParsing -ErrorAction SilentlyContinue
+        $resp = Invoke-WebRequest -Uri "$Url/api/status" -TimeoutSec 5 -UseBasicParsing
         Write-Host " OK (via /api/status)" -ForegroundColor Green
     } catch {
         Write-Host " UNREACHABLE" -ForegroundColor Red

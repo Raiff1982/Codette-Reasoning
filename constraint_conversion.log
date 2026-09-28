@@ -1,0 +1,12 @@
+======================================================================
+Traceback (most recent call last):
+  File "J:\codette-clean\convert_constraint_safetensors_to_gguf.py", line 119, in <module>
+    main()
+    ~~~~^^
+  File "J:\codette-clean\convert_constraint_safetensors_to_gguf.py", line 18, in main
+    print("CONSTRAINT_TRACKER: SAFETENSORS \u2192 GGUF CONVERSION")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Jonathan\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2192' in position 32: character maps to <undefined>

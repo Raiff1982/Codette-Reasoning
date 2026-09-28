@@ -1,0 +1,355 @@
+Full-framework GPQA  [0shot]  198q  in 5 batches of 40
+
+==================================================
+[1/5] offset=0  limit=40  (batch1of5_q0-39)
+==================================================
+  Restarting server to clear RAM...
+  Server starting...Checking Codette server at http://localhost:7860/api/chat ... reachable.
+Downloading GPQA dataset (gpqa_diamond.csv) from Kaggle Hub...
+Loaded 198 questions from gpqa_diamond.csv
+Limited to 40 questions.
+
+Running GPQA [0shot] on 40 questions...
+
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row   0  correct=False  predicted=D  running=0/1 (0%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row   1  correct=False  predicted=B  running=0/2 (0%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row   2  correct=False  predicted=A  running=0/3 (0%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row   3  correct=False  predicted=C  running=0/4 (0%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row   4  correct=False  predicted=A  running=0/5 (0%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row   5  correct=True  predicted=B  running=1/6 (17%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row   6  correct=False  predicted=A  running=1/7 (14%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row   7  correct=False  predicted=C  running=1/8 (12%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row   8  correct=True  predicted=D  running=2/9 (22%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row   9  correct=True  predicted=B  running=3/10 (30%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  10  correct=False  predicted=A  running=3/11 (27%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  11  correct=True  predicted=A  running=4/12 (33%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  12  correct=True  predicted=A  running=5/13 (38%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  13  correct=False  predicted=C  running=5/14 (36%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  14  correct=True  predicted=C  running=6/15 (40%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  15  correct=False  predicted=B  running=6/16 (38%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  16  correct=True  predicted=B  running=7/17 (41%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  17  correct=False  predicted=C  running=7/18 (39%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  18  correct=True  predicted=A  running=8/19 (42%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  19  correct=True  predicted=D  running=9/20 (45%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  20  correct=False  predicted=D  running=9/21 (43%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  21  correct=False  predicted=C  running=9/22 (41%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  22  correct=False  predicted=D  running=9/23 (39%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  23  correct=False  predicted=A  running=9/24 (38%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  24  correct=True  predicted=D  running=10/25 (40%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  25  correct=False  predicted=D  running=10/26 (38%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  26  correct=False  predicted=B  running=10/27 (37%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  27  correct=False  predicted=A  running=10/28 (36%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  28  correct=False  predicted=B  running=10/29 (34%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  29  correct=False  predicted=C  running=10/30 (33%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  30  correct=True  predicted=C  running=11/31 (35%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  31  correct=True  predicted=B  running=12/32 (38%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  32  correct=False  predicted=A  running=12/33 (36%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  33  correct=False  predicted=A  running=12/34 (35%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  34  correct=True  predicted=D  running=13/35 (37%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  35  correct=True  predicted=C  running=14/36 (39%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  36  correct=True  predicted=D  running=15/37 (41%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  37  correct=False  predicted=C  running=15/38 (39%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  38  correct=True  predicted=C  running=16/39 (41%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  39  correct=False  predicted=B  running=16/40 (40%)
+
+============================================================
+  Codette GPQA Results  (0SHOT mode)
+============================================================
+  Questions:      40
+  Correct:        16
+  Parse failures: 0
+  Accuracy:       40.0%
+
+  Baselines:
+    Random         25.0%
+    GPT-4 0-shot   39.0%
+    Claude Opus 3  50.0%
+    Human expert   65.0%
+
+  vs GPT-4:  +1.0%
+============================================================
+
+Full results saved to: J:\codette-clean\data\results\gpqa_codette_0shot_20260624_044151.json
+ ready (9/9)
+
+  Running: C:\Users\Jonathan\AppData\Local\Programs\Python\Python314\python.exe benchmarks/gpqa_codette.py --dataset gpqa_diamond.csv --mode 0shot --offset 0 --limit 40 --max-adapters 2
+  Batch saved: gpqa_codette_0shot_20260624_044151.json
+
+==================================================
+[2/5] offset=40  limit=40  (batch2of5_q40-79)
+==================================================
+  Restarting server to clear RAM...
+  Server starting.......Checking Codette server at http://localhost:7860/api/chat ... reachable.
+Downloading GPQA dataset (gpqa_diamond.csv) from Kaggle Hub...
+Loaded 198 questions from gpqa_diamond.csv
+Skipped first 40 questions (offset mode).
+Limited to 40 questions.
+
+Running GPQA [0shot] on 40 questions...
+
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row   0  correct=False  predicted=A  running=0/1 (0%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row   1  correct=True  predicted=A  running=1/2 (50%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row   2  correct=False  predicted=A  running=1/3 (33%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row   3  correct=False  predicted=C  running=1/4 (25%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row   4  correct=False  predicted=A  running=1/5 (20%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row   5  correct=True  predicted=B  running=2/6 (33%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row   6  correct=False  predicted=A  running=2/7 (29%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row   7  correct=False  predicted=A  running=2/8 (25%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row   8  correct=True  predicted=D  running=3/9 (33%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row   9  correct=False  predicted=A  running=3/10 (30%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  10  correct=False  predicted=A  running=3/11 (27%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  11  correct=False  predicted=C  running=3/12 (25%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  12  correct=True  predicted=A  running=4/13 (31%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  13  correct=True  predicted=B  running=5/14 (36%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  14  correct=False  predicted=A  running=5/15 (33%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  15  correct=False  predicted=B  running=5/16 (31%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  16  correct=False  predicted=A  running=5/17 (29%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  17  correct=False  predicted=C  running=5/18 (28%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  18  correct=False  predicted=D  running=5/19 (26%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  19  correct=False  predicted=A  running=5/20 (25%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  20  correct=True  predicted=C  running=6/21 (29%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  21  correct=True  predicted=B  running=7/22 (32%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  22  correct=False  predicted=C  running=7/23 (30%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  23  correct=False  predicted=C  running=7/24 (29%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  24  correct=True  predicted=D  running=8/25 (32%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  25  correct=True  predicted=B  running=9/26 (35%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  26  correct=True  predicted=A  running=10/27 (37%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  27  correct=True  predicted=B  running=11/28 (39%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  28  correct=False  predicted=D  running=11/29 (38%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  29  correct=True  predicted=D  running=12/30 (40%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  30  correct=False  predicted=A  running=12/31 (39%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  31  correct=True  predicted=B  running=13/32 (41%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  32  correct=True  predicted=D  running=14/33 (42%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  33  correct=True  predicted=B  running=15/34 (44%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  34  correct=True  predicted=D  running=16/35 (46%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  35  correct=False  predicted=A  running=16/36 (44%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  36  correct=True  predicted=D  running=17/37 (46%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  37  correct=False  predicted=B  running=17/38 (45%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  38  correct=False  predicted=B  running=17/39 (44%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  39  correct=False  predicted=C  running=17/40 (42%)
+
+============================================================
+  Codette GPQA Results  (0SHOT mode)
+============================================================
+  Questions:      40
+  Correct:        17
+  Parse failures: 0
+  Accuracy:       42.5%
+
+  Baselines:
+    Random         25.0%
+    GPT-4 0-shot   39.0%
+    Claude Opus 3  50.0%
+    Human expert   65.0%
+
+  vs GPT-4:  +3.5%
+============================================================
+
+Full results saved to: J:\codette-clean\data\results\gpqa_codette_0shot_20260624_045735.json
+ ready (9/9)
+
+  Running: C:\Users\Jonathan\AppData\Local\Programs\Python\Python314\python.exe benchmarks/gpqa_codette.py --dataset gpqa_diamond.csv --mode 0shot --offset 40 --limit 40 --max-adapters 2
+  Batch saved: gpqa_codette_0shot_20260624_045735.json
+
+==================================================
+[3/5] offset=80  limit=40  (batch3of5_q80-119)
+==================================================
+  Restarting server to clear RAM...
+  Server starting.........Checking Codette server at http://localhost:7860/api/chat ... reachable.
+Downloading GPQA dataset (gpqa_diamond.csv) from Kaggle Hub...
+Loaded 198 questions from gpqa_diamond.csv
+Skipped first 80 questions (offset mode).
+Limited to 40 questions.
+
+Running GPQA [0shot] on 40 questions...
+
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row   0  correct=False  predicted=B  running=0/1 (0%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row   1  correct=True  predicted=A  running=1/2 (50%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row   2  correct=False  predicted=C  running=1/3 (33%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row   3  correct=True  predicted=D  running=2/4 (50%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row   4  correct=False  predicted=D  running=2/5 (40%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row   5  correct=False  predicted=D  running=2/6 (33%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row   6  correct=False  predicted=A  running=2/7 (29%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row   7  correct=True  predicted=B  running=3/8 (38%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row   8  correct=True  predicted=D  running=4/9 (44%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row   9  correct=False  predicted=A  running=4/10 (40%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  10  correct=False  predicted=A  running=4/11 (36%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  11  correct=False  predicted=D  running=4/12 (33%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  12  correct=False  predicted=C  running=4/13 (31%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  13  correct=False  predicted=A  running=4/14 (29%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  14  correct=False  predicted=B  running=4/15 (27%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  15  correct=True  predicted=A  running=5/16 (31%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  16  correct=True  predicted=B  running=6/17 (35%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  17  correct=False  predicted=C  running=6/18 (33%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  18  correct=False  predicted=D  running=6/19 (32%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  19  correct=True  predicted=D  running=7/20 (35%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  20  correct=False  predicted=D  running=7/21 (33%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  21  correct=True  predicted=B  running=8/22 (36%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  22  correct=False  predicted=D  running=8/23 (35%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  23  correct=False  predicted=D  running=8/24 (33%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  24  correct=False  predicted=C  running=8/25 (32%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  25  correct=False  predicted=D  running=8/26 (31%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  26  correct=True  predicted=A  running=9/27 (33%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  27  correct=True  predicted=B  running=10/28 (36%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  28  correct=False  predicted=B  running=10/29 (34%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  29  correct=False  predicted=A  running=10/30 (33%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  30  correct=False  predicted=A  running=10/31 (32%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  31  correct=False  predicted=A  running=10/32 (31%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  32  correct=False  predicted=B  running=10/33 (30%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  33  correct=False  predicted=D  running=10/34 (29%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  34  correct=True  predicted=D  running=11/35 (31%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  35  correct=False  predicted=A  running=11/36 (31%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  36  correct=False  predicted=B  running=11/37 (30%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  37  correct=False  predicted=A  running=11/38 (29%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  38  correct=False  predicted=B  running=11/39 (28%)
+Prompting Codette (codette/multi-2adapt)... Success!
+  Row  39  correct=False  predicted=C  running=11/40 (28%)
+
+============================================================
+  Codette GPQA Results  (0SHOT mode)
+============================================================
+  Questions:      40
+  Correct:        11
+  Parse failures: 0
+  Accuracy:       27.5%
+
+  Baselines:
+    Random         25.0%
+    GPT-4 0-shot   39.0%
+    Claude Opus 3  50.0%
+    Human expert   65.0%
+
+  vs GPT-4:  -11.5%
+============================================================
+
+Full results saved to: J:\codette-clean\data\results\gpqa_codette_0shot_20260624_051548.json
+ ready (6/9)
+
+  Running: C:\Users\Jonathan\AppData\Local\Programs\Python\Python314\python.exe benchmarks/gpqa_codette.py --dataset gpqa_diamond.csv --mode 0shot --offset 80 --limit 40 --max-adapters 2
+  Batch saved: gpqa_codette_0shot_20260624_051548.json
+
+==================================================
+[4/5] offset=120  limit=40  (batch4of5_q120-159)
+==================================================
+  Restarting server to clear RAM...
+  Server starting........................................... TIMEOUT — giving up
+  Server failed to start — aborting

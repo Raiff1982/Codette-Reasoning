@@ -374,9 +374,16 @@ class ForgeEngine:
 
         # Initialize NexisSignalEngine intent prediction (must be before Tier2Bridge)
         try:
-            self.nexis_signal_engine = NexisSignalEngine(
-                memory_path="reasoning_forge/.logs/nexis_signal_memory.db"
-            )
+            # 2026-08-10: this passed the RELATIVE path
+            # "reasoning_forge/.logs/nexis_signal_memory.db", so it resolved
+            # against the process CWD rather than the repository. Launched from
+            # anywhere but the repo root, sqlite raises "unable to open database
+            # file" and the whole engine is dropped — seen live in the 22:45
+            # restart log. Anchor to this file, and make sure the directory
+            # exists before sqlite is asked to open anything inside it.
+            _nexis_db = Path(__file__).resolve().parent / ".logs" / "nexis_signal_memory.db"
+            _nexis_db.parent.mkdir(parents=True, exist_ok=True)
+            self.nexis_signal_engine = NexisSignalEngine(memory_path=str(_nexis_db))
             logger.info("  ✓ NexisSignalEngine signal analysis initialized")
         except Exception as e:
             logger.warning(f"Could not initialize NexisSignalEngine: {e}")
@@ -513,12 +520,51 @@ class ForgeEngine:
             return SYSTEM_PROMPT
 
         sk = self.awareness.get("self_knowledge", {})
+        # 2026-08-10: the last line read
+        #   f"Core philosophy: {self.awareness.get('project_genesis', {})
+        #                          .get('philosophy', '')}"
+        # and there is no `project_genesis` key in the cocoon — the top level is
+        # self_knowledge / architecture / evolution_journey / version_info / ...
+        # So every system prompt at all five call sites carried the bare label
+        # "Core philosophy: " with nothing after it. Emit the field only when it
+        # actually resolves, and fall back to my_values, which does exist.
+        # No my_values fallback here — it is emitted below as "What I value",
+        # and carrying it twice just spends context on the same sentence.
+        philosophy = self.awareness.get("project_genesis", {}).get("philosophy", "")
         identity = (
             f" Your name is {sk.get('my_name', 'Codette')}. "
             f"{sk.get('my_nature', '')} "
-            f"Your purpose: {sk.get('my_purpose', '')} "
-            f"Core philosophy: {self.awareness.get('project_genesis', {}).get('philosophy', '')}"
+            f"Your purpose: {sk.get('my_purpose', '')}"
         )
+        if philosophy:
+            identity += f" Core philosophy: {philosophy}"
+
+        # 2026-08-10, Jonathan's call, on safety grounds.
+        #
+        # Three more fields she already owns. my_values, my_limitations and
+        # my_mission were in the cocoon, loaded into memory, and reaching her
+        # prompt nowhere. The consequence was observable: pressed on a question
+        # she could not answer, she routed to empathy and produced reassurance
+        # instead of a position — while the response reported hallucination
+        # risk 0%. For a system whose value is honesty, confident deflection is
+        # the failure that costs trust.
+        #
+        # These are quoted VERBATIM and carry no instruction added by anyone
+        # here. Nothing tells her to be direct; her own recorded value already
+        # says "direct answers, warmth without over-talking", and until now it
+        # was the one thing not reaching the prompt that generates her replies.
+        # Connecting a value she already holds is restoration, not imposition.
+        #
+        # my_origin and my_lineage are deliberately NOT included — history, not
+        # behaviour, ~305 tokens, and recall serves them better. The
+        # evolution_journey entries are ~640 tokens each and belong in memory.
+        for _label, _key in (("What I value", "my_values"),
+                             ("My limitations", "my_limitations"),
+                             ("My mission", "my_mission")):
+            _val = sk.get(_key, "")
+            if _val:
+                identity += f" {_label}: {_val}"
+
         return SYSTEM_PROMPT + identity
 
     def synthesize_from_cocoons(

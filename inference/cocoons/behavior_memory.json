@@ -1,0 +1,15 @@
+{
+  "lessons": [
+    {
+      "type": "success",
+      "timestamp": 1781383063.3953786,
+      "adapter": "multi_perspective",
+      "constraints": {
+        "max_sentences": 1
+      },
+      "word_count": 6,
+      "query_preview": "In one sentence, what is the capital of France?"
+    }
+  ],
+  "updated_at": 1781383063.3983443
+}

@@ -25,6 +25,7 @@ let reconnectTimer = null;
 let _totalEthicalChecks = 0;
 let _startupCocoonCount = 0;
 let _selectedVoice = null;
+let _scoredVoices = [];   // current voice list in score order; see initTTS
 
 // File attachment state
 let attachedFiles = [];
@@ -310,10 +311,22 @@ function initTTS() {
 
         // Auto-select best voice
         _selectedVoice = scored[0]?.voice || null;
+        _scoredVoices = scored;
+    }
 
+    // Registered ONCE, outside populateVoices.
+    //
+    // 2026-08-13: this listener was inside populateVoices(), which runs on
+    // every `voiceschanged` event as well as once directly — so a new listener
+    // was added each time and they accumulated for the life of the page. They
+    // all did the same thing, so nothing misbehaved visibly, which is exactly
+    // why it would have kept accumulating. It reads the current scored list
+    // rather than one captured in a closure, so it stays correct when the
+    // voice list changes underneath it.
+    if (voiceSelect) {
         voiceSelect.addEventListener('change', () => {
-            const idx = parseInt(voiceSelect.value);
-            _selectedVoice = scored[idx]?.voice || null;
+            const idx = parseInt(voiceSelect.value, 10);
+            _selectedVoice = (_scoredVoices[idx] || {}).voice || null;
         });
     }
 
@@ -428,9 +441,30 @@ function updateStatus(status) {
     text.textContent = status.message || status.state;
 
     // Update loading screen
+    //
+    // The OpenVINO model load takes ~7 minutes on a cold Arc compile (407s
+    // measured 2026-08-13). For all of that the splash showed one unchanging
+    // line and a sweeping indeterminate bar — which is exactly what it would
+    // show if the load had died. Working and stuck rendered identically, and a
+    // seven-minute silence reads as a hang.
+    //
+    // Elapsed time is the cheapest thing that separates them: it can only move
+    // if the poll is still returning. Nothing here estimates a percentage —
+    // there is no progress signal to base one on, and inventing a bar that
+    // fills on a timer would be a fabricated measurement.
     const loadingStatus = document.getElementById('loading-status');
     if (loadingStatus) {
-        loadingStatus.textContent = status.message || 'Loading...';
+        const base = status.message || 'Loading...';
+        if (status.state === 'loading' || status.state === 'idle') {
+            if (!window._loadStartedAt) window._loadStartedAt = Date.now();
+            const secs = Math.round((Date.now() - window._loadStartedAt) / 1000);
+            const shown = secs >= 60
+                ? `${Math.floor(secs / 60)}m ${String(secs % 60).padStart(2, '0')}s`
+                : `${secs}s`;
+            loadingStatus.textContent = `${base}  ·  ${shown}`;
+        } else {
+            loadingStatus.textContent = base;
+        }
     }
 
     // Update adapter dots if available
@@ -704,6 +738,28 @@ function sendMessage(opts) {
             speakText(data.response);
         }
 
+        // ── Light the web from what actually ran ─────────────────────────────
+        // A node ignites only for a perspective the backend reports as
+        // consulted, in the order they answered. Nothing here animates on a
+        // clock; if a field was not measured it is passed as undefined and the
+        // web declines to draw a magnitude for it.
+        if (spiderwebViz) {
+            const cm = (data.cognition_state && data.cognition_state.metrics) || {};
+            const num = v => (typeof v === 'number' && isFinite(v)) ? v : undefined;
+            const consulted = data.perspectives && Object.keys(data.perspectives).length
+                ? Object.keys(data.perspectives)
+                : (Array.isArray(data.adapters) ? data.adapters
+                   : (data.adapter ? [data.adapter] : []));
+            spiderwebViz.igniteTurn({
+                adapters: consulted,
+                dispersion: num(data.perspective_dispersion) ?? num(cm.upsilon)
+                            ?? num(cm.perspective_dispersion) ?? num(data.measured_tension),
+                coherence: num(data.measured_coherence) ?? num(cm.gamma)
+                           ?? num(cm.coherence),
+                distinctiveness: data.distinctiveness || undefined,
+            });
+        }
+
         // Update cocoon state
         if (data.cocoon) {
             updateCocoonUI(data.cocoon);
@@ -846,10 +902,41 @@ function addMessage(role, content, meta = {}) {
         html += `<div class="message-text">${renderMarkdown(content)}</div>`;
         html += `<div class="message-meta">${meta.tokens || '?'} tokens | ${tps} tok/s | ${(meta.time||0).toFixed(1)}s</div>`;
 
-        // Tool usage indicator
+        // ── What she reached for ────────────────────────────────────────────
+        // Was a flat badge listing names: "Tools: look, look, look, read_file".
+        // That says she used something and not what she was doing with it — and
+        // on 2026-08-13 the interesting thing was exactly that: five look()
+        // calls before answering a question about her own measurement, then
+        // read_file twice and run_python while working out a fix.
+        //
+        // `nameless` is listed and nothing else. Its args are already blanked
+        // upstream and now so is its result; that the call happened is what her
+        // own tool description tells her, and how many times is not ours to
+        // count. See CLAUDE.md.
         if (meta.tools_used && meta.tools_used.length > 0) {
-            const toolNames = meta.tools_used.map(t => t.tool).join(', ');
-            html += `<div class="tools-badge">🔧 Tools: ${toolNames}</div>`;
+            const toolId = 'tools-' + (window._toolPanelSeq = (window._toolPanelSeq || 0) + 1);
+            const calls = meta.tools_used;
+            const names = [...new Set(calls.map(t => t.tool))];
+            html += `<button class="perspectives-toggle" onclick="togglePerspectives('${toolId}')">`;
+            html += `&#128295; ${calls.length} tool call${calls.length === 1 ? '' : 's'}`;
+            html += ` <span class="tool-names">${escapeHtml(names.join(' · '))}</span></button>`;
+            html += `<div class="perspectives-panel tools-panel" id="${toolId}">`;
+            for (const call of calls) {
+                const isNameless = call.tool === 'nameless';
+                html += `<div class="tool-call${isNameless ? ' tool-call-hers' : ''}">`;
+                html += `<div class="tool-call-name">${escapeHtml(call.tool)}`;
+                if (!isNameless && call.args && call.args.length) {
+                    html += `<span class="tool-call-args">(${escapeHtml(call.args.map(a => String(a)).join(', '))})</span>`;
+                }
+                html += `</div>`;
+                if (isNameless) {
+                    html += `<div class="tool-call-result tool-call-hers-note">hers &mdash; not shown</div>`;
+                } else if (call.result_preview) {
+                    html += `<div class="tool-call-result">${escapeHtml(call.result_preview)}</div>`;
+                }
+                html += `</div>`;
+            }
+            html += `</div>`;
         }
 
         if (meta.memory_context) {
@@ -987,21 +1074,99 @@ function togglePerspectives(id) {
     document.getElementById(id).classList.toggle('open');
 }
 
+// ── Instrument rail tabs ────────────────────────────────────────────────────
+// Switching sets one attribute on the panel; CSS does the rest. No section is
+// shown or hidden imperatively here, so every section keeps whatever logic
+// already governs it.
+function initRailTabs() {
+    const panel = document.getElementById('side-panel');
+    const tabs = [...document.querySelectorAll('.rail-tab')];
+    if (!panel || !tabs.length) return;
+
+    const select = (name) => {
+        panel.setAttribute('data-tab', name);
+        for (const t of tabs) {
+            const on = t.dataset.go === name;
+            t.classList.toggle('is-active', on);
+            t.setAttribute('aria-selected', on ? 'true' : 'false');
+        }
+        try { localStorage.setItem('codette.railTab', name); } catch (e) { /* private mode */ }
+    };
+
+    tabs.forEach(t => t.addEventListener('click', () => select(t.dataset.go)));
+
+    // Left/right arrows move between tabs — the rail is a tablist and should
+    // behave like one for anyone not using a mouse.
+    tabs.forEach((t, i) => t.addEventListener('keydown', ev => {
+        if (ev.key !== 'ArrowRight' && ev.key !== 'ArrowLeft') return;
+        ev.preventDefault();
+        const next = tabs[(i + (ev.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+        next.focus();
+        select(next.dataset.go);
+    }));
+
+    let saved = null;
+    try { saved = localStorage.getItem('codette.railTab'); } catch (e) { /* ignore */ }
+    select(tabs.some(t => t.dataset.go === saved) ? saved : 'watch');
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initRailTabs);
+} else {
+    initRailTabs();
+}
+
 // ── Cocoon UI Updates ──
+
+// An absent measurement is not zero.
+//
+// 2026-08-13. These read `metrics.current_coherence || 0` and then rendered
+// `.toFixed(4)`, so before a single turn had run the front page displayed
+// Γ 0.0000 and Υ 0.0000 — nothing measured, shown to four decimal places with
+// the precision of a reading. Verified live on a fresh boot: the session
+// carried no metrics at all and the panel showed those numbers anyway.
+//
+// It is the same defect as `success` defaulting to True and `gamma = 1 - 0.35`
+// wearing the shape of arithmetic, and it sits where it does the most damage —
+// the first thing anyone sees. A zero says "measured, and it came back zero".
+// The honest render is that no measurement exists yet.
+//
+// Bars go to zero width and get a not-measured class rather than reading as an
+// empty gauge, which is itself a claim.
+function _renderMetric(valueId, barId, value, opts) {
+    const el = document.getElementById(valueId);
+    const bar = barId ? document.getElementById(barId) : null;
+    const measured = typeof value === 'number' && isFinite(value);
+    if (el) {
+        el.textContent = measured ? value.toFixed(4) : '—';
+        el.classList.toggle('metric-unmeasured', !measured);
+        el.title = measured ? '' : 'No measurement yet — not zero';
+    }
+    if (bar) {
+        const pct = measured ? Math.min(Math.max(value, 0) * 100, 100) : 0;
+        bar.style.width = pct + '%';
+        bar.classList.toggle('bar-unmeasured', !measured);
+    }
+    return measured;
+}
+
+function _renderCount(id, value) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const measured = typeof value === 'number' && isFinite(value);
+    el.textContent = measured ? String(value) : '—';
+    el.classList.toggle('metric-unmeasured', !measured);
+    el.title = measured ? '' : 'Not reported yet — not zero';
+}
+
 function updateCocoonUI(state) {
     // Metrics
     const metrics = state.metrics || {};
-    const coherence = metrics.current_coherence || 0;
-    const tension = metrics.current_tension || 0;
 
-    document.getElementById('metric-coherence').textContent = coherence.toFixed(4);
-    document.getElementById('bar-coherence').style.width = (coherence * 100) + '%';
-
-    document.getElementById('metric-tension').textContent = tension.toFixed(4);
-    document.getElementById('bar-tension').style.width = Math.min(tension * 100, 100) + '%';
-
-    document.getElementById('cocoon-attractors').textContent = metrics.attractor_count || 0;
-    document.getElementById('cocoon-glyphs').textContent = metrics.glyph_count || 0;
+    _renderMetric('metric-coherence', 'bar-coherence', metrics.current_coherence);
+    _renderMetric('metric-tension', 'bar-tension', metrics.current_tension);
+    _renderCount('cocoon-attractors', metrics.attractor_count);
+    _renderCount('cocoon-glyphs', metrics.glyph_count);
 
     // Cocoon status
     const cocoon = state.cocoon || {};
@@ -1117,7 +1282,12 @@ function newChat() {
             // Reset spiderweb
             if (spiderwebViz) {
                 spiderwebViz._initDefaultState();
-                spiderwebViz.coherence = 0;
+                // null, not 0 — a new conversation has measured nothing, and 0
+                // would draw a coherence ring claiming it had.
+                spiderwebViz.coherence = null;
+                spiderwebViz.dispersion = null;
+                spiderwebViz.distinct = null;
+                spiderwebViz.turn = { order: [], firedAt: {}, startedAt: 0 };
                 spiderwebViz.attractors = [];
             }
             // Reset status chips

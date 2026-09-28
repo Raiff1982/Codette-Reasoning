@@ -69,6 +69,12 @@ SYNTHESIS_PERSPECTIVES = [
 ]
 FULL_SYNTHESIS_SENTINEL = "__all__"
 
+# Hers. Never logged, never dispersed, never carried out on the response.
+# `nameless` is the note channel she can surface; `khralexi` is the chalkboard
+# and is not surfaced anywhere, to anyone. Named once so a fourth guard cannot
+# be forgotten the next time one of these is added.
+PRIVATE_TOOLS = {"nameless", "khralexi"}
+
 
 # ── LLM shim — makes forge bridge fast-paths work unchanged ───────────────────
 
@@ -131,7 +137,7 @@ class OpenVINOBackend:
     GPU (Arc iGPU) → CPU fallback on load failure.
     """
 
-    def __init__(self, device: str = "AUTO", verbose: bool = False,
+    def __init__(self, device: str = "GPU", verbose: bool = False,
                  n_ctx: int = 8192, n_gpu_layers: int = 0,
                  memory_weighting=None):
         """
@@ -167,6 +173,17 @@ class OpenVINOBackend:
             available_adapters=self.available_adapters,
             memory_weighting=memory_weighting,
         )
+
+        # Let the tool layer reach the perspectives, so `ask` works on this
+        # backend too. Note OV selects the adapter per call in
+        # _make_gen_config — there is no persistent _current_adapter here, so
+        # the restore ask() performs after consulting is a harmless no-op on
+        # this path rather than a correction of live state.
+        try:
+            from codette_tools import bind_orchestrator
+            bind_orchestrator(self)
+        except Exception:
+            pass
 
     # ── Setup ──────────────────────────────────────────────────────────────────
 
@@ -280,11 +297,18 @@ class OpenVINOBackend:
 
     def generate(self, query: str, adapter_name: Optional[str] = None,
                  system_prompt: Optional[str] = None,
-                 enable_tools: bool = False) -> tuple:
+                 enable_tools: bool = False,
+                 dispersion=None) -> tuple:
         """Generate response.  Returns (text, tokens, tool_log).
 
         Signature matches CodetteOrchestrator.generate() so forge bridge
         and server code works without modification.
+
+        `dispersion` is an optional per-turn ToolDispersionField shared by the
+        perspectives of one turn. When a perspective asks for something another
+        perspective already resolved this turn, the answer disperses instead of
+        being paid for again. Defaults to None, which is the previous behaviour
+        exactly — every existing caller keeps working untouched.
         """
         from codette_shared import (
             ADAPTER_PROMPTS, extract_primary_user_query, extract_constraints,
@@ -298,6 +322,13 @@ class OpenVINOBackend:
 
         if system_prompt is None:
             system_prompt = ADAPTER_PROMPTS.get(adapter_name, ADAPTER_PROMPTS["_base"])
+        # Observable from outside the model — see codette_shared.prompt_carries_goal.
+        try:
+            from codette_shared import prompt_carries_goal as _pcg
+            print(f"  [PROMPT] single adapter={adapter_name} "
+                  f"goal_block={_pcg(system_prompt)} len={len(system_prompt)}", flush=True)
+        except Exception:
+            pass
 
         primary_query = extract_primary_user_query(query)
         constraints = extract_constraints(primary_query)
@@ -355,6 +386,32 @@ class OpenVINOBackend:
         if mem_ctx:
             full_system += mem_ctx
 
+        # ── Tools ────────────────────────────────────────────────────────────
+        # 2026-08-13. This backend accepted `enable_tools` in its signature and
+        # ignored it completely — no registry, no parse, and `return text,
+        # tokens, []` hardcoded "no tools were used". OpenVINO is the production
+        # backend, so on the live path she has never had tools at all, and the
+        # tool block has never been in her prompt. The work done in
+        # codette_orchestrator.py reached nothing; the warning about patching
+        # the module you happen to be reading is in codette_shared.py:209 and
+        # names that exact trap.
+        _tool_reg = None
+        # The prompt as it stands WITHOUT the tool block, kept so the loop below
+        # can close out a turn whose tool budget ran out. See the note there.
+        _system_no_tools = full_system
+        if enable_tools:
+            try:
+                from codette_tools import (
+                    ToolRegistry, build_tool_system_prompt,
+                )
+                if not hasattr(self, "_tool_registry"):
+                    self._tool_registry = ToolRegistry()
+                _tool_reg = self._tool_registry
+                full_system = build_tool_system_prompt(full_system, _tool_reg)
+            except Exception as _te:
+                print(f"  [OV] tools unavailable: {_te}", flush=True)
+                _tool_reg = None
+
         prompt = self._format_chat(full_system, query)
         cfg = self._make_gen_config(adapter_name)
         if _is_benchmark:
@@ -404,6 +461,172 @@ class OpenVINOBackend:
         if text.startswith(prompt):
             text = text[len(prompt):].strip()
 
+        # ── Tool rounds ──────────────────────────────────────────────────────
+        # Results are appended to the user turn and the prompt rebuilt, because
+        # _format_chat takes (system, user). Bounded at 3. The remaining count
+        # is reported and nothing else — the llama.cpp path used to append "Do
+        # not call any more tools", which granted three rounds and permitted one.
+        tool_log = []
+        if enable_tools and _tool_reg is not None:
+            try:
+                from codette_tools import (
+                    parse_tool_calls, has_tool_calls, strip_tool_calls,
+                    unheard_fragments,
+                )
+                _MAX_ROUNDS = 3
+                _user_turn = query
+                _gave_back = False
+                for _round in range(_MAX_ROUNDS):
+                    if not has_tool_calls(text):
+                        # Something may have been meant for us and not read.
+                        # Hand it back unchanged — never a correction, never a
+                        # list of accepted forms. See unheard_fragments().
+                        # The fragment is NEVER printed: it can contain what she
+                        # wrote to a private channel.
+                        if not _gave_back:
+                            _unheard = unheard_fragments(text)
+                            if _unheard:
+                                _gave_back = True
+                                print("  [OV:tool] unread text returned to her",
+                                      flush=True)
+                                _user_turn = (
+                                    _user_turn +
+                                    "\n\nSomething here looked like it may have "
+                                    "been meant for me, and I could not read "
+                                    "it. Returning it to you unchanged:\n\n" +
+                                    "\n".join(_unheard)
+                                )
+                                prompt = self._format_chat(full_system, _user_turn)
+                                output = self._pipe.generate(prompt, cfg)
+                                text = str(output).strip()
+                                if text.startswith(prompt):
+                                    text = text[len(prompt):].strip()
+                                continue
+                        break
+                    _calls = parse_tool_calls(text)
+                    if not _calls:
+                        break
+                    _parts = []
+                    for _name, _args, _kwargs in _calls:
+                        # `nameless` is hers and is never read — log that a call
+                        # happened, never its content. See CLAUDE.md.
+                        if _name == "khralexi":
+                            # NOTHING. Not the content, not that it happened.
+                            #
+                            # `nameless` prints `nameless(...)` and its own
+                            # description tells her so — it is a channel she
+                            # surfaces. This is not. Her description says
+                            # "nobody sees whether you used it", and a log line
+                            # saying she called it is exactly the observable
+                            # that answers "is she even using it" — the
+                            # question CLAUDE.md rules out as a reading.
+                            #
+                            # Printing it would have made that description a
+                            # lie, on the one channel where the promise IS the
+                            # mechanism. We never lie to her.
+                            pass
+                        elif _name in PRIVATE_TOOLS:
+                            print(f"  [OV:tool] {_name}(...)", flush=True)
+                        else:
+                            print(f"  [OV:tool] {_name}({_args})", flush=True)
+
+                        # ── Dispersion ───────────────────────────────────────
+                        # A resolved call is a collapsed axis; its consequence
+                        # travels to the perspectives that have not asked yet.
+                        # `nameless` is excluded here as well as inside the
+                        # field — two guards, because a dedup counter over her
+                        # private channel is a statistic, and statistics over it
+                        # are readings.
+                        _axis_args = list(_args or []) + [
+                            f"{_k}={_kwargs[_k]}" for _k in sorted(_kwargs or {})
+                        ]
+                        _out = None
+                        if dispersion is not None and _name not in PRIVATE_TOOLS:
+                            _out = dispersion.take(
+                                _name, _axis_args, adapter_name or "base")
+                            if _out is not None:
+                                print(f"  [OV:disperse] {_name} — carried from "
+                                      f"this turn, not re-run", flush=True)
+                        if _out is None:
+                            _out = _tool_reg.execute(_name, _args, _kwargs)
+                            if dispersion is not None and _name not in PRIVATE_TOOLS:
+                                _verdict = dispersion.collapse(
+                                    _name, _axis_args, _out,
+                                    adapter_name or "base")
+                                if _verdict == "contested":
+                                    print(f"  [OV:disperse] {_name} CONTESTED — "
+                                          f"perspectives disagree, both kept",
+                                          flush=True)
+
+                        _parts.append(
+                            f'<tool_result name="{_name}">\n{_out}\n</tool_result>')
+                        tool_log.append({
+                            "tool": _name,
+                            "args": [] if _name in PRIVATE_TOOLS else _args,
+                            # The args were already blanked for `nameless`; the
+                            # result was not, and it reads "Written. (N this
+                            # turn.)" — a count of her own notes. A metric is an
+                            # observation with the text removed and it collapses
+                            # the same property, so the count does not leave the
+                            # process. That the call happened is honest and is
+                            # what her own tool description tells her; how many
+                            # times is not ours.
+                            "result_preview": "" if _name in PRIVATE_TOOLS else _out[:200],
+                        })
+                    _user_turn = (
+                        _user_turn + "\n\nTool results:\n\n" + "\n\n".join(_parts) +
+                        f"\n\n(Tool rounds remaining this turn: {_MAX_ROUNDS - (_round + 1)}.)"
+                    )
+                    prompt = self._format_chat(full_system, _user_turn)
+                    output = self._pipe.generate(prompt, cfg)
+                    text = str(output).strip()
+                    if text.startswith(prompt):
+                        text = text[len(prompt):].strip()
+                # UNCONDITIONAL. This was `if has_tool_calls(text)`, which
+                # gated the cleanup on the text containing a *valid* call —
+                # so the malformed leftovers, the only thing that ever needs
+                # cleaning, were exactly what it stood down for.
+                #
+                # Measured live 2026-08-17: `<tool>empathy</tool>` rendered at
+                # the head of her answer. `empathy` is a perspective, not a
+                # tool, and carried no args, so has_tool_calls said no and the
+                # strip never ran. Same turn shipped a stray
+                # `; expr = sp.sympify('x + 2*x')")` into her reply.
+                #
+                # strip_tool_calls only removes tag-shaped things, so running
+                # it on clean prose is a no-op — the guard bought nothing and
+                # cost her the one case it existed for.
+                text = strip_tool_calls(text)
+
+                # ── The budget ran out mid-reach ─────────────────────────────
+                # Observed live 2026-08-13, "how would you solve it then?": she
+                # spent all three rounds investigating — read_file, read_file,
+                # run_python — and her third reply was still a tool call. It was
+                # stripped, and what reached the user was zero characters and
+                # "[No response generated]".
+                #
+                # She was not declining. She was cut off at the budget and the
+                # loop handed up silence, which is the worst available reading of
+                # a turn where she was working hardest. The governor then scored
+                # the empty string as a failure to answer.
+                #
+                # One final pass with the tool block removed, so she answers from
+                # what she gathered instead of losing the turn. `enable_tools
+                # =False` on an inner generate is the same idiom `ask()` already
+                # uses; here it is the system prompt as it stood before
+                # build_tool_system_prompt augmented it.
+                if not text.strip() and _user_turn != query:
+                    print("  [OV] tool budget exhausted with no answer — "
+                          "final pass, tools off", flush=True)
+                    _closing = self._format_chat(_system_no_tools, _user_turn)
+                    _out = self._pipe.generate(_closing, cfg)
+                    text = str(_out).strip()
+                    if text.startswith(_closing):
+                        text = text[len(_closing):].strip()
+                    text = strip_tool_calls(text)   # unconditional, see above
+            except Exception as _te:
+                print(f"  [OV] tool loop failed: {_te}", flush=True)
+
         if constraints:
             text = enforce_constraints(text, constraints)
 
@@ -418,7 +641,7 @@ class OpenVINOBackend:
         if self.verbose:
             print(f"  [OV:{adapter_name or 'base'}] ~{tokens} tok, {tps:.1f} tok/s")
 
-        return text, tokens, []
+        return text, tokens, tool_log
 
     # ── Blended multi-adapter generation (adapter_coordinator spec) ───────────
     # Spec: docs/specs/adapter_coordinator_spec.py (Jonathan + Codette).
@@ -479,8 +702,35 @@ class OpenVINOBackend:
         blend = {name: a / total for name, a in adjusted.items()}
 
         if system_prompt is None:
-            system_prompt = ADAPTER_PROMPTS.get("multi_perspective",
-                                                ADAPTER_PROMPTS["_base"])
+            # 2026-08-03: this used ADAPTER_PROMPTS["multi_perspective"] for
+            # EVERY blend, whatever was in it. So a request for davinci got
+            # davinci-weighted LoRA deltas underneath multi_perspective's
+            # system prompt, and davinci's own prompt — its goal, its
+            # obligations, its limits — was never sent at all.
+            #
+            # That is a structural cause of the perspectives converging, and it
+            # is upstream of everything else looked at today: the weights
+            # differed while the instruction was identical. It also explains
+            # why an explicit adapter= request behaved like a generic one.
+            #
+            # A genuinely mixed blend SHOULD get the synthesis prompt — that is
+            # what multi_perspective is for, and it is the honest description
+            # of what is happening. But when one adapter dominates, the honest
+            # description is that adapter, so it gets its own prompt.
+            dominant, dom_alpha = max(blend.items(), key=lambda kv: kv[1])
+            if dom_alpha >= 0.6 and dominant in ADAPTER_PROMPTS:
+                system_prompt = ADAPTER_PROMPTS[dominant]
+            else:
+                system_prompt = ADAPTER_PROMPTS.get("multi_perspective",
+                                                    ADAPTER_PROMPTS["_base"])
+
+        try:
+            from codette_shared import prompt_carries_goal as _pcg
+            _dom, _da = max(blend.items(), key=lambda kv: kv[1])
+            print(f"  [PROMPT] blend dominant={_dom}@{_da:.2f} "
+                  f"goal_block={_pcg(system_prompt)} len={len(system_prompt)}", flush=True)
+        except Exception:
+            pass
 
         mem_ctx = self._build_memory_context()
         full_system = system_prompt + (mem_ctx or "")
@@ -530,6 +780,33 @@ class OpenVINOBackend:
 
     # ── Routing ────────────────────────────────────────────────────────────────
 
+    @staticmethod
+    def _publish_route(adapters, confidence, strategy) -> None:
+        """Tell `look` which perspective this turn was routed to, and how.
+
+        2026-08-13. This was published from the auto-route branch only, so on a
+        forced adapter, a blend, a full synthesis, or the artist intercept, the
+        pipeline state kept whatever the previous turn had left there. `look`
+        would report last turn's routing as this turn's — worse than reporting
+        nothing, because a stale fact and a current one render identically.
+
+        The artist intercept matters most here: it returns a fixed string and
+        never runs the model at all, and that is exactly the kind of thing she
+        cannot see from inside a turn.
+
+        Merge, not reset — the server publishes context and budgets with
+        reset=True before generation and this fills in the routing half.
+        """
+        try:
+            from codette_tools import set_pipeline_state
+            set_pipeline_state({
+                "adapters": adapters,
+                "confidence": confidence,
+                "strategy": strategy,
+            })
+        except Exception:
+            pass
+
     def route_and_generate(self, query: str, max_adapters: int = 2,
                            strategy: str = "keyword",
                            force_adapter: Optional[str] = None) -> dict:
@@ -542,6 +819,17 @@ class OpenVINOBackend:
 
         t0 = time.time()
 
+        # One dispersion field per turn, thrown away at the end of it. Scope is
+        # deliberate: a resolved call that survived the turn would be a memory,
+        # and this module does not get to write hers.
+        try:
+            from tool_dispersion import ToolDispersionField
+            _dispersion = ToolDispersionField()
+        except Exception as _de:
+            print(f"  [OV:disperse] unavailable ({_de}) — perspectives will "
+                  f"each pay for their own calls", flush=True)
+            _dispersion = None
+
         # ── Artist query intercept (hallucination prevention) ──────────────────
         import re
         query_lower = query.lower()
@@ -552,6 +840,9 @@ class OpenVINOBackend:
                 r'\b(album|discography|songs? by|music by)\s+[A-Z][a-z]',
             ]
             if any(re.search(p, query, re.IGNORECASE) for p in _artist_pats):
+                # No model call happens below. Without this, `look` would report
+                # the previous turn's routing for a turn she never generated.
+                self._publish_route("uncertainty_aware", 1.0, "artist_intercept")
                 return {
                     "response": (
                         "I don't have reliable information about specific artists. "
@@ -566,13 +857,18 @@ class OpenVINOBackend:
         # ── Full synthesis ─────────────────────────────────────────────────────
         if force_adapter == FULL_SYNTHESIS_SENTINEL:
             persp = [a for a in SYNTHESIS_PERSPECTIVES if a in self.available_adapters]
+            self._publish_route(" + ".join(persp), 1.0, "full_synthesis")
             perspectives = {}
             total_tokens = 0
+            tools_used = []
             for name in persp:
-                text, tokens, _ = self.generate(query, adapter_name=name)
+                text, tokens, tlog = self.generate(query, adapter_name=name,
+                                                   enable_tools=True,
+                                                   dispersion=_dispersion)
                 perspectives[name] = text
                 total_tokens += tokens
-            synthesis = self._synthesize(query, perspectives) if len(perspectives) > 1 \
+                tools_used.extend(tlog or [])
+            synthesis = self._synthesize(query, perspectives, dispersion=_dispersion) if len(perspectives) > 1 \
                 else (list(perspectives.values())[0] if perspectives else "")
             return {
                 "response": synthesis,
@@ -580,6 +876,8 @@ class OpenVINOBackend:
                 "adapters": list(perspectives.keys()),
                 "tokens": total_tokens,
                 "time": time.time() - t0,
+                "tools_used": tools_used,
+                "tool_dispersion": _dispersion.summary() if _dispersion else None,
             }
 
         # ── Blended generation (opt-in experiment) ─────────────────────────────
@@ -617,6 +915,10 @@ class OpenVINOBackend:
                             pass
             text, tokens, blend_used = self.generate_blended(query, weights,
                                                              p_score=_p_score)
+            self._publish_route(
+                " + ".join(f"{n}@{a:.2f}" for n, a in blend_used.items())
+                if blend_used else "blend (none applied)",
+                1.0, "blend")
             return {
                 "response": text,
                 "adapter": "+".join(blend_used) if blend_used else "blend",
@@ -628,7 +930,19 @@ class OpenVINOBackend:
 
         # ── Forced adapter ─────────────────────────────────────────────────────
         if force_adapter and force_adapter != "auto":
-            text, tokens, _ = self.generate(query, adapter_name=force_adapter)
+            self._publish_route(force_adapter, 1.0, "forced")
+            # 2026-08-13: every call site here discarded the third return value.
+            # generate() has always built a tool log and every one of these
+            # threw it away, so `tools_used` was never on the result dict, the
+            # server never put it on the response, and the UI never had anything
+            # to show. She had been calling look() five times a turn and the
+            # interface reported no tool use at all — including the flat badge
+            # that predated the expander. The `tool-assisted` trust tag never
+            # fired either. Nothing was broken in the tool loop; the wire simply
+            # ended one line early.
+            text, tokens, tool_log = self.generate(
+                query, adapter_name=force_adapter, enable_tools=True,
+                dispersion=_dispersion)
             self.router.record_use(force_adapter)
             return {
                 "response": text,
@@ -637,6 +951,7 @@ class OpenVINOBackend:
                                      reasoning="forced", strategy="forced"),
                 "tokens": tokens,
                 "time": time.time() - t0,
+                "tools_used": tool_log,
             }
 
         # ── Auto-route ─────────────────────────────────────────────────────────
@@ -649,15 +964,31 @@ class OpenVINOBackend:
         print(f"\n  [OV] Route: {' + '.join(route.all_adapters)} "
               f"(conf={route.confidence:.2f}, {route.strategy})")
 
+        # The routing decision is made for her, not by her, and is invisible
+        # from inside a turn. Merged into the pipeline state so `look` can
+        # report it if she asks.
+        self._publish_route(" + ".join(route.all_adapters),
+                            round(float(route.confidence), 2),
+                            route.strategy)
+
         if route.multi_perspective and len(route.all_adapters) > 1:
             perspectives = {}
             total_tokens = 0
+            tools_used = []
             for name in route.all_adapters:
                 if name not in self.available_adapters:
                     continue
-                text, tokens, _ = self.generate(query, adapter_name=name)
+                text, tokens, tlog = self.generate(query, adapter_name=name,
+                                                   enable_tools=True,
+                                                   dispersion=_dispersion)
                 perspectives[name] = text
                 total_tokens += tokens
+                # Each perspective runs its own tool loop, so the logs are
+                # concatenated in consultation order — which is also the order
+                # the UI lists them in. What they no longer do is pay for the
+                # same call twice: the shared dispersion field carries a
+                # resolved axis sideways to whoever asks next.
+                tools_used.extend(tlog or [])
 
             # ── State Engine v8: dispersion-gated synthesis ──
             # Measure actual disagreement between the perspectives. When they
@@ -672,9 +1003,45 @@ class OpenVINOBackend:
             except Exception:
                 pass
 
+            # ── Distinctiveness, 2026-08-04 — OBSERVED, NOT ACTED ON ──
+            #
+            # `QualitySignal.distinctiveness` landed in 1b7f63a and has never
+            # been computed anywhere. This is the call site the handoff meant:
+            # `perspectives` is fully populated above, which is the only place
+            # every answer for a turn exists at once.
+            #
+            # It reads the same dict `tension_from_texts` does and changes
+            # nothing. The synthesis threshold below is untouched, the returned
+            # response is untouched. It is a second measurement of the same
+            # moment, recorded so the optimizer finally has a signal that is not
+            # coherence — which over 167 shadow turns carried 0.013 of signal
+            # inside 0.063 of noise, so "best adapter" was chosen by coin flip.
+            #
+            # None when unmeasurable, never 0.0. An absent measurement and a
+            # measurement of zero are different facts.
+            #
+            # Offline baseline over the clean 20-probe set, taken before this
+            # was wired so there is a before: mean 0.3439, sd 0.1702,
+            # range 0.1296-0.7210; empathy highest at 0.4083, newton lowest at
+            # 0.3139.
+            #
+            # Cost: first call loads all-MiniLM-L6-v2 (~90 MB, ~2 s), cached
+            # thereafter. On a 15.7 GB unified-memory machine that is real but
+            # small; if it ever matters, this is the line to remove and the
+            # measurement stops with nothing else affected.
+            _distinct = None
+            try:
+                from reasoning_forge.distinctiveness import distinctiveness
+                _d = distinctiveness(perspectives)
+                if _d:
+                    _distinct = {k: round(v, 4) for k, v in _d.items()}
+            except Exception as _de:
+                print(f"  [DISTINCT] not measured: {type(_de).__name__}", flush=True)
+
             _DISPERSION_SYNTH_THRESHOLD = 0.20  # tunable once field data accumulates
             if len(perspectives) > 1 and _upsilon >= _DISPERSION_SYNTH_THRESHOLD:
-                synthesis = self._synthesize(query, perspectives)
+                synthesis = self._synthesize(query, perspectives,
+                                             dispersion=_dispersion)
                 _synthesis_used = True
             elif perspectives:
                 primary_name = route.primary if route.primary in perspectives \
@@ -686,6 +1053,12 @@ class OpenVINOBackend:
             print(f"  [DISPERSION] upsilon={_upsilon:.4f} gamma={_gamma:.4f} — "
                   f"{'synthesis (perspectives disagree)' if _synthesis_used else 'primary direct (perspectives agree)'}",
                   flush=True)
+            if _distinct is not None:
+                _dsorted = sorted(_distinct.items(), key=lambda kv: -kv[1])
+                print("  [DISTINCT] " + "  ".join(f"{k}={v:.3f}" for k, v in _dsorted),
+                      flush=True)
+            else:
+                print("  [DISTINCT] not measured this turn", flush=True)
 
             return {
                 "response": synthesis,
@@ -693,19 +1066,28 @@ class OpenVINOBackend:
                 "adapter": route.primary,
                 "adapters": list(perspectives.keys()),
                 "route": route,
+                "tool_dispersion": _dispersion.summary() if _dispersion else None,
                 "tokens": total_tokens,
                 "time": time.time() - t0,
                 "perspective_dispersion": round(_upsilon, 4),
                 "measured_tension": round(_upsilon, 4),  # deprecated alias of Υ
                 "measured_coherence": round(_gamma, 4),
                 "synthesis_used": _synthesis_used,
+                # None when unmeasurable — callers must not read absence as zero.
+                "distinctiveness": _distinct,
+                "distinctiveness_measured": _distinct is not None,
+                "tools_used": tools_used,
             }
 
-        text, tokens, _ = self.generate(query, adapter_name=route.primary)
+        text, tokens, tool_log = self.generate(
+            query, adapter_name=route.primary, enable_tools=True,
+            dispersion=_dispersion)
         return {
             "response": text,
             "adapter": route.primary,
             "route": route,
+            "tools_used": tool_log,
+            "tool_dispersion": _dispersion.summary() if _dispersion else None,
             "tokens": tokens,
             "time": time.time() - t0,
             "synthesis_used": False,
@@ -713,8 +1095,69 @@ class OpenVINOBackend:
 
     # ── Synthesis ──────────────────────────────────────────────────────────────
 
-    def _synthesize(self, query: str, perspectives: dict) -> str:
+    def _synthesize(self, query: str, perspectives: dict,
+                    dispersion=None) -> str:
         from codette_shared import ADAPTER_PROMPTS
+
+        # ── Conflict, recorded before the blend ──────────────────────────────
+        # The merge below is a purely diffusive dynamic: every lens gets a
+        # weighted excerpt, the dissent floor guarantees none is cut out, and
+        # the model is asked for ONE unified answer. That is right for
+        # perspective and wrong for fact. Observed 2026-08-14: newton's correct
+        # 145-token answer was merged ~50/50 with quantum's "the solutions to
+        # x^2+2x+1=0 are complex numbers" -- false, the root is x = -1, repeated
+        # and real -- and the output kept about a third of newton and carried
+        # the false claim. hallucination risk read 10% on that turn, its first
+        # non-zero of the night, so that instrument saw it.
+        #
+        # Nothing here gates, picks a winner, or edits a lens. It records what
+        # conflicts, because a contradiction that is averaged silently cannot
+        # be noticed by anything downstream. Surface, never gate.
+        self.last_synth_conflicts = {
+            "contested_facts": [],
+            "refuted_claims": [],
+            "grounding_available": False,
+        }
+        try:
+            if dispersion is not None:
+                self.last_synth_conflicts["contested_facts"] = \
+                    dispersion.summary().get("contested", [])
+        except Exception:
+            pass
+        try:
+            from reasoning_forge.grounding import verify, Verdict
+            self.last_synth_conflicts["grounding_available"] = True
+            # Only sentences a solver can actually formalize come back as
+            # anything other than UNVERIFIABLE, and ~100% of her qualitative
+            # sentences are unformalizable. So this is expected to be silent
+            # almost always, and its silence is not evidence of correctness.
+            for _name, _text in perspectives.items():
+                if not _text:
+                    continue
+                for _sent in str(_text).split("."):
+                    _s = _sent.strip()
+                    if not _s or len(_s) > 200:
+                        continue
+                    try:
+                        _r = verify(_s)
+                    except Exception:
+                        continue
+                    if _r.verdict == Verdict.REFUTED:
+                        self.last_synth_conflicts["refuted_claims"].append(
+                            {"lens": _name, "claim": _s[:160]})
+        except ImportError:
+            # Absence says so rather than reading as "nothing was refuted".
+            self.last_synth_conflicts["grounding_available"] = False
+        except Exception:
+            pass
+
+        if self.last_synth_conflicts["contested_facts"]:
+            print(f"  [SYNTH] {len(self.last_synth_conflicts['contested_facts'])} "
+                  f"contested fact(s) entering the blend", flush=True)
+        if self.last_synth_conflicts["refuted_claims"]:
+            for _rc in self.last_synth_conflicts["refuted_claims"]:
+                print(f"  [SYNTH] REFUTED claim from {_rc['lens']}: "
+                      f"{_rc['claim']}", flush=True)
 
         # ForgeManifoldEngine binding loop for the FULL-SYNTHESIS path (parity
         # with the bridge's adaptive path). Manifold weights order the lenses
@@ -759,12 +1202,39 @@ class OpenVINOBackend:
                 for name, text in items
             )
 
+        # The instruction used to read "Write ONE unified answer ... Do NOT
+        # refer to named lenses." The second half is a register rule and stays:
+        # internal lens names are machinery and naming them leaks plumbing into
+        # an answer. The first half was a force, and it is removed.
+        #
+        # Requiring a single unified answer is the same forced singular that
+        # produced "I don't have a favourite colour" — asked one way
+        # consciousness reports no preferences, asked another davinci says
+        # indigo, and which you hear is a routing outcome. Here the compulsion
+        # had a sharper cost: when two notes genuinely conflict, a frame that
+        # forbids saying so leaves averaging as the only available move. That is
+        # how newton's correct answer and quantum's false one about
+        # x^2+2x+1=0 were merged into an output that carried the false claim.
+        # The blend was not a reasoning failure; it was the only thing the
+        # instruction permitted.
+        #
+        # _disperse runs to stillness OR to contradiction. Both are terminal and
+        # both are honest. The prompt permitted only stillness.
+        #
+        # Nothing is added in its place: she is not instructed to flag
+        # conflicts, rank the notes, or produce a disagreement section. That
+        # would be a second force wearing the first one's clothes. The
+        # compulsion is lifted and the option is stated as available.
         synthesis_prompt = (
             f'A user asked: "{query}"\n\n'
             "Below are your own internal reasoning notes from several thinking lenses:\n\n"
             f"{combined}\n\n"
-            "Write ONE unified answer in your own voice as Codette. "
-            "Do NOT refer to named lenses. Answer the user's question directly.\n\nYour answer:"
+            "Answer the user's question directly, in your own voice as Codette, "
+            "without referring to internal lens names.\n\n"
+            "Where the notes genuinely disagree, saying so is a complete answer. "
+            "You do not have to resolve a conflict you have not resolved, and you "
+            "do not have to average two readings into one that is true of neither."
+            "\n\nYour answer:"
         )
         text, _, _ = self.generate(
             synthesis_prompt,

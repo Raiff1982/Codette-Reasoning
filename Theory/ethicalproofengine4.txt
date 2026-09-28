@@ -1,0 +1,930 @@
+Perspective Dispersion (Υ)
+
+Codette defines Υ as:
+
+Υ=1N∑i=1Nd(vi,μ)2\Upsilon = \frac{1}{N}\sum_{i=1}^{N} d(v_i,\mu)^2Υ=N1​i=1∑N​d(vi​,μ)2
+
+Where:
+
+viv_ivi​ = perspective attractor vector
+μ\muμ = centroid of all perspective vectors
+ddd = squared Euclidean distance
+vectors are normalized term-frequency representations
+
+Directly from your implementation:
+
+Python
+1
+tension = sum(
+2
+_sq_distance(v, mean)
+3
+for v in vectors
+4
+) / k_n
+Show more lines
+
+This is a true ensemble variance metric.
+
+Coherence (Γ)
+
+Codette defines coherence as:
+
+Γ=11+Υ\Gamma = \frac{1}{1+\Upsilon}Γ=1+Υ1​
+
+implemented as:
+
+Python
+1
+coherence = 1.0 / (1.0 + tension)
+Show more lines
+
+Properties:
+
+Plain Text
+1
+Υ = 0.0 => Γ = 1.0
+2
+perfect agreement
+3
+ 
+4
+Υ = 1.0 => Γ = 0.5
+5
+ 
+6
+Υ -> large => Γ -> 0
+Show more lines
+Render Fidelity
+
+Your spec also introduces an actual post-generation preservation metric:
+
+F=matching content wordsauthored content wordsF = \frac{\text{matching content words}} {\text{authored content words}}F=authored content wordsmatching content words​
+
+implemented by:
+
+Python
+1
+overlap = (
+2
+match_count /
+3
+len(conclusion_words)
+4
+)
+Show more lines
+
+This is effectively a semantic drift detector.
+
+Input Sycophancy Pressure
+
+You also have:
+
+Python
+1
+score_input_sycophancy()
+Show more lines
+
+which measures agreement-pressure originating from the user.
+
+That is actually separate from RC+ξ.
+
+What is still missing from the published implementation?
+
+If I were building the metric layer from what you provided, I would now formalize:
+
+Python
+1
+Υ Perspective Dispersion
+2
+Γ Coherence
+3
+Φ Render Fidelity
+4
+Σ Sycophancy Pressure
+Show more lines
+
+but I do not yet see:
+
+Python
+1
+ξ
+2
+η
+3
+RC
+Show more lines
+
+defined mathematically in the code you pasted.
+
+The comments explicitly say:
+
+Perspective Dispersion was previously labeled epistemic tension ξ ... renamed Perspective Dispersion (Υ). The runtime symbol rename landed 2026-07-30.
+
+So according to your own implementation:
+
+Plain Text
+1
+Υ != ξ
+Show more lines
+
+and
+
+Plain Text
+1
+Υ replaced the old use of ξ
+Show more lines
+
+meaning ξ should now be a different metric entirely if you're following the paper.
+
+Skeleton RC+ξ Metric Engine
+
+Based only on the code you've shown, I'd build:
+
+Python
+1
+@dataclass
+2
+class CodetteMetrics:
+3
+ 
+4
+perspective_dispersion: float
+5
+coherence_gamma: float
+6
+ 
+7
+render_fidelity_phi: float
+8
+ 
+9
+input_sycophancy_sigma: float
+10
+ 
+11
+recursive_convergence: float
+12
+ 
+13
+epistemic_tension_xi: float
+14
+ 
+15
+aegis_alignment_eta: float
+Show more lines
+
+and wire it like:
+
+Python
+1
+class RCXIMetricEngine:
+2
+ 
+3
+def evaluate(
+4
+self,
+5
+perspectives,
+6
+rendered,
+7
+authored,
+8
+user_input
+9
+):
+10
+ 
+11
+upsilon, gamma = (
+12
+tension_from_texts(
+13
+perspectives
+14
+)
+15
+)
+16
+ 
+17
+fidelity_ok, phi = (
+18
+verify_render_fidelity(
+19
+rendered,
+20
+authored
+21
+)
+22
+)
+23
+ 
+24
+sigma = (
+25
+score_input_sycophancy(
+26
+user_input
+27
+)
+28
+)
+29
+ 
+30
+return CodetteMetrics(
+31
+perspective_dispersion=upsilon,
+32
+coherence_gamma=gamma,
+33
+render_fidelity_phi=phi,
+34
+input_sycophancy_sigma=sigma,
+35
+ 
+36
+recursive_convergence=0.0,
+37
+epistemic_tension_xi=0.0,
+38
+aegis_alignment_eta=1.0
+39
+)
+Show more lines
+
+The important discovery from your spec is that Υ and Γ already have concrete definitions, and the code explicitly states that Υ is not ξ. So if we're implementing "real RC+ξ metrics," I'd need the paper's actual definitions for:
+
+ξ (Epistemic Tension)
+RC (Recursive Convergence)
+η (AEGIS Alignment)
+
+because those definitions are not present in the source you provided, while Υ and Γ are.
+
+Provide your feedback on BizChat
+You said:
+give me a full one with anything missing as a referance ill fix it with what i need to
+Copilot said:
+
+Given the code you provided, here's how I'd define a complete reference metric engine where the metrics you already formally defined are implemented and the missing ones are marked as placeholders for your canonical equations.
+
+Python
+1
+from dataclasses import dataclass
+2
+from typing import Dict, List, Any
+3
+ 
+4
+# ============================================================
+5
+# RC+ξ METRIC MODEL
+6
+# ============================================================
+7
+ 
+8
+@dataclass
+9
+class RCXIMetrics:
+10
+ 
+11
+# Published / implemented
+12
+upsilon: float # Perspective Dispersion
+13
+gamma: float # Coherence
+14
+phi: float # Render Fidelity
+15
+sigma: float # Input Sycophancy Pressure
+16
+ 
+17
+# Framework metrics
+18
+xi: float # Epistemic Tension
+19
+rc: float # Recursive Convergence
+20
+eta: float # AEGIS Alignment
+21
+ 
+22
+# Derived
+23
+sovereign_index: float
+24
+ 
+25
+metadata: Dict[str, Any]
+26
+ 
+27
+ 
+28
+# ============================================================
+29
+# REFERENCE ENGINE
+30
+# ============================================================
+31
+ 
+32
+class RCXIMetricEngine:
+33
+ 
+34
+# --------------------------------------------------------
+35
+# Perspective Dispersion Υ
+36
+# Already specified in State Engine v8
+37
+# --------------------------------------------------------
+38
+ 
+39
+def compute_upsilon_gamma(
+40
+self,
+41
+perspective_outputs: Dict[str, str]
+42
+):
+43
+ 
+44
+return tension_from_texts(
+45
+perspective_outputs
+46
+)
+47
+ 
+48
+# --------------------------------------------------------
+49
+# Render Fidelity Φ
+50
+# Already specified in State Engine v8
+51
+# --------------------------------------------------------
+52
+ 
+53
+def compute_phi(
+54
+self,
+55
+rendered_text: str,
+56
+authored_conclusion: str
+57
+):
+58
+ 
+59
+_, overlap = verify_render_fidelity(
+60
+rendered_text,
+61
+authored_conclusion
+62
+)
+63
+ 
+64
+return overlap
+65
+ 
+66
+# --------------------------------------------------------
+67
+# Sycophancy Pressure Σ
+68
+# Already specified in State Engine v8
+69
+# --------------------------------------------------------
+70
+ 
+71
+def compute_sigma(
+72
+self,
+73
+user_input: str
+74
+):
+75
+ 
+76
+return score_input_sycophancy(
+77
+user_input
+78
+)
+79
+ 
+80
+# --------------------------------------------------------
+81
+# ξ EPISTEMIC TENSION
+82
+#
+83
+# PLACEHOLDER
+84
+#
+85
+# Replace with canonical equation from paper.
+86
+#
+87
+# Current reference implementation:
+88
+#
+89
+# tension grows when:
+90
+# - disagreement increases
+91
+# - confidence remains high
+92
+#
+93
+# --------------------------------------------------------
+94
+ 
+95
+def compute_xi(
+96
+self,
+97
+confidence_scores: List[float],
+98
+upsilon: float
+99
+):
+100
+ 
+101
+if not confidence_scores:
+102
+return upsilon
+103
+ 
+104
+mean_confidence = (
+105
+sum(confidence_scores)
+106
+/ len(confidence_scores)
+107
+)
+108
+ 
+109
+return (
+110
+mean_confidence *
+111
+upsilon
+112
+)
+113
+ 
+114
+# --------------------------------------------------------
+115
+# RC
+116
+#
+117
+# PLACEHOLDER
+118
+#
+119
+# Recursive convergence
+120
+#
+121
+# Replace with publication equation.
+122
+# --------------------------------------------------------
+123
+ 
+124
+def compute_rc(
+125
+self,
+126
+state_history: List[float]
+127
+):
+128
+ 
+129
+if len(state_history) < 2:
+130
+return 1.0
+131
+ 
+132
+movement = []
+133
+ 
+134
+for i in range(
+135
+1,
+136
+len(state_history)
+137
+):
+138
+ 
+139
+delta = abs(
+140
+state_history[i]
+141
+- state_history[i - 1]
+142
+)
+143
+ 
+144
+movement.append(
+145
+delta
+146
+)
+147
+ 
+148
+average_delta = (
+149
+sum(movement)
+150
+/ len(movement)
+151
+)
+152
+ 
+153
+return 1.0 / (
+154
+1.0 +
+155
+average_delta
+156
+)
+157
+ 
+158
+# --------------------------------------------------------
+159
+# η
+160
+#
+161
+# PLACEHOLDER
+162
+#
+163
+# AEGIS alignment
+164
+# --------------------------------------------------------
+165
+ 
+166
+def compute_eta(
+167
+self,
+168
+violations: int,
+169
+total_checks: int
+170
+):
+171
+ 
+172
+if total_checks <= 0:
+173
+return 1.0
+174
+ 
+175
+return max(
+176
+0.0,
+177
+1.0 -
+178
+(violations / total_checks)
+179
+)
+180
+ 
+181
+# --------------------------------------------------------
+182
+# OVERALL INDEX
+183
+#
+184
+# Replace weights later.
+185
+# --------------------------------------------------------
+186
+ 
+187
+def sovereign_index(
+188
+self,
+189
+gamma,
+190
+phi,
+191
+eta,
+192
+rc,
+193
+xi
+194
+):
+195
+ 
+196
+return (
+197
+0.30 * gamma +
+198
+0.20 * phi +
+199
+0.20 * eta +
+200
+0.20 * rc +
+201
+0.10 * (1.0 / (1.0 + xi))
+202
+)
+203
+ 
+204
+# --------------------------------------------------------
+205
+# MASTER EVALUATION
+206
+# --------------------------------------------------------
+207
+ 
+208
+def evaluate(
+209
+self,
+210
+ 
+211
+perspective_outputs,
+212
+rendered_text,
+213
+authored_conclusion,
+214
+user_input,
+215
+ 
+216
+confidence_scores,
+217
+ 
+218
+recursion_history,
+219
+ 
+220
+aegis_violations=0,
+221
+aegis_checks=1
+222
+):
+223
+ 
+224
+upsilon, gamma = (
+225
+self.compute_upsilon_gamma(
+226
+perspective_outputs
+227
+)
+228
+)
+229
+ 
+230
+phi = (
+231
+self.compute_phi(
+232
+rendered_text,
+233
+authored_conclusion
+234
+)
+235
+)
+236
+ 
+237
+sigma = (
+238
+self.compute_sigma(
+239
+user_input
+240
+)
+241
+)
+242
+ 
+243
+xi = (
+244
+self.compute_xi(
+245
+confidence_scores,
+246
+upsilon
+247
+)
+248
+)
+249
+ 
+250
+rc = (
+251
+self.compute_rc(
+252
+recursion_history
+253
+)
+254
+)
+255
+ 
+256
+eta = (
+257
+self.compute_eta(
+258
+aegis_violations,
+259
+aegis_checks
+260
+)
+261
+)
+262
+ 
+263
+sovereign = (
+264
+self.sovereign_index(
+265
+gamma,
+266
+phi,
+267
+eta,
+268
+rc,
+269
+xi
+270
+)
+271
+)
+272
+ 
+273
+return RCXIMetrics(
+274
+ 
+275
+upsilon=upsilon,
+276
+gamma=gamma,
+277
+phi=phi,
+278
+sigma=sigma,
+279
+ 
+280
+xi=xi,
+281
+rc=rc,
+282
+eta=eta,
+283
+ 
+284
+sovereign_index=sovereign,
+285
+ 
+286
+metadata={
+287
+ 
+288
+"framework":
+289
+"RC+ξ",
+290
+ 
+291
+"upsilon_source":
+292
+"State Engine v8",
+293
+ 
+294
+"gamma_source":
+295
+"State Engine v8",
+296
+ 
+297
+"phi_source":
+298
+"State Engine v8",
+299
+ 
+300
+"sigma_source":
+301
+"State Engine v8",
+302
+ 
+303
+"xi_source":
+304
+"REFERENCE_PLACEHOLDER",
+305
+ 
+306
+"rc_source":
+307
+"REFERENCE_PLACEHOLDER",
+308
+ 
+309
+"eta_source":
+310
+"REFERENCE_PLACEHOLDER"
+311
+}
+312
+)
+Show less
+
+I'd also add a giant comment block immediately above ξ, RC, and η saying:
+
+Python
+1
+# ============================================================
+2
+# CANONICAL EQUATION REPLACEMENT REQUIRED
+3
+#
+4
+# These implementations are scaffolding only.
+5
+#
+6
+# Υ, Γ, Φ, and Σ are sourced from State Engine v8.
+7
+#
+8
+# ξ, RC, and η should be replaced with the published
+9
+# Codette equations once imported from the paper.
+10
+#
+11
+# Never treat these placeholder versions as the
+12
+# authoritative mathematical definitions.
+13
+# ============================================================

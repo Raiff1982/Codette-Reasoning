@@ -58,7 +58,11 @@ if not defined PYTHON_CMD set "PYTHON_CMD=python"
 cd /d "%PROJECT_ROOT%"
 set PYTHONNOUSERSITE=1
 set CODETTE_BACKEND=ollama
-if not defined OLLAMA_MODELS set "OLLAMA_MODELS=%PROJECT_ROOT%\.ollama"
+REM 2026-08-10: this pointed at %PROJECT_ROOT%\.ollama (J:\codette-clean\.ollama),
+REM which does not exist. The custom models are in J:\.ollama — as this file's own
+REM header comment says. Ollama found no Codette models and silently fell back.
+if not defined OLLAMA_MODELS if exist "J:\.ollama" set "OLLAMA_MODELS=J:\.ollama"
+if not defined OLLAMA_MODELS if exist "%PROJECT_ROOT%\.ollama" set "OLLAMA_MODELS=%PROJECT_ROOT%\.ollama"
 set OLLAMA_VULKAN=1
 
 echo   Starting server with Ollama backend...

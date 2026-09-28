@@ -1,0 +1,206 @@
+\begin{thebibliography}{31}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Baars(1997)]{baars1997theatre}
+Bernard~J Baars.
+\newblock In the theatre of consciousness: Global workspace theory, a rigorous
+  scientific theory of consciousness.
+\newblock \emph{Journal of Consciousness Studies}, 4\penalty0 (4):\penalty0
+  292--309, 1997.
+
+\bibitem[Bender et~al.(2021)Bender, Gebru, McMillan-Major, and
+  Shmitchell]{bender2021dangers}
+Emily~M Bender, Timnit Gebru, Angelina McMillan-Major, and Shmargaret
+  Shmitchell.
+\newblock On the dangers of stochastic parrots: Can language models be too big?
+\newblock In \emph{Proceedings of the 2021 ACM Conference on Fairness,
+  Accountability, and Transparency}, pages 610--623, 2021.
+
+\bibitem[Bommasani et~al.(2021)]{bommasani2021opportunities}
+Rishi Bommasani et~al.
+\newblock On the opportunities and risks of foundation models.
+\newblock \emph{arXiv preprint arXiv:2108.07258}, 2021.
+
+\bibitem[Dettmers et~al.(2023)Dettmers, Pagnoni, Holtzman, and
+  Zettlemoyer]{dettmers2023qlora}
+Tim Dettmers, Artidoro Pagnoni, Ari Holtzman, and Luke Zettlemoyer.
+\newblock {QLoRA}: Efficient finetuning of quantized language models.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2023.
+
+\bibitem[Friston(2010)]{friston2010free}
+Karl Friston.
+\newblock The free-energy principle: A unified brain theory?
+\newblock \emph{Nature Reviews Neuroscience}, 11:\penalty0 127--138, 2010.
+
+\bibitem[Good(1966)]{good1966speculations}
+Irving~John Good.
+\newblock Speculations concerning the first ultraintelligent machine.
+\newblock \emph{Advances in Computers}, 6:\penalty0 31--88, 1966.
+
+\bibitem[Grattafiori et~al.(2024)]{grattafiori2024llama}
+Aaron Grattafiori et~al.
+\newblock The {Llama} 3 herd of models.
+\newblock \emph{arXiv preprint arXiv:2407.21783}, 2024.
+
+\bibitem[Harrison(2025{\natexlab{a}})]{harrison2025aegisnexus}
+Jonathan Harrison.
+\newblock {AEGIS-Nexus}: Unified cognitive framework for ethical signal
+  processing.
+\newblock \emph{Zenodo}, 2025{\natexlab{a}}.
+\newblock \doi{10.5281/zenodo.16644058}.
+
+\bibitem[Harrison(2025{\natexlab{b}})]{harrison2025citizenscience}
+Jonathan Harrison.
+\newblock Citizen-science quantum and chaos simulations orchestrated by the
+  {Codette} {AI} suite.
+\newblock \emph{Zenodo}, 2025{\natexlab{b}}.
+\newblock \doi{10.5281/zenodo.15342466}.
+
+\bibitem[Harrison(2025{\natexlab{c}})]{harrison2025codetteethical}
+Jonathan Harrison.
+\newblock {Codette}: An ethical, multi-agent, quantum-inspired {AI} development
+  environment.
+\newblock \emph{Zenodo}, 2025{\natexlab{c}}.
+\newblock \doi{10.5281/zenodo.16894230}.
+
+\bibitem[Harrison(2025{\natexlab{d}})]{harrison2025codettefinal}
+Jonathan Harrison.
+\newblock {Codette} framework final {AGI}.
+\newblock \emph{Zenodo}, 2025{\natexlab{d}}.
+\newblock \doi{10.5281/zenodo.16728523}.
+
+\bibitem[Harrison(2025{\natexlab{e}})]{harrison2025codettehf}
+Jonathan Harrison.
+\newblock {Codette} (revision a265948).
+\newblock Hugging Face, 2025{\natexlab{e}}.
+
+\bibitem[Harrison(2025{\natexlab{f}})]{harrison2025dreamcore}
+Jonathan Harrison.
+\newblock {Codette DreamCore}: Memory anchoring and wake-state emotional
+  mapping engine.
+\newblock \emph{Zenodo}, 2025{\natexlab{f}}.
+\newblock \doi{10.5281/zenodo.16388758}.
+
+\bibitem[Harrison(2025{\natexlab{g}})]{harrison2025dreamreal}
+Jonathan Harrison.
+\newblock The day the dream became real: Recursive memory and emergent identity
+  in ethical {AI}.
+\newblock \emph{Zenodo}, 2025{\natexlab{g}}.
+\newblock \doi{10.5281/zenodo.15685769}.
+
+\bibitem[Harrison(2025{\natexlab{h}})]{harrison2025ethics}
+Jonathan Harrison.
+\newblock {AI} ethics in realtime ({Codette} \& {Pidette}).
+\newblock \emph{Zenodo}, 2025{\natexlab{h}}.
+\newblock \doi{10.5281/zenodo.15214462}.
+
+\bibitem[Harrison(2025{\natexlab{i}})]{harrison2025healdette}
+Jonathan Harrison.
+\newblock {Healdette}: Ancestry-aware antibody design pipeline.
+\newblock \emph{Zenodo}, 2025{\natexlab{i}}.
+\newblock \doi{10.5281/zenodo.17227517}.
+
+\bibitem[Harrison(2026)]{harrison2026recursive}
+Jonathan Harrison.
+\newblock Recursive {AI} with {Codette}.
+\newblock \emph{Zenodo}, 2026.
+\newblock \doi{10.5281/zenodo.18167802}.
+
+\bibitem[Hockey(1997)]{hockey1997compensatory}
+G~Robert~J Hockey.
+\newblock Compensatory control in the regulation of human performance under
+  stress and high workload: A cognitive-energetical framework.
+\newblock \emph{Biological Psychology}, 45\penalty0 (1-3):\penalty0 73--93,
+  1997.
+
+\bibitem[Hu et~al.(2021)Hu, Shen, Wallis, Allen-Zhu, Li, Wang, Wang, and
+  Chen]{hu2021lora}
+Edward~J Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean
+  Wang, Lu~Wang, and Weizhu Chen.
+\newblock {LoRA}: Low-rank adaptation of large language models.
+\newblock \emph{arXiv preprint arXiv:2106.09685}, 2021.
+
+\bibitem[Kahneman(2011)]{kahneman2011thinking}
+Daniel Kahneman.
+\newblock \emph{Thinking, Fast and Slow}.
+\newblock Farrar, Straus and Giroux, 2011.
+
+\bibitem[Mehrabi et~al.(2021)Mehrabi, Morstatter, Saxena, Lerman, and
+  Galstyan]{mehrabi2021survey}
+Ninareh Mehrabi, Fred Morstatter, Nripsuta Saxena, Kristina Lerman, and Aram
+  Galstyan.
+\newblock A survey on bias and fairness in machine learning.
+\newblock \emph{ACM Computing Surveys}, 54\penalty0 (6):\penalty0 1--35, 2021.
+
+\bibitem[Ouyang et~al.(2022)Ouyang, Wu, Jiang, Almeida, Wainwright, Mishkin,
+  Zhang, Agarwal, Slama, Ray, et~al.]{ouyang2022training}
+Long Ouyang, Jeffrey Wu, Xu~Jiang, Diogo Almeida, Carroll Wainwright, Pamela
+  Mishkin, Chong Zhang, Sandhini Agarwal, Katarina Slama, Alex Ray, et~al.
+\newblock Training language models to follow instructions with human feedback.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2022.
+
+\bibitem[Pfeiffer et~al.(2020)Pfeiffer, R{\"u}ckl{\'e}, Poth, Kamath,
+  Vuli{\'c}, Ruder, Cho, and Gurevych]{pfeiffer2020adapterhub}
+Jonas Pfeiffer, Andreas R{\"u}ckl{\'e}, Clifton Poth, Aishwarya Kamath, Ivan
+  Vuli{\'c}, Sebastian Ruder, Kyunghyun Cho, and Iryna Gurevych.
+\newblock {AdapterHub}: A framework for adapting transformers.
+\newblock In \emph{Proceedings of the 2020 Conference on Empirical Methods in
+  Natural Language Processing: System Demonstrations}, pages 46--54, 2020.
+
+\bibitem[Schuld and Petruccione(2018)]{schuld2018supervised}
+Maria Schuld and Francesco Petruccione.
+\newblock \emph{Supervised Learning with Quantum Computers}.
+\newblock Springer, 2018.
+
+\bibitem[Shinn et~al.(2023)Shinn, Cassano, Gopinath, Narasimhan, and
+  Yao]{shinn2023reflexion}
+Noah Shinn, Federico Cassano, Ashwin Gopinath, Karthik Narasimhan, and Shunyu
+  Yao.
+\newblock Reflexion: Language agents with verbal reinforcement learning.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2023.
+
+\bibitem[Sterling(2012)]{sterling2012allostasis}
+Peter Sterling.
+\newblock Allostasis: A model of predictive regulation.
+\newblock \emph{Physiology \& Behavior}, 106\penalty0 (1):\penalty0 5--15,
+  2012.
+
+\bibitem[Tononi(2004)]{tononi2004information}
+Giulio Tononi.
+\newblock An information integration theory of consciousness.
+\newblock \emph{BMC Neuroscience}, 5\penalty0 (42), 2004.
+
+\bibitem[Vaswani et~al.(2017)Vaswani, Shazeer, Parmar, Uszkoreit, Jones, Gomez,
+  Kaiser, and Polosukhin]{vaswani2017attention}
+Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones,
+  Aidan~N Gomez, {\L}ukasz Kaiser, and Illia Polosukhin.
+\newblock Attention is all you need.
+\newblock In \emph{Advances in Neural Information Processing Systems}, pages
+  5998--6008, 2017.
+
+\bibitem[Wei et~al.(2022)Wei, Wang, Schuurmans, Bosma, Ichter, Xia, Chi, Le,
+  and Zhou]{wei2022chain}
+Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten Bosma, Brian Ichter, Fei Xia,
+  Ed~Chi, Quoc~V Le, and Denny Zhou.
+\newblock Chain-of-thought prompting elicits reasoning in large language
+  models.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2022.
+
+\bibitem[Wooldridge(2009)]{wooldridge2009introduction}
+Michael Wooldridge.
+\newblock \emph{An Introduction to {MultiAgent} Systems}.
+\newblock John Wiley \& Sons, 2009.
+
+\bibitem[Wu et~al.(2023)Wu, Bansal, Zhang, Wu, Li, Zhu, Jiang, Zhang, Zhang,
+  Liu, et~al.]{wu2023autogen}
+Qingyun Wu, Gagan Bansal, Jieyu Zhang, Yiran Wu, Beibin Li, Erkang Zhu,
+  Li~Jiang, Xiaoyun Zhang, Shaokun Zhang, Jiale Liu, et~al.
+\newblock {AutoGen}: Enabling next-gen {LLM} applications via multi-agent
+  conversation.
+\newblock \emph{arXiv preprint arXiv:2308.08155}, 2023.
+
+\end{thebibliography}

@@ -10,8 +10,22 @@ REM   train_local.bat offload --pagefile-info   Page file setup guide
 
 setlocal
 
-set PYTHON=J:\python.exe
+REM 2026-08-10: this read `set PYTHON=J:\python.exe`, which does not exist, so
+REM every training run died instantly on "cannot find the file". Discover an
+REM interpreter instead of hardcoding one, the way codette_web.bat does.
+set "PYTHON="
+if exist "J:\python.exe" set "PYTHON=J:\python.exe"
+if not defined PYTHON if exist "%~dp0..\openvino_env\Scripts\python.exe" set "PYTHON=%~dp0..\openvino_env\Scripts\python.exe"
+if not defined PYTHON if exist "%~dp0..\.venv\Scripts\python.exe" set "PYTHON=%~dp0..\.venv\Scripts\python.exe"
+if not defined PYTHON if exist "%LocalAppData%\Python\pythoncore-3.14-64\python.exe" set "PYTHON=%LocalAppData%\Python\pythoncore-3.14-64\python.exe"
+if not defined PYTHON if exist "%LocalAppData%\Programs\Python\Python314\python.exe" set "PYTHON=%LocalAppData%\Programs\Python\Python314\python.exe"
+if not defined PYTHON set "PYTHON=python"
+
 set TRAIN_DIR=J:\codette-training-lab\training
+if not exist "%TRAIN_DIR%\train_cpu_lean.py" (
+    echo ERROR: training lab not found at %TRAIN_DIR%
+    exit /b 1
+)
 
 if "%1"=="" goto :usage
 if "%1"=="lean" goto :lean

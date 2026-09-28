@@ -79,6 +79,24 @@ class QuantumHarmonicFramework:
         self._history: List[float] = []
         self._depth: int = 0
 
+        # Directed-damping accounting.  apply_directed_damping() silently falls
+        # back to zero-point damping when attractor_field is empty, and the
+        # attractor field is populated ONLY by update_attractor_field(), which is
+        # called ONLY from update_resonant_continuity() on the vector path.  The
+        # scalar path — stabilize(), the one forge_engine actually calls — never
+        # registers an attractor.  So on the scalar path the field is always
+        # empty, nearest_attractor() always returns None, and "directed" damping
+        # has always been uniform damping wearing the other name.
+        #
+        # Damping toward a target and damping toward zero are different physics:
+        # the first redirects energy and preserves structure, the second removes
+        # amplitude and flattens the differentiating modes along with the runaway
+        # one.  A caller asking for the channel and silently getting the dam has
+        # no way to find out.  These counters are how it says so.  They change no
+        # behaviour — the fallback is still correct, it is just no longer silent.
+        self.directed_damping_calls: int = 0
+        self.directed_damping_fallbacks: int = 0
+
     # ── Vector interface ──────────────────────────────────────────────────────
 
     def calculate_epistemic_tension(
@@ -226,8 +244,12 @@ class QuantumHarmonicFramework:
         If no attractors are registered, falls back to zero-point damping.
         This is the preferred method when attractor_field is populated.
         """
+        self.directed_damping_calls += 1
         target = self.nearest_attractor(current_wavefunction)
         if target is None:
+            # No attractor registered — this is uniform damping, not directed.
+            # Counted so the degradation is legible; see __init__ for why.
+            self.directed_damping_fallbacks += 1
             return self.apply_harmonic_damping(current_wavefunction, epsilon)
 
         if epsilon > self.stability_threshold:
@@ -312,6 +334,10 @@ class QuantumHarmonicFramework:
             "depth":            self._depth,
             "epsilon_history":  [round(e, 4) for e in self._history[-PSI_R_WINDOW:]],
             "attractor_count":  len(self.attractor_field),
+            # Directed damping that fell back to uniform. calls == fallbacks means
+            # the channel has been the dam for every call made.
+            "directed_damping_calls":     self.directed_damping_calls,
+            "directed_damping_fallbacks": self.directed_damping_fallbacks,
         }
 
 

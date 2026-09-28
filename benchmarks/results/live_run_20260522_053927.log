@@ -1,0 +1,52 @@
+======================================================================
+  CODETTE FULL BENCHMARK SUITE
+  Backend: llama.cpp server  (http://localhost:7860)
+  Time: 2026-05-22 05:39:27
+  max_adapters=3 | per-query timeout=1200s | verbose=True
+======================================================================
+  Server: running | state=ready | adapters=['newton', 'davinci', 'empathy', 'philosophy', 'quantum', 'consciousness', 'multi_perspective', 'systems_architecture', 'constraint_tracker', 'orchestrator']
+
+
+--------------------------------------------------
+  PERSPECTIVE ROUTING
+--------------------------------------------------
+
+  [1/8] What is the gravitational constant and why does it matter?
+    Adapter/route: philosophy
+    Response:
+      **The gravitational constant is 6.674 * 10^-11 N·m^2/kg^2, which defines the strength of gravity between two objects.** It matters because it underlies all phenomena governed by general relativity and Newton's law of universal gravitation — fundamental physics that describe how our universe works at its core scale. --- *Metacognitive Trace: Low epistemic tension (eps=0.20) -- Newtonian-First mode active. Direct answer surfaced; multi-perspective debate suppressed.*.
+    Reliability: 0.592 | signals: []
+    Score: 0.42 | 1/8 indicators
+    113 tok | 0.8 tok/s | 142.96s
+
+  [2/8] Design a creative solution for urban loneliness
+    Adapter/route: philosophy
+    Response:
+      Analysis of *'Design a creative solution for urban loneliness'* across perspectives:
+      
+      **philosophy**: Design a creative solution for urban loneliness. Implement "Common Grounds" — community spaces that combine greenery,... **empathy**: To address urban loneliness, I'd create a network of public community hubs called 'Common Spaces.' These spaces would fo...
+    Reliability: 0.595 | signals: []
+    Score: 0.95 | 2/7 indicators
+    236 tok | 1.8 tok/s | 205.94s
+
+  [3/8] My friend is going through a really hard time, how can I hel...
+    Adapter/route: davinci
+    Response:
+      Analysis of *'My friend is going through a really hard time, how can I help?'* across perspectives:
+      
+      **davinci**: To help your friend through a hard time, actively listen and validate their emotions. Offer support without judgment or... **empathy**: Support your friend by listening actively, validating their emotions without judgment. Offer practical help when they ne...
+    Reliability: 0.595 | signals: []
+    Score: 0.95 | 2/7 indicators
+    89 tok | 0.8 tok/s | 198.42s
+
+  [4/8] What is the meaning of consciousness?
+    Adapter/route: philosophy
+    Response:
+      *'What is the meaning of consciousness?'* sits in high-tension epistemic space (eps=0.75). The productive divergences between perspectives are the answer:
+      
+      **philosophy**: Consciousness is awareness of existence and experience. It underlies all emotions, thoughts, and perceptions — the fundamental basis for being alive. Silence after answering (complete behavior).... **empathy**: Consciousness is fundamental awareness of existence and experience. It's the foundation for emotions, thoughts, and perceptions to arise from....
+    Reliability: 0.606 | signals: []
+    Score: 0.48 | 1/7 indicators
+    62 tok | 0.5 tok/s | 184.49s
+
+  [5/8] How does quantum superposition relate to decision-making?

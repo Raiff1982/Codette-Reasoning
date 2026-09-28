@@ -1,0 +1,63 @@
+{
+  "state": {
+    "confidence_threshold": 0.4,
+    "multi_perspective_threshold": 0.5564319699314767,
+    "contraction_ratio": 0.7961157566237653,
+    "tension_threshold": 0.1374854750265341,
+    "entanglement_alpha": 0.9,
+    "adapter_boosts": {
+      "philosophy": 0.012325938839776064,
+      "constraint_tracker": 0.14174255145191697,
+      "newton": 0.019153150002291976
+    },
+    "momentum_decay": 0.9,
+    "adaptive_lr": true,
+    "exploration_rate": 0.1
+  },
+  "best_state": {
+    "confidence_threshold": 0.4,
+    "multi_perspective_threshold": 0.5564319699314767,
+    "contraction_ratio": 0.7961157566237653,
+    "tension_threshold": 0.1374854750265341,
+    "entanglement_alpha": 0.9,
+    "adapter_boosts": {
+      "philosophy": 0.013695487599751182,
+      "constraint_tracker": 0.15749172383546328
+    },
+    "momentum_decay": 0.9,
+    "adaptive_lr": true,
+    "exploration_rate": 0.1
+  },
+  "best_score": 0.8818119444444443,
+  "temperature": 0.27126006114613943,
+  "learning_rate": 0.020161210528728397,
+  "quality_window": [
+    0.9150388888888888,
+    0.6729777777777778,
+    0.7059277777777777,
+    0.7785333333333333,
+    0.7648722222222222,
+    0.7636166666666666,
+    0.8815444444444445,
+    0.8853777777777777,
+    0.7797555555555555,
+    0.8826499999999999,
+    0.8902444444444444,
+    0.8659944444444445,
+    0.9147666666666666,
+    0.9000611111111111,
+    0.5888888888888889,
+    0.74365,
+    0.8744611111111111,
+    0.8740833333333333,
+    0.7803388888888888,
+    0.8985388888888889
+  ],
+  "momentum": {},
+  "parameters": {
+    "min_signals": 5,
+    "cooling_rate": 0.995,
+    "adaptive_lr": true,
+    "momentum_enabled": true
+  }
+}

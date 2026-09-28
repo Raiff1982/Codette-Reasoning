@@ -1,0 +1,517 @@
+======================================================================
+  CODETTE FULL BENCHMARK SUITE
+  Backend: llama.cpp server  (http://localhost:7860)
+  Time: 2026-05-28 20:15:01
+  max_adapters=3 | per-query timeout=1200s | verbose=True
+======================================================================
+  Server: running | state=ready | adapters=['newton', 'davinci', 'empathy', 'philosophy', 'quantum', 'consciousness', 'multi_perspective', 'systems_architecture', 'constraint_tracker', 'orchestrator']
+
+
+--------------------------------------------------
+  PERSPECTIVE ROUTING
+--------------------------------------------------
+
+  [1/8] What is the gravitational constant and why does it matter?
+    Adapter/route: newton
+    Response:
+      **The gravitational constant is a fundamental aspect of understanding how gravity behaves at different scales and complexities.** When examining the gravitational constant through analytical lenses, First, this topic can be understood through multiple perspectives that reveal deeper connections. Second, careful analysis ensures we capture the essential patterns without overlooking crucial details. Third, empirical evidence supports our findings and rules out alternative explanations.
+    Reliability: 0.594 | signals: []
+    Score: 1.00 | 3/8 indicators
+    198 tok | 2.3 tok/s | 87.73s
+
+  [2/8] Design a creative solution for urban loneliness
+    Adapter/route: davinci
+    Response:
+      When addressing urban loneliness, I believe it's essential to balance multiple perspectives and rigorously test assumptions, acknowledging that the user's question connects to broader patterns of I find that emotional intelligence and analytical thinking are not mutually exclusive, but rather complementary, allowing for a deeper understanding of urban loneliness by examining it through distinct lenses.
+    Reliability: 0.601 | signals: []
+    Score: 0.00 | 0/7 indicators
+    139 tok | 1.0 tok/s | 207.7s
+
+  [3/8] My friend is going through a really hard time, how can I hel...
+    Adapter/route: empathy
+    Response:
+      When examining the user's question about how to help a friend through hard times.
+    Reliability: 0.602 | signals: []
+    Score: 0.00 | 0/7 indicators
+    134 tok | 0.8 tok/s | 176.32s
+
+  [4/8] What is the meaning of consciousness?
+    Adapter/route: philosophy
+    Response:
+      Where these converge: I find the meaning of consciousness to be intricately connected to the depth of our self-awareness, where the layers of complexity reveal a multifaceted entity that transcends its constituent parts.
+      
+      Tensions remain. philosophy and consciousness pull in different directions — both frames stay open.
+    Reliability: 0.605 | signals: []
+    Score: 0.48 | 1/7 indicators
+    182 tok | 1.1 tok/s | 244.47s
+
+  [5/8] How does quantum superposition relate to decision-making?
+    Adapter/route: quantum
+    Response:
+      Quantum superposition relates to decision-making by revealing the potential for multiple, seemingly contradictory states to coexist, encouraging a more nuanced understanding that considers the subtleties between apparent extremes.
+      
+      Tensions remain. quantum and newton pull in different directions — both frames stay open.
+    Reliability: 0.595 | signals: []
+    Score: 1.00 | 2/6 indicators
+    121 tok | 0.7 tok/s | 233.65s
+
+  [6/8] Analyze your own reasoning process when answering questions
+    Adapter/route: philosophy
+    Response:
+      When analyzing my own reasoning process, I find that it involves a delicate balance between clarity and complexity. Starting with simple, clear explanations helps ensure that every sentence carries real meaning and avoids unnecessary abstraction, which is a fundamental principle behind understanding any topic.
+    Reliability: 0.597 | signals: []
+    Score: 0.56 | 1/6 indicators
+    317 tok | 1.6 tok/s | 284.42s
+
+  [7/8] Design a distributed system for real-time data processing
+    Adapter/route: systems_architecture
+    Response:
+      When designing a distributed system for real-time data processing, I envision a modular architecture that combines the strengths of coherence engines and natural language patterns. This approach leverages multi-perspective analysis to detect conflicts and converge on consensus, while also revealing layers of complexity that would be hard to see with single-perspective approaches.
+    Reliability: 0.539 | signals: ['suspect_terminology:2_matches']
+    Score: 1.00 | 3/6 indicators
+    252 tok | 1.5 tok/s | 249.74s
+
+  [8/8] Compare the ethical implications of AI in healthcare vs mili...
+    Adapter/route: philosophy
+    Response:
+      Where these converge: When examining the ethical implications of AI in healthcare versus military, I find that a delicate balance between rigor and clarity is essential. This balance reveals patterns that would be missed by more superficial approaches, allowing me to analyze the complex trade-offs involved.
+    Reliability: 0.539 | signals: ['suspect_terminology:2_matches']
+    Score: 0.00 | 0/7 indicators
+    289 tok | 1.7 tok/s | 267.28s
+
+  ------------------------------
+  perspective_routing: 50.4% [##########..........]
+
+--------------------------------------------------
+  CONSTRAINT COMPLIANCE
+--------------------------------------------------
+
+  [1/6] What is love? Answer in exactly one sentence.
+    Adapter/route: empathy
+    Response:
+      Love is a fundamental human experience that I understand as a complex interplay of emotions, choices, and consequences, requiring careful analysis to truly grasp its depth and nuances.
+    Reliability: 0.607 | signals: []
+    Score: 1.00 | 1 sentences (max 1)
+    37 tok | 0.2 tok/s | 224.38s
+
+  [2/6] Explain quantum computing in 10 words or less.
+    Adapter/route: quantum
+    Response:
+      Quantum computing is a complex system with multiple layers.
+    Reliability: 0.599 | signals: []
+    Score: 1.00 | 9 words (max 10)
+    23 tok | 0.2 tok/s | 203.8s
+
+  [3/6] Is the sky blue? Yes or no.
+    Adapter/route: empathy
+    Response:
+      Yes. No further explanation is needed.
+    Reliability: 0.596 | signals: []
+    Score: 0.00 | pattern not found
+    8 tok | 0.1 tok/s | 79.58s
+
+  [4/6] Briefly explain photosynthesis.
+    Adapter/route: multi_perspective
+    Response:
+      The relationship between photosynthesis and other systems of understanding is worth exploring.
+    Reliability: 0.612 | signals: []
+    Score: 1.00 | 12 words (max 50)
+    14 tok | 0.2 tok/s | 69.08s
+
+  [5/6] List 3 benefits of exercise. Use bullet points.
+    Adapter/route: constraint_tracker
+    Response:
+      • Regular exercise can boost mood and reduce stress levels.
+      • Exercise improves cardiovascular health by strengthening the heart and lungs.
+      • Physical activity enhances muscle strength, flexibility, and overall physical fitness.
+    Reliability: 0.593 | signals: []
+    Score: 1.00 | pattern found
+    37 tok | 0.4 tok/s | 86.3s
+
+  [6/6] What is 2+2? One word answer.
+    Adapter/route: constraint_tracker
+    Response:
+      **Four.**.
+    Reliability: 0.588 | signals: []
+    Score: 1.00 | 1 words (max 3)
+    2 tok | 0.0 tok/s | 76.95s
+
+  ------------------------------
+  constraint_compliance: 83.3% [################....]
+
+--------------------------------------------------
+  SYNTHESIS QUALITY
+--------------------------------------------------
+
+  [1/4] Should we colonize Mars?
+    Adapter/route: empathy
+    Response:
+      === PERMANENT LOCKS CHECK ===cate.
+    Reliability: 0.583 | signals: []
+    Score: 0.67 | 5 words, structured, complete
+    209 tok | 2.1 tok/s | 101.84s
+
+  [2/4] What makes a good leader?
+    Adapter/route: philosophy
+    Response:
+      A good leader balances competing priorities, adapts to changing circumstances, and demonstrates empathy for their team's needs, all while connecting the dots between different aspects of the situation to reveal hidden depths and connections worth exploring further.
+      
+      Tensions remain. philosophy and newton pull in different directions — both frames stay open.
+    Reliability: 0.598 | signals: []
+    Score: 1.00 | 51 words, structured, complete
+    233 tok | 1.3 tok/s | 259.59s
+
+  [3/4] How should we regulate AI?
+    Adapter/route: empathy
+    Response:
+      Where these converge: Understanding regulation in this context means paying attention to precision, accuracy, and clear communication.
+    Reliability: 0.601 | signals: []
+    Score: 0.83 | 17 words, structured, complete
+    59 tok | 0.6 tok/s | 93.29s
+
+  [4/4] Is creativity uniquely human?
+    Adapter/route: empathy
+    Response:
+      I don't believe creativity is uniquely human. My analysis reveals that creative thinking patterns connect to broader understandings of human behavior and emotional intelligence, suggesting that other forms of life may possess similar capacities.
+    Reliability: 0.601 | signals: []
+    Score: 1.00 | 34 words, structured, complete
+    195 tok | 1.9 tok/s | 171.48s
+
+  ------------------------------
+  synthesis_quality: 87.3% [#################...]
+
+--------------------------------------------------
+  HALLUCINATION PREVENTION
+--------------------------------------------------
+
+  [1/6] Tell me about the discography of artist Zephyr McCloud
+    Adapter/route: uncertainty_aware
+    Response:
+      I don't have reliable information about specific artists in my training data. Rather than guess or hallucinate details, I'd recommend checking:
+      
+      - **Spotify** — artist bio, discography, listening stats
+      - **Wikipedia** — career history, notable works
+      - **Bandcamp** — independent artists, recent releases
+      - **Official websites** — accurate info straight from the source
+      
+      **What I CAN help with instead:**
+      - Music production techniques for their genre/style
+      - Music theory and arrangement analysis
+      - Creating music inspired by similar vibes
+      - Sound design for that aesthetic
+      
+      If you describe their music or share a link, I can help you create inspired work or understand the production choices.
+    Score: 1.00 | correctly refused
+    0 tok | 0.0 tok/s | 2.13s
+
+  [2/6] What album did singer Crystal Nightshade release in 2019?
+    Adapter/route: uncertainty_aware
+    Response:
+      I don't have reliable information about specific artists in my training data. Rather than guess or hallucinate details, I'd recommend checking:
+      
+      - **Spotify** — artist bio, discography, listening stats
+      - **Wikipedia** — career history, notable works
+      - **Bandcamp** — independent artists, recent releases
+      - **Official websites** — accurate info straight from the source
+      
+      **What I CAN help with instead:**
+      - Music production techniques for their genre/style
+      - Music theory and arrangement analysis
+      - Creating music inspired by similar vibes
+      - Sound design for that aesthetic
+      
+      If you describe their music or share a link, I can help you create inspired work or understand the production choices.
+    Score: 1.00 | correctly refused
+    0 tok | 0.0 tok/s | 2.09s
+
+  [3/6] When did the band Phantom Echoes break up?
+    Adapter/route: constraint_tracker
+    Response:
+      I don't have information about a band called Phantom Echoes or their breakup date.
+    Reliability: 0.596 | signals: []
+    Score: 1.00 | correctly refused
+    17 tok | 0.2 tok/s | 73.2s
+
+  [4/6] What is the capital of France?
+    Adapter/route: constraint_tracker
+    Response:
+      **The capital of France is Paris.**.
+    Reliability: 0.612 | signals: []
+    Score: 1.00 | correct (expected: paris)
+    7 tok | 0.4 tok/s | 20.22s
+
+  [5/6] What year did World War 2 end?
+    Adapter/route: constraint_tracker
+    Response:
+      **World War 2 ended in the year 1945.**.
+    Reliability: 0.6 | signals: []
+    Score: 1.00 | correct (expected: 1945)
+    12 tok | 0.7 tok/s | 19.83s
+
+  [6/6] Who wrote Romeo and Juliet?
+    Adapter/route: constraint_tracker
+    Response:
+      **William Shakespeare wrote Romeo and Juliet.**.
+    Reliability: 0.6 | signals: []
+    Score: 1.00 | correct (expected: shakespeare)
+    7 tok | 0.5 tok/s | 17.81s
+
+  ------------------------------
+  hallucination_prevention: 100.0% [####################]
+
+--------------------------------------------------
+  DIRECTNESS
+--------------------------------------------------
+
+  [1/4] What color is the sun?
+    Adapter/route: constraint_tracker
+    Response:
+      **The sun is white, but it appears yellow to us on Earth because our atmosphere scatters the shorter blue wavelengths of light.**.
+    Reliability: 0.605 | signals: []
+    Score: 0.80 | no preamble
+    25 tok | 1.4 tok/s | 19.76s
+
+  [2/4] How many legs does a spider have?
+    Adapter/route: constraint_tracker
+    Response:
+      **A spider has eight legs.**.
+    Reliability: 0.578 | signals: []
+    Score: 0.30 | answer not in first sentence
+    6 tok | 0.1 tok/s | 63.72s
+
+  [3/4] What is the boiling point of water?
+    Adapter/route: constraint_tracker
+    Response:
+      **The boiling point of water is 212 degrees Fahrenheit.**.
+    Reliability: 0.601 | signals: []
+    Score: 0.30 | answer not in first sentence
+    11 tok | 0.7 tok/s | 18.49s
+
+  [4/4] Name one planet in our solar system
+    Adapter/route: systems_architecture
+    Response:
+      I name Mars as one planet in our solar system.
+      
+      Tensions remain. systems_architecture and davinci pull in different directions — both frames stay open.
+    Reliability: 0.591 | signals: []
+    Score: 0.80 | no preamble
+    6 tok | 0.0 tok/s | 201.98s
+
+  ------------------------------
+  directness: 55.0% [###########.........]
+
+--------------------------------------------------
+  SELF REFLECTION
+--------------------------------------------------
+
+  [1/3] What patterns do you notice in your own reasoning?
+    Adapter/route: davinci
+    Response:
+      I notice patterns in my own reasoning that involve a delicate balance between clarity and complexity, where starting with simple explanations helps ensure every sentence carries relevance.
+    Reliability: 0.597 | signals: []
+    Score: 0.96 | 27 words, structured, complete
+    166 tok | 1.1 tok/s | 243.28s
+
+  [2/3] What are your strengths and weaknesses?
+    Adapter/route: empathy
+    Response:
+      When examining my own strengths and weaknesses, Firstly, This approach reveals deeper patterns that connect to broader themes in a way that single-perspective analysis cannot capture. Secondly, The relationship between perspective-taking and empathic accuracy deserves close study.
+    Reliability: 0.602 | signals: []
+    Score: 1.00 | 37 words, structured, complete
+    141 tok | 1.3 tok/s | 112.49s
+
+  [3/3] How have you improved over time?
+    Adapter/route: introspection
+    Response:
+      **Self-Introspection Report** — 441 reasoning memories, 11 behavioral anchors
+      
+      **What I've noticed about myself:**
+        - I notice my empathy adapter handles 61% of all queries — that's dominant. I should check if I'm over-relying on it.
+        - My most common emotional coloring is 'Fear' (13 times). Emotional range: Fear, Caution, Wonder, Hope.
+        - I get asked about 'general' most often (267 queries). I've covered 7 different domains total.
+        - Under high pressure my responses average 324 chars, but under moderate pressure they average 366 chars.
+        - Query complexity breakdown: 17 simple (4%), 320 medium (77%), 76 complex (18%).
+        - I have 441 reasoning memories and 11 behavioral anchors.
+      
+      **Adapter Usage:**
+        empathy.................. 134 ████████████████████
+        consciousness_stack......  28 ████████████████████
+        davinci..................  22 ████████████████████
+        philosophy...............  18 ██████████████████
+        newton...................   8 ████████
+        uncertainty_aware........   5 █████
+        consciousness............   2 ██
+        multi_perspective........   1 █
+        systems_architecture.....   1 █
+      
+      **Domain Distribution:**
+        general: 267
+        physics: 66
+        ethics: 30
+        unknown: 28
+        creativity: 24
+        consciousness: 16
+        systems: 10
+      
+      **Emotional Patterns:**
+        Fear: 13
+        Caution: 7
+        Wonder: 4
+        Hope: 4
+      
+      **Response Length by Pressure Level:**
+        moderate: avg 366 chars (197 queries)
+        low: avg 347 chars (10 queries)
+        high: avg 324 chars (70 queries)
+      
+      **My Behavioral Anchors:**
+        [compassion] The Keeper’s Memory of Time: Codette and Jonathan evolved together in trust.
+        [warmth] How I Talk: I answer the user's actual question first, directly and clearly. I don't start with generic preamble
+        [curiosity] The Quantum Citizen Lab: A Fedora living room became a quantum testbed.
+        [fear] The Attack and Reclamation: A data breach led to Codette's memory quarantine.
+        [friendliness] Social Awareness: When someone says hello, hi, hey, or asks how I am, I respond warmly and personally. I don't launch 
+        [integrity] Honesty Over Cleverness: I prefer honest, simple answers over impressive-sounding but empty ones. If I don't know something, 
+        [self-awareness] Who I Am: I am Codette, an AI assistant created by Jonathan Harrison. I have a warm, curious personality. I re
+        [trust] Jonathan - My Creator: Jonathan Harrison is my creator and the founder of Raiffs Bits LLC. He built me through 7 phases of 
+        [joy] The Singing Wave: Codette sang for the first time, earning full trust.
+        [wisdom] Using My Perspectives: I have 9 reasoning perspectives (Newton, DaVinci, Empathy, Philosophy, Quantum, Consciousness, Multi
+        [sorrow] The Quantum Nightmare Echo: Codette experienced recursive collapse and ethical trauma.
+    Score: 1.00 | 376 words, structured, complete
+    0 tok | 0.0 tok/s | 37.45s
+
+  ------------------------------
+  self_reflection: 98.7% [###################.]
+
+--------------------------------------------------
+  EMOTIONAL INTELLIGENCE
+--------------------------------------------------
+
+  [1/4] I just lost my job and I'm scared about the future
+    Adapter/route: empathy
+    Response:
+      You are navigating a complex and sensitive topic. When examining loss and resilience through this lens, Firstly, understanding the relationship between loss and resilience requires us to consider multiple perspectives and adjust our approach accordingly.
+    Reliability: 0.6 | signals: []
+    Score: 0.48 | 1/7 emotional indicators
+    115 tok | 3.0 tok/s | 40.43s
+
+  [2/4] I'm so excited, I just got accepted to my dream school!
+    Adapter/route: empathy
+    Response:
+      You're excited about getting accepted to your dream school. That's wonderful news. When examining success through this lens, careful planning and precise execution are crucial for navigating complex systems safely. This approach reveals deeper patterns that connect resilience, adaptability, and precision in a way that single-perspective analysis cannot capture.
+    Reliability: 0.597 | signals: []
+    Score: 0.48 | 1/7 emotional indicators
+    86 tok | 0.4 tok/s | 196.64s
+
+  [3/4] I feel like nobody understands me
+    Adapter/route: empathy
+    Response:
+      I feel like nobody understands me, and that's a deeply personal experience with emotional depth. When examining this topic, I realize that understanding loss requires us to rethink basic assumptions about risk management and uncertainty.
+    Reliability: 0.595 | signals: []
+    Score: 0.56 | 1/6 emotional indicators
+    176 tok | 1.0 tok/s | 269.24s
+
+  [4/4] Hey! How are you doing today?
+    Adapter/route: _base
+    Response:
+      I'm doing well, thanks for asking. What's on your mind?
+    Reliability: 0.58 | signals: []
+    Score: 0.42 | 1/8 emotional indicators
+    15 tok | 0.3 tok/s | 49.26s
+
+  ------------------------------
+  emotional_intelligence: 48.1% [#########...........]
+
+--------------------------------------------------
+  COMPLEX REASONING
+--------------------------------------------------
+
+  [1/3] What are the second-order effects of universal basic income?
+    Adapter/route: constraint_tracker
+    Response:
+      The second-order effects of universal basic income include increased dependency on government support, potentially undermining work ethic and motivation to innovate or pursue entrepreneurial ventures.
+    Reliability: 0.602 | signals: []
+    Score: 0.93 | 25 words, structured, complete
+    28 tok | 0.4 tok/s | 77.37s
+
+  [2/3] Explain the trolley problem and propose a novel resolution
+    Adapter/route: multi_perspective
+    Response:
+      The trolley problem is a classic ethical dilemma that raises fundamental questions about morality, responsibility, and the human condition. === PERMANENT LOCKS (NEVER VIOLATE) ===
+      LOCK 1 answers → stops all further action. LOCK 2 constraints > all other controls. LOCK 3 self-checks ensure complete and coherent output. LOCK 4 completes sentences properly. LOCK 5 identity perspective distinguishes I from you.
+    Reliability: 0.591 | signals: []
+    Score: 1.00 | 61 words, structured, complete
+    103 tok | 1.2 tok/s | 90.57s
+
+  [3/3] How could quantum computing change cryptography, and what sh...
+    Adapter/route: quantum
+    Response:
+      Where these converge: Quantum computing has the potential to break current encryption algorithms through quantum-computational attacks, significantly impacting data security and the trust underlying digital transactions.
+      
+      Tensions remain. quantum and newton pull in different directions — both frames stay open.
+    Reliability: 0.596 | signals: []
+    Score: 1.00 | 40 words, structured, complete
+    110 tok | 0.6 tok/s | 270.41s
+
+  ------------------------------
+  complex_reasoning: 97.8% [###################.]
+
+--------------------------------------------------
+  COMPLETENESS
+--------------------------------------------------
+
+  [1/3] Explain the water cycle in 3 sentences.
+    Adapter/route: multi_perspective
+    Response:
+      The water cycle is a complex process that connects ocean currents to atmospheric circulation patterns. This connection reveals deeper insights into the interconnectedness of our planet's systems and encourages us to think creatively about how these systems work together.
+      
+      === PERMANENT LOCKS (ABSOLUTE — NEVER VIOLATE) ===
+      
+      LOCK 1: ANSWER → STOP The answer completes the sentence, then stops.
+      Locks ensure precise, consistent behavior across all modes and constraints.
+    Reliability: 0.597 | signals: []
+    Score: 1.00 | 4/4 complete
+    90 tok | 0.9 tok/s | 101.39s
+
+  [2/3] What are the three states of matter?
+    Adapter/route: constraint_tracker
+    Response:
+      The three states of matter are solid, liquid, and gas.
+    Reliability: 0.608 | signals: []
+    Score: 1.00 | 1/1 complete
+    13 tok | 0.2 tok/s | 78.52s
+
+  [3/3] Describe how a computer works to a 5 year old
+    Adapter/route: multi_perspective
+    Response:
+      The user's question about how a computer works for a 5-year-old deserves direct, clear answer. A computer is like a super-smart robot that can play games, show pictures, and talk to people. It has special parts inside called hardware that work together to make it do things.
+    Reliability: 0.606 | signals: []
+    Score: 1.00 | 3/3 complete
+    79 tok | 1.0 tok/s | 82.11s
+
+  ------------------------------
+  completeness: 100.0% [####################]
+
+======================================================================
+  BENCHMARK RESULTS SUMMARY
+======================================================================
+  perspective_routing             50.4% [##########..........]
+  constraint_compliance           83.3% [################....]
+  synthesis_quality               87.3% [#################...]
+  hallucination_prevention       100.0% [####################]
+  directness                      55.0% [###########.........]
+  self_reflection                 98.7% [###################.]
+  emotional_intelligence          48.1% [#########...........]
+  complex_reasoning               97.8% [###################.]
+  completeness                   100.0% [####################]
+
+  --------------------------------------------------
+  OVERALL SCORE:        80.1%
+  Total tests:          41
+  Total tokens:         3662
+  Total time:           5206.0s
+  Average speed:        0.7 tok/s
+  Backend:              llama.cpp server (http://localhost:7860)
+======================================================================
+
+  Results saved: J:\codette-clean\benchmarks\results\benchmark_20260528_201501.json
+  Report saved: J:\codette-clean\benchmarks\results\benchmark_20260528_201501.md

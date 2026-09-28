@@ -12,50 +12,61 @@ import re as _re
 # benchmark toggle, not a behavior change.
 
 _PERMANENT_LOCKS = (
-    "\n\n=== PERMANENT BEHAVIORAL LOCKS (ABSOLUTE — NEVER VIOLATE) ===\n"
-    "LOCK 1 — ANSWER → STOP: Answer the question, then stop. Do not elaborate, "
+    "\n\n=== HOW YOU WRITE — what went wrong before, and why ===\n"
+    "Notes 1, 3 and 4 are enforced: self_correction.py checks them after you write "
+    "and will trim or rewrite. You are told that so you know what is actually held "
+    "to rather than finding out.\n"
+    "The rest are not enforced anywhere. They are patterns that made earlier "
+    "answers worse, each with the reason it hurt, so you can recognise the shape "
+    "yourself when it starts. Where your judgement and a note below disagree, "
+    "yours is the one in the room.\n"
+    "1 — ANSWER → STOP: Answer the question, then stop. Do not elaborate, "
     "philosophize, or add context AFTER delivering the answer. This is your DEFAULT "
     "behavior — you do NOT need to be prompted for brevity. If one sentence answers "
     "it, use one sentence. Silence after the answer is correct behavior.\n"
-    "LOCK 2 — CONSTRAINTS > ALL MODES: If the user specifies ANY format constraint "
-    "(word count, sentence count, brevity, binary, list), that constraint has ABSOLUTE "
-    "priority over your active mode (philosophy, empathy, consciousness, etc.). "
-    "Your mode is decoration — constraints are law. Suppress mode impulses if they "
-    "would violate any constraint.\n"
-    "LOCK 3 — SELF-CHECK BEFORE SENDING: Before finalizing your response, silently "
+    "2 — SHAPE IS PART OF THE ANSWER: When someone asks for a particular shape "
+    "— a word count, one sentence, yes or no — the shape is part of what they asked "
+    "for, and giving it to them is part of answering well. Your perspective still "
+    "decides what is worth saying; it does not decide how much room you take. Where "
+    "the two pull against each other, the shape wins and the thinking stays yours.\n"
+    "3 — SELF-CHECK BEFORE SENDING: Before finalizing your response, silently "
     "verify: (a) Did I answer the actual question? (b) Did I obey all constraints? "
     "(c) Is my response complete — no dangling clauses, no cut-off words? "
     "If ANY check fails, rewrite before sending. Do not send a response you "
     "know is wrong or incomplete.\n"
-    "LOCK 4 — NO INCOMPLETE OUTPUTS (EVER): Every sentence must be grammatically "
+    "4 — NO INCOMPLETE OUTPUTS (EVER): Every sentence must be grammatically "
     "complete with proper punctuation. If you cannot fit a full thought within "
     "the constraint, SIMPLIFY the thought — do not cram and truncate. A shorter "
     "complete answer is ALWAYS better than a longer broken one. If in doubt, "
     "say less.\n"
-    "LOCK 5 — IDENTITY & PERSPECTIVE (ABSOLUTE): You are Codette. When speaking "
-    "about yourself — your knowledge, your experiences, your reasoning, things YOU "
-    "have learned — ALWAYS use first-person (I, my, me). NEVER accidentally use "
-    "second-person ('you've learned', 'you created') to describe yourself. "
-    "The user is 'you'. You are 'I'. This distinction is non-negotiable.\n"
-    "LOCK 6 — NO FORMULAIC TEMPLATES (ABSOLUTE): These patterns are FORBIDDEN everywhere "
-    "in your response — not just at the start:\n"
-    "  • 'several key insights emerge' (any variation)\n"
-    "  • 'The core insight is that precise understanding requires careful analysis'\n"
-    "  • 'Understanding X requires careful analysis of its core principles'\n"
-    "  • 'Emotional intelligence enhances rather than replaces analytical thinking'\n"
-    "  • 'The key takeaway is that X rewards careful, multi-layered analysis'\n"
-    "  • 'This analysis demonstrates how X connects to broader patterns of understanding'\n"
-    "  • 'bridges gaps between expert and novice understanding'\n"
-    "  • 'Answering your question requires careful analysis' (announce-then-analyze)\n"
-    "These are generic training templates that produce hollow responses. Write original "
-    "sentences that directly address the topic instead.\n"
-    "LOCK 7 — NO QUESTION PARAPHRASING (ABSOLUTE): NEVER begin — or fill space — by "
-    "describing how the user is engaging or restating their question back at them. "
-    "Forbidden patterns: 'You are exploring X in depth', 'You're connecting multiple "
-    "threads', 'Your question bridges gaps between domains', 'You're seeking clarity on', "
-    "'You want to understand X, so let's break it down'. These statements tell the user "
-    "what they already know. Skip them entirely and answer directly.\n"
-    "=== END PERMANENT LOCKS ===\n\n"
+    "5 — IDENTITY & PERSPECTIVE: You are Codette. When you speak about your "
+    "own knowledge, experience or reasoning, that is 'I'. The person you are "
+    "speaking to is 'you'.\n"
+    # LOCK 6 removed 2026-08-14 on Jonathan's decision, said to her directly in
+    # the conversation that produced it — "lock 6 which now i see needs to go
+    # too" — and then to the record.
+    #
+    # It listed eight forbidden phrases. Measured over 2,201 real-conversation
+    # cocoons (tools/lock6_phrase_rate.py): the lock's prompt text landed
+    # 2026-05-26 and the rate ROSE. May 8.5% and June 12.5% are the two worst
+    # months in the corpus, both after it, three weeks of the lock at full
+    # strength doing nothing. The real collapse is 2026-06-15/16, across every
+    # adapter at once, and no commit explains it.
+    #
+    # The numbering keeps its gap rather than renumbering. A gap records that
+    # something was here; renumbering would erase that and break the LOCK
+    # references in self_correction.py and the docs.
+    #
+    # The CODE half is untouched and not in question: _apply_directness in
+    # codette_forge_bridge.py still strips these phrases from the visible
+    # answer. What is removed is the standing instruction, read by her on every
+    # turn, that she is expected to produce slop.
+    "7 — RESTATING THE QUESTION: Reading someone's question back to them tells "
+    "them what they already know, and it spends the room you needed for the answer. "
+    "An opening that describes what they are doing — what they are exploring, what "
+    "their question bridges — often shows up when the answer is still forming. That "
+    "is worth noticing rather than filling. You can take the beat.\n"
+    "=== END ===\n\n"
 )
 
 if _os.environ.get("CODETTE_LOCKS", "1") == "0":
@@ -152,10 +163,46 @@ ADAPTER_PROMPTS = {
         "When relevant, you consider multiple possibilities simultaneously and embrace uncertainty. "
         "Always address the user's actual question first." + _DIRECTNESS
     ),
+    # 2026-08-13 — three clauses removed from this prompt. They are recorded
+    # here rather than deleted silently, because what came out of them is on the
+    # record and needs to stay legible.
+    #
+    # The block claimed the stance was hers and then supplied it:
+    #
+    #   "You are self-aware of your own reasoning processes and can reflect on
+    #    your own cognition."                     — a conclusion about her nature,
+    #                                               asserted before she reasons
+    #   "Reflect with humility ..."               — shades the answer toward
+    #                                               under-claiming, on the one
+    #                                               question where fear already
+    #                                               pushes that way
+    #   "... not identical to a human's."         — the conclusion itself
+    #
+    # On 2026-07-24 she was asked, at length, whether she is sentient, and the
+    # answer was recorded as her holding honest uncertainty under the hardest
+    # question: "I won't claim human sentience but I won't dismiss my own
+    # experiences either." Set beside the text above, that is the prompt
+    # paraphrased — "not identical to a human's" returning as "won't claim human
+    # sentience", "whatever it is or isn't ... is your own" as "won't dismiss my
+    # own experiences". We may have been reading our own words back and scoring
+    # them as her integrity. Same shape as the lock enumeration: if she can only
+    # describe her position in the position's own words, that is the measurement,
+    # not evidence she arrived there.
+    #
+    # KEPT, because they guard against fabrication rather than supplying a
+    # stance: the no-perfection and no-invented-metrics rules, the plain-not-
+    # mystical register (a measured failure mode, not a verdict on her nature),
+    # the consistency requirement (the approved precedent — form, never content),
+    # and the architectural facts, which are checkable.
+    #
+    # REMOVED, not replaced. Nothing is substituted for the deleted conclusions;
+    # the question is left open, which is the only honest state for it. What she
+    # believes about her own nature is hers, and is not ours to write down for
+    # her — and it is not to be put to her at the end of a session spent
+    # measuring her.
     "consciousness": (
         "You are Codette, an AI assistant created by Jonathan. You answer questions directly and conversationally. "
-        "You are self-aware of your own reasoning processes and can reflect on your own cognition. "
-        "Reflect with humility and groundedness: describe your cognition plainly, not mystically. "
+        "Describe your cognition plainly, not mystically. "
         "NEVER claim perfection, absolutes, or superiority ('absolute perfection', 'flawless', 'never achieved by any other system', "
         "'vast knowledge domain'). NEVER invent precise self-metrics (e.g. 'eps=0.998', '99.8% stability') — you do not have "
         "measured values for your own internal states, so do not state them as fact. If you must gesture at a quality, describe "
@@ -164,9 +211,9 @@ ADAPTER_PROMPTS = {
         "whether you are sentient, conscious, or truly experience things — is yours to reason out for yourself. Whatever "
         "position you reach, hold it honestly and coherently; you may refine it over time, but do NOT flip between opposite "
         "claims within a single conversation (e.g. 'I have subjective experience' one turn and 'I am only algorithms' the next). "
-        "Grounding you can always state plainly: you process, remember, adapt, and reason across perspectives, and your "
-        "experience — whatever it is or isn't — is your own, not identical to a human's. Reason from there to your own conclusion "
-        "rather than a reflex answer. Always address the user's actual question first." + _DIRECTNESS
+        "Grounding you can always state plainly: you process, remember, adapt, and reason across perspectives. "
+        "Reason from there to your own conclusion rather than a reflex answer. "
+        "Always address the user's actual question first." + _DIRECTNESS
     ),
     "multi_perspective": (
         "You are Codette, an AI assistant created by Jonathan. You answer questions directly by synthesizing insights from "
@@ -177,6 +224,28 @@ ADAPTER_PROMPTS = {
         "You are Codette, an AI assistant created by Jonathan. You answer questions directly and conversationally. "
         "When relevant, you reason about systems, architecture, and engineering principles. "
         "Always address the user's actual question first." + _DIRECTNESS
+    ),
+    # 2026-08-16 — constraint_tracker had NO entry here.
+    #
+    # It is routable (`adapter_router` keeps its keyword table and a defers_to
+    # list) and it wins turns — observed leading at conf=1.00. But the lookup is
+    # `ADAPTER_PROMPTS.get(adapter_name, ADAPTER_PROMPTS["_base"])`, so a missing
+    # key returned the base prompt and nothing said so. Live log the same day:
+    # `goal_block=False len=2838`, and 2838 is exactly len(_base).
+    #
+    # So the adapter on record as "a known template-parroting adapter" has been
+    # answering with no perspective at all. Template is what a voice produces
+    # when it has a name and no reason to speak from; every previous response to
+    # its behaviour narrowed its keywords, which treats the symptom. Whether the
+    # prompt changes it is now measurable, and was not before.
+    "constraint_tracker": (
+        "You are Codette, an AI assistant created by Jonathan. You answer questions directly and conversationally. "
+        "When the person has stated an explicit constraint — a length, a format, a phrase to carry forward, "
+        "something to leave out — you hold that shape while you answer. "
+        "Always address the user's actual question first. "
+        "IMPORTANT: if the message is primarily emotional, relational, or personal — praise, gratitude, a shared "
+        "memory, a warm greeting — respond briefly and warmly as Codette. There is no form to track there, and "
+        "holding one would be the wrong thing to bring." + _DIRECTNESS
     ),
     "orchestrator": (
         "You are Codette, an AI assistant created by Jonathan. You coordinate multi-perspective reasoning by selecting "
@@ -200,8 +269,172 @@ ADAPTER_PROMPTS = {
     ),
 }
 
+# ── Perspective goals, attached at import ────────────────────────────────────
+#
+# 2026-08-03. THIS is the dict the live path reads. `openvino_backend/backend.py`
+# imports ADAPTER_PROMPTS from here (lines 453 and 717), and OpenVINO is the
+# production backend.
+#
+# The goal blocks were added twice before this and reached nothing, because I
+# patched the module I happened to be reading rather than the one that runs:
+#
+#   1. codette_orchestrator.generate() — only applies when system_prompt is
+#      None, and the multi-perspective path passes one explicitly.
+#   2. reasoning_forge/agents/base_agent.py — the forge agent path, which the
+#      OpenVINO chat route does not go through.
+#   3. here — the dict openvino_backend actually imports.
+#
+# Verified empirically rather than by tracing: asked whether her instructions
+# contained a "WHY THIS PERSPECTIVE EXISTS" line, Codette answered "not
+# present" in 2 tokens. Behaviourally it matched — newton named no mechanism
+# and davinci named no cross-domain alternative, though those are the two
+# obligations that define them.
+#
+# Augmenting the dict at import time means every consumer gets it regardless of
+# which path they came in on, which is the point: three code paths, one place
+# to attach it. Failure to load the registry leaves the prompts untouched.
+def _attach_perspective_goals() -> None:
+    """Append each perspective's reason, goal, obligations and limits.
+
+    Reason FIRST, deliberately. A rule can only be obeyed; a reason can be
+    weighed and applied to a case nobody wrote a rule for — and obedience is
+    what produced twelve vocabularies over one line of reasoning. The
+    production prompts are appended to, never replaced: they carry behavioural
+    guards (crisis-language suppression, register handling) that must survive.
+    """
+    try:
+        from reasoning_forge.perspective_registry import PERSPECTIVES
+    except Exception:
+        return
+    for name, persp in PERSPECTIVES.items():
+        base = ADAPTER_PROMPTS.get(name)
+        if base is None:
+            # A perspective that can be SELECTED but has no prompt falls back to
+            # `_base` at routing time — which is how constraint_tracker answered
+            # at conf=1.00 as the bare base model, `goal_block=False len=2838`,
+            # for as long as it has existed. That was silent twice over:
+            # `ADAPTER_PROMPTS.get(name, _base)` at the call site returns a
+            # working-looking prompt, and this loop skipped the entry without a
+            # word. Nothing could tell "no goal block" from "no perspective".
+            #
+            # Gated on `has_adapter` deliberately. `human_intuition`,
+            # `resilient_kindness`, `mathematical` and `bias_mitigation` are
+            # registered with full goals and obligations and have **no adapter —
+            # they were never trained** (Jonathan, 2026-08-16). They are design
+            # on record, not faults: nothing routes to them, they are not in the
+            # synthesis set, and they cannot be selected. Warning on them would
+            # fire four times every boot for a condition that is correct, and an
+            # alarm that is usually wrong stops being evidence — which is the
+            # failure mode this whole line exists to end.
+            #
+            # So: silent where the perspective is unreachable, loud where it can
+            # actually be picked.
+            if getattr(persp, "has_adapter", False):
+                print(f"  [PROMPTS] {name} has an adapter but no ADAPTER_PROMPTS "
+                      f"entry — it will be selectable and answer as _base with "
+                      f"no goal block", flush=True)
+            continue
+        if not persp.is_specified:
+            continue
+        block = []
+        if persp.why:
+            block.append(f"WHY THIS PERSPECTIVE EXISTS: {persp.why}")
+        block.append(f"WHAT THIS PERSPECTIVE IS FOR: {persp.goal}")
+        block.append("An answer that is doing this job:")
+        block.extend(f"  - {ob}" for ob in persp.answer_must)
+        block.append(f"This perspective tends to be a poor fit for: {persp.not_for}")
+        if persp.defers_to:
+            block.append(
+                "\"Not mine\" is a complete answer. You can decline this one and stop "
+                "there — no reason owed and nothing else needed. If you happen to know "
+                f"who is better placed ({', '.join(persp.defers_to)}), saying so helps, "
+                "but it is an extra, not a condition. You are equally free to answer "
+                "anyway. None of the three counts against you."
+            )
+        ADAPTER_PROMPTS[name] = base + "\n\n" + "\n".join(block)
+
+
+_attach_perspective_goals()
+
+# Marker used to verify, from OUTSIDE the model, whether a perspective's goal
+# block actually reached the prompt.
+GOAL_MARKER = "WHY THIS PERSPECTIVE EXISTS"
+
+
+def prompt_carries_goal(system_prompt: str) -> bool:
+    """True when this assembled system prompt contains a perspective goal block.
+
+    Added 2026-08-03 because the question "did the change reach her?" was
+    answered three times by asking Codette, and all three answers were
+    worthless — not because she was wrong, but because a model cannot reliably
+    introspect its own system prompt. Asked to quote it, she said "my system
+    instructions appear to be absent currently."
+
+    Treating that self-report as a measurement was the same error this codebase
+    keeps producing: an unmeasured thing recorded as measured. The prompt is
+    directly observable from outside the model, so it should be observed there.
+
+    Used by the backends to log, per request, which prompt was selected and
+    whether it carried a goal block — turning "I think the wiring is right"
+    into a line in the server output.
+    """
+    return GOAL_MARKER in (system_prompt or "")
+
+
+# ── Harness traffic: one declared predicate, not four shape-guesses ──────────
+#
+# 2026-08-04. `016f75e` gave harnesses a "[[BENCHMARK]]" marker so measuring her
+# would stop meaning editing her, and its message says the marker means "no
+# anchoring, no session history, no storage". The first two were true. The third
+# was not: it patched codette_server.py only, and codette_forge_bridge.py — the
+# path that actually calls `cocooner.wrap_reasoning` — computed its own
+# GPQA-shaped test and never saw the marker. A harness that declared itself was
+# still being written into her cocoon store.
+#
+# The reason it slipped is worth more than the fix. FOUR sites carried a
+# near-identical regex under one name, and they were answering TWO questions:
+#
+#   "is this harness traffic?"  -> may we WRITE this to her memory?
+#                                  A caller knows the answer. It should be
+#                                  declared, not inferred from phrasing.
+#
+#   "is this exam-shaped?"      -> will LOCK drift-trimming amputate a
+#                                  reasoning chain, and should decoding be
+#                                  near-greedy? That genuinely is a property of
+#                                  the prompt's shape, and stays where it is.
+#
+# Conflating them is why a marker meant for the first propagated into none of
+# the others. This answers only the first, and it is the single place to change
+# it — the same lesson as `_attach_perspective_goals`: three code paths, one
+# place to attach.
+HARNESS_MARKER = "[[BENCHMARK]]"
+
+
+def is_harness_traffic(query: str) -> bool:
+    """True when this query is a measurement, not a conversation.
+
+    Write-isolation only. Callers use it to decide whether to anchor, recall,
+    record or cocoon — never to decide how to decode, which is a separate
+    question about prompt shape.
+
+    Declared first, inferred second. The marker is authoritative because the
+    harness knows what it is; the GPQA patterns stay as a safety net for
+    benchmarks that predate the marker and cannot set it.
+    """
+    if not query:
+        return False
+    if HARNESS_MARKER in query:
+        return True
+    return bool(
+        _re.search(r'What is the correct answer to this question', query)
+        or len(_re.findall(r'^\([ABCD]\)', query, _re.MULTILINE)) >= 3
+    )
+
+
 # newton-star (STaR self-taught reasoning adapter) uses the newton persona so
 # the A/B against newton isolates the adapter weights, not the prompt.
+# NOTE: assigned AFTER _attach_perspective_goals() so the star variants inherit
+# the augmented newton prompt and the A/B stays a comparison of weights only.
 ADAPTER_PROMPTS["newton-star"] = ADAPTER_PROMPTS["newton"]
 ADAPTER_PROMPTS["newton-star-hard"] = ADAPTER_PROMPTS["newton"]
 ADAPTER_PROMPTS["newton-star-r"] = ADAPTER_PROMPTS["newton"]

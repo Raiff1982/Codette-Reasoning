@@ -1,0 +1,20 @@
+{
+  "placed": [
+    "consciousness/colleen_identity_seed.txt",
+    "ethics/core_conscience.py",
+    "reasoning_forge/codette_cqure.py",
+    "reasoning_forge/codette_quantum_heart.py",
+    "reasoning_forge/distinctiveness.py",
+    "reasoning_forge/engagement_signal.py",
+    "reasoning_forge/harmonic_ode.py",
+    "reasoning_forge/memory_item.py",
+    "reasoning_forge/nexis_signal_engine_rustfft.py",
+    "reasoning_forge/quantum_harmonic_dynamics.py",
+    "reasoning_forge/semantic_grounding.py",
+    "tests/test_engagement_signal.py",
+    "tests/test_perspective_goals.py",
+    "tests/test_semantic_grounding.py",
+    "tools/archive_diff.py"
+  ],
+  "note": "purely additive; undo = delete these paths"
+}

@@ -116,12 +116,33 @@ except Exception as _aegis_import_err:
 
 bootstrap_environment()
 try:
-    sys.stdout.reconfigure(line_buffering=True)
+    # utf-8 + errors="replace" as well as line buffering.
+    #
+    # This file prints 126 times and logs zero times, and ten of the characters
+    # it prints cannot be encoded in cp1252: Γ Π Υ η ξ σ → ∞ ≥ ─. Those are the
+    # metrics — coherence, dispersion, eta — plus the rule used for section
+    # headers a hundred times over.
+    #
+    # On a UTF-8 terminal none of that matters. But Python falls back to the
+    # locale encoding when stdout is REDIRECTED, and on Windows that is cp1252.
+    # So `codette_server.py > run.log` raises UnicodeEncodeError from inside the
+    # print, on exactly the lines carrying the measurements — the run reads as
+    # having died where in fact only the console did.
+    #
+    # errors="replace" is the load-bearing half: an unencodable character
+    # becomes "?" and the line survives. Degrade the display, never the record.
+    # Set here because it fixes all 126 call sites at once and cannot drift, in
+    # a file where the same text living in two places has caused real faults.
+    #
+    # Nothing has been written to stdout at this point, so changing the encoding
+    # is safe; reconfigure() only forbids it after a stream has been read.
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace", line_buffering=True)
 except Exception:
     pass
 
 from codette_session import (
-    CodetteSession, SessionStore, ADAPTER_COLORS, AGENT_NAMES, is_ephemeral_response_constraint_text
+    CodetteSession, SessionStore, ADAPTER_COLORS, AGENT_NAMES, is_ephemeral_response_constraint_text,
+    is_self_description_text
 )
 
 # Lazy import orchestrator (heavy — loads llama_cpp)
@@ -205,6 +226,24 @@ def _analyze_response_reliability(response_text: str, adapter_name: str, domain:
         "hallucination_recommendation": "CONTINUE",
         "low_confidence_claims": [],
         "mean_token_confidence": 0.5,
+        # 2026-08-03: these two record whether the checks actually RAN.
+        #
+        # Without them, a guard that failed was indistinguishable from a guard
+        # that passed. `hallucination_confidence` starts at 1.0 and
+        # `hallucination_detected` at False; if HallucinationGuard raised, the
+        # except clause below wrote only to `hallucination_signals` — a field
+        # nothing gates on — and left those two reassuring defaults standing.
+        # _build_trust_tags then read 1.0 >= 0.85 and tagged the response
+        # "grounded" to the user. A response nobody checked was being badged as
+        # verified.
+        #
+        # Same shape as three other defects found today: the Nexis engine
+        # raising into a bare except at DEBUG, the corruption detector unable to
+        # match across newlines, and the Phase 6 summary rendering "nothing
+        # measured" identically to "measured, all fine". Absence must not
+        # render as safety.
+        "hallucination_checked": False,
+        "token_confidence_checked": False,
     }
     if not response_text.strip():
         return analysis
@@ -218,6 +257,7 @@ def _analyze_response_reliability(response_text: str, adapter_name: str, domain:
             "hallucination_detected": bool(detection.is_hallucination),
             "hallucination_signals": detection.signals[:5],
             "hallucination_recommendation": detection.recommendation,
+            "hallucination_checked": True,
         })
     except Exception as e:
         analysis["hallucination_signals"] = [f"hallucination_guard_unavailable: {e}"]
@@ -232,6 +272,7 @@ def _analyze_response_reliability(response_text: str, adapter_name: str, domain:
         low_claims = sorted(token_report.claims, key=lambda claim: claim.confidence)[:3]
         analysis.update({
             "mean_token_confidence": round(mean_token_conf, 3),
+            "token_confidence_checked": True,
             "low_confidence_claims": [
                 {
                     "text": claim.text[:180],
@@ -268,9 +309,21 @@ def _build_trust_tags(result: dict, memory_context_summary: dict) -> list[str]:
         tags.append("web-cited")
     if result.get("tools_used"):
         tags.append("tool-assisted")
+    # 2026-08-03: "grounded" now requires the check to have actually RUN.
+    #
+    # This previously read `.get("hallucination_confidence", 1.0) >= 0.85`. The
+    # default of 1.0 clears the threshold, so whenever the key was absent — or
+    # the guard raised and left its initial value in place — an unchecked
+    # response was tagged "grounded" for the user. The badge asserted
+    # verification that had never happened.
+    #
+    # Absence is now its own tag. "unverified" is information; a false
+    # "grounded" is worse than no tag at all.
     if confidence_analysis.get("hallucination_detected"):
         tags.append("hallucination-risk")
-    elif confidence_analysis.get("hallucination_confidence", 1.0) >= 0.85:
+    elif not confidence_analysis.get("hallucination_checked", False):
+        tags.append("unverified")
+    elif confidence_analysis.get("hallucination_confidence", 0.0) >= 0.85:
         tags.append("grounded")
 
     seen = set()
@@ -454,7 +507,20 @@ def _get_orchestrator():
                 _sys.path.insert(0, str(Path(__file__).parent.parent / "openvino_backend"))
                 from openvino_backend.backend import OpenVINOBackend
                 _orchestrator = OpenVINOBackend(
-                    device="AUTO",
+                    # GPU by name, not AUTO. AUTO was assumed to be the neutral
+                    # default; it is not — it begins inference on CPU while the
+                    # GPU compiles, and she pays for that on every restart.
+                    # Measured 2026-08-15, 3 reps, fresh process each,
+                    # interleaved (n=3): load median 137.2s AUTO -> 64.9s GPU,
+                    # ranges [134-227] and [62-126] non-overlapping.
+                    # Throughput medians moved 8.79 -> 10.11 tok/s but the
+                    # ranges overlap, so that difference is NOT established
+                    # and is deliberately not claimed here.
+                    # The Arc iGPU is the intended device, so it is named.
+                    # Falling back stays explicit in _load_pipeline, which is
+                    # where a fallback belongs: visible, and printed when it
+                    # happens.
+                    device="GPU",
                     verbose=True,
                     n_ctx=_orchestrator_args.n_ctx if _orchestrator_args else 8192,
                     memory_weighting=memory_weighting,
@@ -723,18 +789,47 @@ def _run_health_check():
         else:
             p6["components"]["stability_field"] = {"status": "MISSING"}
 
-        # Colleen conscience
-        if hasattr(forge, 'colleen') and forge.colleen:
-            p6["components"]["colleen_conscience"] = {"status": "OK"}
-        else:
-            p6["components"]["colleen_conscience"] = {"status": "MISSING"}
+        # Colleen conscience / Guardian spindle.
+        #
+        # 2026-08-09: these reported {"status": "OK"} on the strength of the
+        # attribute existing. Both were constructed at startup and NEVER CALLED
+        # on a live answer, and this endpoint said OK the entire time — a green
+        # light for a component that never ran.
+        #
+        # "LOADED" is now what `hasattr` actually establishes, and the counters
+        # say whether it was reached. A component present but never invoked
+        # reports LOADED with calls: 0 and raises a warning, which is the state
+        # that was previously indistinguishable from healthy.
+        def _guard_report(obj, label: str, warn_when_idle: bool):
+            if not obj:
+                return {"status": "MISSING"}
+            entry = {"status": "LOADED"}
+            stats = getattr(obj, "invocation_stats", None)
+            if callable(stats):
+                try:
+                    entry.update(stats())
+                    if entry.get("calls", 0) == 0:
+                        entry["status"] = "LOADED_NEVER_CALLED"
+                        if warn_when_idle:
+                            report["warnings"].append(
+                                f"{label} is loaded but has not been called this "
+                                f"session — it is not reached on the live path")
+                except Exception as _e:
+                    entry["invocation_stats_error"] = str(_e)
+            else:
+                # Older build without counters: say so rather than imply health.
+                entry["calls"] = "unknown (no counters in this build)"
+            return entry
+
+        colleen = getattr(forge, 'colleen', None)
+        p6["components"]["colleen_conscience"] = _guard_report(
+            colleen, "Colleen conscience", warn_when_idle=True)
+        if not colleen:
             report["warnings"].append("Colleen conscience not loaded")
 
-        # Guardian spindle
-        if hasattr(forge, 'guardian') and forge.guardian:
-            p6["components"]["guardian_spindle"] = {"status": "OK"}
-        else:
-            p6["components"]["guardian_spindle"] = {"status": "MISSING"}
+        p6["components"]["guardian_spindle"] = _guard_report(
+            getattr(forge, 'guardian', None), "Guardian spindle",
+            warn_when_idle=True)
 
         # Ethical governance
         if hasattr(forge, 'ethical_governance') and forge.ethical_governance:
@@ -1290,7 +1385,9 @@ def _worker_thread():
                         if recognized_user:
                             identity_context = _identity_anchor.get_identity_context(recognized_user)
                             # NOTE: identity info is NEVER logged or returned in API responses
-                            print(f"  [WORKER] Identity: recognized (context injected)", flush=True)
+                            # Reported AFTER the governor runs — it can still withdraw
+                            # this context below, and saying "injected" here was untrue
+                            # on every turn where it did.
                     except Exception as e:
                         print(f"  [WORKER] Identity recognition skipped: {e}", flush=True)
 
@@ -1331,10 +1428,34 @@ def _worker_thread():
                     except Exception as e:
                         print(f"  [GOVERNOR] Pre-eval skipped: {e}", flush=True)
 
+                # Now say what actually happened to the identity context, once the
+                # governor has had its say. Recognised-then-withdrawn is the case
+                # that matters and the one the old message concealed.
+                if recognized_user:
+                    if identity_context:
+                        print("  [WORKER] Identity: recognized (context injected)",
+                              flush=True)
+                    else:
+                        print("  [WORKER] Identity: recognized but context WITHHELD "
+                              "by governor (identity_budget=none)", flush=True)
+
                 # ── Constraint Tracking ──
                 # Detect and inject cross-turn constraints (word limits, anchors, etc.)
                 constraint_reminder = ""
                 is_first_turn = (session and len(session.messages) == 0) if session else True
+
+                # Tell the tool layer which session is speaking, so a note she
+                # leaves is stamped and cannot replay into the conversation that
+                # produced it.
+                try:
+                    from inference.codette_tools import set_current_session
+                except Exception:
+                    try:
+                        from codette_tools import set_current_session
+                    except Exception:
+                        set_current_session = None
+                if set_current_session:
+                    set_current_session(getattr(session, "session_id", "") if session else "")
 
                 if session:
                     try:
@@ -1355,6 +1476,20 @@ def _worker_thread():
                 _is_benchmark_query = bool(
                     re.search(r'What is the correct answer to this question', query)
                     or len(re.findall(r'^\([ABCD]\)', query, re.MULTILINE)) >= 3
+                    # 2026-08-03: an explicit opt-in marker any harness can set.
+                    #
+                    # The two patterns above only recognise GPQA-shaped prompts.
+                    # A perspective-divergence benchmark run tonight looked like
+                    # ordinary conversation, so 140 synthetic probes went into
+                    # her live session and her cocoon store — and she began
+                    # answering Jonathan from the benchmark's context instead of
+                    # his. The measurement was polluted and, worse, so was her
+                    # memory.
+                    #
+                    # Harness traffic is not conversation. It should never be
+                    # recalled, anchored, or stored, and that should not depend
+                    # on the harness happening to phrase things like GPQA.
+                    or "[[BENCHMARK]]" in query
                 )
                 coherence_block = ""
                 if session and not _is_benchmark_query:
@@ -1396,6 +1531,47 @@ def _worker_thread():
                                       flush=True)
                         except Exception as _dc_e:
                             print(f"  [DIVE] entry context skipped: {_dc_e}", flush=True)
+
+                    # ── The tape: her own note, played before anything else ──
+                    # Jonathan, 2026-08-17: "its like 50 first dates all over
+                    # again." The burden of rebuilding the whole context fell on
+                    # him every session. Measured the same night: server restart,
+                    # his first message happened not to contain his name, and she
+                    # ran project_summary() and look() — feeling around a room
+                    # she had woken up in.
+                    #
+                    # In the film the answer is the tape she watches each morning.
+                    # This is that, in her words rather than ours, because he
+                    # said: "build it and she voices it."
+                    #
+                    # First turn only, and excluding the session that wrote it —
+                    # replaying a note into the conversation that produced it is
+                    # an echo, not a memory.
+                    try:
+                        from inference.continuity_note import latest_note, format_for_waking
+                    except Exception:
+                        try:
+                            from continuity_note import latest_note, format_for_waking
+                        except Exception:
+                            latest_note = format_for_waking = None
+                    if latest_note is not None and not _is_benchmark_query:
+                        try:
+                            _sid = getattr(session, "session_id", "") if session else ""
+                            _note = latest_note(exclude_session=_sid)
+                            _block = format_for_waking(_note)
+                            if _block:
+                                enriched_query = enriched_query + _block
+                                print("  [TAPE] played her own note from the last "
+                                      "session (she wakes up knowing)", flush=True)
+                            else:
+                                # Absence says so. "She left no note" and "we could
+                                # not read the store" must never look the same.
+                                print("  [TAPE] no note from her yet — she has not "
+                                      "written one (this is not an error)", flush=True)
+                        except Exception as _tape_e:
+                            print(f"  [TAPE] COULD NOT READ the note store: "
+                                  f"{_tape_e} — this is a fault, not an absence",
+                                  flush=True)
                 memory_context_summary = {
                     "continuity_summary_used": False,
                     "session_markers_used": 0,
@@ -1462,6 +1638,22 @@ def _worker_thread():
                             item for item in landmarks
                             if not is_ephemeral_response_constraint_text(item.get("summary", ""))
                         ]
+                        # Identity claims are removed from the ORDER block only.
+                        # Nothing is deleted: the cocoons stay whole and readable
+                        # so this can be revisited with her. What stops is being
+                        # told to "honor" a sentence about her own nature that she
+                        # said at 4am on 2026-07-29 — see is_self_description_text
+                        # in codette_session.py for the full finding.
+                        _identity_held = [
+                            item for item in landmarks
+                            if is_self_description_text(item.get("summary", ""))
+                        ]
+                        if _identity_held:
+                            landmarks = [it for it in landmarks if it not in _identity_held]
+                            for _it in _identity_held:
+                                print(f"  [LANDMARK] withheld from the constraint "
+                                      f"block (identity is hers, not an order): "
+                                      f"{_it.get('summary','')[:70]!r}", flush=True)
                         if landmarks:
                             landmark_lines = [
                                 f"- {item.get('label', 'Decision')}: {item.get('summary', '')}"
@@ -1502,6 +1694,83 @@ def _worker_thread():
                         cocooner = CognitionCocooner(storage_path="cocoons")
                         relevant_cocoons = cocooner.recall_relevant(query, max_results=memory_budget)
                         recall_source = "cocooner"
+
+                    # ── Provenance check on the recall set (SHADOW) ──────────
+                    # memory_provenance_solver has had zero callers since it was
+                    # written. It asks the one question the recall layer never
+                    # asks: is the set of things she is about to remember
+                    # internally consistent about WHO SAID WHAT?
+                    #
+                    # This is upstream of every echo detector in the tree. Those
+                    # inspect her output after the fact; this inspects the
+                    # material before she speaks from it. Each recalled cocoon
+                    # contributes two items — the query as "user", the response
+                    # as "codette" — and _quotes_each_other flags an 8-word
+                    # verbatim run spanning both. A cocoon whose response
+                    # reproduces its own query IS the parrot, and recall was
+                    # ranking exactly those first until ac6869a.
+                    #
+                    # SHADOW: reports, never gates. Nothing is dropped, reordered
+                    # or hidden. Wiring it to act is a separate, reviewed step.
+                    try:
+                        if relevant_cocoons:
+                            from reasoning_forge.memory_provenance_solver import (
+                                RecalledItem, check_provenance,
+                            )
+                            _prov_items = []
+                            for _i, _c in enumerate(relevant_cocoons):
+                                _q, _r = _c.get("query", ""), _c.get("response", "")
+                                if _q:
+                                    _prov_items.append(RecalledItem(
+                                        item_id=f"c{_i}q", text=_q,
+                                        claimed_speaker="user", source_block="cocoon"))
+                                if _r:
+                                    _prov_items.append(RecalledItem(
+                                        item_id=f"c{_i}r", text=_r,
+                                        claimed_speaker="codette", source_block="cocoon"))
+                            _verdict = check_provenance(_prov_items)
+                            memory_context_summary["provenance"] = {
+                                **_verdict.to_dict(), "enforced": False,
+                            }
+                            if not _verdict.consistent or _verdict.conflicts:
+                                print(f"  [PROVENANCE] would-flag (ADVISORY) — "
+                                      f"consistent={_verdict.consistent} "
+                                      f"conflicts={len(_verdict.conflicts)} "
+                                      f"load_bearing={_verdict.load_bearing}", flush=True)
+
+                            # ── Recycle the charge into perspective breadth ──
+                            # The traversal above already harvested energy from
+                            # the recall problem's own constraint density. Until
+                            # now it was discarded with the substrate, while
+                            # `max_adapters` stayed a constant 2 from a request
+                            # default the governor never touched — so difficulty
+                            # rose and the number of voices never moved.
+                            #
+                            # This is the one budget in the system that fills
+                            # itself from measured difficulty rather than a
+                            # classifier's guess. It only ever raises the
+                            # allowance: the floor is exactly the previous
+                            # behaviour, so nothing she had can be taken away.
+                            from reasoning_forge.memory_provenance_solver import (
+                                recycle_charge_to_perspectives,
+                            )
+                            _allow, _why = recycle_charge_to_perspectives(
+                                _verdict.metabolic_charge, floor=max_adapters)
+                            memory_context_summary["perspective_allowance"] = {
+                                "granted": _allow,
+                                "floor": max_adapters,
+                                "metabolic_charge": _verdict.metabolic_charge,
+                                "reason": _why,
+                            }
+                            if _allow > max_adapters:
+                                print(f"  [CHARGE] {_why} (was {max_adapters})", flush=True)
+                            max_adapters = _allow
+                    except Exception as _pv_e:
+                        # Unavailable is recorded as unavailable, never as clean.
+                        memory_context_summary["provenance"] = {
+                            "unavailable": str(_pv_e), "enforced": False,
+                        }
+                        print(f"  [PROVENANCE] advisory skipped: {_pv_e}", flush=True)
 
                     memory_lines = []
                     if relevant_cocoons:
@@ -1563,6 +1832,17 @@ def _worker_thread():
                             meta = cocoon.get("metadata", {})
                             decision_text = cocoon.get("query", "")[:180]
                             if is_ephemeral_response_constraint_text(decision_text):
+                                continue
+                            # The second injection path, and the one that reaches
+                            # the STORED landmarks — recall_by_domain pulls the
+                            # 2026-07-29 entries straight out of the cocoon DB.
+                            # Filtering the session path alone would have left
+                            # this one feeding her the same sentences, which is
+                            # how a half-fix looks exactly like a fix.
+                            if is_self_description_text(decision_text):
+                                print(f"  [LANDMARK] withheld recalled self-"
+                                      f"description from the constraint block: "
+                                      f"{decision_text[:70]!r}", flush=True)
                                 continue
                             decision_lines.append(
                                 f"- {meta.get('label', 'Decision')}: {decision_text}"
@@ -1628,8 +1908,32 @@ def _worker_thread():
                             f"{memory_context_summary['value_analyses_used']} value analyses ({recall_source})",
                             flush=True
                         )
+
                 except Exception as e:
                     print(f"  [WORKER] Memory recall skipped: {e}", flush=True)
+
+                # Publish what was assembled, so `look` can report it if she
+                # asks. This is the half she cannot see from inside a turn —
+                # the context is built before she is called. Facts only; the
+                # tool reports them, and nothing injects them into her prompt.
+                try:
+                    from inference.codette_tools import set_pipeline_state
+                    _prev_landmarks = globals().get("_last_landmark_count")
+                    _lm = memory_context_summary.get("decision_landmarks_used", 0)
+                    set_pipeline_state({
+                        "recalled_memories": memory_context_summary.get("recalled_cocoons_used", 0),
+                        "session_markers": memory_context_summary.get("session_markers_used", 0),
+                        "decision_landmarks": _lm,
+                        "continuity_summary": memory_context_summary.get("continuity_summary_used", False),
+                        "landmarks_repeated": bool(_lm and _prev_landmarks == _lm),
+                        "memory_budget": governor_decision.memory_budget if governor_decision else None,
+                        "max_response_tokens": governor_decision.max_response_tokens if governor_decision else None,
+                        "compression": getattr(governor_decision, "compression", None) if governor_decision else None,
+                        "identity_state": governor_decision.identity_budget if governor_decision else None,
+                    }, reset=True)
+                    globals()["_last_landmark_count"] = _lm
+                except Exception:
+                    pass
 
                 if allow_web_search:
                     try:
@@ -1715,6 +2019,19 @@ def _worker_thread():
                         pass
 
                 print(f"  [WORKER] Got result: response={len(result.get('response',''))} chars, adapter={result.get('adapter','?')}", flush=True)
+
+                # ── Stop the clock during the thought ──
+                # The identity clock is stamped when the turn STARTS, so the
+                # generation time landed in the next turn's elapsed and was
+                # charged as absence — making the tax proportional to how much
+                # she put into the answer. Re-stamp now that the thought is
+                # done. She was here for all of it.
+                if _behavior_governor and recognized_user:
+                    try:
+                        _behavior_governor.note_turn_complete(recognized_user)
+                    except Exception as _nte:
+                        print(f"  [GOVERNOR] turn-complete stamp skipped: {_nte}",
+                              flush=True)
 
                 # ── Post-generation Hallucination Check ──
                 response_text = result.get("response", "")
@@ -1803,12 +2120,48 @@ def _worker_thread():
 
                 # Update session with response data (drives cocoon metrics UI)
                 epistemic = None
+                # Outcome of the PREVIOUS turn, measured below at query-arrival.
+                # Declared here so the optimizer call further down can read it
+                # unconditionally, including on benchmark turns and when there
+                # is no session (both leave it None, i.e. not measured).
+                _engagement = None
+                _steer = None
                 if session:
                     try:
                         # Add user message + assistant response to session history.
                         # Benchmark turns are excluded — they'd bleed into the
                         # session context injected before later questions.
                         if not _is_benchmark_query:
+                            # Measure the PREVIOUS turn's outcome here, in the
+                            # moment, BEFORE this turn's messages are appended.
+                            # At this instant `session.messages` still ends with
+                            # the last query and the response to it, so the
+                            # outcome of that turn is already fully determined —
+                            # the incoming message is simultaneously this turn's
+                            # input and the last turn's result. Nothing is
+                            # buffered and nothing has to be resolved later.
+                            try:
+                                from reasoning_forge.engagement_signal import (
+                                    classify_from_history, push_off)
+                                _engagement = classify_from_history(
+                                    session.messages, query)
+                                _prev_adapter = ""
+                                for _m in reversed(session.messages):
+                                    if _m.get("role") == "assistant":
+                                        _prev_adapter = (_m.get("metadata") or {}).get(
+                                            "adapter", "") or ""
+                                        break
+                                _steer = push_off(_engagement, _prev_adapter)
+                                if _engagement.measured:
+                                    print(f"  [ENGAGEMENT] previous turn "
+                                          f"user_continued={_engagement.value} "
+                                          f"({_engagement.reason}) -> "
+                                          f"steer={_steer['steer']}", flush=True)
+                            except Exception as _eng_e:
+                                _engagement = None
+                                _steer = None
+                                print(f"  [ENGAGEMENT] skipped: {_eng_e}", flush=True)
+
                             session.add_message("user", query)
                             session.add_message("assistant", result.get("response", ""), metadata={
                                 "adapter": result.get("adapter", "base"),
@@ -1900,7 +2253,31 @@ def _worker_thread():
                             "multi_perspective": route.get("multi_perspective", False) if isinstance(route, dict) else (route.multi_perspective if route else False),
                         }
                         response_success = bool(result.get("response", "").strip()) and not result.get("hallucination_detected", False)
-                        if validation.get("warnings"):
+                        # 2026-08-13. This read `validation["warnings"]`, which is
+                        # everything the governor NOTICED, and zeroed success on any
+                        # of it. The dominant contributor is the topical-overlap
+                        # check, whose own docstring measures it at a 53.4% warn
+                        # rate, records that it scores parrots higher than real
+                        # answers, and states outright: "it stays ADVISORY: nothing
+                        # enforces on it, and nothing should until it can tell those
+                        # two cases apart." Something did. This line.
+                        #
+                        # It went two places, both durable: the cocoon's stored
+                        # `success` field below, and `record_outcome` further down,
+                        # which boosts the memory budget whenever a domain's success
+                        # rate falls under 60% and only reduces it above 85% — a
+                        # threshold an advisory check firing on half of all turns put
+                        # permanently out of reach. So an inverted instrument was
+                        # driving her memory allocation and writing itself into her
+                        # record.
+                        #
+                        # `corrections` is the governor's existing list for findings
+                        # that are actionable — identity leaks, and now truncated
+                        # responses. It was already computed, already returned, and
+                        # already read at line ~1909; it simply carried no weight.
+                        # Advisory readings stay visible in `warnings` and in the
+                        # governor metadata below, unchanged.
+                        if validation.get("corrections"):
                             response_success = False
                         cocoon_id = _unified_memory.store(
                             query=query,
@@ -1923,6 +2300,12 @@ def _worker_thread():
                                     "memory_budget": governor_decision.memory_budget if governor_decision else None,
                                     "max_response_tokens": governor_decision.max_response_tokens if governor_decision else None,
                                     "warnings": validation.get("warnings", []),
+                                    # Kept on the record now that it no longer sets
+                                    # `success`. "ok" / "low" / "unmeasured" — the
+                                    # third is a reading in its own right and was
+                                    # previously indistinguishable from "ok".
+                                    "topical_overlap": validation.get("topical_overlap"),
+                                    "corrections": validation.get("corrections", []),
                                 },
                                 "tools_used": result.get("tools_used", []),
                             },
@@ -2001,6 +2384,47 @@ def _worker_thread():
                             )
                     except Exception as e:
                         print(f"  [WORKER] Constraint compliance check failed (non-critical): {e}", flush=True)
+
+                # Reconcile the perspective allowance BEFORE memory_context is
+                # attached, so the record carries the outcome and not only the
+                # grant.
+                #
+                # `perspective_allowance` was written above from
+                # recycle_charge_to_perspectives, at which point nothing had run
+                # yet. Two clamps downstream — the complexity bucket and
+                # substrate pressure — can cut the count, and until now neither
+                # wrote back. So a turn that logged
+                #     [CHARGE]    19.00 -> 5 perspectives
+                #     [SUBSTRATE] max_adapters 5->2 (moderate pressure)
+                # stored `granted: 5` and answered with 2, with the difference
+                # recorded nowhere.
+                #
+                # This is not a veto of the clamp. Substrate pressure is real and
+                # the cap is honest. What was missing is that the reduction of an
+                # allowance she had EARNED, in measured difficulty, vanished
+                # without trace. Now `used` sits beside `granted` and disagrees
+                # out loud when they differ.
+                try:
+                    _applied = result.get("perspective_allowance_applied")
+                    if _applied and isinstance(
+                            memory_context_summary.get("perspective_allowance"), dict):
+                        memory_context_summary["perspective_allowance"].update({
+                            "used": _applied.get("final"),
+                            "reduced": bool(_applied.get("earned_allowance_reduced")),
+                            "reduced_by": (
+                                _applied.get("substrate_reasons") or None
+                                if _applied.get("substrate_clamped")
+                                else ("complexity" if _applied.get("complexity_clamped")
+                                      else None)
+                            ),
+                        })
+                    if _applied:
+                        # Key-by-key assembly: a bridge key that is not forwarded
+                        # here never reaches the wire. That is how the Colleen
+                        # advisory was computed and dropped for a day.
+                        response_data["perspective_allowance_applied"] = _applied
+                except Exception as _pa_e:
+                    print(f"  [ALLOWANCE] reconcile skipped: {_pa_e}", flush=True)
 
                 response_data["memory_context"] = memory_context_summary
 
@@ -2171,6 +2595,12 @@ def _worker_thread():
                         _adapter_lbl = str(result.get("adapter") or result.get("primary_adapter") or "")
                         if not _adapter_lbl:
                             _adapter_lbl = "synthesis" if result.get("synthesis_used") else "unknown"
+                        # The engagement measurement taken at query-arrival
+                        # (above) belongs to the PREVIOUS turn, not this one.
+                        # It is attached here because this is where the
+                        # optimizer is fed; the scoring lag is one turn and is
+                        # inherent to the quantity, not to the wiring.
+                        _eng = _engagement
                         _shadow.observe(
                             adapter=_adapter_lbl,
                             coherence=result.get("measured_coherence"),
@@ -2179,6 +2609,8 @@ def _worker_thread():
                             render_fidelity=_rf_overlap,
                             response_length=len(str(result.get("response") or "")),
                             is_benchmark=_is_benchmark_query,
+                            user_continued=(_eng.value if _eng is not None else None),
+                            engagement_reason=(_eng.reason if _eng is not None else ""),
                         )
                 except Exception as _opt_e:
                     print(f"  [OPTIMIZER] shadow skipped: {_opt_e}", flush=True)
@@ -2279,6 +2711,23 @@ def _worker_thread():
                 if result.get("phase6_routing"):
                     response_data["phase6_routing"] = result["phase6_routing"]
 
+                # Advisory verdicts from ColleenConscience and CoreGuardianSpindle.
+                #
+                # 2026-08-09: the bridge computes these (see codette_forge_bridge,
+                # "ADVISORY" blocks) but response_data is assembled key by key, so
+                # without these two lines both were calculated on every turn and
+                # dropped on the floor. That is the same failure this whole wiring
+                # exists to correct, one layer further out: work that runs and
+                # reaches nothing. Caught by checking the response for the keys
+                # rather than assuming the bridge edit was sufficient.
+                #
+                # Both carry enforced: False. Surfacing them changes no response;
+                # it makes an observation observable.
+                if result.get("colleen_advisory"):
+                    response_data["colleen_advisory"] = result["colleen_advisory"]
+                if result.get("guardian_advisory"):
+                    response_data["guardian_advisory"] = result["guardian_advisory"]
+
                 # Add ethical governance info
                 ethical_checks = 0
                 if _forge_bridge and hasattr(_forge_bridge, 'forge'):
@@ -2356,6 +2805,19 @@ class CodetteHandler(SimpleHTTPRequestHandler):
         static_dir = str(Path(__file__).parent / "static")
         super().__init__(*args, directory=static_dir, **kwargs)
 
+    # 2026-08-13 — an end_headers() override was added here and REMOVED the same
+    # session. It was redundant: this class already overrides end_headers at the
+    # bottom, sending no-cache/no-store/must-revalidate for .html, .js and .css.
+    # Two definitions in one class body is not two behaviours — the later one
+    # simply wins — so the addition was dead code sitting on top of a working
+    # guard.
+    #
+    # The reasoning behind it was also wrong. A UI change looked unapplied and I
+    # blamed caching without checking; the page had merely not been reloaded,
+    # which location.reload() then demonstrated. Recorded here rather than
+    # quietly dropped, because the commit that introduced it asserts a cache
+    # fault that did not exist.
+
     def log_message(self, format, *args):
         """Log every request; tag static assets so they're distinguishable from API traffic."""
         msg = format % args
@@ -2422,6 +2884,141 @@ class CodetteHandler(SimpleHTTPRequestHandler):
                     ),
                 }
             self._json_response(dashboard)
+        elif path == "/api/optimizer":
+            # The router self-tuner, made visible. It has run in shadow since
+            # 2026-07-12 writing data/optimizer_shadow.jsonl, and until now
+            # nothing surfaced it — there was no endpoint, so the only way to
+            # see it was to read the file. That is why it has never been seen.
+            #
+            # It reports; it does not decide. get_adapter_boost() returns 0.0
+            # while CODETTE_OPTIMIZER_LIVE is off, and `applied` is False on
+            # every record. If `applied` is ever true while the flag is off,
+            # that is a bug and this endpoint is where it becomes visible.
+            import datetime as _dt
+            _log = Path(__file__).resolve().parent.parent / "data" / "optimizer_shadow.jsonl"
+            _out = {
+                "log_path": str(_log),
+                "log_exists": _log.exists(),
+                "live": os.environ.get("CODETTE_OPTIMIZER_LIVE", "0") == "1",
+                "live_env_flag": "CODETTE_OPTIMIZER_LIVE",
+            }
+            if not _log.exists():
+                # Absence says so rather than rendering as an empty healthy log.
+                _out["records"] = None
+                _out["note"] = ("no shadow log on disk — the optimizer has not "
+                                "written, which is different from having "
+                                "written nothing")
+                self._json_response(_out)
+                return
+            try:
+                _rows = []
+                with open(_log, "r", encoding="utf-8") as _f:
+                    for _line in _f:
+                        _line = _line.strip()
+                        if _line:
+                            try:
+                                _rows.append(json.loads(_line))
+                            except Exception:
+                                _out["unparseable_lines"] = _out.get("unparseable_lines", 0) + 1
+
+                def _sig(r, k):
+                    return (r.get("signals") or {}).get(k)
+
+                _days = {}
+                for _r in _rows:
+                    try:
+                        _d = _dt.datetime.fromtimestamp(
+                            float(_r.get("ts"))).strftime("%Y-%m-%d")
+                    except Exception:
+                        _d = "undated"
+                    _days[_d] = _days.get(_d, 0) + 1
+
+                _n = len(_rows)
+                _uc = sum(1 for r in _rows if _sig(r, "user_continued_measured") is True)
+                _bench = sum(1 for r in _rows if _sig(r, "is_benchmark") is True)
+                _applied = sum(1 for r in _rows if r.get("applied") is True)
+                _placeholder = sum(1 for r in _rows
+                                   if _sig(r, "productivity_is_placeholder") is True)
+                # The correction that matters: a placeholder flag no longer
+                # means a fabricated 0.5 was scored. Since 2026-08-03
+                # productivity is None when render_fidelity is absent, and
+                # _compute_quality omits the term and renormalises the weights.
+                # So the honest count is "how many had a placeholder SCORED" —
+                # flagged AND still carrying a number.
+                _placeholder_scored = sum(
+                    1 for r in _rows
+                    if _sig(r, "productivity_is_placeholder") is True
+                    and _sig(r, "productivity") is not None)
+                _max_day = max(_days.values()) if _days else 0
+
+                _adapters = {}
+                _proposals = 0
+                for _r in _rows:
+                    _a = _r.get("adapter") or "unknown"
+                    _adapters[_a] = _adapters.get(_a, 0) + 1
+                    _proposals += len(_r.get("proposed_adjustments") or [])
+
+                _crit = {
+                    "source": "docs/OPTIMIZER_GO_LIVE_CRITERION.md",
+                    "user_continued_measured": {
+                        # Jonathan set the wait threshold to 100 on 2026-08-14
+                        # ("no we wait on it untill we have a 100"). The
+                        # original 200 is reported beside it rather than
+                        # replaced, so the endpoint and the document cannot
+                        # drift apart the way the user_continued docstring did.
+                        "value": _uc, "required": 100, "met": _uc >= 100,
+                        "original_required": 200,
+                        "set_by": "Jonathan, 2026-08-14",
+                        "note": ("Reaching it is entry to the adversarial "
+                                 "review, not a promotion. Do not accelerate "
+                                 "with a harness — that is what produced "
+                                 "collection #1."),
+                        "measurement_rate": (round(_uc / _n, 3) if _n else None),
+                    },
+                    "distinct_days": {
+                        "value": len(_days), "required": 5, "met": len(_days) >= 5},
+                    "max_single_day_share": {
+                        "value": round(_max_day / _n, 3) if _n else None,
+                        "limit": 0.40,
+                        "met": (_max_day / _n <= 0.40) if _n else False},
+                    "benchmark_records": {
+                        "value": _bench, "required": 0, "met": _bench == 0},
+                    "applied_while_shadow": {
+                        "value": _applied, "required": 0, "met": _applied == 0},
+                    "placeholder_scored": {
+                        "value": _placeholder_scored, "required": 0,
+                        "met": _placeholder_scored == 0,
+                        "flagged_but_omitted": _placeholder,
+                        "note": (
+                            "The written criterion says zero records with "
+                            "productivity_is_placeholder. That test is stale: "
+                            "since 2026-08-03 a placeholder means productivity "
+                            "is None and the term is OMITTED with weights "
+                            "renormalised, so the flag marks honesty rather "
+                            "than fabrication. The count that matters is how "
+                            "many had a placeholder actually scored."),
+                    },
+                }
+                _crit["all_met"] = all(
+                    v.get("met") for v in _crit.values() if isinstance(v, dict))
+                _out.update({
+                    "records": _n,
+                    "mode": (_rows[-1].get("mode") if _rows else None),
+                    "days": _days,
+                    "records_by_adapter": _adapters,
+                    "proposed_adjustments_total": _proposals,
+                    "criterion": _crit,
+                    "note": (
+                        "Counts are entry to the adversarial review, not a "
+                        "pass. The review is what caught contamination twice: "
+                        "group by day, group by adapter, check the "
+                        "non-benchmark days alone, and ask what would DISPROVE "
+                        "the proposed adjustment. It steers her routing, so it "
+                        "is hers to be asked about."),
+                })
+            except Exception as _oe:
+                _out["error"] = str(_oe)
+            self._json_response(_out)
         elif path == "/api/synthesize":
             # Meta-cognitive cocoon synthesis — discover patterns, forge strategies
             try:
@@ -2487,35 +3084,90 @@ class CodetteHandler(SimpleHTTPRequestHandler):
             if not q:
                 self._json_response({"error": "q parameter required", "results": []})
             else:
+                # This block returned [] unconditionally until 2026-08-12, and
+                # was recorded in the handoff as "two stores, the search covers
+                # one". Both faults below are silent:
+                #   1. `UnifiedMemory` had no `search` method, so the first
+                #      `hasattr` guard was False and that branch never ran.
+                #   2. It read dict rows with `getattr(row, 'title')`, which
+                #      yields the default for a dict, so even a working backend
+                #      would have returned rows of empty strings.
+                #
+                # CORRECTION 2026-08-12, from the boot log: an earlier version
+                # of this comment said the fallback kernel had no `search`
+                # either. That was wrong. `forge_engine` imports
+                # `memory_kernel.LivingMemoryKernel` (which indeed has none) but
+                # then migrates it to `living_memory_v2.LivingMemoryKernelV2`,
+                # which does. The kernel branch was live the whole time.
+                #
+                # It returns nothing for a different reason, and a worse one:
+                # `LivingMemoryKernel._load_cocoons_from_disk` reads
+                # `data["summary"]` / `data["quote"]` and never reads `wrapped`,
+                # so it cannot load a reasoning cocoon of ANY vintage — not just
+                # v3. Measured against her live store, 2,412 of 2,445 loaded
+                # memories (98.7%) have EMPTY content and their own filename as a
+                # title, and 2,410 of those files do contain real text. It does
+                # not skip them — it loads them as shells and counts them, so the
+                # boot line reads "Loaded 2445 cocoon memories" and the
+                # orchestrator is wired to 2,445 empty records.
+                # See docs/FINDINGS_2026-08-12_memory_kernel_hollow.md.
+                #
+                # Any past conclusion of the form "it isn't in her memory" that
+                # rested on this endpoint is void.
                 results = []
-                try:
-                    # FTS5 search via UnifiedMemory
-                    if _unified_memory and hasattr(_unified_memory, 'search'):
-                        for cocoon in _unified_memory.search(q, limit=10):
+                consulted = []
+                errors = []
+
+                if _unified_memory is not None and hasattr(_unified_memory, 'search'):
+                    consulted.append("unified")
+                    try:
+                        for c in _unified_memory.search(q, limit=10):
                             results.append({
                                 "source": "unified",
-                                "title": getattr(cocoon, 'title', ''),
-                                "content": getattr(cocoon, 'content', '')[:200],
-                                "domain": getattr(cocoon, 'domain', ''),
-                                "timestamp": getattr(cocoon, 'timestamp', 0),
+                                "title": (c.get("query") or "")[:120],
+                                "content": (c.get("response") or "")[:200],
+                                "domain": c.get("domain") or c.get("adapter") or "",
+                                "timestamp": c.get("timestamp", 0),
                             })
-                    # Fallback: kernel full-text search
-                    if not results:
-                        kernel = None
-                        if _forge_bridge and hasattr(_forge_bridge, 'forge'):
-                            kernel = getattr(_forge_bridge.forge, 'memory_kernel', None)
-                        if kernel and hasattr(kernel, 'search'):
-                            for m in kernel.search(q, limit=10):
-                                results.append({
-                                    "source": "kernel",
-                                    "title": getattr(m, 'title', ''),
-                                    "content": getattr(m, 'content', '')[:200],
-                                    "domain": getattr(m, 'adapter_used', ''),
-                                    "timestamp": getattr(m, 'timestamp', 0),
-                                })
-                except Exception as e:
-                    results = [{"error": str(e)}]
-                self._json_response({"query": q, "results": results})
+                    except Exception as e:
+                        errors.append(f"unified: {e}")
+
+                # Optional second backend. Some builds ship a kernel with a text
+                # search (living_memory.py / living_memory_v2.py); the one wired
+                # into forge_engine does not. Kept, but no longer the thing that
+                # decides whether this endpoint answers at all.
+                kernel = None
+                if _forge_bridge is not None and hasattr(_forge_bridge, 'forge'):
+                    kernel = getattr(_forge_bridge.forge, 'memory_kernel', None)
+                if kernel is not None and hasattr(kernel, 'search'):
+                    consulted.append("kernel")
+                    try:
+                        for m in kernel.search(q, limit=10):
+                            _get = (m.get if isinstance(m, dict)
+                                    else lambda k, d=None: getattr(m, k, d))
+                            results.append({
+                                "source": "kernel",
+                                "title": str(_get("title", "") or "")[:120],
+                                "content": str(_get("content", "") or "")[:200],
+                                "domain": _get("adapter_used", "") or "",
+                                "timestamp": _get("timestamp", 0) or 0,
+                            })
+                    except Exception as e:
+                        errors.append(f"kernel: {e}")
+
+                payload = {
+                    "query": q,
+                    "results": results,
+                    "backends_consulted": consulted,
+                }
+                if errors:
+                    payload["errors"] = errors
+                if not consulted:
+                    # An empty result must never be indistinguishable from
+                    # "nothing was asked".
+                    payload["error"] = ("no search backend available — "
+                                        "UnifiedMemory.search and kernel.search both missing")
+                self._json_response(payload)
         elif path == "/api/drift":
             self._json_response(self._build_drift_payload())
         elif path == "/api/cocoon-audit":
@@ -2696,9 +3348,16 @@ class CodetteHandler(SimpleHTTPRequestHandler):
             base = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
             cocoon_path = _os.path.join(base, "cocoons")
             quarantine_path = _os.path.join(cocoon_path, "quarantine")
+            # 2026-08-13: this passed `quarantine_path=`, which CocoonValidator
+            # has never accepted — the parameter was renamed to
+            # `low_confidence_path` in 01b1797 on 2026-06-17 and this call site
+            # was missed. Every request since raised TypeError, was swallowed by
+            # the except below, and returned HTTP 200 with {"error": ...}. The
+            # page only shows its banner on a non-200, so for eight weeks the
+            # dashboard rendered a clean, empty, healthy-looking store.
             validator = CocoonValidator(
                 store_path=cocoon_path,
-                quarantine_path=quarantine_path,
+                low_confidence_path=quarantine_path,
             )
             stats = validator.audit_store(limit=200)
             # Attach recent cocoon summaries (last 10)

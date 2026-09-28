@@ -1,0 +1,33 @@
+# AI & Model Tools
+torch==2.0.1
+tensorflow==2.13.0
+tensorflow-probability==0.21.0
+transformers==4.36.2
+datasets
+huggingface_hub==0.19.3
+pydantic==1.10.13
+typing-extensions==4.5.0
+openai
+
+# Audio & Speech
+pyttsx3==2.90
+SpeechRecognition==3.10.1
+librosa==0.10.1
+opencv-python-headless==4.9.0.80
+
+# Security
+cryptography==41.0.7
+PyJWT==2.8.0
+python-dotenv==1.0.1
+aiohttp==3.9.3
+
+# NLP & Translation
+deep-translator==1.9.3
+
+# Vector search
+faiss-cpu==1.7.4
+numpy==1.23.5
+
+# UI
+gradio
+gradio-client

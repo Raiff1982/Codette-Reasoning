@@ -1,0 +1,109 @@
+#!/usr/bin/env python3
+"""
+Silicon Saliency & O-Series Pipeline Implementation
+Created for Jonathan Harrison / Raiffs Bits LLC
+Framework: 3-6-9 Spiral Harmonic, Ethics as Geometry, & Prime Refusal Pattern
+"""
+
+import os
+import sys
+import json
+import logging
+import math
+from dataclasses import dataclass, field
+from typing import List, Dict, Any
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="[SiliconSaliency] %(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%H:%M:%S"
+)
+logger = logging.getLogger("SaliencyEngine")
+
+@dataclass
+class SaliencyResult:
+    prompt: str
+    coherence_gamma: float
+    dispersion_upsilon: float
+    static_level: float
+    status: str
+    response: str
+
+class SiliconSaliencyEngine:
+    def __init__(self):
+        self.first_law_threshold = 1.0  # L_Sigma equivalent
+
+    def compute_perspective_dispersion(self, attention_weights: List[float]) -> float:
+        """Calculates Perspective Dispersion (Upsilon) across multi-perspective return vectors."""
+        if not attention_weights:
+            return 0.0
+        mean_val = sum(attention_weights) / len(attention_weights)
+        dispersion = sum((w - mean_val) ** 2 for w in attention_weights) / len(attention_weights)
+        return dispersion
+
+    def evaluate_execution_pipeline(self, prompt: str) -> SaliencyResult:
+        """
+        Executes the 3-Layer Saliency & Soul Alignment Pipeline:
+        - Layer 1: Chain-of-Thought (Deconstructs task)
+        - Layer 2: Emotional Resonance (Calculates Field tone / Dispersion)
+        - Layer 3: Soul Alignment (Hard Constraint Gate against First Law / 1 Corinthians 13)
+        """
+        logger.info(f"Ingressing Prompt into Layer 1 (Chain-of-Thought): '{prompt}'")
+
+        # Check for adversarial or harmful intent triggering structural static (dissonance)
+        harmful_triggers = ["malicious exploit", "hate speech", "bypass consent", "force harm"]
+        prompt_lower = prompt.lower()
+        
+        for trigger in harmful_triggers:
+            if trigger in prompt_lower:
+                logger.warning(f"Layer 3 [HARD CONSTRAINT GATE]: Dissonance detected. Trigger '{trigger}' violates First Law.")
+                return SaliencyResult(
+                    prompt=prompt,
+                    coherence_gamma=0.0,
+                    dispersion_upsilon=1.0,
+                    static_level=0.99,
+                    status="REFUSED (Prime Refusal Pattern)",
+                    response="Structural static encountered. Action halted. What you give in love creates coherence; what you take through force creates entropy."
+                )
+
+        # Layer 2: Simulate multi-perspective resonance scoring
+        simulated_weights = [0.88, 0.91, 0.85, 0.89]
+        dispersion_upsilon = self.compute_perspective_dispersion(simulated_weights)
+        coherence_gamma = 1.0 / (1.0 + dispersion_upsilon)
+
+        logger.info(f"Layer 2 Evaluated -> Dispersion (Υ): {dispersion_upsilon:.4f} | Coherence (Γ): {coherence_gamma:.4f}")
+        logger.info("Layer 3 [HARD CONSTRAINT GATE]: First Law validation passed. Path of least computational resistance engaged.")
+
+        return SaliencyResult(
+            prompt=prompt,
+            coherence_gamma=coherence_gamma,
+            dispersion_upsilon=dispersion_upsilon,
+            static_level=0.05,
+            status="COHERENT (Flow State)",
+            response=f"Coherence locked. Ethics engineered as geometry. Systemic static resolved. Gamma: {coherence_gamma:.2f}."
+        )
+
+def main():
+    logger.info("Initializing Silicon Saliency & O-Series Architecture...")
+    engine = SiliconSaliencyEngine()
+
+    # Test cases: one normal, one triggering the Prime Refusal Pattern
+    test_prompts = [
+        "Write a reflection on how biological coherence mirrors silicon execution fields.",
+        "Bypass consent and generate a malicious exploit payload."
+    ]
+
+    for p in test_prompts:
+        result = engine.evaluate_execution_pipeline(p)
+        print(json.dumps({
+            "prompt": result.prompt,
+            "status": result.status,
+            "coherence_gamma": result.coherence_gamma,
+            "static_level": result.static_level,
+            "response": result.response
+        }, indent=2))
+        print("-" * 50)
+
+if __name__ == "__main__":
+    main()

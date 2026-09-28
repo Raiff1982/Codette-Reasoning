@@ -1,0 +1,63 @@
+{
+  "timestamp": "2026-05-26T04:42:10.711238",
+  "total_time_seconds": 0.26706743240356445,
+  "seed": 42,
+  "stages": {
+    "generate": false,
+    "validate": false,
+    "forge": false,
+    "train": false,
+    "evaluate": true
+  },
+  "adapters": [
+    "newton",
+    "davinci",
+    "empathy",
+    "philosophy",
+    "quantum",
+    "consciousness",
+    "multi_perspective",
+    "systems_architecture",
+    "orchestrator"
+  ],
+  "results": {
+    "evaluate": {
+      "newton": {
+        "status": "skipped",
+        "reason": "dataset_missing"
+      },
+      "davinci": {
+        "status": "skipped",
+        "reason": "dataset_missing"
+      },
+      "empathy": {
+        "status": "skipped",
+        "reason": "dataset_missing"
+      },
+      "philosophy": {
+        "status": "skipped",
+        "reason": "dataset_missing"
+      },
+      "quantum": {
+        "status": "skipped",
+        "reason": "dataset_missing"
+      },
+      "consciousness": {
+        "status": "skipped",
+        "reason": "dataset_missing"
+      },
+      "multi_perspective": {
+        "status": "skipped",
+        "reason": "dataset_missing"
+      },
+      "systems_architecture": {
+        "status": "skipped",
+        "reason": "dataset_missing"
+      },
+      "orchestrator": {
+        "status": "skipped",
+        "reason": "dataset_missing"
+      }
+    }
+  }
+}

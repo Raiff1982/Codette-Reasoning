@@ -329,7 +329,12 @@ class TestSessionRecallHelpers(unittest.TestCase):
 class TestSoftTriggerAndToolHardening(unittest.TestCase):
     def test_run_python_rejects_unsafe_modules(self):
         result = tool_run_python("import os\nprint(os.listdir('.'))")
-        self.assertIn("not allowed", result)
+        # Assert the refusal happened, not its exact wording. This used to
+        # check for "not allowed"; the message became a pivot rather than a
+        # wall on 2026-08-17, and a test coupled to phrasing makes improving
+        # the phrasing look like a regression.
+        self.assertTrue(result.startswith("Error:"), result)
+        self.assertNotIn("os.listdir", result)
 
     def test_run_python_allows_safe_math(self):
         result = tool_run_python("import math\nprint(round(math.pi, 3))")

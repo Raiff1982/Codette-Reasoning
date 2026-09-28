@@ -31,7 +31,7 @@
                 <button class="header-btn" id="btn-export" title="Export session">EXPORT</button>
                 <button class="header-btn" id="btn-import" title="Import session">IMPORT</button>
                 <input type="file" id="import-file" accept=".json" style="display:none">
-                <button class="header-btn" id="btn-toggle-panel" title="Toggle side panel">◈ COCOON</button>
+                <button class="header-btn" id="btn-toggle-panel" data-tt="Toggle the live Instruments panel — real-time metrics for every active reasoning layer this session." title="Toggle side panel">◈ COCOON</button>
             </div>
         </div>
 
@@ -69,7 +69,7 @@
         <div class="controls">
             <div class="control-group">
                 <label>Adapter:</label>
-                <select id="adapter-select">
+                <select id="adapter-select" data-tt="Codette&#x27;s active reasoning style. Auto = she picks the best fit. Newton = scientific logic. DaVinci = creative synthesis. Empathy = emotional intelligence. Philosophy = ethics &amp; first principles. Quantum = probabilistic reasoning. Consciousness = meta-cognition. Multi-Perspective = deliberate triangulation. Systems = feedback loops &amp; architecture. Constraint Tracker = never forgets what you said matters.">
                     <option value="auto">Auto</option>
                     <option value="newton">Newton</option>
                     <option value="davinci">DaVinci</option>
@@ -85,21 +85,21 @@
             </div>
             <div class="control-group">
                 <label>Perspectives:</label>
-                <input type="range" id="max-adapters" min="1" max="3" value="2" style="width:60px">
+                <input type="range" id="max-adapters" data-tt="How many independent reasoning adapters contribute to each answer. 1 = fast, single voice. 2 = two perspectives synthesized. 3 = full triangulation, richest but slowest." min="1" max="3" value="2" style="width:60px">
                 <span id="max-adapters-value">2</span>
             </div>
             <div class="control-group">
-                <button class="header-btn synth-btn" id="btn-synthesize"
+                <button class="header-btn synth-btn" id="btn-synthesize" data-tt="Runs ALL reasoning adapters simultaneously, then merges their perspectives into one answer. Most thorough — takes a bit longer than a single-adapter response."
                         title="Run all reasoning perspectives at once and synthesize them into one answer">
                     ◈ SYNTHESIZE ALL
                 </button>
             </div>
             <div class="control-group" style="margin-left:auto">
                 <label>
-                    <input type="checkbox" id="web-research-toggle"> Web
+                    <input type="checkbox" id="web-research-toggle" data-tt="Enable web research — Codette fetches live information to ground her answer in current facts."> Web
                 </label>
                 <label>
-                    <input type="checkbox" id="tts-toggle"> Voice
+                    <input type="checkbox" id="tts-toggle" data-tt="Read responses aloud using text-to-speech. Choose a voice from the dropdown beside it."> Voice
                 </label>
                 <select id="voice-select" style="max-width:140px" title="Choose voice"></select>
             </div>
@@ -109,8 +109,8 @@
         <div class="input-area">
             <div class="attachment-previews" id="attachment-previews"></div>
             <div class="input-row">
-                <button class="mic-btn" id="mic-btn" title="Voice input">&#127908;</button>
-                <button class="attach-btn" id="attach-btn" title="Attach file">&#128206;</button>
+                <button class="mic-btn" id="mic-btn" data-tt="Speak your question — voice input via your microphone." title="Voice input">&#127908;</button>
+                <button class="attach-btn" id="attach-btn" data-tt="Attach a file — Codette reads code, text, CSV, JSON, markdown, and many other formats and reasons over the content." title="Attach file">&#128206;</button>
                 <input type="file" id="file-attach-input" multiple
                        accept=".txt,.py,.js,.ts,.json,.csv,.md,.html,.css,.xml,.yaml,.yml,.log,.cfg,.ini,.toml,.sql,.sh,.bat,.ps1,.r,.java,.c,.cpp,.h,.hpp,.go,.rs,.rb,.php,.swift,.kt,.tsx,.jsx,.vue,.svelte,.lua,.pl,.ex,.hs,.scala,.tf,.proto,.graphql"
                        style="display:none">
@@ -135,15 +135,15 @@
     <div class="side-panel" id="side-panel">
         <!-- Spiderweb Visualization -->
         <div class="side-section">
-            <div class="side-section-title">Agent Network</div>
+            <div class="side-section-title" data-tt="Web of active reasoning adapters. Node size = contribution weight. Lines = which perspectives were synthesized together this turn.">Agent Network</div>
             <canvas id="spiderweb-canvas"></canvas>
         </div>
 
         <!-- Metrics -->
         <div class="side-section">
-            <div class="side-section-title">Cocoon Metrics</div>
+            <div class="side-section-title" data-tt="Core reasoning quality scores for the last response. Updated after every reply.">Cocoon Metrics</div>
             <div class="metric-row">
-                <span class="metric-label">&#915; Phase Coherence</span>
+                <span class="metric-label" data-tt="Γ Coherence — how logically consistent the answer is with Codette&#x27;s internal knowledge anchors. 1.0 = fully grounded. Low values mean she&#x27;s navigating genuinely uncertain territory.">&#915; Phase Coherence</span>
                 <span class="metric-value" id="metric-coherence">0.00</span>
             </div>
             <div class="metric-bar">
@@ -151,7 +151,7 @@
                      style="width:0%;background:var(--philosophy)"></div>
             </div>
             <div class="metric-row" style="margin-top:10px">
-                <span class="metric-label">&#958; Epistemic Tension</span>
+                <span class="metric-label" data-tt="ξ Epistemic Tension — how much her reasoning perspectives disagreed before synthesis. High tension means she found real uncertainty, not false confidence. It&#x27;s a good sign.">&#958; Epistemic Tension</span>
                 <span class="metric-value" id="metric-tension">0.00</span>
             </div>
             <div class="metric-bar">
@@ -159,13 +159,13 @@
                      style="width:0%;background:var(--quantum)"></div>
             </div>
             <div class="metric-row" style="margin-top:10px">
-                <span class="metric-label">&#951; Ethical Alignment</span>
+                <span class="metric-label" data-tt="η AEGIS Ethical Alignment — deontological alignment score from the AEGIS ethics layer. 1.0 = fully aligned with ethical reasoning guidelines. Drops when a response is flagged or vetoed.">&#951; Ethical Alignment</span>
                 <span class="metric-value" id="metric-eta">--</span>
             </div>
         </div>
 
         <div class="side-section">
-            <div class="side-section-title">Singularity Lab</div>
+            <div class="side-section-title" data-tt="Event-Embedded Value analysis — integrates welfare intervals and discrete suffering events without smoothing. Preserves singular moments that averaging would erase (e.g. acute distress spikes, existential events).">Singularity Lab</div>
             <p class="lab-copy">Analyze mixed continuous value and discrete suffering without smoothing singular events away.</p>
             <label class="lab-label" for="value-mode">Mode</label>
             <select id="value-mode" class="lab-select">
@@ -192,34 +192,34 @@
 
         <!-- Perspective Coverage -->
         <div class="side-section">
-            <div class="side-section-title">Perspective Coverage</div>
+            <div class="side-section-title" data-tt="Which reasoning adapters fired on the last response. Each color corresponds to a different perspective domain — hover a dot to see which adapter it represents.">Perspective Coverage</div>
             <div class="coverage-dots" id="coverage-dots"></div>
         </div>
 
         <!-- Cocoon Status -->
         <div class="side-section">
-            <div class="side-section-title">Cocoon Status</div>
+            <div class="side-section-title" data-tt="State of Codette&#x27;s long-term memory system. Cocoons are memory artifacts that hold past reasoning patterns, emotions, and context — sealed with post-quantum cryptography.">Cocoon Status</div>
             <div class="metric-row">
-                <span class="metric-label">&#128274; Encryption</span>
+                <span class="metric-label" data-tt="Encryption — post-quantum cryptographic protection status. &#x27;PQC-Active&#x27; means cocoon memories are sealed with ML-KEM-768 (NIST FIPS 203) quantum-resistant cryptography.">&#128274; Encryption</span>
                 <span class="metric-value" id="cocoon-encryption">--</span>
             </div>
             <div class="metric-row">
-                <span class="metric-label">&#128376; Attractors</span>
+                <span class="metric-label" data-tt="Attractors — deep recurring patterns Codette identified across conversations. Emotional or conceptual themes she keeps returning to.">&#128376; Attractors</span>
                 <span class="metric-value" id="cocoon-attractors">0</span>
             </div>
             <div class="metric-row">
-                <span class="metric-label">&#128200; Glyphs</span>
+                <span class="metric-label" data-tt="Glyphs — symbolic patterns encoded in memory. Abstract representations of complex reasoning states she&#x27;s crystallised for future recall.">&#128200; Glyphs</span>
                 <span class="metric-value" id="cocoon-glyphs">0</span>
             </div>
             <div class="metric-row">
-                <span class="metric-label">&#128190; Sessions</span>
+                <span class="metric-label" data-tt="Sessions — how many conversation sessions are stored in long-term memory and available for context recall.">&#128190; Sessions</span>
                 <span class="metric-value" id="cocoon-sessions">0</span>
             </div>
         </div>
 
         <!-- AEGIS Ethical Alignment -->
         <div class="side-section" id="section-aegis" style="display:none">
-            <div class="side-section-title">AEGIS Ethics</div>
+            <div class="side-section-title" data-tt="AEGIS Layer 2–6 ethical monitoring. Tracks alignment score η, veto count, and intervention trend. Vetoes fire when a response violates deontological constraints.">AEGIS Ethics</div>
             <div class="metric-row">
                 <span class="metric-label">&#951; Alignment</span>
                 <span class="metric-value" id="aegis-eta">--</span>
@@ -244,10 +244,10 @@
 
         <!-- Governor & Memory Dashboard -->
         <div class="side-section" id="section-governor">
-            <div class="side-section-title">Behavior Governor</div>
+            <div class="side-section-title" data-tt="Runtime governor that monitors Codette&#x27;s identity stability, answer quality, and cognitive load. Intervenes if reasoning quality drops below acceptable thresholds.">Behavior Governor</div>
             <div class="metric-row">
                 <span class="metric-label">Identity Confidence</span>
-                <span class="metric-value" id="gov-identity-conf">--</span>
+                <span class="metric-value" id="gov-identity-conf" data-tt="How certain Codette is of her own identity and reasoning integrity this session. Drops under adversarial pressure or identity-challenging questions. Below 0.5 triggers governor intervention.">--</span>
             </div>
             <div class="metric-bar">
                 <div class="metric-bar-fill" id="bar-identity-conf"
@@ -263,7 +263,7 @@
             </div>
             <div class="metric-row">
                 <span class="metric-label">Memory Cocoons</span>
-                <span class="metric-value" id="gov-memory-count">0</span>
+                <span class="metric-value" id="gov-memory-count" data-tt="Number of reasoning artifacts in persistent memory. Each cocoon holds context, emotions, and patterns from past interactions — sealed with post-quantum cryptography.">0</span>
             </div>
             <div class="metric-row">
                 <span class="metric-label">Cache Hit Rate</span>
@@ -276,7 +276,7 @@
         </div>
 
         <div class="side-section" id="section-memory-markers">
-            <div class="side-section-title">Session Recall</div>
+            <div class="side-section-title" data-tt="Active memory from this conversation — continuity summaries and decision landmarks Codette has flagged as important to remember across turns.">Session Recall</div>
             <div class="continuity-summary" id="continuity-summary">No active continuity summary yet.</div>
             <div class="decision-landmarks" id="decision-landmarks">
                 <div class="memory-marker-empty">No decision landmarks yet.</div>
@@ -371,7 +371,7 @@
 
         <!-- Guardian -->
         <div class="side-section" id="section-guardian" style="display:none">
-            <div class="side-section-title">Guardian</div>
+            <div class="side-section-title" data-tt="Guardian layer — final ethical and trust checkpoint before any response is delivered. Tracks trust interaction count and overall ethics score across the session.">Guardian</div>
             <div class="metric-row">
                 <span class="metric-label">Ethics Score</span>
                 <span class="metric-value" id="guardian-ethics">--</span>
@@ -382,6 +382,110 @@
             </div>
         </div>
 
+        <!-- AEGIS Metrics — /api/aegis/stats
+             Rebuilt into the side column rather than transplanted from the old
+             page, where this lived as a hidden full-screen tab you had to know
+             to open. Numbers are always visible; the tables sit behind details.
+             Absent values render as "—", never 0 — the old panel used `|| 0` on
+             every field, which is how a dead endpoint reads as a healthy zero. -->
+        <div class="side-section" id="aegis-metrics-tab">
+            <div class="side-section-title" data-tt="AEGIS Protection Layers — post-quantum cryptography status (ML-KEM-768 + ML-DSA-65), forge-cycle integrity, and Layer 5 self-healing events.">AEGIS Metrics <span style="opacity:.5;font-weight:400">24h</span></div>
+            <div class="metric-row">
+                <span class="metric-label">Forge calls</span>
+                <span class="metric-value" id="aegis-forge-calls">--</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Valid</span>
+                <span class="metric-value"><span id="aegis-valid-calls">--</span>
+                    <span style="opacity:.55">/ <span id="aegis-valid-rate">--</span>%</span></span>
+            </div>
+            <div class="metric-bar">
+                <div class="metric-bar-fill" id="bar-aegis-valid"
+                     style="width:0%;background:var(--philosophy)"></div>
+            </div>
+            <div class="metric-row" style="margin-top:8px">
+                <span class="metric-label">Rejected</span>
+                <span class="metric-value"><span id="aegis-rejected-count">--</span>
+                    <span style="opacity:.55">/ <span id="aegis-rejection-rate">--</span></span></span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Healing applied</span>
+                <span class="metric-value"><span id="aegis-healing-count">--</span>
+                    <span style="opacity:.55">/ <span id="aegis-healing-rate">--</span>%</span></span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Avg overlap</span>
+                <span class="metric-value" id="aegis-avg-overlap">--</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Latency</span>
+                <span class="metric-value" id="aegis-total-latency">--</span>
+            </div>
+            <div class="metric-row" style="opacity:.55">
+                <span class="metric-label">Updated</span>
+                <span class="metric-value" id="aegis-last-update">--</span>
+            </div>
+            <details style="margin-top:10px">
+                <summary style="cursor:pointer;font-size:11px;opacity:.7">Healing log</summary>
+                <div id="aegis-healing-log" style="margin-top:6px;font-size:11px"></div>
+            </details>
+            <details style="margin-top:6px">
+                <summary style="cursor:pointer;font-size:11px;opacity:.7">Recent executions</summary>
+                <div id="aegis-recent-events" style="margin-top:6px;font-size:11px"></div>
+            </details>
+        </div>
+
+        <!-- Time Travel Lens — /api/time_travel/last -->
+        <div class="side-section" id="time-travel-tab">
+            <div class="side-section-title" data-tt="Institutional TimeTravelLens — auto-fires when you ask about cover-ups, recalls, or regulatory suppression. Shows preemption gap Π (days between knowing and telling), closure score C(s), and rupture indicators ℛ.">Time Travel Lens</div>
+            <div id="tt-status-banner" style="font-size:11px;opacity:.7;margin-bottom:8px">No observation yet.</div>
+            <div id="tt-metrics-grid">
+                <div class="metric-row">
+                    <span class="metric-label">&#928; Preemption gap</span>
+                    <span class="metric-value" id="tt-pi">--</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Closure</span>
+                    <span class="metric-value"><span id="tt-closure">--</span>
+                        <span style="opacity:.55" id="tt-closure-class">--</span></span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Rupture</span>
+                    <span class="metric-value" id="tt-rupture">--</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Beacon</span>
+                    <span class="metric-value" id="tt-beacon">--</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">High-preemption zone</span>
+                    <span class="metric-value" id="tt-zone">--</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Extraction confidence</span>
+                    <span class="metric-value" id="tt-confidence">--</span>
+                </div>
+                <div class="metric-row" style="opacity:.55">
+                    <span class="metric-label">Updated</span>
+                    <span class="metric-value" id="tt-last-update">--</span>
+                </div>
+            </div>
+            <details style="margin-top:10px" id="tt-actors-card">
+                <summary style="cursor:pointer;font-size:11px;opacity:.7">Actors</summary>
+                <div id="tt-actors-body" style="margin-top:6px;font-size:11px"></div>
+            </details>
+            <details style="margin-top:6px">
+                <summary style="cursor:pointer;font-size:11px;opacity:.7">Analyze text</summary>
+                <textarea id="tt-analyze-input" class="lab-textarea" rows="3"
+                          placeholder="paste text to run the lens over"></textarea>
+                <div class="lab-actions">
+                    <button class="header-btn lab-btn" id="tt-analyze-run">Run</button>
+                    <span id="tt-analyze-status" style="font-size:11px;opacity:.7"></span>
+                </div>
+                <pre id="tt-analyze-result" class="lab-output">--</pre>
+            </details>
+        </div>
+
         <!-- Recent Sessions -->
         <div class="side-section" style="flex:1;min-height:0;overflow-y:auto">
             <div class="side-section-title">Recent Sessions</div>
@@ -390,7 +494,205 @@
     </div>
 </div>
 
+<script>
+// ── AEGIS metrics + Time Travel Lens ────────────────────────────────────────
+// Rebuilt for this layout rather than copied from the previous page.
+//
+// The one rule carried over deliberately: a missing value renders as "—", never
+// as 0. The old panel wrote `stats.total_forge_calls || 0` on every field, so a
+// dead endpoint and a genuinely idle system produced identical output. That is
+// the same defect that let the cocoon dashboard show a clean empty store for
+// eight weeks while its backend threw TypeError on every request.
+const _em = '—';
+const _has = v => v !== null && v !== undefined;
+const _txt = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+const _num = (v, digits, suffix) =>
+    _has(v) ? Number(v).toFixed(digits) + (suffix || '') : _em;
+
+async function loadAegisStats() {
+    let s;
+    try {
+        const r = await fetch('/api/aegis/stats?hours=24');
+        s = await r.json();
+    } catch (e) { return; }
+    // The endpoint reports its own unavailability rather than returning zeros.
+    if (!s || s.error) {
+        ['aegis-forge-calls','aegis-valid-calls','aegis-valid-rate','aegis-rejected-count',
+         'aegis-rejection-rate','aegis-healing-count','aegis-healing-rate',
+         'aegis-avg-overlap','aegis-total-latency'].forEach(id => _txt(id, _em));
+        _txt('aegis-last-update', s && s.error ? 'unavailable' : _em);
+        return;
+    }
+    _txt('aegis-forge-calls',   _has(s.total_forge_calls) ? s.total_forge_calls : _em);
+    _txt('aegis-valid-calls',   _has(s.valid_calls) ? s.valid_calls : _em);
+    _txt('aegis-valid-rate',    _has(s.rejection_rate) ? Math.round(100 - s.rejection_rate) : _em);
+    _txt('aegis-rejected-count',_has(s.invalid_calls) ? s.invalid_calls : _em);
+    _txt('aegis-rejection-rate',_num(s.rejection_rate, 1, '%'));
+    _txt('aegis-healing-count', _has(s.layer5_healing_applied) ? s.layer5_healing_applied : _em);
+    _txt('aegis-healing-rate',  _has(s.healing_rate) ? Math.round(s.healing_rate) : _em);
+    _txt('aegis-avg-overlap',   _num(s.avg_overlap_percentage, 1, '%'));
+    _txt('aegis-total-latency', _num(s.avg_timings && s.avg_timings.total_ms, 0, 'ms'));
+    _txt('aegis-last-update',   new Date().toLocaleTimeString());
+    const bar = document.getElementById('bar-aegis-valid');
+    if (bar && _has(s.rejection_rate)) bar.style.width = (100 - s.rejection_rate) + '%';
+}
+
+function _rows(items, cols, empty) {
+    if (!items || !items.length) return '<div style="opacity:.5">' + empty + '</div>';
+    return items.map(it =>
+        '<div style="padding:4px 0;border-top:1px solid rgba(255,255,255,.07)">' +
+        cols(it) + '</div>').join('');
+}
+
+async function loadAegisHealingLog() {
+    try {
+        const d = await (await fetch('/api/aegis/healing-log?limit=15')).json();
+        document.getElementById('aegis-healing-log').innerHTML = _rows(
+            d.healing_events,
+            e => '<div style="opacity:.6">' + e.timestamp + '</div>' +
+                 '<div>' + String(e.concept).substring(0, 48) + '</div>' +
+                 '<div style="opacity:.75">' + e.action + ' &middot; ' +
+                 _num(e.magnitude, 3) + '</div>',
+            'No healing events');
+    } catch (e) { /* leave prior content */ }
+}
+
+async function loadAegisRecentEvents() {
+    try {
+        const d = await (await fetch('/api/aegis/recent-events?limit=15')).json();
+        document.getElementById('aegis-recent-events').innerHTML = _rows(
+            d.events,
+            e => '<div style="opacity:.6">' +
+                 new Date(e.timestamp * 1000).toLocaleTimeString() + '</div>' +
+                 '<div>' + String(e.concept).substring(0, 48) + '</div>' +
+                 '<div style="opacity:.75">' + (e.valid ? '✓ valid' : '✗ failed') +
+                 ' &middot; ' + _num(e.overlap_percentage, 1, '%') +
+                 (e.healing_action && e.healing_action !== 'none'
+                    ? ' &middot; ' + e.healing_action : '') + '</div>',
+            'No executions yet');
+    } catch (e) { /* leave prior content */ }
+}
+
+const _closureColor = c => ({closed:'#10b981', drift:'#f59e0b',
+    suppressed:'#ef4444', inexpressible:'#6b7280'}[c] || '');
+
+function renderTimeTravel(m) {
+    const pi = m.preemption_gap_days;
+    _txt('tt-pi', _has(pi) ? Math.round(pi) + ' d' : '∞');
+    const piEl = document.getElementById('tt-pi');
+    if (piEl) piEl.style.color = (_has(pi) && pi > 90) ? '#ef4444' : '';
+
+    _txt('tt-closure', _num(m.closure_score, 2));
+    const cls = m.closure_class;
+    _txt('tt-closure-class', cls || _em);
+    const cEl = document.getElementById('tt-closure');
+    if (cEl) cEl.style.color = _closureColor(cls);
+
+    // Booleans are shown as yes/no only when actually present. `undefined`
+    // rendering as "NO" would be the same absence-as-good-news the status
+    // lights on the cocoon dashboard were doing.
+    [['tt-rupture', m.rupture], ['tt-beacon', m.beacon],
+     ['tt-zone', m.high_preemption_zone]].forEach(([id, v]) => {
+        _txt(id, _has(v) ? (v ? '✗ yes' : '✓ no') : _em);
+        const e = document.getElementById(id);
+        if (e) e.style.color = _has(v) ? (v ? '#ef4444' : '#10b981') : '';
+    });
+
+    _txt('tt-confidence', _has(m.extraction_confidence)
+        ? Math.round(m.extraction_confidence * 100) + '%' : _em);
+    _txt('tt-last-update', _has(m.timestamp)
+        ? new Date(m.timestamp * 1000).toLocaleTimeString() : _em);
+
+    const actors = m.actors || [];
+    document.getElementById('tt-actors-body').innerHTML = _rows(
+        actors,
+        a => '<div>' + (a.name || a.actor || String(a)) + '</div>',
+        'None identified');
+}
+
+async function loadTimeTravel() {
+    try {
+        const d = await (await fetch('/api/time_travel/last')).json();
+        const banner = document.getElementById('tt-status-banner');
+        // status:"none" is an honest negative from the endpoint, not a failure.
+        if (d.status === 'ok' && d.metrics) {
+            if (banner) banner.style.display = 'none';
+            renderTimeTravel(d.metrics);
+        } else if (banner) {
+            banner.style.display = '';
+            banner.textContent = 'No observation yet — the detector has not fired.';
+        }
+    } catch (e) { /* leave prior content */ }
+}
+
+document.addEventListener('click', async ev => {
+    if (ev.target && ev.target.id === 'tt-analyze-run') {
+        const text = (document.getElementById('tt-analyze-input').value || '').trim();
+        if (!text) return;
+        _txt('tt-analyze-status', 'running…');
+        try {
+            const d = await (await fetch('/api/time_travel/analyze?text=' +
+                encodeURIComponent(text))).json();
+            document.getElementById('tt-analyze-result').textContent =
+                JSON.stringify(d, null, 2);
+            _txt('tt-analyze-status', '');
+        } catch (e) { _txt('tt-analyze-status', 'failed'); }
+    }
+});
+
+loadAegisStats(); loadAegisHealingLog(); loadAegisRecentEvents(); loadTimeTravel();
+setInterval(loadAegisStats, 5000);
+setInterval(loadAegisHealingLog, 10000);
+setInterval(loadAegisRecentEvents, 10000);
+setInterval(loadTimeTravel, 10000);
+</script>
+
 <script src="spiderweb.js"></script>
 <script src="app.js"></script>
+
+<style>
+#ctt { display:none; position:fixed; z-index:99999; max-width:300px; padding:9px 13px;
+  border-radius:9px; background:rgba(10,10,16,.97); border:1px solid rgba(255,255,255,.14);
+  color:#dde0e8; font-size:.8em; line-height:1.55; pointer-events:none;
+  box-shadow:0 6px 24px rgba(0,0,0,.6); }
+#ctt.ctt-visible { display:block; }
+</style>
+<div id="ctt"></div>
+<script>
+// Carried forward from the previous page unchanged. 28 authored explanations of
+// what Gamma, xi, eta, attractors, glyphs and the governor actually mean live on
+// [data-tt] attributes; this is the engine that shows them.
+(function () {
+  const tip = document.getElementById('ctt');
+  let timer, active = null;
+  function show(el) {
+    const text = el.getAttribute('data-tt');
+    if (!text) return;
+    active = el; tip.textContent = text; position(el); tip.classList.add('ctt-visible');
+  }
+  function hide() { active = null; clearTimeout(timer); tip.classList.remove('ctt-visible'); }
+  function position(el) {
+    const r = el.getBoundingClientRect(); const tw = 300;
+    tip.classList.add('ctt-visible');
+    const th = tip.offsetHeight || 80;
+    tip.classList.remove('ctt-visible');
+    let top = r.bottom + 8;
+    if (top + th > window.innerHeight - 8) top = r.top - th - 8;
+    let left = r.left + r.width / 2 - tw / 2;
+    left = Math.max(8, Math.min(left, window.innerWidth - tw - 8));
+    tip.style.left = left + 'px'; tip.style.top = top + 'px';
+  }
+  document.addEventListener('mouseover', function (e) {
+    const el = e.target.closest('[data-tt]');
+    if (!el || el === active) return;
+    hide(); timer = setTimeout(() => show(el), 420);
+  }, true);
+  document.addEventListener('mouseout', function (e) {
+    if (!e.target.closest('[data-tt]')) return; hide();
+  }, true);
+  window.addEventListener('scroll', hide, true);
+  window.addEventListener('keydown', hide, true);
+})();
+</script>
 </body>
 </html>

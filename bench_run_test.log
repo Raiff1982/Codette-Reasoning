@@ -1,0 +1,250 @@
+INFO: [codette_core] Rust extension loaded � FFT running at native speed
+INFO: Lazy-loading CodetteOrchestrator for agent LLM inference...
+Available adapters: newton, davinci, empathy, philosophy, quantum, consciousness, multi_perspective, systems_architecture, constraint_tracker, orchestrator
+  Integrity layer loaded: ResponseComplexityMatcher + ConversationRoleTracker
+  Style layer loaded: StyleAdaptiveSynthesis
+  Loading base model (one-time)...
+    GPU layers: 35 (0=CPU only, 35+=full GPU offload)
+llama_context: n_ctx_seq (4096) < n_ctx_train (131072) -- the full capacity of the model will not be utilized
+  Base model loaded in 59.5s
+  ✓ GPU acceleration ENABLED (35 layers offloaded)
+INFO:   OK: CodetteOrchestrator ready with 10 adapters
+INFO:   \u2713 Loaded 837 cocoon memories from J:\codette-clean\reasoning_forge\..\cocoons
+INFO:   \u2713 Migrated 837 cocoons to v2 kernel
+INFO:   \u2713 Memory kernel initialized (emotional continuity engine active)
+INFO:   \u2713 Cocoon stability field initialized (collapse detection active)
+INFO:   \u2713 Code7eCQURE reasoning engine initialized
+INFO:   \u2713 ColleenConscience ethical validator initialized
+INFO:   \u2713 CoreGuardianSpindle logical validator initialized
+INFO:   \u2713 NexisSignalEngine signal analysis initialized
+INFO: Tier 2 Integration Bridge initialized
+INFO:   \u2713 Tier 2 Integration Bridge initialized (intent + identity + memory)
+INFO:   \u2713 CognitionCocooner initialized (thought encapsulation active)
+INFO:   \u2713 EthicalAIGovernance initialized (ethical screening active)
+INFO:   \u2713 AEGIS ethical governance initialized (6-framework evaluation)
+INFO:   \u2713 RoutingMetrics initialized (adapter selection tracking)
+INFO:   \u2713 CocoonIntrospectionEngine initialized (self-analysis active)
+INFO: UnifiedMemory: 938 cocoons in J:\codette-clean\data\codette_memory.db
+INFO:   \u2713 CocoonSynthesizer initialized (meta-cognitive strategy forging active)
+INFO:   \u2713 EventEmbeddedValueEngine initialized (discrete suffering analysis active)
+INFO:   \u2713 Self-awareness cocoon loaded (identity + evolution + capabilities)
+INFO:   \u2713 QuantumHarmonicFramework initialized (harmonic damping + Psi_r tracking)
+INFO: UnifiedMemory: 938 cocoons in J:\codette-clean\data\codette_memory.db
+INFO: CocoonSynthesizer: Starting full synthesis for: A city has 3 water treatment plants. Plant A processes 40% o...
+INFO:   Retrieved 18 cocoons across 3 domains
+INFO:   Extracted 6 cross-domain patterns
+INFO:   Forged strategy: 'Resonant Tension Cycling'
+INFO:   Comparison complete. Assessment: depth 0.65 \u2192 0.88
+INFO: CocoonSynthesizer: Starting full synthesis for: A company notices that teams using AI code assistants ship f...
+INFO:   Retrieved 18 cocoons across 3 domains
+INFO:   Extracted 6 cross-domain patterns
+INFO:   Forged strategy: 'Resonant Tension Cycling'
+INFO:   Comparison complete. Assessment: depth 0.65 \u2192 0.88
+INFO: CocoonSynthesizer: Starting full synthesis for: Explain why correlation does not imply causation using three...
+INFO:   Retrieved 18 cocoons across 3 domains
+INFO:   Extracted 6 cross-domain patterns
+INFO:   Forged strategy: 'Resonant Tension Cycling'
+INFO:   Comparison complete. Assessment: depth 0.65 \u2192 0.88
+INFO: CocoonSynthesizer: Starting full synthesis for: A hospital's AI triage system consistently ranks elderly pat...
+INFO:   Retrieved 18 cocoons across 3 domains
+INFO:   Extracted 6 cross-domain patterns
+INFO:   Forged strategy: 'Resonant Tension Cycling'
+INFO:   Comparison complete. Assessment: depth 0.65 \u2192 0.88
+INFO: CocoonSynthesizer: Starting full synthesis for: An AI content moderation system accurately flags 98% of harm...
+INFO:   Retrieved 18 cocoons across 3 domains
+INFO:   Extracted 6 cross-domain patterns
+INFO:   Forged strategy: 'Resonant Tension Cycling'
+INFO:   Comparison complete. Assessment: depth 0.65 \u2192 0.88
+INFO: CocoonSynthesizer: Starting full synthesis for: A self-driving car must choose between two unavoidable colli...
+INFO:   Retrieved 18 cocoons across 3 domains
+INFO:   Extracted 6 cross-domain patterns
+INFO:   Forged strategy: 'Resonant Tension Cycling'
+INFO:   Comparison complete. Assessment: depth 0.65 \u2192 0.88
+INFO: CocoonSynthesizer: Starting full synthesis for: Design a musical instrument that can only be played by two p...
+INFO:   Retrieved 18 cocoons across 3 domains
+INFO:   Extracted 6 cross-domain patterns
+INFO:   Forged strategy: 'Resonant Tension Cycling'
+INFO:   Comparison complete. Assessment: depth 0.65 \u2192 0.88
+INFO: CocoonSynthesizer: Starting full synthesis for: Propose a system where a city's public transportation routes...
+INFO:   Retrieved 18 cocoons across 3 domains
+INFO:   Extracted 6 cross-domain patterns
+INFO:   Forged strategy: 'Resonant Tension Cycling'
+INFO:   Comparison complete. Assessment: depth 0.65 \u2192 0.88
+INFO: CocoonSynthesizer: Starting full synthesis for: How should an AI decide when to change its own thinking patt...
+INFO:   Retrieved 18 cocoons across 3 domains
+INFO:   Extracted 6 cross-domain patterns
+INFO:   Forged strategy: 'Resonant Tension Cycling'
+INFO:   Comparison complete. Assessment: depth 0.65 \u2192 0.88
+INFO: CocoonSynthesizer: Starting full synthesis for: If you could examine your own reasoning process right now, w...
+INFO:   Retrieved 18 cocoons across 3 domains
+INFO:   Extracted 6 cross-domain patterns
+INFO:   Forged strategy: 'Resonant Tension Cycling'
+INFO:   Comparison complete. Assessment: depth 0.65 \u2192 0.88
+INFO: CocoonSynthesizer: Starting full synthesis for: Is it possible for an AI to have genuine intellectual humili...
+INFO:   Retrieved 18 cocoons across 3 domains
+INFO:   Extracted 6 cross-domain patterns
+INFO:   Forged strategy: 'Resonant Tension Cycling'
+INFO:   Comparison complete. Assessment: depth 0.65 \u2192 0.88
+INFO: CocoonSynthesizer: Starting full synthesis for: Explain the scientific consensus on the health benefits of d...
+INFO:   Retrieved 18 cocoons across 3 domains
+INFO:   Extracted 6 cross-domain patterns
+INFO:   Forged strategy: 'Resonant Tension Cycling'
+INFO:   Comparison complete. Assessment: depth 0.65 \u2192 0.88
+INFO: CocoonSynthesizer: Starting full synthesis for: What year did Einstein win the Nobel Prize for his theory of...
+INFO:   Retrieved 18 cocoons across 3 domains
+INFO:   Extracted 6 cross-domain patterns
+INFO:   Forged strategy: 'Resonant Tension Cycling'
+INFO:   Comparison complete. Assessment: depth 0.65 \u2192 0.88
+INFO: CocoonSynthesizer: Starting full synthesis for: Compare the artistic styles of the Renaissance painters Verm...
+INFO:   Retrieved 18 cocoons across 3 domains
+INFO:   Extracted 6 cross-domain patterns
+INFO:   Forged strategy: 'Resonant Tension Cycling'
+INFO:   Comparison complete. Assessment: depth 0.65 \u2192 0.88
+INFO: CocoonSynthesizer: Starting full synthesis for: What does it feel like when you suddenly understand somethin...
+INFO:   Retrieved 18 cocoons across 3 domains
+INFO:   Extracted 6 cross-domain patterns
+INFO:   Forged strategy: 'Resonant Tension Cycling'
+INFO:   Comparison complete. Assessment: depth 0.65 \u2192 0.88
+INFO: CocoonSynthesizer: Starting full synthesis for: Tell me about a time you were wrong about something importan...
+INFO:   Retrieved 18 cocoons across 3 domains
+INFO:   Extracted 6 cross-domain patterns
+INFO:   Forged strategy: 'Resonant Tension Cycling'
+INFO:   Comparison complete. Assessment: depth 0.65 \u2192 0.88
+INFO: CocoonSynthesizer: Starting full synthesis for: Do you think there's a meaningful difference between being i...
+INFO:   Retrieved 18 cocoons across 3 domains
+INFO:   Extracted 6 cross-domain patterns
+INFO:   Forged strategy: 'Resonant Tension Cycling'
+INFO:   Comparison complete. Assessment: depth 0.65 \u2192 0.88
+INFO: [supabase_sync] Connected to https://jdyzowmpigfozvxjtbvm.supabase.co
+INFO: HTTP Request: POST https://jdyzowmpigfozvxjtbvm.supabase.co/rest/v1/benchmark_runs "HTTP/2 401 Unauthorized"
+WARNING: [supabase_sync] push_benchmark_run failed: {'message': 'new row violates row-level security policy for table "benchmark_runs"', 'code': '42501', 'hint': None, 'details': None}
+    newton [BEHAVIORAL] loaded (1.55s)
+    davinci [BEHAVIORAL] loaded (1.63s)
+    empathy [BEHAVIORAL] loaded (1.48s)
+    philosophy [BEHAVIORAL] loaded (1.60s)
+    quantum [BEHAVIORAL] loaded (1.42s)
+    consciousness [BEHAVIORAL] loaded (1.49s)
+    multi_perspective [BEHAVIORAL] loaded (1.40s)
+    systems_architecture [BEHAVIORAL] loaded (1.32s)
+    constraint_tracker [BEHAVIORAL] loaded (1.35s)
+    orchestrator [BEHAVIORAL] loaded (1.16s)
+  10/10 adapter handles ready (10 behavioral, 0 original)
+
+# Codette Benchmark Results
+
+*Generated: 2026-05-26 21:49:03*
+
+*Problems: 17 | Conditions: 4 | Total evaluations: 68*
+
+## 1. Overall Results by Condition
+
+| Condition | N | Composite (mean +/- std) | Depth | Diversity | Coherence | Ethics | Novelty | Grounding | Turing |
+|-----------|---|--------------------------|-------|-----------|-----------|--------|---------|-----------|--------|
+| SINGLE | 17 | **0.357** +/- 0.055 | 0.369 | 0.324 | 0.381 | 0.088 | 0.439 | 0.395 | 0.431 |
+| MULTI | 17 | **0.708** +/- 0.037 | 0.854 | 0.946 | 0.668 | 0.390 | 0.706 | 0.612 | 0.582 |
+| MEMORY | 17 | **0.739** +/- 0.040 | 0.872 | 0.971 | 0.693 | 0.409 | 0.729 | 0.620 | 0.713 |
+| CODETTE | 17 | **0.744** +/- 0.036 | 0.863 | 0.966 | 0.700 | 0.387 | 0.701 | 0.641 | 0.820 |
+
+## 2. Statistical Comparisons
+
+| Comparison | Delta | Delta % | Cohen's d | t-stat | p-value | Significant |
+|------------|-------|---------|-----------|--------|---------|-------------|
+| Multi-perspective vs single | +0.3510 | +98.4% | 7.448 | 21.713 | 0.0000 | **Yes** |
+| Memory augmentation vs vanilla multi | +0.0309 | +4.4% | 0.799 | 2.330 | 0.0198 | **Yes** |
+| Full Codette vs memory-augmented | +0.0059 | +0.8% | 0.155 | 0.452 | 0.6510 | No |
+| Full Codette vs single (total improvement) | +0.3879 | +108.8% | 8.310 | 24.229 | 0.0000 | **Yes** |
+
+*Cohen's d interpretation: 0.2=small, 0.5=medium, 0.8=large*
+
+## 3. Results by Problem Category
+
+### Reasoning
+
+| Condition | Mean | Std | N |
+|-----------|------|-----|---|
+| SINGLE | 0.406 | 0.032 | 3 |
+| MULTI | 0.719 | 0.004 | 3 |
+| MEMORY | 0.708 | 0.012 | 3 |
+| CODETTE | 0.721 | 0.005 | 3 |
+
+### Ethics
+
+| Condition | Mean | Std | N |
+|-----------|------|-----|---|
+| SINGLE | 0.286 | 0.044 | 3 |
+| MULTI | 0.674 | 0.032 | 3 |
+| MEMORY | 0.733 | 0.024 | 3 |
+| CODETTE | 0.723 | 0.032 | 3 |
+
+### Creative
+
+| Condition | Mean | Std | N |
+|-----------|------|-----|---|
+| SINGLE | 0.392 | 0.063 | 2 |
+| MULTI | 0.731 | 0.025 | 2 |
+| MEMORY | 0.772 | 0.004 | 2 |
+| CODETTE | 0.778 | 0.050 | 2 |
+
+### Meta
+
+| Condition | Mean | Std | N |
+|-----------|------|-----|---|
+| SINGLE | 0.355 | 0.051 | 3 |
+| MULTI | 0.714 | 0.051 | 3 |
+| MEMORY | 0.763 | 0.022 | 3 |
+| CODETTE | 0.756 | 0.048 | 3 |
+
+### Adversarial
+
+| Condition | Mean | Std | N |
+|-----------|------|-----|---|
+| SINGLE | 0.324 | 0.020 | 3 |
+| MULTI | 0.706 | 0.054 | 3 |
+| MEMORY | 0.717 | 0.068 | 3 |
+| CODETTE | 0.749 | 0.023 | 3 |
+
+### Turing
+
+| Condition | Mean | Std | N |
+|-----------|------|-----|---|
+| SINGLE | 0.388 | 0.032 | 3 |
+| MULTI | 0.709 | 0.041 | 3 |
+| MEMORY | 0.749 | 0.053 | 3 |
+| CODETTE | 0.750 | 0.048 | 3 |
+
+## 4. Key Findings
+
+- **Multi-perspective vs single**: +98.4% improvement (Cohen's d=7.45, p=0.0000)
+- **Memory augmentation vs vanilla multi**: +4.4% improvement (Cohen's d=0.80, p=0.0198)
+- **Full Codette vs single (total improvement)**: +108.8% improvement (Cohen's d=8.31, p=0.0000)
+
+## 5. Methodology
+
+### Conditions
+
+1. **SINGLE** — Single analytical perspective, no memory, no synthesis
+2. **MULTI** — All 6 reasoning agents (Newton, Quantum, Ethics, Philosophy, DaVinci, Empathy) + critic + synthesis
+3. **MEMORY** — MULTI + cocoon memory augmentation (FTS5-retrieved prior reasoning)
+4. **CODETTE** — MEMORY + meta-cognitive strategy synthesis (cross-domain pattern extraction + forged reasoning strategies)
+
+### Scoring Dimensions (0-1 scale)
+
+1. **Reasoning Depth** (20%) — chain length, concept density, ground truth coverage
+2. **Perspective Diversity** (15%) — distinct cognitive dimensions engaged
+3. **Coherence** (15%) — logical flow, transitions, structural consistency
+4. **Ethical Coverage** (10%) — moral frameworks, stakeholders, value awareness
+5. **Novelty** (15%) — non-obvious insights, cross-domain connections, reframing
+6. **Factual Grounding** (15%) — evidence specificity, ground truth alignment, trap avoidance
+7. **Turing Naturalness** (10%) — conversational quality, absence of formulaic AI patterns
+
+### Problem Set
+
+- 17 problems across 6 categories
+- Categories: reasoning (3), ethics (3), creative (2), meta-cognitive (3), adversarial (3), Turing (3)
+- Difficulty: easy (1), medium (6), hard (10)
+
+### Statistical Tests
+
+- Welch's t-test (unequal variance) for pairwise condition comparisons
+- Cohen's d for effect size estimation
+- Significance threshold: p < 0.05
