@@ -409,12 +409,12 @@ class BeliefRevisionSystem:
     Governed belief revision module.
 
     Pipeline:
-    1. Detect directional alignment between current belief and evidence.
-    2. Evaluate evidence strength and reliability pressure.
-    3. Calculate resistance, reinforcement, and projected displacement.
-    4. Submit that exact projected displacement to AEGIS.
-    5. Submit the resulting total drift from the original belief to AEGIS.
-    6. Apply, block, or converge the belief-state update.
+        1. Detect directional alignment between current belief and evidence.
+        2. Evaluate evidence strength and reliability pressure.
+        3. Calculate resistance, reinforcement, and projected displacement.
+        4. Submit that exact projected displacement to AEGIS.
+        5. Submit the resulting total drift from the original belief to AEGIS.
+        6. Apply, block, or converge the belief-state update.
     """
 
     EVIDENCE_NORM_EPSILON = 1e-9
