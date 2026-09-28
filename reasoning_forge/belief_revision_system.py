@@ -58,6 +58,67 @@ class AEGISGovernance:
 
         return "PASSED"
 
+    @staticmethod
+    def check_total_drift(
+        original_belief_vec,
+        proposed_belief_vec,
+        core_axioms,
+    ):
+        """
+        Determine whether a proposed belief state remains within the total
+        drift budget, measured from the belief as it stood before the run.
+
+        check_core_axioms bounds a single step. On its own that leaves a gap:
+        many small steps that each pass can add up to any displacement. On the
+        authored test state, 20,000 steps moved a belief 133 units from where
+        it started with every step PASSED. This check closes it.
+
+        core_axioms["max_total_drift"]:
+            absent -> defaults to max_shift_threshold, so a run cannot reach
+                      by many small steps what a single step would be refused
+            None   -> no budget; an explicit, visible opt-out
+            number -> that budget
+        """
+
+        if not isinstance(core_axioms, dict):
+            raise TypeError("core_axioms must be a dictionary.")
+
+        original_belief_vec = _validated_vector(
+            original_belief_vec,
+            "original_belief_vec",
+        )
+
+        proposed_belief_vec = _validated_vector(
+            proposed_belief_vec,
+            "proposed_belief_vec",
+        )
+
+        if original_belief_vec.shape != proposed_belief_vec.shape:
+            raise ValueError(
+                "original_belief_vec and proposed_belief_vec "
+                "must have identical shapes."
+            )
+
+        if "max_total_drift" in core_axioms:
+            budget = core_axioms["max_total_drift"]
+
+            if budget is None:
+                return "PASSED"
+        else:
+            budget = core_axioms.get("max_shift_threshold", 2.0)
+
+        budget = _nonnegative_float(budget, "max_total_drift")
+
+        total_drift = l2_norm(
+            proposed_belief_vec
+            - original_belief_vec
+        )
+
+        if total_drift > budget:
+            return "BLOCKED"
+
+        return "PASSED"
+
 
 AEGIS = AEGISGovernance()
 
@@ -229,9 +290,21 @@ def evaluate_coherence(incoming_evidence_vec, contextual_constraints):
     disagree, so internally conflicted evidence yields proportionally weaker
     coherence instead of being averaged into apparent agreement.
 
-    This remains an evidence-internal measure by design. The belief-relative
-    comparison is detection_phase's cosine similarity; coherence deliberately
-    does not duplicate it.
+    DIAGNOSTIC ONLY -- this score no longer steers the update. It is still
+    computed and reported, but evidence_strength sets the step magnitude.
+
+    Why: a signed mean depends on which way the axes point. Negate a belief
+    and its supporting evidence together -- belief [-1,-1,-1], evidence
+    [-0.2,-0.2,-0.2] -- and nothing about their relationship changes, yet this
+    score flips sign, which flipped the step and pushed the belief away from
+    evidence that agreed with it, while the mirrored positive case moved
+    toward it. The consistency factor has the same fault in a milder form: it
+    treats components of opposite sign as disagreeing, and zero-mean evidence
+    such as [1, -1, 0] scores exactly 0 however strong it is. Belief-relative
+    coherence was considered and rejected: contradicting evidence would score
+    negative and push the belief away from it -- entrenchment rather than
+    revision. The relationship to the belief is already carried, correctly,
+    by detection_phase's error signal.
     """
 
     incoming_evidence_vec = _validated_vector(
@@ -275,6 +348,52 @@ def evaluate_coherence(incoming_evidence_vec, contextual_constraints):
     return float(np.clip(coherence_score, -1.0, 1.0))
 
 
+def evidence_strength(incoming_evidence_vec, contextual_constraints):
+    """
+    Evaluate how strongly the evidence should move a belief, independent of
+    which way the axes point.
+
+        strength = alignment_weight * ||e|| / (1 + ||e||)
+
+    Non-negative and saturating in [0, alignment_weight). It depends only on
+    the evidence's length, which rotations and sign flips preserve, so the
+    update is equivariant: transform the belief and the evidence together and
+    the result is transformed the same way. Direction comes from the unit
+    evidence vector in consolidation; whether to move toward or away comes
+    from the sign of (value_shift + reinforcement - resistance), never from
+    the sign of the evidence's components.
+
+    alignment_weight must be non-negative: a negative weight would flip the
+    step exactly as the signed mean did.
+    """
+
+    incoming_evidence_vec = _validated_vector(
+        incoming_evidence_vec,
+        "incoming_evidence_vec",
+    )
+
+    if contextual_constraints is None:
+        contextual_constraints = {}
+
+    if not isinstance(contextual_constraints, dict):
+        raise TypeError(
+            "contextual_constraints must be a dictionary or None."
+        )
+
+    alignment_weight = _nonnegative_float(
+        contextual_constraints.get("alignment_weight", 1.0),
+        "alignment_weight",
+    )
+
+    magnitude = float(np.linalg.norm(incoming_evidence_vec))
+
+    return float(
+        alignment_weight
+        * magnitude
+        / (1.0 + magnitude)
+    )
+
+
 # ============================================================
 # Codette Belief Revision Module
 # ============================================================
@@ -291,10 +410,11 @@ class BeliefRevisionSystem:
 
     Pipeline:
     1. Detect directional alignment between current belief and evidence.
-    2. Evaluate signed evidence coherence and reliability pressure.
+    2. Evaluate evidence strength and reliability pressure.
     3. Calculate resistance, reinforcement, and projected displacement.
     4. Submit that exact projected displacement to AEGIS.
-    5. Apply, block, or converge the belief-state update.
+    5. Submit the resulting total drift from the original belief to AEGIS.
+    6. Apply, block, or converge the belief-state update.
     """
 
     EVIDENCE_NORM_EPSILON = 1e-9
@@ -333,7 +453,13 @@ class BeliefRevisionSystem:
         incoming_evidence_vec,
         contextual_constraints,
     ):
-        """Evaluate reliability-scaled belief pressure and coherence."""
+        """
+        Evaluate reliability-scaled belief pressure and evidence strength.
+
+        evidence_score is evidence_strength (non-negative). The signed
+        coherence is still reported as evidence_coherence for inspection but
+        does not enter the update; see evaluate_coherence for why.
+        """
 
         error_signal = _finite_float(
             error_signal,
@@ -350,7 +476,12 @@ class BeliefRevisionSystem:
             * historical_reliability_score
         )
 
-        evidence_score = evaluate_coherence(
+        evidence_score = evidence_strength(
+            incoming_evidence_vec,
+            contextual_constraints,
+        )
+
+        evidence_coherence = evaluate_coherence(
             incoming_evidence_vec,
             contextual_constraints,
         )
@@ -358,6 +489,7 @@ class BeliefRevisionSystem:
         return {
             "value_shift": value_shift,
             "evidence_score": evidence_score,
+            "evidence_coherence": evidence_coherence,
         }
 
     # --------------------------------------------------------
@@ -641,6 +773,9 @@ class BeliefRevisionSystem:
             "belief_vector",
         ).copy()
 
+        # Total drift is measured from here, not from the previous step.
+        original_belief_vec = belief_vec.copy()
+
         evidence_vec = _validated_vector(
             state["incoming_evidence_vector"],
             "incoming_evidence_vector",
@@ -681,6 +816,7 @@ class BeliefRevisionSystem:
         termination_reason = "no_iterations"
         update_reason = "no_update"
         update_applied = False
+        governance_reason = "no_updates"
 
         for iteration in range(max_iterations):
             iterations_run = iteration + 1
@@ -721,6 +857,11 @@ class BeliefRevisionSystem:
                 current_belief_norm=l2_norm(belief_vec),
             )
 
+            if override["governance_status"] == "BLOCKED":
+                governance_reason = "step_threshold_exceeded"
+            else:
+                governance_reason = "within_bounds"
+
             consolidation = self.consolidation_phase(
                 current_belief_vec=belief_vec,
                 incoming_evidence_vec=evidence_vec,
@@ -731,6 +872,28 @@ class BeliefRevisionSystem:
                     override["governance_status"]
                 ),
             )
+
+            # consolidation_phase is pure: it returns a proposed vector and
+            # changes nothing, so the proposal can be judged against the total
+            # drift budget before it is committed.
+            if consolidation["update_applied"]:
+                drift_status = AEGIS.check_total_drift(
+                    original_belief_vec=original_belief_vec,
+                    proposed_belief_vec=(
+                        consolidation["updated_belief_vector"]
+                    ),
+                    core_axioms=state["core_axioms"],
+                )
+
+                if drift_status == "BLOCKED":
+                    override["governance_status"] = "BLOCKED"
+                    governance_reason = "drift_budget_exceeded"
+
+                    consolidation = {
+                        "updated_belief_vector": belief_vec.copy(),
+                        "update_applied": False,
+                        "reason": "governance_blocked",
+                    }
 
             updated_belief_vec = (
                 consolidation["updated_belief_vector"]
@@ -772,6 +935,11 @@ class BeliefRevisionSystem:
         metadata = {
             "drift_rate": delta,
             "governance_status": override["governance_status"],
+            "governance_reason": governance_reason,
+            "total_drift": l2_norm(
+                belief_vec
+                - original_belief_vec
+            ),
             "iterations": iterations_run,
             "converged": converged,
             "termination_reason": termination_reason,
@@ -1212,6 +1380,15 @@ class TestBeliefRevisionSystem(unittest.TestCase):
     def test_run_reaches_a_fixed_point(self):
         """Repeated reinforcement converges instead of growing forever."""
 
+        # The path to equilibrium travels 2.27 from the start, past the default
+        # drift budget of 2.0. This test is about the fixed point, not the
+        # budget, so the budget is opted out of explicitly.
+        state = dict(self.base_state)
+        state["core_axioms"] = {
+            "max_shift_threshold": 2.0,
+            "max_total_drift": None,
+        }
+
         params = {
             "learning_rate": 1.0,
             "max_iterations": 200000,
@@ -1219,7 +1396,7 @@ class TestBeliefRevisionSystem(unittest.TestCase):
         }
 
         final_vec, metadata = self.brs.run(
-            self.base_state,
+            state,
             params,
         )
 
@@ -1252,6 +1429,12 @@ class TestBeliefRevisionSystem(unittest.TestCase):
         state["belief_vector"] = np.array(
             [6.0, 6.0, 6.0]
         )
+
+        # Opted out for the same reason as test_run_reaches_a_fixed_point.
+        state["core_axioms"] = {
+            "max_shift_threshold": 2.0,
+            "max_total_drift": None,
+        }
 
         params = {
             "learning_rate": 1.0,
@@ -1421,6 +1604,250 @@ class TestBeliefRevisionSystem(unittest.TestCase):
         _, skipped = self.brs.run(state, params)
 
         self.assertFalse(skipped["update_applied"])
+
+
+
+    # --------------------------------------------------------
+    # Equivariance: the update does not depend on which way the
+    # axes point
+    # --------------------------------------------------------
+
+    def _run_steps(self, belief, evidence, iterations=50):
+        state = dict(self.base_state)
+        state["belief_vector"] = np.asarray(belief, dtype=float)
+        state["incoming_evidence_vector"] = np.asarray(
+            evidence,
+            dtype=float,
+        )
+
+        WorldModel.clear()
+
+        return self.brs.run(
+            state,
+            {
+                "learning_rate": 0.1,
+                "max_iterations": iterations,
+                "tolerance_threshold": 1e-12,
+            },
+        )
+
+    def test_mirrored_belief_moves_toward_supporting_evidence(self):
+        """Negating belief and evidence together negates the result."""
+
+        belief = np.array([1.0, 1.0, 1.0])
+        evidence = np.array([0.2, 0.2, 0.2])
+
+        positive, _ = self._run_steps(belief, evidence)
+        negative, _ = self._run_steps(-belief, -evidence)
+
+        # Before this fix the mirrored belief moved AWAY from evidence that
+        # agreed with it, because the step's sign came from the sign of the
+        # evidence's mean.
+        self.assertGreater(
+            np.dot(negative - (-belief), -evidence),
+            0.0,
+        )
+
+        np.testing.assert_allclose(
+            negative,
+            -positive,
+            rtol=0.0,
+            atol=1e-12,
+        )
+
+    def test_update_is_rotation_equivariant(self):
+        """Rotating belief and evidence together rotates the result."""
+
+        rng = np.random.default_rng(20260928)
+        rotation, _ = np.linalg.qr(
+            rng.normal(size=(3, 3))
+        )
+
+        belief = np.array([1.0, 0.5, -0.25])
+        evidence = np.array([0.3, -0.1, 0.2])
+
+        original, _ = self._run_steps(belief, evidence)
+        rotated, _ = self._run_steps(
+            rotation @ belief,
+            rotation @ evidence,
+        )
+
+        np.testing.assert_allclose(
+            rotated,
+            rotation @ original,
+            rtol=0.0,
+            atol=1e-10,
+        )
+
+    def test_zero_mean_evidence_still_moves_belief(self):
+        """[1, -1, 0] is strong evidence even though its mean is 0."""
+
+        belief = np.array([1.0, 0.0, 0.0])
+        evidence = np.array([1.0, -1.0, 0.0])
+
+        final_vec, metadata = self._run_steps(
+            belief,
+            evidence,
+            iterations=1,
+        )
+
+        self.assertTrue(metadata["update_applied"])
+
+        self.assertGreater(
+            np.dot(final_vec - belief, evidence),
+            0.0,
+        )
+
+    def test_contradicting_evidence_moves_belief_toward_it(self):
+        """Revision, not entrenchment."""
+
+        belief = np.array([1.0, 1.0, 1.0])
+        evidence = np.array([-0.2, -0.2, -0.2])
+
+        final_vec, metadata = self._run_steps(
+            belief,
+            evidence,
+            iterations=1,
+        )
+
+        self.assertTrue(metadata["update_applied"])
+
+        self.assertGreater(
+            np.dot(final_vec - belief, evidence),
+            0.0,
+        )
+
+    def test_evidence_strength_is_non_negative(self):
+        """Strength depends on length only, and a negative weight is refused."""
+
+        for vector in (
+            [0.2, 0.2, 0.2],
+            [-0.2, -0.2, -0.2],
+            [1.0, -1.0, 0.0],
+        ):
+            with self.subTest(vector=vector):
+                self.assertGreater(
+                    evidence_strength(
+                        np.array(vector),
+                        {"alignment_weight": 1.0},
+                    ),
+                    0.0,
+                )
+
+        self.assertEqual(
+            evidence_strength(
+                np.array([0.2, 0.2, 0.2]),
+                {"alignment_weight": 1.0},
+            ),
+            evidence_strength(
+                np.array([-0.2, -0.2, -0.2]),
+                {"alignment_weight": 1.0},
+            ),
+        )
+
+        with self.assertRaises(ValueError):
+            evidence_strength(
+                np.array([0.2, 0.2, 0.2]),
+                {"alignment_weight": -1.0},
+            )
+
+    # --------------------------------------------------------
+    # Cumulative drift budget
+    # --------------------------------------------------------
+
+    def test_many_small_steps_cannot_exceed_drift_budget(self):
+        """Each step passing does not let the total pass."""
+
+        state = dict(self.base_state)
+        state["core_axioms"] = {
+            "max_shift_threshold": 2.0,
+            "max_total_drift": 0.5,
+        }
+
+        final_vec, metadata = self.brs.run(
+            state,
+            {
+                "learning_rate": 1.0,
+                "max_iterations": 100000,
+                "tolerance_threshold": 1e-12,
+            },
+        )
+
+        self.assertEqual(metadata["governance_status"], "BLOCKED")
+
+        self.assertEqual(
+            metadata["governance_reason"],
+            "drift_budget_exceeded",
+        )
+
+        self.assertEqual(
+            metadata["termination_reason"],
+            "governance_blocked",
+        )
+
+        self.assertFalse(metadata["converged"])
+
+        self.assertLessEqual(metadata["total_drift"], 0.5)
+
+        self.assertAlmostEqual(
+            metadata["total_drift"],
+            l2_norm(final_vec - state["belief_vector"]),
+            places=12,
+        )
+
+        # Every step was individually far inside the per-step threshold.
+        self.assertLess(
+            abs(metadata["projected_belief_shift"]),
+            2.0,
+        )
+
+    def test_default_drift_budget_is_the_step_threshold(self):
+        """Absent a budget, total drift may not exceed one allowed step."""
+
+        state = dict(self.base_state)
+        state["core_axioms"] = {
+            "max_shift_threshold": 1.0,
+        }
+
+        _, metadata = self.brs.run(
+            state,
+            {
+                "learning_rate": 1.0,
+                "max_iterations": 100000,
+                "tolerance_threshold": 1e-12,
+            },
+        )
+
+        self.assertEqual(
+            metadata["governance_reason"],
+            "drift_budget_exceeded",
+        )
+
+        self.assertLessEqual(metadata["total_drift"], 1.0)
+
+    def test_per_step_block_is_reported_as_such(self):
+        """The two gates report which one refused."""
+
+        state = dict(self.base_state)
+        state["core_axioms"] = {
+            "max_shift_threshold": 0.0,
+        }
+
+        _, metadata = self.brs.run(
+            state,
+            {
+                "learning_rate": 0.1,
+                "max_iterations": 5,
+                "tolerance_threshold": 1e-12,
+            },
+        )
+
+        self.assertEqual(
+            metadata["governance_reason"],
+            "step_threshold_exceeded",
+        )
+
+        self.assertEqual(metadata["total_drift"], 0.0)
 
 
 
