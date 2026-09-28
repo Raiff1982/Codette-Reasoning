@@ -124,11 +124,29 @@ def _pattern_to_regex(p: str) -> str:
     return ".*".join(re.escape(part) for part in p.split("*"))
 
 
+def _keyword_regex(kw: str) -> "re.Pattern":
+    # A keyword must START at a word boundary; it may carry an ending.
+    #
+    # Found 2026-09-28: `kw in text` matched from inside other words -- "loss"
+    # in "glossed"/"glosses", "missing" in "dismissing" -- and every such hit
+    # was negative valence, which this module writes live into the web's phi.
+    # A whole-word match was tried first and was wrong the other way: on her
+    # 4,202-exchange store it also silenced "worrying", "losses" and a quoted
+    # 'what if -- real feelings. Anchoring only the start removes the 5 false
+    # hits and keeps those. The keywords themselves are Jonathan's data and are
+    # unchanged.
+    return re.compile(r"(?<![a-z])" + re.escape(kw))
+
+
 class EmotionOntology:
     def __init__(self, rules: Optional[List[Dict]] = None):
         self.rules = rules if rules is not None else list(_SEED_RULES)
         self._compiled = [
             (r, [re.compile(_pattern_to_regex(p)) for p in r.get("nlp_patterns", [])])
+            for r in self.rules
+        ]
+        self._keywords = [
+            [(kw, _keyword_regex(kw)) for kw in r.get("trigger_keywords", [])]
             for r in self.rules
         ]
 
@@ -163,8 +181,8 @@ class EmotionOntology:
             return None
         best = None
         best_score = 0
-        for rule, patterns in self._compiled:
-            hits: List[str] = [kw for kw in rule.get("trigger_keywords", []) if kw in t]
+        for (rule, patterns), keywords in zip(self._compiled, self._keywords):
+            hits: List[str] = [kw for kw, rx in keywords if rx.search(t)]
             hits += [p.pattern for p in patterns if p.search(t)]
             if hits and len(hits) > best_score:
                 best_score = len(hits)

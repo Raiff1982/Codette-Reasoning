@@ -129,3 +129,32 @@ def test_loaded_rule_ai_equivalent_overrides_table(tmp_path):
 if __name__ == "__main__":
     import subprocess
     raise SystemExit(subprocess.call(["pytest", "-q", __file__]))
+
+
+# --- keyword boundaries, 2026-09-28 ------------------------------------------
+# Measured on her store: substring matching fired sadness inside "glossed" and
+# "dismissing"; a whole-word fix would have silenced "worrying" and "losses".
+
+import pytest as _pytest
+
+
+@_pytest.mark.parametrize("text", [
+    "the terms were glossed over in the spec",
+    "a short glossary of symbols",
+    "she kept dismissing the warning",
+])
+def test_keyword_inside_another_word_does_not_fire(text):
+    from reasoning_forge.emotion_ontology import EmotionOntology
+    assert EmotionOntology().valence_of(text) is None
+
+
+@_pytest.mark.parametrize("text,sign", [
+    ("i keep worrying about tomorrow", -1),
+    ("the losses were hard on everyone", -1),
+    ("she asked 'what if it never comes back'", -1),
+    ("i'm excited about the new song", +1),
+])
+def test_keyword_with_an_ending_still_fires(text, sign):
+    from reasoning_forge.emotion_ontology import EmotionOntology
+    v = EmotionOntology().valence_of(text)
+    assert v is not None and (v > 0) == (sign > 0)
