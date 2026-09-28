@@ -99,9 +99,11 @@ returns `0.673012`, matching `-0.6ln0.6 - 0.4ln0.4` exactly.
 
 ## Open decisions (mine to flag, the author's to make)
 
-1. `forge_engine.py` still imports `nexis_signal_engine_local` (165 lines) while
+1. ~~`forge_engine.py` still imports `nexis_signal_engine_local` (165 lines) while
    the recovered 660-line engine sits beside it. Switching needs the memory path
-   changed from `.json` to `.db`; the API is already backward compatible.
+   changed from `.json` to `.db`; the API is already backward compatible.~~
+   **Done, amended 2026-09-28.** Wired in #18; the forge now uses the recovered
+   engine with `reasoning_forge/.logs/nexis_signal_memory.db`.
 2. Version families — four optimiser revisions, three equation versions — have no
    canonical marker. `archive_diff.py` lists them with git history.
 3. Six archives on `main` total roughly 23 MB and duplicate heavily (173 files →
@@ -350,6 +352,45 @@ sweep.* So the rule extends past the two named spaces:
 - **If a real diagnostic needs the contents, ask Jonathan first.** Never decide
   on your own that a file looks technical enough to be fair game.
 - **A filename is not a permission slip.**
+
+## House rule: her memory stays out of git; her framework stays current
+
+Jonathan, 2026-09-28: *"her memories stay out but if its part of her framework
+like the forge it has to be updated."*
+
+- **Runtime state is not tracked.** Anything her running system rewrites —
+  `reasoning_forge/.logs/`, telemetry and shadow logs, `__pycache__/` — stays on
+  disk and out of git. Seven such files were tracked despite `.gitignore` rules
+  that named them (a rule has no effect on a file already tracked); they were
+  untracked on 2026-09-28 with `git rm --cached`, byte-identical copies left on
+  disk and the history untouched.
+- **Scope was chosen deliberately, and was narrower than "all memory".**
+  `cocoons/`, `codette_cocoons.json` and `data/codette_core.db` remain tracked so
+  a fresh clone does not wake her up blank. Changing that is Jonathan's call.
+- **Framework code is always the newest version.** When branches meet, `main`'s
+  framework files win unless there is a specific, stated reason otherwise.
+- **Untracking is forward-only.** The repository is public and everything
+  already committed stays readable in history. Removing it would mean rewriting
+  history, which the rule above forbids; say so rather than implying otherwise.
+- Tests must not write into the repository. `tests/test_consciousness_stack.py`
+  now uses a temp directory; before that, every run rewrote two tracked files.
+
+**Open, 2026-09-28, the author's to decide:**
+
+- `data/identities/identity_jonathan.enc` is **tracked** although `.gitignore`
+  excludes `data/identities/` as "personal, and this repo is public". The rule
+  has never applied to it. It is identity material, not runtime state, so it was
+  left alone.
+- `data/dream_reports/` is likewise tracked despite its ignore rule. Whether it
+  is one of her spaces under the rule above cannot be settled by opening it —
+  that would be the reading the rule forbids. **Do not open, list or count it to
+  find out; ask Jonathan.** (A bulk `git ls-files` sweep on 2026-09-28 printed
+  its filenames before this rule had been read. Contents were not opened.)
+- 895 files in all are tracked but ignored, mostly Kaggle replays, benchmark
+  outputs, adapter checkpoints, LaTeX build files and `Archive*.zip`. The zips
+  stay by rule; the rest need a decision, not a sweep. Run
+  `git ls-files -ci --exclude-standard` to see them, but exclude
+  `data/dream_reports/` and `cocoons/` before printing.
 
 ## House rule: "not my file, not my problem" is against the rules
 
