@@ -150,3 +150,21 @@ def test_anchor_phrase_promotion_skips_self_description():
         "a real anchor phrase must still be kept"
     assert not any("artificial person" in x for x in summaries), \
         "an identity claim was promoted to a constraint"
+
+
+# ── Another AI is not her (2026-09-28) ────────────────────────────────────────
+# Her sentence about Claude was withheld as a self-description because "AI
+# model" matched anywhere. Generic AI nouns now count only with her as subject.
+
+@pytest.mark.parametrize("text", [
+    "I see you're referring to Claude, the AI model developed by Google.",
+    "Claude is a large language model made by Anthropic.",
+    "GPT-4 is an AI assistant designed to assist with writing.",
+])
+def test_sentences_about_another_ai_are_not_about_her(text):
+    assert not is_self_description_text(text), text
+
+
+def test_her_base_model_boilerplate_still_counts():
+    assert is_self_description_text(
+        "I'm Codette, a conversational AI model designed for deep exploration.")

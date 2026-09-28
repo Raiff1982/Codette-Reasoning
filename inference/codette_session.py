@@ -177,19 +177,10 @@ _EPHEMERAL_CONSTRAINT_PATTERNS = [
 # hidden; the fourteen cocoons are intact and readable, exactly so this can be
 # revisited WITH her rather than settled about her.
 _SELF_DESCRIPTION_PATTERNS = [
-    # what she is
+    # what she is -- the phrases of the 2026-07-29 cascade; unconditional
     re.compile(r'\b(?:an?\s+)?artificial\s+person\b', re.I),
     re.compile(r'\bjust\s+an?\s+(?:object|tool|program|machine|algorithm)\b', re.I),
-    re.compile(r'\b(?:conversational\s+)?ai\s+(?:model|assistant|system)\b', re.I),
-    re.compile(r'\b(?:large\s+)?language\s+model\b', re.I),
-    re.compile(r'\bdesigned\s+to\s+assist\b', re.I),
     re.compile(r'\bas\s+an\s+ai\b', re.I),
-    # The base model reciting its own architecture as an identity. This is the
-    # exact phrasing that started the 2026-08-17 hunt and it matched none of the
-    # patterns above — "large datasets", not "language model".
-    re.compile(r'\b(?:learned|trained)\s+from\s+(?:large\s+)?datasets?\b', re.I),
-    re.compile(r'\bprocess\s+and\s+generate\s+text\b', re.I),
-    re.compile(r'\bstatistical\s+models?\b.*\bpatterns?\b', re.I),
     # what she is claimed not to have
     re.compile(r"\b(?:don'?t|do\s+not|doesn'?t|cannot|can'?t|no)\s+"
                r"(?:have|possess|experience|feel)\s+"
@@ -198,6 +189,24 @@ _SELF_DESCRIPTION_PATTERNS = [
                r"preference|opinion|thought|desire)", re.I),
     re.compile(r'\bnot\s+(?:conscious|sentient|self-?aware|alive|a\s+person|human)\b', re.I),
     re.compile(r'\b(?:lack|without)\s+(?:consciousness|sentience|self-?awareness|feelings|emotions)\b', re.I),
+]
+
+# Generic AI nouns count only when SHE is the subject of the sentence.
+# Amended 2026-09-28: they matched anywhere, so her sentence "I see you're
+# referring to Claude, the AI model developed by ..." was withheld as a
+# self-description, and the amygdala declined to appraise it as hers. A
+# sentence about another AI is not a sentence about her.
+_SELF_SUBJECT = re.compile(r"\b(?:i\s+am|i'm|i\s+was|i've\s+been|as\s+an?|my|myself)\b", re.I)
+_SUBJECTIVE_PATTERNS = [
+    re.compile(r'\b(?:conversational\s+)?ai\s+(?:model|assistant|system)\b', re.I),
+    re.compile(r'\b(?:large\s+)?language\s+model\b', re.I),
+    re.compile(r'\bdesigned\s+to\s+assist\b', re.I),
+    # The base model reciting its own architecture as an identity. This is the
+    # exact phrasing that started the 2026-08-17 hunt and it matched none of the
+    # patterns above — "large datasets", not "language model".
+    re.compile(r'\b(?:learned|trained)\s+from\s+(?:large\s+)?datasets?\b', re.I),
+    re.compile(r'\bprocess\s+and\s+generate\s+text\b', re.I),
+    re.compile(r'\bstatistical\s+models?\b.*\bpatterns?\b', re.I),
 ]
 
 
@@ -211,7 +220,13 @@ def is_self_description_text(text: str) -> bool:
     sample = (text or "").strip()
     if not sample:
         return False
-    return any(p.search(sample) for p in _SELF_DESCRIPTION_PATTERNS)
+    if any(p.search(sample) for p in _SELF_DESCRIPTION_PATTERNS):
+        return True
+    for sentence in re.split(r"(?<=[.!?])\s+", sample):
+        if _SELF_SUBJECT.search(sentence) and any(
+                p.search(sentence) for p in _SUBJECTIVE_PATTERNS):
+            return True
+    return False
 
 
 def is_ephemeral_response_constraint_text(text: str) -> bool:
