@@ -2644,7 +2644,7 @@ def _worker_thread():
                                 print("  [AMYGDALA] shadow skipped: no semantic embedder "
                                       "(not appraised, not a verdict)", flush=True)
                             else:
-                                from reasoning_forge.amygdala import Amygdala
+                                from reasoning_forge.amygdala import Amygdala, RELEVANCE_MIN
                                 from reasoning_forge.amygdala_converter import convert
                                 _persp = result.get("perspectives") or {}
                                 _conv = convert(
@@ -2656,18 +2656,27 @@ def _worker_thread():
                                     hallucination_checked=(result.get("confidence_analysis") or {}).get("hallucination_checked"),
                                     dispersion=result.get("perspective_dispersion"),
                                     perspectives_counted=(len(_persp) if isinstance(_persp, dict) else None),
+                                    # Her embeddings have length 1; the 2.0
+                                    # default was sized for 3-number test
+                                    # vectors and could never block anything.
+                                    max_shift_threshold=0.25,
                                 )
                                 _amy_log = (Path(__file__).resolve().parent.parent
                                             / "data" / "amygdala_shadow.jsonl")
-                                _amy = Amygdala(shadow_log_path=_amy_log)
+                                _amy = Amygdala(shadow_log_path=_amy_log,
+                                                relevance_min=RELEVANCE_MIN)
                                 _rec = _amy.appraise(
                                     _conv["state"],
-                                    {"learning_rate": 0.1, "max_iterations": 20,
+                                    # One step: "would THIS message revise that
+                                    # answer?", not twenty exposures to it.
+                                    {"learning_rate": 0.1, "max_iterations": 1,
                                      "tolerance_threshold": 1e-6},
                                     belief_text=_prev_answer, evidence_text=query,
                                 )
+                                _rel = _rec.get("relevance")
                                 print(f"  [AMYGDALA] shadow: stage={_rec.get('stage')} "
                                       f"reason={_rec.get('reason')} "
+                                      f"relevance={'—' if _rel is None else round(_rel, 3)} "
                                       f"would_apply={_rec.get('would_apply', '—')} "
                                       f"(applies nothing)", flush=True)
                     except Exception as _amy_e:

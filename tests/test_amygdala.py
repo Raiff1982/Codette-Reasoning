@@ -191,3 +191,33 @@ def test_scope_records_never_carry_the_key(tmp_path):
         _state(key="my_words_here"), PARAMS,
         belief_text="I am just a tool", evidence_text="ok")
     assert "my_words_here" not in log.read_text(encoding="utf-8")
+
+
+# --- relevance gate, after the first live shadow run (2026-09-28) ------------
+
+def _vec_state(belief, evidence, key="k"):
+    s = _state(key=key)
+    s["belief_vector"] = np.array(belief, dtype=float)
+    s["incoming_evidence_vector"] = np.array(evidence, dtype=float)
+    return s
+
+
+def test_unrelated_evidence_is_not_appraised():
+    amy = _amygdala(relevance_min=0.25)
+    record = amy.appraise(_vec_state([1, 0, 0], [0, 1, 0]), PARAMS, **TEXTS)
+    assert record["stage"] == "relevance"
+    assert record["reason"] == "unrelated_not_appraised"
+    assert record["relevance"] == 0.0
+    assert "governance_record" not in record
+
+
+def test_related_evidence_is_appraised_and_relevance_recorded():
+    amy = _amygdala(relevance_min=0.25)
+    record = amy.appraise(_vec_state([1, 0.1, 0], [1, 0, 0]), PARAMS, **TEXTS)
+    assert record["stage"] == "amygdala"
+    assert record["relevance"] > 0.9
+
+
+def test_no_gate_when_threshold_is_none():
+    record = _amygdala().appraise(_vec_state([1, 0, 0], [0, 1, 0]), PARAMS, **TEXTS)
+    assert record["stage"] == "amygdala"

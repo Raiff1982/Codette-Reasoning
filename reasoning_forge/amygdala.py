@@ -51,6 +51,8 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import Callable, Dict, List, Optional
 
+import numpy as np
+
 from reasoning_forge.belief_revision_system import (
     BeliefRevisionSystem,
     WorldModel,
@@ -129,6 +131,9 @@ _EXPECTED_FLOOR_HASH = CodriaoFloor._hash(
 # been committed. The server is threaded, so this is serialised.
 _SHADOW_LOCK = threading.Lock()
 
+# Measured 2026-09-28 on 9 real pairs with her MiniLM embedder; see appraise().
+RELEVANCE_MIN = 0.25
+
 
 # ============================================================
 # 2 and 3. Scope, then the amygdala
@@ -167,7 +172,11 @@ class Amygdala:
         is_self_description: Optional[Callable[[str], bool]] = None,
         valence_of: Optional[Callable[[str], Optional[float]]] = None,
         shadow_log_path: Optional[Path] = None,
+        relevance_min: Optional[float] = None,
     ):
+        # None = no relevance gate (unit tests with fixture vectors). The live
+        # wiring passes RELEVANCE_MIN, measured on her embedder.
+        self.relevance_min = relevance_min
         self.floor = floor or CodriaoFloor()
         self.brs = brs or BeliefRevisionSystem()
         self._is_self_description = (
@@ -230,6 +239,32 @@ class Amygdala:
                 record.update(stage="scope", reason="self_description_is_hers",
                               belief_key=None)
                 return self._finish(record)
+
+        # 2b. Relevance. Added after the first live shadow run (2026-09-28):
+        # every one of 8 real appraisals said would_apply=True -- including
+        # "thats right and i am jonathan" against an answer about a module --
+        # because nothing asked whether the new message is ABOUT the old
+        # belief. An instrument that can only say yes is not evidence.
+        # Threshold measured on 9 real pairs with her embedder: unrelated
+        # follow-ups scored -0.09..0.09 (one loosely related at 0.30), real
+        # corrections 0.93, 0.73, 0.33 and 0.12. 0.25 sits in the gap. KNOWN
+        # LIMIT: a correction that refers back only by pronoun ("it's in
+        # inference/") scores low and is missed; resolving "it" is beyond a
+        # sentence embedding. Revisit on more live data.
+        relevance = None
+        try:
+            _b = np.asarray(state.get("belief_vector"), dtype=float)
+            _e = np.asarray(state.get("incoming_evidence_vector"), dtype=float)
+            _nb, _ne = float(np.linalg.norm(_b)), float(np.linalg.norm(_e))
+            if _b.shape == _e.shape and _nb > 0 and _ne > 0:
+                relevance = float(_b @ _e) / (_nb * _ne)
+        except (TypeError, ValueError):
+            relevance = None
+        record["relevance"] = relevance
+        if (self.relevance_min is not None and relevance is not None
+                and relevance < self.relevance_min):
+            record.update(stage="relevance", reason="unrelated_not_appraised")
+            return self._finish(record)
 
         # 3. The amygdala, in shadow. BeliefRevisionSystem commits to the
         # module-level WorldModel; the prior entry is restored afterwards so a
