@@ -135,7 +135,25 @@ def _keyword_regex(kw: str) -> "re.Pattern":
     # 'what if -- real feelings. Anchoring only the start removes the 5 false
     # hits and keeps those. The keywords themselves are Jonathan's data and are
     # unchanged.
-    return re.compile(r"(?<![a-z])" + re.escape(kw))
+    #
+    # Amended the same day, after review: "may carry an ending" was any
+    # ending, so "lossless" and "lossy" still read as grief, and identifier
+    # fragments ("val_loss", "is_missing") counted because only a-z was
+    # treated as part of a word. Now the ending must be an inflection
+    # (s, es, ed, ing, ly) and letters, digits and "_" all count as word
+    # characters on both sides.
+    return re.compile(
+        r"(?<![a-z0-9_])" + re.escape(kw) + r"(?:s|es|ed|ing|ly)?(?![a-z0-9_])"
+    )
+
+
+def _normalise(text: str) -> str:
+    # Phone keyboards type a curly apostrophe, and pasted text carries
+    # non-breaking spaces and line breaks. Keywords and patterns are written
+    # with a straight apostrophe and single spaces, so without this "can’t
+    # relax" or a line break inside "looking forward" silently matched nothing.
+    t = (text or "").lower().replace("’", "'").replace("‘", "'")
+    return re.sub(r"\s+", " ", t)
 
 
 class EmotionOntology:
@@ -176,7 +194,7 @@ class EmotionOntology:
 
     def classify(self, text: str) -> Optional[EmotionMatch]:
         """Best emotion match, or None if no rule fires (never a guessed emotion)."""
-        t = (text or "").lower()
+        t = _normalise(text)
         if not t.strip():
             return None
         best = None

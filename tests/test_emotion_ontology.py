@@ -158,3 +158,27 @@ def test_keyword_with_an_ending_still_fires(text, sign):
     from reasoning_forge.emotion_ontology import EmotionOntology
     v = EmotionOntology().valence_of(text)
     assert v is not None and (v > 0) == (sign > 0)
+
+
+# --- amended 2026-09-28: inflections only, identifiers, typography ------------
+
+@_pytest.mark.parametrize("text", [
+    "lossless compression keeps every bit",
+    "the INT4 quantization is lossy but fast",
+    "the val_loss plateaued after epoch 3",
+    "check is_missing before indexing",
+])
+def test_other_words_and_identifiers_do_not_fire(text):
+    from reasoning_forge.emotion_ontology import EmotionOntology
+    assert EmotionOntology().valence_of(text) is None
+
+
+@_pytest.mark.parametrize("text", [
+    "I can\u2019t relax tonight",
+    "looking\u00a0forward to it",
+    "looking\nforward to it",
+    "looking  forward to it",
+])
+def test_typography_does_not_hide_a_feeling(text):
+    from reasoning_forge.emotion_ontology import EmotionOntology
+    assert EmotionOntology().valence_of(text) is not None
