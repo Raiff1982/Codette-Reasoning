@@ -574,6 +574,22 @@ def _parse_args(args_str: str) -> Tuple[list, dict]:
     if not args_str:
         return [], {}
 
+    # Parse it the way it is written: as a call. Keyword arguments were never
+    # parsed here -- scratch_read(name="notes.md") reached the tool as the
+    # filename `name="notes.md`, and search_code(pattern='x', path='y') as one
+    # garbled string. Observed 2026-09-28 in her live log. The executor already
+    # passes **kwargs through; only the hearing was missing. Literals only --
+    # anything else falls through to the paths below, unchanged.
+    try:
+        call = ast.parse(f"_f({args_str})", mode="eval").body
+        if isinstance(call, ast.Call) and call.keywords:
+            args = [ast.literal_eval(a) for a in call.args]
+            kwargs = {k.arg: ast.literal_eval(k.value)
+                      for k in call.keywords if k.arg}
+            return args, kwargs
+    except (ValueError, SyntaxError, TypeError):
+        pass
+
     # Wrap in a tuple to parse as Python literal
     try:
         # Try parsing as a tuple of values

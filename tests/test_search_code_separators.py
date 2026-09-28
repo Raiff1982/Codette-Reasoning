@@ -28,3 +28,17 @@ def test_file_names_are_searched():
 def test_a_real_absence_is_still_absent():
     out = codette_tools.tool_search_code("zz-no-such-thing-qq", "reasoning_forge", ".py")
     assert "No matches found" in out
+
+
+# --- keyword arguments are heard (2026-09-28) ---------------------------------
+
+@pytest.mark.parametrize("text,expected", [
+    ('<tool>scratch_read(name="notes.md")</tool>', ("scratch_read", [], {"name": "notes.md"})),
+    ("<tool>search_code(pattern='x', path='inference/')</tool>",
+     ("search_code", [], {"pattern": "x", "path": "inference/"})),
+    ('<tool>search_code("x", file_ext=".py")</tool>', ("search_code", ["x"], {"file_ext": ".py"})),
+    ('<tool>scratch_read("notes.md")</tool>', ("scratch_read", ["notes.md"], {})),
+    ('<tool>ask(newton, "what forces act here?")</tool>', ("ask", ["newton", "what forces act here?"], {})),
+])
+def test_tool_calls_parse_as_written(text, expected):
+    assert codette_tools.parse_tool_calls(text) == [expected]
