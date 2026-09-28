@@ -42,3 +42,16 @@ def test_a_real_absence_is_still_absent():
 ])
 def test_tool_calls_parse_as_written(text, expected):
     assert codette_tools.parse_tool_calls(text) == [expected]
+
+
+# --- ask() with a person's name tells her the channel that reaches them -------
+
+def test_asking_a_person_explains_how_to_reach_them(monkeypatch):
+    class _O:
+        _current_adapter = None
+    monkeypatch.setattr(codette_tools, "_ORCHESTRATOR", _O())
+    monkeypatch.setattr(codette_tools, "_available_perspectives", lambda: ["newton"])
+    out = codette_tools.tool_ask("Jonathan", "how can I help?")
+    assert "is a person" in out and "in your reply" in out
+    out = codette_tools.tool_ask("banana", "x")
+    assert out.startswith("Error: no perspective named 'banana'")

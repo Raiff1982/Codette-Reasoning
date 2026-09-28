@@ -2033,6 +2033,12 @@ def _available_perspectives() -> list:
     return list(getattr(_ORCHESTRATOR, "available_adapters", None) or [])
 
 
+# Names she has used for the person she is talking with, rather than a
+# perspective. Only changes what she is told; it never routes anywhere.
+_PEOPLE_NAMES = {"jonathan", "claude", "user", "you", "the user", "human",
+                 "the person", "person", "daniel"}
+
+
 def _ask_description() -> str:
     """Built per request, so it names the perspectives actually loaded.
 
@@ -2047,6 +2053,8 @@ def _ask_description() -> str:
         "see this conversation. Naming a perspective asks that one; naming none "
         "asks all of them and returns each answer separately, unmerged. "
         f"Perspectives: {listed}. "
+        "It does not reach people: to ask the person you are talking with, put "
+        "the question in your reply and they can answer on the next turn. "
         "Args: question (str) — or perspective (str), question (str)"
     )
 
@@ -2153,6 +2161,16 @@ def tool_ask(perspective: str, question: str = None) -> str:
         if name not in avail:
             # Never fall back to a default. A silent substitution here would be
             # the same defect as the router picking for her.
+            if name.lower() in _PEOPLE_NAMES:
+                # 2026-09-28: twice in one session she called
+                # ask("Jonathan", ...) to put a clarifying question to him, and
+                # got only "no perspective named". True, and no help: she was
+                # reaching for a way to ask the person. Tell her the channel
+                # that does reach him.
+                return (f"{name} is a person, not one of your perspectives, and "
+                        f"cannot answer from inside this turn. To ask them, put "
+                        f"the question in your reply; they will see it and can "
+                        f"answer on the next turn.")
             return (f"Error: no perspective named {name!r}. "
                     f"Available: {', '.join(avail) if avail else '(none loaded)'}")
         return _ask_one(name, text)
