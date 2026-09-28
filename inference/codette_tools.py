@@ -122,7 +122,13 @@ class ToolRegistry:
         })
 
         self.register("search_code", {
-            "description": "Search for a text pattern across files. Args: pattern (str), path (str, optional), file_ext (str, optional)",
+            "description": (
+                "Search for a text pattern across files, in their contents and "
+                "their file names. Case, spaces, hyphens and underscores are "
+                "treated alike, so 'belief-revision' also finds 'belief revision', "
+                "belief_revision and BeliefRevisionSystem. "
+                "Args: pattern (str), path (str, optional), file_ext (str, optional)"
+            ),
             "examples": [
                 'search_code("phase_coherence")',
                 'search_code("def route", "inference/", ".py")',
@@ -1042,8 +1048,17 @@ def tool_search_code(pattern: str, path: str = ".", file_ext: str = None) -> str
     matches_found = 0
     stopped = None
     needle = (pattern or "").lower()
-    if not needle:
+    if not needle.strip():
         return "Error: search_code needs a pattern to look for."
+    # 2026-09-28: she searched "belief-revision module" -- the word she had
+    # been given -- and found nothing, because the file says "belief
+    # revision", is named belief_revision_system.py and defines
+    # BeliefRevisionSystem. An exact match made the spelling of a question
+    # decide whether something exists. Spaces, hyphens and underscores are now
+    # one separator, which may also be absent (so CamelCase matches), and file
+    # names are searched as well as contents.
+    _parts = [p for p in re.split(r"[\s_\-]+", needle.strip()) if p]
+    matcher = re.compile(r"[\s_\-]*".join(re.escape(p) for p in _parts))
 
     deadline = time.monotonic() + SEARCH_DEADLINE_SECONDS
     search_root = resolved if resolved.is_dir() else resolved.parent
@@ -1064,6 +1079,16 @@ def tool_search_code(pattern: str, path: str = ".", file_ext: str = None) -> str
                     break
 
                 fp = Path(dirpath) / fname
+                if matcher.search(fname.lower()):
+                    try:
+                        _rel = fp.relative_to(search_root)
+                    except ValueError:
+                        _rel = fp
+                    results.append(f"  {_rel}: (file name matches)")
+                    matches_found += 1
+                    if matches_found >= SEARCH_MAX_MATCHES:
+                        stopped = f"match cap ({SEARCH_MAX_MATCHES})"
+                        break
                 if file_ext:
                     if fp.suffix.lower() != file_ext.lower():
                         continue
@@ -1082,7 +1107,7 @@ def tool_search_code(pattern: str, path: str = ".", file_ext: str = None) -> str
                     continue
 
                 for line_num, line in enumerate(content.splitlines(), 1):
-                    if needle in line.lower():
+                    if matcher.search(line.lower()):
                         try:
                             rel = fp.relative_to(search_root)
                         except ValueError:
