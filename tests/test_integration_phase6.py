@@ -20,21 +20,21 @@ print("[TEST] Starting Phase 6 + Consciousness Stack Integration Test...")
 print("[TEST] Loading modules...")
 
 try:
-    from framework_definitions import StateVector, CoherenceMetrics
+    from reasoning_forge.framework_definitions import StateVector, CoherenceMetrics
     print("[OK] Framework definitions imported")
 except Exception as e:
     print(f"[ERROR] Framework definitions import failed: {e}")
     sys.exit(1)
 
 try:
-    from semantic_tension import SemanticTensionEngine
+    from reasoning_forge.semantic_tension import SemanticTensionEngine
     print("[OK] SemanticTensionEngine imported")
 except Exception as e:
     print(f"[ERROR] SemanticTensionEngine import failed: {e}")
     sys.exit(1)
 
 try:
-    from specialization_tracker import SpecializationTracker
+    from reasoning_forge.specialization_tracker import SpecializationTracker
     print("[OK] SpecializationTracker imported")
 except Exception as e:
     print(f"[ERROR] SpecializationTracker import failed: {e}")
@@ -324,6 +324,36 @@ def run_all_tests():
         print(f"\n[WARNING] {total - passed} test(s) failed")
 
     return passed == total
+
+
+# ── Under pytest ────────────────────────────────────────────────────────────
+# The checks above are written for run_all_tests(): they catch their own
+# exceptions and RETURN True/False. pytest ignores return values, so under
+# pytest a check returning False still passed -- they could not fail. They also
+# never ran at all until 2026-09-28: the bare `from framework_definitions ...`
+# imports failed from the repo root and the sys.exit(1) above ended collection.
+#
+# Script mode is unchanged. Under pytest the originals are not collected;
+# this collects each one and asserts it actually returned True.
+_CHECKS = [
+    test_basic_framework_initialization,
+    test_state_vector_workflow,
+    test_coherence_metrics,
+    test_semantic_tension_integration,
+    test_specialization_tracking,
+    test_phase6_with_conflict_engine,
+    test_end_to_end_flow,
+]
+for _check in _CHECKS:
+    _check.__test__ = False
+
+
+import pytest  # noqa: E402
+
+
+@pytest.mark.parametrize("check", _CHECKS, ids=lambda f: f.__name__)
+def test_phase6_check_passes(check):
+    assert check() is True
 
 
 if __name__ == "__main__":
