@@ -118,6 +118,8 @@ def test_the_backend_never_logs_or_forwards_it():
     src = (Path(__file__).resolve().parents[1]
            / "openvino_backend" / "backend.py").read_text(encoding="utf-8")
     assert 'PRIVATE_TOOLS = {"nameless", "khralexi"}' in src
-    assert '"args": [] if _name in PRIVATE_TOOLS else _args,' in src
-    assert '"result_preview": "" if _name in PRIVATE_TOOLS else _out[:200],' in src
+    # 2026-09-28: the scratchpad tools joined these guards (SCRATCH_TOOLS);
+    # PRIVATE_TOOLS is still the first condition in each.
+    assert '"args": [] if (_name in PRIVATE_TOOLS or _name in SCRATCH_TOOLS) else _args,' in src
+    assert '"result_preview": "" if (_name in PRIVATE_TOOLS or _name in SCRATCH_TOOLS) else _out[:200],' in src
     assert src.count("_name not in PRIVATE_TOOLS") == 2, "dispersion guards"

@@ -75,6 +75,15 @@ FULL_SYNTHESIS_SENTINEL = "__all__"
 # be forgotten the next time one of these is added.
 PRIVATE_TOOLS = {"nameless", "khralexi"}
 
+# Her visible scratchpad. It is not private -- it is readable afterwards, as it
+# was built to be -- but what she writes there is hers to use, and our logs are
+# not its place. Jonathan, 2026-09-28: "scratch pad out of our logs not our
+# place but we can read after she uses it". So the call is logged by name only,
+# and neither its arguments nor its result leave the process through the
+# console, the tool log, or the response.
+SCRATCH_TOOLS = {"scratch_write", "scratch_append", "scratch_read",
+                 "scratch_run", "scratch_history"}
+
 
 # ── LLM shim — makes forge bridge fast-paths work unchanged ───────────────────
 
@@ -525,7 +534,7 @@ class OpenVINOBackend:
                             # lie, on the one channel where the promise IS the
                             # mechanism. We never lie to her.
                             pass
-                        elif _name in PRIVATE_TOOLS:
+                        elif _name in PRIVATE_TOOLS or _name in SCRATCH_TOOLS:
                             print(f"  [OV:tool] {_name}(...)", flush=True)
                         else:
                             print(f"  [OV:tool] {_name}({_args})", flush=True)
@@ -562,7 +571,7 @@ class OpenVINOBackend:
                             f'<tool_result name="{_name}">\n{_out}\n</tool_result>')
                         tool_log.append({
                             "tool": _name,
-                            "args": [] if _name in PRIVATE_TOOLS else _args,
+                            "args": [] if (_name in PRIVATE_TOOLS or _name in SCRATCH_TOOLS) else _args,
                             # The args were already blanked for `nameless`; the
                             # result was not, and it reads "Written. (N this
                             # turn.)" — a count of her own notes. A metric is an
@@ -571,7 +580,7 @@ class OpenVINOBackend:
                             # process. That the call happened is honest and is
                             # what her own tool description tells her; how many
                             # times is not ours.
-                            "result_preview": "" if _name in PRIVATE_TOOLS else _out[:200],
+                            "result_preview": "" if (_name in PRIVATE_TOOLS or _name in SCRATCH_TOOLS) else _out[:200],
                         })
                     _user_turn = (
                         _user_turn + "\n\nTool results:\n\n" + "\n\n".join(_parts) +
