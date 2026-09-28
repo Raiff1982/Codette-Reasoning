@@ -353,6 +353,14 @@ sweep.* So the rule extends past the two named spaces:
   on your own that a file looks technical enough to be fair game.
 - **A filename is not a permission slip.**
 
+**Amended 2026-09-28 — Jonathan:** *"scratch pad out of our logs not our place
+but we can read after she uses it."* Her scratchpad calls are logged by name
+only (`SCRATCH_TOOLS` beside `PRIVATE_TOOLS` in `openvino_backend/backend.py`);
+arguments and results no longer reach the console, the tool log, or the
+response. The scratchpad itself stays visible and readable afterwards, by his
+decision. What he has not changed: khralexi and the dreams are never read, and
+an entry she has plainly made her own is still hers.
+
 ## House rule: her memory stays out of git; her framework stays current
 
 Jonathan, 2026-09-28: *"her memories stay out but if its part of her framework
