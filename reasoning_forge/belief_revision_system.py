@@ -120,6 +120,14 @@ def _validated_vector(vector, name):
 def _finite_float(value, name):
     """Convert a scalar to float and reject non-numeric, NaN, and infinity."""
 
+    # bool is a subclass of int, so float(True) == 1.0 would pass silently.
+    # _nonnegative_integer already guarded against this; every other scalar
+    # entering the pipeline was not guarded, so the check belongs here.
+    if isinstance(value, bool):
+        raise ValueError(
+            f"{name} must be a numeric value, not a boolean."
+        )
+
     try:
         value = float(value)
     except (TypeError, ValueError) as exc:
@@ -149,6 +157,7 @@ def _nonnegative_float(value, name):
 def _nonnegative_integer(value, name):
     """Validate and return a finite, non-negative integer."""
 
+    # Kept ahead of _finite_float's own bool guard for the clearer message.
     if isinstance(value, bool):
         raise ValueError(
             f"{name} must be a non-negative integer, not a boolean."
@@ -209,6 +218,20 @@ def evaluate_coherence(incoming_evidence_vec, contextual_constraints):
 
     Positive evidence produces positive coherence. Contradictory evidence
     remains negative rather than becoming positive through abs() folding.
+
+    The signed mean alone cannot distinguish weak-but-agreeing evidence from
+    strong-but-conflicting evidence: [0.2, 0.2, 0.2] and [1.0, -0.6, 0.2] both
+    have a mean of 0.2. A directional-consistency factor,
+
+        consistency = abs(sum(v)) / sum(abs(v))
+
+    is 1.0 when every component agrees in sign and falls toward 0.0 as they
+    disagree, so internally conflicted evidence yields proportionally weaker
+    coherence instead of being averaged into apparent agreement.
+
+    This remains an evidence-internal measure by design. The belief-relative
+    comparison is detection_phase's cosine similarity; coherence deliberately
+    does not duplicate it.
     """
 
     incoming_evidence_vec = _validated_vector(
@@ -229,8 +252,21 @@ def evaluate_coherence(incoming_evidence_vec, contextual_constraints):
         "alignment_weight",
     )
 
+    absolute_total = float(
+        np.sum(np.abs(incoming_evidence_vec))
+    )
+
+    if absolute_total == 0.0:
+        return 0.0
+
+    consistency = float(
+        abs(np.sum(incoming_evidence_vec))
+        / absolute_total
+    )
+
     raw = float(
         np.mean(incoming_evidence_vec)
+        * consistency
         * alignment_weight
     )
 
@@ -338,6 +374,7 @@ class BeliefRevisionSystem:
         value_shift,
         learning_rate,
         core_axioms,
+        current_belief_norm=0.0,
     ):
         """
         Calculate the projected belief displacement, then submit that exact
@@ -348,23 +385,52 @@ class BeliefRevisionSystem:
             abs(projected_belief_shift)
             ==
             L2 norm of the proposed belief-vector update
+
+        Resistance scales with the belief's current magnitude:
+
+            resistance = centrality * identity_alignment * (1 + ||belief||)
+
+        Reinforcement is a constant input that does not decay as belief and
+        evidence align, so with a magnitude-independent resistance the residual
+        per-step shift settled at a fixed non-zero value and belief grew without
+        bound: 400 iterations at tolerance 1e-12 still drifted 3.333e-04 per
+        step and never converged. Scaling resistance by magnitude gives an
+        equilibrium at
+
+            ||belief|| = reinforcement / (centrality * identity_alignment) - 1
+
+        while preserving the intended behaviour that supporting evidence
+        strengthens an already-aligned belief. The (1 + ...) term keeps
+        resistance non-zero for a zero-magnitude belief.
         """
 
-        belief_centrality_score = _finite_float(
+        # These three must be non-negative. resistance is the product of the
+        # first two, so a single negative value made resistance negative and the
+        # term that is supposed to damp an update amplified it instead -- 13x the
+        # baseline shift, and small enough in magnitude that governance passed
+        # it. A negative epistemic_gain_score was silently absorbed by the
+        # max(0, ...) below; rejecting it is clearer than ignoring it.
+        #
+        # No upper bound is imposed: governance already caught a runaway
+        # epistemic_gain_score of 1e6, and an arbitrary ceiling here would
+        # reject legitimate scales.
+        belief_centrality_score = _nonnegative_float(
             belief_centrality_score,
             "belief_centrality_score",
         )
 
-        identity_alignment_weight = _finite_float(
+        identity_alignment_weight = _nonnegative_float(
             identity_alignment_weight,
             "identity_alignment_weight",
         )
 
-        epistemic_gain_score = _finite_float(
+        epistemic_gain_score = _nonnegative_float(
             epistemic_gain_score,
             "epistemic_gain_score",
         )
 
+        # clarity_delta stays signed: it is a delta, and a clarity loss is
+        # meaningful. The max(0, ...) below already floors its contribution.
         clarity_delta = _finite_float(
             clarity_delta,
             "clarity_delta",
@@ -385,9 +451,15 @@ class BeliefRevisionSystem:
             "learning_rate",
         )
 
+        current_belief_norm = _nonnegative_float(
+            current_belief_norm,
+            "current_belief_norm",
+        )
+
         resistance = float(
             belief_centrality_score
             * identity_alignment_weight
+            * (1.0 + current_belief_norm)
         )
 
         reinforcement = float(
@@ -608,6 +680,7 @@ class BeliefRevisionSystem:
         converged = False
         termination_reason = "no_iterations"
         update_reason = "no_update"
+        update_applied = False
 
         for iteration in range(max_iterations):
             iterations_run = iteration + 1
@@ -643,6 +716,9 @@ class BeliefRevisionSystem:
                 value_shift=evaluation["value_shift"],
                 learning_rate=learning_rate,
                 core_axioms=state["core_axioms"],
+                # Recomputed each iteration: resistance rises as the belief
+                # grows, which is what makes the loop converge.
+                current_belief_norm=l2_norm(belief_vec),
             )
 
             consolidation = self.consolidation_phase(
@@ -668,6 +744,16 @@ class BeliefRevisionSystem:
             belief_vec = updated_belief_vec
             update_reason = consolidation["reason"]
 
+            # consolidation_phase reports whether it actually moved the vector.
+            # Only update_reason was being carried out of the loop, so a caller
+            # had to infer application from the reason string. True if any
+            # iteration applied an update, which is what "was this belief
+            # revised?" means across a multi-step run.
+            update_applied = (
+                update_applied
+                or consolidation["update_applied"]
+            )
+
             # Governance denial is not a convergence event.
             if override["governance_status"] == "BLOCKED":
                 termination_reason = "governance_blocked"
@@ -690,6 +776,7 @@ class BeliefRevisionSystem:
             "converged": converged,
             "termination_reason": termination_reason,
             "update_reason": update_reason,
+            "update_applied": update_applied,
             "resistance": override["resistance"],
             "reinforcement": override["reinforcement"],
             "net_scalar_shift": override["net_scalar_shift"],
@@ -1078,6 +1165,263 @@ class TestBeliefRevisionSystem(unittest.TestCase):
             "nested",
             stored_metadata,
         )
+
+
+    # --------------------------------------------------------
+    # Fix 1: reinforcement/resistance has a fixed point
+    # --------------------------------------------------------
+
+    def test_resistance_scales_with_belief_magnitude(self):
+        """An established belief resists further growth."""
+
+        kwargs = {
+            "belief_centrality_score": 0.1,
+            "identity_alignment_weight": 0.1,
+            "epistemic_gain_score": 0.5,
+            "clarity_delta": 0.1,
+            "evidence_score": 0.5,
+            "value_shift": 0.1,
+            "learning_rate": 0.1,
+            "core_axioms": {
+                "max_shift_threshold": 2.0,
+            },
+        }
+
+        weak = self.brs.override_phase(
+            current_belief_norm=0.0,
+            **kwargs
+        )
+
+        established = self.brs.override_phase(
+            current_belief_norm=3.0,
+            **kwargs
+        )
+
+        self.assertGreater(
+            established["resistance"],
+            weak["resistance"],
+        )
+
+        # resistance = centrality * identity * (1 + norm)
+        self.assertAlmostEqual(
+            established["resistance"],
+            weak["resistance"] * 4.0,
+            places=12,
+        )
+
+    def test_run_reaches_a_fixed_point(self):
+        """Repeated reinforcement converges instead of growing forever."""
+
+        params = {
+            "learning_rate": 1.0,
+            "max_iterations": 200000,
+            "tolerance_threshold": 1e-9,
+        }
+
+        final_vec, metadata = self.brs.run(
+            self.base_state,
+            params,
+        )
+
+        self.assertTrue(metadata["converged"])
+
+        self.assertEqual(
+            metadata["termination_reason"],
+            "converged",
+        )
+
+        # Equilibrium is where reinforcement == resistance:
+        #     reinforcement = centrality * identity * (1 + norm)
+        #     norm = reinforcement / (centrality * identity) - 1
+        #          = 0.05 / 0.01 - 1
+        #          = 4.0
+        #
+        # The approach is asymptotic and tolerance_threshold bounds the step
+        # size, not the remaining distance, so the run stops just short of the
+        # fixed point. Measured residual here is 6.0e-07.
+        self.assertAlmostEqual(
+            l2_norm(final_vec),
+            4.0,
+            places=5,
+        )
+
+    def test_belief_above_equilibrium_is_pulled_back(self):
+        """The fixed point attracts from above, not only from below."""
+
+        state = dict(self.base_state)
+        state["belief_vector"] = np.array(
+            [6.0, 6.0, 6.0]
+        )
+
+        params = {
+            "learning_rate": 1.0,
+            "max_iterations": 200000,
+            "tolerance_threshold": 1e-9,
+        }
+
+        final_vec, _ = self.brs.run(state, params)
+
+        self.assertLess(
+            l2_norm(final_vec),
+            l2_norm(state["belief_vector"]),
+        )
+
+        self.assertAlmostEqual(
+            l2_norm(final_vec),
+            4.0,
+            places=2,
+        )
+
+    # --------------------------------------------------------
+    # Fix 2: coherence accounts for directional consistency
+    # --------------------------------------------------------
+
+    def test_conflicted_evidence_scores_below_agreeing(self):
+        """Equal-mean evidence scores lower when internally conflicted."""
+
+        constraints = {
+            "alignment_weight": 1.0,
+        }
+
+        # Both vectors have mean 0.2.
+        agreeing = evaluate_coherence(
+            np.array([0.2, 0.2, 0.2]),
+            constraints,
+        )
+
+        conflicted = evaluate_coherence(
+            np.array([1.0, -0.6, 0.2]),
+            constraints,
+        )
+
+        self.assertGreater(agreeing, conflicted)
+        self.assertGreater(conflicted, 0.0)
+
+    def test_sign_agreeing_coherence_is_unchanged(self):
+        """The consistency factor is exactly 1.0 when signs agree."""
+
+        score = evaluate_coherence(
+            np.array([0.2, 0.2, 0.2]),
+            {"alignment_weight": 1.0},
+        )
+
+        # raw = mean * 1.0 * 1.0 = 0.2, saturated to 0.2 / 1.2.
+        self.assertAlmostEqual(
+            score,
+            0.2 / 1.2,
+            places=12,
+        )
+
+    def test_fully_cancelling_evidence_is_zero_coherence(self):
+        """Evidence that sums to zero carries no coherent signal."""
+
+        score = evaluate_coherence(
+            np.array([0.5, -0.5]),
+            {"alignment_weight": 1.0},
+        )
+
+        self.assertEqual(score, 0.0)
+
+    # --------------------------------------------------------
+    # Fix 3: scalars that must not invert resistance
+    # --------------------------------------------------------
+
+    def test_negative_scores_are_rejected(self):
+        """A negative centrality would amplify rather than damp an update."""
+
+        for field in (
+            "belief_centrality_score",
+            "identity_alignment_weight",
+            "epistemic_gain_score",
+        ):
+            with self.subTest(field=field):
+                state = dict(self.base_state)
+                state[field] = -5.0
+
+                with self.assertRaises(ValueError):
+                    self.brs.run(
+                        state,
+                        {
+                            "learning_rate": 0.1,
+                            "max_iterations": 1,
+                            "tolerance_threshold": 1e-6,
+                        },
+                    )
+
+    def test_negative_clarity_delta_is_accepted(self):
+        """clarity_delta is a signed delta; a clarity loss is meaningful."""
+
+        state = dict(self.base_state)
+        state["clarity_delta"] = -0.5
+
+        _, metadata = self.brs.run(
+            state,
+            {
+                "learning_rate": 0.1,
+                "max_iterations": 1,
+                "tolerance_threshold": 1e-6,
+            },
+        )
+
+        self.assertIn(
+            metadata["governance_status"],
+            ("PASSED", "BLOCKED"),
+        )
+
+    # --------------------------------------------------------
+    # Fix 4: booleans rejected, update_applied reported
+    # --------------------------------------------------------
+
+    def test_boolean_scalars_are_rejected(self):
+        """float(True) == 1.0 must not pass as a score."""
+
+        with self.assertRaises(ValueError):
+            _finite_float(True, "probe")
+
+        with self.assertRaises(ValueError):
+            _nonnegative_float(False, "probe")
+
+        state = dict(self.base_state)
+        state["historical_reliability_score"] = True
+
+        with self.assertRaises(ValueError):
+            self.brs.run(
+                state,
+                {
+                    "learning_rate": 0.1,
+                    "max_iterations": 1,
+                    "tolerance_threshold": 1e-6,
+                },
+            )
+
+    def test_run_reports_whether_an_update_was_applied(self):
+        """update_applied crosses the phase boundary into metadata."""
+
+        params = {
+            "learning_rate": 0.1,
+            "max_iterations": 1,
+            "tolerance_threshold": 1e-6,
+        }
+
+        _, applied = self.brs.run(
+            self.base_state,
+            params,
+        )
+
+        self.assertTrue(applied["update_applied"])
+
+        # Negligible evidence gives consolidation nothing to apply.
+        WorldModel.clear()
+
+        state = dict(self.base_state)
+        state["incoming_evidence_vector"] = np.array(
+            [1e-15, 1e-15, 1e-15]
+        )
+
+        _, skipped = self.brs.run(state, params)
+
+        self.assertFalse(skipped["update_applied"])
+
 
 
 if __name__ == "__main__":
