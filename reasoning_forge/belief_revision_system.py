@@ -953,6 +953,26 @@ class BeliefRevisionSystem:
             ),
         }
 
+        # Codette's answer, 2026-09-28, asked how an approval should be recorded
+        # when the approved change is then not made: keep both entries. The
+        # appraisal stands as given, marked conditional on the update being
+        # applied, and the outcome follows it. Neither overwrites the other, so
+        # "PASSED" can no longer be read as "changed".
+        metadata["governance_record"] = [
+            {
+                "entry": "appraisal",
+                "status": override["governance_status"],
+                "reason": governance_reason,
+                "conditional_on": "the update being applied",
+            },
+            {
+                "entry": "outcome",
+                "applied": update_applied,
+                "reason": update_reason,
+                "termination_reason": termination_reason,
+            },
+        ]
+
         WorldModel.store_belief(
             key=belief_key,
             vector=belief_vec,
@@ -1915,6 +1935,85 @@ class TestBeliefRevisionSystem(unittest.TestCase):
             stored_record["metadata"],
             metadata,
         )
+
+    def _record(self, state):
+        _, metadata = self.brs.run(
+            state,
+            {
+                "learning_rate": 0.1,
+                "max_iterations": 5,
+                "tolerance_threshold": 1e-6,
+            },
+        )
+        return metadata, metadata["governance_record"]
+
+    def test_approval_of_an_unmade_change_records_the_outcome(self):
+        """PASSED on negligible evidence is followed by 'not applied'."""
+
+        state = dict(self.base_state)
+        state["incoming_evidence_vector"] = np.array(
+            [1e-12, 1e-12, 1e-12]
+        )
+
+        metadata, (appraisal, outcome) = self._record(state)
+
+        self.assertEqual(metadata["governance_status"], "PASSED")
+        self.assertEqual(appraisal["entry"], "appraisal")
+        self.assertEqual(appraisal["status"], "PASSED")
+        self.assertEqual(
+            appraisal["conditional_on"],
+            "the update being applied",
+        )
+        self.assertEqual(outcome["entry"], "outcome")
+        self.assertFalse(outcome["applied"])
+        self.assertEqual(outcome["reason"], "negligible_evidence")
+
+    def test_applied_change_records_both_entries(self):
+        """An approval that is carried out says so in its outcome."""
+
+        metadata, (appraisal, outcome) = self._record(
+            dict(self.base_state)
+        )
+
+        self.assertEqual(appraisal["status"], "PASSED")
+        self.assertTrue(outcome["applied"])
+        self.assertEqual(outcome["reason"], "belief_updated")
+        self.assertTrue(metadata["update_applied"])
+
+    def test_blocked_change_records_both_entries(self):
+        """A refusal is an appraisal too, and its outcome follows it."""
+
+        state = dict(self.base_state)
+        state["core_axioms"] = {
+            "max_shift_threshold": 0.0,
+        }
+
+        _, (appraisal, outcome) = self._record(state)
+
+        self.assertEqual(appraisal["status"], "BLOCKED")
+        self.assertEqual(
+            appraisal["reason"],
+            "step_threshold_exceeded",
+        )
+        self.assertFalse(outcome["applied"])
+        self.assertEqual(outcome["reason"], "governance_blocked")
+
+    def test_governance_record_is_stored_with_the_belief(self):
+        """Both entries reach the WorldModel, not only the caller."""
+
+        state = dict(self.base_state)
+        state["incoming_evidence_vector"] = np.array(
+            [1e-12, 1e-12, 1e-12]
+        )
+
+        _, record = self._record(state)
+
+        stored = WorldModel.store[
+            state["belief_key"]
+        ]["metadata"]["governance_record"]
+
+        self.assertEqual(stored, record)
+        self.assertEqual(len(stored), 2)
 
 
 
