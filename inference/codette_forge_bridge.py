@@ -23,6 +23,45 @@ from typing import Dict, Optional
 
 _log = logging.getLogger(__name__)
 
+
+# ── The emotion label on each new cocoon ────────────────────────────────────
+# First match wins, in this order. Stems match from the START of a word, so
+# "appreciat" still takes its endings but "harm" no longer fires inside
+# "pharmacy" or "risk" inside "asterisk"; "harm" also skips "harmon-", because
+# harmony, harmonic and "harmonious integration" (her own word for love) were
+# being filed as FEAR. This label feeds living_memory_v2's emotional_tag, which
+# decides the relational keep-bonus, so a false fear costs a memory.
+# Measured 2026-09-28 over 4,202 stored responses: fear 105 -> 59, and 15 of
+# those were joy hidden behind a false fear. Stored labels are not rewritten.
+_VALENCE_MAP = [
+    ("gratitude",    ["thank", "grateful", "appreciat"]),
+    ("trust",        ["trust", "reliable", "consistent", "honest"]),
+    ("determination",["determin", "persist", "resolv", "commit"]),
+    ("empathy",      ["feel", "empathy", "compassion", "human", "relat"]),
+    ("fear",         ["danger", "risk", "threat", "unsafe", "harm"]),
+    ("frustration",  ["frustrat", "disappoint", "fail", "error", "wrong"]),
+    ("confusion",    ["confus", "unclear", "uncertain", "ambiguous"]),
+    ("surprise",     ["unexpect", "surpris", "sudden", "unusual"]),
+    ("joy",          ["joy", "excit", "celebrat", "delight", "happy"]),
+    ("awe",          ["awe", "profound", "vast", "extraordinary", "amazing"]),
+    ("insight",      ["insight", "reveal", "clarif", "discover", "understand"]),
+    ("curiosity",    ["question", "wonder", "curious", "how", "why"]),
+]
+_VALENCE_RX = [
+    (label, [re.compile(r"(?<![a-z])" + ("harm(?!on)" if kw == "harm" else re.escape(kw)))
+             for kw in stems])
+    for label, stems in _VALENCE_MAP
+]
+
+
+def cocoon_valence_label(text: str) -> str:
+    """The emotional_valence label written on a v3 cocoon; 'curiosity' if none."""
+    t = (text or "").lower()
+    for label, patterns in _VALENCE_RX:
+        if any(p.search(t) for p in patterns):
+            return label
+    return "curiosity"
+
 # Substrate-aware cognition
 try:
     from substrate_awareness import SubstrateMonitor, HealthAwareRouter, CocoonStateEnricher
@@ -1168,26 +1207,7 @@ class CodetteForgeBridge:
                         str(complexity).lower(), 5.0
                     )
 
-                    _text_lower = response_text.lower()
-                    _valence = "curiosity"
-                    _valence_map = [
-                        ("gratitude",    ["thank", "grateful", "appreciat"]),
-                        ("trust",        ["trust", "reliable", "consistent", "honest"]),
-                        ("determination",["determin", "persist", "resolv", "commit"]),
-                        ("empathy",      ["feel", "empathy", "compassion", "human", "relat"]),
-                        ("fear",         ["danger", "risk", "threat", "unsafe", "harm"]),
-                        ("frustration",  ["frustrat", "disappoint", "fail", "error", "wrong"]),
-                        ("confusion",    ["confus", "unclear", "uncertain", "ambiguous"]),
-                        ("surprise",     ["unexpect", "surpris", "sudden", "unusual"]),
-                        ("joy",          ["joy", "excit", "celebrat", "delight", "happy"]),
-                        ("awe",          ["awe", "profound", "vast", "extraordinary", "amazing"]),
-                        ("insight",      ["insight", "reveal", "clarif", "discover", "understand"]),
-                        ("curiosity",    ["question", "wonder", "curious", "how", "why"]),
-                    ]
-                    for _v, _keywords in _valence_map:
-                        if any(kw in _text_lower for kw in _keywords):
-                            _valence = _v
-                            break
+                    _valence = cocoon_valence_label(response_text)
 
                     # Anything she wrote to `nameless` this turn. Drained here so
                     # it lands on the cocoon that produced it and on no other.
