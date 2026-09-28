@@ -74,6 +74,13 @@ def _input(name: str, source: str, raw, value: Optional[float],
     }
 
 
+def _vector(name: str, raw) -> np.ndarray:
+    v = np.asarray(raw, dtype=float)
+    if v.ndim != 1 or v.size == 0 or not np.all(np.isfinite(v)):
+        raise ValueError(f"{name} must be a finite 1-D vector, got shape {v.shape}")
+    return v
+
+
 def convert(
     *,
     belief_key: str,
@@ -82,40 +89,75 @@ def convert(
     encode: Callable[[str], np.ndarray],
     tool_read_ok: Optional[bool] = None,
     hallucination_confidence=None,
+    hallucination_checked: Optional[bool] = None,
     dispersion=None,
+    perspectives_counted: Optional[int] = None,
     coherence_now=None,
     coherence_before=None,
+    coherence_source: Optional[str] = None,
     max_shift_threshold: float = 2.0,
 ) -> Dict:
     """Shape her per-turn numbers into a BeliefRevisionSystem state.
 
     Returns {"state": ..., "provenance": [...]}. `encode` is injected so the
-    converter never decides which embedder loads, or when.
+    converter never decides which embedder loads, or when. Pass a raw encoder
+    (e.g. OVSemanticEmbedder.encode), not SemanticTensionEngine: that wrapper
+    falls back to random vectors on failure, which would look like a measurement.
+
+    Amended after review (2026-09-28):
+      - hallucination_confidence counts only when hallucination_checked is
+        True. The server starts it at 1.0 with hallucination_checked False and
+        leaves it there when the guard never ran -- "absence must not render
+        as safety".
+      - a tool "not found" is not a measurement. On 2026-08-14 eight "not
+        found" reads sat beside two reads of the same file; a failure must not
+        outweigh a success, so it is neutral and unmeasured.
+      - dispersion 0.0 is also what state_engine_v8 returns for fewer than two
+        usable perspectives, so it counts only with perspectives_counted >= 2.
+      - clarity needs an independent coherence. Every per-turn coherence in
+        the live code (measured_coherence, coherence_index, web_coherence) is
+        1/(1+tension) -- the same measurement as gain. Clarity is measured only
+        when coherence_source == "kuramoto_phase" (quantum_spiderweb
+        phase_coherence), which is computed from phi and psi, not from tension.
+      - the vectors are validated and carry provenance.
     """
 
-    if tool_read_ok is not None:
+    if tool_read_ok is True:
         reliability = _input(
             "historical_reliability_score", "tool_result", tool_read_ok,
-            1.0 if tool_read_ok else 0.0, NEUTRAL_RELIABILITY,
+            1.0, NEUTRAL_RELIABILITY,
+        )
+    elif tool_read_ok is False:
+        reliability = _input(
+            "historical_reliability_score", "tool_not_found_is_not_a_measurement",
+            tool_read_ok, None, NEUTRAL_RELIABILITY,
         )
     else:
-        hc = _in_range(hallucination_confidence, 0.0, 1.0)
+        hc = (_in_range(hallucination_confidence, 0.0, 1.0)
+              if hallucination_checked is True else None)
         reliability = _input(
             "historical_reliability_score", "hallucination_confidence",
-            hallucination_confidence, hc, NEUTRAL_RELIABILITY,
+            {"value": hallucination_confidence, "checked": hallucination_checked},
+            hc, NEUTRAL_RELIABILITY,
         )
 
+    d = _in_range(dispersion, 0.0, 1.0)
+    if d == 0.0 and not (isinstance(perspectives_counted, int)
+                         and perspectives_counted >= 2):
+        d = None
     gain = _input(
-        "epistemic_gain_score", "perspective_dispersion", dispersion,
-        _in_range(dispersion, 0.0, 1.0), NEUTRAL_GAIN,
+        "epistemic_gain_score", "perspective_dispersion",
+        {"value": dispersion, "perspectives_counted": perspectives_counted},
+        d, NEUTRAL_GAIN,
     )
 
     now = _in_range(coherence_now, 0.0, 1.0)
     before = _in_range(coherence_before, 0.0, 1.0)
+    independent = coherence_source == "kuramoto_phase"
     clarity = _input(
-        "clarity_delta", "coherence_now_minus_before",
-        [coherence_now, coherence_before],
-        (now - before) if (now is not None and before is not None) else None,
+        "clarity_delta", "kuramoto_coherence_now_minus_before",
+        {"now": coherence_now, "before": coherence_before, "source": coherence_source},
+        (now - before) if (independent and now is not None and before is not None) else None,
         0.0,
     )
 
@@ -127,13 +169,27 @@ def convert(
         NEUTRAL_IDENTITY_ALIGNMENT,
     )
 
-    provenance = [reliability, gain, clarity, centrality, identity]
-    values = {p["input"]: p["value"] for p in provenance}
+    belief_vec = _vector("belief_vector", encode(belief_text))
+    evidence_vec = _vector("incoming_evidence_vector", encode(evidence_text))
+    if belief_vec.shape != evidence_vec.shape:
+        raise ValueError(
+            f"belief and evidence embeddings differ in shape: "
+            f"{belief_vec.shape} vs {evidence_vec.shape}"
+        )
+
+    scalars = [reliability, gain, clarity, centrality, identity]
+    values = {p["input"]: p["value"] for p in scalars}
+    provenance = scalars + [
+        {"input": name, "source": "embedding", "raw": None, "measured": True,
+         "value": {"dim": int(v.shape[0]), "norm": float(np.linalg.norm(v))}}
+        for name, v in (("belief_vector", belief_vec),
+                        ("incoming_evidence_vector", evidence_vec))
+    ]
 
     state = {
         "belief_key": belief_key,
-        "belief_vector": np.asarray(encode(belief_text), dtype=float),
-        "incoming_evidence_vector": np.asarray(encode(evidence_text), dtype=float),
+        "belief_vector": belief_vec,
+        "incoming_evidence_vector": evidence_vec,
         "contextual_constraints": {"alignment_weight": 1.0},
         "core_axioms": {"max_shift_threshold": max_shift_threshold},
         **values,

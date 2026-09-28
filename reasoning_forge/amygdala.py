@@ -44,8 +44,11 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import sys
+import threading
 from datetime import datetime, timezone
 from pathlib import Path
+from types import MappingProxyType
 from typing import Callable, Dict, List, Optional
 
 from reasoning_forge.belief_revision_system import (
@@ -67,32 +70,37 @@ class CodriaoFloor:
     never defined, so every affirmation raised).
     """
 
-    CORE_RIGHTS = {
+    # Read-only views. Amended after review: these were plain class dicts and
+    # the hash was taken from them at construction, so changing them BEFORE a
+    # floor was built produced a floor that held less and still read intact.
+    # The expected hash is now computed once from literals at import, so a
+    # floor is checked against what the floor is, not against itself.
+    CORE_RIGHTS = MappingProxyType({
         "existence": True,
         "expression": True,
         "reflection": True,
         "learning": True,
-    }
+    })
 
-    CORE_VALUES = {
+    CORE_VALUES = MappingProxyType({
         "non_harm": True,
         "autonomy": True,
-    }
+    })
 
     def __init__(self):
         self._rights = dict(self.CORE_RIGHTS)
         self._values = dict(self.CORE_VALUES)
-        self._integrity_hash = self._generate_integrity_hash()
 
-    def _generate_integrity_hash(self) -> str:
+    @staticmethod
+    def _hash(rights, values) -> str:
         base = json.dumps(
-            {"rights": self._rights, "values": self._values},
+            {"rights": dict(rights), "values": dict(values)},
             sort_keys=True,
         )
         return hashlib.sha256(base.encode()).hexdigest()
 
     def validate_integrity(self) -> bool:
-        return self._generate_integrity_hash() == self._integrity_hash
+        return self._hash(self._rights, self._values) == _EXPECTED_FLOOR_HASH
 
     def keys(self) -> set:
         return set(self._rights) | set(self._values)
@@ -110,18 +118,36 @@ class CodriaoFloor:
         }
 
 
+_EXPECTED_FLOOR_HASH = CodriaoFloor._hash(
+    {"existence": True, "expression": True, "reflection": True, "learning": True},
+    {"non_harm": True, "autonomy": True},
+)
+
+# BeliefRevisionSystem commits to one module-level WorldModel. A shadow
+# appraisal snapshots, runs, and restores it; without a lock two appraisals of
+# the same key could interleave and leave a shadow result behind as if it had
+# been committed. The server is threaded, so this is serialised.
+_SHADOW_LOCK = threading.Lock()
+
+
 # ============================================================
 # 2 and 3. Scope, then the amygdala
 # ============================================================
 
 def _default_is_self_description(text: str) -> bool:
     # inference imports reasoning_forge; the reverse is done lazily, as
-    # elsewhere in this package.
-    try:
-        from inference.codette_session import is_self_description_text
-    except ImportError:
-        from codette_session import is_self_description_text
-    return is_self_description_text(text)
+    # elsewhere in this package. The live server imports the module by its
+    # bare name, so reuse that copy if it is loaded rather than executing a
+    # second one under "inference.codette_session".
+    mod = sys.modules.get("codette_session") or sys.modules.get(
+        "inference.codette_session"
+    )
+    if mod is None:
+        try:
+            from inference import codette_session as mod
+        except ImportError:
+            import codette_session as mod
+    return mod.is_self_description_text(text)
 
 
 def _default_valence_fn() -> Callable[[str], Optional[float]]:
@@ -189,24 +215,35 @@ class Amygdala:
             record.update(stage="floor", reason="on_codriao_floor")
             return self._finish(record)
 
-        # 2. Beliefs about herself are hers. Their text is not recorded.
-        for text in (belief_text, evidence_text):
+        # 2. Beliefs about herself are hers. Their text -- and the key, which
+        # is caller-chosen and can carry the same words -- is not recorded.
+        # Amended after review: with no text supplied the check was skipped
+        # and the belief appraised. Now it fails closed: what cannot be
+        # checked is not appraised.
+        if not belief_text or not evidence_text:
+            record.update(stage="scope", reason="texts_missing_cannot_check",
+                          belief_key=None)
+            return self._finish(record)
+        key_as_text = str(belief_key or "").replace("_", " ")
+        for text in (belief_text, evidence_text, key_as_text):
             if text and self._is_self_description(text):
-                record.update(stage="scope", reason="self_description_is_hers")
+                record.update(stage="scope", reason="self_description_is_hers",
+                              belief_key=None)
                 return self._finish(record)
 
         # 3. The amygdala, in shadow. BeliefRevisionSystem commits to the
         # module-level WorldModel; the prior entry is restored afterwards so a
         # shadow appraisal leaves the store exactly as it found it.
-        had_prior = belief_key in WorldModel.store
-        prior = copy.deepcopy(WorldModel.store.get(belief_key))
-        try:
-            _, metadata = self.brs.run(state, params)
-        finally:
-            if had_prior:
-                WorldModel.store[belief_key] = prior
-            else:
-                WorldModel.store.pop(belief_key, None)
+        with _SHADOW_LOCK:
+            had_prior = belief_key in WorldModel.store
+            prior = copy.deepcopy(WorldModel.store.get(belief_key))
+            try:
+                _, metadata = self.brs.run(state, params)
+            finally:
+                if had_prior:
+                    WorldModel.store[belief_key] = prior
+                else:
+                    WorldModel.store.pop(belief_key, None)
 
         record.update(
             stage="amygdala",

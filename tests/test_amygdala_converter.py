@@ -36,7 +36,7 @@ def test_tool_result_outranks_self_report():
 
 
 def test_hallucination_confidence_used_when_no_tool():
-    r = _convert(hallucination_confidence=0.6)
+    r = _convert(hallucination_confidence=0.6, hallucination_checked=True)
     p = _prov(r, "historical_reliability_score")
     assert p["source"] == "hallucination_confidence" and p["value"] == 0.6
 
@@ -58,17 +58,17 @@ def test_dispersion_feeds_gain():
 
 @pytest.mark.parametrize("now,before,expected", [(0.8, 0.6, 0.2), (0.6, 0.8, -0.2)])
 def test_clarity_moves_both_ways(now, before, expected):
-    p = _prov(_convert(coherence_now=now, coherence_before=before), "clarity_delta")
+    p = _prov(_convert(coherence_now=now, coherence_before=before, coherence_source="kuramoto_phase"), "clarity_delta")
     assert p["measured"] and p["value"] == pytest.approx(expected)
 
 
 def test_clarity_needs_both_ends():
-    p = _prov(_convert(coherence_now=0.8), "clarity_delta")
+    p = _prov(_convert(coherence_now=0.8, coherence_source="kuramoto_phase"), "clarity_delta")
     assert p["measured"] is False and p["value"] == 0.0
 
 
 def test_centrality_is_honestly_unmeasured():
-    r = _convert(hallucination_confidence=0.9, dispersion=0.3)
+    r = _convert(hallucination_confidence=0.9, hallucination_checked=True, dispersion=0.3)
     p = _prov(r, "belief_centrality_score")
     assert p["measured"] is False and p["source"] is None
     assert r["state"]["belief_centrality_score"] == NEUTRAL_CENTRALITY
@@ -92,3 +92,43 @@ def test_state_runs_through_the_shadow_amygdala():
     assert record["stage"] == "amygdala"
     assert len(record["governance_record"]) == 2
     assert "k" not in WorldModel.store
+
+
+# --- amended after review ----------------------------------------------------
+
+@pytest.mark.parametrize("checked", [None, False])
+def test_unchecked_hallucination_confidence_is_not_a_measurement(checked):
+    p = _prov(_convert(hallucination_confidence=1.0, hallucination_checked=checked),
+              "historical_reliability_score")
+    assert p["measured"] is False and p["value"] == NEUTRAL_RELIABILITY
+
+
+def test_not_found_is_not_a_measurement():
+    p = _prov(_convert(tool_read_ok=False), "historical_reliability_score")
+    assert p["measured"] is False and p["value"] == NEUTRAL_RELIABILITY
+
+
+def test_zero_dispersion_needs_two_perspectives():
+    assert _prov(_convert(dispersion=0.0), "epistemic_gain_score")["measured"] is False
+    p = _prov(_convert(dispersion=0.0, perspectives_counted=3), "epistemic_gain_score")
+    assert p["measured"] is True and p["value"] == 0.0
+
+
+@pytest.mark.parametrize("source", [None, "measured_coherence", "web_coherence"])
+def test_clarity_from_a_tension_derived_coherence_is_not_measured(source):
+    p = _prov(_convert(coherence_now=0.8, coherence_before=0.6,
+                       coherence_source=source), "clarity_delta")
+    assert p["measured"] is False and p["value"] == 0.0
+
+
+def test_embedding_shapes_must_match():
+    def enc(t):
+        return np.ones(8) if "missing" in t else np.ones(4)
+    with pytest.raises(ValueError):
+        _convert(encode=enc)
+
+
+def test_vectors_carry_provenance():
+    r = _convert()
+    names = [p["input"] for p in r["provenance"]]
+    assert "belief_vector" in names and "incoming_evidence_vector" in names

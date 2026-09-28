@@ -21,6 +21,13 @@ ai_inference_rules.json (his format) is present — so it grows with the ontolog
 rather than being frozen here. Valence/arousal for the seed follow his one
 specified value (fear_anxiety -0.7/0.85) and the circumplex signs for the rest;
 the authoritative numbers come from his emotion_dataset.json when wired.
+
+CORRECTED 2026-09-28 -- two claims above were aspirations, not facts:
+  - Neither the sentiment analyzer nor the cocoon self-trainer imports this.
+    The live consumers are inference/codette_session.py (it writes phi into her
+    web every turn) and reasoning_forge/amygdala.py (shadow).
+  - Nothing loads ai_inference_rules.json automatically. Both consumers build
+    EmotionOntology() from the seed; from_inference_rules() has no live caller.
 """
 
 from __future__ import annotations
@@ -178,13 +185,20 @@ class EmotionOntology:
             norm = []
             for r in rules:
                 kw = r.get("trigger_keywords") or r.get("trigger_keyword") or []
+                # A scalar keyword would be iterated letter by letter, a None or
+                # non-string would make __init__ raise and the blanket except
+                # below discard the WHOLE file, and the text is lowercased while
+                # loaded keywords were not. Normalise here (2026-09-28).
+                if isinstance(kw, str):
+                    kw = [kw]
+                kw = [k.lower() for k in kw if isinstance(k, str) and k.strip()]
                 norm.append({
                     "emotion_id": r.get("emotion_id", "unknown"),
                     "primary": r.get("primary_emotion", r.get("emotion_id", "").split("_")[0].title()),
                     "valence": float(r.get("metrics", {}).get("valence", r.get("valence", 0.0))),
                     "arousal": float(r.get("metrics", {}).get("arousal", r.get("arousal", 0.5))),
                     "trigger_keywords": kw,
-                    "nlp_patterns": r.get("nlp_patterns", []),
+                    "nlp_patterns": [p.lower() for p in (r.get("nlp_patterns") or []) if isinstance(p, str) and p.strip()],
                     "ai_equivalent": r.get("ai_equivalent"),
                     "ai_equivalent_reliability": r.get("ai_equivalent_reliability"),
                 })

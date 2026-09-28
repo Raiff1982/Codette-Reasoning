@@ -182,3 +182,18 @@ def test_other_words_and_identifiers_do_not_fire(text):
 def test_typography_does_not_hide_a_feeling(text):
     from reasoning_forge.emotion_ontology import EmotionOntology
     assert EmotionOntology().valence_of(text) is not None
+
+
+def test_loaded_ontology_normalises_keywords(tmp_path):
+    import json
+    from reasoning_forge.emotion_ontology import EmotionOntology
+    f = tmp_path / "rules.json"
+    f.write_text(json.dumps({"rules": [
+        {"emotion_id": "anger_rage", "trigger_keyword": "furious", "valence": -0.8},
+        {"emotion_id": "sad_x", "trigger_keywords": ["Heartbroken", None], "valence": -0.6},
+    ]}), encoding="utf-8")
+    eo = EmotionOntology.from_inference_rules(f)
+    assert [r["emotion_id"] for r in eo.rules] == ["anger_rage", "sad_x"]
+    assert eo.classify("a fine day at the lake") is None
+    assert eo.classify("I am furious").emotion_id == "anger_rage"
+    assert eo.classify("I am heartbroken").emotion_id == "sad_x"

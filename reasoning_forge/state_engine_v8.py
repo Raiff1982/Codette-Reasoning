@@ -89,6 +89,9 @@ def tension_from_texts(perspective_texts: Dict[str, str]) -> Tuple[float, float]
     query. Returns (Υ, Γ) with coherence Γ = 1 / (1 + Υ).
 
     Υ ranges ~0 (identical responses) to ~2 (fully disjoint vocabulary).
+    CORRECTED 2026-09-28: the upper bound is not ~2. Each vector is L2-normalised,
+    so mean squared distance from the centroid is at most 1 - 1/n (0.5 for two
+    disjoint perspectives, 0.875 for eight). Measured over her records: max 0.777.
 
     NAMING: this quantity was previously labeled "epistemic tension ξ" after
     the RC+ξ framework. That name/formalism belongs to Camlin (arXiv:2505.01464,
