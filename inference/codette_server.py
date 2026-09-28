@@ -2633,7 +2633,10 @@ def _worker_thread():
                                 if _c and _c != _this_answer:
                                     _prev_answer = _c
                                     break
-                        if _prev_answer:
+                        if not _prev_answer:
+                            print("  [AMYGDALA] shadow: no previous answer this session "
+                                  "(nothing to appraise)", flush=True)
+                        else:
                             from inference.semantic_embedder import get_semantic_embedder
                             _eng_emb = get_semantic_embedder()
                             _raw_enc = getattr(_eng_emb, "model", None)
