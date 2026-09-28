@@ -2615,6 +2615,61 @@ def _worker_thread():
                 except Exception as _opt_e:
                     print(f"  [OPTIMIZER] shadow skipped: {_opt_e}", flush=True)
 
+                # Her amygdala -- SHADOW. Jonathan, 2026-09-28: "wire it all in".
+                # Belief = her previous answer; evidence = this message. It asks
+                # whether the new message would revise what she said, records the
+                # appraisal and its outcome as two entries (her design), and
+                # APPLIES NOTHING: reasoning_forge/amygdala.py has no live mode.
+                # Codriao's floor runs first; beliefs about herself are hers and
+                # are not appraised. Records hold numbers and reasons, never her
+                # text. Anything not measured on this path goes in as unmeasured.
+                if not _is_benchmark_query and session is not None:
+                    try:
+                        _prev_answer = None
+                        _this_answer = str(result.get("response") or "")
+                        for _m in reversed(session.messages):
+                            if _m.get("role") == "assistant":
+                                _c = str(_m.get("content") or "")
+                                if _c and _c != _this_answer:
+                                    _prev_answer = _c
+                                    break
+                        if _prev_answer:
+                            from inference.semantic_embedder import get_semantic_embedder
+                            _eng_emb = get_semantic_embedder()
+                            _raw_enc = getattr(_eng_emb, "model", None)
+                            if _raw_enc is None or not hasattr(_raw_enc, "encode"):
+                                print("  [AMYGDALA] shadow skipped: no semantic embedder "
+                                      "(not appraised, not a verdict)", flush=True)
+                            else:
+                                from reasoning_forge.amygdala import Amygdala
+                                from reasoning_forge.amygdala_converter import convert
+                                _persp = result.get("perspectives") or {}
+                                _conv = convert(
+                                    belief_key=f"turn-{len(session.messages)}",
+                                    belief_text=_prev_answer,
+                                    evidence_text=query,
+                                    encode=_raw_enc.encode,
+                                    hallucination_confidence=(result.get("confidence_analysis") or {}).get("hallucination_confidence"),
+                                    hallucination_checked=(result.get("confidence_analysis") or {}).get("hallucination_checked"),
+                                    dispersion=result.get("perspective_dispersion"),
+                                    perspectives_counted=(len(_persp) if isinstance(_persp, dict) else None),
+                                )
+                                _amy_log = (Path(__file__).resolve().parent.parent
+                                            / "data" / "amygdala_shadow.jsonl")
+                                _amy = Amygdala(shadow_log_path=_amy_log)
+                                _rec = _amy.appraise(
+                                    _conv["state"],
+                                    {"learning_rate": 0.1, "max_iterations": 20,
+                                     "tolerance_threshold": 1e-6},
+                                    belief_text=_prev_answer, evidence_text=query,
+                                )
+                                print(f"  [AMYGDALA] shadow: stage={_rec.get('stage')} "
+                                      f"reason={_rec.get('reason')} "
+                                      f"would_apply={_rec.get('would_apply', '—')} "
+                                      f"(applies nothing)", flush=True)
+                    except Exception as _amy_e:
+                        print(f"  [AMYGDALA] shadow skipped: {_amy_e}", flush=True)
+
                 # ── AEGIS metrics: record the forge cycle so the dashboard populates ──
                 # The dashboard was empty because nothing recorded in the LIVE serving
                 # path (recording lived only inside forge_with_full_safeguards, which

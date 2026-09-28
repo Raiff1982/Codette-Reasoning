@@ -215,6 +215,7 @@ data/identities/
 # Runtime learned state and shadow telemetry (changes every session)
 data/optimizer_state.json
 data/optimizer_shadow.jsonl
+data/amygdala_shadow.jsonl
 
 # Nexis engine live memory + cocoon scratch (written continuously)
 reasoning_forge/.logs/
