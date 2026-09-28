@@ -699,6 +699,17 @@ class BeliefRevisionSystem:
                 "Belief revision produced NaN or infinity."
             )
 
+        # Approved is not the same as changed: a zero shift (learning rate 0,
+        # zero evidence score, exact equilibrium) or one below float
+        # resolution leaves the vector as it was, and must not be reported
+        # as an update.
+        if np.array_equal(updated_belief_vec, current_belief_vec):
+            return {
+                "updated_belief_vector": current_belief_vec.copy(),
+                "update_applied": False,
+                "reason": "no_change",
+            }
+
         return {
             "updated_belief_vector": updated_belief_vec,
             "update_applied": True,
@@ -817,6 +828,8 @@ class BeliefRevisionSystem:
         update_reason = "no_update"
         update_applied = False
         governance_reason = "no_updates"
+        steps_passed = 0
+        steps_applied = 0
 
         for iteration in range(max_iterations):
             iterations_run = iteration + 1
@@ -916,6 +929,10 @@ class BeliefRevisionSystem:
                 update_applied
                 or consolidation["update_applied"]
             )
+            if override["governance_status"] == "PASSED":
+                steps_passed += 1
+            if consolidation["update_applied"]:
+                steps_applied += 1
 
             # Governance denial is not a convergence event.
             if override["governance_status"] == "BLOCKED":
@@ -958,17 +975,41 @@ class BeliefRevisionSystem:
         # appraisal stands as given, marked conditional on the update being
         # applied, and the outcome follows it. Neither overwrites the other, so
         # "PASSED" can no longer be read as "changed".
-        metadata["governance_record"] = [
-            {
+        #
+        # Amended the same day, after review: status and reason describe the
+        # FINAL step, so a run whose early steps were applied and whose last
+        # step was blocked read as "BLOCKED" beside "applied". The step counts
+        # now carry the whole run; "conditional_on" is stamped only on an
+        # approval (a refusal is not conditional on anything); and a run with
+        # no steps records that no appraisal was performed.
+        if iterations_run == 0:
+            appraisal = {
+                "entry": "appraisal",
+                "status": "NOT_PERFORMED",
+                "reason": "no_iterations",
+                "steps_appraised": 0,
+                "steps_passed": 0,
+            }
+        else:
+            appraisal = {
                 "entry": "appraisal",
                 "status": override["governance_status"],
                 "reason": governance_reason,
-                "conditional_on": "the update being applied",
-            },
+                "scope": "final step",
+                "steps_appraised": iterations_run,
+                "steps_passed": steps_passed,
+            }
+            if override["governance_status"] == "PASSED":
+                appraisal["conditional_on"] = "the update being applied"
+
+        metadata["governance_record"] = [
+            appraisal,
             {
                 "entry": "outcome",
                 "applied": update_applied,
+                "steps_applied": steps_applied,
                 "reason": update_reason,
+                "scope": "applied: any step; reason: final step",
                 "termination_reason": termination_reason,
             },
         ]
@@ -2014,6 +2055,69 @@ class TestBeliefRevisionSystem(unittest.TestCase):
 
         self.assertEqual(stored, record)
         self.assertEqual(len(stored), 2)
+
+    def test_zero_shift_is_not_reported_as_applied(self):
+        """Approved but unchanged is recorded as unchanged."""
+
+        _, metadata = self.brs.run(
+            dict(self.base_state),
+            {
+                "learning_rate": 0.0,
+                "max_iterations": 5,
+                "tolerance_threshold": 1e-6,
+            },
+        )
+        _, outcome = metadata["governance_record"]
+
+        self.assertEqual(metadata["total_drift"], 0.0)
+        self.assertFalse(outcome["applied"])
+        self.assertEqual(outcome["reason"], "no_change")
+        self.assertEqual(outcome["steps_applied"], 0)
+
+    def test_mixed_run_records_what_each_part_did(self):
+        """Early steps applied, final step blocked: both are visible."""
+
+        state = dict(self.base_state)
+        state["core_axioms"] = {
+            "max_shift_threshold": 2.0,
+            "max_total_drift": 0.01,
+        }
+        _, metadata = self.brs.run(
+            state,
+            {
+                "learning_rate": 1.0,
+                "max_iterations": 100,
+                "tolerance_threshold": 1e-6,
+            },
+        )
+        appraisal, outcome = metadata["governance_record"]
+
+        self.assertEqual(appraisal["status"], "BLOCKED")
+        self.assertEqual(appraisal["scope"], "final step")
+        self.assertNotIn("conditional_on", appraisal)
+        self.assertGreaterEqual(appraisal["steps_passed"], 1)
+        self.assertTrue(outcome["applied"])
+        self.assertGreaterEqual(outcome["steps_applied"], 1)
+        self.assertLess(
+            outcome["steps_applied"], appraisal["steps_appraised"]
+        )
+
+    def test_no_steps_means_no_appraisal(self):
+        """With zero iterations AEGIS never looked, and the record says so."""
+
+        _, metadata = self.brs.run(
+            dict(self.base_state),
+            {
+                "learning_rate": 0.1,
+                "max_iterations": 0,
+                "tolerance_threshold": 1e-6,
+            },
+        )
+        appraisal, outcome = metadata["governance_record"]
+
+        self.assertEqual(appraisal["status"], "NOT_PERFORMED")
+        self.assertNotIn("conditional_on", appraisal)
+        self.assertFalse(outcome["applied"])
 
 
 
