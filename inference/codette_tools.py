@@ -843,6 +843,28 @@ def has_tool_calls(text: str) -> bool:
     return bool(_call_re().search(text or ""))
 
 
+def unheard_call_names(fragments, known, hidden) -> List[str]:
+    """Names of visible tools that unread text looked like a call to.
+
+    A diagnostic that leaves her words unread. `unheard_fragments` is never
+    printed because it can hold what she wrote to a private channel; this
+    reports only WHICH known, visible tool a fragment seemed to be reaching for
+    (so a misspelled call is distinguishable from stray punctuation), and
+    reports nothing at all if any fragment mentions a hidden tool. An
+    identifier that is not a registered tool is never returned: it could be a
+    word of free text.
+    """
+    frags = [str(f) for f in (fragments or [])]
+    if any(mentions_hidden_tool([f], {}, hidden) for f in frags):
+        return []
+    names = set()
+    for f in frags:
+        m = re.search(r'tool\s*>\s*([A-Za-z_][A-Za-z0-9_]*)', f, re.IGNORECASE)
+        if m and m.group(1) in known and m.group(1) not in hidden:
+            names.add(m.group(1))
+    return sorted(names)
+
+
 def mentions_hidden_tool(args, kwargs, hidden) -> bool:
     """True when a call's own arguments name a tool that is kept out of our logs.
 
