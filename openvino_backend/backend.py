@@ -82,7 +82,11 @@ PRIVATE_TOOLS = {"nameless", "khralexi"}
 # and neither its arguments nor its result leave the process through the
 # console, the tool log, or the response.
 SCRATCH_TOOLS = {"scratch_write", "scratch_append", "scratch_read",
-                 "scratch_run", "scratch_history"}
+                 "scratch_run", "scratch_history",
+                 # 2026-09-29: her specialized cocoons are visible to Jonathan
+                 # afterwards, like the scratchpad, and our logs are not their
+                 # place either: name only, no arguments, no result.
+                 "cocoon"}
 
 
 # ── LLM shim — makes forge bridge fast-paths work unchanged ───────────────────

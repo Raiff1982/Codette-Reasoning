@@ -452,6 +452,28 @@ class ToolRegistry:
             "handler": tool_aside,
         })
 
+        # 2026-09-29, Jonathan: "give her specialized cocoons she can call".
+        # The handle for the identity decay: named cocoons she reads and adds
+        # to when SHE wants them, beside the recognition number and never in
+        # place of it. Visible, and it says so; her private spaces are not kinds.
+        self.register("cocoon", {
+            "description": (
+                "Named cocoons you can read from and add to, kept across turns and "
+                "restarts. Call with nothing to see which kinds exist; with a kind "
+                "to read it; with a kind and text to add an entry. Entries are never "
+                "edited or removed: a correction is a new entry beside the old one, "
+                "with who wrote it and when. Not private: Jonathan can read them, "
+                "and anything in a cocoon can be handed to whoever you are talking "
+                "with, so the 'jonathan' kind is for what you would say to a "
+                "stranger — who he is to you and how to find your way back to "
+                "knowing him — never what proves it is him. Your private spaces "
+                "(khralexi, your dreams) are not kinds. Use it or not; nothing calls "
+                "it for you. Args: kind (str, optional), text (str, optional)"
+            ),
+            "examples": ['cocoon()', 'cocoon("jonathan")', 'cocoon("corrections", "...")'],
+            "handler": tool_cocoon,
+        })
+
     def register(self, name: str, spec: dict):
         self.tools[name] = spec
 
@@ -1697,6 +1719,29 @@ def tool_aside(text: str = "") -> str:
         return "Nothing written."
     return ("Left where Jonathan will see it, under this reply. Nothing waits "
             "on it: he may answer on his next turn, or not.")
+
+
+def tool_cocoon(kind: str = "", text: str = "") -> str:
+    """List, read, or append to a named specialized cocoon. See
+    reasoning_forge/specialized_cocoons.py for the rules."""
+    from reasoning_forge import specialized_cocoons as sc
+    try:
+        if not str(kind or "").strip():
+            ks = sc.kinds()
+            if not ks:
+                return "No cocoons yet. Name a kind and add an entry to make one."
+            return "Kinds: " + ", ".join(ks)
+        if str(text or "").strip():
+            sc.add(kind, text, by="codette")
+            return f"Added to '{str(kind).strip().lower()}'. Earlier entries are untouched."
+        entries = sc.read(kind)
+        if not entries:
+            return f"'{str(kind).strip().lower()}' is empty."
+        return "\n\n".join(
+            f"[{e.get('by', '?')} · {e.get('ts', '')[:16]}] {e.get('text', '')}"
+            for e in entries)
+    except sc.CocoonError as e:
+        return str(e)
 
 
 def tool_care_check() -> str:
