@@ -87,3 +87,17 @@ def test_backend_and_server_use_them():
     assert "unheard_call_names(" in b and "looked like a call to" in b
     srv = (ROOT / "inference" / "codette_server.py").read_text(encoding="utf-8")
     assert "correction={'—' if _corr is None else _corr}" in srv
+
+
+def test_bearing_is_logged_by_name_only():
+    # her weighed sentence is her own words; args and result stay out of logs
+    import ast
+    tree = ast.parse((ROOT / "openvino_backend" / "backend.py").read_text(encoding="utf-8"))
+    for node in tree.body:
+        if isinstance(node, ast.Assign) and any(
+                isinstance(t, ast.Name) and t.id == "SCRATCH_TOOLS" for t in node.targets):
+            assert "bearing" in ast.literal_eval(node.value)
+            break
+    else:
+        raise AssertionError("SCRATCH_TOOLS not found")
+    assert mentions_hidden_tool(["then bearing('a made-up sentence')"], {}, {"bearing"})

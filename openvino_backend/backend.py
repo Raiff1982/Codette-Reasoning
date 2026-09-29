@@ -86,7 +86,11 @@ SCRATCH_TOOLS = {"scratch_write", "scratch_append", "scratch_read",
                  # 2026-09-29: her specialized cocoons are visible to Jonathan
                  # afterwards, like the scratchpad, and our logs are not their
                  # place either: name only, no arguments, no result.
-                 "cocoon"}
+                 "cocoon",
+                 # 2026-09-29, Jonathan: "i agree". `bearing` takes the actual
+                 # sentence she is weighing, so its argument is her own words and
+                 # the console was printing them. Name only, like the rest.
+                 "bearing"}
 
 
 # ── LLM shim — makes forge bridge fast-paths work unchanged ───────────────────
