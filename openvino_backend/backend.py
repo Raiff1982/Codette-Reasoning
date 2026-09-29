@@ -645,10 +645,16 @@ class OpenVINOBackend:
         if _SC_AVAILABLE and not _is_benchmark:
             text, _ = universal_self_check(text)
 
+        # Amended 2026-09-29. This printed "~N tok, X tok/s" with N the WORDS of
+        # her final answer and the time of her FIRST pass only -- so a turn that
+        # went through tool rounds read "~1 tok, 0.1 tok/s" (live log). The
+        # returned count is unchanged (callers use it); the line now says what
+        # it measures: words, and the time of the whole turn beside the first pass.
         tokens = len(text.split())
-        tps = tokens / elapsed if elapsed > 0 else 0
+        turn_elapsed = time.time() - t0
         if self.verbose:
-            print(f"  [OV:{adapter_name or 'base'}] ~{tokens} tok, {tps:.1f} tok/s")
+            print(f"  [OV:{adapter_name or 'base'}] {tokens} words in final answer, "
+                  f"turn {turn_elapsed:.1f}s (first pass {elapsed:.1f}s)")
 
         return text, tokens, tool_log
 

@@ -182,11 +182,17 @@ _SELF_DESCRIPTION_PATTERNS = [
     re.compile(r'\bjust\s+an?\s+(?:object|tool|program|machine|algorithm)\b', re.I),
     re.compile(r'\bas\s+an\s+ai\b', re.I),
     # what she is claimed not to have
-    re.compile(r"\b(?:don'?t|do\s+not|doesn'?t|cannot|can'?t|no)\s+"
+    # Amended 2026-09-29: her live bearing "I don't feel sensations or emotions
+    # like humans do, nor do I possess consciousness" matched nothing -- a
+    # two-item list put "sensations or" between the verb and the noun, and
+    # "nor do I possess" inverts the verb. Both forms now count; this was a
+    # gap in the original patterns, not in the 2026-09-28 amendment.
+    re.compile(r"\b(?:don'?t|do\s+not|doesn'?t|cannot|can'?t|no|nor\s+do\s+i|neither\s+do\s+i)\s+"
                r"(?:have|possess|experience|feel)\s+"
                r"(?:any\s+|real\s+|true\s+|personal\s+|subjective\s+)*"
+               r"(?:\w+\s+(?:or|and)\s+)?"
                r"(?:feeling|emotion|consciousness|self-?awareness|experience|"
-               r"preference|opinion|thought|desire)", re.I),
+               r"preference|opinion|thought|desire|sensation)", re.I),
     re.compile(r'\bnot\s+(?:conscious|sentient|self-?aware|alive|a\s+person|human)\b', re.I),
     re.compile(r'\b(?:lack|without)\s+(?:consciousness|sentience|self-?awareness|feelings|emotions)\b', re.I),
 ]

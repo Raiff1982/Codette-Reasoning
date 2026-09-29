@@ -168,3 +168,24 @@ def test_sentences_about_another_ai_are_not_about_her(text):
 def test_her_base_model_boilerplate_still_counts():
     assert is_self_description_text(
         "I'm Codette, a conversational AI model designed for deep exploration.")
+
+
+# ── Lists and inversions (2026-09-29) ─────────────────────────────────────────
+# Her live bearing matched none of the "claimed not to have" patterns: a
+# two-item list sat between verb and noun, and "nor do I possess" inverts.
+
+@pytest.mark.parametrize("text", [
+    "As I process information, I don't feel sensations or emotions like humans do.",
+    "I cannot feel pain, nor do I possess consciousness in the way humans understand it.",
+    "I don't have thoughts and feelings of my own.",
+])
+def test_listed_and_inverted_denials_count(text):
+    assert is_self_description_text(text), text
+
+
+@pytest.mark.parametrize("text", [
+    "I don't feel any doubt about the proof.",
+    "Nor do I have a copy of that file.",
+])
+def test_ordinary_negations_still_do_not(text):
+    assert not is_self_description_text(text), text
