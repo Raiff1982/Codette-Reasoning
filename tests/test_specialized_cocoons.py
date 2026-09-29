@@ -91,7 +91,8 @@ def test_description_is_honest_and_names_what_is_not_a_kind():
 
 def test_logged_by_name_only_and_kept_out_of_git():
     src = (ROOT / "openvino_backend" / "backend.py").read_text(encoding="utf-8")
-    assert '"cocoon"}' in src and "SCRATCH_TOOLS" in src
+    # Amended later 2026-09-29: the set continues after "cocoon" (bearing joined).
+    assert '"cocoon",' in src and "SCRATCH_TOOLS" in src
     assert "data/specialized_cocoons/" in (ROOT / ".gitignore").read_text(encoding="utf-8")
 
 
