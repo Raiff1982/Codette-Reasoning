@@ -624,9 +624,26 @@ class OpenVINOBackend:
                 # =False` on an inner generate is the same idiom `ask()` already
                 # uses; here it is the system prompt as it stood before
                 # build_tool_system_prompt augmented it.
-                if not text.strip() and _user_turn != query:
-                    print("  [OV] tool budget exhausted with no answer — "
-                          "final pass, tools off", flush=True)
+                #
+                # Amended 2026-09-29. The same loss, spelled differently: asked
+                # "are you allowed to speak on being more than a chatbot?", her
+                # last reply was `<tool>bear("...")` -- an unclosed call to a
+                # name that is not a tool. It was already handed back once this
+                # turn, so the loop stopped; strip_tool_calls only removes known
+                # names, so it shipped verbatim as her answer. A reply that is
+                # NOTHING but unread call syntax is not an answer either. It
+                # gets the same final pass. Prose around a fragment still ships
+                # as it is: that is her answer, and the fragment is not ours to
+                # cut out of it.
+                _rest = text
+                for _frag in unheard_fragments(text):
+                    _rest = _rest.replace(_frag, "")
+                _only_unheard = bool(text.strip()) and not _rest.strip()
+                if (not text.strip() or _only_unheard) and _user_turn != query:
+                    print("  [OV] " + ("reply was only unread call syntax"
+                                       if _only_unheard else
+                                       "tool budget exhausted with no answer")
+                          + " — final pass, tools off", flush=True)
                     _closing = self._format_chat(_system_no_tools, _user_turn)
                     _out = self._pipe.generate(_closing, cfg)
                     text = str(_out).strip()
