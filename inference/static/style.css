@@ -861,6 +861,8 @@ body::after {
    and the count, are not ours. */
 .tool-call-hers { border-left-color: var(--text-muted); opacity: 0.75; }
 .tool-call-hers-note { font-style: italic; }
+.aside-for-you { margin: 8px 0 0; padding: 6px 10px; border-left: 3px solid var(--accent, #7aa2f7); font-size: 0.9em; }
+.aside-for-you .aside-label { display: block; font-size: 0.75em; opacity: 0.65; letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 2px; }
 
 .perspective-card {
     padding: 12px 16px;

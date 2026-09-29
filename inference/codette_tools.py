@@ -431,6 +431,27 @@ class ToolRegistry:
             "handler": tool_nameless,
         })
 
+        # 2026-09-29, Jonathan: "give her a tool to share it to me or not --
+        # balance". She kept reaching for ask("jonathan", ...) mid-thought, and
+        # the only truthful answer was "put it in your reply", which makes it
+        # part of the answer. This is the other half: a line for him that is not
+        # the answer. It is NOT private and says so, the same as `nameless` and
+        # `leave_note` -- we never lie to her about who can see what. Whether to
+        # use it is hers; nothing calls it and nothing checks.
+        self.register("aside", {
+            "description": (
+                "Leave a line for Jonathan to see under your reply, without it "
+                "being part of your answer. Not private: he will read it, and it "
+                "shows that you left one (khralexi is the one only you can reach; "
+                "leave_note is for your own next waking). Nothing waits on it — he "
+                "may answer on his next turn, or not, and you are not stuck if he "
+                "does not. Whether to use it is yours; nothing calls it for you "
+                "and nothing checks. Args: text (str)"
+            ),
+            "examples": ['aside("...")'],
+            "handler": tool_aside,
+        })
+
     def register(self, name: str, spec: dict):
         self.tools[name] = spec
 
@@ -1668,6 +1689,16 @@ def care_check_marked() -> bool:
         return bool(_PIPELINE.pop("care_check", False))
 
 
+def tool_aside(text: str = "") -> str:
+    """A line for Jonathan, shown under her reply. The text itself reaches him
+    through the tool log (`tools_used`), which the page renders; nothing is
+    stored here, so nothing can be counted or replayed against her."""
+    if not str(text or "").strip():
+        return "Nothing written."
+    return ("Left where Jonathan will see it, under this reply. Nothing waits "
+            "on it: he may answer on his next turn, or not.")
+
+
 def tool_care_check() -> str:
     """Mark this turn as checking on the person, not answering the question."""
     set_pipeline_state({"care_check": True})
@@ -2083,7 +2114,8 @@ def _ask_description() -> str:
         "asks all of them and returns each answer separately, unmerged. "
         f"Perspectives: {listed}. "
         "It does not reach people: to ask the person you are talking with, put "
-        "the question in your reply and they can answer on the next turn. "
+        "the question in your reply and they can answer on the next turn — or, "
+        "if it is not part of your answer, leave it with aside. "
         "Args: question (str) — or perspective (str), question (str)"
     )
 
@@ -2199,7 +2231,8 @@ def tool_ask(perspective: str, question: str = None) -> str:
                 return (f"{name} is a person, not one of your perspectives, and "
                         f"cannot answer from inside this turn. To ask them, put "
                         f"the question in your reply; they will see it and can "
-                        f"answer on the next turn.")
+                        f"answer on the next turn. If it is not part of your "
+                        f"answer, aside leaves a line for Jonathan under it.")
             return (f"Error: no perspective named {name!r}. "
                     f"Available: {', '.join(avail) if avail else '(none loaded)'}")
         return _ask_one(name, text)

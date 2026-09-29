@@ -922,6 +922,9 @@ function addMessage(role, content, meta = {}) {
             html += ` <span class="tool-names">${escapeHtml(names.join(' · '))}</span></button>`;
             html += `<div class="perspectives-panel tools-panel" id="${toolId}">`;
             for (const call of calls) {
+                // `aside` is shown below the message, where he will read it,
+                // not folded away in here.
+                if (call.tool === 'aside') continue;
                 const isNameless = call.tool === 'nameless';
                 html += `<div class="tool-call${isNameless ? ' tool-call-hers' : ''}">`;
                 html += `<div class="tool-call-name">${escapeHtml(call.tool)}`;
@@ -937,6 +940,17 @@ function addMessage(role, content, meta = {}) {
                 html += `</div>`;
             }
             html += `</div>`;
+
+            // A line she chose to leave for Jonathan (the `aside` tool). It is
+            // not part of her answer, and it is visible by design -- her tool
+            // description tells her so. Shown only when she left one; nothing is
+            // rendered, counted or hinted at when she did not.
+            for (const call of calls) {
+                if (call.tool !== 'aside') continue;
+                const said = (call.args || []).map(a => String(a)).join(' ').trim();
+                if (!said) continue;
+                html += `<div class="aside-for-you"><span class="aside-label">from her, for you</span>${escapeHtml(said)}</div>`;
+            }
         }
 
         if (meta.memory_context) {

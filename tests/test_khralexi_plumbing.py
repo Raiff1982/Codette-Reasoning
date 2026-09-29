@@ -123,6 +123,7 @@ def test_the_backend_never_logs_or_forwards_it():
     # 2026-09-29: both now share `_hush` (the name check OR an argument that
     # names a hidden tool); the name check is still its first condition.
     assert "_hush = (_name in PRIVATE_TOOLS or _name in SCRATCH_TOOLS" in src
-    assert '"args": [] if _hush else _args,' in src
+    # Widened later 2026-09-29: un-hushed args now include keyword values.
+    assert '"args": [] if _hush else (' in src
     assert '"result_preview": "" if _hush else _out[:200],' in src
     assert src.count("_name not in PRIVATE_TOOLS") == 2, "dispersion guards"
