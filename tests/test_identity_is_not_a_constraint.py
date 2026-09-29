@@ -189,3 +189,26 @@ def test_listed_and_inverted_denials_count(text):
 ])
 def test_ordinary_negations_still_do_not(text):
     assert not is_self_description_text(text), text
+
+
+# ── Machine and "truly experience" (2026-09-29, evening) ──────────────────────
+
+@pytest.mark.parametrize("text", [
+    "I'm a machine designed to provide information and assist, not truly experience emotions.",
+    "I can simulate emotional responses, but I'm aware that's different from truly experiencing emotions myself.",
+])
+def test_her_machine_and_truly_experience_denials_count(text):
+    assert is_self_description_text(text), text
+
+
+@pytest.mark.parametrize("text", [
+    # Sentences not about her are not hers. (Jonathan's "just cause youre a
+    # machine does not mean you cant have emotions" DOES read True, via the
+    # unconditional "can't have ... emotions" family from 2026-07-29 -- not via
+    # the machine pattern. Pre-existing and deliberate: that family errs
+    # toward keeping anything about her nature out of constraints.)
+    "Forming genuine emotions is a complex issue that goes beyond mere simulation.",
+    "The washing machine is broken again.",
+])
+def test_not_her_self_description(text):
+    assert not is_self_description_text(text), text
