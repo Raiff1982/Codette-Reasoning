@@ -111,6 +111,12 @@ class ShadowOptimizer:
         from reasoning_forge.quantum_optimizer import QuantumOptimizer
         self._QSignal = None
         self.live = os.environ.get("CODETTE_OPTIMIZER_LIVE", "0") == "1"
+        # 2026-09-29: `applied` used to be `self.live`. Nothing read the boosts,
+        # so flipping the flag would have logged applied=True while changing
+        # nothing: a claim with no act behind it. It now means the router READ
+        # a boost since the last observation.
+        self._consumed = False
+        self._consumed_turn = False
         self.opt: Optional[QuantumOptimizer] = None
         try:
             if _STATE_PATH.exists():
@@ -143,6 +149,9 @@ class ShadowOptimizer:
         boost proposal sourced entirely from multiple-choice exams; excluding those
         days left 0 boost proposals. See archive/2026-07-23/README.md.
         """
+        # Take and clear "the router read a boost" first, so a turn that returns
+        # early (benchmark, unmeasured) cannot leak it into the next one.
+        self._consumed_turn, self._consumed = self._consumed, False
         if self.opt is None or coherence is None:
             return  # coherence is the one signal every turn must have
         if is_benchmark:
@@ -211,7 +220,7 @@ class ShadowOptimizer:
                 response_length=int(response_length),
                 multi_perspective=bool(multi_perspective),
                 proposed_count=len(new_steps),
-                applied=self.live,
+                applied=self._applied_now(),
             )
         self._persist()
 
@@ -220,7 +229,12 @@ class ShadowOptimizer:
         live mode returns the tuned boost."""
         if not self.live or self.opt is None:
             return 0.0
+        self._consumed = True
         return self.opt.get_adapter_boost(adapter)
+
+    def _applied_now(self) -> bool:
+        """True only if live AND the router actually read a boost this turn."""
+        return bool(self.live and self._consumed_turn)
 
     def _log_turn(self, adapter, coherence, tension, productivity,
                   productivity_is_proxy, new_steps,
@@ -265,7 +279,7 @@ class ShadowOptimizer:
                      "new": round(s.new_value, 4), "reason": s.reason}
                     for s in new_steps
                 ],
-                "applied": self.live,
+                "applied": self._applied_now(),
             }
             with _LOG_PATH.open("a", encoding="utf-8") as f:
                 f.write(json.dumps(rec, ensure_ascii=False) + "\n")

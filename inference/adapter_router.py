@@ -308,6 +308,45 @@ class AdapterRouter:
             logging.warning(f"Memory boost failed for {primary}: {e}")
             return confidence
 
+    # A keyword hit is worth 1.0 (moderate) or 2.0 (strong). 0.4 is the largest limit
+    # at which opposite worst-case nudges still leave a strong-vs-moderate gap open.
+    # The tuned boost is a
+    # nudge that can break a near-tie, never an override of a clear match.
+    OPTIMIZER_BOOST_LIMIT = 0.4
+
+    def _apply_optimizer_boost(self, scores: Dict[str, float]):
+        """Add the router self-tuner's per-adapter boost to keyword scores.
+
+        Wired 2026-09-29 (Jonathan: "if the shadows are good, wire them"). Until
+        now nothing read the boosts, so CODETTE_OPTIMIZER_LIVE=1 would have
+        changed nothing while logging applied=True.
+
+        Deliberately narrow:
+          * OFF unless the optimizer is live (CODETTE_OPTIMIZER_LIVE=1); shadow
+            returns 0.0 and this is then a no-op.
+          * only adapters that ALREADY matched a keyword are touched, so a boost
+            can reorder near-ties but can never summon a voice nobody asked for.
+          * clamped to +/-OPTIMIZER_BOOST_LIMIT.
+          * any failure means no boost; routing is never allowed to break here.
+        Returns (scores, {adapter: applied_delta}) so the routing reasoning can
+        say what happened.
+        """
+        try:
+            from reasoning_forge.optimizer_shadow import get_shadow_optimizer
+            opt = get_shadow_optimizer()
+            if opt is None or not opt.live:
+                return scores, {}
+            lim = self.OPTIMIZER_BOOST_LIMIT
+            out, applied = dict(scores), {}
+            for adapter in scores:
+                delta = max(-lim, min(lim, float(opt.get_adapter_boost(adapter))))
+                if delta:
+                    out[adapter] = scores[adapter] + delta
+                    applied[adapter] = delta
+            return out, applied
+        except Exception:
+            return scores, {}
+
     def explain_routing(self, result: RouteResult) -> Dict:
         """Provide detailed explanation of routing decision including memory context.
 
@@ -583,6 +622,9 @@ class AdapterRouter:
                 strategy="keyword",
             )
 
+        # Router self-tuner nudge (live only; see _apply_optimizer_boost)
+        scores, _opt_applied = self._apply_optimizer_boost(scores)
+
         # Sort by score
         ranked = sorted(scores.items(), key=lambda x: x[1], reverse=True)
         primary = ranked[0][0]
@@ -628,6 +670,11 @@ class AdapterRouter:
         if ranked[1:]:
             reasoning_parts.append(
                 f"Other scores: {', '.join(f'{a}={s:.1f}' for a, s in ranked[1:4])}"
+            )
+        if _opt_applied:
+            reasoning_parts.append(
+                "Optimizer nudge: "
+                + ", ".join(f"{a}{d:+.2f}" for a, d in _opt_applied.items())
             )
 
         return RouteResult(
