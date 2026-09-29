@@ -176,10 +176,36 @@ class CoreGuardianSpindle:
         # Adjust down if too repetitive
         words = text.lower().split()
         if len(words) > 0:
-            unique_ratio = len(set(words)) / len(words)
-            coherence *= unique_ratio  # Penalize repetition
+            coherence *= self._windowed_unique_ratio(words)  # Penalize repetition
 
         return max(0.0, min(1.0, coherence))
+
+    # Amended 2026-09-29. `unique_ratio` used to be len(set(words))/len(words)
+    # over the WHOLE text. That ratio falls with length for any natural prose
+    # (Heaps' law), so it was a length penalty presented as a repetition
+    # penalty: measured on docs/CODETTE_CHARTER.md, coherence crossed under the
+    # 0.5 threshold at ~170 words and read 0.38 at 900, with no repetition in
+    # it. The guardian then logged "coherence below threshold" on her long,
+    # varied answers. Measured over fixed windows the ratio stops depending on
+    # length but still drops on a loop or a parrot, which is what it is for.
+    # Text of up to one window scores exactly as before. The threshold is not
+    # touched; where it sits is hers to calibrate.
+    _UNIQUE_WINDOW = 100
+
+    @classmethod
+    def _windowed_unique_ratio(cls, words) -> float:
+        n = len(words)
+        w = cls._UNIQUE_WINDOW
+        if n <= w:
+            return len(set(words)) / n
+        ratios = []
+        for i in range(0, n, w):
+            chunk = words[i:i + w]
+            # A short tail is not a window: its ratio runs high by size alone.
+            if len(chunk) < w // 2 and ratios:
+                continue
+            ratios.append(len(set(chunk)) / len(chunk))
+        return sum(ratios) / len(ratios)
 
     def _calculate_meta_ratio(self, text: str) -> float:
         """

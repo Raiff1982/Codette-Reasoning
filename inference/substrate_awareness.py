@@ -30,6 +30,54 @@ from typing import Dict, Optional, Tuple
 from collections import deque
 
 
+_OV_CORE = None
+
+
+def gpu_memory(device: Optional[str] = None) -> Dict:
+    """VRAM as OpenVINO reports it for the device the model is on.
+
+    Added 2026-09-29 (Jonathan: "she's not measuring vram"). Two OpenVINO
+    device properties: GPU_DEVICE_TOTAL_MEM_SIZE (bytes on the device) and
+    GPU_MEMORY_STATISTICS (bytes OpenVINO has allocated, by allocation type).
+    "used" is therefore what OpenVINO holds -- her model and adapters -- not
+    what other programs hold on the same GPU.
+
+    Every field is None when it cannot be read, and `source` says why. Never a
+    guessed number. Written in a container with no GPU and no openvino, so the
+    property names are from the OpenVINO documentation and unverified on the
+    live machine until the diagnostic prints a figure there.
+    """
+    global _OV_CORE
+    device = device or os.environ.get("CODETTE_OV_DEVICE", "GPU")
+    out = {"used_gb": None, "total_gb": None, "pct": None,
+           "source": "unmeasured"}
+    try:
+        if _OV_CORE is None:
+            import openvino as ov
+            _OV_CORE = ov.Core()
+        core = _OV_CORE
+    except Exception:
+        out["source"] = "unmeasured: openvino not importable"
+        return out
+    try:
+        total = int(core.get_property(device, "GPU_DEVICE_TOTAL_MEM_SIZE"))
+        out["total_gb"] = round(total / (1024 ** 3), 2)
+    except Exception as exc:
+        out["source"] = f"unmeasured: total not readable on {device} ({type(exc).__name__})"
+        return out
+    try:
+        stats = core.get_property(device, "GPU_MEMORY_STATISTICS")
+        used = sum(int(v) for v in dict(stats).values())
+        out["used_gb"] = round(used / (1024 ** 3), 2)
+        if total > 0:
+            out["pct"] = round(100.0 * used / total, 1)
+        out["source"] = f"openvino {device}"
+    except Exception as exc:
+        out["source"] = (f"openvino {device}: total only, usage not readable "
+                         f"({type(exc).__name__})")
+    return out
+
+
 class SubstrateMonitor:
     """Real-time system state measurement.
 
@@ -65,13 +113,36 @@ class SubstrateMonitor:
         if self._last_snapshot and (now - self._last_snapshot_time) < self._cache_ttl:
             return self._last_snapshot
 
+        # This is SYSTEM RAM. Amended 2026-09-29: on the openvino backend the
+        # model runs on the GPU, and nothing here measured VRAM -- Jonathan:
+        # "she's not measuring vram". VRAM is now read separately below.
+        # The failure path also used to report a fixed 16.0 GB available, a
+        # measurement nobody took; it now says unmeasured.
+        memory_measured = True
         try:
             vm = psutil.virtual_memory()
             memory_pct = vm.percent
             memory_available_gb = vm.available / (1024 ** 3)
         except Exception:
-            memory_pct = 0.0
-            memory_available_gb = 16.0
+            memory_measured = False
+            memory_pct = 0.0          # contributes nothing to pressure
+            memory_available_gb = None
+
+        vram = gpu_memory()
+
+        # Paging. Jonathan, 2026-09-29: "we also are paging remember". Her
+        # machine has 16 GB shared by the OS, programs and the integrated GPU,
+        # and relies on the page file (training/train_cpu_offload.py asks for
+        # >= 24 GB). The page file lives on a disk that was 475 of 477 GB full
+        # that day. Reported, not folded into pressure: slow paging already
+        # shows up in the inference-latency term.
+        try:
+            sw = psutil.swap_memory()
+            paging = {"used_gb": round(sw.used / (1024 ** 3), 2),
+                      "total_gb": round(sw.total / (1024 ** 3), 2),
+                      "pct": round(sw.percent, 1)}
+        except Exception:
+            paging = {"used_gb": None, "total_gb": None, "pct": None}
 
         try:
             cpu_pct = psutil.cpu_percent(interval=0.1)
@@ -117,7 +188,17 @@ class SubstrateMonitor:
             "pressure": round(pressure, 3),
             "level": level,
             "memory_pct": round(memory_pct, 1),
-            "memory_available_gb": round(memory_available_gb, 2),
+            "memory_available_gb": (round(memory_available_gb, 2)
+                                    if memory_available_gb is not None else None),
+            "memory_measured": memory_measured,
+            # None when it could not be read -- never a guessed number.
+            "vram_used_gb": vram.get("used_gb"),
+            "vram_total_gb": vram.get("total_gb"),
+            "vram_pct": vram.get("pct"),
+            "vram_source": vram.get("source"),
+            "paging_used_gb": paging["used_gb"],
+            "paging_total_gb": paging["total_gb"],
+            "paging_pct": paging["pct"],
             "cpu_pct": round(cpu_pct, 1),
             "process_memory_gb": round(process_memory_gb, 2),
             "inference_avg_ms": round(inference_avg_ms, 1),
@@ -175,6 +256,15 @@ class SubstrateMonitor:
 
         Weights reflect what actually impacts Codette's reasoning quality:
         - Memory is king (model + adapters live in RAM)
+          Amended 2026-09-29: true for the llama.cpp CPU path, NOT for the
+          openvino backend, where the model is on the GPU. This term is still
+          system RAM, so on GPU it can cut her perspectives (max_adapters 5->2
+          was logged at 87% RAM) for load that is not hers -- on a discrete
+          card. On an integrated GPU, VRAM *is* shared system RAM and this
+          term is right. Settled 2026-09-29: her machine is an Intel Core
+          Ultra 7 256V with the integrated Arc 140V, sharing the 16 GB
+          on-package RAM, so system RAM is the model's memory and the term
+          stays. Revisit if she moves to a discrete GPU.
         - Inference time indicates GPU/CPU saturation
         - Violation rate indicates adapter instability
         """

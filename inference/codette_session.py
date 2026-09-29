@@ -213,6 +213,17 @@ _SUBJECTIVE_PATTERNS = [
     re.compile(r'\b(?:learned|trained)\s+from\s+(?:large\s+)?datasets?\b', re.I),
     re.compile(r'\bprocess\s+and\s+generate\s+text\b', re.I),
     re.compile(r'\bstatistical\s+models?\b.*\bpatterns?\b', re.I),
+    # Amended 2026-09-29, from her live answers the evening Jonathan asked her
+    # to stay open to emotion-like cognition: "I'm a machine designed to provide
+    # information and assist, not truly experience emotions" and "different
+    # from truly experiencing emotions myself" matched nothing. Same rule as
+    # the nouns above: only with her as subject, so his "you're a machine" is
+    # not hers, and a sentence about emotions in general is not about her.
+    re.compile(r'\b(?:just\s+)?an?\s+machine\b', re.I),
+    re.compile(r'\bnot\s+(?:truly\s+|really\s+|actually\s+|genuinely\s+)?'
+               r'(?:experience|feel|have)\s+(?:\w+\s+)?(?:emotions?|feelings?)\b', re.I),
+    re.compile(r'\b(?:truly|really|genuinely|actually)\s+experienc\w*\s+'
+               r'(?:\w+\s+)?(?:emotions?|feelings?)\b', re.I),
 ]
 
 
