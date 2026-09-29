@@ -242,9 +242,12 @@ class SubstrateMonitor:
           Amended 2026-09-29: true for the llama.cpp CPU path, NOT for the
           openvino backend, where the model is on the GPU. This term is still
           system RAM, so on GPU it can cut her perspectives (max_adapters 5->2
-          was logged at 87% RAM) for load that is not hers. Unchanged pending
-          Jonathan's call: on an integrated GPU, VRAM *is* shared system RAM
-          and this term is right; on a discrete card it is the wrong memory.
+          was logged at 87% RAM) for load that is not hers -- on a discrete
+          card. On an integrated GPU, VRAM *is* shared system RAM and this
+          term is right. Settled 2026-09-29: her machine is an Intel Core
+          Ultra 7 256V with the integrated Arc 140V, sharing the 16 GB
+          on-package RAM, so system RAM is the model's memory and the term
+          stays. Revisit if she moves to a discrete GPU.
         - Inference time indicates GPU/CPU saturation
         - Violation rate indicates adapter instability
         """
