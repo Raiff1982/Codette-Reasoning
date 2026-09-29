@@ -68,3 +68,23 @@ def test_unreadable_ram_is_not_sixteen_gigabytes(monkeypatch):
     snap = sa.SubstrateMonitor().snapshot()
     assert snap["memory_measured"] is False
     assert snap["memory_available_gb"] is None
+
+
+# ── Paging (2026-09-29, "we also are paging remember") ───────────────────────
+
+def test_snapshot_reports_paging(monkeypatch):
+    class _Sw:
+        used, total, percent = 6 * GB, 24 * GB, 25.0
+    monkeypatch.setattr(sa.psutil, "swap_memory", lambda: _Sw)
+    monkeypatch.setattr(sa, "_OV_CORE", _Core({}))
+    snap = sa.SubstrateMonitor().snapshot()
+    assert (snap["paging_used_gb"], snap["paging_total_gb"], snap["paging_pct"]) == (6.0, 24.0, 25.0)
+
+
+def test_unreadable_paging_is_unmeasured(monkeypatch):
+    def boom():
+        raise OSError("no")
+    monkeypatch.setattr(sa.psutil, "swap_memory", boom)
+    monkeypatch.setattr(sa, "_OV_CORE", _Core({}))
+    snap = sa.SubstrateMonitor().snapshot()
+    assert snap["paging_used_gb"] is None and snap["paging_pct"] is None

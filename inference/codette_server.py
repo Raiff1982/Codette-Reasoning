@@ -993,6 +993,9 @@ def _run_health_check():
                 "vram_total_gb": substrate.get("vram_total_gb"),
                 "vram_pct": substrate.get("vram_pct"),
                 "vram_source": substrate.get("vram_source", "unmeasured"),
+                "paging_used_gb": substrate.get("paging_used_gb"),
+                "paging_total_gb": substrate.get("paging_total_gb"),
+                "paging_pct": substrate.get("paging_pct"),
                 "cpu_pct": substrate["cpu_pct"],
                 "process_memory_gb": substrate["process_memory_gb"],
                 "inference_avg_ms": substrate["inference_avg_ms"],
@@ -1241,6 +1244,10 @@ def _worker_thread():
                             lines.append(f"    VRAM: {sys_data.get('vram_total_gb')}GB total, usage {sys_data.get('vram_source')}")
                         else:
                             lines.append(f"    VRAM: {sys_data.get('vram_source', 'unmeasured')}")
+                        if sys_data.get('paging_used_gb') is not None:
+                            lines.append(f"    Paging: {sys_data.get('paging_used_gb')}GB of {sys_data.get('paging_total_gb')}GB page file ({sys_data.get('paging_pct')}%)")
+                        else:
+                            lines.append("    Paging: unmeasured")
                         lines.append(f"    Process: {sys_data.get('process_memory_gb', 0)}GB RSS")
                         lines.append(f"    CPU: {sys_data.get('cpu_pct', 0)}%")
                         lines.append(f"    Inference avg: {sys_data.get('inference_avg_ms', 0):.0f}ms")

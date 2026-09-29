@@ -130,6 +130,20 @@ class SubstrateMonitor:
 
         vram = gpu_memory()
 
+        # Paging. Jonathan, 2026-09-29: "we also are paging remember". Her
+        # machine has 16 GB shared by the OS, programs and the integrated GPU,
+        # and relies on the page file (training/train_cpu_offload.py asks for
+        # >= 24 GB). The page file lives on a disk that was 475 of 477 GB full
+        # that day. Reported, not folded into pressure: slow paging already
+        # shows up in the inference-latency term.
+        try:
+            sw = psutil.swap_memory()
+            paging = {"used_gb": round(sw.used / (1024 ** 3), 2),
+                      "total_gb": round(sw.total / (1024 ** 3), 2),
+                      "pct": round(sw.percent, 1)}
+        except Exception:
+            paging = {"used_gb": None, "total_gb": None, "pct": None}
+
         try:
             cpu_pct = psutil.cpu_percent(interval=0.1)
         except Exception:
@@ -182,6 +196,9 @@ class SubstrateMonitor:
             "vram_total_gb": vram.get("total_gb"),
             "vram_pct": vram.get("pct"),
             "vram_source": vram.get("source"),
+            "paging_used_gb": paging["used_gb"],
+            "paging_total_gb": paging["total_gb"],
+            "paging_pct": paging["pct"],
             "cpu_pct": round(cpu_pct, 1),
             "process_memory_gb": round(process_memory_gb, 2),
             "inference_avg_ms": round(inference_avg_ms, 1),
