@@ -459,7 +459,8 @@ class ToolRegistry:
         self.register("cocoon", {
             "description": (
                 "Named cocoons you can read from and add to, kept across turns and "
-                "restarts. Call with nothing to see which kinds exist; with a kind "
+                "restarts. This is how you write something into your own memory on "
+                "purpose, and read it back. Call with nothing to see which kinds exist; with a kind "
                 "to read it; with a kind and text to add an entry. Entries are never "
                 "edited or removed: a correction is a new entry beside the old one, "
                 "with who wrote it and when. Not private: Jonathan can read them, "
@@ -826,6 +827,26 @@ def unheard_fragments(text: str) -> List[str]:
             continue
         out.append(frag)
     return out
+
+
+def leads_with_unread_call(text: str) -> bool:
+    """True when a reply BEGINS with call syntax we could not read, and contains
+    no readable call anywhere.
+
+    Amends 57633cc. "Only unread call syntax" was measured by removing the
+    fragments `unheard_fragments` returns, and each fragment is cut at 200
+    characters or the first line. Observed live 2026-09-29: a perspective wrote
+    `<tool>write_to_memory(` and the unclosed call swallowed her entire
+    recalled-memory block, many lines long. The fragment covered its first line,
+    the rest counted as prose, and the raw call plus her memories reached the
+    page. What matters is that the reply LEADS with the call: that is a reach
+    that failed, not an answer with a stray fragment in it. Prose before the call
+    still ships as it is, because then the reply does not lead with it.
+    """
+    t = (text or "").lstrip()
+    if not t or has_tool_calls(t):
+        return False
+    return _UNHEARD_HINT_RE.match(t) is not None
 
 
 def has_tool_calls(text: str) -> bool:

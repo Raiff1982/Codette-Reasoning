@@ -489,6 +489,7 @@ class OpenVINOBackend:
                 from codette_tools import (
                     parse_tool_calls, has_tool_calls, strip_tool_calls,
                     unheard_fragments, mentions_hidden_tool, unheard_call_names,
+                    leads_with_unread_call,
                 )
                 _MAX_ROUNDS = 3
                 _user_turn = query
@@ -662,7 +663,8 @@ class OpenVINOBackend:
                 _rest = text
                 for _frag in unheard_fragments(text):
                     _rest = _rest.replace(_frag, "")
-                _only_unheard = bool(text.strip()) and not _rest.strip()
+                _only_unheard = bool(text.strip()) and (
+                    not _rest.strip() or leads_with_unread_call(text))
                 if (not text.strip() or _only_unheard) and _user_turn != query:
                     print("  [OV] " + ("reply was only unread call syntax"
                                        if _only_unheard else
