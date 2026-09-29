@@ -225,3 +225,6 @@ reasoning_forge/.logs/
 # when any of those change, so it is safe to delete and must not be committed.
 # Set CODETTE_OV_CACHE_DIR to relocate it outside the tree entirely.
 openvino_backend/.ov_cache/
+
+# Her specialized cocoons: runtime state, kept out of git like the rest of her memory.
+data/specialized_cocoons/

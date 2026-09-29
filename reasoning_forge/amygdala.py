@@ -44,6 +44,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import re
 import sys
 import threading
 from datetime import datetime, timezone
@@ -133,6 +134,67 @@ _SHADOW_LOCK = threading.Lock()
 
 # Measured 2026-09-28 on 9 real pairs with her MiniLM embedder; see appraise().
 RELEVANCE_MIN = 0.25
+
+# ---------------------------------------------------------------------------
+# Correction signal (2026-09-29). The relevance gate asks whether a message is
+# ABOUT the old belief, and it cannot see a correction that refers back only
+# by a name or a quoted phrase: "I am Jonathan not 'the user'" scored 0.244
+# against a 0.25 cutoff, "yes you are talking to jonathan" 0.204, while an
+# unrelated follow-up reached 0.30. No threshold separates them. The human
+# version is not topical similarity but mismatch about the SAME referent, so
+# this asks two structural questions and records only booleans and a count,
+# never text:
+#   refers_back  - the message shares a distinctive word, or a quoted phrase,
+#                  with the belief it may be correcting
+#   contests / affirms - it disputes or confirms it
+# Shadow only, like everything here. It can only WIDEN what is appraised (a
+# corrective message is no longer skipped for low topical similarity); it never
+# narrows, and applies nothing. The cue words are data and are Jonathan's to edit.
+# ---------------------------------------------------------------------------
+CONTEST_CUES = frozenset({
+    "not", "no", "isnt", "arent", "wasnt", "wrong", "incorrect", "actually",
+    "never", "didnt", "dont", "mistaken", "instead",
+})
+AFFIRM_CUES = frozenset({
+    "yes", "yeah", "right", "correct", "exactly", "indeed", "true",
+})
+_STOP = frozenset({
+    "that", "this", "with", "have", "from", "they", "them", "will", "would",
+    "there", "their", "about", "which", "what", "when", "your", "you're",
+    "were", "been", "being", "just", "like", "than", "then", "also", "into",
+    "only", "some", "such", "very", "more", "most", "much", "here", "does",
+    "doing", "could", "should", "because",
+})
+_WORD = re.compile(r"[a-z0-9']+")
+_QUOTED = re.compile(r"[\"'‘’“”]([^\"'‘’“”]{3,40})[\"'‘’“”]")
+
+
+def _norm_words(text: str):
+    return [w.replace("'", "") for w in _WORD.findall((text or "").lower())]
+
+
+def correction_signal(belief_text: str, evidence_text: str) -> Dict:
+    """Booleans and a count only. Never returns or logs any of the text."""
+    b, e = _norm_words(belief_text), _norm_words(evidence_text)
+    shared = {w for w in set(b) & set(e) if len(w) >= 4 and w not in _STOP}
+    quoted_hit = False
+    b_join = " ".join(b)
+    for m in _QUOTED.finditer((evidence_text or "").lower()):
+        phrase = " ".join(_norm_words(m.group(1)))
+        if phrase and phrase in b_join:
+            quoted_hit = True
+            break
+    refers_back = bool(shared) or quoted_hit
+    contests = bool(CONTEST_CUES & set(e))
+    affirms = bool(e) and e[0] in AFFIRM_CUES
+    return {
+        "refers_back": refers_back,
+        "shared_terms": len(shared),
+        "quoted_hit": quoted_hit,
+        "contests": contests,
+        "affirms": affirms,
+        "signal": refers_back and (contests or affirms),
+    }
 
 
 # ============================================================
@@ -261,10 +323,16 @@ class Amygdala:
         except (TypeError, ValueError):
             relevance = None
         record["relevance"] = relevance
+        correction = correction_signal(belief_text, evidence_text)
+        record["correction"] = correction
         if (self.relevance_min is not None and relevance is not None
                 and relevance < self.relevance_min):
-            record.update(stage="relevance", reason="unrelated_not_appraised")
-            return self._finish(record)
+            if not correction["signal"]:
+                record.update(stage="relevance", reason="unrelated_not_appraised")
+                return self._finish(record)
+            # Low topical similarity, but it refers back and contests or
+            # affirms: appraised as a correction rather than skipped.
+            record["appraised_via"] = "correction_signal"
 
         # 3. The amygdala, in shadow. BeliefRevisionSystem commits to the
         # module-level WorldModel; the prior entry is restored afterwards so a

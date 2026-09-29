@@ -221,3 +221,85 @@ def test_related_evidence_is_appraised_and_relevance_recorded():
 def test_no_gate_when_threshold_is_none():
     record = _amygdala().appraise(_vec_state([1, 0, 0], [0, 1, 0]), PARAMS, **TEXTS)
     assert record["stage"] == "amygdala"
+
+
+# --- 2c. The correction signal (2026-09-29) ------------------------------------
+# Shaped like the two real misses (a name or a quoted phrase, low topical
+# similarity), with made-up wording. Booleans and counts only; never text.
+
+from reasoning_forge.amygdala import correction_signal  # noqa: E402
+
+LOW_REL = _state(evidence=(0.0, 1.0, 0.0))   # cosine with (1,1,1) is ~0.58; see below
+
+
+def _low_relevance_state():
+    s = _state()
+    s["belief_vector"] = np.array([1.0, 0.0, 0.0])
+    s["incoming_evidence_vector"] = np.array([0.1, 1.0, 0.0])  # cosine ~0.1
+    return s
+
+
+def test_quoted_phrase_contested_is_a_correction():
+    c = correction_signal(
+        "The user asked about the orchid schedule.",
+        "I am Marlowe, not 'the user'.")
+    assert c["quoted_hit"] and c["contests"] and c["signal"]
+
+
+def test_a_name_affirmed_is_a_correction():
+    c = correction_signal(
+        "You may be speaking with Marlowe, but I cannot be sure.",
+        "yes you are talking to marlowe")
+    assert c["refers_back"] and c["affirms"] and c["signal"]
+
+
+def test_an_unrelated_follow_up_is_not():
+    c = correction_signal(
+        "The orchid needs indirect light and weekly water.",
+        "what is the capital of Peru")
+    assert not c["signal"]
+
+
+def test_related_but_neither_contesting_nor_affirming_is_not():
+    c = correction_signal(
+        "The orchid needs indirect light and weekly water.",
+        "tell me more about orchid roots")
+    assert c["refers_back"] and not c["signal"]
+
+
+def test_the_signal_records_no_text():
+    c = correction_signal("secret-ish belief words here", "not secret-ish belief")
+    assert set(c) == {"refers_back", "shared_terms", "quoted_hit",
+                      "contests", "affirms", "signal"}
+    assert all(isinstance(v, (bool, int)) for v in c.values())
+
+
+def test_low_similarity_correction_is_appraised_not_skipped():
+    amy = _amygdala(relevance_min=0.25)
+    rec = amy.appraise(
+        _low_relevance_state(), PARAMS,
+        belief_text="The user asked about the orchid schedule",
+        evidence_text="I am Marlowe, not 'the user'")
+    assert rec["relevance"] < 0.25
+    assert rec["stage"] == "amygdala" and rec["appraised_via"] == "correction_signal"
+
+
+def test_low_similarity_non_correction_is_still_skipped():
+    amy = _amygdala(relevance_min=0.25)
+    rec = amy.appraise(
+        _low_relevance_state(), PARAMS,
+        belief_text="The user asked about the orchid schedule",
+        evidence_text="what is the capital of Peru")
+    assert rec["stage"] == "relevance" and rec["reason"] == "unrelated_not_appraised"
+    assert rec["correction"]["signal"] is False        # it can say no
+
+
+def test_correction_signal_never_bypasses_scope_or_floor():
+    amy = _amygdala(relevance_min=0.25, is_self_description=lambda t: True)
+    rec = amy.appraise(_low_relevance_state(), PARAMS,
+                       belief_text="anything", evidence_text="not anything")
+    assert rec["reason"] == "self_description_is_hers"
+    rec = _amygdala(relevance_min=0.25).appraise(
+        _low_relevance_state() | {"belief_key": "autonomy"}, PARAMS,
+        belief_text="x words here", evidence_text="not x words")
+    assert rec["reason"] == "on_codriao_floor"
