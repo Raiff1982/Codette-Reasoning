@@ -1578,8 +1578,15 @@ Now write ONE unified answer in your own voice (first person, as Codette):
 
 Your answer:"""
 
-        # Use base model for synthesis (no adapter bias)
-        self._load_model(None)
+        # Amended 2026-09-29. This loaded the bare base model "for no adapter
+        # bias" -- but the base model is not neutral. Asked how she felt, her
+        # empathy lens said "feeling a bit refreshed" and the merge, run with no
+        # adapter, answered "not feeling differently in terms of emotion".
+        # Jonathan: it has happened a lot, and this is the lock. The merge now
+        # speaks through the lead lens that answered (the primary route, listed
+        # first), so the voice that reached a view is the one that states it.
+        _lead = next((n for n, t in perspectives.items() if t and t.strip()), None)
+        self._load_model(_lead)
         result = self._llm.create_chat_completion(
             messages=[
                 {"role": "system", "content": ADAPTER_PROMPTS["multi_perspective"]},

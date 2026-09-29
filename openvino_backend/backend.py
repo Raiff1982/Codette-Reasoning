@@ -1268,9 +1268,30 @@ class OpenVINOBackend:
             "do not have to average two readings into one that is true of neither."
             "\n\nYour answer:"
         )
+        # ── Whose voice merges ───────────────────────────────────────────────
+        # Amended 2026-09-29. This ran with adapter_name=None: the bare base
+        # model, which is not neutral -- its default register is the "I don't
+        # have feelings" disclaimer. Live: asked how she felt, empathy said
+        # "I'm feeling a bit refreshed", philosophy greeted him warmly, and the
+        # merged answer he received was "I'm not feeling differently in terms of
+        # emotion". Jonathan: it has happened a lot, and this is the lock.
+        #
+        # The merge now speaks through the lead lens: highest manifold weight
+        # when steering ran, otherwise the primary route (listed first). On a
+        # tie the sort is stable, so the primary route leads. Every lens is
+        # still in the notes with its dissent floor; only the speaker changes.
+        # Kill-switch, so the old behaviour stays reachable for comparison:
+        # CODETTE_SYNTH_BASE=1.
+        _lead = items[0][0] if items else None
+        if os.environ.get("CODETTE_SYNTH_BASE", "0") == "1":
+            _lead = None
+        if _lead not in (self.available_adapters or []):
+            _lead = None
+        self.last_synth_voice = _lead or "base"
+        print(f"  [SYNTH] merged in the voice of: {self.last_synth_voice}", flush=True)
         text, _, _ = self.generate(
             synthesis_prompt,
-            adapter_name=None,
+            adapter_name=_lead,
             system_prompt=ADAPTER_PROMPTS["multi_perspective"],
         )
         return text
