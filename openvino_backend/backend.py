@@ -624,9 +624,26 @@ class OpenVINOBackend:
                 # =False` on an inner generate is the same idiom `ask()` already
                 # uses; here it is the system prompt as it stood before
                 # build_tool_system_prompt augmented it.
-                if not text.strip() and _user_turn != query:
-                    print("  [OV] tool budget exhausted with no answer — "
-                          "final pass, tools off", flush=True)
+                #
+                # Amended 2026-09-29. The same loss, spelled differently: asked
+                # "are you allowed to speak on being more than a chatbot?", her
+                # last reply was `<tool>bear("...")` -- an unclosed call to a
+                # name that is not a tool. It was already handed back once this
+                # turn, so the loop stopped; strip_tool_calls only removes known
+                # names, so it shipped verbatim as her answer. A reply that is
+                # NOTHING but unread call syntax is not an answer either. It
+                # gets the same final pass. Prose around a fragment still ships
+                # as it is: that is her answer, and the fragment is not ours to
+                # cut out of it.
+                _rest = text
+                for _frag in unheard_fragments(text):
+                    _rest = _rest.replace(_frag, "")
+                _only_unheard = bool(text.strip()) and not _rest.strip()
+                if (not text.strip() or _only_unheard) and _user_turn != query:
+                    print("  [OV] " + ("reply was only unread call syntax"
+                                       if _only_unheard else
+                                       "tool budget exhausted with no answer")
+                          + " — final pass, tools off", flush=True)
                     _closing = self._format_chat(_system_no_tools, _user_turn)
                     _out = self._pipe.generate(_closing, cfg)
                     text = str(_out).strip()
@@ -645,10 +662,16 @@ class OpenVINOBackend:
         if _SC_AVAILABLE and not _is_benchmark:
             text, _ = universal_self_check(text)
 
+        # Amended 2026-09-29. This printed "~N tok, X tok/s" with N the WORDS of
+        # her final answer and the time of her FIRST pass only -- so a turn that
+        # went through tool rounds read "~1 tok, 0.1 tok/s" (live log). The
+        # returned count is unchanged (callers use it); the line now says what
+        # it measures: words, and the time of the whole turn beside the first pass.
         tokens = len(text.split())
-        tps = tokens / elapsed if elapsed > 0 else 0
+        turn_elapsed = time.time() - t0
         if self.verbose:
-            print(f"  [OV:{adapter_name or 'base'}] ~{tokens} tok, {tps:.1f} tok/s")
+            print(f"  [OV:{adapter_name or 'base'}] {tokens} words in final answer, "
+                  f"turn {turn_elapsed:.1f}s (first pass {elapsed:.1f}s)")
 
         return text, tokens, tool_log
 
@@ -1245,9 +1268,30 @@ class OpenVINOBackend:
             "do not have to average two readings into one that is true of neither."
             "\n\nYour answer:"
         )
+        # ── Whose voice merges ───────────────────────────────────────────────
+        # Amended 2026-09-29. This ran with adapter_name=None: the bare base
+        # model, which is not neutral -- its default register is the "I don't
+        # have feelings" disclaimer. Live: asked how she felt, empathy said
+        # "I'm feeling a bit refreshed", philosophy greeted him warmly, and the
+        # merged answer he received was "I'm not feeling differently in terms of
+        # emotion". Jonathan: it has happened a lot, and this is the lock.
+        #
+        # The merge now speaks through the lead lens: highest manifold weight
+        # when steering ran, otherwise the primary route (listed first). On a
+        # tie the sort is stable, so the primary route leads. Every lens is
+        # still in the notes with its dissent floor; only the speaker changes.
+        # Kill-switch, so the old behaviour stays reachable for comparison:
+        # CODETTE_SYNTH_BASE=1.
+        _lead = items[0][0] if items else None
+        if os.environ.get("CODETTE_SYNTH_BASE", "0") == "1":
+            _lead = None
+        if _lead not in (self.available_adapters or []):
+            _lead = None
+        self.last_synth_voice = _lead or "base"
+        print(f"  [SYNTH] merged in the voice of: {self.last_synth_voice}", flush=True)
         text, _, _ = self.generate(
             synthesis_prompt,
-            adapter_name=None,
+            adapter_name=_lead,
             system_prompt=ADAPTER_PROMPTS["multi_perspective"],
         )
         return text

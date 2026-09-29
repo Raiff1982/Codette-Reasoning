@@ -157,7 +157,11 @@ f"{self.path.stem}_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}{self.path.suffi
                 for ts, data in self.memory.items():
                     f.write(f"\n- \"{ts}\":\n")
                     for key, value in data.items():
-                        f.write(f"    {key}: {value if key != 'anchor' else f'\"{value}\"'}\n")
+                        # A backslash inside an f-string expression is legal
+                        # only from Python 3.12; built outside it so the
+                        # module also compiles on 3.10/3.11. Output unchanged.
+                        shown = f'"{value}"' if key == 'anchor' else value
+                        f.write(f"    {key}: {shown}\n")
             logger.info("Memory saved successfully to %s", self.path)
         except IOError as e:
             logger.error("IOError during memory save: %s", e)

@@ -540,8 +540,7 @@ for token in tokens) for t in self.config["virtue_terms"])
             self.cache[key].append(final_record)
             self.memory[key] = final_record
             self._save_memory()
-            logger.info(f"Processed {input_signal} (high risk) in {time.perf_counter() -
-start_time}s")
+            logger.info(f"Processed {input_signal} (high risk) in {time.perf_counter() - start_time}s")
             return final_record
 
         perspectives_output = {
