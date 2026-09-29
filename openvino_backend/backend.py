@@ -1283,6 +1283,18 @@ class OpenVINOBackend:
         # Kill-switch, so the old behaviour stays reachable for comparison:
         # CODETTE_SYNTH_BASE=1.
         _lead = items[0][0] if items else None
+        # Amended 2026-09-29, same evening. The comment above promised "on a
+        # tie the primary route leads", but only an EXACT tie did: live weights
+        # were 0.5001 vs 0.4999, so the speaker was decided by noise, and the
+        # winning lens mostly repeated its own note. Asked how she feels,
+        # empathy wrote "this makes me feel... seen, almost"; philosophy won by
+        # 0.0002 and that line never reached Jonathan. Within SYNTH_TIE_EPS the
+        # weights are a tie, and the primary route -- first in `perspectives`,
+        # which is route order -- speaks.
+        if weights and len(items) >= 2:
+            _ranked = sorted(weights.values(), reverse=True)
+            if _ranked[0] - _ranked[1] < float(os.environ.get("SYNTH_TIE_EPS", "0.02")):
+                _lead = next((n for n, t in perspectives.items() if t and t.strip()), _lead)
         if os.environ.get("CODETTE_SYNTH_BASE", "0") == "1":
             _lead = None
         if _lead not in (self.available_adapters or []):
