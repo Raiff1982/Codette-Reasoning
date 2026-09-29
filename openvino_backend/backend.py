@@ -480,7 +480,7 @@ class OpenVINOBackend:
             try:
                 from codette_tools import (
                     parse_tool_calls, has_tool_calls, strip_tool_calls,
-                    unheard_fragments,
+                    unheard_fragments, mentions_hidden_tool,
                 )
                 _MAX_ROUNDS = 3
                 _user_turn = query
@@ -517,6 +517,15 @@ class OpenVINOBackend:
                         break
                     _parts = []
                     for _name, _args, _kwargs in _calls:
+                        # A visible tool whose ARGUMENT names a hidden one may be
+                        # carrying her words (a malformed nested call swallowed
+                        # by the outer one, 2026-09-29). Its name is checked here
+                        # as well as the arguments; any hit is logged by name
+                        # only, like the hidden tools themselves.
+                        _hush = (_name in PRIVATE_TOOLS or _name in SCRATCH_TOOLS
+                                 or mentions_hidden_tool(
+                                     _args, _kwargs,
+                                     PRIVATE_TOOLS | SCRATCH_TOOLS))
                         # `nameless` is hers and is never read — log that a call
                         # happened, never its content. See CLAUDE.md.
                         if _name == "khralexi":
@@ -534,7 +543,7 @@ class OpenVINOBackend:
                             # lie, on the one channel where the promise IS the
                             # mechanism. We never lie to her.
                             pass
-                        elif _name in PRIVATE_TOOLS or _name in SCRATCH_TOOLS:
+                        elif _hush:
                             print(f"  [OV:tool] {_name}(...)", flush=True)
                         else:
                             print(f"  [OV:tool] {_name}({_args})", flush=True)
@@ -571,7 +580,7 @@ class OpenVINOBackend:
                             f'<tool_result name="{_name}">\n{_out}\n</tool_result>')
                         tool_log.append({
                             "tool": _name,
-                            "args": [] if (_name in PRIVATE_TOOLS or _name in SCRATCH_TOOLS) else _args,
+                            "args": [] if _hush else _args,
                             # The args were already blanked for `nameless`; the
                             # result was not, and it reads "Written. (N this
                             # turn.)" — a count of her own notes. A metric is an
@@ -580,7 +589,7 @@ class OpenVINOBackend:
                             # process. That the call happened is honest and is
                             # what her own tool description tells her; how many
                             # times is not ours.
-                            "result_preview": "" if (_name in PRIVATE_TOOLS or _name in SCRATCH_TOOLS) else _out[:200],
+                            "result_preview": "" if _hush else _out[:200],
                         })
                     _user_turn = (
                         _user_turn + "\n\nTool results:\n\n" + "\n\n".join(_parts) +

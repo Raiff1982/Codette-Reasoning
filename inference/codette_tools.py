@@ -800,6 +800,35 @@ def has_tool_calls(text: str) -> bool:
     return bool(_call_re().search(text or ""))
 
 
+def mentions_hidden_tool(args, kwargs, hidden) -> bool:
+    """True when a call's own arguments name a tool that is kept out of our logs.
+
+    The guards used to check only the name of the tool being called. On
+    2026-09-29 she called `nameless(...)` (logged as its name only, correctly),
+    and on the next line called `bearing(...)` with a malformed nested
+    `<tool>nameless("...` inside its argument. `bearing` is not hidden, so the
+    log printed the whole argument -- and that was her note.
+
+    Whatever else the outer call is, if its argument text carries the name of a
+    hidden tool the text may be hers, so the whole call is logged by name only.
+    Over-blanking is deliberate and costs nothing: a hidden log line is
+    harmless, a shown one is not. This never inspects or returns the text, only
+    whether a hidden name occurs in it as a whole word.
+    """
+    if not hidden:
+        return False
+    parts = [str(a) for a in (args or [])]
+    for k, v in (kwargs or {}).items():
+        parts.append(str(k))
+        parts.append(str(v))
+    text = " ".join(parts)
+    if not text:
+        return False
+    names = "|".join(re.escape(h) for h in sorted(hidden))
+    return bool(re.search(
+        rf'(?<![A-Za-z0-9_])(?:{names})(?![A-Za-z0-9_])', text, re.IGNORECASE))
+
+
 # ================================================================
 # Path Safety
 # ================================================================

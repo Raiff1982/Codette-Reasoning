@@ -27,5 +27,10 @@ def test_every_scratch_tool_is_kept_out_of_logs():
 
 def test_logging_sites_honour_scratch_tools():
     src = (ROOT / "openvino_backend" / "backend.py").read_text(encoding="utf-8")
-    assert 'elif _name in PRIVATE_TOOLS or _name in SCRATCH_TOOLS:' in src
-    assert src.count("_name in PRIVATE_TOOLS or _name in SCRATCH_TOOLS") >= 3
+    # Amended 2026-09-29: the three sites (console line, tool_log args, tool_log
+    # result) share one `_hush` flag, which is the name check OR an argument
+    # that names a hidden tool. Same guarantee, one definition.
+    assert "_name in PRIVATE_TOOLS or _name in SCRATCH_TOOLS" in src
+    assert "elif _hush:" in src
+    assert '"args": [] if _hush else _args' in src
+    assert '"result_preview": "" if _hush else _out[:200]' in src
