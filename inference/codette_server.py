@@ -2697,9 +2697,17 @@ def _worker_thread():
                                     belief_text=_prev_answer, evidence_text=query,
                                 )
                                 _rel = _rec.get("relevance")
+                                # 2026-09-29: show the correction signal beside
+                                # the verdict. A message can be appraised on
+                                # topical similarity alone ("ok how are you?"
+                                # at 0.346), and would_apply=True then says
+                                # nothing about whether it was a correction.
+                                _corr = (_rec.get("correction") or {}).get("signal")
                                 print(f"  [AMYGDALA] shadow: stage={_rec.get('stage')} "
                                       f"reason={_rec.get('reason')} "
                                       f"relevance={'—' if _rel is None else round(_rel, 3)} "
+                                      f"correction={'—' if _corr is None else _corr}"
+                                      f"{' via=' + str(_rec['appraised_via']) if _rec.get('appraised_via') else ''} "
                                       f"would_apply={_rec.get('would_apply', '—')} "
                                       f"(applies nothing)", flush=True)
                     except Exception as _amy_e:

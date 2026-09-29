@@ -484,7 +484,7 @@ class OpenVINOBackend:
             try:
                 from codette_tools import (
                     parse_tool_calls, has_tool_calls, strip_tool_calls,
-                    unheard_fragments, mentions_hidden_tool,
+                    unheard_fragments, mentions_hidden_tool, unheard_call_names,
                 )
                 _MAX_ROUNDS = 3
                 _user_turn = query
@@ -500,7 +500,14 @@ class OpenVINOBackend:
                             _unheard = unheard_fragments(text)
                             if _unheard:
                                 _gave_back = True
-                                print("  [OV:tool] unread text returned to her",
+                                # Names only, and only known visible tools; the
+                                # fragment itself is never printed.
+                                _seemed = unheard_call_names(
+                                    _unheard, set(_tool_reg.tools),
+                                    PRIVATE_TOOLS | SCRATCH_TOOLS)
+                                print("  [OV:tool] unread text returned to her"
+                                      + (f" (looked like a call to: {', '.join(_seemed)})"
+                                         if _seemed else ""),
                                       flush=True)
                                 _user_turn = (
                                     _user_turn +

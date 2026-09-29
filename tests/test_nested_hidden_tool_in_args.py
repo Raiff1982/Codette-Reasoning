@@ -55,3 +55,35 @@ def test_backend_uses_it_at_every_logging_site():
     assert "PRIVATE_TOOLS | SCRATCH_TOOLS" in src
     # nothing prints _args outside the un-hushed branch
     assert src.count("print(f\"  [OV:tool] {_name}({_args})\"") == 1
+
+
+# --- unread text: which visible tool did it seem to reach for? (names only) ----
+
+from codette_tools import unheard_call_names  # noqa: E402
+
+KNOWN = {"aside", "cocoon", "who", "look", "care_check"}
+
+
+def test_a_misspelled_call_to_a_visible_tool_is_named():
+    assert unheard_call_names(["<tool>aside(text=made up"], KNOWN, HIDDEN) == ["aside"]
+    assert unheard_call_names(["/tool>cocoon('x'", "TOOL>who"], KNOWN, HIDDEN) == ["cocoon", "who"]
+
+
+def test_nothing_is_named_if_any_fragment_mentions_a_hidden_tool():
+    assert unheard_call_names(["<tool>aside(", "<tool>nameless(made up"], KNOWN, HIDDEN) == []
+
+
+def test_an_identifier_that_is_not_a_tool_is_never_returned():
+    # could be a word of free text
+    assert unheard_call_names(["<tool>my private thought here"], KNOWN, HIDDEN) == []
+
+
+def test_hidden_names_are_never_returned_even_alone():
+    assert unheard_call_names(["<tool>khralexi"], KNOWN | {"khralexi"}, HIDDEN) == []
+
+
+def test_backend_and_server_use_them():
+    b = (ROOT / "openvino_backend" / "backend.py").read_text(encoding="utf-8")
+    assert "unheard_call_names(" in b and "looked like a call to" in b
+    srv = (ROOT / "inference" / "codette_server.py").read_text(encoding="utf-8")
+    assert "correction={'—' if _corr is None else _corr}" in srv
