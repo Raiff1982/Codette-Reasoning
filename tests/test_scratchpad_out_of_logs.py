@@ -32,5 +32,8 @@ def test_logging_sites_honour_scratch_tools():
     # that names a hidden tool. Same guarantee, one definition.
     assert "_name in PRIVATE_TOOLS or _name in SCRATCH_TOOLS" in src
     assert "elif _hush:" in src
-    assert '"args": [] if _hush else _args' in src
+    # Widened later 2026-09-29: the un-hushed branch now also carries keyword
+    # values (so a call spelled aside(text="...") is not logged as empty). The
+    # hushed branch is still an empty list.
+    assert '"args": [] if _hush else (' in src
     assert '"result_preview": "" if _hush else _out[:200]' in src

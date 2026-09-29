@@ -580,7 +580,7 @@ class OpenVINOBackend:
                             f'<tool_result name="{_name}">\n{_out}\n</tool_result>')
                         tool_log.append({
                             "tool": _name,
-                            "args": [] if _hush else _args,
+                            "args": [] if _hush else (list(_args or []) + [str(_v) for _v in (_kwargs or {}).values()]),
                             # The args were already blanked for `nameless`; the
                             # result was not, and it reads "Written. (N this
                             # turn.)" — a count of her own notes. A metric is an
