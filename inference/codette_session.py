@@ -227,6 +227,13 @@ _SUBJECTIVE_PATTERNS = [
 ]
 
 
+def _pqc_seals_performed() -> int:
+    """Seals done by Protection_Layer's Layer 4 in this process (0 if not loaded)."""
+    import sys
+    mod = sys.modules.get("Protection_Layer.aegis_layer4_complete")         or sys.modules.get("aegis_layer4_complete")
+    return int(getattr(mod, "SEALS_PERFORMED", 0)) if mod else 0
+
+
 def is_self_description_text(text: str) -> bool:
     """True when text asserts what Codette is or is not.
 
@@ -975,6 +982,9 @@ class CodetteSession:
                 "has_spiderweb": HAS_SPIDERWEB and self.spiderweb is not None,
                 "has_metrics": HAS_METRICS,
                 "has_sync": HAS_COCOON and self.cocoon_sync is not None,
+                # Measured, not inferred: cocoon records this process has sealed
+                # with ML-KEM-768. 0 means Layer 4 is not on the write path.
+                "pqc_seals": _pqc_seals_performed(),
             },
         }
 

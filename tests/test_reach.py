@@ -140,3 +140,25 @@ def test_instrument_forge_never_raises_and_attaches_what_exists():
         pass
 
     assert reach.instrument_forge(Empty()) == {}
+
+
+def test_session_reports_measured_pqc_seals_not_a_sync_flag():
+    """The UI's Encryption row must come from a count of seals performed."""
+    import sys
+    import types
+    from inference import codette_session as cs
+
+    key = "Protection_Layer.aegis_layer4_complete"
+    saved = sys.modules.get(key)
+    try:
+        sys.modules.pop(key, None)
+        sys.modules.pop("aegis_layer4_complete", None)
+        assert cs._pqc_seals_performed() == 0          # module not loaded
+        fake = types.ModuleType(key)
+        fake.SEALS_PERFORMED = 3
+        sys.modules[key] = fake
+        assert cs._pqc_seals_performed() == 3
+    finally:
+        sys.modules.pop(key, None)
+        if saved is not None:
+            sys.modules[key] = saved

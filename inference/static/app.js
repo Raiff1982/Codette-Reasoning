@@ -1184,8 +1184,13 @@ function updateCocoonUI(state) {
 
     // Cocoon status
     const cocoon = state.cocoon || {};
-    document.getElementById('cocoon-encryption').textContent =
-        cocoon.has_sync ? 'Active' : 'Available';
+    // Report what is measured. This row used to say "Active" whenever the
+    // Supabase sync object existed, under a tooltip claiming ML-KEM-768 sealing.
+    const encEl = document.getElementById('cocoon-encryption');
+    const seals = Number(cocoon.pqc_seals || 0);
+    encEl.textContent = seals > 0
+        ? 'PQC-sealed (' + seals + ' this session)'
+        : (cocoon.has_sync ? 'Synced · not PQC-sealed' : 'Not PQC-sealed');
 
     // AEGIS eta feeds the main eta metric when available
     if (state.aegis && state.aegis.eta !== undefined) {
