@@ -776,7 +776,8 @@ def _run_health_check():
         # Memory kernel
         if hasattr(forge, 'memory_kernel') and forge.memory_kernel:
             mem_count = len(forge.memory_kernel.memories)
-            p6["components"]["memory_kernel"] = {"status": "OK", "memories": mem_count}
+            p6["components"]["memory_kernel"] = _reach_report(
+                forge.memory_kernel, {"memories": mem_count})
         else:
             p6["components"]["memory_kernel"] = {"status": "MISSING"}
             report["warnings"].append("Memory kernel not initialized")
@@ -821,6 +822,30 @@ def _run_health_check():
                 entry["calls"] = "unknown (no counters in this build)"
             return entry
 
+        # 2026-10-01: the same question for every other component on the forge.
+        # `reasoning_forge/reach.py` counts calls to each entry method; this
+        # turns the count into a status. "OK" meant only that the attribute
+        # existed, which is the reading that hid Colleen for months.
+        def _reach_report(obj, base=None):
+            entry = dict(base or {})
+            if not obj:
+                entry["status"] = "MISSING"
+                return entry
+            stats = getattr(obj, "invocation_stats", None)
+            if callable(stats):
+                try:
+                    st = stats()
+                    entry["calls"] = st.get("calls", 0)
+                    entry["by_method"] = st.get("by_method", {})
+                    entry["last_call"] = st.get("last_call")
+                    entry["status"] = "LOADED" if entry["calls"] else "LOADED_NEVER_CALLED"
+                    return entry
+                except Exception as _e:
+                    entry["invocation_stats_error"] = str(_e)
+            entry["status"] = "LOADED"
+            entry["calls"] = "unknown (no counters on this component)"
+            return entry
+
         colleen = getattr(forge, 'colleen', None)
         p6["components"]["colleen_conscience"] = _guard_report(
             colleen, "Colleen conscience", warn_when_idle=True)
@@ -836,12 +861,11 @@ def _run_health_check():
             eg = forge.ethical_governance
             audit_count = len(getattr(eg, 'audit_log', []))
             queries_blocked = sum(1 for entry in getattr(eg, 'audit_log', []) if entry.get('action') == 'blocked')
-            p6["components"]["ethical_governance"] = {
-                "status": "OK",
+            p6["components"]["ethical_governance"] = _reach_report(eg, {
                 "audit_entries": audit_count,
                 "queries_blocked": queries_blocked,
                 "detection_rules": len(getattr(eg, 'harmful_patterns', [])) + len(getattr(eg, 'bias_patterns', [])),
-            }
+            })
         else:
             p6["components"]["ethical_governance"] = {"status": "MISSING"}
             report["warnings"].append("Ethical governance not loaded")
@@ -849,18 +873,26 @@ def _run_health_check():
         # CognitionCocooner
         if hasattr(forge, 'cocooner') and forge.cocooner:
             cocoon_count = len(getattr(forge.cocooner, 'cocoons', {}))
-            p6["components"]["cognition_cocooner"] = {
-                "status": "OK",
-                "stored_cocoons": cocoon_count,
-            }
+            p6["components"]["cognition_cocooner"] = _reach_report(
+                forge.cocooner, {"stored_cocoons": cocoon_count})
         else:
             p6["components"]["cognition_cocooner"] = {"status": "MISSING"}
 
         # Self-awareness (tier2 bridge)
         if hasattr(forge, 'tier2_bridge') and forge.tier2_bridge:
-            p6["components"]["tier2_bridge"] = {"status": "OK"}
+            p6["components"]["tier2_bridge"] = _reach_report(forge.tier2_bridge)
         else:
             p6["components"]["tier2_bridge"] = {"status": "MISSING"}
+
+        # Constructed at boot ("initialized" in the log) and, until 2026-10-01,
+        # not reported here at all. Most are reachable only through
+        # forge_single/forge_with_debate, which the live chat path does not
+        # enter, so LOADED_NEVER_CALLED is the expected, honest answer for them.
+        for _attr, _name in (("code7e", "code7e_cqure"),
+                             ("nexis_signal_engine", "nexis_signal_engine"),
+                             ("aegis", "aegis_forge_instance"),
+                             ("qhf", "quantum_harmonic_framework")):
+            p6["components"][_name] = _reach_report(getattr(forge, _attr, None))
 
         report["systems"]["phase6_forge"] = p6
         checks_passed += 1
@@ -901,7 +933,8 @@ def _run_health_check():
             ]
             for attr, label in sub_names:
                 obj = getattr(_session, attr, None)
-                sess["subsystems"][label] = "OK" if obj else "MISSING"
+                # Presence only. "OK" here never meant "reached".
+                sess["subsystems"][label] = "LOADED" if obj else "MISSING"
 
             # Spiderweb metrics (safely)
             sw = getattr(_session, 'spiderweb', None)

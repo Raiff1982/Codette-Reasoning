@@ -513,6 +513,16 @@ class ForgeEngine:
         # === Pre-compute adapter map for Phase 5A efficiency (avoid per-round recomputation) ===
         self._adapter_map = {agent.name.lower(): agent for agent in self.analysis_agents}
 
+        # 2026-10-01: "✓ X initialized" above means constructed, not reached.
+        # Count calls to each component's entry points so /api/health can say
+        # which ones a request actually touches (reasoning_forge/reach.py).
+        # Counts and last-call time only; never arguments or text.
+        try:
+            from reasoning_forge.reach import instrument_forge
+            instrument_forge(self)
+        except Exception as e:
+            logger.warning(f"Reach counters not attached: {e}")
+
     @property
     def system_prompt(self) -> str:
         """Build system prompt enriched with self-awareness if available."""
