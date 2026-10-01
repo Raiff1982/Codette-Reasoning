@@ -519,7 +519,11 @@ class ForgeEngine:
         # Counts and last-call time only; never arguments or text.
         try:
             from reasoning_forge.reach import instrument_forge
-            instrument_forge(self)
+            _reach = instrument_forge(self)
+            logger.info(
+                "  ... reach counters on %d components. The '✓ ... initialized' "
+                "lines above mean CONSTRUCTED, not called; /api/health says which "
+                "were reached (LOADED vs LOADED_NEVER_CALLED).", len(_reach))
         except Exception as e:
             logger.warning(f"Reach counters not attached: {e}")
 
