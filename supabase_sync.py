@@ -86,15 +86,21 @@ def _load_env() -> tuple[str, str]:
 # ── Singleton client ──────────────────────────────────────────────────────────
 
 _client = None
+_warned_missing = False
 
 def get_client():
     """Return a cached Supabase client, or None if credentials are missing."""
-    global _client
+    global _client, _warned_missing
     if _client is not None:
         return _client
     url, key = _load_env()
     if not url or not key:
-        logger.warning("[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled")
+        # Once per process. This is called on every turn's cocoon write, and a
+        # missing credential does not change between turns: repeating the line
+        # buried the warnings that do change (2026-08-15 handoff, "noise").
+        if not _warned_missing:
+            _warned_missing = True
+            logger.warning("[supabase_sync] Missing SUPABASE_URL / SUPABASE_KEY — sync disabled (logged once)")
         return None
     try:
         from supabase import create_client
