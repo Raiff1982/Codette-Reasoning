@@ -833,7 +833,15 @@ class UnifiedMemory:
                 GROUP BY complexity
                 ORDER BY cnt DESC
             """)
-            return {r["complexity"]: r["cnt"] for r in cur.fetchall()}
+            # The same enum was stringified two ways at write time
+            # ("QueryComplexity.MEDIUM" and "MEDIUM"), which split one category
+            # across two keys (1577 vs 602 on her store, 2026-08-08 handoff).
+            # Merge on read; the rows on disk are left exactly as written.
+            merged: Dict[str, int] = {}
+            for r in cur.fetchall():
+                key = str(r["complexity"]).replace("QueryComplexity.", "").upper()
+                merged[key] = merged.get(key, 0) + r["cnt"]
+            return dict(sorted(merged.items(), key=lambda kv: -kv[1]))
         except Exception:
             return {}
 
