@@ -595,6 +595,14 @@ class OpenVINOBackend:
                                       f"this turn, not re-run", flush=True)
                         if _out is None:
                             _out = _tool_reg.execute(_name, _args, _kwargs)
+                            # Outcome class only (ok/partial/empty/error), for the
+                            # world-facing tools -- never her own spaces, never
+                            # arguments or text (reasoning_forge/tool_efficacy.py).
+                            try:
+                                from reasoning_forge.tool_efficacy import record as _rec_eff
+                                _rec_eff(_name, _out)
+                            except Exception:
+                                pass
                             if dispersion is not None and _name not in PRIVATE_TOOLS:
                                 _verdict = dispersion.collapse(
                                     _name, _axis_args, _out,

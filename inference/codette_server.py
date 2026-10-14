@@ -3082,6 +3082,15 @@ class CodetteHandler(SimpleHTTPRequestHandler):
                     ),
                 }
             self._json_response(dashboard)
+        elif path == "/api/tool-efficacy":
+            # How often each world-facing tool ends ok / partial / empty / error.
+            # Counts only; her own spaces are never counted (tool_efficacy.py).
+            # Observation: nothing reads this to change routing or availability.
+            try:
+                from reasoning_forge.tool_efficacy import summary as _eff_summary
+                self._json_response(_eff_summary())
+            except Exception as e:
+                self._json_response({"error": str(e)})
         elif path == "/api/optimizer":
             # The router self-tuner, made visible. It has run in shadow since
             # 2026-07-12 writing data/optimizer_shadow.jsonl, and until now
