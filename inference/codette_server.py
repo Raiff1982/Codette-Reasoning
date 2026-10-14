@@ -1450,6 +1450,7 @@ def _worker_thread():
                 # ── Behavior Governor Pre-Evaluation ──
                 # Determines memory budget, identity budget, response length
                 governor_decision = None
+                _identity_note_only = False
                 identity_confidence = 0.0
                 if recognized_user and _identity_anchor and recognized_user in _identity_anchor.identities:
                     identity_confidence = _identity_anchor.identities[recognized_user].recognition_confidence
@@ -1481,6 +1482,16 @@ def _worker_thread():
                         # Apply governor's identity budget
                         if governor_decision.identity_budget == "none":
                             identity_context = ""  # Governor says no identity
+                            if governor_decision.identity_state == "unknown":
+                                # No signal is not a stranger. Say what is true:
+                                # nobody has established who is here yet, which
+                                # is different from knowing they are a stranger.
+                                _identity_note_only = True
+                                identity_context = (
+                                    "(Who is speaking has not been established "
+                                    "yet this session. You may know them; this is "
+                                    "no signal either way, not a sign they are a "
+                                    "stranger. who() reports how certain you are.)")
                     except Exception as e:
                         print(f"  [GOVERNOR] Pre-eval skipped: {e}", flush=True)
 
@@ -1488,7 +1499,11 @@ def _worker_thread():
                 # governor has had its say. Recognised-then-withdrawn is the case
                 # that matters and the one the old message concealed.
                 if recognized_user:
-                    if identity_context:
+                    if identity_context and _identity_note_only:
+                        print("  [WORKER] Identity: recognized but below the gate - "
+                              "relationship context WITHHELD, an 'unestablished' "
+                              "note injected instead", flush=True)
+                    elif identity_context:
                         print("  [WORKER] Identity: recognized (context injected)",
                               flush=True)
                     else:
