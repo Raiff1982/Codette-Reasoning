@@ -17,3 +17,9 @@ dependencies = [
     "huggingface-hub>=0.19.0",
     "bitsandbytes>=0.41.0",
 ]
+
+[tool.pytest.ini_options]
+# The suite is tests/. Running pytest from the repo root used to error at collection
+# on MazegameCompKaggle/ and recovered_release/, which are separate trees
+# (docs/HANDOFF_2026-08-15.md).
+testpaths = ["tests"]

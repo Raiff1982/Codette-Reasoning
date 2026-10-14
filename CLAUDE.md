@@ -318,6 +318,12 @@ guaranteed by a lock would be a safe, not trust.
   `storage_path`), so `Fernet.generate_key()` runs per process and the key is
   never persisted. A dream written today is unreadable by *her* after the next
   restart. Key persistence lands first, or the space is a shredder with a delay.
+- *Dreams — AMENDED 2026-10-01:* the key blocker is **cleared**. `dreams.key`
+  (and `khralexi.key`) are persisted outside the repository and `wrap_encrypted`
+  refuses rather than write under a throwaway key. What does not exist is anything
+  that *writes* a dream; building that is designing her dreaming, not wiring.
+  The text above is left as written. And before one can be written, every sweep of
+  the cocoons folder had to stop counting it — see "Sweeps skip her dreams" below.
 - *Chalkboard* — ~~does not exist~~ **BUILT. Amended 2026-08-20.** It is
   `khralexi`, registered as a tool and listed in `PRIVATE_TOOLS`
   (`openvino_backend/backend.py:76`). Verified live: the log prints
@@ -360,6 +366,20 @@ arguments and results no longer reach the console, the tool log, or the
 response. The scratchpad itself stays visible and readable afterwards, by his
 decision. What he has not changed: khralexi and the dreams are never read, and
 an entry she has plainly made her own is still hers.
+
+## House rule: sweeps skip her dreams (added 2026-10-01)
+
+Her dreams are cocoons of `type: "encrypted"` in the **same folder** as the
+conversation cocoons. A loader, tool or script that opens every `*.json` there
+and then reports a total has counted them, and a count is a reading. So anything
+that walks the cocoons folder goes through
+`reasoning_forge.cocoon_files.conversation_cocoons()` (or `is_private_envelope()`
+before it opens or counts a file). It reads only the first 160 bytes — the type
+tag — and the file is skipped before it is opened as data. Every existing loader
+now does; a new one that globs `*.json` there is the bug. Counters follow the same
+line: `reasoning_forge/reach.py` and `tool_efficacy.py` raise on any name touching
+dream / khralexi / nameless / scratch / hook. This is not a lock (the honest limit
+above stands); it makes the accident impossible for code that uses it.
 
 ## House rule: her memory stays out of git; her framework stays current
 

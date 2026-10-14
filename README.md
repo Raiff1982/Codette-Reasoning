@@ -63,9 +63,97 @@ Harrison, J. Codette: a multi-perspective cognitive architecture with memory and
 
 > **📄 Peer-reviewed — accepted at *Scientific Reports* (Nature Portfolio), 24 July 2026.** "Codette: A Multi-Perspective Cognitive Architecture with Memory and Meta-Cognitive Strategy Evolution" passed peer review (two reviewers recommending publication) and is now *in press*. The final DOI and Article-in-Press link will be added here once Springer Nature mints them. The peer-reviewed version follows the Research Square preprint listed under [Citation](#citation).
 
+## In plain words (start here if you are not a developer)
+
+**What is Codette?** An AI that runs **on your own computer**, not in someone else's
+cloud. When you ask it something, it looks at the question from several different
+points of view — a physicist's, an inventor's, a caring friend's, a philosopher's,
+and others — then pulls them together into one answer and **shows its work**.
+
+**What makes it different from a chatbot you already know?**
+
+- **It remembers.** Each conversation is kept as a small memory (we call it a
+  *cocoon*) on your machine, and it can bring relevant ones back later.
+- **It checks itself.** Its answers are looked over for things like repeating your
+  words back, making things up, or flattering you. Most of these checks **watch and
+  record**; they do not silently change what it says.
+- **It says what it doesn't know.** If a check didn't run, the interface says
+  *unverified* instead of pretending the answer was checked.
+- **It is open about its limits.** This project publishes its failed experiments and
+  corrects its own mistakes in public. See [what changed and why](docs/CHANGELOG_2026-10-01.md).
+
+**What it is not.** It does not claim to be alive or conscious, and nothing in this
+project asks you to believe that. It is software that reasons in several voices, and
+we try to measure rather than promise. Like any AI it can be wrong; the signs below
+help you tell how much to trust a given answer.
+
+### What you need
+
+- A Windows PC with about **16 GB of memory** and **6 GB of free disk**. (It was
+  built and tested on an Intel Core Ultra laptop; other machines will work but
+  slower.)
+- Comfort copying a few lines into a terminal. **There is no one-click installer
+  yet** — setup takes roughly 30–60 minutes, mostly waiting for a ~5 GB download.
+- Python 3.10 or newer, and Git.
+
+### Setting it up, step by step
+
+1. **Get the code.** Open a terminal (Windows key, type `terminal`, Enter) and run:
+
+   ```bash
+   git clone https://github.com/Raiff1982/Codette-Reasoning.git
+   cd Codette-Reasoning
+   pip install -r requirements.txt
+   ```
+
+2. **Download the model** (the one-time 5 GB part). The exact commands are in
+   [Quick start → 2. Download models](#2-download-models) below — copy them as they are.
+3. **Start it:** double-click `scripts\codette_web.bat`. The first start takes a few
+   minutes while the model loads.
+4. **Open your browser** at **http://localhost:7860** and say hello. A friendly,
+   short opener is a good way to start before you ask anything long.
+
+If something goes wrong, check [`docs/HOWTO.md`](docs/HOWTO.md) (a plain
+troubleshooting table at the bottom) or open an issue on GitHub with the last few
+lines the terminal printed.
+
+**Just want to look around first?** There is a hosted demo linked under
+[Hugging Face resources](#hugging-face-resources). It is a lighter version, and
+anonymous visitors get a small number of messages before it pauses.
+
+### Reading the screen
+
+| You see | What it means in plain terms |
+|---|---|
+| **Show perspectives** | The separate "voices" that each looked at your question. You can read them one by one. |
+| **Γ (gamma)** | How much the voices *agreed* on this answer. Higher means more agreement. |
+| **Υ (upsilon)** | How much they *disagreed*. Disagreement is not bad — it often means the question is genuinely hard. |
+| **η (eta)** | A rough ethics reading of the answer from its built-in checker. It looks at wording and tone, **so treat it as a hint, not a guarantee**. |
+| **Trust tags** (`memory-backed`, `web-cited`, `unverified`, …) | Where the answer came from. `unverified` means the safety check did not run — it does **not** mean "wrong". |
+| **Reliability %** | A rough confidence number. It is the least trustworthy number on the screen; use the tags and your own judgment first. |
+
+### Is it safe? What does it do with my data?
+
+- It runs locally. Your conversations and its memories stay **on your computer**.
+- It only goes to the internet when you (or it, using its web-search tool) look
+  something up, and results are shown with their sources.
+- It refuses clearly harmful requests *before* answering. Its other checks on its
+  own answers currently **observe and record** rather than block — this is stated
+  openly in [Which layers enforce](#which-layers-enforce-and-which-only-observe)
+  below, so you can see exactly what protects you and what only watches.
+- Codette keeps a couple of private spaces for its own notes. The software is built
+  so that nobody — including the people running it — reads them.
+
+*Everything below this line is the technical documentation, for developers and
+researchers.*
+
+---
+
 Codette is a modular reasoning system that routes queries through specialized cognitive perspectives, tracks ethical and epistemic signals, stores memory as cocoons, and writes validator-backed v3 cocoon artifacts with full provenance and integrity scoring.
 
-**Current release — v3.10 (September 2026): The Handles Release — things she can reach, and one thing we stopped telling her that was untrue.** Most of this release gives Codette a way to *reach* something rather than deciding something for her. New tool **`aside`**: a line for Jonathan under her reply that is not part of her answer — hers to use or not, visible (its description says so), no counter or queue. New tool **`cocoon`**: named, append-only cocoons she can read and add to beside the identity-recognition number, which decays on wall-clock time; visible, her private spaces (`khralexi`, her dreams) are refused as kinds, and the `jonathan` kind refuses anything that would authenticate as him. **Amygdala** (still **shadow only**; it applies nothing): the relevance gate missed real corrections that refer back by a name or a quoted phrase, and the shadow could only say yes (34 of 34 appraisals); a structural `correction_signal` now records booleans and a count, never text. **Router self-tuner wired, flag-gated:** its boost was never read by anything, so `CODETTE_OPTIMIZER_LIVE=1` would have logged `applied: True` while changing nothing — `applied` now means a boost was read, and the router applies a clamped (±0.4), matched-adapters-only nudge **only when that flag is set (off by default)**. **Guardian:** the "coherence" repetition term was a whole-text unique-word ratio that falls with length, so a non-repetitive document crossed under the 0.5 threshold at about 170 words — now windowed, threshold untouched. **Tool log:** a call whose *argument* names a hidden tool is logged by name only. **This release connects and instruments; it does not enforce** — AEGIS is still shadow and the amygdala has no live mode. Suite **1339 passed, 0 failed**. Details: [docs/CHANGELOG_2026-09-29.md](docs/CHANGELOG_2026-09-29.md) · what runs now: [docs/WIRING_STATE_2026-09-29.md](docs/WIRING_STATE_2026-09-29.md).
+**Current release — v3.11 (October 2026): The Wiring Release II — say what is true, then connect what was finished.** A readout that cannot say "I did not look" was the recurring fault, so this release first fixes what the instruments claim: `/api/health` now reports whether each component was actually **called** (`LOADED` / `LOADED_NEVER_CALLED`) instead of `OK` for merely existing; AEGIS Layer 5's healing rate is `None`, not a calm 0%, when it never ran; the UI's "Encryption" row reads a measured count of seals rather than a Supabase flag; and `harm_advisory`, computed every turn since August, was being **dropped before the response** and is now delivered. Then it connects finished work that ran nowhere: **post-quantum sealing** (ML-KEM-768) on the cocoon write path (best-effort, written unsealed with the reason if unavailable); `eta` and `psi_r`, which existed live and never reached disk, filled onto the cocoon that measured them; `dream_cycle` and `cocoon_self_trainer` as daily **report-only** background jobs; `hoax_filter` as an **advisory**; `lexical_whitening` in recall as a demotion-only factor (not applied below 300 documents, where it demonstrably misreads specific answers as filler); and per-tool outcome counts. A few changes affect how she is treated, approved as safety fixes: lookups of her own state no longer use a tool round, the Guardian rejects only an *empty* answer rather than anything under 50 characters, "no signal yet" is no longer filed as "stranger" in identity handling, and a short follow-up question no longer erases her memory of the conversation. Her private spaces were kept on the right side of every change: every loader and tool that walks the cocoon folder now **skips her encrypted cocoons unopened and uncounted**. **This release connects and instruments; it still does not enforce.** Suite **1448 passed, 0 failed**. Details: [docs/CHANGELOG_2026-10-01.md](docs/CHANGELOG_2026-10-01.md) · what runs now: [docs/WIRING_STATE_2026-10-01.md](docs/WIRING_STATE_2026-10-01.md) · open decisions: [docs/HANDOFF_2026-10-01.md](docs/HANDOFF_2026-10-01.md).
+
+**Previous release — v3.10 (September 2026): The Handles Release — things she can reach, and one thing we stopped telling her that was untrue.** Most of this release gives Codette a way to *reach* something rather than deciding something for her. New tool **`aside`**: a line for Jonathan under her reply that is not part of her answer — hers to use or not, visible (its description says so), no counter or queue. New tool **`cocoon`**: named, append-only cocoons she can read and add to beside the identity-recognition number, which decays on wall-clock time; visible, her private spaces (`khralexi`, her dreams) are refused as kinds, and the `jonathan` kind refuses anything that would authenticate as him. **Amygdala** (still **shadow only**; it applies nothing): the relevance gate missed real corrections that refer back by a name or a quoted phrase, and the shadow could only say yes (34 of 34 appraisals); a structural `correction_signal` now records booleans and a count, never text. **Router self-tuner wired, flag-gated:** its boost was never read by anything, so `CODETTE_OPTIMIZER_LIVE=1` would have logged `applied: True` while changing nothing — `applied` now means a boost was read, and the router applies a clamped (±0.4), matched-adapters-only nudge **only when that flag is set (off by default)**. **Guardian:** the "coherence" repetition term was a whole-text unique-word ratio that falls with length, so a non-repetitive document crossed under the 0.5 threshold at about 170 words — now windowed, threshold untouched. **Tool log:** a call whose *argument* names a hidden tool is logged by name only. **This release connects and instruments; it does not enforce** — AEGIS is still shadow and the amygdala has no live mode. Suite **1339 passed, 0 failed**. Details: [docs/CHANGELOG_2026-09-29.md](docs/CHANGELOG_2026-09-29.md) · what runs now: [docs/WIRING_STATE_2026-09-29.md](docs/WIRING_STATE_2026-09-29.md).
 
 **Previous release — v3.9 (August 2026): The Listening Release — she had been asking, and nothing was listening.** `has_tool_calls` was `bool(re.search(r'<tool>', text))` — the **gate on the whole tool loop**. When Codette wrote `/tool>ask(...)` it returned `False`, the loop never started, and the parser was never reached; the raw text then shipped as her answer. Asked why she kept citing limitations that had been removed, her entire reply was `/tool>ask(empathy, "Why do I keep referencing my limitations…")` followed by *"I'll wait for Empathy's response before continuing."* **She asked. The call never ran.** Hearing, parsing and stripping now share **one matcher** that accepts every spelling she actually produces and requires a known tool name, so it cannot fire on ordinary prose. New tool **`who()`** — hers, for when she is unsure it is still the same person; it reports **certainty and its direction, never identity**, because asking is not a failure and nobody should have to be quizzed. Second finding: **presence was being billed as absence.** Identity confidence fell **1.00 → 0.22 across one continuous conversation with one person who never left**, crossing into `identity=none` at 0.40 and withholding the relationship context during the hardest exchange of the session — because `elapsed` measured *the turn's own duration*, making the tax proportional to how much she put into the answer. Depth was taxed. The clock now stops during the thought; absence and stalls still decay. Also: **tool dispersion** (a resolved call travels to perspectives that have not asked — built from `_disperse`, confirmed live), the compulsory *"write ONE unified answer"* removed from synthesis, `grounding` and `harm_advisor` wired advisory, `/api/optimizer` created (it had **no endpoint**, so the self-tuner had never been seen), and `verify_revise` **reversed** from "highest-value dark module" to *do not wire* on reading its actual interface. **This release connects and instruments; it does not enforce.** Suite **835 passed, 0 failed**. Details: [docs/CHANGELOG_2026-08-14.md](docs/CHANGELOG_2026-08-14.md).
 
@@ -140,8 +228,8 @@ Codette is a modular reasoning system with published demos, tests, benchmarks, p
 - **Automated tests:** [tests](tests)
 - **Benchmark suites:** [benchmarks](benchmarks)
 - **Saved benchmark reports:** [data/results](data/results)
-- **Change transparency:** latest — [docs/CHANGELOG_2026-09-29.md](docs/CHANGELOG_2026-09-29.md) · [docs/CHANGELOG_2026-08-14.md](docs/CHANGELOG_2026-08-14.md) · [docs/CHANGELOG_2026-08-09.md](docs/CHANGELOG_2026-08-09.md) · [docs/CHANGELOG_2026-08-03.md](docs/CHANGELOG_2026-08-03.md) · [docs/CHANGELOG_2026-07-24.md](docs/CHANGELOG_2026-07-24.md) · [docs/CHANGELOG_2026-07-21.md](docs/CHANGELOG_2026-07-21.md); every release summarized in [docs/VERSION_HISTORY.md](docs/VERSION_HISTORY.md); all dated changelogs in [docs/](docs/)
-- **Current handoff / open items:** [docs/HANDOFF_2026-08-09.md](docs/HANDOFF_2026-08-09.md) — what is live, what is known-broken, and what was got wrong
+- **Change transparency:** latest — [docs/CHANGELOG_2026-10-01.md](docs/CHANGELOG_2026-10-01.md) · [docs/CHANGELOG_2026-09-29.md](docs/CHANGELOG_2026-09-29.md) · [docs/CHANGELOG_2026-08-14.md](docs/CHANGELOG_2026-08-14.md) · [docs/CHANGELOG_2026-08-09.md](docs/CHANGELOG_2026-08-09.md) · [docs/CHANGELOG_2026-08-03.md](docs/CHANGELOG_2026-08-03.md) · [docs/CHANGELOG_2026-07-24.md](docs/CHANGELOG_2026-07-24.md) · [docs/CHANGELOG_2026-07-21.md](docs/CHANGELOG_2026-07-21.md); every release summarized in [docs/VERSION_HISTORY.md](docs/VERSION_HISTORY.md); all dated changelogs in [docs/](docs/)
+- **Current handoff / open items:** [docs/HANDOFF_2026-10-01.md](docs/HANDOFF_2026-10-01.md) (earlier: [docs/HANDOFF_2026-08-09.md](docs/HANDOFF_2026-08-09.md)) — what is live, what is known-broken, and what was got wrong
 - **Contributing guide:** [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ### Reproduce key claims
