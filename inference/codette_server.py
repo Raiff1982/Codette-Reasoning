@@ -3543,8 +3543,10 @@ class CodetteHandler(SimpleHTTPRequestHandler):
             # Attach recent cocoon summaries (last 10)
             import json as _json, glob as _glob
             recent = []
+            from reasoning_forge.cocoon_files import is_private_envelope as _is_priv
             files = sorted(
-                _glob.glob(_os.path.join(cocoon_path, "*.json")),
+                [_p for _p in _glob.glob(_os.path.join(cocoon_path, "*.json"))
+                 if not _is_priv(_p)],          # her dreams: not listed, not opened
                 key=_os.path.getmtime,
                 reverse=True,
             )[:10]

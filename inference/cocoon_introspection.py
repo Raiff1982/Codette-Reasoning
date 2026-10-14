@@ -130,7 +130,8 @@ class CocoonIntrospectionEngine:
         """Fallback: legacy timestamped reasoning cocoons from JSON files."""
         if not self.cocoons_dir.exists():
             return
-        for f in sorted(self.cocoons_dir.glob("*.json")):
+        from reasoning_forge.cocoon_files import conversation_cocoons
+        for f in sorted(conversation_cocoons(self.cocoons_dir, "*.json")):
             try:
                 data = json.loads(f.read_text(encoding="utf-8"))
             except (json.JSONDecodeError, UnicodeDecodeError):
@@ -151,7 +152,8 @@ class CocoonIntrospectionEngine:
         """Hand-crafted behavioral/anchor cocoons (JSON only — not in SQLite)."""
         if not self.cocoons_dir.exists():
             return
-        for f in sorted(self.cocoons_dir.glob("*.json")):
+        from reasoning_forge.cocoon_files import conversation_cocoons
+        for f in sorted(conversation_cocoons(self.cocoons_dir, "*.json")):
             try:
                 data = json.loads(f.read_text(encoding="utf-8"))
             except (json.JSONDecodeError, UnicodeDecodeError):

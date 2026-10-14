@@ -25,6 +25,11 @@ import json
 import re
 import shutil
 import sys
+# Her dreams share this folder; they are never opened, listed or counted here
+# (reasoning_forge/cocoon_files.py).
+import os as _os
+sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+from reasoning_forge.cocoon_files import conversation_cocoons  # noqa: E402
 from pathlib import Path
 
 COCOON_DIR = Path(__file__).parent.parent / "cocoons"
@@ -84,7 +89,7 @@ def main() -> int:
         print(f"[ERROR] Cocoon dir not found: {COCOON_DIR}")
         return 1
 
-    files = sorted(COCOON_DIR.glob("*.json"))
+    files = sorted(conversation_cocoons(COCOON_DIR, "*.json"))
     print(f"Scanning {len(files)} cocoon JSON files in {COCOON_DIR} ...")
 
     scanned = contaminated = written = errors = 0

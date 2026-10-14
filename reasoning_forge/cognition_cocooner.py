@@ -426,7 +426,9 @@ class CognitionCocooner:
 
     def list_cocoons(self) -> List[str]:
         """List all cocoon IDs."""
-        return [f.stem for f in self.storage_path.glob("cocoon_*.json")]
+        from reasoning_forge.cocoon_files import conversation_cocoons
+        # Her encrypted cocoons are hers to list; they are not listed here.
+        return [f.stem for f in conversation_cocoons(self.storage_path)]
 
     def delete_cocoon(self, cocoon_id: str) -> bool:
         """Delete a cocoon by ID."""
@@ -444,7 +446,8 @@ class CognitionCocooner:
             List of recent reasoning exchange dicts
         """
         reasoning_cocoons = []
-        for file in sorted(self.storage_path.glob("cocoon_*.json"),
+        from reasoning_forge.cocoon_files import conversation_cocoons
+        for file in sorted(conversation_cocoons(self.storage_path),
                           key=lambda f: f.stat().st_mtime, reverse=True):
             try:
                 with open(file, "r") as f:
@@ -501,7 +504,8 @@ class CognitionCocooner:
             return self.get_recent_reasoning(limit=max_results)
 
         scored = []
-        for file in sorted(self.storage_path.glob("cocoon_*.json"),
+        from reasoning_forge.cocoon_files import conversation_cocoons
+        for file in sorted(conversation_cocoons(self.storage_path),
                           key=lambda f: f.stat().st_mtime, reverse=True)[:200]:
             try:
                 with open(file, "r") as f:

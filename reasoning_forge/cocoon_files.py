@@ -45,3 +45,17 @@ def is_private_envelope(path: Union[str, Path]) -> bool:
         return False
     value = rest[colon + 1:].lstrip()
     return any(value.startswith(t) for t in _PRIVATE_TYPES)
+
+
+def conversation_cocoons(directory: Union[str, Path], pattern: str = "cocoon_*.json"):
+    """The files in `directory` matching `pattern`, minus her encrypted cocoons.
+
+    Every runtime loader and tool that used to call `directory.glob(pattern)` on
+    the cocoons folder goes through this instead, so an encrypted cocoon is never
+    opened as data, never counted in a total, and never listed by id. Returns a
+    list (callers sort it by mtime or name as before).
+    """
+    d = Path(directory)
+    if not d.is_dir():
+        return []
+    return [p for p in d.glob(pattern) if not is_private_envelope(p)]

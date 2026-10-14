@@ -163,7 +163,8 @@ class LivingMemoryKernel:
         # and MemoryWeighting.
         #
         # See docs/FINDINGS_2026-08-12_memory_kernel_hollow.md.
-        for f in cocoon_path.glob("cocoon_*.json"):
+        from reasoning_forge.cocoon_files import conversation_cocoons
+        for f in conversation_cocoons(cocoon_path):
             try:
                 with open(f, "r", encoding="utf-8") as fh:
                     data = json.load(fh)
