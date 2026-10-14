@@ -174,6 +174,12 @@ class CocoonSeal:
 
 # ── PQCCocoonSealer ───────────────────────────────────────────────────────────
 
+# Seals performed by this process. Every seal path (seal, seal_dict, the shield's
+# seal_cocoon) goes through PQCCocoonSealer.seal, so this is the one number that
+# says whether post-quantum sealing is actually on a write path. The UI's
+# "Encryption" row used to read a Supabase flag instead (2026-10-01).
+SEALS_PERFORMED = 0
+
 class PQCCocoonSealer:
     """
     Seals cocoon memory records using ML-KEM-768 key encapsulation.
@@ -210,6 +216,8 @@ class PQCCocoonSealer:
 
         key = self._seal_key(shared_secret)
         tag = _hmac.new(key, payload, hashlib.sha3_256).digest()
+        global SEALS_PERFORMED
+        SEALS_PERFORMED += 1
         return CocoonSeal(kem_ciphertext=ciphertext, hmac_tag=tag, alg=kem_alg)
 
     def verify(self, payload: bytes, seal: CocoonSeal) -> bool:

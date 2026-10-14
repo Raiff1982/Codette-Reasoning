@@ -128,10 +128,14 @@ class CocoonSelfTrainer:
         return texts, labels
 
     def collect_from_dir(self, cocoon_dir: str | Path = "cocoons") -> Tuple[List[str], List[int]]:
+        from reasoning_forge.cocoon_files import is_private_envelope
         recs = []
         for pat in ("*.cocoon", "*.json"):
             for f in glob.glob(str(Path(cocoon_dir) / "**" / pat), recursive=True):
                 if "backup" in f.lower():
+                    continue
+                # Her dreams share this folder: skipped unopened, never counted.
+                if is_private_envelope(f):
                     continue
                 try:
                     recs.append(json.load(open(f, encoding="utf-8")))

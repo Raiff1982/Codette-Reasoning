@@ -16,6 +16,11 @@ Usage:
 import argparse
 import json
 import sys
+# Her dreams share this folder; they are never opened, listed or counted here
+# (reasoning_forge/cocoon_files.py).
+import os as _os
+sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+from reasoning_forge.cocoon_files import conversation_cocoons  # noqa: E402
 from pathlib import Path
 from collections import Counter
 
@@ -82,7 +87,7 @@ def main() -> None:
         print("  [????] v3_missing_fallback_count : (module not imported yet)")
 
     # ── Cocoon store scan ─────────────────────────────────────────────────────
-    all_paths = sorted(store.glob("cocoon_*.json"), key=lambda p: p.stat().st_mtime)
+    all_paths = sorted(conversation_cocoons(store), key=lambda p: p.stat().st_mtime)
     total = len(all_paths)
     sample = [load_cocoon_meta(p) for p in all_paths[-args.n:]]
     sample = [s for s in sample if s is not None]

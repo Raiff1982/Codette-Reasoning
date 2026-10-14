@@ -18,6 +18,7 @@ Silent omission of these fields is treated as an incomplete write.
 
 from __future__ import annotations
 
+import math
 import time
 import uuid
 from dataclasses import dataclass, field
@@ -77,6 +78,14 @@ class CocoonV3(Cocoon):
     perspective_coverage: dict = field(default_factory=dict)
     # e.g. {"newton": 0.85, "empathy": 0.72, "philosophy": 0.60}
     psi_r: float = 0.0
+    # The resonant wavefunction is (num/den) * sin(2*pi*t/gravity) + delta, so it
+    # oscillates through zero by construction (the live engine produced -0.551).
+    # `psi_r` above is validated and clamped to [0, 1], which deletes every
+    # negative half-cycle and manufactures exact zeros -- 0.0 in all 2,013 v3
+    # cocoons on disk (2026-08-13 handoff). This field carries the value as the
+    # engine produced it. None means not measured; it is never 0.0 by default.
+    # `psi_r` is left as it was so existing readers and records are unchanged.
+    psi_r_measured: Optional[float] = None
 
     # ─── AEGIS detail ────────────────────────────────────────────────────────
     aegis_framework_scores: dict = field(default_factory=dict)
@@ -129,6 +138,8 @@ class CocoonV3(Cocoon):
             errors.append(f"cocoon_integrity_score {self.cocoon_integrity_score} out of range [0, 1]")
         if not 0.0 <= self.psi_r <= 1.0:
             errors.append(f"psi_r {self.psi_r} out of range [0, 1]")
+        if self.psi_r_measured is not None and not math.isfinite(self.psi_r_measured):
+            errors.append(f"psi_r_measured {self.psi_r_measured} is not finite")
 
         # Enforce required fields based on execution path
         if self.execution_path == "forge_full":
@@ -163,6 +174,7 @@ class CocoonV3(Cocoon):
             "gamma_coherence":              self.gamma_coherence,
             "eta_score":                    self.eta_score,
             "psi_r":                        self.psi_r,
+            "psi_r_measured":               self.psi_r_measured,
             "active_perspectives":          self.active_perspectives,
             "dominant_perspective":         self.dominant_perspective,
             "unresolved_tensions":          self.unresolved_tensions,
@@ -250,6 +262,7 @@ def build_cocoon_v3(
     metrics_population_status: str = "partial",
     reason_for_fallback: Optional[str] = None,
     psi_r: float = 0.0,
+    psi_r_measured: Optional[float] = None,
     pairwise_tensions: Optional[dict] = None,
     perspective_coverage: Optional[dict] = None,
     aegis_framework_scores: Optional[dict] = None,
@@ -324,6 +337,7 @@ def build_cocoon_v3(
         metrics_population_status=metrics_population_status,
         reason_for_fallback=reason_for_fallback,
         psi_r=max(0.0, min(1.0, float(psi_r))),
+        psi_r_measured=(None if psi_r_measured is None else float(psi_r_measured)),
         pairwise_tensions=pairwise_tensions or {},
         perspective_coverage=perspective_coverage or {},
         aegis_framework_scores=aegis_framework_scores or {},

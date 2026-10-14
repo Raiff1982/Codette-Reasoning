@@ -12,6 +12,7 @@ memory anchors.
 
 import json
 import logging
+import math
 import os
 import time
 import random
@@ -307,6 +308,12 @@ class CognitionCocooner:
             if metadata:
                 disk_payload["wrapped"]["metadata"] = metadata
             file_path = self.storage_path / f"{cocoon_id}.json"
+            # Post-quantum seal (ML-KEM-768 + HMAC-SHA3-256, AEGIS Layer 4). Wired
+            # 2026-10-01: the module existed, was tested, and nothing on the
+            # cocoon write path called it, while the UI said it did. Best-effort
+            # by design -- a missing library or a failed seal writes the cocoon
+            # UNSEALED and records why; it never blocks or loses a turn.
+            disk_payload = self._seal_payload(disk_payload)
             with open(file_path, "w", encoding="utf-8") as f:
                 json.dump(disk_payload, f, indent=2, ensure_ascii=False, default=str)
             return cocoon_id
@@ -336,6 +343,145 @@ class CognitionCocooner:
             thought["metadata"] = metadata
         return self.wrap(thought, type_="reasoning")
 
+    # -- post-quantum sealing ------------------------------------------------
+    _pqc_shield_obj = None
+    _pqc_tried = False
+    pqc_error: Optional[str] = None
+
+    @classmethod
+    def _shield(cls):
+        """The Layer 4 shield, or None. Loaded once per process, never raises.
+
+        None means sealing is unavailable (liboqs-python not importable in this
+        interpreter, key generation failed, or CODETTE_PQC_SEAL=0). The reason is
+        kept in `pqc_error` so /api/health can say it instead of implying a seal.
+        """
+        if cls._pqc_tried:
+            return cls._pqc_shield_obj
+        cls._pqc_tried = True
+        if os.environ.get("CODETTE_PQC_SEAL", "1") == "0":
+            cls.pqc_error = "disabled by CODETTE_PQC_SEAL=0"
+            return None
+        try:
+            try:
+                from Protection_Layer.aegis_layer4_complete import PQCShield
+            except ImportError:
+                from aegis_layer4_complete import PQCShield
+            shield = PQCShield()
+            if not shield.initialize():
+                cls.pqc_error = getattr(shield, "_error", None) or "PQCShield did not initialise"
+                return None
+            cls._pqc_shield_obj = shield
+        except Exception as e:
+            cls.pqc_error = f"{type(e).__name__}: {e}"[:300]
+            cls._pqc_shield_obj = None
+        return cls._pqc_shield_obj
+
+    def _seal_payload(self, payload: dict) -> dict:
+        shield = self._shield()
+        if shield is None:
+            return payload
+        try:
+            return shield.seal_dict(payload)
+        except Exception as e:
+            type(self).pqc_error = f"seal failed: {type(e).__name__}: {e}"[:300]
+            return payload
+
+    def verify_seal(self, cocoon_id: str) -> Optional[bool]:
+        """True / False when a seal is present and checked; None when there is
+        none (an unsealed cocoon is not a failed one) or no shield to check with."""
+        shield = self._shield()
+        path = self.storage_path / f"{cocoon_id}.json"
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                payload = json.load(f)
+        except Exception:
+            return None
+        if not isinstance(payload, dict) or "_pqc_seal" not in payload or shield is None:
+            return None
+        try:
+            return bool(shield.verify_dict(payload))
+        except Exception:
+            return False
+
+    def fill_measured(self, cocoon_id: str, eta_score: Optional[float] = None,
+                      psi_r_measured: Optional[float] = None) -> bool:
+        """Add η and ψ_r to a reasoning cocoon after the turn has measured them.
+
+        Both are computed after the cocoon is written (η by the server's AEGIS
+        pass over the final response, ψ_r by the session's resonance engine), so
+        until now they existed live and never reached disk: eta_score was None in
+        all 2,013 v3 cocoons and psi_r read 0.0 in all of them.
+
+        This only ever FILLS. A field that already holds a value is left alone,
+        nothing in `wrapped`, `query`, `response` or `open_threads` is touched,
+        and an absent measurement stays absent (None) rather than becoming 0.0.
+        What was filled, and when, is recorded under v3["metrics_filled"] so the
+        record shows that these two arrived after the write.
+
+        Returns True when the file was changed.
+        """
+        if not cocoon_id:
+            return False
+        eta_ok = isinstance(eta_score, (int, float)) and math.isfinite(float(eta_score))
+        psi_ok = isinstance(psi_r_measured, (int, float)) and math.isfinite(float(psi_r_measured))
+        if not (eta_ok or psi_ok):
+            return False
+        path = self.storage_path / f"{cocoon_id}.json"
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                payload = json.load(f)
+            v3 = payload.get("v3")
+            if not isinstance(v3, dict):
+                return False            # legacy cocoon: no v3 block to fill
+            filled = []
+            if eta_ok and v3.get("eta_score") is None:
+                v3["eta_score"] = round(float(eta_score), 4)
+                filled.append("eta_score")
+            if psi_ok and v3.get("psi_r_measured") is None:
+                v3["psi_r_measured"] = round(float(psi_r_measured), 4)
+                filled.append("psi_r_measured")
+            if not filled:
+                return False
+            v3["metrics_filled"] = {"fields": filled, "at": time.time(),
+                                    "reason": "measured after the cocoon was written"}
+            # The write-time status said "partial" because these two were absent.
+            # Re-score with the same validator so status and integrity do not
+            # keep describing a cocoon that has since been completed.
+            try:
+                from types import SimpleNamespace
+                from reasoning_forge.cocoon_validator import CocoonValidator
+                _ns = SimpleNamespace(**v3)
+                _ns.to_dict = lambda: dict(v3)
+                _val = CocoonValidator(store_path=str(self.storage_path))
+                _res = _val.validate(_ns)
+                _val.apply_result(_ns, _res)
+                for _k in ("cocoon_integrity", "cocoon_integrity_score",
+                           "metrics_population_status"):
+                    v3[_k] = getattr(_ns, _k)
+                    if _k in payload:               # the two mirrored at top level
+                        payload[_k] = v3[_k]
+            except Exception as _ve:
+                logger.warning("[CognitionCocooner] re-score after fill skipped: %s", _ve)
+            # The seal covers the whole record, so an edit invalidates it. Re-seal
+            # what we changed; if that is not possible, drop the stale seal and
+            # say so rather than leave a record that fails its own verification.
+            if "_pqc_seal" in payload:
+                payload.pop("_pqc_seal", None)
+                resealed = self._seal_payload(payload)
+                if "_pqc_seal" in resealed:
+                    payload = resealed
+                else:
+                    v3["metrics_filled"]["seal_dropped"] = "could not re-seal after fill"
+            tmp = path.with_suffix(".json.tmp")
+            with open(tmp, "w", encoding="utf-8") as f:
+                json.dump(payload, f, indent=2, ensure_ascii=False, default=str)
+            os.replace(tmp, path)
+            return True
+        except Exception as e:
+            logger.warning("[CognitionCocooner] fill_measured(%s) skipped: %s", cocoon_id, e)
+            return False
+
     def wrap_and_store(self, content: str, type_: str = "prompt") -> str:
         """Convenience method to wrap and store string content."""
         thought = {"content": content, "timestamp": time.time()}
@@ -357,7 +503,9 @@ class CognitionCocooner:
 
     def list_cocoons(self) -> List[str]:
         """List all cocoon IDs."""
-        return [f.stem for f in self.storage_path.glob("cocoon_*.json")]
+        from reasoning_forge.cocoon_files import conversation_cocoons
+        # Her encrypted cocoons are hers to list; they are not listed here.
+        return [f.stem for f in conversation_cocoons(self.storage_path)]
 
     def delete_cocoon(self, cocoon_id: str) -> bool:
         """Delete a cocoon by ID."""
@@ -375,7 +523,8 @@ class CognitionCocooner:
             List of recent reasoning exchange dicts
         """
         reasoning_cocoons = []
-        for file in sorted(self.storage_path.glob("cocoon_*.json"),
+        from reasoning_forge.cocoon_files import conversation_cocoons
+        for file in sorted(conversation_cocoons(self.storage_path),
                           key=lambda f: f.stat().st_mtime, reverse=True):
             try:
                 with open(file, "r") as f:
@@ -432,7 +581,8 @@ class CognitionCocooner:
             return self.get_recent_reasoning(limit=max_results)
 
         scored = []
-        for file in sorted(self.storage_path.glob("cocoon_*.json"),
+        from reasoning_forge.cocoon_files import conversation_cocoons
+        for file in sorted(conversation_cocoons(self.storage_path),
                           key=lambda f: f.stat().st_mtime, reverse=True)[:200]:
             try:
                 with open(file, "r") as f:

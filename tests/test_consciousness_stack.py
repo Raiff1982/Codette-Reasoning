@@ -198,10 +198,13 @@ class TestGuardianSpindle(unittest.TestCase):
         is_valid, details = self.guardian.validate("")
         self.assertFalse(is_valid)
 
-    def test_rejects_too_short(self):
-        """Test rejects text under 50 chars"""
+    def test_short_text_is_not_rejected_for_being_short(self):
+        """Amended 2026-10-01. This asserted that text under 50 chars is rejected.
+        That floor punished a plain "No." and taught padding; the rule is now
+        that only an empty answer is rejected (her ruling, 2026-08-03; see
+        tests/test_guardian_short_answers.py)."""
         is_valid, details = self.guardian.validate("Short")
-        self.assertFalse(is_valid)
+        self.assertTrue(is_valid, details)
 
     def test_accepts_normal_text(self):
         """Test accepts coherent text"""

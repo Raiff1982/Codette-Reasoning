@@ -430,7 +430,8 @@ class CocoonSynthesizer:
 
         # Also scan timestamped cocoons for domain relevance
         if len(result) < needed:
-            for fpath in sorted(cocoon_dir.glob("cocoon_17*.json"))[-20:]:
+            from reasoning_forge.cocoon_files import conversation_cocoons
+            for fpath in sorted(conversation_cocoons(cocoon_dir, "cocoon_17*.json"))[-20:]:
                 if len(result) >= needed:
                     break
                 try:

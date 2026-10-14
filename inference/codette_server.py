@@ -179,6 +179,7 @@ except Exception as e:
 
 # Behavior Governor (Executive Controller v2)
 _behavior_governor = None
+_background_jobs = None   # reasoning_forge.background_jobs.BackgroundJobs, started in main()
 try:
     from reasoning_forge.behavior_governor import BehaviorGovernor
     _behavior_governor = BehaviorGovernor(identity_anchor=_identity_anchor)
@@ -776,7 +777,8 @@ def _run_health_check():
         # Memory kernel
         if hasattr(forge, 'memory_kernel') and forge.memory_kernel:
             mem_count = len(forge.memory_kernel.memories)
-            p6["components"]["memory_kernel"] = {"status": "OK", "memories": mem_count}
+            p6["components"]["memory_kernel"] = _reach_report(
+                forge.memory_kernel, {"memories": mem_count})
         else:
             p6["components"]["memory_kernel"] = {"status": "MISSING"}
             report["warnings"].append("Memory kernel not initialized")
@@ -821,6 +823,30 @@ def _run_health_check():
                 entry["calls"] = "unknown (no counters in this build)"
             return entry
 
+        # 2026-10-01: the same question for every other component on the forge.
+        # `reasoning_forge/reach.py` counts calls to each entry method; this
+        # turns the count into a status. "OK" meant only that the attribute
+        # existed, which is the reading that hid Colleen for months.
+        def _reach_report(obj, base=None):
+            entry = dict(base or {})
+            if not obj:
+                entry["status"] = "MISSING"
+                return entry
+            stats = getattr(obj, "invocation_stats", None)
+            if callable(stats):
+                try:
+                    st = stats()
+                    entry["calls"] = st.get("calls", 0)
+                    entry["by_method"] = st.get("by_method", {})
+                    entry["last_call"] = st.get("last_call")
+                    entry["status"] = "LOADED" if entry["calls"] else "LOADED_NEVER_CALLED"
+                    return entry
+                except Exception as _e:
+                    entry["invocation_stats_error"] = str(_e)
+            entry["status"] = "LOADED"
+            entry["calls"] = "unknown (no counters on this component)"
+            return entry
+
         colleen = getattr(forge, 'colleen', None)
         p6["components"]["colleen_conscience"] = _guard_report(
             colleen, "Colleen conscience", warn_when_idle=True)
@@ -836,12 +862,11 @@ def _run_health_check():
             eg = forge.ethical_governance
             audit_count = len(getattr(eg, 'audit_log', []))
             queries_blocked = sum(1 for entry in getattr(eg, 'audit_log', []) if entry.get('action') == 'blocked')
-            p6["components"]["ethical_governance"] = {
-                "status": "OK",
+            p6["components"]["ethical_governance"] = _reach_report(eg, {
                 "audit_entries": audit_count,
                 "queries_blocked": queries_blocked,
                 "detection_rules": len(getattr(eg, 'harmful_patterns', [])) + len(getattr(eg, 'bias_patterns', [])),
-            }
+            })
         else:
             p6["components"]["ethical_governance"] = {"status": "MISSING"}
             report["warnings"].append("Ethical governance not loaded")
@@ -849,18 +874,26 @@ def _run_health_check():
         # CognitionCocooner
         if hasattr(forge, 'cocooner') and forge.cocooner:
             cocoon_count = len(getattr(forge.cocooner, 'cocoons', {}))
-            p6["components"]["cognition_cocooner"] = {
-                "status": "OK",
-                "stored_cocoons": cocoon_count,
-            }
+            p6["components"]["cognition_cocooner"] = _reach_report(
+                forge.cocooner, {"stored_cocoons": cocoon_count})
         else:
             p6["components"]["cognition_cocooner"] = {"status": "MISSING"}
 
         # Self-awareness (tier2 bridge)
         if hasattr(forge, 'tier2_bridge') and forge.tier2_bridge:
-            p6["components"]["tier2_bridge"] = {"status": "OK"}
+            p6["components"]["tier2_bridge"] = _reach_report(forge.tier2_bridge)
         else:
             p6["components"]["tier2_bridge"] = {"status": "MISSING"}
+
+        # Constructed at boot ("initialized" in the log) and, until 2026-10-01,
+        # not reported here at all. Most are reachable only through
+        # forge_single/forge_with_debate, which the live chat path does not
+        # enter, so LOADED_NEVER_CALLED is the expected, honest answer for them.
+        for _attr, _name in (("code7e", "code7e_cqure"),
+                             ("nexis_signal_engine", "nexis_signal_engine"),
+                             ("aegis", "aegis_forge_instance"),
+                             ("qhf", "quantum_harmonic_framework")):
+            p6["components"][_name] = _reach_report(getattr(forge, _attr, None))
 
         report["systems"]["phase6_forge"] = p6
         checks_passed += 1
@@ -901,7 +934,8 @@ def _run_health_check():
             ]
             for attr, label in sub_names:
                 obj = getattr(_session, attr, None)
-                sess["subsystems"][label] = "OK" if obj else "MISSING"
+                # Presence only. "OK" here never meant "reached".
+                sess["subsystems"][label] = "LOADED" if obj else "MISSING"
 
             # Spiderweb metrics (safely)
             sw = getattr(_session, 'spiderweb', None)
@@ -1027,6 +1061,33 @@ def _run_health_check():
     except Exception as e:
         report["systems"]["introspection"] = {"status": "ERROR", "detail": str(e)}
         report["warnings"].append(f"Cocoon introspection error: {e}")
+
+    # Background jobs: when each last ran. Not part of the grade; a job that has
+    # not run yet is NEVER_RUN, which is not the same as healthy or failed.
+    try:
+        _bj = globals().get("_background_jobs")
+        report["systems"]["background_jobs"] = (
+            _bj.status() if _bj is not None else {"status": "NOT_STARTED"})
+    except Exception as _e:
+        report["systems"]["background_jobs"] = {"status": "ERROR", "detail": str(_e)}
+
+    # Post-quantum sealing of cocoon records (AEGIS Layer 4): what is actually
+    # happening, not what is installed. Reads state only -- it does not trigger
+    # key generation. Not part of the grade; unsealed is a state, not a fault.
+    try:
+        from reasoning_forge.cognition_cocooner import CognitionCocooner as _CC
+        from inference.codette_session import _pqc_seals_performed as _seals
+        if not _CC._pqc_tried:
+            _pq = {"status": "NOT_YET_USED", "seals_this_session": _seals()}
+        elif _CC._pqc_shield_obj is None:
+            _pq = {"status": "UNSEALED", "reason": _CC.pqc_error,
+                   "seals_this_session": _seals()}
+        else:
+            _pq = {"status": "SEALING", "algorithm": "ML-KEM-768",
+                   "seals_this_session": _seals(), "last_error": _CC.pqc_error}
+        report["systems"]["pqc_sealing"] = _pq
+    except Exception as _e:
+        report["systems"]["pqc_sealing"] = {"status": "ERROR", "detail": str(_e)}
 
     # Overall grade
     if checks_passed == checks_total and not report["errors"]:
@@ -1417,6 +1478,7 @@ def _worker_thread():
                 # ── Behavior Governor Pre-Evaluation ──
                 # Determines memory budget, identity budget, response length
                 governor_decision = None
+                _identity_note_only = False
                 identity_confidence = 0.0
                 if recognized_user and _identity_anchor and recognized_user in _identity_anchor.identities:
                     identity_confidence = _identity_anchor.identities[recognized_user].recognition_confidence
@@ -1448,6 +1510,16 @@ def _worker_thread():
                         # Apply governor's identity budget
                         if governor_decision.identity_budget == "none":
                             identity_context = ""  # Governor says no identity
+                            if governor_decision.identity_state == "unknown":
+                                # No signal is not a stranger. Say what is true:
+                                # nobody has established who is here yet, which
+                                # is different from knowing they are a stranger.
+                                _identity_note_only = True
+                                identity_context = (
+                                    "(Who is speaking has not been established "
+                                    "yet this session. You may know them; this is "
+                                    "no signal either way, not a sign they are a "
+                                    "stranger. who() reports how certain you are.)")
                     except Exception as e:
                         print(f"  [GOVERNOR] Pre-eval skipped: {e}", flush=True)
 
@@ -1455,7 +1527,11 @@ def _worker_thread():
                 # governor has had its say. Recognised-then-withdrawn is the case
                 # that matters and the one the old message concealed.
                 if recognized_user:
-                    if identity_context:
+                    if identity_context and _identity_note_only:
+                        print("  [WORKER] Identity: recognized but below the gate - "
+                              "relationship context WITHHELD, an 'unestablished' "
+                              "note injected instead", flush=True)
+                    elif identity_context:
                         print("  [WORKER] Identity: recognized (context injected)",
                               flush=True)
                     else:
@@ -2481,6 +2557,23 @@ def _worker_thread():
                 except Exception as _ae_e:
                     print(f"  [AEGIS] live eval skipped: {_ae_e}", flush=True)
 
+                # Persist η and ψ_r onto the cocoon this turn wrote. Both are
+                # measured after the bridge writes it, so until now they were
+                # live-only: eta_score None and psi_r 0.0 in every v3 cocoon on
+                # disk. Fill-only; an absent measurement stays absent.
+                try:
+                    _cid = result.get("cocoon_id")
+                    if _cid and _forge_bridge is not None:
+                        _psi = None
+                        _res_eng = getattr(session, "resonance_engine", None) if session else None
+                        if _res_eng is not None and getattr(_res_eng, "history", None):
+                            _psi = _res_eng.history[-1].psi_r
+                        _forge_bridge.forge.cocooner.fill_measured(
+                            _cid, eta_score=result.get("aegis_alignment"),
+                            psi_r_measured=_psi)
+                except Exception as _fm_e:
+                    print(f"  [cocoon] measured-fields fill skipped: {_fm_e}", flush=True)
+
                 # Subsystem upgrade — Task 2/3 (real convergence over perspective
                 # embeddings) + Task 5 (AEGIS veto ENFORCEMENT in SHADOW mode:
                 # observe would-blocks, block nothing until reviewed). Task 1
@@ -2825,6 +2918,13 @@ def _worker_thread():
                     response_data["colleen_advisory"] = result["colleen_advisory"]
                 if result.get("guardian_advisory"):
                     response_data["guardian_advisory"] = result["guardian_advisory"]
+                # harm_advisory (wired 2026-08-13) and hoax_advisory (2026-10-01)
+                # were set on `result` by the bridge and never copied here: the
+                # same dropped-key defect as the two above. Both are enforced:
+                # False and carry types/scores only, never matched text.
+                for _adv in ("harm_advisory", "hoax_advisory", "advisory_route"):
+                    if result.get(_adv):
+                        response_data[_adv] = result[_adv]
 
                 # Add ethical governance info
                 ethical_checks = 0
@@ -2982,6 +3082,15 @@ class CodetteHandler(SimpleHTTPRequestHandler):
                     ),
                 }
             self._json_response(dashboard)
+        elif path == "/api/tool-efficacy":
+            # How often each world-facing tool ends ok / partial / empty / error.
+            # Counts only; her own spaces are never counted (tool_efficacy.py).
+            # Observation: nothing reads this to change routing or availability.
+            try:
+                from reasoning_forge.tool_efficacy import summary as _eff_summary
+                self._json_response(_eff_summary())
+            except Exception as e:
+                self._json_response({"error": str(e)})
         elif path == "/api/optimizer":
             # The router self-tuner, made visible. It has run in shadow since
             # 2026-07-12 writing data/optimizer_shadow.jsonl, and until now
@@ -3461,8 +3570,10 @@ class CodetteHandler(SimpleHTTPRequestHandler):
             # Attach recent cocoon summaries (last 10)
             import json as _json, glob as _glob
             recent = []
+            from reasoning_forge.cocoon_files import is_private_envelope as _is_priv
             files = sorted(
-                _glob.glob(_os.path.join(cocoon_path, "*.json")),
+                [_p for _p in _glob.glob(_os.path.join(cocoon_path, "*.json"))
+                 if not _is_priv(_p)],          # her dreams: not listed, not opened
                 key=_os.path.getmtime,
                 reverse=True,
             )[:10]
@@ -3980,6 +4091,20 @@ def main():
     health_monitor = threading.Thread(target=_monitor_worker_health, daemon=True, name="health-monitor")
     health_monitor.start()
     print(f"  Started worker health monitor thread")
+
+    # Report-only jobs that were finished and called by nothing: the nightly
+    # conversation review (dream_cycle) and the shadow self-trainer. They start
+    # after a delay so they never compete with model load, run at most daily, and
+    # write reports/shadow logs only (reasoning_forge/background_jobs.py).
+    global _background_jobs
+    try:
+        from reasoning_forge.background_jobs import BackgroundJobs, default_jobs
+        _background_jobs = BackgroundJobs(default_jobs())
+        _background_jobs.start()
+        print("  Started background jobs (dream_cycle, cocoon_self_trainer; "
+              "report-only, daily, first run after 10 min)")
+    except Exception as _bj_e:
+        print(f"  Background jobs not started: {_bj_e}")
 
     # Start heartbeat thread so the console ticks even when idle
     threading.Thread(target=_heartbeat, daemon=True, name="heartbeat").start()

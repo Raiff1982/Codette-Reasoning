@@ -293,6 +293,22 @@ class AEGISMetricsEngine:
             )
             healing_distribution = {row[0]: row[1] for row in cursor.fetchall()}
 
+            # Did Layer 5 run at all? When it is skipped (no authored_state or
+            # cocoon -- the case on every call so far, because generate_v2 has
+            # no callers) the integration stores healing_action as None/''.
+            # When it runs and finds nothing to heal it stores "none". Those
+            # are different facts and the old rate collapsed them into 0.0:
+            # "nothing needed healing" and "never looked" read the same.
+            cursor.execute(
+                """
+                SELECT COUNT(*) FROM forge_executions
+                WHERE healing_action IS NOT NULL AND healing_action != ''
+                  AND timestamp > ?
+                """,
+                (cutoff_time,),
+            )
+            layer5_ran = cursor.fetchone()[0]
+
             # Layer 6 validation stats
             cursor.execute(
                 "SELECT COUNT(*) FROM forge_executions WHERE overlap_valid = 1 AND timestamp > ?",
@@ -350,7 +366,17 @@ class AEGISMetricsEngine:
                 "invalid_calls": invalid_calls,
                 "rejection_rate": (invalid_calls / total_calls * 100) if total_calls > 0 else 0.0,
                 "layer5_healing_applied": healing_applied,
-                "healing_rate": (healing_applied / total_calls * 100) if total_calls > 0 else 0.0,
+                "layer5_ran": layer5_ran,
+                "layer5_skipped": total_calls - layer5_ran,
+                # Rate among the calls where Layer 5 actually looked. None, not
+                # 0.0, when it never did -- see the comment above.
+                "healing_rate": (healing_applied / layer5_ran * 100) if layer5_ran > 0 else None,
+                "healing_rate_note": (
+                    f"Layer 5 did not run on any of {total_calls} call(s); "
+                    "a healing rate of 0 here would mean 'never looked', "
+                    "not 'nothing needed healing'."
+                    if total_calls > 0 and layer5_ran == 0 else None
+                ),
                 "healing_distribution": healing_distribution,
                 "layer6_overlap_valid": overlap_valid,
                 "avg_overlap_percentage": round(avg_overlap, 2),

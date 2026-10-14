@@ -11,6 +11,11 @@ Usage:
 import argparse
 import json
 import sys
+# Her dreams share this folder; they are never opened, listed or counted here
+# (reasoning_forge/cocoon_files.py).
+import os as _os
+sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+from reasoning_forge.cocoon_files import conversation_cocoons  # noqa: E402
 from pathlib import Path
 
 
@@ -91,7 +96,7 @@ def main() -> None:
     store = Path(args.store)
     quarantine = store / "quarantine"
 
-    paths = sorted(store.glob("cocoon_*.json"), key=lambda p: p.stat().st_mtime)
+    paths = sorted(conversation_cocoons(store), key=lambda p: p.stat().st_mtime)
     if args.filter == "quarantined":
         paths = sorted(quarantine.glob("cocoon_*.json"), key=lambda p: p.stat().st_mtime) if quarantine.exists() else []
 

@@ -53,6 +53,12 @@ import sys
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
 
+# Her dreams share the cocoon folder. They are skipped before being opened or
+# counted (reasoning_forge/cocoon_files.py): a file count that includes them is
+# a statistic over them.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from reasoning_forge.cocoon_files import is_private_envelope  # noqa: E402
+
 # ── The eight phrases LOCK 6 forbids, transcribed from the prompt block in
 #    inference/codette_shared.py.  Case-insensitive; "X" placeholders in the
 #    prompt become bounded wildcards.  Whitespace is normalised before matching
@@ -157,6 +163,8 @@ def scan(store: str, split_ts: float, broad: list[str]) -> dict:
         path = os.path.join(store, name)
         if not os.path.isfile(path):
             continue
+        if is_private_envelope(path):
+            continue                      # not opened, not counted
         total_files += 1
         try:
             with open(path, encoding="utf-8", errors="replace") as fh:

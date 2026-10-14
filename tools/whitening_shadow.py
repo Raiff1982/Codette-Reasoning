@@ -22,6 +22,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from reasoning_forge.cocoon_authority import authority          # noqa: E402
 from reasoning_forge.lexical_whitening import CorpusProfile, whiten  # noqa: E402
+from reasoning_forge.cocoon_files import is_private_envelope  # noqa: E402  (dreams are skipped unopened and uncounted)
 
 
 def load(store: str):
@@ -30,6 +31,8 @@ def load(store: str):
         path = os.path.join(store, name)
         if not os.path.isfile(path) or not name.startswith("cocoon_"):
             continue
+        if is_private_envelope(path):
+            continue                      # not opened, not counted
         try:
             with open(path, encoding="utf-8", errors="replace") as fh:
                 obj = json.load(fh)

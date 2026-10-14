@@ -318,8 +318,9 @@ class CocoonValidator:
         "no data" is indistinguishable from a zero that means zero, and this
         dashboard spent eight weeks proving how far that goes.
         """
+        from reasoning_forge.cocoon_files import conversation_cocoons
         all_files = sorted(
-            self.store_path.glob("*.json"),
+            conversation_cocoons(self.store_path, "*.json"),
             key=lambda f: f.stat().st_mtime,
             reverse=True,
         )

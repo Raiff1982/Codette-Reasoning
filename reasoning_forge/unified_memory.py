@@ -86,6 +86,13 @@ LEGACY_COCOON_DIR = Path(__file__).parent.parent / "cocoons"
 # In-memory cache size
 CACHE_MAX = 200
 
+# The lexical wash needs a corpus big enough that its 2% "prevalent" threshold
+# means something. In a small store every n-gram of a one-off answer is >= 2% of
+# the documents (1 of 41 is 2.4%), so a specific answer reads as filler: a
+# 360-cocoon sample floored 27 responses where her 2,866-cocoon store demotes 46
+# (1.6%). Below this many documents the wash is not applied at all.
+WASH_MIN_DOCS = 300
+
 
 class UnifiedMemory:
     """
@@ -95,8 +102,52 @@ class UnifiedMemory:
     with one SQLite-backed store using FTS5 for fast relevance search.
     """
 
+    def _wash_for(self, cocoon: Dict) -> float:
+        """Washed-weight demotion factor in [FLOOR, 1.0] for one recalled cocoon.
+
+        lexical_whitening, wired 2026-10-01 after being dark since 2026-08-12. It
+        asks whether a response says anything louder than its own neighbourhood
+        (same adapter) already says. Measured on her full conversation store
+        (2,866): it demotes 1.6% and cocoon_authority flags 15.2%, with almost no
+        overlap -- so it finds filler the authority layer misses and leaves the
+        rest alone. DEMOTION-ONLY like authority (never above 1.0), cannot
+        invert an ordering by boosting, and a response shorter than the module's
+        MIN_WORDS is untouched.
+
+        The corpus profile is built lazily from the store itself and rebuilt every
+        six hours. Disable with CODETTE_WASH_RECALL=0. Any failure returns 1.0:
+        a wash that cannot run must not demote anything.
+        """
+        import os as _os
+        if _os.environ.get("CODETTE_WASH_RECALL", "1") == "0":
+            return 1.0
+        try:
+            now = time.time()
+            prof = getattr(self, "_wash_profile", None)
+            if prof is None or now - getattr(self, "_wash_built", 0.0) > 6 * 3600:
+                with self._wash_lock:
+                    prof = getattr(self, "_wash_profile", None)
+                    if prof is None or now - getattr(self, "_wash_built", 0.0) > 6 * 3600:
+                        from reasoning_forge.lexical_whitening import CorpusProfile
+                        cur = self._conn.cursor()
+                        cur.execute("SELECT response, adapter, query FROM cocoons "
+                                    "ORDER BY timestamp DESC LIMIT 6000")
+                        rows = [(r["response"] or "", r["adapter"] or "unknown",
+                                 r["query"] or "") for r in cur.fetchall()]
+                        prof = CorpusProfile.build(rows, n=5)
+                        self._wash_profile, self._wash_built = prof, now
+            if getattr(prof, "total_docs", 0) < WASH_MIN_DOCS:
+                return 1.0
+            from reasoning_forge.lexical_whitening import washed_weight
+            return float(washed_weight(cocoon.get("response", "") or "",
+                                       cocoon.get("adapter", "unknown") or "unknown", prof))
+        except Exception as e:
+            logger.debug(f"wash skipped: {e}")
+            return 1.0
+
     def __init__(self, db_path: Optional[Path] = None,
                  legacy_dir: Optional[Path] = None):
+        self._wash_lock = threading.Lock()
         self.db_path = db_path or DB_PATH
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self.legacy_dir = legacy_dir or LEGACY_COCOON_DIR
@@ -440,6 +491,12 @@ class UnifiedMemory:
                     if auth.flags:
                         cocoon["_authority"] = round(auth.weight, 3)
                         cocoon["_authority_flags"] = auth.flags
+
+                # Lexical wash (2026-10-01): same shape as authority above.
+                _wash = self._wash_for(cocoon)
+                if _wash < 0.9999:
+                    combined *= _wash
+                    cocoon["_wash"] = round(_wash, 3)
 
                 cocoon["_rank_score"] = round(combined, 4)
                 cocoon.pop("rank", None)
@@ -833,7 +890,15 @@ class UnifiedMemory:
                 GROUP BY complexity
                 ORDER BY cnt DESC
             """)
-            return {r["complexity"]: r["cnt"] for r in cur.fetchall()}
+            # The same enum was stringified two ways at write time
+            # ("QueryComplexity.MEDIUM" and "MEDIUM"), which split one category
+            # across two keys (1577 vs 602 on her store, 2026-08-08 handoff).
+            # Merge on read; the rows on disk are left exactly as written.
+            merged: Dict[str, int] = {}
+            for r in cur.fetchall():
+                key = str(r["complexity"]).replace("QueryComplexity.", "").upper()
+                merged[key] = merged.get(key, 0) + r["cnt"]
+            return dict(sorted(merged.items(), key=lambda kv: -kv[1]))
         except Exception:
             return {}
 
@@ -912,7 +977,8 @@ class UnifiedMemory:
         # never updated, so on a cold start 1,992 of 2,452 files on disk — 81% —
         # fell through to the `summary`/`quote` branch, failed that too, and
         # were dropped without a log line. Match the family, not one spelling.
-        for f in sorted(self.legacy_dir.glob("cocoon_*.json")):
+        from reasoning_forge.cocoon_files import conversation_cocoons
+        for f in sorted(conversation_cocoons(self.legacy_dir)):
             try:
                 with open(f, "r", encoding="utf-8") as fh:
                     data = json.load(fh)

@@ -69,8 +69,17 @@ class CoreGuardianSpindle:
         Returns:
             (is_valid, validation_details)
         """
-        if not synthesis or len(synthesis.strip()) < 50:
-            return False, {"reason": "synthesis too short", "length": len(synthesis)}
+        # 2026-10-01: this was `len(strip()) < 50`, the same brevity-punishing
+        # shape as Colleen's old `word_count < 10` that she overruled on
+        # 2026-08-03: "No." is a complete answer, and so is a plain refusal.
+        # Asked where the floor should sit she answered with an example (a
+        # refusal) rather than a number, and her first suggestion was to PAD the
+        # answer to clear it -- the guard was teaching the behaviour it should
+        # catch. Every rule below already passes a short answer (coherence 0.7,
+        # no meta-commentary, no circularity), so the floor was the only thing
+        # rejecting one. Empty is still not an answer.
+        if not synthesis or not synthesis.strip():
+            return False, {"reason": "synthesis empty", "length": len(synthesis or "")}
 
         # Check coherence score
         coherence = self._calculate_coherence(synthesis)

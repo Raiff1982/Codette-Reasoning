@@ -177,6 +177,13 @@ class GovernorDecision:
     max_response_tokens: int = 2048 # Adaptive response length (raised for file context)
     compression_level: str = "normal"  # "compressed", "normal", "expanded"
     identity_confidence: float = 0.0  # Current identity confidence after decay
+    # Why the budget is what it is. "none" used to mean two different things:
+    #   "stranger_claimed" -- the speaker introduced themselves or denied the
+    #                         relationship (a positive signal), and
+    #   "unknown"          -- no signal yet (a fresh start sits at confidence 0.00).
+    # "recognized" covers partial and full. Same output, different facts: the
+    # one-way shape recorded on 2026-08-20 ("unknown still equals not you").
+    identity_state: str = "recognized"
     warnings: List[str] = field(default_factory=list)
     reasoning: str = ""
 
@@ -397,6 +404,9 @@ class BehaviorGovernor:
         decision.identity_budget = self._evaluate_identity_budget(
             effective_confidence, query
         )
+        decision.identity_state = self._evaluate_identity_state(
+            effective_confidence, query
+        )
 
         # ── 2. Memory Governance (with self-learning adjustments) ──
         decision.memory_budget = self._evaluate_memory_budget(
@@ -428,7 +438,7 @@ class BehaviorGovernor:
 
         decision.reasoning = (
             f"identity={decision.identity_budget} "
-            f"(conf={effective_confidence:.2f}), "
+            f"(conf={effective_confidence:.2f}, {decision.identity_state}), "
             f"memory={decision.memory_budget} cocoons, "
             f"tokens={decision.max_response_tokens}, "
             f"compression={decision.compression_level}"
@@ -480,6 +490,38 @@ class BehaviorGovernor:
         else:
             return "none"
 
+    def _evaluate_identity_state(self, confidence: float, query: str) -> str:
+        """Why the identity budget is what it is. Never changes the budget.
+
+        A speaker who presents as a stranger (Codette's own two-part rule) is a
+        positive signal. Low confidence with no such signal is only the absence
+        of one: a restart starts every session at 0.00 whoever is at the keyboard.
+        """
+        q = query.lower()
+        references_shared_history = any(m in q for m in CONTINUITY_MARKERS)
+        presents_as_stranger = (
+            any(p in q for p in SELF_DENIAL_PATTERNS)
+            or any(p in q for p in INTRODUCTION_PATTERNS)
+        )
+        if presents_as_stranger and not references_shared_history:
+            return "stranger_claimed"
+        return "recognized" if confidence >= 0.4 else "unknown"
+
+    _PLEASANTRY_WORDS = frozenset({
+        "hi", "hello", "hey", "hiya", "yo", "howdy", "greetings", "morning",
+        "evening", "afternoon", "night", "good", "thanks", "thank", "you", "thx",
+        "ty", "bye", "goodbye", "ok", "okay", "cool", "nice", "great", "sure",
+        "there", "again", "all", "everyone", "codette", "how", "are", "doing",
+        "whats", "what's", "up", "sup", "welcome", "back", "later", "see", "so",
+    })
+
+    def _is_pleasantry(self, query: str) -> bool:
+        """True when every word is greeting/thanks vocabulary. No questions, no names
+        of anyone but her, nothing that could refer back to the conversation."""
+        words = [w.strip(".,!?;:'\"()") for w in query.lower().split()]
+        words = [w for w in words if w]
+        return bool(words) and all(w in self._PLEASANTRY_WORDS for w in words)
+
     def _evaluate_memory_budget(self, complexity: str, domain: str,
                                  query: str, pressure: float) -> int:
         """
@@ -498,7 +540,17 @@ class BehaviorGovernor:
         word_count = len(query.split())
 
         if word_count < 5:
-            return 0  # Greetings, commands — no memory needed
+            # Was `return 0` for ANY query under five words, on the premise that
+            # a short query is a greeting. Measured over her record (2026-08-13,
+            # docs/FINDINGS_2026-08-13_governor_forces.md): 284 turns (10.7%),
+            # 284 of 284 zeroed, among them "its jonathan btw", "why not?",
+            # "what was that?" and "What should you remember?". A short query
+            # mid-conversation is the MOST context-dependent thing a person can
+            # say. Zero is kept for what the rule was proxying for -- a pure
+            # greeting or pleasantry -- and anything else gets one cocoon.
+            if self._is_pleasantry(query):
+                return 0
+            return 1
 
         base = {"SIMPLE": 1, "MEDIUM": 2, "COMPLEX": 4}.get(complexity, 2)
 
@@ -619,7 +671,12 @@ class BehaviorGovernor:
             )
 
         # ── Identity leak detection ──
-        if decision.identity_budget == "none":
+        # Only when the speaker actually presented as a stranger. With no signal
+        # at all (identity_state "unknown") she may well know them and simply has
+        # not been told: calling her continuity a "leak" is what scored a real
+        # relationship as a failure on 2026-08-11. Context is still withheld.
+        if (decision.identity_budget == "none"
+                and getattr(decision, "identity_state", "stranger_claimed") != "unknown"):
             # Check if response accidentally claims to know the user
             identity_leak_patterns = [
                 "as you know", "we've discussed", "last time we talked",

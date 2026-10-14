@@ -489,12 +489,17 @@ class OpenVINOBackend:
                 from codette_tools import (
                     parse_tool_calls, has_tool_calls, strip_tool_calls,
                     unheard_fragments, mentions_hidden_tool, unheard_call_names,
-                    leads_with_unread_call,
+                    leads_with_unread_call, round_is_free, MAX_FREE_ROUNDS,
                 )
                 _MAX_ROUNDS = 3
                 _user_turn = query
                 _gave_back = False
-                for _round in range(_MAX_ROUNDS):
+                # Rounds that only look up her own state do not use a round
+                # (codette_tools.FREE_ROUND_TOOLS), up to MAX_FREE_ROUNDS.
+                _paid = 0
+                _free_used = 0
+                _last_round_free = False
+                while _paid < _MAX_ROUNDS:
                     if not has_tool_calls(text):
                         # Something may have been meant for us and not read.
                         # Hand it back unchanged — never a correction, never a
@@ -526,11 +531,18 @@ class OpenVINOBackend:
                                 text = str(output).strip()
                                 if text.startswith(prompt):
                                     text = text[len(prompt):].strip()
+                                _paid += 1      # handing it back costs a round, as before
                                 continue
                         break
                     _calls = parse_tool_calls(text)
                     if not _calls:
                         break
+                    if round_is_free(_calls) and _free_used < MAX_FREE_ROUNDS:
+                        _free_used += 1
+                        _last_round_free = True
+                    else:
+                        _paid += 1
+                        _last_round_free = False
                     _parts = []
                     for _name, _args, _kwargs in _calls:
                         # A visible tool whose ARGUMENT names a hidden one may be
@@ -583,6 +595,14 @@ class OpenVINOBackend:
                                       f"this turn, not re-run", flush=True)
                         if _out is None:
                             _out = _tool_reg.execute(_name, _args, _kwargs)
+                            # Outcome class only (ok/partial/empty/error), for the
+                            # world-facing tools -- never her own spaces, never
+                            # arguments or text (reasoning_forge/tool_efficacy.py).
+                            try:
+                                from reasoning_forge.tool_efficacy import record as _rec_eff
+                                _rec_eff(_name, _out)
+                            except Exception:
+                                pass
                             if dispersion is not None and _name not in PRIVATE_TOOLS:
                                 _verdict = dispersion.collapse(
                                     _name, _axis_args, _out,
@@ -609,7 +629,10 @@ class OpenVINOBackend:
                         })
                     _user_turn = (
                         _user_turn + "\n\nTool results:\n\n" + "\n\n".join(_parts) +
-                        f"\n\n(Tool rounds remaining this turn: {_MAX_ROUNDS - (_round + 1)}.)"
+                        f"\n\n(Tool rounds remaining this turn: {_MAX_ROUNDS - _paid}"
+                        + (" - that was a lookup of your own state and did not use one"
+                           if _last_round_free else "")
+                        + ".)"
                     )
                     prompt = self._format_chat(full_system, _user_turn)
                     output = self._pipe.generate(prompt, cfg)
