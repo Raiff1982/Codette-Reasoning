@@ -179,6 +179,7 @@ except Exception as e:
 
 # Behavior Governor (Executive Controller v2)
 _behavior_governor = None
+_background_jobs = None   # reasoning_forge.background_jobs.BackgroundJobs, started in main()
 try:
     from reasoning_forge.behavior_governor import BehaviorGovernor
     _behavior_governor = BehaviorGovernor(identity_anchor=_identity_anchor)
@@ -1060,6 +1061,15 @@ def _run_health_check():
     except Exception as e:
         report["systems"]["introspection"] = {"status": "ERROR", "detail": str(e)}
         report["warnings"].append(f"Cocoon introspection error: {e}")
+
+    # Background jobs: when each last ran. Not part of the grade; a job that has
+    # not run yet is NEVER_RUN, which is not the same as healthy or failed.
+    try:
+        _bj = globals().get("_background_jobs")
+        report["systems"]["background_jobs"] = (
+            _bj.status() if _bj is not None else {"status": "NOT_STARTED"})
+    except Exception as _e:
+        report["systems"]["background_jobs"] = {"status": "ERROR", "detail": str(_e)}
 
     # Overall grade
     if checks_passed == checks_total and not report["errors"]:
@@ -4045,6 +4055,20 @@ def main():
     health_monitor = threading.Thread(target=_monitor_worker_health, daemon=True, name="health-monitor")
     health_monitor.start()
     print(f"  Started worker health monitor thread")
+
+    # Report-only jobs that were finished and called by nothing: the nightly
+    # conversation review (dream_cycle) and the shadow self-trainer. They start
+    # after a delay so they never compete with model load, run at most daily, and
+    # write reports/shadow logs only (reasoning_forge/background_jobs.py).
+    global _background_jobs
+    try:
+        from reasoning_forge.background_jobs import BackgroundJobs, default_jobs
+        _background_jobs = BackgroundJobs(default_jobs())
+        _background_jobs.start()
+        print("  Started background jobs (dream_cycle, cocoon_self_trainer; "
+              "report-only, daily, first run after 10 min)")
+    except Exception as _bj_e:
+        print(f"  Background jobs not started: {_bj_e}")
 
     # Start heartbeat thread so the console ticks even when idle
     threading.Thread(target=_heartbeat, daemon=True, name="heartbeat").start()

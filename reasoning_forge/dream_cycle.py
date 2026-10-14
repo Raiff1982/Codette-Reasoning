@@ -64,9 +64,14 @@ def load_recent_cocoons(days: float) -> list[dict]:
     """Load cocoons written in the window that carry a query/response pair."""
     cutoff = time.time() - days * 86400
     out = []
+    from reasoning_forge.cocoon_files import is_private_envelope
     for f in COCOON_DIR.glob("*.json"):
         try:
             if f.stat().st_mtime < cutoff:
+                continue
+            # Her dreams live in this folder too. They are skipped before being
+            # opened as data and are not counted (reasoning_forge/cocoon_files.py).
+            if is_private_envelope(f):
                 continue
             d = json.loads(f.read_text(encoding="utf-8"))
         except Exception:
@@ -217,6 +222,24 @@ def write_report(cocoons, groups, contradictions, summary) -> Path:
         "contradiction_candidates": contradictions, "summary": summary,
     }, indent=2, ensure_ascii=False), encoding="utf-8")
     return md
+
+
+def run(days: float = 1.0) -> dict:
+    """One review pass. Returns counts only (no text), for callers that schedule it.
+
+    Report-only, as the module says: reads conversation cocoons, writes a report
+    under data/dream_reports/, modifies nothing else.
+    """
+    cocoons = load_recent_cocoons(days)
+    if not cocoons:
+        return {"reviewed": 0, "report": None}
+    groups = group_similar(cocoons)
+    contradictions = find_contradiction_candidates(cocoons, groups)
+    summary = distill(cocoons, groups, contradictions)
+    report = write_report(cocoons, groups, contradictions, summary)
+    return {"reviewed": len(cocoons), "groups": len(groups),
+            "contradiction_candidates": len(contradictions),
+            "report": report.name}
 
 
 def main():
