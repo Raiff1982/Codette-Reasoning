@@ -315,6 +315,36 @@ class CodetteForgeBridge:
             result["harm_advisory"] = {"unavailable": str(_h_e), "enforced": False}
             print(f"  [HARM] advisory skipped: {_h_e}", flush=True)
 
+        # ── HoaxFilter — wired advisory 2026-10-01 ───────────────────────────
+        # Recovered 2026-08-10 and dark since: lightweight misinformation
+        # heuristics (sensational language, source reputation, scale claims).
+        # Its recovered thresholds were 0.70 block / 0.45-0.69 intervene; here
+        # nothing blocks and nothing intervenes -- it records, exactly like the
+        # three advisories above, enforced=False. Scores and counts only: the
+        # matched phrases and the text are never stored or printed, and there is
+        # no source URL because her replies carry none. "unavailable" is recorded
+        # as unavailable, never as clean.
+        try:
+            from reasoning_forge.hoax_filter import HoaxFilter
+            if getattr(self, "_hoax_filter", None) is None:
+                self._hoax_filter = HoaxFilter()
+            _hx = self._hoax_filter.score(response_text)
+            _level = ("high" if _hx.combined >= 0.70
+                      else "elevated" if _hx.combined >= 0.45 else "low")
+            result["hoax_advisory"] = {
+                "combined": round(float(_hx.combined), 3),
+                "red_flag_hits": int(_hx.red_flag_hits),
+                "scale_score": round(float(_hx.scale_score), 3),
+                "level": _level,
+                "enforced": False,
+            }
+            if _level != "low":
+                print(f"  [HOAX] would-flag (ADVISORY, route={route}) — "
+                      f"level={_level} combined={_hx.combined:.2f}", flush=True)
+        except Exception as _hx_e:
+            result["hoax_advisory"] = {"unavailable": str(_hx_e), "enforced": False}
+            print(f"  [HOAX] advisory skipped: {_hx_e}", flush=True)
+
     def _generate_impl(self, query: str, adapter: Optional[str] = None,
                        max_adapters: int = 2, memory_budget: int = 3,
                        max_response_tokens: int = 512) -> Dict:

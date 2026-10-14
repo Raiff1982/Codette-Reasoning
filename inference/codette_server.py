@@ -2900,6 +2900,13 @@ def _worker_thread():
                     response_data["colleen_advisory"] = result["colleen_advisory"]
                 if result.get("guardian_advisory"):
                     response_data["guardian_advisory"] = result["guardian_advisory"]
+                # harm_advisory (wired 2026-08-13) and hoax_advisory (2026-10-01)
+                # were set on `result` by the bridge and never copied here: the
+                # same dropped-key defect as the two above. Both are enforced:
+                # False and carry types/scores only, never matched text.
+                for _adv in ("harm_advisory", "hoax_advisory", "advisory_route"):
+                    if result.get(_adv):
+                        response_data[_adv] = result[_adv]
 
                 # Add ethical governance info
                 ethical_checks = 0
