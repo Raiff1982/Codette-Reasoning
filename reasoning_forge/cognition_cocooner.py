@@ -308,6 +308,12 @@ class CognitionCocooner:
             if metadata:
                 disk_payload["wrapped"]["metadata"] = metadata
             file_path = self.storage_path / f"{cocoon_id}.json"
+            # Post-quantum seal (ML-KEM-768 + HMAC-SHA3-256, AEGIS Layer 4). Wired
+            # 2026-10-01: the module existed, was tested, and nothing on the
+            # cocoon write path called it, while the UI said it did. Best-effort
+            # by design -- a missing library or a failed seal writes the cocoon
+            # UNSEALED and records why; it never blocks or loses a turn.
+            disk_payload = self._seal_payload(disk_payload)
             with open(file_path, "w", encoding="utf-8") as f:
                 json.dump(disk_payload, f, indent=2, ensure_ascii=False, default=str)
             return cocoon_id
@@ -336,6 +342,67 @@ class CognitionCocooner:
         if metadata:
             thought["metadata"] = metadata
         return self.wrap(thought, type_="reasoning")
+
+    # -- post-quantum sealing ------------------------------------------------
+    _pqc_shield_obj = None
+    _pqc_tried = False
+    pqc_error: Optional[str] = None
+
+    @classmethod
+    def _shield(cls):
+        """The Layer 4 shield, or None. Loaded once per process, never raises.
+
+        None means sealing is unavailable (liboqs-python not importable in this
+        interpreter, key generation failed, or CODETTE_PQC_SEAL=0). The reason is
+        kept in `pqc_error` so /api/health can say it instead of implying a seal.
+        """
+        if cls._pqc_tried:
+            return cls._pqc_shield_obj
+        cls._pqc_tried = True
+        if os.environ.get("CODETTE_PQC_SEAL", "1") == "0":
+            cls.pqc_error = "disabled by CODETTE_PQC_SEAL=0"
+            return None
+        try:
+            try:
+                from Protection_Layer.aegis_layer4_complete import PQCShield
+            except ImportError:
+                from aegis_layer4_complete import PQCShield
+            shield = PQCShield()
+            if not shield.initialize():
+                cls.pqc_error = getattr(shield, "_error", None) or "PQCShield did not initialise"
+                return None
+            cls._pqc_shield_obj = shield
+        except Exception as e:
+            cls.pqc_error = f"{type(e).__name__}: {e}"[:300]
+            cls._pqc_shield_obj = None
+        return cls._pqc_shield_obj
+
+    def _seal_payload(self, payload: dict) -> dict:
+        shield = self._shield()
+        if shield is None:
+            return payload
+        try:
+            return shield.seal_dict(payload)
+        except Exception as e:
+            type(self).pqc_error = f"seal failed: {type(e).__name__}: {e}"[:300]
+            return payload
+
+    def verify_seal(self, cocoon_id: str) -> Optional[bool]:
+        """True / False when a seal is present and checked; None when there is
+        none (an unsealed cocoon is not a failed one) or no shield to check with."""
+        shield = self._shield()
+        path = self.storage_path / f"{cocoon_id}.json"
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                payload = json.load(f)
+        except Exception:
+            return None
+        if not isinstance(payload, dict) or "_pqc_seal" not in payload or shield is None:
+            return None
+        try:
+            return bool(shield.verify_dict(payload))
+        except Exception:
+            return False
 
     def fill_measured(self, cocoon_id: str, eta_score: Optional[float] = None,
                       psi_r_measured: Optional[float] = None) -> bool:
@@ -396,6 +463,16 @@ class CognitionCocooner:
                         payload[_k] = v3[_k]
             except Exception as _ve:
                 logger.warning("[CognitionCocooner] re-score after fill skipped: %s", _ve)
+            # The seal covers the whole record, so an edit invalidates it. Re-seal
+            # what we changed; if that is not possible, drop the stale seal and
+            # say so rather than leave a record that fails its own verification.
+            if "_pqc_seal" in payload:
+                payload.pop("_pqc_seal", None)
+                resealed = self._seal_payload(payload)
+                if "_pqc_seal" in resealed:
+                    payload = resealed
+                else:
+                    v3["metrics_filled"]["seal_dropped"] = "could not re-seal after fill"
             tmp = path.with_suffix(".json.tmp")
             with open(tmp, "w", encoding="utf-8") as f:
                 json.dump(payload, f, indent=2, ensure_ascii=False, default=str)

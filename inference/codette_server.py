@@ -1071,6 +1071,24 @@ def _run_health_check():
     except Exception as _e:
         report["systems"]["background_jobs"] = {"status": "ERROR", "detail": str(_e)}
 
+    # Post-quantum sealing of cocoon records (AEGIS Layer 4): what is actually
+    # happening, not what is installed. Reads state only -- it does not trigger
+    # key generation. Not part of the grade; unsealed is a state, not a fault.
+    try:
+        from reasoning_forge.cognition_cocooner import CognitionCocooner as _CC
+        from inference.codette_session import _pqc_seals_performed as _seals
+        if not _CC._pqc_tried:
+            _pq = {"status": "NOT_YET_USED", "seals_this_session": _seals()}
+        elif _CC._pqc_shield_obj is None:
+            _pq = {"status": "UNSEALED", "reason": _CC.pqc_error,
+                   "seals_this_session": _seals()}
+        else:
+            _pq = {"status": "SEALING", "algorithm": "ML-KEM-768",
+                   "seals_this_session": _seals(), "last_error": _CC.pqc_error}
+        report["systems"]["pqc_sealing"] = _pq
+    except Exception as _e:
+        report["systems"]["pqc_sealing"] = {"status": "ERROR", "detail": str(_e)}
+
     # Overall grade
     if checks_passed == checks_total and not report["errors"]:
         report["overall"] = "HEALTHY"
