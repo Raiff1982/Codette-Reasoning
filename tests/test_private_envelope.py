@@ -72,3 +72,31 @@ def test_self_trainer_skips_dreams(tmp_path):
     t.collect_from_records = lambda recs: (seen.extend(recs), orig(recs))[1]
     t.collect_from_dir(tmp_path)
     assert len(seen) == 1 and seen[0]["type"] == "reasoning_v3"
+
+
+def _run_tool(tool, store, *flags):
+    import subprocess
+    import sys
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    return subprocess.run([sys.executable, str(root / "tools" / tool), *flags, str(store)],
+                          capture_output=True, text=True, timeout=120).stdout
+
+
+def test_sweeping_tools_do_not_count_dreams(tmp_path):
+    for i in range(3):
+        _dream(tmp_path, f"cocoon_{i}_dream.json")
+    _convo(tmp_path, "cocoon_9_convo.json")
+    out = _run_tool("lock6_phrase_rate.py", tmp_path)
+    assert "files seen        : 1" in out, out
+    import subprocess
+    import sys
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    out = subprocess.run([sys.executable, str(root / "tools" / "directness_scrub_diff.py"),
+                          "--cocoons", str(tmp_path)],
+                         capture_output=True, text=True, timeout=120).stdout
+    assert "files" in out, out                       # it really ran
+    import re
+    m = re.search(r"files\D+(\d+)", out)
+    assert m and int(m.group(1)) == 1, out           # the convo only, never the 3 dreams

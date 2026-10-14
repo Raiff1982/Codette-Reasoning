@@ -47,6 +47,12 @@ import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
+# Her dreams share the cocoon folder. They are skipped before being opened or
+# counted (reasoning_forge/cocoon_files.py): a file count that includes them is
+# a statistic over them.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from reasoning_forge.cocoon_files import is_private_envelope  # noqa: E402
+
 # Benchmark-shaped queries elicit exactly this filler and are excluded from
 # every rate, the same perimeter `_is_benchmark_query` already draws.
 _BENCH = re.compile(
@@ -141,6 +147,8 @@ def main() -> int:
     # Non-recursive, matching the loader's own glob: the _backup_* and
     # quarantine subdirectories are deliberately not swept.
     for f in sorted(root.glob("cocoon_*.json")):
+        if is_private_envelope(f):
+            continue                      # not opened, not counted
         counts["files"] += 1
         try:
             data = json.loads(f.read_text(encoding="utf-8"))
