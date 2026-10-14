@@ -1264,13 +1264,17 @@ class CodetteForgeBridge:
                         _v3_err, query,
                     )
 
-                self.forge.cocooner.wrap_reasoning(
+                _written_id = self.forge.cocooner.wrap_reasoning(
                     query=user_query,
                     response=response_text,
                     adapter=str(result.get("adapter", "unknown")),
                     metadata=cocoon_meta,
                     v3_cocoon=v3_cocoon,
                 )
+                # η and ψ_r are measured after this write (server AEGIS pass,
+                # session resonance engine); the server fills them in by id.
+                if _written_id:
+                    result["cocoon_id"] = _written_id
 
                 # Mirror cocoon to Supabase (best-effort, non-blocking)
                 try:

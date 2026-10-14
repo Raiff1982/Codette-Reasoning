@@ -2514,6 +2514,23 @@ def _worker_thread():
                 except Exception as _ae_e:
                     print(f"  [AEGIS] live eval skipped: {_ae_e}", flush=True)
 
+                # Persist η and ψ_r onto the cocoon this turn wrote. Both are
+                # measured after the bridge writes it, so until now they were
+                # live-only: eta_score None and psi_r 0.0 in every v3 cocoon on
+                # disk. Fill-only; an absent measurement stays absent.
+                try:
+                    _cid = result.get("cocoon_id")
+                    if _cid and _forge_bridge is not None:
+                        _psi = None
+                        _res_eng = getattr(session, "resonance_engine", None) if session else None
+                        if _res_eng is not None and getattr(_res_eng, "history", None):
+                            _psi = _res_eng.history[-1].psi_r
+                        _forge_bridge.forge.cocooner.fill_measured(
+                            _cid, eta_score=result.get("aegis_alignment"),
+                            psi_r_measured=_psi)
+                except Exception as _fm_e:
+                    print(f"  [cocoon] measured-fields fill skipped: {_fm_e}", flush=True)
+
                 # Subsystem upgrade — Task 2/3 (real convergence over perspective
                 # embeddings) + Task 5 (AEGIS veto ENFORCEMENT in SHADOW mode:
                 # observe would-blocks, block nothing until reviewed). Task 1
