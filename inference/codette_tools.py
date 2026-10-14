@@ -849,6 +849,27 @@ def leads_with_unread_call(text: str) -> bool:
     return _UNHEARD_HINT_RE.match(t) is not None
 
 
+# Tools that only report or record her OWN state. A round spent on one of these
+# is a lookup, not a reach into the world, and it used to cost the same as a web
+# search or a file read: observed live 2026-08-20, four turns in one session where
+# she did the thinking and had nothing left to answer with, and the governor then
+# scored the empty answer as her failure. The tools below touch nothing outside
+# her; web_search, read_file, run_python, search_code, ask and the scratchpad do,
+# and still count. Free rounds have their own cap (MAX_FREE_ROUNDS) so a run of
+# lookups cannot become an unbounded loop.
+FREE_ROUND_TOOLS = frozenset({
+    "who", "look", "care_check", "bearing", "read_note", "leave_note",
+    "aside", "cocoon", "nameless", "khralexi",
+})
+MAX_FREE_ROUNDS = 3
+
+
+def round_is_free(calls) -> bool:
+    """True when every call in this round is a lookup of her own state."""
+    names = [c[0] for c in (calls or [])]
+    return bool(names) and all(n in FREE_ROUND_TOOLS for n in names)
+
+
 def has_tool_calls(text: str) -> bool:
     """Check if text contains any tool calls, in any spelling.
 
