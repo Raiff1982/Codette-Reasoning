@@ -24,6 +24,11 @@ import sys
 from pathlib import Path
 
 _REPO = Path(__file__).resolve().parent.parent
+if str(_REPO) not in sys.path:
+    sys.path.insert(0, str(_REPO))
+
+from reasoning_forge.cocoon_files import conversation_cocoons  # noqa: E402
+
 COCOON_DIR = _REPO / "cocoons"
 BACKUP_DIR = COCOON_DIR / "_backup_file_cleanup"
 
@@ -55,7 +60,10 @@ def main():
     if not args.dry_run:
         BACKUP_DIR.mkdir(parents=True, exist_ok=True)
 
-    for f in COCOON_DIR.glob("*.json"):
+    # Her dreams live in this folder too. conversation_cocoons() drops them before
+    # any are opened as data (reasoning_forge/cocoon_files.py); a bare glob here
+    # opened and parsed them. Amended forward -- the old loop is not hidden.
+    for f in conversation_cocoons(COCOON_DIR, "*.json"):
         try:
             d = json.loads(f.read_text(encoding="utf-8"))
         except Exception:
