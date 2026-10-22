@@ -1070,6 +1070,13 @@ def _run_health_check():
             _bj.status() if _bj is not None else {"status": "NOT_STARTED"})
     except Exception as _e:
         report["systems"]["background_jobs"] = {"status": "ERROR", "detail": str(_e)}
+    # Antibodies: class-level checks for bugs that keep returning in new places.
+    # Counts only, from the last report; report-only (reasoning_forge/antibodies.py).
+    try:
+        from reasoning_forge import antibodies as _ab
+        report["systems"]["antibodies"] = _ab.summary()
+    except Exception as _e:
+        report["systems"]["antibodies"] = {"status": "ERROR", "detail": str(_e)}
 
     # Post-quantum sealing of cocoon records (AEGIS Layer 4): what is actually
     # happening, not what is installed. Reads state only -- it does not trigger
@@ -2342,6 +2349,12 @@ def _worker_thread():
                         adapter_for_store = result.get("adapter", "base")
                         if isinstance(adapter_for_store, list):
                             adapter_for_store = adapter_for_store[0] if adapter_for_store else "base"
+                        # 2026-10-22: `route` was read here but only assigned ~100 lines
+                        # below, so the first store after every boot raised
+                        # UnboundLocalError (swallowed by the except at the end of
+                        # this block: no memory store, no weighting, no outcome) and
+                        # every later one recorded the PREVIOUS turn's route.
+                        route = result.get("route")
                         route_confidence = route.get("confidence", 0) if isinstance(route, dict) else (route.confidence if route else 0)
                         route_snapshot = {
                             "primary": route.get("primary") if isinstance(route, dict) else (route.primary if route else adapter_for_store),
@@ -3082,6 +3095,22 @@ class CodetteHandler(SimpleHTTPRequestHandler):
                     ),
                 }
             self._json_response(dashboard)
+        elif path == "/api/flags":
+            # Flags she raised with raise_flag. Visible by design and says so to
+            # her; leads for a person to check, never acted on automatically.
+            try:
+                from reasoning_forge import flags as _flags
+                self._json_response({"flags": _flags.read(200), "read_by": "jonathan"})
+            except Exception as e:
+                self._json_response({"error": str(e)})
+        elif path == "/api/antibodies":
+            try:
+                import json as _j
+                from reasoning_forge import antibodies as _ab
+                self._json_response(_j.loads(_ab.DEFAULT_REPORT.read_text(encoding="utf-8"))
+                                    if _ab.DEFAULT_REPORT.exists() else {"status": "NEVER_RUN"})
+            except Exception as e:
+                self._json_response({"error": str(e)})
         elif path == "/api/tool-efficacy":
             # How often each world-facing tool ends ok / partial / empty / error.
             # Counts only; her own spaces are never counted (tool_efficacy.py).
