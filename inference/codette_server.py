@@ -893,9 +893,20 @@ def _run_health_check():
                              ("nexis_signal_engine", "nexis_signal_engine"),
                              ("aegis", "aegis_forge_instance"),
                              ("qhf", "quantum_harmonic_framework"),
+                             ("ethical_anchor", "ethical_anchor"),
                              ("routing_metrics", "routing_metrics"),
                              ("specialization", "specialization_tracker")):
             p6["components"][_name] = _reach_report(getattr(forge, _attr, None))
+        # Trim regret from EthicalAnchor: shown only once something was observed, so an
+        # empty history reads as no reading, never as 0.
+        try:
+            _anchor = getattr(forge, "ethical_anchor", None)
+            if _anchor is not None and getattr(_anchor, "history", None):
+                _ent = p6["components"].setdefault("ethical_anchor", {})
+                _ent["observations"] = len(_anchor.history)
+                _ent["trim_regret_recent"] = round(_anchor.get_regret_signal(), 4)
+        except Exception:
+            pass
 
         report["systems"]["phase6_forge"] = p6
         checks_passed += 1

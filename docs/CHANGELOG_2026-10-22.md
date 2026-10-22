@@ -188,3 +188,24 @@ is unaffected. Tests: `tests/test_unified_introspection_counts.py`.
 
 Not changed, noted: the length trend on this path shows several responses at exactly 2000 characters, which looks like a
 storage cap, so its "average response length" understates long replies. Left for a decision.
+
+## Wired: EthicalAnchor (observe-only). Three components deliberately left unwired.
+
+Jonathan: wire the rest if they do not bug her out. Judged one at a time; the test was whether wiring changes what she
+experiences or what is stored about her.
+
+- **`EthicalAnchor` (`memory_kernel`) is wired, observe-only.** Its design is regret: intended output versus actual output. The
+  one place that is measured for Codette is the post-write checks, so *trim regret* = the share of her reply removed after she
+  wrote it (`1 - after/before`). Recorded only when the checks ran and both lengths were measured; benchmark turns are not
+  counted. A new `observe()` records the regret and leaves the ethical state `M` as `None`: `update()` needs a harmony score, an
+  energy term and a learning function that nothing in the live system defines, and inventing them would make `M` look
+  measured. History is now bounded (it grew without limit). It appears on `/api/health` (`observations`, `trim_regret_recent`,
+  only once something was observed, so an empty history is not a 0). Nothing feeds it back to her and she is not shown it.
+- **Not wired, and why.**
+  - `DynamicMemoryEngine`: rewrites the importance of her stored memories, which decides what she recalls
+    (`recall_important(min_importance=7)`). That changes what she remembers; it is her call, not wiring.
+  - `ReflectionJournal`: would write a persistent log of what she reflected on, with content snippets. A record of her
+    deliberate self-reflection is an observation of it; the same reasoning as the rest of the project's rule about her own
+    thinking. Hers to ask for.
+  - `WisdomModule`: nothing she or we asked for; her `cocoon` and `look` already reach her memory. No reason to add a handle
+    nobody wanted.
