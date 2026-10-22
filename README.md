@@ -16,13 +16,13 @@ tags:
 library_name: peft
 base_model: meta-llama/Llama-3.1-8B-Instruct
 model-index:
-- name: Codette RC+xi Reasoning Engine
+- name: Codette Reasoning Engine
   results:
   - task:
       type: text-generation
       name: Multi-Perspective Reasoning
     metrics:
-    - name: Phase Coherence (Gamma)
+    - name: Phase Coherence (Gamma = 1/(1+Upsilon), Upsilon = Perspective Dispersion)
       type: custom
       value: 0.9835
     - name: AEGIS Ethical Alignment (Eta)
@@ -57,7 +57,7 @@ memory and meta-cognitive strategy evolution. *Scientific Reports* (2026).
 https://doi.org/10.1038/s41598-026-64449-0
 
 # Codette Reasoning Engine
-Harrison, J. Codette: a multi-perspective cognitive architecture with memory and meta-cognitive strategy evolution. Sci Rep (2026). https://doi.org/10.1038/s41598-026-64449-0
+> Naming: this system's disagreement measure is **Perspective Dispersion (Υ)**, with Γ = 1/(1+Υ). The name "RC+ξ" and the ξ formalism are Jeffrey Camlin's (arXiv:2505.01464) and are credited to him; see *Attribution & naming* below.
 
 **Advanced multi-perspective AI with conscience, memory, auditability, and behavioral discipline.**
 
