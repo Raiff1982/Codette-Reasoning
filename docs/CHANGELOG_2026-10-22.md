@@ -62,3 +62,25 @@ legitimate (an empty mean really is 0; a `Lock()` is used via `with`). They are 
 a failing detector is reported rather than hidden, the scan skips her stores, health summary is counts only, flags are
 append-only. `tests/test_background_jobs.py` amended (was "exactly the two" jobs; now three, all report-only).
 Suite: **1464 passed**, 0 failed.
+
+## The leads, reviewed (after PR #43)
+
+Jonathan's read: the leads look fine, but maybe they show how the bug spreads. Both turned out true.
+
+- **Most are fine.** Of 42 `zero_for_unmeasured` leads, ~35 are throughput, progress or display arithmetic where an empty
+  denominator really is 0 (`tps = tokens / elapsed if elapsed > 0 else 0`, training logs, dataset counters). Left alone.
+- **Fixed — same class as `healing_rate`:** `rejection_rate` in `Protection_Layer/aegis_metrics_engine.py` and
+  `aegis_orchestrator.py` returned 0 over zero calls, which the AEGIS panel showed as "100% valid / 0% rejected" when nothing
+  had run. Now `None`, which the panel already renders as an em dash. `tests/test_aegis_healing_rate.py` extended.
+- **Detector false positive fixed:** five `Lock()` leads were components used through `with self._lock:`; the detector now
+  counts that as use (13 → 8 `constructed_never_invoked` leads).
+- **How it spreads:** the report now groups leads by identical source line (`families`). The same line recurs: `tps = tokens /
+  elapsed ...` x4 (orchestrators + backend), `unanimous_pct` x3 (three cloned GPQA scripts), `rate = kept / attempted` x3 (three
+  cloned star_generate scripts), `if denominator == 0:` x3 (`perspective_web`, `perspective_web_enhanced`, `quantum_spiderweb`).
+  The route is copying a file or function, which is also how the version families came to exist. A fix made in one copy does
+  not reach the others, so leads that share a line are reviewed once, as one decision.
+- **Still open, not touched:** 8 `constructed_never_invoked` leads in `reasoning_forge/forge_engine.py` (`newton`,
+  `specialization`, `dynamic_memory`, `ethical_anchor`, `wisdom_module`, `reflection_journal`, `routing_metrics`,
+  `introspection`). `ethical_anchor` is the regret-term `EthicalAnchor`: it is implemented in
+  `consciousness_mathematics.py` and built by the forge, and nothing in the forge calls it. Where and whether to invoke it is
+  design, Jonathan's call.

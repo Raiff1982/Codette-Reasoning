@@ -48,3 +48,11 @@ def test_rate_is_over_the_calls_where_layer5_looked(tmp_path):
     assert s["layer5_ran"] == 2
     assert s["layer5_skipped"] == 1
     assert s["healing_rate"] == 50.0
+
+
+def test_no_calls_is_not_zero_percent_rejected(tmp_path):
+    # Same class as healing_rate: "0% rejected" over zero calls reads as a clean record.
+    e = AEGISMetricsEngine(db_path=tmp_path / "m.db")
+    assert e.get_statistics()["rejection_rate"] is None
+    _call(e, "none")
+    assert e.get_statistics()["rejection_rate"] == 0.0     # a call that was valid: a real zero

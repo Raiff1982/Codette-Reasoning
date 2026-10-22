@@ -364,7 +364,9 @@ class AEGISMetricsEngine:
                 "total_forge_calls": total_calls,
                 "valid_calls": valid_calls,
                 "invalid_calls": invalid_calls,
-                "rejection_rate": (invalid_calls / total_calls * 100) if total_calls > 0 else 0.0,
+                # None, not 0.0, with no calls: "0% rejected" over zero calls reads as
+                # a clean record. The UI renders None as an em dash (same as healing_rate).
+                "rejection_rate": (invalid_calls / total_calls * 100) if total_calls > 0 else None,
                 "layer5_healing_applied": healing_applied,
                 "layer5_ran": layer5_ran,
                 "layer5_skipped": total_calls - layer5_ran,

@@ -326,7 +326,8 @@ def detect_constructed_never_invoked(sources: List[Source]) -> List[Lead]:
                                 and t.value.id == "self" and len(t.attr) >= 4:
                             nm = re.escape(t.attr)
                             used = re.search(r"\." + nm + r"\s*[.(\[]", corpus) \
-                                or re.search(r"[(,=]\s*\w+\." + nm + r"\s*[,)]", corpus)
+                                or re.search(r"[(,=]\s*\w+\." + nm + r"\s*[,)]", corpus) \
+                                or re.search(r"\bwith\s+(?:\w+\.)*" + nm + r"\s*[:,]", corpus)
                             if not used:
                                 out.append(Lead(s.rel, st.lineno,
                                                 f"self.{t.attr} = {ctor}(...) is built and "
@@ -367,11 +368,32 @@ ANTIBODIES: List[Antibody] = [
 ]
 
 
+def clone_families(leads: List[Lead], texts: Dict[str, List[str]]) -> List[dict]:
+    """Leads whose source line is the same text in several files.
+
+    How a bug spreads: Jonathan's guess was that the leads were fine but showed
+    how it travels, and the commonest route is copying a line or a file. The same
+    `tps = tokens / elapsed if elapsed > 0 else 0` sits in four places. Leads that
+    share a line are one decision made once and pasted, so they are reviewed once.
+    """
+    fam: Dict[str, List[str]] = {}
+    for l in leads:
+        try:
+            line = " ".join(texts[l.file][l.line - 1].split())
+        except (KeyError, IndexError):
+            continue
+        if len(line) >= 12:
+            fam.setdefault(line, []).append(f"{l.file}:{l.line}")
+    return [{"line": k[:140], "where": v[:12], "copies": len(v)}
+            for k, v in sorted(fam.items(), key=lambda kv: -len(kv[1])) if len(v) > 1]
+
+
 def run(root: Optional[Path] = None, antibodies: Optional[List[Antibody]] = None) -> dict:
     """Walk the source tree once and run every detector. Never raises on a detector:
     one that fails is reported as 'error' and the others still run."""
     root = Path(root) if root else REPO_ROOT
     sources = list(iter_sources(root))
+    texts = {s.rel: s.text.splitlines() for s in sources}
     results = []
     for ab in (antibodies if antibodies is not None else ANTIBODIES):
         try:
@@ -382,6 +404,7 @@ def run(root: Optional[Path] = None, antibodies: Optional[List[Antibody]] = None
             leads, status, err = [], "error", f"{type(e).__name__}: {e}"
         entry = {"name": ab.name, "description": ab.description, "taught_by": ab.taught_by,
                  "status": status, "count": len(leads),
+                 "families": clone_families(leads, texts),
                  "leads": [l.as_dict() for l in leads[:MAX_LEADS]]}
         if err:
             entry["error"] = err

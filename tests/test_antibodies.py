@@ -180,3 +180,19 @@ def test_raise_flag_tool_is_registered_free_visible_and_writes_only_the_inbox(tm
 def test_antibody_scan_is_a_registered_background_job():
     from reasoning_forge.background_jobs import default_jobs
     assert "antibody_scan" in default_jobs()
+
+
+def test_with_lock_counts_as_using_a_component_and_clones_are_grouped():
+    code = ("import threading\n"
+            "class C:\n"
+            "    def __init__(self):\n"
+            "        self._write_lock = threading.Lock()\n"
+            "    def go(self):\n"
+            "        with self._write_lock:\n"
+            "            return 1\n")
+    assert A.detect_constructed_never_invoked(_src(code, "reasoning_forge/c.py")) == []
+    line = "    tps = tokens / elapsed if elapsed > 0 else 0\n"
+    texts = {"a.py": [line], "b.py": [line], "c.py": ["    other = 1\n"]}
+    leads = [A.Lead("a.py", 1, "n"), A.Lead("b.py", 1, "n"), A.Lead("c.py", 1, "n")]
+    fam = A.clone_families(leads, texts)
+    assert len(fam) == 1 and fam[0]["copies"] == 2 and set(fam[0]["where"]) == {"a.py:1", "b.py:1"}
