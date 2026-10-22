@@ -837,16 +837,30 @@ class UnifiedMemory:
     # ─────────────────────────────────────────────────────────
     # INTROSPECTION — adapter dominance, domain clusters, trends
     # ─────────────────────────────────────────────────────────
+    # 2026-10-22. `decision_landmark` (907 of 4,316 on her store) and
+    # `event_embedded_value` are records written about exchanges and analyses, not
+    # replies to anyone. Tallied as "reasoning exchanges", they made a marker the
+    # second-largest "adapter" and padded every denominator. The same fix as
+    # inference/cocoon_introspection.py, which had its own copy of the same mistake:
+    # two implementations of one report is how it spread. The records are still
+    # counted, separately, in full_introspection().
+    RECORD_KINDS = ("decision_landmark", "event_embedded_value")
+    _EXCHANGE_WHERE = ("adapter NOT IN (?, ?) AND COALESCE(domain, '') NOT IN (?, ?)")
+
+    def _exchange_params(self) -> tuple:
+        return self.RECORD_KINDS + self.RECORD_KINDS
+
     def adapter_dominance(self) -> Dict:
-        """Analyze adapter usage distribution."""
+        """Analyze adapter usage distribution (exchanges only)."""
         try:
             cur = self._conn.cursor()
-            cur.execute("""
+            cur.execute(f"""
                 SELECT adapter, COUNT(*) as cnt
                 FROM cocoons
+                WHERE {self._EXCHANGE_WHERE}
                 GROUP BY adapter
                 ORDER BY cnt DESC
-            """)
+            """, self._exchange_params())
             rows = cur.fetchall()
             total = sum(r["cnt"] for r in rows)
             if not total:
@@ -870,12 +884,13 @@ class UnifiedMemory:
         """Analyze domain distribution."""
         try:
             cur = self._conn.cursor()
-            cur.execute("""
+            cur.execute(f"""
                 SELECT domain, COUNT(*) as cnt
                 FROM cocoons
+                WHERE {self._EXCHANGE_WHERE}
                 GROUP BY domain
                 ORDER BY cnt DESC
-            """)
+            """, self._exchange_params())
             return {r["domain"]: r["cnt"] for r in cur.fetchall()}
         except Exception:
             return {}
@@ -884,12 +899,13 @@ class UnifiedMemory:
         """Analyze query complexity distribution."""
         try:
             cur = self._conn.cursor()
-            cur.execute("""
+            cur.execute(f"""
                 SELECT complexity, COUNT(*) as cnt
                 FROM cocoons
+                WHERE {self._EXCHANGE_WHERE}
                 GROUP BY complexity
                 ORDER BY cnt DESC
-            """)
+            """, self._exchange_params())
             # The same enum was stringified two ways at write time
             # ("QueryComplexity.MEDIUM" and "MEDIUM"), which split one category
             # across two keys (1577 vs 602 on her store, 2026-08-08 handoff).
@@ -906,12 +922,13 @@ class UnifiedMemory:
         """Get response length trend (last N cocoons)."""
         try:
             cur = self._conn.cursor()
-            cur.execute("""
+            cur.execute(f"""
                 SELECT LENGTH(response) as len
                 FROM cocoons
+                WHERE {self._EXCHANGE_WHERE}
                 ORDER BY timestamp DESC
                 LIMIT ?
-            """, (window,))
+            """, self._exchange_params() + (window,))
             return [r["len"] for r in cur.fetchall()][::-1]  # Chronological order
         except Exception:
             return []
@@ -926,7 +943,15 @@ class UnifiedMemory:
 
         observations = []
         total = adapter.get("total_responses", 0)
-        observations.append(f"I've processed {total} reasoning exchanges.")
+        try:
+            all_rows = self._conn.execute("SELECT COUNT(*) FROM cocoons").fetchone()[0]
+        except Exception:
+            all_rows = None
+        records = (all_rows - total) if all_rows is not None else None
+        observations.append(
+            f"I've processed {total} reasoning exchanges"
+            + (f" (and hold {records} records of other kinds, such as decision landmarks, "
+               f"which are not counted below)." if records else "."))
 
         if adapter.get("dominant"):
             ratio = adapter.get("ratio", 0)
@@ -942,12 +967,15 @@ class UnifiedMemory:
 
         if domains:
             top_domain = max(domains, key=domains.get)
-            observations.append(f"Most common domain: {top_domain} ({domains[top_domain]} queries).")
+            observations.append(
+                f"Most common domain: {top_domain} ({domains[top_domain]} of {total} exchanges).")
 
         observations.append(f"Average response length: {avg_len:.0f} characters.")
 
         return {
-            "total_cocoons": total,
+            "total_cocoons": all_rows if all_rows is not None else total,   # all rows, as before
+            "total_exchanges": total,
+            "records_not_counted": records,
             "adapter_dominance": adapter,
             "domain_distribution": domains,
             "complexity_distribution": complexities,
