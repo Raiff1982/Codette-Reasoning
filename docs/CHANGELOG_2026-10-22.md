@@ -84,3 +84,24 @@ Jonathan's read: the leads look fine, but maybe they show how the bug spreads. B
   `introspection`). `ethical_anchor` is the regret-term `EthicalAnchor`: it is implemented in
   `consciousness_mathematics.py` and built by the forge, and nothing in the forge calls it. Where and whether to invoke it is
   design, Jonathan's call.
+
+## Reading the forge's unwired components before wiring them
+
+Jonathan: wire them in, but scan for bugs first. Read, not yet wired. Bugs found and fixed (tests in
+`tests/test_forge_component_fixes.py`):
+
+- `RoutingMetrics`: the per-adapter confidence average divided by a count that also included secondary picks, so it drifted;
+  `adapter_avg_boost_magnitude` stored only the latest value. Each now has its own count and a true running average.
+- `DynamicMemoryEngine.decay_importance`: used each memory's whole age as the exponent and multiplied into the stored
+  importance, so every call re-applied decay already applied (called daily, her memories reach importance 1 within days), and
+  `exp(-age/HL)` is a time constant, not a half-life. It now decays by the time since the last call with a true half-life.
+- `ReflectionJournal`: default path was a bare relative filename (lands in the working directory); now under
+  `reasoning_forge/.logs/`. The forge already passed its own path, so this guards other callers.
+
+**Correction, made in the open:** I said earlier that the unused `EthicalAnchor` was the one in `consciousness_mathematics.py`.
+It is not. Three classes share that name (`consciousness_mathematics.py:40`, `guardian.py:85`, `memory_kernel.py:396`) and the
+forge builds the `memory_kernel` one. `self.newton` was a false positive (used through `analysis_agents`).
+
+Not wired yet, and why: see the decisions list in the PR description. `RoutingMetrics` and `SpecializationTracker` are
+observation-only and can be wired; `DynamicMemoryEngine` mutates her stored memory importance, `EthicalAnchor` needs a
+definition of "intended vs actual", and `WisdomModule`/`ReflectionJournal` write a new persistent copy of memory snippets.

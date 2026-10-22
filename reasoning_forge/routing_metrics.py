@@ -71,6 +71,12 @@ class RoutingMetrics:
         self.adapter_avg_confidence: Dict[str, float] = {}
         self.adapter_boost_hits: Dict[str, int] = {}
         self.adapter_avg_boost_magnitude: Dict[str, float] = {}
+        # Denominators for the two running averages. 2026-10-22: the confidence average
+        # divided by adapter_selection_counts, which also counts SECONDARY picks that
+        # never update it, so it drifted toward the first value. The boost "average"
+        # stored only the latest value. Each now has its own count.
+        self._confidence_n: Dict[str, int] = {}
+        self._boost_n: Dict[str, int] = {}
 
         # Strategy metrics
         self.strategy_usage: Dict[str, int] = {
@@ -113,21 +119,21 @@ class RoutingMetrics:
             self.memory_boost_count += 1
             self.adapter_boost_hits[record.primary_adapter] = \
                 self.adapter_boost_hits.get(record.primary_adapter, 0) + 1
+            n = self._boost_n.get(record.primary_adapter, 0) + 1
+            self._boost_n[record.primary_adapter] = n
+            old = self.adapter_avg_boost_magnitude.get(record.primary_adapter, 0.0)
             self.adapter_avg_boost_magnitude[record.primary_adapter] = \
-                record.boost_magnitude
+                old + (record.boost_magnitude - old) / n
 
         # Update strategy metrics
         self.strategy_usage[record.strategy] = self.strategy_usage.get(record.strategy, 0) + 1
 
     def _update_adapter_confidence(self, adapter: str, confidence: float) -> None:
         """Update running average confidence for adapter."""
-        if adapter not in self.adapter_avg_confidence:
-            self.adapter_avg_confidence[adapter] = confidence
-        else:
-            current_count = self.adapter_selection_counts.get(adapter, 1)
-            old_avg = self.adapter_avg_confidence[adapter]
-            new_avg = (old_avg * (current_count - 1) + confidence) / current_count
-            self.adapter_avg_confidence[adapter] = new_avg
+        n = self._confidence_n.get(adapter, 0) + 1
+        self._confidence_n[adapter] = n
+        old_avg = self.adapter_avg_confidence.get(adapter, 0.0)
+        self.adapter_avg_confidence[adapter] = old_avg + (confidence - old_avg) / n
 
     def get_adapter_stats(self, adapter: str) -> Dict:
         """Get comprehensive stats for a single adapter.

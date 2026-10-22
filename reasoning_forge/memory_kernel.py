@@ -366,15 +366,27 @@ class DynamicMemoryEngine:
 
     def __init__(self, kernel: LivingMemoryKernel):
         self.kernel = kernel
+        self._last_decay: Optional[float] = None
 
     def decay_importance(self, current_time: Optional[float] = None) -> None:
-        """Apply exponential decay to all memory importance values."""
+        """Apply exponential decay to all memory importance values.
+
+        2026-10-22: this used each memory's whole AGE as the exponent and
+        multiplied into the stored importance, so every call re-applied decay
+        already applied (call it daily and everything is at 1 within days), and
+        exp(-age/HL) is a time constant, not a half-life. It now decays by the
+        time SINCE THE LAST CALL with a true half-life, so repeated calls compose.
+        """
         if current_time is None:
             current_time = time.time()
+        if self._last_decay is None:
+            self._last_decay = current_time
+            return
+        dt = max(0.0, current_time - self._last_decay)
+        self._last_decay = current_time
 
         for mem in self.kernel.memories:
-            age = current_time - mem.timestamp
-            decay_factor = math.exp(-age / self.DECAY_HALF_LIFE)
+            decay_factor = 0.5 ** (dt / self.DECAY_HALF_LIFE)
             old_importance = mem.importance
             mem.importance = max(1, round(mem.importance * decay_factor))
 
@@ -516,8 +528,13 @@ class ReflectionJournal:
     Stored as JSON file for long-term persistence.
     """
 
-    def __init__(self, path: str = "codette_reflection_journal.json"):
-        self.path = Path(path)
+    # 2026-10-22: the default was a bare relative filename, so it landed in whatever
+    # the working directory was (the repo root), and it holds snippets of her memory.
+    # Runtime state belongs with the other ignored logs.
+    DEFAULT_PATH = str(Path(__file__).resolve().parent / ".logs" / "reflection_journal.json")
+
+    def __init__(self, path: Optional[str] = None):
+        self.path = Path(path if path else self.DEFAULT_PATH)
         self.entries: List[Dict] = []
         self.load()
 
