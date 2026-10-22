@@ -3105,6 +3105,14 @@ class CodetteHandler(SimpleHTTPRequestHandler):
                 self._json_response({"flags": _flags.read(200), "read_by": "jonathan"})
             except Exception as e:
                 self._json_response({"error": str(e)})
+        elif path == "/api/self-check":
+            # How often each post-write correction fires. Codes and counts only;
+            # no reply text, no session (reasoning_forge/self_check.py).
+            try:
+                from reasoning_forge import self_check as _sc
+                self._json_response(_sc.summary())
+            except Exception as e:
+                self._json_response({"error": str(e)})
         elif path == "/api/antibodies":
             try:
                 import json as _j

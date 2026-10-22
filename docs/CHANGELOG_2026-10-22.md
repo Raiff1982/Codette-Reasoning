@@ -125,3 +125,23 @@ coarse Windows clock gave several of the five fake cocoons the same stamp, and w
 order (`0.72 != 0.81`). The fixture now uses strictly increasing stamps. Verified: the old behaviour reorders 2138 of 3000
 constructions; the fixed one, 0 of 2000. Found by looping the full suite with full tracebacks until it failed (run 8 of 20).
 Production cocoons are stamped in separate requests, so the detector was never affected.
+
+## `self_check`: she asked for it, so it exists
+
+She asked (2026-10-22) to "use a code analysis tool like self-check", then described a three-item checklist that is Lock 3
+nearly word for word. There was no such tool: her noun was our variable name, and what she was reaching for was real. Her
+prompt says notes 1, 3 and 4 are checked after she writes, and nothing ever showed her the result.
+
+- **`self_check()`** (her tool, a free round): says whether the post-write checks ran on her previous reply and, if they
+  changed anything, exactly what (`LOCK1_TRIM`, `LOCK4_FIX`, ...). Read-only, not scored, visible to Jonathan like any lookup,
+  and points to `raise_flag` if she thinks a check was wrong.
+- **"Ran, changed nothing" is kept distinct from "did not run".** The bridge records `ran=False` for any path that skips the
+  checks (early returns, blocks), and "no record yet" is a third answer. A skipped turn can never read as clean.
+- **Counts for us, codes only** (`reasoning_forge/self_check.py`, `/api/self-check`): how often each correction fires. No reply
+  text and no session id reach the file; a test fails if text does. Benchmark queries are not counted.
+- **Antibody link:** the antibody report carries these counts, and a correction that fires on more than a quarter of checked
+  turns (after 20 turns) is listed under `recurring_corrections` in the `/api/health` antibody summary. A correction that
+  fires constantly is a recurring fault being patched afterwards, which is what the antibodies are for.
+- **`.gitignore`:** the runtime-state files the live server writes (`flags.jsonl`, `antibody_report.json`,
+  `self_check_counts.json`, `tool_efficacy.json`, `background_jobs.json`) were not ignored and would have appeared as
+  untracked files in a public repo. Now ignored.

@@ -220,7 +220,31 @@ class CodetteForgeBridge:
             self._observe_routing(result, query)
         except Exception as _obs_e:
             print(f"  [ROUTING-OBS] skipped: {_obs_e}", flush=True)
+        try:
+            self._record_self_check(result, query)
+        except Exception as _sc_e:
+            print(f"  [SELF-CHECK] record skipped: {_sc_e}", flush=True)
         return result
+
+    def _record_self_check(self, result: Dict, query: str) -> None:
+        """Remember what the post-write checks did, for her `self_check` tool and the counts.
+
+        Records ran=False for any path that skipped them (early returns, blocks), so a
+        skipped turn can never read as a clean one. Benchmark queries are not counted.
+        Codes only reach the counts file, never text.
+        """
+        if not isinstance(result, dict) or not result.get("response"):
+            return
+        if re.search(r'What is the correct answer to this question', query) \
+                or len(re.findall(r'^\([ABCD]\)', query, re.MULTILINE)) >= 3:
+            return
+        from reasoning_forge import self_check
+        try:
+            from inference.codette_tools import current_session_id
+        except ImportError:
+            from codette_tools import current_session_id
+        self_check.record(current_session_id(), bool(result.get("self_check_ran")),
+                          result.get("lock_fixes") or [])
 
     def _observe_routing(self, result: Dict, query: str) -> None:
         """Feed RoutingMetrics and SpecializationTracker from the live turn.
@@ -1426,6 +1450,7 @@ class CodetteForgeBridge:
         try:
             from self_correction import universal_self_check
             result["response"], lock_issues = universal_self_check(result["response"], query=user_query)
+            result["self_check_ran"] = True      # distinguishes "ran, changed nothing" from "never ran"
             if lock_issues:
                 result["lock_fixes"] = lock_issues
         except ImportError:
