@@ -192,3 +192,15 @@ def test_web_search_failure_is_not_silence():
     from inference.codette_tools import tool_web_search
 
     assert "needs something to look for" in tool_web_search("")
+
+
+def test_a_stripped_call_at_the_end_of_a_clause_leaves_no_orphan_comma():
+    # 2026-10-22: "...has gone stale, <tool>leave_note(...)</tool>." shipped as "stale, ."
+    from inference.codette_tools import strip_tool_calls, parse_tool_calls
+    t = ('Glad to hear it. If that has gone stale, '
+         '<tool>leave_note("a new note")</tool>.')
+    assert parse_tool_calls(t)[0][0] == "leave_note"          # the call is still heard
+    assert strip_tool_calls(t) == "Glad to hear it. If that has gone stale."
+    # her own commas are untouched
+    assert strip_tool_calls("Well, yes, and then, finally.") == "Well, yes, and then, finally."
+    assert strip_tool_calls("one, two. three, four.") == "one, two. three, four."

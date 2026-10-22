@@ -799,6 +799,11 @@ def strip_tool_calls(text: str) -> str:
     # Guarded on a non-word character so `foo()` in a sentence about code
     # keeps its parens — we are removing our own litter, not editing her.
     text = re.sub(r'(?<![\w])\(\s*\)', '', text)
+    # A call written at the end of a clause leaves its comma behind: she wrote
+    # `...has gone stale, leave_note("...").`, the call ran and was stripped, and
+    # "stale, ." shipped (2026-10-22). A comma before sentence-final punctuation is
+    # never her prose, so this removes our own litter and nothing she wrote.
+    text = re.sub(r'\s*,\s+(?=[.!?](?:\s|$))', '', text)
     return unwrap_tool_tags(text).strip()
 
 
