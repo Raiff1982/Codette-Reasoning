@@ -18,6 +18,10 @@ from reasoning_forge.drift_detector import (
 
 # ── Synthetic memory objects ──────────────────────────────────────────────────
 
+import itertools
+_SEQ = itertools.count()
+
+
 class _FakeCocoon:
     def __init__(self, epsilon_band="medium", perspectives=None,
                  tensions=None, hooks=None, psi_r=0.5):
@@ -30,7 +34,11 @@ class _FakeCocoon:
         self.emotional_tag = "insight"
         self.active_project = "Codette-Reasoning"
         self.user_facts = {}
-        self.timestamp = time.time()
+        # 2026-10-22: was time.time(). The fake kernel's recall_recent sorts on this, and a
+        # coarse Windows clock gave several cocoons the SAME timestamp, so when a tick landed
+        # mid-list the order changed and test_psi_r_history_populated failed about 1 run in 8.
+        # A strictly increasing stamp keeps the order the test builds.
+        self.timestamp = time.time() + next(_SEQ) * 1e-3
 
 
 class _FakeKernel:

@@ -216,7 +216,53 @@ class CodetteForgeBridge:
             self._run_output_advisory(result, query)
         except Exception as _adv_e:
             print(f"  [ADVISORY] wrapper failed: {_adv_e}", flush=True)
+        try:
+            self._observe_routing(result, query)
+        except Exception as _obs_e:
+            print(f"  [ROUTING-OBS] skipped: {_obs_e}", flush=True)
         return result
+
+    def _observe_routing(self, result: Dict, query: str) -> None:
+        """Feed RoutingMetrics and SpecializationTracker from the live turn.
+
+        2026-10-22. Both were built into the forge and called by nothing (the live
+        path is route_and_generate, which never touches the forge's trackers), so
+        /api/health could only ever say LOADED_NEVER_CALLED. This is observation
+        only: nothing reads either to steer routing, and the optimizer keeps its
+        own shadow record. Records only what is known: no coherence is invented
+        when none was measured, and the router's memory-boost flag is not exposed,
+        so it is recorded as unknown. Benchmark queries are skipped, the same
+        rule as cocooning, so a harness cannot teach the trackers.
+        """
+        if not self.forge or not isinstance(result, dict) or not result.get("response"):
+            return
+        if re.search(r'What is the correct answer to this question', query) \
+                or len(re.findall(r'^\([ABCD]\)', query, re.MULTILINE)) >= 3:
+            return
+        route = result.get("route")
+        get = (lambda k, d=None: route.get(k, d)) if isinstance(route, dict) \
+            else (lambda k, d=None: getattr(route, k, d))
+        primary = get("primary") if route is not None else None
+        adapter = result.get("adapter")
+        if isinstance(adapter, list):
+            adapter = adapter[0] if adapter else None
+        primary = primary or adapter
+        if not primary:
+            return
+
+        rm = getattr(self.forge, "routing_metrics", None)
+        if rm is not None:
+            conf = get("confidence", None) if route is not None else None
+            conf = float(conf) if isinstance(conf, (int, float)) else 0.0
+            from reasoning_forge.routing_metrics import RoutingMetrics
+            rm.record_route(RoutingMetrics.create_record(
+                query, str(primary), [str(s) for s in (get("secondary", []) or [])],
+                str(get("strategy", "keyword") or "keyword"), conf, conf, None))
+
+        sp = getattr(self.forge, "specialization", None)
+        coh = result.get("measured_coherence")
+        if sp is not None and isinstance(coh, (int, float)) and not isinstance(coh, bool):
+            sp.record_adapter_performance(str(primary), query, float(coh))
 
     def _run_output_advisory(self, result: Dict, user_query: str) -> None:
         """Record what the guards would have said. Alters nothing."""

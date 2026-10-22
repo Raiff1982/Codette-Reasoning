@@ -441,7 +441,7 @@ class AEGISOrchestrator:
             "rejection_rate": (
                 (self.stats["rejections"] / self.stats["forge_calls"] * 100)
                 if self.stats["forge_calls"] > 0
-                else 0
+                else None       # 2026-10-22: no calls is not "0% rejected"
             ),
         }
 

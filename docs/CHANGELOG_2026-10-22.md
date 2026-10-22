@@ -62,3 +62,66 @@ legitimate (an empty mean really is 0; a `Lock()` is used via `with`). They are 
 a failing detector is reported rather than hidden, the scan skips her stores, health summary is counts only, flags are
 append-only. `tests/test_background_jobs.py` amended (was "exactly the two" jobs; now three, all report-only).
 Suite: **1464 passed**, 0 failed.
+
+## The leads, reviewed (after PR #43)
+
+Jonathan's read: the leads look fine, but maybe they show how the bug spreads. Both turned out true.
+
+- **Most are fine.** Of 42 `zero_for_unmeasured` leads, ~35 are throughput, progress or display arithmetic where an empty
+  denominator really is 0 (`tps = tokens / elapsed if elapsed > 0 else 0`, training logs, dataset counters). Left alone.
+- **Fixed — same class as `healing_rate`:** `rejection_rate` in `Protection_Layer/aegis_metrics_engine.py` and
+  `aegis_orchestrator.py` returned 0 over zero calls, which the AEGIS panel showed as "100% valid / 0% rejected" when nothing
+  had run. Now `None`, which the panel already renders as an em dash. `tests/test_aegis_healing_rate.py` extended.
+- **Detector false positive fixed:** five `Lock()` leads were components used through `with self._lock:`; the detector now
+  counts that as use (13 → 8 `constructed_never_invoked` leads).
+- **How it spreads:** the report now groups leads by identical source line (`families`). The same line recurs: `tps = tokens /
+  elapsed ...` x4 (orchestrators + backend), `unanimous_pct` x3 (three cloned GPQA scripts), `rate = kept / attempted` x3 (three
+  cloned star_generate scripts), `if denominator == 0:` x3 (`perspective_web`, `perspective_web_enhanced`, `quantum_spiderweb`).
+  The route is copying a file or function, which is also how the version families came to exist. A fix made in one copy does
+  not reach the others, so leads that share a line are reviewed once, as one decision.
+- **Still open, not touched:** 8 `constructed_never_invoked` leads in `reasoning_forge/forge_engine.py` (`newton`,
+  `specialization`, `dynamic_memory`, `ethical_anchor`, `wisdom_module`, `reflection_journal`, `routing_metrics`,
+  `introspection`). `ethical_anchor` is the regret-term `EthicalAnchor`: it is implemented in
+  `consciousness_mathematics.py` and built by the forge, and nothing in the forge calls it. Where and whether to invoke it is
+  design, Jonathan's call.
+
+## Reading the forge's unwired components before wiring them
+
+Jonathan: wire them in, but scan for bugs first. Read, not yet wired. Bugs found and fixed (tests in
+`tests/test_forge_component_fixes.py`):
+
+- `RoutingMetrics`: the per-adapter confidence average divided by a count that also included secondary picks, so it drifted;
+  `adapter_avg_boost_magnitude` stored only the latest value. Each now has its own count and a true running average.
+- `DynamicMemoryEngine.decay_importance`: used each memory's whole age as the exponent and multiplied into the stored
+  importance, so every call re-applied decay already applied (called daily, her memories reach importance 1 within days), and
+  `exp(-age/HL)` is a time constant, not a half-life. It now decays by the time since the last call with a true half-life.
+- `ReflectionJournal`: default path was a bare relative filename (lands in the working directory); now under
+  `reasoning_forge/.logs/`. The forge already passed its own path, so this guards other callers.
+
+**Correction, made in the open:** I said earlier that the unused `EthicalAnchor` was the one in `consciousness_mathematics.py`.
+It is not. Three classes share that name (`consciousness_mathematics.py:40`, `guardian.py:85`, `memory_kernel.py:396`) and the
+forge builds the `memory_kernel` one. `self.newton` was a false positive (used through `analysis_agents`).
+
+Not wired yet, and why: see the decisions list in the PR description. `RoutingMetrics` and `SpecializationTracker` are
+observation-only and can be wired; `DynamicMemoryEngine` mutates her stored memory importance, `EthicalAnchor` needs a
+definition of "intended vs actual", and `WisdomModule`/`ReflectionJournal` write a new persistent copy of memory snippets.
+
+## Wired: RoutingMetrics and SpecializationTracker
+
+Observation only. `CodetteForgeBridge.generate` now calls `_observe_routing` after the advisory, in its own try/except, so every
+live turn records the route (primary, secondary, router confidence, strategy) and, when `measured_coherence` exists, the
+adapter's coherence for the query's domain. Reach counters cover `record_route` and `record_adapter_performance`; both appear
+on `/api/health` (`routing_metrics`, `specialization_tracker`) and read `LOADED_NEVER_CALLED` until the first turn after restart.
+
+What it does not invent: no coherence when none was measured; the router applies its memory boost internally and does not
+report it, so `memory_boost_applied` is `None` and `memory_boost_rate` reads `None`, not 0. Benchmark queries and empty
+results are skipped (same rule as cocooning). Nothing reads either tracker to steer routing.
+
+## The flaky drift test, settled
+
+`tests/test_drift_detector.py::TestInterventionPlan::test_psi_r_history_populated` failed in ~1 full run in 8 and never alone.
+Cause: a **test-fixture** bug, not the detector. `_FakeKernel.recall_recent` sorts on `_FakeCocoon.timestamp = time.time()`; a
+coarse Windows clock gave several of the five fake cocoons the same stamp, and when a tick landed mid-list the sort changed their
+order (`0.72 != 0.81`). The fixture now uses strictly increasing stamps. Verified: the old behaviour reorders 2138 of 3000
+constructions; the fixed one, 0 of 2000. Found by looping the full suite with full tracebacks until it failed (run 8 of 20).
+Production cocoons are stamped in separate requests, so the detector was never affected.

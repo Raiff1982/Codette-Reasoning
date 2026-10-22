@@ -25,7 +25,7 @@ class AdapterSelectionRecord:
     strategy: str                         # "keyword", "llm", "hybrid"
     confidence_before_boost: float        # Base confidence from keyword/llm
     confidence_after_boost: float         # After memory weighting applied
-    memory_boost_applied: bool
+    memory_boost_applied: Optional[bool]   # None = the router does not expose it; not False
     boost_magnitude: float = 0.0          # How much confidence changed
 
     def to_dict(self) -> Dict:
@@ -71,6 +71,12 @@ class RoutingMetrics:
         self.adapter_avg_confidence: Dict[str, float] = {}
         self.adapter_boost_hits: Dict[str, int] = {}
         self.adapter_avg_boost_magnitude: Dict[str, float] = {}
+        # Denominators for the two running averages. 2026-10-22: the confidence average
+        # divided by adapter_selection_counts, which also counts SECONDARY picks that
+        # never update it, so it drifted toward the first value. The boost "average"
+        # stored only the latest value. Each now has its own count.
+        self._confidence_n: Dict[str, int] = {}
+        self._boost_n: Dict[str, int] = {}
 
         # Strategy metrics
         self.strategy_usage: Dict[str, int] = {
@@ -82,6 +88,7 @@ class RoutingMetrics:
 
         # Memory metrics
         self.memory_boost_count: int = 0
+        self.memory_boost_measured: int = 0     # records where the flag was known
         self.cold_start_queries: int = 0
 
     def record_route(self, record: AdapterSelectionRecord) -> None:
@@ -109,25 +116,27 @@ class RoutingMetrics:
         self._update_adapter_confidence(record.primary_adapter, record.confidence_after_boost)
 
         # Update memory boost metrics
+        if record.memory_boost_applied is not None:
+            self.memory_boost_measured += 1
         if record.memory_boost_applied:
             self.memory_boost_count += 1
             self.adapter_boost_hits[record.primary_adapter] = \
                 self.adapter_boost_hits.get(record.primary_adapter, 0) + 1
+            n = self._boost_n.get(record.primary_adapter, 0) + 1
+            self._boost_n[record.primary_adapter] = n
+            old = self.adapter_avg_boost_magnitude.get(record.primary_adapter, 0.0)
             self.adapter_avg_boost_magnitude[record.primary_adapter] = \
-                record.boost_magnitude
+                old + (record.boost_magnitude - old) / n
 
         # Update strategy metrics
         self.strategy_usage[record.strategy] = self.strategy_usage.get(record.strategy, 0) + 1
 
     def _update_adapter_confidence(self, adapter: str, confidence: float) -> None:
         """Update running average confidence for adapter."""
-        if adapter not in self.adapter_avg_confidence:
-            self.adapter_avg_confidence[adapter] = confidence
-        else:
-            current_count = self.adapter_selection_counts.get(adapter, 1)
-            old_avg = self.adapter_avg_confidence[adapter]
-            new_avg = (old_avg * (current_count - 1) + confidence) / current_count
-            self.adapter_avg_confidence[adapter] = new_avg
+        n = self._confidence_n.get(adapter, 0) + 1
+        self._confidence_n[adapter] = n
+        old_avg = self.adapter_avg_confidence.get(adapter, 0.0)
+        self.adapter_avg_confidence[adapter] = old_avg + (confidence - old_avg) / n
 
     def get_adapter_stats(self, adapter: str) -> Dict:
         """Get comprehensive stats for a single adapter.
@@ -171,7 +180,10 @@ class RoutingMetrics:
         )[:5]
 
         # Memory boost rate
-        memory_boost_rate = self.memory_boost_count / max(self.total_queries, 1)
+        # None, not 0.0, when the flag was never known: the router applies its own boost
+        # internally and does not report it, so "0 boosts" would be a reading nobody took.
+        memory_boost_rate = (self.memory_boost_count / self.memory_boost_measured
+                             if self.memory_boost_measured else None)
 
         # Most used strategy
         top_strategy = max(self.strategy_usage.items(), key=lambda x: x[1])[0]
@@ -192,7 +204,8 @@ class RoutingMetrics:
                 }
                 for name, count in top_adapters
             ],
-            "memory_boost_rate": round(memory_boost_rate, 3),
+            "memory_boost_rate": (round(memory_boost_rate, 3)
+                                  if memory_boost_rate is not None else None),
             "memory_boosts_applied": self.memory_boost_count,
             "strategy_distribution": dict(self.strategy_usage),
             "primary_strategy": top_strategy,
@@ -239,7 +252,7 @@ class RoutingMetrics:
         strategy: str,
         confidence_before_boost: float,
         confidence_after_boost: float,
-        memory_boost_applied: bool,
+        memory_boost_applied: Optional[bool],
     ) -> AdapterSelectionRecord:
         """Factory method to create a routing record.
 
