@@ -188,3 +188,25 @@ is unaffected. Tests: `tests/test_unified_introspection_counts.py`.
 
 Not changed, noted: the length trend on this path shows several responses at exactly 2000 characters, which looks like a
 storage cap, so its "average response length" understates long replies. Left for a decision.
+
+## Replies are kept whole; WisdomModule and ReflectionJournal retired
+
+**The cap (Jonathan's decision):** store the full reply with a high safety limit, cut it down only when it is read back into
+her context, and mark any cut reply as cut, so "cut" and "complete" are different facts.
+- `UnifiedMemory.store` keeps up to `MAX_STORED_RESPONSE = 20000` characters (was 2,000; 60 of 3,380 real exchanges had hit it).
+  A reply past that limit is cut and flagged in metadata (`truncated: true`, `original_chars`). The same for the JSON cocoon
+  (`wrapped.response` up to 20,000, with `wrapped.truncated`).
+- **Reads still hand consumers at most 2,000 characters**, exactly what they always received, so nothing downstream sees a
+  longer memory and an 8k window is never flooded. The cut is stated on what comes out (`response_cut_for_context`,
+  `response_chars`). Applied to every UnifiedMemory recall path and to the cocooner's recall.
+- `UnifiedMemory.cut_status()` answers `cut`, `complete` or `legacy_cap`. The 60 existing rows at exactly 2,000 characters
+  cannot be recovered; they read as `legacy_cap` ("probably cut, cannot be known") rather than being guessed at or rewritten.
+- The question is still cut at 500 characters; not changed, noted.
+- Found on the way: the cocooner's own recall (`recall_relevant`, `get_recent_reasoning`) accepted only `type == "reasoning"`,
+  so it skipped every v3 cocoon (`reasoning_v3`), the same one-spelling bug `unified_memory` fixed in August. It is the fallback
+  path, but it silently returned nothing for current cocoons; it now matches the family.
+
+**Retired, archived not deleted:** `WisdomModule` and `ReflectionJournal` moved verbatim to
+`archive/2026-10-22-retired-wisdom-reflection/` (with a README), removed from `memory_kernel.py` (a stub comment marks the
+place) and no longer built by `ForgeEngine`. `tests/test_forge_component_fixes.py` lost its one test for the journal's default
+path, with a note. `docs/deployment/DEPLOYMENT.md` notes the journal file is no longer written.

@@ -249,6 +249,46 @@ class UnifiedMemory:
     # ─────────────────────────────────────────────────────────
     # STORE
     # ─────────────────────────────────────────────────────────
+    # 2026-10-22, Jonathan. The store used to cut every reply at 2,000 characters
+    # (60 of 3,380 exchanges hit it, the longest and likely most substantive ones), which
+    # destroyed the tail permanently. The real limit is her context window (8,192 tokens on
+    # the 8 GB UMA GPU), and that applies when a memory is READ INTO her context, not when
+    # it is kept. So: keep nearly all of it, cut it down only on the way out, and say so.
+    MAX_STORED_RESPONSE = 20000     # a runaway-output safety limit, not a style limit
+    READ_CAP = 2000                 # what a recall hands to a consumer, as before
+    LEGACY_CAP = 2000               # the old storage cap: a reply of exactly this length is probably cut
+
+    def _read_dict(self, row) -> Dict:
+        """A recalled row, with the reply cut for context and the cut stated.
+
+        Every consumer used to receive at most 2,000 characters because that was all
+        that was stored. Storing more must not change what they receive, or a 20,000
+        character reply would flood an 8k window. The full text stays in the database.
+        """
+        d = dict(row)
+        resp = d.get("response")
+        if isinstance(resp, str) and len(resp) > self.READ_CAP:
+            d["response"] = resp[:self.READ_CAP]
+            d["response_cut_for_context"] = True
+            d["response_chars"] = len(resp)
+        return d
+
+    @classmethod
+    def cut_status(cls, cocoon: Dict) -> str:
+        """'cut' (stored reply was shortened), 'legacy_cap' (exactly the old 2,000
+        limit: probably cut, cannot be known) or 'complete'. Cut and complete are
+        different facts and are never left to be guessed from the text."""
+        meta = cocoon.get("metadata")
+        if isinstance(meta, str):
+            try:
+                meta = json.loads(meta or "{}")
+            except ValueError:
+                meta = {}
+        if (meta or {}).get("truncated"):
+            return "cut"
+        n = cocoon.get("response_chars") or len(cocoon.get("response") or "")
+        return "legacy_cap" if n == cls.LEGACY_CAP else "complete"
+
     def store(self, query: str, response: str, adapter: str = "unknown",
               domain: str = "general", complexity: str = "MEDIUM",
               emotion: str = "neutral", importance: int = 7,
@@ -265,7 +305,12 @@ class UnifiedMemory:
         """
         cocoon_id = f"cocoon_{int(time.time())}_{hashlib.md5(query.encode()).hexdigest()[:6]}"
         timestamp = time.time()
-        meta_json = json.dumps(metadata or {})
+        metadata = dict(metadata or {})
+        stored_response = response[:self.MAX_STORED_RESPONSE]
+        if len(response) > self.MAX_STORED_RESPONSE:
+            metadata["truncated"] = True
+            metadata["original_chars"] = len(response)
+        meta_json = json.dumps(metadata)
 
         try:
             with self._write_lock:
@@ -278,7 +323,7 @@ class UnifiedMemory:
                 """, (
                     cocoon_id,
                     query[:500],      # Cap query length
-                    response[:2000],  # Cap response length
+                    stored_response,
                     adapter,
                     domain,
                     complexity,
@@ -292,7 +337,7 @@ class UnifiedMemory:
 
             # Cache it (lock-free — OrderedDict ops are GIL-protected)
             cocoon = {
-                "id": cocoon_id, "query": query[:500], "response": response[:2000],
+                "id": cocoon_id, "query": query[:500], "response": stored_response[:self.READ_CAP],
                 "adapter": adapter, "domain": domain, "complexity": complexity,
                 "emotion": emotion, "importance": importance,
                 "timestamp": timestamp, "metadata": metadata or {},
@@ -376,7 +421,7 @@ class UnifiedMemory:
             now = time.time()
             scored = []
             for row in rows:
-                cocoon = dict(row)
+                cocoon = self._read_dict(row)
                 cocoon["metadata"] = json.loads(cocoon.pop("metadata_json", "{}"))
 
                 # Base: FTS5 rank (negative = better match, normalize to 0-1)
@@ -562,7 +607,7 @@ class UnifiedMemory:
             """, (fts_query, limit))
             results = []
             for row in cur.fetchall():
-                cocoon = dict(row)
+                cocoon = self._read_dict(row)
                 cocoon["metadata"] = json.loads(cocoon.pop("metadata_json", None) or "{}")
                 cocoon.pop("rank", None)
                 results.append(cocoon)
@@ -585,7 +630,7 @@ class UnifiedMemory:
             rows = cur.fetchall()
             results = []
             for row in rows:
-                cocoon = dict(row)
+                cocoon = self._read_dict(row)
                 cocoon["metadata"] = json.loads(cocoon.pop("metadata_json", "{}"))
                 results.append(cocoon)
             return results
@@ -605,7 +650,7 @@ class UnifiedMemory:
                 ORDER BY timestamp DESC
                 LIMIT ?
             """, (emotion, limit))
-            return [dict(r) for r in cur.fetchall()]
+            return [self._read_dict(r) for r in cur.fetchall()]
         except Exception:
             return []
 
@@ -623,7 +668,7 @@ class UnifiedMemory:
             """, (domain, limit))
             results = []
             for row in cur.fetchall():
-                cocoon = dict(row)
+                cocoon = self._read_dict(row)
                 cocoon["metadata"] = json.loads(cocoon.pop("metadata_json", "{}"))
                 results.append(cocoon)
             return results
@@ -655,7 +700,7 @@ class UnifiedMemory:
                 ORDER BY timestamp DESC
                 LIMIT ?
             """, (adapter, limit))
-            return [dict(r) for r in cur.fetchall()]
+            return [self._read_dict(r) for r in cur.fetchall()]
         except Exception:
             return []
 
@@ -676,7 +721,7 @@ class UnifiedMemory:
 
             results = []
             for row in cur.fetchall():
-                cocoon = dict(row)
+                cocoon = self._read_dict(row)
                 cocoon["metadata"] = json.loads(cocoon.pop("metadata_json", "{}"))
                 results.append(cocoon)
             return results
@@ -696,7 +741,7 @@ class UnifiedMemory:
                 ORDER BY importance DESC, timestamp DESC
                 LIMIT ?
             """, (min_importance, limit))
-            return [dict(r) for r in cur.fetchall()]
+            return [self._read_dict(r) for r in cur.fetchall()]
         except Exception:
             return []
 

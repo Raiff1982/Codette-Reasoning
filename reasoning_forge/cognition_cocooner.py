@@ -92,6 +92,25 @@ def _load_dream_key() -> bytes:
     return key
 
 
+READ_CAP = 2000
+
+
+def _cut_for_context(wrapped: dict) -> dict:
+    """A recalled reply, cut to what a consumer was always handed, with the cut stated.
+
+    2026-10-22: replies are now kept up to 20,000 characters instead of 2,000. What recall
+    returns must not grow with it, or a long memory floods an 8k context. A copy, so the
+    stored record is untouched."""
+    resp = wrapped.get("response")
+    if isinstance(resp, str) and len(resp) > READ_CAP:
+        w = dict(wrapped)
+        w["response"] = resp[:READ_CAP]
+        w["response_cut_for_context"] = True
+        w["response_chars"] = len(resp)
+        return w
+    return wrapped
+
+
 class CognitionCocooner:
     """
     Encapsulates active "thoughts" as persistable "cocoons".
@@ -299,7 +318,10 @@ class CognitionCocooner:
                 "cocoon_integrity_score": v3_dict.get("cocoon_integrity_score", 0.0),
                 "wrapped": {
                     "query": query,
-                    "response": response[:2000],
+                    # 2026-10-22: was response[:2000]. Kept nearly whole; cut only on the
+                    # way out, and marked when it is cut (see unified_memory.MAX_STORED_RESPONSE).
+                    "response": response[:20000],
+                    "truncated": len(response) > 20000,
                     "adapter": adapter,
                     "timestamp": v3_cocoon.timestamp,
                 },
@@ -529,8 +551,10 @@ class CognitionCocooner:
             try:
                 with open(file, "r") as f:
                     cocoon = json.load(f)
-                if cocoon.get("type") == "reasoning":
-                    reasoning_cocoons.append(cocoon["wrapped"])
+                # 2026-10-22: was == "reasoning", which skipped every v3 cocoon ("reasoning_v3")
+                # since the schema moved; match the family, as unified_memory already does.
+                if str(cocoon.get("type") or "").startswith("reasoning"):
+                    reasoning_cocoons.append(_cut_for_context(cocoon["wrapped"]))
                     if len(reasoning_cocoons) >= limit:
                         break
             except Exception:
@@ -587,7 +611,7 @@ class CognitionCocooner:
             try:
                 with open(file, "r") as f:
                     cocoon = json.load(f)
-                if cocoon.get("type") != "reasoning":
+                if not str(cocoon.get("type") or "").startswith("reasoning"):
                     continue
 
                 wrapped = cocoon.get("wrapped", {})
@@ -610,4 +634,4 @@ class CognitionCocooner:
             # No relevant matches — fall back to recent
             return self.get_recent_reasoning(limit=max_results)
 
-        return [item[1] for item in scored[:max_results]]
+        return [_cut_for_context(item[1]) for item in scored[:max_results]]

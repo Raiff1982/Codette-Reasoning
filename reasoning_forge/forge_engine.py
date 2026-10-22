@@ -42,7 +42,7 @@ from reasoning_forge.quantum_spiderweb import QuantumSpiderweb
 from reasoning_forge.query_classifier import QueryClassifier, QueryComplexity
 from reasoning_forge.memory_kernel import (
     LivingMemoryKernel, MemoryCocoon, DynamicMemoryEngine,
-    EthicalAnchor, WisdomModule, ReflectionJournal
+    EthicalAnchor
 )
 from reasoning_forge.cocoon_stability import CocoonStabilityField
 
@@ -328,8 +328,8 @@ class ForgeEngine:
         self.memory_kernel = living_memory
         self.dynamic_memory = DynamicMemoryEngine(self.memory_kernel)
         self.ethical_anchor = EthicalAnchor(lambda_weight=0.7, gamma_weight=0.5, mu_weight=1.0)
-        self.wisdom_module = WisdomModule(self.memory_kernel)
-        self.reflection_journal = ReflectionJournal(path="reasoning_forge/.logs/codette_reflection_journal.json")
+        # WisdomModule and ReflectionJournal retired 2026-10-22, archived at
+        # archive/2026-10-22-retired-wisdom-reflection/. Nothing called either.
         logger.info("  ✓ Memory kernel initialized (emotional continuity engine active)")
 
         # === RESTORED: Initialize Cocoon Stability Field (Collapse Detection) ===
