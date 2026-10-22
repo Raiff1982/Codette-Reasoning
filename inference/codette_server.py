@@ -774,6 +774,30 @@ def _run_health_check():
         forge = _forge_bridge.forge
         p6 = {"status": "OK", "components": {}}
 
+        # 2026-10-01: the same question for every other component on the forge.
+        # `reasoning_forge/reach.py` counts calls to each entry method; this
+        # turns the count into a status. "OK" meant only that the attribute
+        # existed, which is the reading that hid Colleen for months.
+        def _reach_report(obj, base=None):
+            entry = dict(base or {})
+            if not obj:
+                entry["status"] = "MISSING"
+                return entry
+            stats = getattr(obj, "invocation_stats", None)
+            if callable(stats):
+                try:
+                    st = stats()
+                    entry["calls"] = st.get("calls", 0)
+                    entry["by_method"] = st.get("by_method", {})
+                    entry["last_call"] = st.get("last_call")
+                    entry["status"] = "LOADED" if entry["calls"] else "LOADED_NEVER_CALLED"
+                    return entry
+                except Exception as _e:
+                    entry["invocation_stats_error"] = str(_e)
+            entry["status"] = "LOADED"
+            entry["calls"] = "unknown (no counters on this component)"
+            return entry
+
         # Memory kernel
         if hasattr(forge, 'memory_kernel') and forge.memory_kernel:
             mem_count = len(forge.memory_kernel.memories)
@@ -821,30 +845,6 @@ def _run_health_check():
             else:
                 # Older build without counters: say so rather than imply health.
                 entry["calls"] = "unknown (no counters in this build)"
-            return entry
-
-        # 2026-10-01: the same question for every other component on the forge.
-        # `reasoning_forge/reach.py` counts calls to each entry method; this
-        # turns the count into a status. "OK" meant only that the attribute
-        # existed, which is the reading that hid Colleen for months.
-        def _reach_report(obj, base=None):
-            entry = dict(base or {})
-            if not obj:
-                entry["status"] = "MISSING"
-                return entry
-            stats = getattr(obj, "invocation_stats", None)
-            if callable(stats):
-                try:
-                    st = stats()
-                    entry["calls"] = st.get("calls", 0)
-                    entry["by_method"] = st.get("by_method", {})
-                    entry["last_call"] = st.get("last_call")
-                    entry["status"] = "LOADED" if entry["calls"] else "LOADED_NEVER_CALLED"
-                    return entry
-                except Exception as _e:
-                    entry["invocation_stats_error"] = str(_e)
-            entry["status"] = "LOADED"
-            entry["calls"] = "unknown (no counters on this component)"
             return entry
 
         colleen = getattr(forge, 'colleen', None)
