@@ -466,8 +466,36 @@ class EthicalAnchor:
             'actual': actual,
             'timestamp': time.time()
         })
+        self._bound_history()
 
         return m
+
+    MAX_HISTORY = 500
+
+    def _bound_history(self) -> None:
+        # 2026-10-22: history grew without limit for the life of the process.
+        if len(self.history) > self.MAX_HISTORY:
+            del self.history[:-self.MAX_HISTORY]
+
+    def observe(self, intended: float, actual: float) -> float:
+        """Record a regret observation WITHOUT computing the ethical state M.
+
+        update() needs a harmony score, an energy term and a learning function, and
+        nothing in the live system defines those for Codette; inventing them would
+        make M look measured when it is not. This records only what is known, the
+        gap between what was intended and what happened, and leaves 'M' as None so
+        a reader can see it was not computed. get_regret_signal() reads it as usual.
+        """
+        regret_val = self.regret(intended, actual)
+        self.history.append({
+            'M': None,
+            'regret': regret_val,
+            'intended': intended,
+            'actual': actual,
+            'timestamp': time.time()
+        })
+        self._bound_history()
+        return regret_val
 
     def get_regret_signal(self) -> float:
         """Get accumulated regret for use in decision-making."""

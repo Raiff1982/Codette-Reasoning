@@ -246,6 +246,18 @@ class CodetteForgeBridge:
         self_check.record(current_session_id(), bool(result.get("self_check_ran")),
                           result.get("lock_fixes") or [])
 
+        # EthicalAnchor, observe-only (2026-10-22). Its design is "when intended output
+        # differs from actual output, keep the regret". The one place that is measured
+        # for Codette is the post-write checks: what she wrote (intended) against what
+        # was shown (actual). Trim regret = the share of her reply removed after she
+        # wrote it. Only recorded when the checks ran and measured both lengths.
+        # Nothing reads it to steer her and she is not shown it.
+        _forge = getattr(self, "forge", None)
+        anchor = getattr(_forge, "ethical_anchor", None) if _forge else None
+        lens = result.get("self_check_len")
+        if anchor is not None and result.get("self_check_ran") and lens and lens[0] > 0:
+            anchor.observe(1.0, lens[1] / lens[0])
+
     def _observe_routing(self, result: Dict, query: str) -> None:
         """Feed RoutingMetrics and SpecializationTracker from the live turn.
 
@@ -1449,7 +1461,9 @@ class CodetteForgeBridge:
         # 10. PERMANENT LOCKS: Universal self-check on EVERY response
         try:
             from self_correction import universal_self_check
+            _len_before = len(result["response"] or "")
             result["response"], lock_issues = universal_self_check(result["response"], query=user_query)
+            result["self_check_len"] = [_len_before, len(result["response"] or "")]
             result["self_check_ran"] = True      # distinguishes "ran, changed nothing" from "never ran"
             if lock_issues:
                 result["lock_fixes"] = lock_issues
