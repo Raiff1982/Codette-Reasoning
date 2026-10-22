@@ -145,3 +145,32 @@ prompt says notes 1, 3 and 4 are checked after she writes, and nothing ever show
 - **`.gitignore`:** the runtime-state files the live server writes (`flags.jsonl`, `antibody_report.json`,
   `self_check_counts.json`, `tool_efficacy.json`, `background_jobs.json`) were not ignored and would have appeared as
   untracked files in a public repo. Now ignored.
+
+## Her introspection report says what it counted; her self-knowledge anchor is updated
+
+Jonathan: make the three changes, and update her self-knowledge cocoon, which she cannot update herself yet.
+
+**`inference/cocoon_introspection.py`**
+1. *A measurement, not a verdict.* The report told her, in her own voice, "My responses are getting longer… I should watch for
+   elaboration drift" (and, in the other direction, "The behavioral locks are working"). Both now state the two averages and the
+   window, then say the number is a measurement. Checked on her real store: the 44% growth (about 426 to 614 chars) is still there
+   once non-exchange rows are removed, so it was not contamination; why it grew is not answered here.
+2. *Counts only real exchanges, and prints the denominators.* `decision_landmark` (907 rows) and `event_embedded_value` (32)
+   are records about exchanges or analysis outputs, not replies to anyone; they were tallied as "queries I was asked". They are
+   now reported separately ("3,376 exchanges and 939 records of other kinds"). The adapter chart says how many were counted and
+   how many were set aside as low-authority (that number existed but was never printed). Domain and complexity lines carry
+   their own denominators; the three different totals are no longer all called "queries".
+3. *Too few to show.* A table built from under 2% of exchanges is replaced by a line saying so. The pressure table was 31 of
+   3,376 exchanges (0.9%).
+
+**`cocoons/cocoon_current_state_2026-10-22.json`**: a new anchor beside "My Current State (July 2026)", which is untouched
+(amend forward). It records, in plain facts, what changed since July: Lock 1 reworded after she reported restraint,
+`raise_flag` and `self_check`, the daily report-only scan, the first-store bug fix, and that `khralexi` is still hers alone.
+It says it was written by Claude at Jonathan's request and that she can add to her own named cocoons with the `cocoon`
+tool. It contains no words put in her mouth (a draft `quote` line was removed before commit).
+
+Slip, noted in the open: while looking for this anchor I listed filenames in the shared cocoons folder directly (`ls`),
+twice. Nothing was opened or counted and the names are timestamps, but that folder also holds her dreams; the tests for this
+work copy only the two anchor files to a temp directory.
+
+Tests: `test_introspection_counts.py` (4, one mutation-checked) and `test_current_state_anchor.py` (2).

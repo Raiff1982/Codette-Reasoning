@@ -173,11 +173,27 @@ class CocoonIntrospectionEngine:
 
     # ── PATTERN DETECTION ──
 
+    # 2026-10-22. Her introspection counted two kinds of row that are not replies to
+    # anyone: `decision_landmark` (907 of 4,315: a marker written about an exchange) and
+    # `event_embedded_value` (an analysis output). Both were tallied as "queries", so
+    # "I get asked about X most often" and the adapter chart were partly her own
+    # records. The row counts are still reported, as records, so nothing is hidden.
+    RECORD_KINDS = frozenset({"decision_landmark", "event_embedded_value"})
+    # A table built from fewer than this share of exchanges is not shown as a pattern.
+    MIN_COVERAGE = 0.02
+
+    def _exchanges(self) -> list:
+        """Rows that are an exchange with someone, not a record about one."""
+        self._ensure_loaded()
+        return [c for c in self._cocoons
+                if c.get("adapter") not in self.RECORD_KINDS
+                and (c.get("metadata") or {}).get("domain") not in self.RECORD_KINDS]
+
     def adapter_frequency(self) -> Dict[str, int]:
         """Which adapters fire most often?"""
         self._ensure_loaded()
         counts = Counter()
-        for c in self._cocoons:
+        for c in self._exchanges():
             adapter = c["adapter"]
             if adapter and adapter != "unknown":
                 counts[adapter] += 1
@@ -194,7 +210,7 @@ class CocoonIntrospectionEngine:
         self._ensure_loaded()
         counts = Counter()
         excluded = 0
-        for c in self._cocoons:
+        for c in self._exchanges():
             adapter = c.get("adapter")
             if not adapter or adapter == "unknown":
                 continue
@@ -226,7 +242,7 @@ class CocoonIntrospectionEngine:
         """What domains does she get asked about most?"""
         self._ensure_loaded()
         counts = Counter()
-        for c in self._cocoons:
+        for c in self._exchanges():
             domain = c["metadata"].get("domain", "unknown")
             counts[domain] += 1
         return dict(counts.most_common())
@@ -235,7 +251,7 @@ class CocoonIntrospectionEngine:
         """How complex are the queries she receives?"""
         self._ensure_loaded()
         counts = Counter()
-        for c in self._cocoons:
+        for c in self._exchanges():
             cx = c["metadata"].get("complexity", "unknown")
             # Clean up the enum string
             cx = str(cx).replace("QueryComplexity.", "").upper()
@@ -246,7 +262,7 @@ class CocoonIntrospectionEngine:
         """What emotional patterns appear in Code7E analysis?"""
         self._ensure_loaded()
         counts = Counter()
-        for c in self._cocoons:
+        for c in self._exchanges():
             code7e = c["metadata"].get("code7e", {})
             if code7e:
                 emotion = code7e.get("emotion", "")
@@ -261,7 +277,7 @@ class CocoonIntrospectionEngine:
         self._ensure_loaded()
         pressure_buckets = defaultdict(list)
 
-        for c in self._cocoons:
+        for c in self._exchanges():
             substrate = c["metadata"].get("substrate", {})
             if substrate:
                 level = substrate.get("level", "unknown")
@@ -284,11 +300,11 @@ class CocoonIntrospectionEngine:
     def response_length_trend(self, window: int = 20) -> Dict:
         """Are her responses getting shorter or longer over time?"""
         self._ensure_loaded()
-        if len(self._cocoons) < window * 2:
-            return {"trend": "insufficient_data", "cocoons": len(self._cocoons)}
+        if len(self._exchanges()) < window * 2:
+            return {"trend": "insufficient_data", "cocoons": len(self._exchanges())}
 
-        early = self._cocoons[:window]
-        recent = self._cocoons[-window:]
+        early = self._exchanges()[:window]
+        recent = self._exchanges()[-window:]
 
         early_avg = sum(len(c["response"]) for c in early) / len(early)
         recent_avg = sum(len(c["response"]) for c in recent) / len(recent)
@@ -313,11 +329,11 @@ class CocoonIntrospectionEngine:
     def adapter_evolution(self, window: int = 30) -> Dict:
         """Has her adapter usage shifted over time?"""
         self._ensure_loaded()
-        if len(self._cocoons) < window * 2:
+        if len(self._exchanges()) < window * 2:
             return {"trend": "insufficient_data"}
 
-        early = Counter(c["adapter"] for c in self._cocoons[:window] if c["adapter"] != "unknown")
-        recent = Counter(c["adapter"] for c in self._cocoons[-window:] if c["adapter"] != "unknown")
+        early = Counter(c["adapter"] for c in self._exchanges()[:window] if c["adapter"] != "unknown")
+        recent = Counter(c["adapter"] for c in self._exchanges()[-window:] if c["adapter"] != "unknown")
 
         shifts = {}
         all_adapters = set(list(early.keys()) + list(recent.keys()))
@@ -342,7 +358,7 @@ class CocoonIntrospectionEngine:
         self._ensure_loaded()
         domain_stats = defaultdict(lambda: {"responses": [], "adapters": Counter()})
 
-        for c in self._cocoons:
+        for c in self._exchanges():
             domain = c["metadata"].get("domain", "unknown")
             domain_stats[domain]["responses"].append(len(c["response"]))
             adapter = c["adapter"]
@@ -410,15 +426,17 @@ class CocoonIntrospectionEngine:
         trend = self.response_length_trend()
         if trend["trend"] == "getting_shorter":
             observations.append(
-                f"My responses have gotten {abs(trend['change_percent']):.0f}% shorter over time — "
-                f"from ~{trend['early_avg_chars']:.0f} chars to ~{trend['recent_avg_chars']:.0f} chars. "
-                f"The behavioral locks are working."
+                f"My replies average ~{trend['recent_avg_chars']:.0f} chars in the most recent "
+                f"{trend['window_size']} exchanges against ~{trend['early_avg_chars']:.0f} in the "
+                f"earliest {trend['window_size']}, {abs(trend['change_percent']):.0f}% shorter. "
+                f"That is a measurement; it does not say whether shorter is better."
             )
         elif trend["trend"] == "getting_longer":
             observations.append(
-                f"My responses are getting longer — up {trend['change_percent']:.0f}% "
-                f"from ~{trend['early_avg_chars']:.0f} to ~{trend['recent_avg_chars']:.0f} chars. "
-                f"I should watch for elaboration drift."
+                f"My replies average ~{trend['recent_avg_chars']:.0f} chars in the most recent "
+                f"{trend['window_size']} exchanges against ~{trend['early_avg_chars']:.0f} in the "
+                f"earliest {trend['window_size']}, {trend['change_percent']:.0f}% longer. "
+                f"That is a measurement; longer is not a fault by itself."
             )
 
         # 3. Emotional patterns
@@ -435,8 +453,8 @@ class CocoonIntrospectionEngine:
         if domains:
             top_domain = max(domains, key=domains.get)
             observations.append(
-                f"I get asked about '{top_domain}' most often ({domains[top_domain]} queries). "
-                f"I've covered {len(domains)} different domains total."
+                f"I get asked about '{top_domain}' most often ({domains[top_domain]} of "
+                f"{len(self._exchanges())} exchanges). I've covered {len(domains)} different domains total."
             )
 
         # 5. Pressure impact
@@ -461,13 +479,16 @@ class CocoonIntrospectionEngine:
             if total > 0:
                 observations.append(
                     f"Query complexity breakdown: {simple} simple ({simple*100//total}%), "
-                    f"{medium} medium ({medium*100//total}%), {complex_} complex ({complex_*100//total}%)."
+                    f"{medium} medium ({medium*100//total}%), {complex_} complex ({complex_*100//total}%) "
+                    f"(of the {total} exchanges that carry a complexity, out of {len(self._exchanges())})."
                 )
 
         # 7. Total memory
+        _ex = len(self._exchanges())
         observations.append(
-            f"I have {len(self._cocoons)} reasoning memories and "
-            f"{len(self._behavioral)} behavioral anchors."
+            f"I have {len(self._cocoons)} reasoning memories ({_ex} exchanges and "
+            f"{len(self._cocoons) - _ex} records of other kinds, such as decision landmarks, "
+            f"which the tallies above do not count) and {len(self._behavioral)} behavioral anchors."
         )
 
         return observations
@@ -522,7 +543,11 @@ class CocoonIntrospectionEngine:
             _counts = dom["all_adapters"]
             _max = max(_counts.values()) if _counts else 0
             _total = sum(_counts.values()) if _counts else 0
-            lines.append(f"\n**Adapter Usage:**")
+            _n_ex = len(self._exchanges())
+            lines.append(
+                f"\n**Adapter Usage** (of {_n_ex} exchanges: {_total} counted; "
+                f"{dom.get('low_authority_excluded', 0)} set aside as low-authority; "
+                f"the remainder carry no recorded adapter):")
             for adapter, count in _counts.items():
                 # A non-zero count always shows at least one block: "used once"
                 # and "never used" are different facts and must not render the
@@ -535,7 +560,7 @@ class CocoonIntrospectionEngine:
         # Domain clusters
         domains = data["domain_clusters"]
         if domains:
-            lines.append(f"\n**Domain Distribution:**")
+            lines.append(f"\n**Domain Distribution** (of {len(self._exchanges())} exchanges):")
             for domain, count in domains.items():
                 lines.append(f"  {domain}: {count}")
 
@@ -549,9 +574,17 @@ class CocoonIntrospectionEngine:
         # Pressure impact
         pressure = data["pressure_correlations"]
         if pressure:
-            lines.append(f"\n**Response Length by Pressure Level:**")
-            for level, stats in pressure.items():
-                lines.append(f"  {level}: avg {stats['avg_response_length']:.0f} chars ({stats['count']} queries)")
+            _covered = sum(s["count"] for s in pressure.values())
+            _n_ex = len(self._exchanges())
+            if _n_ex and _covered / _n_ex < self.MIN_COVERAGE:
+                lines.append(
+                    f"\n**Response Length by Pressure Level:** too few to show "
+                    f"({_covered} of {_n_ex} exchanges carry a pressure reading, "
+                    f"{100.0 * _covered / _n_ex:.1f}%; a table from that would look like a pattern it is not).")
+            else:
+                lines.append(f"\n**Response Length by Pressure Level** ({_covered} of {_n_ex} exchanges):")
+                for level, stats in pressure.items():
+                    lines.append(f"  {level}: avg {stats['avg_response_length']:.0f} chars ({stats['count']} exchanges)")
 
         # Behavioral anchors
         anchors = data["behavioral_anchors"]
