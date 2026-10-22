@@ -174,3 +174,17 @@ twice. Nothing was opened or counted and the names are timestamps, but that fold
 work copy only the two anchor files to a temp directory.
 
 Tests: `test_introspection_counts.py` (4, one mutation-checked) and `test_current_state_anchor.py` (2).
+
+## The second introspection implementation, same fix
+
+After her restart, her chat report (from `cocoon_introspection.py`) read correctly: 14 anchors including the October one,
+denominators printed, no verdicts. But `/api/introspection`, which the UI reads, comes from a **second implementation**,
+`UnifiedMemory.full_introspection()` in `unified_memory.py` ("replaces CocoonIntrospectionEngine"), and it still counted every
+row: 4,316 "reasoning exchanges", `decision_landmark` as the second-largest adapter, "balanced" computed over the padded total.
+The mistake had spread by being copied; two implementations of one report is the same route the antibody clone-families view
+showed for the other leads. It now excludes the same two record kinds in the adapter, domain, complexity and length queries
+and reports `total_exchanges` and `records_not_counted` separately. `total_cocoons` keeps its old meaning (all rows) so the UI
+is unaffected. Tests: `tests/test_unified_introspection_counts.py`.
+
+Not changed, noted: the length trend on this path shows several responses at exactly 2000 characters, which looks like a
+storage cap, so its "average response length" understates long replies. Left for a decision.
