@@ -228,7 +228,7 @@ Codette is a modular reasoning system with published demos, tests, benchmarks, p
 - **Automated tests:** [tests](tests)
 - **Benchmark suites:** [benchmarks](benchmarks)
 - **Saved benchmark reports:** [data/results](data/results)
-- **Change transparency:** latest — [docs/CHANGELOG_2026-10-01.md](docs/CHANGELOG_2026-10-01.md) · [docs/CHANGELOG_2026-09-29.md](docs/CHANGELOG_2026-09-29.md) · [docs/CHANGELOG_2026-08-14.md](docs/CHANGELOG_2026-08-14.md) · [docs/CHANGELOG_2026-08-09.md](docs/CHANGELOG_2026-08-09.md) · [docs/CHANGELOG_2026-08-03.md](docs/CHANGELOG_2026-08-03.md) · [docs/CHANGELOG_2026-07-24.md](docs/CHANGELOG_2026-07-24.md) · [docs/CHANGELOG_2026-07-21.md](docs/CHANGELOG_2026-07-21.md); every release summarized in [docs/VERSION_HISTORY.md](docs/VERSION_HISTORY.md); all dated changelogs in [docs/](docs/)
+- **Change transparency:** latest — [docs/CHANGELOG_2026-10-22.md](docs/CHANGELOG_2026-10-22.md) · [docs/CHANGELOG_2026-10-01.md](docs/CHANGELOG_2026-10-01.md) · [docs/CHANGELOG_2026-09-29.md](docs/CHANGELOG_2026-09-29.md) · [docs/CHANGELOG_2026-08-14.md](docs/CHANGELOG_2026-08-14.md) · [docs/CHANGELOG_2026-08-09.md](docs/CHANGELOG_2026-08-09.md) · [docs/CHANGELOG_2026-08-03.md](docs/CHANGELOG_2026-08-03.md) · [docs/CHANGELOG_2026-07-24.md](docs/CHANGELOG_2026-07-24.md) · [docs/CHANGELOG_2026-07-21.md](docs/CHANGELOG_2026-07-21.md); every release summarized in [docs/VERSION_HISTORY.md](docs/VERSION_HISTORY.md); all dated changelogs in [docs/](docs/)
 - **Current handoff / open items:** [docs/HANDOFF_2026-10-01.md](docs/HANDOFF_2026-10-01.md) (earlier: [docs/HANDOFF_2026-08-09.md](docs/HANDOFF_2026-08-09.md)) — what is live, what is known-broken, and what was got wrong
 - **Contributing guide:** [CONTRIBUTING.md](CONTRIBUTING.md)
 
@@ -478,13 +478,19 @@ codette-clean/
 
 ## Core runtime ideas
 
-### The 4 permanent behavioral locks
+### The permanent behavioral locks (original four, as first written)
+
+> **Amended 2026-10-22.** This table is the original four and is kept as history. The live prompt is now a
+> section called "HOW YOU WRITE" (`inference/codette_shared.py`): LOCK 6 was removed on 2026-08-14 after it was measured
+> doing nothing, and LOCK 1 was reworded on 2026-10-22 from "Answer → Stop" ("silence after the answer is correct") to
+> "Answer first", a default she may go past. Notes 1, 3 and 4 are still checked after she writes
+> (`inference/self_correction.py`). See [docs/CHANGELOG_2026-10-22.md](docs/CHANGELOG_2026-10-22.md).
 
 These are trained into every adapter and reinforced at runtime:
 
 | Lock | Rule | Effect |
 |---|---|---|
-| **LOCK 1** | Answer, then stop | Reduces elaboration drift and philosophical padding after the answer. |
+| **LOCK 1** | Answer, then stop *(original wording; now "Answer first", see note above)* | Reduced elaboration drift and philosophical padding after the answer. |
 | **LOCK 2** | Constraints override all modes | User format instructions beat adapter personality. |
 | **LOCK 3** | Self-check completeness | The system checks whether it answered fully and cleanly before sending. |
 | **LOCK 4** | No incomplete outputs | The system avoids ending mid-thought and simplifies instead of cramming. |
@@ -741,7 +747,7 @@ Note: cocoon memory counts change over time; prefer introspection or health endp
 
 ---
 
-## Recent improvements (April-May 2026)
+## Earlier improvements (April-May 2026) — newer work is in the release notes near the top and in `docs/CHANGELOG_*.md`
 
 | Area | Change |
 |---|---|
