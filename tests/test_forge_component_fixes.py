@@ -5,7 +5,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from reasoning_forge.memory_kernel import DynamicMemoryEngine, ReflectionJournal
+from reasoning_forge.memory_kernel import DynamicMemoryEngine
 from reasoning_forge.routing_metrics import RoutingMetrics
 
 
@@ -55,7 +55,5 @@ def test_decay_composes_across_calls_and_uses_a_true_half_life():
     assert mem2.importance in (5, 6)                     # rounding at each step, not collapse to 1
 
 
-def test_reflection_journal_default_path_is_not_the_working_directory():
-    j = ReflectionJournal.__new__(ReflectionJournal)
-    assert Path(ReflectionJournal.DEFAULT_PATH).is_absolute()
-    assert ".logs" in ReflectionJournal.DEFAULT_PATH
+# Amended 2026-10-22: a test for ReflectionJournal's default path lived here. The class was retired the
+# same day (archive/2026-10-22-retired-wisdom-reflection/), so its test went with it.

@@ -481,7 +481,8 @@ curl http://localhost:7860/metrics
 ### Log Inspection
 ```bash
 # Application logs:
-tail -f reasoning_forge/.logs/codette_reflection_journal.json
+# (the reflection journal was retired 2026-10-22; this file is no longer written)
+# tail -f reasoning_forge/.logs/codette_reflection_journal.json
 
 # Error logs:
 grep ERROR reasoning_forge/.logs/codette_errors.log
