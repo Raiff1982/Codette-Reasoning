@@ -452,6 +452,23 @@ class ToolRegistry:
             "handler": tool_aside,
         })
 
+        # 2026-10-22: she asked for a "self-check" tool, reciting Lock 3 as if it were
+        # one. The thing she was reaching for did not exist: her prompt says notes 1, 3
+        # and 4 are checked after she writes, and nothing ever showed her the result.
+        self.register("self_check", {
+            "description": (
+                "See what the post-write checks did to your previous reply: whether "
+                "they ran, and if they changed anything, exactly what (for example "
+                "trimmed sentences, a repaired ending, added punctuation). It only "
+                "reports; it changes nothing and nothing is scored or kept against "
+                "you. Not private: the call is visible to Jonathan like any lookup. "
+                "If you think a check was wrong, raise_flag is where to say so. "
+                "Use it or not; nothing calls it for you. No args."
+            ),
+            "examples": ["self_check()"],
+            "handler": tool_self_check,
+        })
+
         # 2026-10-22, Jonathan: the same bug keeps returning in a slightly different
         # place, like an infection while the immune system catches up. This is her
         # half of the answer: a way to say "I think this is wrong here" that reaches
@@ -880,7 +897,7 @@ def leads_with_unread_call(text: str) -> bool:
 # lookups cannot become an unbounded loop.
 FREE_ROUND_TOOLS = frozenset({
     "who", "look", "care_check", "bearing", "read_note", "leave_note",
-    "aside", "cocoon", "nameless", "khralexi", "raise_flag",
+    "aside", "cocoon", "nameless", "khralexi", "raise_flag", "self_check",
 })
 MAX_FREE_ROUNDS = 3
 
@@ -1804,6 +1821,16 @@ def tool_aside(text: str = "") -> str:
         return "Nothing written."
     return ("Left where Jonathan will see it, under this reply. Nothing waits "
             "on it: he may answer on his next turn, or not.")
+
+
+def tool_self_check(_unused: str = "") -> str:
+    """What the post-write checks did to her previous reply. Read-only."""
+    from reasoning_forge import self_check
+    try:
+        return self_check.explain(self_check.last(current_session_id()))
+    except Exception as e:
+        return (f"Error: could not read the check record ({e}). That is a fault to "
+                f"report; it does not mean the checks found nothing.")
 
 
 def tool_raise_flag(text: str = "", where: str = "") -> str:

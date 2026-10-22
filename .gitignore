@@ -228,3 +228,11 @@ openvino_backend/.ov_cache/
 
 # Her specialized cocoons: runtime state, kept out of git like the rest of her memory.
 data/specialized_cocoons/
+
+# 2026-10-22: runtime state written by the running server (see CLAUDE.md: her memory and
+# runtime state stay out of git). Flags are visible to Jonathan via /api/flags, not published.
+data/flags.jsonl
+data/antibody_report.json
+data/self_check_counts.json
+data/tool_efficacy.json
+data/background_jobs.json

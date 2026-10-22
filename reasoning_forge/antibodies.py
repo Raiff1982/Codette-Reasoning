@@ -409,8 +409,16 @@ def run(root: Optional[Path] = None, antibodies: Optional[List[Antibody]] = None
         if err:
             entry["error"] = err
         results.append(entry)
+    # Runtime side: a correction that fires on a large share of checked turns is a
+    # recurring fault being patched after the fact, which is what an antibody is for.
+    # Counts of issue codes only (reasoning_forge/self_check.py); never text.
+    try:
+        from reasoning_forge import self_check
+        runtime = self_check.summary()
+    except Exception as e:                                        # report, never hide
+        runtime = {"status": "ERROR", "detail": f"{type(e).__name__}: {e}"}
     return {"ran_at": time.strftime("%Y-%m-%dT%H:%M:%S"), "files_scanned": len(sources),
-            "report_only": True, "antibodies": results}
+            "report_only": True, "antibodies": results, "runtime": runtime}
 
 
 def write_report(report: dict, path: Optional[Path] = None) -> Path:
@@ -432,6 +440,7 @@ def summary(path: Optional[Path] = None) -> dict:
         "files_scanned": rep.get("files_scanned"), "report_only": True,
         "classes": {a["name"]: {"status": a["status"], "leads": a["count"]}
                     for a in rep.get("antibodies", [])},
+        "recurring_corrections": (rep.get("runtime") or {}).get("recurring", []),
     }
 
 
