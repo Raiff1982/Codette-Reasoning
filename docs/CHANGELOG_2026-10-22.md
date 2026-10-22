@@ -105,3 +105,14 @@ forge builds the `memory_kernel` one. `self.newton` was a false positive (used t
 Not wired yet, and why: see the decisions list in the PR description. `RoutingMetrics` and `SpecializationTracker` are
 observation-only and can be wired; `DynamicMemoryEngine` mutates her stored memory importance, `EthicalAnchor` needs a
 definition of "intended vs actual", and `WisdomModule`/`ReflectionJournal` write a new persistent copy of memory snippets.
+
+## Wired: RoutingMetrics and SpecializationTracker
+
+Observation only. `CodetteForgeBridge.generate` now calls `_observe_routing` after the advisory, in its own try/except, so every
+live turn records the route (primary, secondary, router confidence, strategy) and, when `measured_coherence` exists, the
+adapter's coherence for the query's domain. Reach counters cover `record_route` and `record_adapter_performance`; both appear
+on `/api/health` (`routing_metrics`, `specialization_tracker`) and read `LOADED_NEVER_CALLED` until the first turn after restart.
+
+What it does not invent: no coherence when none was measured; the router applies its memory boost internally and does not
+report it, so `memory_boost_applied` is `None` and `memory_boost_rate` reads `None`, not 0. Benchmark queries and empty
+results are skipped (same rule as cocooning). Nothing reads either tracker to steer routing.

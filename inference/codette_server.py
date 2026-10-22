@@ -892,7 +892,9 @@ def _run_health_check():
         for _attr, _name in (("code7e", "code7e_cqure"),
                              ("nexis_signal_engine", "nexis_signal_engine"),
                              ("aegis", "aegis_forge_instance"),
-                             ("qhf", "quantum_harmonic_framework")):
+                             ("qhf", "quantum_harmonic_framework"),
+                             ("routing_metrics", "routing_metrics"),
+                             ("specialization", "specialization_tracker")):
             p6["components"][_name] = _reach_report(getattr(forge, _attr, None))
 
         report["systems"]["phase6_forge"] = p6
