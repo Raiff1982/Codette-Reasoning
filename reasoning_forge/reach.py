@@ -134,6 +134,7 @@ FORGE_ENTRY_POINTS: Dict[str, Tuple[str, ...]] = {
     "aegis": ("evaluate", "quick_check", "screen_query"),
     "qhf": ("stabilize",),
     "memory_kernel": ("store", "store_v2_cocoon", "search"),
+    "ethical_anchor": ("observe", "update"),
     "routing_metrics": ("record_route",),
     "specialization": ("record_adapter_performance",),
 }
