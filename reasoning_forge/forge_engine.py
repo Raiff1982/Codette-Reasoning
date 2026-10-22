@@ -1498,6 +1498,10 @@ class ForgeEngine:
         # =========================================================================
         # LAYER 1: MEMORY RECALL  (standard + Zeta-Equilibrium tension-weighted)
         # =========================================================================
+        # 2026-10-22: intent_vector is set by the Nexis step further down; the Zeta
+        # recall below read it first, raised NameError, and the except hid it, so
+        # the "otherwise a proxy" branch was the only one that ever ran.
+        intent_vector = {}
         logger.info("[L1] Memory Recall...")
         prior_insights = []
         if hasattr(self, 'memory_kernel') and self.memory_kernel:

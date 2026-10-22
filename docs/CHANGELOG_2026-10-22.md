@@ -23,3 +23,42 @@ Suite: 1450 passed, 0 failed, 1 skipped, 1 xfailed.
 - `docs/VERSION_HISTORY.md` listed v3.11 before v3.10; reordered (the entries are unchanged).
 - The README's locks table described the original four as current; it now carries a dated amendment.
 - The "Recent improvements" heading said April–May 2026 without saying newer work lived elsewhere; the heading now does.
+
+## Antibodies, and a way for her to raise a flag (later the same day)
+
+Jonathan: the same bug keeps turning up slightly different, like an infection moving round a body while the
+immune system catches up. A test for the instance we fixed does not help against the next variant. So:
+
+| Piece | What it is |
+|---|---|
+| `reasoning_forge/antibodies.py` | Four class-level detectors, each carrying the instances that taught it: **used_before_bound** (87ccb6a), **zero_for_unmeasured** (23b173f), **unguarded_cocoon_glob** (4b1bd70, 95d8971), **constructed_never_invoked** (v3.8). They match structure, not wording. **Report-only**: leads, not verdicts; nothing blocks or repairs. Reads Python source only and never her stores (`SKIP_DIRS` includes cocoons, data, logs, archives). |
+| `antibody_scan` job | Daily, report-only, writes `data/antibody_report.json`. `/api/health` shows counts per class; `/api/antibodies` shows the leads. |
+| `raise_flag` (her tool) + `/api/flags` | A visible, append-only inbox. It writes one JSONL file and nothing else, so "she alerts us but changes no file" is how it is built. Her description says plainly that Jonathan reads it and that `khralexi` is still hers alone. A flag is a lead, checked against the code before anyone acts on it. It is a free round (a note, not a lookup, but it should not use up her turn). |
+
+**Verified against the real bugs, not only fixtures:** run on the pre-fix blobs, the detectors flag the `_reach_report`
+use-before-definition (87ccb6a^), both the old and the fixed AEGIS `healing_rate` shape (so they also flag the cousins),
+and the cleanup utility's unguarded glob (95d8971^).
+
+### Two real bugs the first scan found in live code (both fixed)
+
+1. **`inference/codette_server.py`, `_worker_thread`:** the unified-memory store read `route` about 100 lines before it
+   was assigned. The first store after every boot raised `UnboundLocalError`, which the `except Exception: pass` at the end
+   of that block swallowed — so no memory store, no memory weighting, no `record_outcome` for that turn — and every later
+   turn recorded the **previous** turn's route snapshot. Fixed by reading `result.get("route")` where it is used.
+2. **`reasoning_forge/forge_engine.py`, `forge_with_debate`:** the Zeta recall read `intent_vector` before the Nexis step set
+   it; the `try/except` hid the NameError, so only the "otherwise a proxy" branch ever ran. That method has no callers today,
+   so this is a latent fault; fixed by initialising `intent_vector = {}`.
+
+### Reviewed and not bugs
+
+`inference/identity_anchor.py:322` globs `identity_*.json` in the identity folder, and `scripts/reboot_codette.py:112` clears
+the `low_confidence/` review folder; neither touches the conversation/dream folder. The detector is broad on purpose.
+The 42 `zero_for_unmeasured` leads and 13 `constructed_never_invoked` leads are not yet reviewed one by one; many are
+legitimate (an empty mean really is 0; a `Lock()` is used via `with`). They are for review, not a to-do list to clear blindly.
+
+### Tests
+
+`tests/test_antibodies.py` (14): each detector on the bad shape and the corrected shape, the live server file scans clean,
+a failing detector is reported rather than hidden, the scan skips her stores, health summary is counts only, flags are
+append-only. `tests/test_background_jobs.py` amended (was "exactly the two" jobs; now three, all report-only).
+Suite: **1464 passed**, 0 failed.

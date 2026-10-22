@@ -47,5 +47,7 @@ def test_the_state_file_holds_counts_not_text(tmp_path):
     assert json.loads(raw)["a"]["summary"] == {"reviewed": 3, "report": "dream_x.md"}
 
 
-def test_registered_jobs_are_exactly_the_two_report_only_ones():
-    assert set(default_jobs()) == {"dream_cycle", "cocoon_self_trainer"}
+def test_registered_jobs_are_exactly_the_report_only_ones():
+    # Amended 2026-10-22: was "exactly the two"; antibody_scan is the third, and is
+    # report-only too (it reads Python source and writes data/antibody_report.json).
+    assert set(default_jobs()) == {"dream_cycle", "cocoon_self_trainer", "antibody_scan"}

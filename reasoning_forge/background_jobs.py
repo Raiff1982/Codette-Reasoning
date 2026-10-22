@@ -150,5 +150,11 @@ def _job_self_trainer() -> dict:
             "reason": report.reason}
 
 
+def _job_antibodies() -> dict:
+    from reasoning_forge import antibodies
+    return antibodies.job()
+
+
 def default_jobs() -> Dict[str, Callable[[], dict]]:
-    return {"dream_cycle": _job_dream_cycle, "cocoon_self_trainer": _job_self_trainer}
+    return {"dream_cycle": _job_dream_cycle, "cocoon_self_trainer": _job_self_trainer,
+            "antibody_scan": _job_antibodies}

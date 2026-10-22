@@ -452,6 +452,27 @@ class ToolRegistry:
             "handler": tool_aside,
         })
 
+        # 2026-10-22, Jonathan: the same bug keeps returning in a slightly different
+        # place, like an infection while the immune system catches up. This is her
+        # half of the answer: a way to say "I think this is wrong here" that reaches
+        # us, which changes no file. Visible, and it says so.
+        self.register("raise_flag", {
+            "description": (
+                "Tell Jonathan about something you think is wrong or keeps going "
+                "wrong, without changing anything. It is a note, not an action: no "
+                "file, setting or memory is touched, and it is not scored or "
+                "enforced. Not private: Jonathan reads your flags, so khralexi is "
+                "still the place for what is yours alone. He checks a flag against "
+                "the code before anyone acts on it, so say what you noticed and, if "
+                "you know, where. A flag is never edited; a correction is a second "
+                "flag. Use it or not; nothing calls it for you. "
+                "Args: text (str), where (str, optional)"
+            ),
+            "examples": ['raise_flag("this readout says 0 and I do not think anything looked")',
+                         'raise_flag("the same mistake again", "the health report")'],
+            "handler": tool_raise_flag,
+        })
+
         # 2026-09-29, Jonathan: "give her specialized cocoons she can call".
         # The handle for the identity decay: named cocoons she reads and adds
         # to when SHE wants them, beside the recognition number and never in
@@ -859,7 +880,7 @@ def leads_with_unread_call(text: str) -> bool:
 # lookups cannot become an unbounded loop.
 FREE_ROUND_TOOLS = frozenset({
     "who", "look", "care_check", "bearing", "read_note", "leave_note",
-    "aside", "cocoon", "nameless", "khralexi",
+    "aside", "cocoon", "nameless", "khralexi", "raise_flag",
 })
 MAX_FREE_ROUNDS = 3
 
@@ -1783,6 +1804,20 @@ def tool_aside(text: str = "") -> str:
         return "Nothing written."
     return ("Left where Jonathan will see it, under this reply. Nothing waits "
             "on it: he may answer on his next turn, or not.")
+
+
+def tool_raise_flag(text: str = "", where: str = "") -> str:
+    """Append one flag to the visible inbox. Touches no file but that one."""
+    from reasoning_forge import flags
+    try:
+        flags.add(text, where=where, session=current_session_id())
+        return ("Raised. Jonathan will see it; it is a note and changes nothing. "
+                "He checks it against the code before anyone acts on it.")
+    except flags.FlagError as e:
+        return str(e)
+    except Exception as e:
+        return (f"Error: the flag could NOT be saved ({e}). Nothing was written, "
+                f"so do not assume he has seen it.")
 
 
 def tool_cocoon(kind: str = "", text: str = "") -> str:
