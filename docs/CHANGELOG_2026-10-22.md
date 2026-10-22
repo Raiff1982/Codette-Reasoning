@@ -116,3 +116,12 @@ on `/api/health` (`routing_metrics`, `specialization_tracker`) and read `LOADED_
 What it does not invent: no coherence when none was measured; the router applies its memory boost internally and does not
 report it, so `memory_boost_applied` is `None` and `memory_boost_rate` reads `None`, not 0. Benchmark queries and empty
 results are skipped (same rule as cocooning). Nothing reads either tracker to steer routing.
+
+## The flaky drift test, settled
+
+`tests/test_drift_detector.py::TestInterventionPlan::test_psi_r_history_populated` failed in ~1 full run in 8 and never alone.
+Cause: a **test-fixture** bug, not the detector. `_FakeKernel.recall_recent` sorts on `_FakeCocoon.timestamp = time.time()`; a
+coarse Windows clock gave several of the five fake cocoons the same stamp, and when a tick landed mid-list the sort changed their
+order (`0.72 != 0.81`). The fixture now uses strictly increasing stamps. Verified: the old behaviour reorders 2138 of 3000
+constructions; the fixed one, 0 of 2000. Found by looping the full suite with full tracebacks until it failed (run 8 of 20).
+Production cocoons are stamped in separate requests, so the detector was never affected.
