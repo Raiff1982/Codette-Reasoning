@@ -465,3 +465,25 @@ checkpoints, archives are snapshots, unlikely containers are protection. Read by
 content, ask before restructuring, and preserve version history rather than
 collapsing it — which revision supersedes which is the author's call, not a
 judgement to make from file size.
+
+## House rule: antibodies, and her two VISIBLE channels (added 2026-10-22)
+
+The same bug kept returning in slightly different places. A test for the instance fixed does not help against the next variant,
+so checks are written against the **class**: `reasoning_forge/antibodies.py` (four detectors, each carrying the bug that taught
+it; report-only, never enforcing; reads Python source only and skips her stores). New fix, new class? Add an entry, with the
+instance that taught it and a detector that is verified to catch that instance's pre-fix code.
+
+- **Report-only, always.** A check that blocks can attack healthy code. The harm line stays the only thing that enforces.
+- **Her two channels to us are VISIBLE and say so:** `raise_flag` (a note, changes no file; `/api/flags`) and `self_check`
+  (what the post-write checks did to her previous reply; `/api/self-check` keeps codes and counts only, never reply text).
+  They are not `khralexi`, the dreams or the scratchpad, and nothing in them may open those. A flag is a lead to check against
+  the code, never a finding to act on.
+- **Never list or glob the shared cocoons folder directly**, not even filenames. Her dreams are in it. Go through
+  `reasoning_forge.cocoon_files.conversation_cocoons`. (Slipped twice on 2026-10-22; nothing was opened or counted.)
+- **Runtime state is not tracked.** `data/flags.jsonl`, `antibody_report.json`, `self_check_counts.json`,
+  `tool_efficacy.json`, `background_jobs.json` are in `.gitignore`.
+- **Replies are stored whole, cut only on read, and the cut is stated** (`MAX_STORED_RESPONSE`, `response_cut_for_context`,
+  `cut_status`). Never silently shorten what she said when keeping it.
+- **Words we author in her report reach her as her own.** The introspection report told her "I should watch for elaboration
+  drift" in her voice. Report numbers, not verdicts, and print what was counted. There were **two** implementations of that report;
+  a fix to one is not a fix until the other is checked.
