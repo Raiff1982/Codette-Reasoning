@@ -937,7 +937,10 @@ class ForgeEngine:
                         "top_tensions": list(epistemic_report.get("tension_productivity", {}).keys())[:3],
                     })
             except Exception as e:
-                logger.debug(f"[forge_single_safe] Nexis skipped: {e}")
+                # WARNING, not DEBUG (2026-11-17). nexis_signal_engine.py's
+                # 2026-08-03 note: a failure here was invisible at DEBUG, and
+                # intent_risk then read as "no risk detected".
+                logger.warning(f"[forge_single_safe] Nexis skipped: {type(e).__name__}: {e}")
 
         if getattr(self, 'colleen', None):
             try:
@@ -1588,7 +1591,8 @@ class ForgeEngine:
                         "top_tensions": intent_vector.get("top_tensions", []),
                     })
             except Exception as e:
-                logger.debug(f"  Signal analysis failed: {e}")
+                # WARNING, not DEBUG -- see the Nexis note in _forge_single_safe.
+                logger.warning(f"  Signal analysis failed: {type(e).__name__}: {e}")
 
         # =========================================================================
         # LAYER 2.5: CODE7E EMOTIONAL CONTEXT ENRICHMENT

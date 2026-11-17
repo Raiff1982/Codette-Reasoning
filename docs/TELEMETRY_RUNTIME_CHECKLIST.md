@@ -145,3 +145,67 @@ also have no live caller.
 
 Items 1 and 3 need her live telemetry and have not been started. Item 3 stays
 limited by the guardrails above.
+
+## Amended 2026-11-17, later: the two failures diagnosed, the ratchet fixed
+
+### Both suite failures came from the environment, not the code. One fix each.
+
+- **`test_time_travel_lens.py::...::test_automotive_example`:** `python-dateutil`
+  was missing. `InstitutionalExtractor` treats it as optional and falls back to
+  ISO dates only, so "January 10" did not parse. With it installed, 33 of 33 pass.
+  It was declared nowhere, so any environment that did not pull it in
+  transitively silently lost month-name dates. **Fix:** added to
+  `requirements.txt`.
+- **`test_trace_e2e.py::...::test_all_event_types_fire`:** NLTK's `punkt_tab`
+  and `wordnet` data were absent, so `NexisSignalEngine.process()` raised
+  `LookupError`. NLTK's own SSRF guard refuses to download through a proxy, and
+  this container routes everything through one. On a machine with no proxy the
+  download in `nexis_signal_engine.py` should work. I did not set NLTK's opt-out
+  (`NLTK_ALLOW_PROXIED_URLOPEN`), because that is a security check. This is the
+  same failure the 2026-08-03 note in `nexis_signal_engine.py` describes. That
+  fix repaired the download, but `forge_engine.py` still logged the failure at
+  DEBUG, so it stayed invisible. **Fix:** both Nexis failure logs
+  (`_forge_single_safe` and the L2 signal layer) are now WARNING and name the
+  exception type. The test still fails here, correctly: the signal really is
+  missing in this environment.
+
+### The violation-rate ratchet, fixed
+
+`SubstrateMonitor` now counts violations over the same 20-inference window as
+its denominator (`_violation_stamps`, `_inference_stamps`). At one violation
+every two turns it reads 0.25 at 20, 40 and 100 turns (before the fix: 0.25,
+0.50, 1.00). It also returns to 0 after 20 clean turns. `get_adapter_health()`
+keeps lifetime counts, which is what a per-adapter history is for. Still no
+caller records violations, so nothing live changes.
+`tests/test_substrate_violation_window.py`: 2 of its 3 tests fail on the pre-fix
+code, and all 3 pass on the fix.
+
+**Antibody added:** `lifetime_over_window` in `reasoning_forge/antibodies.py`.
+It catches the pre-fix `substrate_awareness.py` at line 167, is clear on the fix,
+and finds 0 other instances in the 332 files it scans. Report-only, like the rest.
+
+### Runtime files that git would have picked up
+
+One full test run here left `data/self_train_shadow.jsonl` in the checkout. Its
+only writer is the `cocoon_self_trainer` background job, and no test calls that
+job. I could not find the cause, and five further runs (three full, one on a
+`main` worktree, one bare import) did not reproduce it. The file was deleted
+unopened. Looking into it showed that four files the running system writes were
+neither tracked nor ignored, so `git add -A` on her machine would have published
+them:
+
+- `data/continuity_notes.json`: her tape (`inference/continuity_note.py`).
+  Visible by design, but her memory.
+- `data/grounding_shadow.jsonl`, `data/harm_advisor_shadow.jsonl` and
+  `data/self_train_shadow.jsonl`: shadow telemetry.
+
+All four are now in `.gitignore`. None was tracked, so nothing leaves the
+repository. Whether the continuity notes should be tracked instead is Jonathan's
+call.
+
+### Suite, after these changes
+
+Reduced venv, now with `python-dateutil`. Branch: **1,492 passed, 1 failed**
+(the NLTK one above), 7 skipped, 1 xfailed. `main` in the same venv: 1,488
+passed, the same 1 failed. The 4 extra passes are the new tests. No new
+failures.

@@ -88,7 +88,14 @@ class SubstrateMonitor:
     def __init__(self):
         self._history = deque(maxlen=50)  # Last 50 snapshots
         self._inference_times = deque(maxlen=20)  # Last 20 inference durations
-        self._adapter_violations = {}  # adapter_name -> violation count
+        # When each of the last 21 inferences finished. The 21st-oldest marks
+        # where the 20-inference window starts, so violations can be counted
+        # over the same window as the denominator (see snapshot()).
+        self._inference_stamps = deque(maxlen=21)
+        # When each violation was recorded. 40 is the most that can matter:
+        # the rate saturates at 1.0 once violations reach 2 x 20 inferences.
+        self._violation_stamps = deque(maxlen=40)
+        self._adapter_violations = {}  # adapter_name -> lifetime count, for health
         self._last_snapshot = None
         self._last_snapshot_time = 0
         self._cache_ttl = 2.0  # Don't re-measure more than every 2s
@@ -161,8 +168,18 @@ class SubstrateMonitor:
         else:
             inference_avg_ms = 0.0
 
-        # Adapter violation rate
-        total_violations = sum(self._adapter_violations.values())
+        # Adapter violation rate, over the same window as the inferences.
+        # Amended 2026-11-17: this divided the LIFETIME violation count by at
+        # most 20 inferences, so at a steady one violation every two turns it
+        # read 0.25 after 20 turns, 0.50 after 40 and 1.00 after 100 -- a
+        # ratchet with session length, not a rate. No caller recorded
+        # violations then, so it never fired. get_adapter_health() still uses
+        # lifetime counts, which is what a per-adapter history is for.
+        if len(self._inference_stamps) == self._inference_stamps.maxlen:
+            window_start = self._inference_stamps[0]
+            while self._violation_stamps and self._violation_stamps[0] <= window_start:
+                self._violation_stamps.popleft()
+        total_violations = len(self._violation_stamps)
         total_inferences = max(len(self._inference_times), 1)
         violation_rate = min(1.0, total_violations / (total_inferences * 2))
 
@@ -215,10 +232,12 @@ class SubstrateMonitor:
     def record_inference(self, duration_ms: float):
         """Record an inference duration for trend tracking."""
         self._inference_times.append(duration_ms)
+        self._inference_stamps.append(time.monotonic())
 
     def record_violation(self, adapter: str):
         """Record a constraint violation for an adapter."""
         self._adapter_violations[adapter] = self._adapter_violations.get(adapter, 0) + 1
+        self._violation_stamps.append(time.monotonic())
 
     def get_adapter_health(self) -> Dict[str, float]:
         """Get per-adapter health scores based on violation history.
