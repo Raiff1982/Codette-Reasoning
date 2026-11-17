@@ -23,8 +23,12 @@ Usage:
     # Adds: {"substrate": {"pressure": 0.65, "memory_pct": 78, ...}}
 """
 
+import json
 import os
+import statistics
 import time
+from pathlib import Path
+
 import psutil
 from typing import Dict, Optional, Tuple
 from collections import deque
@@ -85,7 +89,16 @@ class SubstrateMonitor:
     Returns a pressure score (0.0 = idle, 1.0 = maxed out).
     """
 
-    def __init__(self):
+    # Speed shadow (2026-11-17, Jonathan agreed): pressure from "slower than her
+    # own normal, per token" instead of "answers took long". Shadow only -- it
+    # is computed and logged beside the live pressure and changes nothing.
+    SPEED_MIN_SAMPLES = 5      # timed turns before the shadow says anything
+    SPEED_RECENT = 3           # recent speed = median of the last 3 turns
+
+    def __init__(self, shadow_log=None):
+        """shadow_log: path for the speed-shadow JSONL. None (the default)
+        writes nothing, so constructing a monitor in a test or a one-off
+        snapshot never touches the repository."""
         self._history = deque(maxlen=50)  # Last 50 snapshots
         self._inference_times = deque(maxlen=20)  # Last 20 inference durations
         # When each of the last 21 inferences finished. The 21st-oldest marks
@@ -96,6 +109,8 @@ class SubstrateMonitor:
         # the rate saturates at 1.0 once violations reach 2 x 20 inferences.
         self._violation_stamps = deque(maxlen=40)
         self._adapter_violations = {}  # adapter_name -> lifetime count, for health
+        self._tok_per_s = deque(maxlen=50)  # completion tokens / second, per turn
+        self._shadow_log = Path(shadow_log) if shadow_log else None
         self._last_snapshot = None
         self._last_snapshot_time = 0
         self._cache_ttl = 2.0  # Don't re-measure more than every 2s
@@ -189,17 +204,20 @@ class SubstrateMonitor:
             inference_avg_ms, violation_rate
         )
 
-        # Classify level
-        if pressure < 0.2:
-            level = "idle"
-        elif pressure < 0.4:
-            level = "low"
-        elif pressure < 0.6:
-            level = "moderate"
-        elif pressure < 0.8:
-            level = "high"
+        level = self._level(pressure)
+
+        # Shadow: the same blend with per-token slowdown in place of latency.
+        # None when there are too few timed turns -- never a guessed number.
+        speed = self.speed_shadow()
+        if speed["speed_pressure"] is not None:
+            p_if = self._compute_pressure(memory_pct, cpu_pct, process_memory_gb,
+                                          inference_avg_ms, violation_rate,
+                                          speed_p=speed["speed_pressure"])
+            speed["pressure_if_live"] = round(p_if, 3)
+            speed["level_if_live"] = self._level(p_if)
         else:
-            level = "critical"
+            speed["pressure_if_live"] = None
+            speed["level_if_live"] = None
 
         snapshot = {
             "pressure": round(pressure, 3),
@@ -220,6 +238,7 @@ class SubstrateMonitor:
             "process_memory_gb": round(process_memory_gb, 2),
             "inference_avg_ms": round(inference_avg_ms, 1),
             "adapter_violation_rate": round(violation_rate, 3),
+            "speed_shadow": speed,   # shadow only: not used by any routing
             "timestamp": now,
         }
 
@@ -229,10 +248,83 @@ class SubstrateMonitor:
 
         return snapshot
 
-    def record_inference(self, duration_ms: float):
-        """Record an inference duration for trend tracking."""
+    def record_inference(self, duration_ms: float, tokens: Optional[int] = None):
+        """Record an inference duration for trend tracking.
+
+        tokens: completion tokens for the turn, if known. Feeds the speed
+        shadow only; without it the turn adds no speed sample.
+        """
         self._inference_times.append(duration_ms)
         self._inference_stamps.append(time.monotonic())
+        if tokens and duration_ms and duration_ms > 0:
+            self._tok_per_s.append(tokens / (duration_ms / 1000.0))
+        if self._shadow_log is not None:
+            self._write_speed_shadow(duration_ms, tokens)
+
+    @staticmethod
+    def _level(pressure: float) -> str:
+        if pressure < 0.2:
+            return "idle"
+        if pressure < 0.4:
+            return "low"
+        if pressure < 0.6:
+            return "moderate"
+        if pressure < 0.8:
+            return "high"
+        return "critical"
+
+    def speed_shadow(self) -> Dict:
+        """Per-token slowdown against her own recent typical speed.
+
+        A long answer at her usual speed adds nothing; paging, which slows
+        every token, still shows. 0 within 20% of typical speed, rising to 1
+        at 40% of it or slower.
+
+        Limits, stated: time spent reading the prompt is still inside the
+        duration (the openvino backend reports prompt_tokens 0, so it cannot be
+        separated), and a slowdown that lasts most of the 50-turn window
+        becomes the new typical and stops reading as pressure.
+        """
+        n = len(self._tok_per_s)
+        out = {"samples": n, "tok_per_s_recent": None, "tok_per_s_typical": None,
+               "speed_pressure": None}
+        if n < self.SPEED_MIN_SAMPLES:
+            out["source"] = f"unmeasured: {n} timed turns, needs {self.SPEED_MIN_SAMPLES}"
+            return out
+        speeds = list(self._tok_per_s)
+        recent = statistics.median(speeds[-self.SPEED_RECENT:])
+        typical = statistics.median(speeds[:-self.SPEED_RECENT])
+        slowdown = max(0.0, 1.0 - recent / typical) if typical > 0 else 0.0
+        out.update({
+            "tok_per_s_recent": round(recent, 2),
+            "tok_per_s_typical": round(typical, 2),
+            "speed_pressure": round(min(1.0, max(0.0, (slowdown - 0.2) / 0.4)), 3),
+            "source": "measured",
+        })
+        return out
+
+    def _write_speed_shadow(self, duration_ms: float, tokens: Optional[int]) -> None:
+        """Append one line per turn: numbers only, never text. applied: false."""
+        try:
+            snap = self.snapshot()
+            sh = snap["speed_shadow"]
+            rec = {
+                "ts": time.strftime("%Y-%m-%dT%H:%M:%S"),
+                "mode": "shadow", "applied": False,
+                "duration_ms": round(duration_ms, 1), "tokens": tokens,
+                "pressure": snap["pressure"], "level": snap["level"],
+                "speed_pressure": sh["speed_pressure"],
+                "pressure_if_live": sh["pressure_if_live"],
+                "level_if_live": sh["level_if_live"],
+                "tok_per_s_recent": sh["tok_per_s_recent"],
+                "tok_per_s_typical": sh["tok_per_s_typical"],
+                "samples": sh["samples"],
+            }
+            self._shadow_log.parent.mkdir(parents=True, exist_ok=True)
+            with self._shadow_log.open("a", encoding="utf-8") as f:
+                f.write(json.dumps(rec) + "\n")
+        except Exception:
+            pass      # telemetry must never break a turn
 
     def record_violation(self, adapter: str):
         """Record a constraint violation for an adapter."""
@@ -270,7 +362,8 @@ class SubstrateMonitor:
         return "stable"
 
     def _compute_pressure(self, mem_pct, cpu_pct, proc_mem_gb,
-                          inference_avg_ms, violation_rate) -> float:
+                          inference_avg_ms, violation_rate,
+                          speed_p: Optional[float] = None) -> float:
         """Weighted composite pressure score.
 
         Weights reflect what actually impacts Codette's reasoning quality:
@@ -298,6 +391,10 @@ class SubstrateMonitor:
 
         # Inference latency: >60s per query = stressed
         inf_p = min(1.0, max(0.0, (inference_avg_ms - 5000) / 55000))
+        if speed_p is not None:
+            # Shadow path only (speed_shadow): per-token slowdown takes the
+            # latency term's place and weight. Live callers never pass it.
+            inf_p = speed_p
 
         # Weighted blend
         pressure = (

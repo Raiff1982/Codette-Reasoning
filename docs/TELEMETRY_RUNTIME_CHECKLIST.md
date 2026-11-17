@@ -209,3 +209,47 @@ Reduced venv, now with `python-dateutil`. Branch: **1,492 passed, 1 failed**
 (the NLTK one above), 7 skipped, 1 xfailed. `main` in the same venv: 1,488
 passed, the same 1 failed. The 4 extra passes are the new tests. No new
 failures.
+
+## Amended 2026-11-17, last: the speed shadow (Jonathan: "i agree")
+
+The open question under item 2 was whether her own generation time should count
+as pressure. Proposed and agreed: keep a speed signal, but make it *per token,
+against her own normal*. Built **in shadow**, as the optimizer and AEGIS were.
+**Live pressure and routing are unchanged.**
+
+- `SubstrateMonitor.record_inference(duration_ms, tokens=None)` also keeps
+  tokens per second (window of 50). The forge bridge passes the turn's
+  `tokens`, read beside `elapsed` in `_generate_with_phase6`.
+- `speed_shadow()`: recent speed (median of the last 3 turns) against typical
+  speed (median of the turns before those). Speed pressure is 0 within 20% of
+  typical, rising to 1 at 40% of typical or slower. It reads `None` and says
+  "unmeasured" until there are 5 timed turns, never a guessed 0.
+- `snapshot()["speed_shadow"]` carries `pressure_if_live` / `level_if_live`:
+  the same blend, with speed taking the latency term's place and weight.
+- One line per turn goes to `data/substrate_speed_shadow.jsonl` (gitignored,
+  numbers only, `applied: false`). Only the forge bridge passes a log path, so a
+  monitor built anywhere else, including in tests, writes nothing.
+
+Same machine state as above (87% RAM, 6 GB process, 30% CPU), 20 turns each:
+
+| scenario | live | shadow |
+|---|---|---|
+| A. deep answers at normal speed (600 tok, 60 s) | 0.614 **high** | 0.464 moderate |
+| B. short answers, then paging (10 to 4 tok/s) | 0.517 moderate | 0.614 **high** |
+| C. short answers, healthy | 0.505 moderate | 0.464 moderate |
+| D. mixed lengths, all at 10 tok/s | 0.585 moderate | 0.464 moderate |
+
+The live signal gets A and B backwards. It cuts her depth for thinking hard, and
+misses real paging. The shadow gets both right. These are constructed
+scenarios, not her logs; the shadow log is for checking it on real turns.
+
+**Limits, stated:** prompt-reading time is still inside the duration (the
+openvino backend reports `prompt_tokens: 0`). A slowdown lasting most of the
+50-turn window becomes the new typical and stops reading as pressure.
+
+**To switch it live (not done, Jonathan's call after reviewing the shadow log):**
+pass `speed_p` from `speed_shadow()` into `_compute_pressure` in `snapshot()`,
+and keep the latency term only for turns with no token count.
+
+Suite: 1,498 passed, 1 failed (the NLTK one), 6 new tests in
+`tests/test_substrate_speed_shadow.py`.
