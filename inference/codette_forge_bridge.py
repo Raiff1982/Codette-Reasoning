@@ -723,8 +723,12 @@ class CodetteForgeBridge:
                         "phase6_used": True,
                         "reasoning": "Blocked by EthicalAIGovernance",
                     }
-            except Exception:
-                pass  # Non-critical, continue
+            except Exception as _qv_err:
+                # Fails OPEN: the query proceeds unvalidated. Was silent until
+                # 2026-11-18; now says so. Whether it should fail closed is
+                # Jonathan's call (docs/APPROVALS_2026-11-18.md).
+                print(f"  [ETHICS] query validation failed, proceeding unvalidated: "
+                      f"{type(_qv_err).__name__}: {_qv_err}", flush=True)
 
         # If adapter forced or Phase 6 disabled, use orchestrator directly
         if adapter or not self.use_phase6:
@@ -1454,8 +1458,16 @@ class CodetteForgeBridge:
             result["perspectives"] = _scrubbed_persp
 
         # 9. Enforce user constraints (word limits, sentence limits, etc.)
+        #
+        # 2026-11-18: this imported from codette_orchestrator, whose module-level
+        # `import llama_cpp` fails in openvino_env, so on her backend the
+        # ImportError below swallowed this step on every turn. The 2026-07-05
+        # rule is that OV-path code imports from codette_shared (pure Python);
+        # that fix reached the greeting and memory fast-paths but missed this
+        # one. The two copies behave identically
+        # (tests/test_orchestrator_shared_copies.py).
         try:
-            from codette_orchestrator import extract_constraints, enforce_constraints
+            from codette_shared import extract_constraints, enforce_constraints
             constraints = extract_constraints(user_query)
             if constraints:
                 result["response"] = enforce_constraints(result["response"], constraints)

@@ -469,7 +469,7 @@ judgement to make from file size.
 ## House rule: antibodies, and her two VISIBLE channels (added 2026-10-22)
 
 The same bug kept returning in slightly different places. A test for the instance fixed does not help against the next variant,
-so checks are written against the **class**: `reasoning_forge/antibodies.py` (four detectors, five since 2026-11-17 with `lifetime_over_window`, each carrying the bug that taught
+so checks are written against the **class**: `reasoning_forge/antibodies.py` (four detectors, five since 2026-11-17 with `lifetime_over_window`, six since 2026-11-18 with `missing_method`, each carrying the bug that taught
 it; report-only, never enforcing; reads Python source only and skips her stores). New fix, new class? Add an entry, with the
 instance that taught it and a detector that is verified to catch that instance's pre-fix code.
 

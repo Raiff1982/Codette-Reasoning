@@ -315,7 +315,8 @@ class OpenVINOBackend:
     def generate(self, query: str, adapter_name: Optional[str] = None,
                  system_prompt: Optional[str] = None,
                  enable_tools: bool = False,
-                 dispersion=None) -> tuple:
+                 dispersion=None,
+                 constraint_query: Optional[str] = None) -> tuple:
         """Generate response.  Returns (text, tokens, tool_log).
 
         Signature matches CodetteOrchestrator.generate() so forge bridge
@@ -326,6 +327,13 @@ class OpenVINOBackend:
         perspective already resolved this turn, the answer disperses instead of
         being paid for again. Defaults to None, which is the previous behaviour
         exactly — every existing caller keeps working untouched.
+
+        `constraint_query` is the text the user's format constraints are read
+        from, when `query` is not the user's own words. Added 2026-11-18 for
+        _synthesize: its `query` is the synthesis prompt, which carries her lens
+        notes, so a note saying "in short" or "in one sentence" was read as the
+        user asking for brevity, and her merged answer was told CRITICAL
+        CONSTRAINT and trimmed to fit. None (the default) is the old behaviour.
         """
         from codette_shared import (
             ADAPTER_PROMPTS, extract_primary_user_query, extract_constraints,
@@ -348,7 +356,9 @@ class OpenVINOBackend:
             pass
 
         primary_query = extract_primary_user_query(query)
-        constraints = extract_constraints(primary_query)
+        constraints = extract_constraints(
+            extract_primary_user_query(constraint_query)
+            if constraint_query is not None else primary_query)
         constraint_override = build_constraint_override(constraints)
 
         # Benchmark/exam detection — used to (a) pick deterministic sampling
@@ -1354,6 +1364,9 @@ class OpenVINOBackend:
             synthesis_prompt,
             adapter_name=_lead,
             system_prompt=ADAPTER_PROMPTS["multi_perspective"],
+            # The user's constraints come from the user's words, not from her
+            # notes quoted inside the synthesis prompt (2026-11-18).
+            constraint_query=query,
         )
         return text
 

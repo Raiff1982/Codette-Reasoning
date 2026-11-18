@@ -1751,7 +1751,10 @@ class ForgeEngine:
                 )
                 _aap_result_d = _v3_engine_d.synthesize_adaptive(
                     concept=concept,
-                    analyses=analyses,
+                    # No per-agent analyses on this path (one orchestrator
+                    # call); base_synthesis carries the text. `analyses` was
+                    # undefined here until 2026-11-18, so this never ran.
+                    analyses={},
                     epsilon=_aap_eps,
                     gamma=_aap_gam,
                     base_synthesis=synthesis,
@@ -2075,6 +2078,26 @@ class ForgeEngine:
         logger.info("✓ All consciousness stack layers passed!")
 
         # Store in memory for future recall — v2.1: use build_cocoon() when available
+        #
+        # 2026-11-18: this block was copied from _forge_single_safe and read three
+        # names that do not exist here -- `analyses`, `epistemic_report`,
+        # `safety_notes`. The NameError aborted the whole block, logged at DEBUG
+        # as "Memory storage failed", so forge_with_debate never stored anything.
+        # Defined from what this path actually has:
+        #   * analyses: none. One orchestrator call, no per-agent analyses, so
+        #     the echo detector has nothing to compare and is skipped.
+        #   * epistemic_report: the epsilon / gamma Layer 2 measured (same keys
+        #     the SynthesisV3 block above reads); empty when it measured nothing.
+        #   * safety_notes: the Guardian result from Layer 6. Hallucination and
+        #     sycophancy are not checked on this path, so they are not claimed.
+        analyses = {}
+        epistemic_report = {k: intent_vector[k]
+                            for k in ("tension_magnitude", "ensemble_coherence")
+                            if k in intent_vector}
+        for _src, _dst in (("epsilon", "tension_magnitude"), ("gamma", "ensemble_coherence")):
+            if _src in intent_vector and _dst not in epistemic_report:
+                epistemic_report[_dst] = intent_vector[_src]
+        safety_notes = {"guardian_valid": guardian_valid}
         _cocoon_id = None
         if hasattr(self, 'memory_kernel') and self.memory_kernel:
             try:

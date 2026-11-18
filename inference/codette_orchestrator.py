@@ -268,13 +268,16 @@ def extract_constraints(query: str) -> dict:
 
 
 def extract_primary_user_query(query: str) -> str:
-    """Strip server-injected memory sections before constraint extraction."""
-    if not query:
-        return ""
-    sentinel = "\n\n---\n"
-    if sentinel in query:
-        return query.split(sentinel, 1)[0].strip()
-    return query.strip()
+    """Strip server-injected file blocks + memory sections before constraint extraction.
+
+    2026-11-18: this was a copy of codette_shared.extract_primary_user_query that
+    had missed one fix -- it did not strip attached files first. So on this
+    (llama.cpp) path, a file containing "in 10 words" was read as the user's own
+    constraint and her answer was cut to fit. It now delegates, so the two cannot
+    drift again. The old body only split on the "\n\n---\n" memory sentinel.
+    """
+    from codette_shared import extract_primary_user_query as _shared
+    return _shared(query)
 
 
 def build_constraint_override(constraints: dict) -> str:
@@ -601,6 +604,13 @@ class CodetteOrchestrator:
                 except Exception as e:
                     print(f"[ROUTING] Memory context unavailable: {e}")
 
+    # SUPERSEDED, NEVER RUNS (noted 2026-11-18). A second route_and_generate is
+    # defined later in this class and Python keeps the last one, so this method
+    # is unreachable. Kept, not deleted (house rule). What it had that the live
+    # one does not: the artist-query honesty guard (live in codette_server.py at
+    # the ARTIST QUERY INTERCEPT, so not lost) and the only call to
+    # log_routing_decision (so the [ROUTING] lines never print). Edit the live
+    # method further down, not this one.
     def route_and_generate(self, query: str, max_adapters: int = 2,
                           strategy: str = "keyword", force_adapter: str = None,
                           enable_tools: bool = True) -> tuple:

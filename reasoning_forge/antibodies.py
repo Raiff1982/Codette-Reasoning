@@ -325,9 +325,13 @@ def detect_constructed_never_invoked(sources: List[Source]) -> List[Lead]:
                         if isinstance(t, ast.Attribute) and isinstance(t.value, ast.Name) \
                                 and t.value.id == "self" and len(t.attr) >= 4:
                             nm = re.escape(t.attr)
+                            # 2026-11-18: also getattr(x, "name") and membership in a
+                            # list/tuple/dict ([self.name, ...]). Four of six leads that
+                            # day were these: wired components read as dead.
                             used = re.search(r"\." + nm + r"\s*[.(\[]", corpus) \
-                                or re.search(r"[(,=]\s*\w+\." + nm + r"\s*[,)]", corpus) \
-                                or re.search(r"\bwith\s+(?:\w+\.)*" + nm + r"\s*[:,]", corpus)
+                                or re.search(r"[(,=\[]\s*\w+\." + nm + r"\s*[,)\]]", corpus) \
+                                or re.search(r"\bwith\s+(?:\w+\.)*" + nm + r"\s*[:,]", corpus) \
+                                or re.search(r"getattr\(\s*[\w.]+\s*,\s*['\"]" + nm + r"['\"]", corpus)
                             if not used:
                                 out.append(Lead(s.rel, st.lineno,
                                                 f"self.{t.attr} = {ctor}(...) is built and "
@@ -412,6 +416,101 @@ def detect_lifetime_over_window(sources: List[Source]) -> List[Lead]:
     return out
 
 
+# ── class 6: a call to a method the class does not have ──────────────────────
+#
+# 2026-11-18: codette_server built `sm = SubstrateMonitor()` and called
+# `sm.get_pressure()`, which SubstrateMonitor has never had. The AttributeError
+# fell into `except Exception: pass`, so the governor was handed pressure 0.0 on
+# every turn and nothing said so. pyflakes cannot see it: the name is bound,
+# only the attribute is missing. The shape: a name bound to `RepoClass(...)`
+# (a local, or self.x in __init__), then `.method(` on it, where neither the
+# class nor its in-repo bases define that method or attribute.
+
+def _class_registry(sources: List[Source]) -> Dict[str, dict]:
+    reg: Dict[str, dict] = {}
+    for s in sources:
+        if s.tree is None:
+            continue
+        for c in [n for n in ast.walk(s.tree) if isinstance(n, ast.ClassDef)]:
+            e = reg.setdefault(c.name, {"attrs": set(), "bases": set(), "open": False})
+            for b in c.bases:
+                bn = b.id if isinstance(b, ast.Name) else (b.attr if isinstance(b, ast.Attribute) else "")
+                if bn and bn != "object":
+                    e["bases"].add(bn)
+            if c.keywords or c.decorator_list:
+                e["open"] = True              # metaclass / dataclass-style magic: do not judge
+            for n in ast.walk(c):
+                if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    e["attrs"].add(n.name)
+                    if n.name in ("__getattr__", "__getattribute__"):
+                        e["open"] = True
+                elif isinstance(n, ast.Assign):
+                    for t in n.targets:
+                        for x in ast.walk(t):
+                            if isinstance(x, ast.Name):
+                                e["attrs"].add(x.id)
+                            elif isinstance(x, ast.Attribute):
+                                e["attrs"].add(x.attr)
+                elif isinstance(n, ast.AnnAssign):
+                    t = n.target
+                    e["attrs"].add(t.id if isinstance(t, ast.Name) else getattr(t, "attr", ""))
+    return reg
+
+
+def _has_attr(reg, cls: str, attr: str, seen=None) -> Optional[bool]:
+    """True / False, or None when it cannot be known (base outside the repo)."""
+    seen = seen or set()
+    if cls in seen:
+        return False
+    seen.add(cls)
+    e = reg.get(cls)
+    if e is None:
+        return None
+    if e["open"] or attr in e["attrs"]:
+        return True
+    unknown = False
+    for b in e["bases"]:
+        r = _has_attr(reg, b, attr, seen)
+        if r:
+            return True
+        if r is None:
+            unknown = True
+    return None if unknown else False
+
+
+def detect_missing_method(sources: List[Source]) -> List[Lead]:
+    reg = _class_registry(sources)
+    out: List[Lead] = []
+    for s in sources:
+        if s.tree is None:
+            continue
+        for fn in [n for n in ast.walk(s.tree) if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))]:
+            bound: Dict[str, str] = {}          # "sm" or "self.monitor" -> class name
+            for st in ast.walk(fn):
+                if isinstance(st, ast.Assign) and isinstance(st.value, ast.Call) \
+                        and isinstance(st.value.func, ast.Name) and st.value.func.id in reg:
+                    for t in st.targets:
+                        if isinstance(t, ast.Name):
+                            bound[t.id] = st.value.func.id
+                        elif isinstance(t, ast.Attribute) and isinstance(t.value, ast.Name) \
+                                and t.value.id == "self":
+                            bound["self." + t.attr] = st.value.func.id
+            if not bound:
+                continue
+            for c in ast.walk(fn):
+                if not (isinstance(c, ast.Call) and isinstance(c.func, ast.Attribute)):
+                    continue
+                v = c.func.value
+                key = v.id if isinstance(v, ast.Name) else (
+                    "self." + v.attr if isinstance(v, ast.Attribute) and isinstance(v.value, ast.Name)
+                    and v.value.id == "self" else None)
+                cls = bound.get(key) if key else None
+                if cls and _has_attr(reg, cls, c.func.attr) is False:
+                    out.append(Lead(s.rel, c.lineno,
+                                    f"{key}.{c.func.attr}(): {cls} defines no {c.func.attr!r}"))
+    return out
+
+
 ANTIBODIES: List[Antibody] = [
     Antibody(
         "used_before_bound",
@@ -449,6 +548,13 @@ ANTIBODIES: List[Antibody] = [
         ["2026-11-17: SubstrateMonitor violation_rate read 0.25, 0.50, 1.00 after "
          "20, 40, 100 turns at one violation every two turns"],
         detect_lifetime_over_window),
+    Antibody(
+        "missing_method",
+        "A method is called on an instance of a repository class that defines no "
+        "such method; under try/except the AttributeError is silent.",
+        ["2026-11-18: codette_server called SubstrateMonitor().get_pressure(), which "
+         "never existed; the governor got pressure 0.0 on every turn"],
+        detect_missing_method),
 ]
 
 

@@ -679,6 +679,11 @@ class IdentityAnchor:
 
         # Contradiction warnings (always shown if present)
         if identity.contradictions:
+            # `now` was never defined in this method (2026-11-18). Contradictions
+            # are persisted, so after the first one was ever recorded this raised
+            # NameError on every call; the server caught it as "Identity
+            # recognition skipped" and she got no identity context at all.
+            now = time.time()
             recent_contradictions = [c for c in identity.contradictions
                                     if now - c.get("timestamp", 0) < 3600]  # Last hour
             if recent_contradictions:
