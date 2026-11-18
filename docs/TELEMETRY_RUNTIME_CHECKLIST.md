@@ -253,3 +253,39 @@ and keep the latency term only for turns with no token count.
 
 Suite: 1,498 passed, 1 failed (the NLTK one), 6 new tests in
 `tests/test_substrate_speed_shadow.py`.
+
+## Amended 2026-11-18: review of PR #53
+
+Jonathan had the PR reviewed. Each finding was checked against the code before
+acting on it.
+
+- **The shadow write cost every turn 101 ms. Confirmed, fixed.**
+  `_write_speed_shadow()` called `snapshot()`. The routing snapshot's 2 s cache
+  has always expired by the end of a turn, so every turn paid a fresh
+  `psutil.cpu_percent(interval=0.1)`. Measured: 101.1 ms per turn with the log
+  on, 0.003 ms without. The write now reuses the snapshot that routed the turn
+  and takes no new measurement: **0.2 ms**, the file append. It also logs the
+  pressure that actually decided the turn. A failed write is swallowed and
+  tested.
+- **The "live pressure unchanged" test was weak. Confirmed, rewritten.** It
+  compared `_compute_pressure` with itself. It now pins the machine readings,
+  runs the same turns through a monitor that has token counts and one that
+  doesn't, and compares `snapshot()` pressure, level and `adjust_routing`.
+- **Partial-window violation test: added.** Violations in turns 0-4 read 0.075
+  after 22 turns (3 still inside the window) and 0 after 25.
+- **Monotonic timestamps in the log: not done.** `ts` is for lining the log up
+  with the other logs, which all use wall-clock time. Ordering comes from the
+  append-only file.
+- **Prompt-reading time inside the duration:** already stated as a limit above.
+
+**Mutation-checked.** Putting the old 100 ms write back fails two tests;
+letting the shadow leak into live pressure fails one. The first version of both
+new tests passed against those mutations, for two reasons. `snapshot()`
+swallows a raising stub. And the first scenario gave the latency and speed
+terms the same value, so a leak changed nothing. Both are fixed; the tests now
+fail on the bugs they exist for.
+
+The merge conflict with `main` (#54's `.gitignore` block) was resolved by
+merge, not rebase, keeping both blocks.
+
+Suite: **1,502 passed**, 1 failed (the NLTK one, environmental, as before).

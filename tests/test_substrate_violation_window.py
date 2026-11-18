@@ -50,3 +50,18 @@ def test_adapter_health_still_keeps_the_lifetime_history():
     for _ in range(20):
         m.record_inference(1000)
     assert m.get_adapter_health() == {"x": 0.5}
+
+
+def test_a_partly_expired_window_counts_only_what_is_still_inside():
+    # PR #53 review: cover a window that is part-way through expiring, not only
+    # all-clean or all-violating. Violations in turns 0-4, then clean turns.
+    m = _monitor()
+    for i in range(22):
+        if i < 5:
+            m.record_violation("x")
+        m.record_inference(1000)
+    # Window is turns 2-21: violations from turns 2, 3, 4 remain. 3 / (20 * 2)
+    assert m.snapshot()["adapter_violation_rate"] == 0.075
+    for _ in range(3):
+        m.record_inference(1000)
+    assert m.snapshot()["adapter_violation_rate"] == 0.0

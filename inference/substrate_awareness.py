@@ -206,18 +206,8 @@ class SubstrateMonitor:
 
         level = self._level(pressure)
 
-        # Shadow: the same blend with per-token slowdown in place of latency.
-        # None when there are too few timed turns -- never a guessed number.
-        speed = self.speed_shadow()
-        if speed["speed_pressure"] is not None:
-            p_if = self._compute_pressure(memory_pct, cpu_pct, process_memory_gb,
-                                          inference_avg_ms, violation_rate,
-                                          speed_p=speed["speed_pressure"])
-            speed["pressure_if_live"] = round(p_if, 3)
-            speed["level_if_live"] = self._level(p_if)
-        else:
-            speed["pressure_if_live"] = None
-            speed["level_if_live"] = None
+        speed = self._speed_shadow_for(memory_pct, cpu_pct, process_memory_gb,
+                                       inference_avg_ms, violation_rate)
 
         snapshot = {
             "pressure": round(pressure, 3),
@@ -303,16 +293,52 @@ class SubstrateMonitor:
         })
         return out
 
+    def _speed_shadow_for(self, memory_pct, cpu_pct, process_memory_gb,
+                          inference_avg_ms, violation_rate) -> Dict:
+        """speed_shadow() plus the pressure the same blend would give with
+        speed in the latency term's place. None when speed is unmeasured --
+        never a guessed number."""
+        speed = self.speed_shadow()
+        if speed["speed_pressure"] is not None:
+            p_if = self._compute_pressure(memory_pct, cpu_pct, process_memory_gb,
+                                          inference_avg_ms, violation_rate,
+                                          speed_p=speed["speed_pressure"])
+            speed["pressure_if_live"] = round(p_if, 3)
+            speed["level_if_live"] = self._level(p_if)
+        else:
+            speed["pressure_if_live"] = None
+            speed["level_if_live"] = None
+        return speed
+
     def _write_speed_shadow(self, duration_ms: float, tokens: Optional[int]) -> None:
-        """Append one line per turn: numbers only, never text. applied: false."""
+        """Append one line per turn: numbers only, never text. applied: false.
+
+        Amended 2026-11-18 (PR #53 review): this called snapshot(), and the
+        routing snapshot's 2 s cache has always expired by the end of a turn,
+        so every turn paid a fresh psutil sample -- measured at 101 ms, for a
+        shadow. It now reuses the snapshot that routed this turn and takes no
+        new measurement. That is also the honest comparison: the pressure
+        that actually decided the turn, beside what the shadow would have
+        said. Best-effort: any failure is swallowed, nothing is retried.
+        """
         try:
-            snap = self.snapshot()
-            sh = snap["speed_shadow"]
+            snap = self._last_snapshot
+            if snap:
+                avg = (sum(self._inference_times) / len(self._inference_times)
+                       if self._inference_times else 0.0)
+                sh = self._speed_shadow_for(snap["memory_pct"], snap["cpu_pct"],
+                                            snap["process_memory_gb"], avg,
+                                            snap["adapter_violation_rate"])
+                pressure, level = snap["pressure"], snap["level"]
+            else:
+                sh, pressure, level = self.speed_shadow(), None, None
+                sh["pressure_if_live"] = sh["level_if_live"] = None
             rec = {
                 "ts": time.strftime("%Y-%m-%dT%H:%M:%S"),
                 "mode": "shadow", "applied": False,
                 "duration_ms": round(duration_ms, 1), "tokens": tokens,
-                "pressure": snap["pressure"], "level": snap["level"],
+                # the live pressure that routed this turn
+                "pressure": pressure, "level": level,
                 "speed_pressure": sh["speed_pressure"],
                 "pressure_if_live": sh["pressure_if_live"],
                 "level_if_live": sh["level_if_live"],
