@@ -321,7 +321,17 @@ class AEGISMetricsEngine:
                 "SELECT AVG(overlap_percentage) FROM forge_executions WHERE timestamp > ?",
                 (cutoff_time,),
             )
-            avg_overlap = cursor.fetchone()[0] or 0.0
+            # None, not 0.0, when no row measured overlap (2026-11-18): the
+            # live observer stores NULL when Layer 6 did not run, and AVG
+            # ignores NULLs, so None here means "never measured".
+            avg_overlap = cursor.fetchone()[0]
+            # Rows where Layer 6 was actually measured (valid is NULL when the
+            # observer could not run it). The denominator for rejection_rate.
+            cursor.execute(
+                "SELECT COUNT(*) FROM forge_executions WHERE valid IS NOT NULL AND timestamp > ?",
+                (cutoff_time,),
+            )
+            layer6_ran = cursor.fetchone()[0]
 
             # Average timings
             cursor.execute(
@@ -366,7 +376,12 @@ class AEGISMetricsEngine:
                 "invalid_calls": invalid_calls,
                 # None, not 0.0, with no calls: "0% rejected" over zero calls reads as
                 # a clean record. The UI renders None as an em dash (same as healing_rate).
-                "rejection_rate": (invalid_calls / total_calls * 100) if total_calls > 0 else None,
+                # Amended 2026-11-18: over the calls where validation ran, as
+                # healing_rate already is. Over all calls, every unmeasured turn
+                # would have counted as "not rejected".
+                "rejection_rate": (invalid_calls / layer6_ran * 100) if layer6_ran > 0 else None,
+                "layer6_ran": layer6_ran,
+                "layer6_not_run": total_calls - layer6_ran,
                 "layer5_healing_applied": healing_applied,
                 "layer5_ran": layer5_ran,
                 "layer5_skipped": total_calls - layer5_ran,
@@ -381,7 +396,7 @@ class AEGISMetricsEngine:
                 ),
                 "healing_distribution": healing_distribution,
                 "layer6_overlap_valid": overlap_valid,
-                "avg_overlap_percentage": round(avg_overlap, 2),
+                "avg_overlap_percentage": round(avg_overlap, 2) if avg_overlap is not None else None,
                 "avg_timings": {
                     "layer2_ms": round((timings[0] or 0.0) * 1000, 2),
                     "layer3_ms": round((timings[1] or 0.0) * 1000, 2),

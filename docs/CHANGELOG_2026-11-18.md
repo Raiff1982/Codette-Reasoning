@@ -181,3 +181,73 @@ CodetteEngine`, but those are exported by `inference/init.py`, and there is no
 `inference/__init__.py`. `init.py` is probably `__init__.py` with its underscores lost (Markdown
 renders `__init__` as bold "init"). **It must not be renamed:** every `import inference.*` would
 then load torch. Recorded in the `chat_app.py` header.
+
+## AEGIS Layers 5 and 6 as observers (later 2026-11-18)
+
+Jonathan, on approval item 3: *"Run Layers 5 and 6 as observers on her current path: they watch and
+record, and change nothing."* Branch `claude/aegis-observers`, stacked on `claude/decisions-2026-11-18`.
+
+**Layer 6: wired, observe-only.** `Protection_Layer/aegis_observer.py` runs the RenderLayer's two
+real checks on every turn that goes through the Phase 6 path:
+
+- **Overlap** between her *authored* text (the bridge's step 5, as the model produced it, before
+  adaptive placement, the directness scrub, constraints and the lock trims) and exactly what the
+  person *received* (the server's final `response_text`, after its own additions). So it measures how
+  much of what she wrote survives our processing. That is the data the open 10-01 question on which
+  text is canonical needs.
+- **CocoonV3 schema** of the v3 cocoon the bridge writes, through a **whitelist** of the fields the
+  validator reads.
+
+Recorded per turn in the AEGIS metrics engine, plus one console line (`[AEGIS-OBS] ...`).
+
+**What it does not do, by design:**
+
+- It changes nothing. Her final answer was **byte-identical** with and without it: the same SHA-256
+  on three test turns, `main` against this branch, and again on a rerun, with a mock model in a
+  scratch copy of the repository.
+- **It never reads her private notes.** The v3 cocoon carries `open_threads`, which holds her
+  `nameless` notes (`drain_nameless()`). The first design would have passed a copy of the cocoon to
+  the server; that was caught before it was built. The schema check now runs where the cocoon is
+  built, on a whitelist view that never includes `open_threads`, and only the verdict and error codes
+  travel on. A test fails if the observer touches `open_threads`.
+- No text leaves it, only numbers and codes. Her authored text travels in `result["_aegis_authored"]`,
+  which the server `pop`s.
+- "Not run" is recorded as NULL, never as a pass or a fail. Layer 6 as a whole counts as measured only
+  when both checks ran.
+- Layer 6's coherence check is not run: on this path both of its inputs come from the same
+  measurement, so it could never fail. Its POSSIBLE_HALLUCINATION label is not used, because low overlap
+  here means our post-processing changed a lot.
+
+**Layer 5: not wired, and why.** `PreEmptiveImmuneEngine`'s projected tension comes from eleven copies
+of one vector plus small random noise. The cocoon's real epsilon / gamma / tensions are loaded but never
+reach it. Measured over 200 runs each: a calm cocoon read 0.1529, a maximal-tension cocoon 0.1519, and
+noise alone predicts 0.1455. It can never reach its 0.50 warning or 0.70 action line. An observer of it
+would record "none" on every turn: a gauge that cannot move, which the project's own rule says is not
+evidence. A test pins this finding: if Layer 5 is ever changed to read real data, the test fails and
+says to revisit. The new decision is in APPROVALS item 3.
+
+**Fixed on the way (all in the AEGIS record):**
+
+| Where | Was | Now |
+|---|---|---|
+| server AEGIS record | `layer6_valid` came from the v8 render-fidelity check, defaulting to **pass** when it had not run (`compliant` defaulted to True; it only runs when adaptive placement rewrote the answer) | the observer's result, NULL when not measured. The v8 result is kept in `alerts` |
+| `aegis_metrics_engine` `rejection_rate` | divided by **all** calls, so every unmeasured turn counted as "not rejected" | divided by calls where Layer 6 ran (`layer6_ran`, new), as `healing_rate` already was (10-22) |
+| `aegis_metrics_engine` `avg_overlap_percentage` | `or 0.0`: "never measured" read as 0% overlap | None; and `round(None)` would have crashed `/api/aegis/stats`, so it is guarded |
+
+The live UI already renders None as an em dash.
+
+**Cost:** 0.6 ms per turn on a 1,170-word answer.
+
+**Tests:** `tests/test_aegis_observer.py` (15). Mutation-checked: re-introducing each of four bugs (the
+observer reads `open_threads`; "not run" counts as a pass; the rates divide by all rows; the bridge
+observer edits her answer) makes at least one test fail. The full bridge is not run in the test suite,
+because one call writes five runtime files and a cocoon into the repository. The end-to-end run was done in
+a scratch copy instead.
+
+**Noted in the open:** while checking that the scratch run wrote nothing, I counted `git status` lines
+under `cocoons/` in the scratch copy (a fresh checkout, which holds no dreams). The count was 0. It was
+misleading anyway, because new cocoon files are gitignored and `git status` does not show them. Nothing
+was listed or opened. Going forward, check for writes with `--ignored` outside `cocoons/`, as was done next.
+
+Suite: **1,534 passed** with #56 beneath it (1,530 on `main` alone), 1 failed (NLTK, environmental,
+as on `main`).

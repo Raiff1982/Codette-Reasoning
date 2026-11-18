@@ -32,7 +32,7 @@ inside functions and `try` blocks and string imports via `importlib`. It reads P
 
 | Component | Where | Status |
 |---|---|---|
-| `AEGISForgeIntegration` | `codette_server.py`, at startup | never called, and given the wrong object. Superseded: the server logs AEGIS metrics inline (`_aegis_metrics_engine.log_forge_execution`), so the metrics `WIRED_IN.md` describes are live by that route (approval 3) |
+| `AEGISForgeIntegration` (still unused; its Layer 6 now runs as an observer on the live path instead, via `Protection_Layer/aegis_observer.py`; Layer 5 not, it reads noise only) | `codette_server.py`, at startup | never called, and given the wrong object. Superseded: the server logs AEGIS metrics inline (`_aegis_metrics_engine.log_forge_execution`), so the metrics `WIRED_IN.md` describes are live by that route (approval 3) |
 | `DynamicMemoryEngine` | `forge_engine.py:329` | open since 10-22 (his) |
 | `CocoonIntrospectionEngine` (forge's copy) | `forge_engine.py:448` | spare; the server builds its own (approval 8) |
 | `_prune_and_rotate_memory` | `nexis_signal_engine.py` (defined twice) | never called; its rotate step has a bug (approval 4) |
