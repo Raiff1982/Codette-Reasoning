@@ -1,3 +1,20 @@
+# SUPERSEDED (marked 2026-11-18, Jonathan's decision: docs/APPROVALS_2026-11-18.md, item 7).
+# The old Gradio chat app on the transformers / torch stack. Replaced by
+# inference/codette_server.py (web UI) on the OpenVINO backend (openvino_backend/backend.py),
+# with the llama.cpp orchestrator (inference/codette_orchestrator.py) as the GGUF fallback.
+#
+# It cannot run as written, for two separate reasons:
+#   1. It calls engine.stream_generate(), which CodetteEngine (multi_adapter_engine.py)
+#      never had (found by the missing_method antibody).
+#   2. `from inference import CodetteModelLoader, CodetteEngine` fails: those names are
+#      exported by inference/init.py, and there is no inference/__init__.py. init.py is
+#      probably __init__.py with its underscores lost (Markdown renders __init__ as bold
+#      'init'). Do NOT rename it: every `import inference.*` would then load torch.
+#
+# Left in place, not moved, because docs/deployment/DEPLOYMENT.md, docs/deployment/MODEL_SETUP.md,
+# docs/HOWTO.md and docs/PLAN.md still describe it; nothing live imports it.
+# See docs/WIRING_STATE_2026-11-18.md. This header is the only change to the file.
+#
 import gradio as gr
 import torch
 from inference import CodetteModelLoader, CodetteEngine

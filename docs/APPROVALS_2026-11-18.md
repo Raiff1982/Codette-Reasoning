@@ -27,6 +27,10 @@ are on your machine, not in this container, so they could not be checked.
 
 ## 1. The governor has never seen substrate pressure
 
+> **DECIDED 2026-11-18, Jonathan: (a).** Leave it reading 0.0 until the speed shadow has been
+> checked and switched live. Recorded at the call site in `codette_server.py`; no behaviour change.
+
+
 **Found.** `codette_server.py` (around line 1509) does
 `sm = SubstrateMonitor(); substrate_pressure = sm.get_pressure()`.
 `SubstrateMonitor` has never had a `get_pressure` method. The `AttributeError`
@@ -49,6 +53,10 @@ Wiring it now would add a second penalty for thinking hard.
 - (c) Remove the call, so the code stops pretending to measure.
 
 ## 2. The ethics check on the query fails open
+
+> **DECIDED 2026-11-18, Jonathan: (a).** Keep failing open, visibly. Recorded at the check in
+> `codette_forge_bridge.py`; no behaviour change.
+
 
 **Found.** In `codette_forge_bridge.py`, if `EthicalAIGovernance.validate_query`
 raises, the query proceeds as if it were approved. Until today that happened
@@ -106,6 +114,9 @@ own connection is still open. On Linux the next `DELETE` then empties the
 
 ## 5. `DreamCore` would write plaintext into a tracked, public file
 
+> **DECIDED 2026-11-18, Jonathan: (a).** Leave it unwired, as lineage. Nothing changed.
+
+
 **Found.** `consciousness/dreamcore_wakestate_engine.py` (`DreamCore`) appends
 "memory anchors" in **plain text** to `dreamcore_final_product.txt`, which is
 **tracked in this public repository**. Nothing calls it. It is not the encrypted
@@ -132,6 +143,12 @@ from `forge_with_debate`, which live chat doesn't reach, so it reads
 
 ## 6. `Movie_engine.py` is a chat transcript, not a module
 
+> **DECIDED 2026-11-18, Jonathan: (b). Done.** Extracted to `media/codette_media_engine.py` (the
+> fullest version, lines 386–800), with the two earlier versions in `media/lineage/`. Provenance
+> and what was verified are in `media/README.md`. `Movie_engine.py` is untouched (a test pins its
+> checksum).
+
+
 **Found.** Fixing its non-breaking-space indentation was not enough: the file is
 a conversation. It holds version 1 of a media engine (lines 1 to 282, with its
 opening `"""` missing), then a message to you asking which way to extend it, then
@@ -144,6 +161,10 @@ later code. It cannot be imported, and nothing imports it (it also needs
   `media/codette_media_engine.py` beside it, keeping the original untouched.
 
 ## 7. Superseded files that could move to `archive/`
+
+> **DECIDED 2026-11-18, Jonathan: (c). Done.** SUPERSEDED headers on the four files; their code
+> is unchanged (checked by syntax-tree comparison). Nothing moved, so the four docs still work.
+
 
 These are an older, parallel stack (transformers / torch) that the OpenVINO
 server replaced. Nothing live imports them. Moving them would make it obvious
@@ -179,6 +200,11 @@ anything anyone follows. It still needs your yes.
   **Worth doing next time someone is on her machine.**
 
 ---
+
+## Still open after 2026-11-18
+
+Items **3** (`AEGISForgeIntegration`), **4** (Nexis memory pruning) and **8** (the two tidy-ups) have
+not been decided. They are unchanged.
 
 ## Still open from earlier (not new today)
 

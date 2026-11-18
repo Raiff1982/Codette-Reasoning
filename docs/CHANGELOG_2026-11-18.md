@@ -144,3 +144,40 @@ Suite after: **1,515 passed**, 1 failed (NLTK, environmental, as on `main`).
 Nothing in this work opened, listed, counted or quoted a dream, `khralexi`, `nameless`, the
 scratchpad, `dreamcore_final_product.txt` or `data/continuity_notes.json`. The cocoon fixture used
 to test the reboot guard was written by me, in the scratchpad.
+
+## Jonathan's decisions on the approvals, and what was done (later 2026-11-18)
+
+Branch `claude/decisions-2026-11-18`, after #53 and #55 were merged.
+
+| Item | Decision | Done |
+|---|---|---|
+| 1. Governor substrate pressure | leave it reading 0.0 until the speed shadow is checked and live | a DECIDED comment at the call site in `codette_server.py`; behaviour unchanged. The `missing_method` antibody keeps flagging the line; the comment says that lead is known |
+| 2. Ethics check fails open | keep failing open, visibly | a DECIDED comment at the check in `codette_forge_bridge.py`; behaviour unchanged |
+| 5. DreamCore | leave unwired, as lineage | nothing changed |
+| 6. `Movie_engine.py` | extract the code blocks with `tools/archive_diff.py`, original untouched | `media/codette_media_engine.py` (lines 386-800, the fullest version) and `media/lineage/` (lines 1-207 and 208-283), with `media/README.md` and `media/requirements.txt` |
+| 7. Superseded torch-stack files | SUPERSEDED header, left in place | headers on `inference/chat_app.py`, `model_loader.py`, `multi_adapter_engine.py`, `reasoning_forge/CONSCIOUSNESS_STACK_forge_with_debate.py`; code unchanged (syntax-tree identical) |
+
+Items 3, 4 and 8 are still open. Suite after: **1,519 passed**, 1 failed (NLTK, environmental, as on `main`).
+
+**The extraction, as it happened.** `tools/archive_diff.py` alone reported the file UNREPAIRABLE:
+its last repair keeps the longest prefix that parses, and the transcript breaks on line 1 (the
+module docstring's opening triple quote was lost). So the segments were found by reading the
+content, and each went through the tool's own `repair()`. My first cut was one line off (line 208
+opens segment B's docstring), and the tool silently cut segment A from 207 lines to 132 to make it
+parse. That was caught by comparing line counts, and corrected. The tool also *deletes*
+non-breaking spaces; here each indent step was `NBSP + space`, so deleting them halves the
+indentation. They were replaced with spaces before `repair()`, which then changed 0 lines in each
+segment (measured). A "keep the longest parsing prefix" repair can drop code without saying so,
+so check the line count after it.
+
+**Verified:** all three versions import with moviepy 1.0.3, and the main one rendered two 1-second
+clips plus a tone into a 2.00 s, 320x240 video with audio. moviepy 1.0.3 calls
+`PIL.Image.ANTIALIAS`, which Pillow 10 removed. The test used a one-line alias, and the engine is
+unchanged; `media/requirements.txt` pins `Pillow<10`. Text overlays were not tested (ImageMagick
+absent). `tests/test_media_engine_extraction.py` pins the original's checksum.
+
+**Found while writing the headers:** `chat_app.py` does `from inference import CodetteModelLoader,
+CodetteEngine`, but those are exported by `inference/init.py`, and there is no
+`inference/__init__.py`. `init.py` is probably `__init__.py` with its underscores lost (Markdown
+renders `__init__` as bold "init"). **It must not be renamed:** every `import inference.*` would
+then load torch. Recorded in the `chat_app.py` header.

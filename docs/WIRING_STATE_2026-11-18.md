@@ -19,13 +19,13 @@ inside functions and `try` blocks and string imports via `importlib`. It reads P
 | Tools run by hand | `openvino_backend/convert_adapters.py`, `inference/init.py` | expected |
 | Empty package marker | `api/__init__.py` (`rest_skin.py` is run directly) | expected |
 | Lineage, kept by house rule | `*_enhanced` (optimizer, spiderweb, perspective web), `WOSME`, `harmonic_ode`, `quantum_harmonic_dynamics`, `codette_quantum_heart`, `nexis_signal_engine_local`, `nexis_signal_engine_rustfft`, `memory_item`, `test_global_aegis` | as 09-29 |
-| Superseded torch / transformers stack | `inference/chat_app.py`, `model_loader.py`, `multi_adapter_engine.py`, `vulkan_compute.py` | archive candidates: [approval 7](APPROVALS_2026-11-18.md). `chat_app` cannot run |
-| Paste-in template | `reasoning_forge/CONSCIOUSNESS_STACK_forge_with_debate.py`, and `authored_intent.py`, which only it imports | approval 7 |
+| Superseded torch / transformers stack | `inference/chat_app.py`, `model_loader.py`, `multi_adapter_engine.py`, `vulkan_compute.py` | archive candidates: [approval 7](APPROVALS_2026-11-18.md). `chat_app` cannot run. **Decided (c): the first three carry SUPERSEDED headers, left in place.** `vulkan_compute.py` was not in item 7 and has no header |
+| Paste-in template | `reasoning_forge/CONSCIOUSNESS_STACK_forge_with_debate.py`, and `authored_intent.py`, which only it imports | approval 7; **SUPERSEDED header added** |
 | Finished work that would change her if wired (each is his yes) | `verify_revise`, `neural_symbolic`, `grounding_bridge`, `semantic_grounding`, `voice_input`'s companion `twin_frequency_trust`, the three AEGIS Flask views | as 09-29 / 10-01 |
 | Lineage: the recovered original of what Session 14 rebuilt as `Tier2IntegrationBridge` | `consciousness/dreamcore_wakestate_engine.py` | approval 5: would write plaintext to a tracked file if ever wired. (First listed here as "would design her dreaming"; corrected after reading SESSION_14_COMPLETION.md) |
 | Proposed replacements, never adopted | `inference/codette_tool_system.py` ("drop-in replacement for the tool layer") | not a wiring job |
 | Needs a package that is not installed | `ethics/core_conscience.py`, `core_guardian_spindle_v2.py` | importable now that `pyyaml`, `networkx`, `colorama` are declared; no role on the chat path (10-01) |
-| A chat transcript holding code | `Movie_engine.py` | approval 6 |
+| A chat transcript holding code | `Movie_engine.py` | approval 6; **extracted to `media/`**, the transcript untouched |
 | Toy examples | `reasoning_forge/multi_perspective_agents.py` | leave |
 
 ## Reachable, but built and never called
