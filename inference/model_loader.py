@@ -1,3 +1,12 @@
+# SUPERSEDED (marked 2026-11-18, Jonathan's decision: docs/APPROVALS_2026-11-18.md, item 7).
+# CodetteModelLoader: base model + PEFT adapters on transformers / torch. Replaced by the
+# OpenVINO backend (openvino_backend/backend.py, adapters hot-swapped via AdapterConfig) and,
+# as the GGUF fallback, the llama.cpp orchestrator (inference/codette_orchestrator.py).
+#
+# Left in place, not moved, because docs/deployment/DEPLOYMENT.md, docs/deployment/MODEL_SETUP.md,
+# docs/HOWTO.md and docs/PLAN.md still describe it; nothing live imports it.
+# See docs/WIRING_STATE_2026-11-18.md. This header is the only change to the file.
+#
 import torch
 from pathlib import Path
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig

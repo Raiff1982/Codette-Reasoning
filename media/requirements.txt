@@ -1,0 +1,3 @@
+# CodetteMediaEngine (media/). Standalone; not part of Codette's own requirements.
+moviepy>=1.0.3,<2.0     # the code imports moviepy.editor, removed in moviepy 2.0
+Pillow<10               # moviepy 1.0.3 calls PIL.Image.ANTIALIAS, removed in Pillow 10 (see README)

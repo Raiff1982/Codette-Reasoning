@@ -1,3 +1,12 @@
+# SUPERSEDED (marked 2026-11-18, Jonathan's decision: docs/APPROVALS_2026-11-18.md, item 7).
+# CodetteEngine: multi-perspective generation over model_loader.py. Replaced by
+# OpenVINOBackend.route_and_generate / _synthesize (openvino_backend/backend.py). It has no
+# stream_generate, which inference/chat_app.py calls.
+#
+# Left in place, not moved, because docs/deployment/DEPLOYMENT.md, docs/deployment/MODEL_SETUP.md,
+# docs/HOWTO.md and docs/PLAN.md still describe it; nothing live imports it.
+# See docs/WIRING_STATE_2026-11-18.md. This header is the only change to the file.
+#
 class CodetteEngine:
 
     def __init__(self, loader, registry):

@@ -725,8 +725,11 @@ class CodetteForgeBridge:
                     }
             except Exception as _qv_err:
                 # Fails OPEN: the query proceeds unvalidated. Was silent until
-                # 2026-11-18; now says so. Whether it should fail closed is
-                # Jonathan's call (docs/APPROVALS_2026-11-18.md).
+                # 2026-11-18; now says so. DECIDED 2026-11-18, Jonathan
+                # (APPROVALS_2026-11-18, item 2): keep failing open, visibly.
+                # Failing closed would turn any bug in the checker into her
+                # refusing ordinary questions, and the harm gates on her output
+                # still run.
                 print(f"  [ETHICS] query validation failed, proceeding unvalidated: "
                       f"{type(_qv_err).__name__}: {_qv_err}", flush=True)
 

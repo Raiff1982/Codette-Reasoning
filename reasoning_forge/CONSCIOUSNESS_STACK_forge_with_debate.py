@@ -1,3 +1,12 @@
+# SUPERSEDED (marked 2026-11-18, Jonathan's decision: docs/APPROVALS_2026-11-18.md, item 7).
+# A paste-in template ("PASTE THIS AS THE NEW forge_with_debate() METHOD"). It was pasted:
+# the live version is ForgeEngine.forge_with_debate in reasoning_forge/forge_engine.py, which
+# has since been fixed several times (intent_vector 2026-10-22; analyses / epistemic_report /
+# safety_notes 2026-11-18). This copy has none of those fixes and reads an undefined
+# MemoryCocoon. Edit forge_engine.py, not this.
+#
+# Nothing imports it. This header is the only change to the file.
+#
 """
 CONSCIOUSNESS STACK INTEGRATION FOR FORGE_WITH_DEBATE
 This is the replacement implementation for forge_with_debate() in ForgeEngine.

@@ -1503,6 +1503,15 @@ def _worker_thread():
                 if recognized_user and _identity_anchor and recognized_user in _identity_anchor.identities:
                     identity_confidence = _identity_anchor.identities[recognized_user].recognition_confidence
                 substrate_pressure = 0.0
+                # DECIDED 2026-11-18, Jonathan (APPROVALS_2026-11-18, item 1):
+                # leave this reading 0.0 until the substrate speed shadow has been
+                # checked and switched live. SubstrateMonitor has no get_pressure,
+                # so the call below always raises and the governor gets 0.0, which
+                # is today's behaviour and is kept on purpose. Wiring it now
+                # (snapshot()["pressure"]) would shorten her answers and thin her
+                # recall on a signal that still counts her own deep thinking as
+                # strain. The missing_method antibody keeps flagging this line;
+                # that lead is known and decided, not new.
                 try:
                     from inference.substrate_awareness import SubstrateMonitor
                     sm = SubstrateMonitor()
