@@ -247,3 +247,5 @@ data/continuity_notes.json
 data/grounding_shadow.jsonl
 data/harm_advisor_shadow.jsonl
 data/self_train_shadow.jsonl
+# 2026-11-17: the substrate speed shadow (inference/substrate_awareness.py), written per turn.
+data/substrate_speed_shadow.jsonl

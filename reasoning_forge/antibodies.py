@@ -335,6 +335,83 @@ def detect_constructed_never_invoked(sources: List[Source]) -> List[Lead]:
     return out
 
 
+# ── class 5: a lifetime count over a windowed denominator ────────────────────
+#
+# 2026-11-17: SubstrateMonitor divided every violation ever recorded by at most
+# 20 inferences (a deque with maxlen=20), so at a constant true rate the
+# "rate" read 0.25 after 20 turns, 0.50 after 40 and 1.00 after 100. It looked
+# like a rate and was a ratchet with session length. The shape: a division
+# whose denominator is len() of a bounded deque and whose numerator reads state
+# that is never bounded the same way.
+
+def _is_bounded_deque(call) -> bool:
+    if not isinstance(call, ast.Call):
+        return False
+    f = call.func
+    name = f.id if isinstance(f, ast.Name) else (f.attr if isinstance(f, ast.Attribute) else "")
+    return name == "deque" and (any(k.arg == "maxlen" for k in call.keywords) or len(call.args) >= 2)
+
+
+def _self_attrs(node) -> set:
+    return {n.attr for n in ast.walk(node)
+            if isinstance(n, ast.Attribute) and isinstance(n.value, ast.Name) and n.value.id == "self"}
+
+
+def _len_of_self_attrs(node) -> set:
+    return {a.attr for n in ast.walk(node)
+            if isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id == "len"
+            for a in n.args
+            if isinstance(a, ast.Attribute) and isinstance(a.value, ast.Name) and a.value.id == "self"}
+
+
+def detect_lifetime_over_window(sources: List[Source]) -> List[Lead]:
+    out: List[Lead] = []
+    for s in sources:
+        if s.tree is None:
+            continue
+        for cls in [n for n in ast.walk(s.tree) if isinstance(n, ast.ClassDef)]:
+            bounded, assigned = set(), set()
+            for st in ast.walk(cls):
+                if isinstance(st, ast.Assign):
+                    for t in st.targets:
+                        if isinstance(t, ast.Attribute) and isinstance(t.value, ast.Name) \
+                                and t.value.id == "self":
+                            assigned.add(t.attr)
+                            if _is_bounded_deque(st.value):
+                                bounded.add(t.attr)
+            if not bounded:
+                continue
+            for fn in [n for n in cls.body if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))]:
+                # Resolve locals one step: `total = sum(self.x.values())`.
+                local: Dict[str, ast.AST] = {}
+                for st in ast.walk(fn):
+                    if isinstance(st, ast.Assign) and len(st.targets) == 1 \
+                            and isinstance(st.targets[0], ast.Name):
+                        local[st.targets[0].id] = st.value
+
+                def expand(node):
+                    parts = [node]
+                    parts += [local[n.id] for n in ast.walk(node)
+                              if isinstance(n, ast.Name) and n.id in local]
+                    return parts
+
+                for b in ast.walk(fn):
+                    if not (isinstance(b, ast.BinOp) and isinstance(b.op, ast.Div)):
+                        continue
+                    den = set().union(*(_len_of_self_attrs(x) for x in expand(b.right)))
+                    windows = den & bounded
+                    if not windows:
+                        continue
+                    num = set().union(*(_self_attrs(x) for x in expand(b.left)))
+                    lifetime = (num & assigned) - bounded
+                    if lifetime:
+                        out.append(Lead(s.rel, b.lineno,
+                                        f"{cls.name}.{fn.name}: self.{sorted(lifetime)[0]} is never "
+                                        f"windowed but is divided by len(self.{sorted(windows)[0]}), "
+                                        "a bounded deque; the ratio grows with session length"))
+    return out
+
+
 ANTIBODIES: List[Antibody] = [
     Antibody(
         "used_before_bound",
@@ -365,6 +442,13 @@ ANTIBODIES: List[Antibody] = [
          "startup and never invoked once",
          "b4a9e37: /api/health reported OK from hasattr"],
         detect_constructed_never_invoked),
+    Antibody(
+        "lifetime_over_window",
+        "A ratio divides a count that never expires by the length of a bounded "
+        "window, so at a constant true rate it climbs with session length.",
+        ["2026-11-17: SubstrateMonitor violation_rate read 0.25, 0.50, 1.00 after "
+         "20, 40, 100 turns at one violation every two turns"],
+        detect_lifetime_over_window),
 ]
 
 

@@ -108,7 +108,11 @@ class CodetteForgeBridge:
         self.cocoon_enricher = None
         if SUBSTRATE_AVAILABLE:
             try:
-                self.substrate_monitor = SubstrateMonitor()
+                # The speed shadow logs beside the live pressure (2026-11-17).
+                # Runtime state: gitignored, numbers only, applied: false.
+                self.substrate_monitor = SubstrateMonitor(
+                    shadow_log=Path(__file__).resolve().parent.parent
+                    / "data" / "substrate_speed_shadow.jsonl")
                 self.health_router = HealthAwareRouter(self.substrate_monitor)
                 self.cocoon_enricher = CocoonStateEnricher(self.substrate_monitor)
                 if self.verbose:
@@ -981,6 +985,7 @@ class CodetteForgeBridge:
         )
 
         elapsed = time.time() - start_time
+        gen_tokens = result.get("tokens") if isinstance(result, dict) else None
 
         # 6. Add Phase 6/7 metadata
         result["phase6_used"] = True
@@ -1408,7 +1413,7 @@ class CodetteForgeBridge:
 
         # Record inference timing for substrate monitor
         if self.substrate_monitor:
-            self.substrate_monitor.record_inference(elapsed * 1000)
+            self.substrate_monitor.record_inference(elapsed * 1000, tokens=gen_tokens)
 
         # 8. Apply directness discipline — trim filler, enforce intent anchoring
         response_text = result.get("response", "")

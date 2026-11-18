@@ -104,6 +104,35 @@ def test_constructed_never_invoked_flags_the_dead_component_only():
     assert [("colleen" in l.note) for l in leads] == [True]
 
 
+# ── a lifetime count over a windowed denominator ─────────────────────────────
+
+def test_lifetime_over_window_catches_the_violation_rate_shape_and_its_fix():
+    bad = (
+        "from collections import deque\n"
+        "class Monitor:\n"
+        "    def __init__(self):\n"
+        "        self._times = deque(maxlen=20)\n"
+        "        self._violations = {}\n"
+        "    def rate(self):\n"
+        "        total = sum(self._violations.values())\n"
+        "        n = max(len(self._times), 1)\n"
+        "        return total / (n * 2)\n")
+    good = (
+        "from collections import deque\n"
+        "class Monitor:\n"
+        "    def __init__(self):\n"
+        "        self._times = deque(maxlen=20)\n"
+        "        self._stamps = deque(maxlen=40)\n"
+        "    def rate(self):\n"
+        "        total = len(self._stamps)\n"
+        "        n = max(len(self._times), 1)\n"
+        "        return total / (n * 2)\n")
+    unbounded = bad.replace("deque(maxlen=20)", "[]")       # both lifetime: a true rate
+    assert len(A.detect_lifetime_over_window(_src(bad))) == 1
+    assert A.detect_lifetime_over_window(_src(good)) == []
+    assert A.detect_lifetime_over_window(_src(unbounded)) == []
+
+
 # ── the runner ───────────────────────────────────────────────────────────────
 
 def test_run_reports_a_failing_detector_instead_of_hiding_it_or_dying():
