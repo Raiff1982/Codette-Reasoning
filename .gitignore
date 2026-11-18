@@ -236,3 +236,14 @@ data/antibody_report.json
 data/self_check_counts.json
 data/tool_efficacy.json
 data/background_jobs.json
+
+# 2026-11-17: four more files the running system writes, none tracked, none ignored
+# until now, so a plain `git add -A` on her machine would have published them (this
+# repository is public). Found when a test run here left data/self_train_shadow.jsonl
+# behind. The continuity notes are her tape (inference/continuity_note.py): visible to
+# Jonathan by design, but her memory, and her memories stay out of git. Ignoring keeps
+# the current untracked state; tracking them would be Jonathan's call.
+data/continuity_notes.json
+data/grounding_shadow.jsonl
+data/harm_advisor_shadow.jsonl
+data/self_train_shadow.jsonl
