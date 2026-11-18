@@ -2852,11 +2852,35 @@ def _worker_thread():
                 # AEGIS Layer-5 healing) run ONLY under the full-safeguard forge path,
                 # which live serving does not use — so they are recorded as not-run, and
                 # every record carries an alert saying so. Honest, not flattering.
+                #
+                # Amended 2026-11-18 (Jonathan: run Layers 5 and 6 as observers,
+                # APPROVALS_2026-11-18 item 3). The record above used the v8
+                # render-fidelity check under the name "Layer 6", and defaulted it
+                # to PASS when it had not run (`compliant` defaulted to True; it
+                # only runs when adaptive placement rewrote the answer). Now:
+                #   * Layer 6 is the Protection_Layer RenderLayer's two real checks,
+                #     run by aegis_observer: her authored text (bridge step 5)
+                #     against exactly what the person received, and the v3
+                #     cocoon's schema (whitelist view, never open_threads).
+                #   * Not run is recorded as NULL, never as a pass or a fail.
+                #   * Layer 5 is not run: its projected tension is noise-only
+                #     (constant about 0.15). Recorded as not run, with the reason.
+                #   * The v8 result is kept, in alerts, so nothing is lost.
+                # Observe only: none of this changes her answer or reaches her.
+                _aegis_authored = result.pop("_aegis_authored", None)
+                _aegis_schema = result.pop("_aegis_schema", None)
                 if _aegis_metrics_engine is not None:
                     try:
-                        _arf = result.get("render_fidelity") or {}
-                        _aoverlap = _arf.get("overlap")
-                        _arender_ok = bool(_arf.get("compliant", True))
+                        from aegis_observer import observe_render, summary_line
+                        _obs = observe_render(_aegis_authored, response_text, _aegis_schema)
+                        print(summary_line(_obs), flush=True)
+                        _l6 = _obs["layer6"]
+                        _arf = result.get("render_fidelity")
+                        _v8_note = (f"v8 render-fidelity: compliant={_arf.get('compliant')} "
+                                    f"overlap={_arf.get('overlap')}"
+                                    f"{' (reverted)' if _arf.get('enforced') else ''}"
+                                    if isinstance(_arf, dict) and _arf
+                                    else "v8 render-fidelity: not run (adaptive placement made no change)")
                         _alat_ms = (result.get("latency_ms")
                                     or result.get("actual_latency_ms")
                                     or result.get("generation_time_ms") or 0.0)
@@ -2866,18 +2890,19 @@ def _worker_thread():
                             "debate_rounds": 0,
                             "forge_time": float(_alat_ms) / 1000.0,
                             "total_time": float(_alat_ms) / 1000.0,
-                            # Layer 6 (render validation) is REAL live:
-                            "layer6_valid": _arender_ok,
-                            "overlap_percentage": (float(_aoverlap) * 100.0)
-                                                  if isinstance(_aoverlap, (int, float)) else 0.0,
-                            "overlap_valid": _arender_ok,
-                            "valid": _arender_ok,
-                            # Layers 2/3/5 not invoked in live serving -> honest defaults:
+                            "layer6_valid": _obs["valid"],             # None when not measured
+                            "overlap_percentage": _l6["overlap_pct"],  # None when not measured
+                            "overlap_valid": _obs["overlap_valid"],    # None when not measured
+                            "valid": _obs["valid"],
                             "layer2_success": False, "layer3_success": False,
-                            "layer5_healing_applied": False,
-                            "alerts": ["live-serving cycle: RenderLayer (Layer 6) + AEGIS "
-                                       "ethics run per response; Layers 2/3/5 run only under "
-                                       "the full-safeguard forge path, not wired into live serving"],
+                            "layer5_healing_applied": False,           # healing_action stays NULL: not run
+                            "alerts": (
+                                ["observer: Layer 6 (overlap + cocoon schema) observes only; "
+                                 "Layers 2/3 not run in live serving; Layer 5 " + _obs["layer5"]["reason"],
+                                 _v8_note]
+                                + [f"layer6 not run: {_l6.get('reason')}"] * (not _l6["ran"])
+                                + [f"schema: {e}" for e in (_obs["schema"].get("errors") or [])][:8]
+                            ),
                         })
                     except Exception as _aegis_rec_e:
                         print(f"  [AEGIS] metrics record skipped: {_aegis_rec_e}", flush=True)

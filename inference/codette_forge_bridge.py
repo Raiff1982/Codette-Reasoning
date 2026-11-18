@@ -993,6 +993,11 @@ class CodetteForgeBridge:
 
         elapsed = time.time() - start_time
         gen_tokens = result.get("tokens") if isinstance(result, dict) else None
+        # AEGIS Layer 6 observer (2026-11-18): her text as the model produced it,
+        # before any post-processing below. Compared with what the person finally
+        # receives, in the server. Observe only: nothing reads this to change her
+        # answer. Passed on as result["_aegis_authored"], which the server pops.
+        _aegis_authored = result.get("response") if isinstance(result, dict) else None
 
         # 6. Add Phase 6/7 metadata
         result["phase6_used"] = True
@@ -1381,6 +1386,16 @@ class CodetteForgeBridge:
                     except Exception:
                         pass
 
+                    # AEGIS Layer 6 observer: schema check on a whitelist view of
+                    # this cocoon. It never reads open_threads (her nameless
+                    # notes); only the verdict and error codes travel on.
+                    try:
+                        from Protection_Layer.aegis_observer import observe_cocoon_schema
+                        result["_aegis_schema"] = observe_cocoon_schema(v3_cocoon)
+                    except Exception as _obs_err:
+                        result["_aegis_schema"] = {"ran": False,
+                                                   "reason": f"{type(_obs_err).__name__}"}
+
                 except Exception as _v3_err:
                     _log.warning(
                         "[CocoonBridge] build_cocoon_v3 failed — writing legacy cocoon. "
@@ -1494,6 +1509,8 @@ class CodetteForgeBridge:
             resp_len = len(result.get("response", ""))
             print(f"[PHASE6] Done: {resp_len} chars, {result.get('tokens', 0)} tokens", flush=True)
 
+        if isinstance(_aegis_authored, str) and _aegis_authored:
+            result["_aegis_authored"] = _aegis_authored
         return result
 
     @staticmethod

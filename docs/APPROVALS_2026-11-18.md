@@ -72,6 +72,18 @@ expects), so this is about what happens if it ever breaks.
 
 ## 3. `AEGISForgeIntegration` is built at startup and never used
 
+> **DECIDED 2026-11-18, Jonathan:** neither (a), (b) nor (c), but the alternative I offered after
+> tracing (c): run Layers 5 and 6 as observers on her current path, watching and recording, changing
+> nothing. **Done for Layer 6.** **Layer 5 was not wired**, because measured it cannot observe anything:
+> its projected tension is about 0.15 whatever it is given. Making it read her real perspective data is
+> a new decision, below. The unused `AEGISForgeIntegration` object is untouched.
+> Detail: CHANGELOG_2026-11-18.md, last section.
+>
+> **New, yours: Layer 5.** Its thresholds (warn at 0.50, act at 0.70) could be applied to her *real*
+> perspective dispersion, which the live path already measures, as an observer. That would be a new
+> check carrying Layer 5's name, not Layer 5 as written, so it is your call. Options: (a) leave Layer 5
+> out (today), (b) build that observer, (c) leave it until someone rewrites Layer 5 itself.
+
 **Found.** `codette_server.py` builds `AEGISForgeIntegration(_forge_bridge, ...)`
 at startup and stores it in `_aegis_forge_integration`. Nothing ever calls it. It
 is also handed the forge *bridge*, but it calls `forge_with_debate`, which only
