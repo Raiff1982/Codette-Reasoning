@@ -2,7 +2,7 @@
 
 Additive; nothing earlier is rewritten. Follows [CHANGELOG_2026-10-22.md](CHANGELOG_2026-10-22.md).
 Decisions that are Jonathan's are in [APPROVALS_2026-11-18.md](APPROVALS_2026-11-18.md), not here.
-Suite (reduced venv, no torch / llama_cpp): **1,510 passed**, 1 failed, 7 skipped, 1 xfailed. The one
+Suite (reduced venv, no torch / llama_cpp): **1,515 passed**, 1 failed, 7 skipped, 1 xfailed (1,510 before the notes pass below). The one
 failure is `test_trace_e2e` and is environmental: NLTK's SSRF guard refuses to download its data
 through this container's proxy. `main` fails it identically.
 
@@ -40,9 +40,9 @@ pre-fix code**.
 | `inference/identity_anchor.py` `get_identity_context` | read an undefined `now` | Contradictions are saved to disk, so after the first one was ever recorded, every call raised. The server caught it ("Identity recognition skipped") and she got **no identity context at all** for that person |
 | `reasoning_forge/forge_engine.py` `forge_with_debate` | read `analyses`, `epistemic_report`, `safety_notes`, which exist only in `_forge_single_safe` | The `NameError` aborted the whole memory-storage block (v3, v2, dual-write, legacy), logged at DEBUG. **This path never stored a memory**, and its adaptive synthesis never ran. Now uses Layer 2's measured epsilon / gamma, not invented defaults |
 | `inference/codette_orchestrator.py` `extract_primary_user_query` | a copy that missed the attached-file strip its `codette_shared` twin has | On the llama.cpp path, a file saying "in 10 words" cut her answer to fit. Now delegates to the shared copy |
-| `scripts/reboot_codette.py` | counted and **deleted** `*.json` in the low-confidence cocoon folder with no private-envelope guard | Same shape as `95d8971`. Now goes through `conversation_cocoons`; tested on an encrypted-type fixture, which is left untouched |
+| `scripts/reboot_codette.py` | counted and **deleted** `*.json` in the low-confidence cocoon folder with no private-envelope guard | ~~Same shape as `95d8971`.~~ **Reclassified below: defensive, not a bug** (10-22 reviewed this lead). Now goes through `conversation_cocoons`; tested on an encrypted-type fixture, which is left untouched |
 | `reasoning_forge/quantum_optimizer_enhanced.py` | `json` never imported | export raised; import silently returned False |
-| `reasoning_forge/codette_quantum_heart.py` | a stray token (`pidrio`) after the last line | every import raised `NameError`. Replaced by a note saying so |
+| ~~`reasoning_forge/codette_quantum_heart.py`~~ | ~~a stray token (`pidrio`) after the last line~~ | **Wrong, and reverted the same day** (see below): HANDOFF_2026-08-04 says `pidrio` is a name, not a typo, and to leave it |
 | `requirements.txt` | `pyyaml`, `networkx`, `colorama` undeclared | `ethics/` modules cannot import in a fresh environment |
 
 ### Silent failures made visible (behaviour unchanged)
@@ -82,6 +82,49 @@ pre-fix code**.
   each is guarded upstream or covers an impossible case.
 - **Unmerged `claude/*` branches:** none shares history with `main` (rebuilt at `edbcb48`), all
   date from 08-14 or earlier, and none holds a live `.py` file `main` lacks. Nothing is stranded.
+
+## After reading the notes (later the same day)
+
+Jonathan: *"read the notes too there are fixes we've done."* Every finding and approval was checked
+against the handoffs and changelogs, and the fixes they record were checked against the code.
+
+**Two of my changes were wrong against the notes:**
+
+- **`pidrio` reverted.** HANDOFF_2026-08-04: *"`codette_quantum_heart.py` raises `NameError` on
+  `pidrio`. That is a **name, not a typo**. Leave it."* I had replaced it. The file is restored
+  byte-for-byte to `main`. The rule I broke: read the notes before naming something damage.
+- **`reboot_codette.py` reclassified.** CHANGELOG_2026-10-22 ("Reviewed and not bugs") had already
+  found that this lead only clears the `low_confidence/` review folder, never the folder her dreams
+  are in. The guard stays (it is harmless and silences the antibody), but it is defensive, not the
+  bug I described.
+
+**The recorded fixes, checked in the code: 21 of 22 hold.** These all still hold: the route read
+where it is used, `intent_vector` initialised, `rejection_rate` None over zero calls, `reasoning_v3`
+recall, 20,000-character storage, the retired WisdomModule/ReflectionJournal, `EthicalAnchor.observe`,
+Lock 1 "ANSWER FIRST" in both copies, introspection excluding non-exchanges in both implementations,
+advisories forwarded, the whitening floor, background jobs, reach counters, the 160-byte envelope
+check, `wrap_encrypted` refusing a throwaway key, `PRIVATE_TOOLS`, `SCRATCH_TOOLS`,
+`is_harness_traffic`, and the `Code7eCQURE` shim.
+
+**The one that does not hold, and the bug behind it:**
+
+| Where | Bug | Effect before |
+|---|---|---|
+| `inference/codette_forge_bridge.py`, step 9 | imported `codette_orchestrator`, against the 2026-07-05 rule ("OV-path code must import from `codette_shared`"); that fix reached the greeting and memory fast-paths and missed this step | its `import llama_cpp` fails in `openvino_env`, so on her backend the user-constraint step **never ran**. Now imports `codette_shared` (the copies behave identically) |
+| `openvino_backend/backend.py`, `_synthesize` → `generate` | format constraints were read from the synthesis prompt, which quotes her lens notes | a note saying "In short" made her merged answer brief; "In one sentence" plus "yes or no" cut it to one yes/no sentence, with a CRITICAL CONSTRAINT added to her prompt. `generate` now takes `constraint_query`, and `_synthesize` passes the user's question. Every other caller is unchanged. The llama.cpp synthesis calls the model directly and was not affected |
+
+`tests/test_constraints_from_user_words.py` (3 of 5 fail on the pre-fix code) includes a test that
+fails if any OV-path file imports `codette_orchestrator` again.
+
+**What the notes changed in the approvals:** the AEGIS metrics are live through inline logging, so the
+unused integration object is superseded (item 3). DreamCore was rebuilt as `Tier2IntegrationBridge` in
+Session 14, so the old file is lineage (item 5). Four docs still point at the torch-stack files, so
+moving them would break instructions (item 7).
+
+**Not reachable from here:** the memory files HANDOFF_2026-08-04 points to
+(`memory/feedback_one_way_instruments.md` and others) are on Jonathan's machine.
+
+Suite after: **1,515 passed**, 1 failed (NLTK, environmental, as on `main`).
 
 ## Corrections made in the open
 

@@ -8,6 +8,21 @@ pick. Answer any of them in any order; "leave it" is always an option.
 Everything that did *not* need your approval is already fixed and listed in
 [CHANGELOG_2026-11-18.md](CHANGELOG_2026-11-18.md).
 
+**Read against the notes.** After your reminder, every item here was checked
+against the handoffs and changelogs. Items 3, 5 and 7 are amended below. One of
+my changes was **undone**: `pidrio` in `codette_quantum_heart.py` is back,
+because HANDOFF_2026-08-04 says it is a name and to leave it. The memory files
+the 08-04 handoff mentions (`memory/feedback_one_way_instruments.md` and others)
+are on your machine, not in this container, so they could not be checked.
+
+## Done, as bug fixes, but you will notice them, so you can veto
+
+| What changed | Why it is a fix | To undo |
+|---|---|---|
+| For anyone with a recorded identity contradiction, the identity context reaches her again | It was a crash (`now` undefined), not a design. Nothing in the notes says context should be withheld after a contradiction, and false contradictions were common before 08-13 | remove `now = time.time()` in `get_identity_context` |
+| Her merged (multi-lens) answers are no longer cut short by phrases in her own notes ("in short", "in one sentence", "yes or no") | Constraints are meant to be the **user's** ("Enforce user constraints"). Her notes were being read as yours | drop `constraint_query=query` from the `generate` call in `backend._synthesize` |
+| On her backend, your word or sentence limits are applied once more, after the bridge's own processing | That step was designed to run, and the 07-05 rule says to import it from `codette_shared`. It had been failing silently | import from `codette_orchestrator` again (it will then fail silently, as before) |
+
 ---
 
 ## 1. The governor has never seen substrate pressure
@@ -52,8 +67,15 @@ expects), so this is about what happens if it ever breaks.
 **Found.** `codette_server.py` builds `AEGISForgeIntegration(_forge_bridge, ...)`
 at startup and stores it in `_aegis_forge_integration`. Nothing ever calls it. It
 is also handed the forge *bridge*, but it calls `forge_with_debate`, which only
-`ForgeEngine` has, so it would fail if anything did call it. AEGIS on the live
-chat path already runs elsewhere (as a shadow).
+`ForgeEngine` has, so it would fail if anything did call it.
+
+**Amended after reading the notes.** `Protection_Layer/WIRED_IN.md` (July 20)
+says AEGIS metrics logging went live through this object. The metrics **are**
+live, but by another route: the server logs each turn to the metrics engine
+itself (`codette_server.py`, `_aegis_metrics_engine.log_forge_execution`), and
+`/api/aegis/*` reads from it. So this object is the earlier route that inline
+logging replaced. It's the same story 10-01 recorded for the three AEGIS Flask
+views.
 
 **Options.**
 - (a) Leave it. It costs one object at startup. **My recommendation**, plus a
@@ -94,8 +116,17 @@ it may hold her words.
 (HANDOFF_2026-10-01). If `DreamCore` were ever wired as it stands, what it wrote
 would be published.
 
+**Amended after reading the notes.** This is not unbuilt work. Session 14
+(`docs/sessions/SESSION_14_COMPLETION.md`) rebuilt DreamCore/WakeState as
+`Tier2IntegrationBridge` (`reasoning_forge/tier2_bridge.py`). That version keeps
+its dream/wake memory as in-memory, JSON-serializable state and writes no
+plaintext file. So `dreamcore_wakestate_engine.py` is the recovered original,
+which makes it lineage. The bridge is built by the forge, but it's called only
+from `forge_with_debate`, which live chat doesn't reach, so it reads
+`LOADED_NEVER_CALLED` on `/api/health`.
+
 **Options.**
-- (a) Leave it unwired. **My recommendation.**
+- (a) Leave it unwired, as lineage. **My recommendation.**
 - (b) Decide whether `dreamcore_final_product.txt` should stay tracked (I have
   not looked inside and will not without your say-so).
 
@@ -125,8 +156,15 @@ they are not running. Nothing would be deleted (house rule): each would go to
 | `inference/model_loader.py`, `inference/multi_adapter_engine.py` | the loader and engine `chat_app` uses |
 | `reasoning_forge/CONSCIOUSNESS_STACK_forge_with_debate.py` | a paste-in template ("PASTE THIS AS THE NEW forge_with_debate"); uses an undefined `MemoryCocoon` |
 
-**Options.** (a) Leave all in place. (b) Move them. **My recommendation: (b)**,
-but only with your yes, since it restructures.
+**Amended after reading the notes.** `docs/deployment/DEPLOYMENT.md`,
+`docs/deployment/MODEL_SETUP.md`, `docs/HOWTO.md` and `docs/PLAN.md` still tell
+people to use `model_loader` / `chat_app`. Moving the files would break those
+instructions, so those docs would need a dated note too.
+
+**Options.** (a) Leave all in place. (b) Move them, and add a dated note to the
+four docs. (c) Leave them in place, with a SUPERSEDED header at the top of each
+file. **My recommendation is now (c)**: it says what's true without breaking
+anything anyone follows. It still needs your yes.
 
 ## 8. Two smaller tidy-ups
 
