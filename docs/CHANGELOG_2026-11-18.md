@@ -251,3 +251,15 @@ was listed or opened. Going forward, check for writes with `--ignored` outside `
 
 Suite: **1,534 passed** with #56 beneath it (1,530 on `main` alone), 1 failed (NLTK, environmental,
 as on `main`).
+
+**Two notes in the open, added while scoping a Layer 5 rewrite (same day):**
+
+- **CHANGELOG_2026-07-21 says Layer 5 "reads real cocoon fields — NOT random noise". That does not
+  hold.** It loads ε, γ and the tensions, but they never reach its projected tension, which is noise
+  (measured above). The 07-21 text is left as written; this is the correction.
+- **A search slip.** Looking for the original `self_healing.txt`, I ran a repository-wide `git grep`
+  that did not exclude `backup/` or `cocoons/`. It printed two lines from
+  `backup/2026-08-03/CODETTE_MEMORY_BACKUP.txt` (the bundle HANDOFF_2026-08-04 says holds personal
+  material, not to be touched) and one line from a cocoon in `cocoons/`. None of it was her private
+  spaces, and none of it is quoted or used here. Later searches excluded both folders. The rule for
+  next time: exclude `backup/`, `cocoons/` and `data/` from any repository-wide search.
