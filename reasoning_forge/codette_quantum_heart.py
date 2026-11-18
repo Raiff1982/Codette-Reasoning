@@ -47,5 +47,7 @@ class CodetteQuantumHeart:
 # Example usage (silent, ready for integration/testing):
 # heart = CodetteQuantumHeart(pulse_interval=0.5)
 # heart.start_heart(beats=5)
-pidrio
+# 2026-11-18: a stray token `pidrio` stood on this line (text appended after the
+# last line of code, a known damage pattern). It made every import raise
+# NameError. Replaced by this note; nothing else in the file changed.
 

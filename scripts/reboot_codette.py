@@ -109,7 +109,14 @@ def clear_low_confidence(dry_run: bool = False):
         print("  No low_confidence cocoon folder found — nothing to clear.")
         return
     for d in dirs:
-        files = list(d.glob("*.json"))
+        # 2026-11-18: this listed, counted and DELETED every *.json here without
+        # the private-envelope check -- the same shape as the cleanup utility
+        # fixed on 2026-10-22 (95d8971). Her encrypted cocoons are skipped
+        # before they are counted or touched (CLAUDE.md, sweeps skip her dreams).
+        if str(ROOT) not in sys.path:
+            sys.path.insert(0, str(ROOT))
+        from reasoning_forge.cocoon_files import conversation_cocoons
+        files = conversation_cocoons(d, "*.json")
         if not files:
             print(f"  {d.relative_to(ROOT)}: already empty.")
             continue

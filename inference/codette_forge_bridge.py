@@ -723,8 +723,12 @@ class CodetteForgeBridge:
                         "phase6_used": True,
                         "reasoning": "Blocked by EthicalAIGovernance",
                     }
-            except Exception:
-                pass  # Non-critical, continue
+            except Exception as _qv_err:
+                # Fails OPEN: the query proceeds unvalidated. Was silent until
+                # 2026-11-18; now says so. Whether it should fail closed is
+                # Jonathan's call (docs/APPROVALS_2026-11-18.md).
+                print(f"  [ETHICS] query validation failed, proceeding unvalidated: "
+                      f"{type(_qv_err).__name__}: {_qv_err}", flush=True)
 
         # If adapter forced or Phase 6 disabled, use orchestrator directly
         if adapter or not self.use_phase6:

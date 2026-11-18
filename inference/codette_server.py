@@ -2463,8 +2463,10 @@ def _worker_thread():
                             response=result.get("response", ""),
                             adapter=adapter_name_for_id,
                         )
-                    except Exception:
-                        pass  # Non-critical, never fail on identity
+                    except Exception as _id_err:
+                        # Non-critical, never fail on identity -- but no longer silent
+                        # (2026-11-18). Exception type only: identity info is never logged.
+                        print(f"  [IDENTITY] update skipped: {type(_id_err).__name__}", flush=True)
 
                 # Extract route info from result (if available from ForgeEngine)
                 route = result.get("route")
@@ -3997,8 +3999,10 @@ class CodetteHandler(SimpleHTTPRequestHandler):
         if session and _session_store and session.messages:
             try:
                 _session_store.save(session)
-            except Exception:
-                pass
+            except Exception as _save_err:
+                # Was a silent pass until 2026-11-18: a failed save lost the
+                # conversation and nothing said so. Logged, never raised.
+                print(f"  [SESSION] save failed: {type(_save_err).__name__}: {_save_err}", flush=True)
 
         session = CodetteSession()
         _set_active_session(session)
@@ -4072,8 +4076,10 @@ class CodetteHandler(SimpleHTTPRequestHandler):
             if session and _session_store and session.messages:
                 try:
                     _session_store.save(session)
-                except Exception:
-                    pass
+                except Exception as _save_err:
+                    # Was a silent pass until 2026-11-18: a failed save lost the
+                    # conversation and nothing said so. Logged, never raised.
+                    print(f"  [SESSION] save failed: {type(_save_err).__name__}: {_save_err}", flush=True)
 
             imported = CodetteSession()
             imported.from_dict(data)
@@ -4083,8 +4089,10 @@ class CodetteHandler(SimpleHTTPRequestHandler):
             if _session_store:
                 try:
                     _session_store.save(imported)
-                except Exception:
-                    pass
+                except Exception as _save_err:
+                    # Was a silent pass until 2026-11-18: a failed save lost the
+                    # conversation and nothing said so. Logged, never raised.
+                    print(f"  [SESSION] save failed: {type(_save_err).__name__}: {_save_err}", flush=True)
 
             self._json_response({
                 "session_id": imported.session_id,

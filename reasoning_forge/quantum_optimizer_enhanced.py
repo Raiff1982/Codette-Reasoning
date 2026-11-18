@@ -18,6 +18,8 @@ Created by Jonathan Harrison (Raiff1982) / Raiff's Bits LLC.
 
 from __future__ import annotations
 
+import json  # 2026-11-18: used by export/import_configuration, never imported;
+             # export raised NameError and import silently returned False.
 import math
 import random
 import time

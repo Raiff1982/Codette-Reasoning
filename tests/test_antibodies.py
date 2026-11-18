@@ -133,6 +133,46 @@ def test_lifetime_over_window_catches_the_violation_rate_shape_and_its_fix():
     assert A.detect_lifetime_over_window(_src(unbounded)) == []
 
 
+def test_constructed_never_invoked_sees_getattr_and_list_membership():
+    code = (
+        "class C:\n    def check(self): return 1\n"
+        "class Forge:\n"
+        "    def __init__(self):\n"
+        "        self.anchor_part = C()\n"
+        "        self.newton_part = C()\n"
+        "        self.dead_part = C()\n"
+        "        self.agents = [self.newton_part, None]\n"
+        "def use(forge):\n"
+        "    return getattr(forge, 'anchor_part', None)\n")
+    leads = A.detect_constructed_never_invoked(_src(code, "reasoning_forge/f.py"))
+    assert [l.note.split(" =")[0] for l in leads] == ["self.dead_part"]
+
+
+# ── a call to a method the class does not have ───────────────────────────────
+
+def test_missing_method_catches_the_get_pressure_shape_and_ignores_real_or_unknowable():
+    lib = (
+        "class SubstrateMonitor:\n"
+        "    def snapshot(self): return {}\n"
+        "class Ext(SomethingImported):\n"
+        "    pass\n"
+        "class Dyn:\n"
+        "    def __getattr__(self, n): return lambda: 0\n")
+    bad = ("def turn():\n"
+           "    sm = SubstrateMonitor()\n"
+           "    try:\n"
+           "        return sm.get_pressure()\n"
+           "    except Exception:\n"
+           "        return 0.0\n")
+    good = "def turn():\n    sm = SubstrateMonitor()\n    return sm.snapshot()['pressure']\n"
+    unknowable = ("def turn():\n    e = Ext()\n    d = Dyn()\n"
+                  "    return e.anything(), d.whatever()\n")
+    leads = A.detect_missing_method(_src(lib + bad))
+    assert [l.line for l in leads] == [10] and "get_pressure" in leads[0].note
+    assert A.detect_missing_method(_src(lib + good)) == []
+    assert A.detect_missing_method(_src(lib + unknowable)) == []
+
+
 # ── the runner ───────────────────────────────────────────────────────────────
 
 def test_run_reports_a_failing_detector_instead_of_hiding_it_or_dying():
