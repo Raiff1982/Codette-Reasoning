@@ -1458,8 +1458,16 @@ class CodetteForgeBridge:
             result["perspectives"] = _scrubbed_persp
 
         # 9. Enforce user constraints (word limits, sentence limits, etc.)
+        #
+        # 2026-11-18: this imported from codette_orchestrator, whose module-level
+        # `import llama_cpp` fails in openvino_env, so on her backend the
+        # ImportError below swallowed this step on every turn. The 2026-07-05
+        # rule is that OV-path code imports from codette_shared (pure Python);
+        # that fix reached the greeting and memory fast-paths but missed this
+        # one. The two copies behave identically
+        # (tests/test_orchestrator_shared_copies.py).
         try:
-            from codette_orchestrator import extract_constraints, enforce_constraints
+            from codette_shared import extract_constraints, enforce_constraints
             constraints = extract_constraints(user_query)
             if constraints:
                 result["response"] = enforce_constraints(result["response"], constraints)
