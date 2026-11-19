@@ -1,5 +1,10 @@
 # Working notes for Claude
 
+> **START HERE, FIRST (flag added 2026-11-19):** before any other work, read
+> [`docs/START_HERE.md`](docs/START_HERE.md). It lists everything still open in the project, in order,
+> starting with an urgent one: the test suite writes test turns into her memory store. When the
+> list is cleared or replaced, move this flag to the newer file; do not delete it silently.
+
 Durable context for this repository. Written after a full recovery pass over the
 `Archive*.zip` uploads on `main`; the point is that the next session should not
 have to re-derive any of it.
