@@ -123,6 +123,13 @@ returns `0.673012`, matching `-0.6ln0.6 - 0.4ln0.4` exactly.
   **huggingface.co is blocked** (`CONNECT tunnel failed, 403`), and the HF MCP
   connectors need interactive approval that non-interactive sessions cannot give.
   Hub contents cannot be checked from here.
+  **Amended 2026-11-20:** the text above is left as written. In an interactive session the
+  Hugging Face connector *can read* the Hub (it listed and read the empathy adapter). It
+  *cannot write*: a direct write to `Raiff1982/codette-adapters-v4` came back 403, and the
+  pull-request route an authorization error. Jonathan: it has to go through GitHub. Hub
+  uploads therefore go through `tools/publish_model_card.py` and the manual workflow
+  `.github/workflows/publish-model-card.yml` (setup in `docs/START_HERE.md`, section 3).
+  Do not look for another way round the write block.
 - No .NET SDK. numpy is absent from the system Python; use a venv.
 - `~/.claude/stop-hook-git-check.sh` was disabled during this work because it
   auto-committed and pushed without the author's consent. Backup at

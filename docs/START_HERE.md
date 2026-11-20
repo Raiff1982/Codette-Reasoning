@@ -105,6 +105,23 @@ Its defaults are placeholders, not measurements:
 - Antibody leads: `zero_for_unmeasured` went from 40 to 67 leads with the new `max(n, 1)` form
   (27 new, listed in PR #61). Leads, not findings; review them by clone family, as for the 40.
 
+**Added 2026-11-20, getting the empathy card onto the Hub** (his answer: it has to go through
+GitHub). The assistant's Hugging Face connector can read the Hub but not write to it, so the card
+goes up through a manual GitHub Action: `.github/workflows/publish-model-card.yml`, run by
+`tools/publish_model_card.py`. It sends one allowlisted file, only from `main`, and checks the
+Hub's copy afterwards. **Nothing is sent until he does these, in order:**
+1. Merge the PR that adds it.
+2. huggingface.co > Settings > Access Tokens: a fine-grained token with **write** access to the
+   model repository `Raiff1982/codette-adapters-v4` and nothing else.
+3. GitHub > this repository > Settings > Secrets and variables > Actions > New repository secret,
+   named `HF_TOKEN`. (Never paste the token into a chat.)
+4. Actions > "Publish model card to the Hub" > Run workflow, branch `main`. Tick `dry_run` first to
+   see what would be sent.
+5. Afterwards the secret can be deleted and the token revoked.
+
+Still his to decide before step 4: keep the note about training example 26 in the public card, and
+whether CSAL covers the adapter weights (`training/model_cards/empathy_v4_README.md`).
+
 From [APPROVALS_2026-11-18.md](APPROVALS_2026-11-18.md):
 - **Item 3, Layer 5:** what it is for (recommendation: forecasting *reasoning* strain over a
   conversation; *machine* strain is the substrate monitor's job), then (a) leave it out, (b) build the
