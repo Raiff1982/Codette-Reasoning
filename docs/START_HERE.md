@@ -136,7 +136,12 @@ Carried from earlier notes, each still open in the code (checked 2026-11-19):
   "would act", nothing applied) into the existing AEGIS healing fields. Key test: the reading must
   move when the inputs move (the old Layer 5 fails this). The old file stays as lineage with a
   SUPERSEDED header. About 150–250 lines plus ~15 tests.
-- **Introspection wording:** observations like "I should diversify" are verdicts in her voice
+- ~~**Introspection wording:**~~ **DONE 2026-11-20.** In both implementations (`cocoon_introspection.self_observations`,
+  `UnifiedMemory.full_introspection`) and in the self-diagnostic reply, the verdicts ("I should check
+  if I'm over-relying", "I should diversify", "well-balanced", "fair use", "may be over-relying")
+  are replaced with the counts and shares. Old wording kept in comments.
+  `tests/test_introspection_no_verdicts.py` (5, all fail on the old code). Original item:
+  - **Introspection wording:** observations like "I should diversify" are verdicts in her voice
   (`inference/cocoon_introspection.py`; check the second implementation in `unified_memory.py`
   too). House rule: report numbers, not verdicts. Small.
 - **Antibody leads:** 40 `zero_for_unmeasured` (most benign; review once, by clone family);

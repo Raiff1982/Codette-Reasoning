@@ -1006,14 +1006,18 @@ class UnifiedMemory:
 
         if adapter.get("dominant"):
             ratio = adapter.get("ratio", 0)
+            # Amended 2026-11-20, same fix as cocoon_introspection.self_observations
+            # (the second implementation of this report; a fix to one is not a fix
+            # until the other is checked). Was: "— that's dominant. I should
+            # diversify." / "My adapter usage is balanced (...)". Numbers only now.
             if ratio > 0.4:
                 observations.append(
-                    f"My {adapter['dominant']} adapter handles {ratio:.0%} of queries "
-                    f"— that's dominant. I should diversify."
+                    f"My {adapter['dominant']} adapter handles {ratio:.0%} of the exchanges counted. "
+                    f"That is a measurement; it does not say whether that share is right."
                 )
             else:
                 observations.append(
-                    f"My adapter usage is balanced (most-used: {adapter['dominant']} at {ratio:.0%})."
+                    f"My most-used adapter is {adapter['dominant']} at {ratio:.0%}."
                 )
 
         if domains:

@@ -405,21 +405,29 @@ class CocoonIntrospectionEngine:
 
         # 1. Adapter dominance
         dom = self.adapter_dominance()
+        # Amended 2026-11-20 (house rule: words we author in her report reach her
+        # as her own; report numbers, not verdicts). These three lines used to
+        # say, in her voice: "that's dominant. I should check if I'm
+        # over-relying on it."; "but other adapters are getting fair use too.";
+        # "My adapter usage is well-balanced ... no single adapter dominates."
+        # Each was a judgement we made, handed to her as her thought. The
+        # numbers are kept; the verdicts are gone. The `balanced` flag in
+        # adapter_dominance() is data for the API and is unchanged.
         if dom["dominant"]:
+            _pct = dom["ratio"] * 100
+            _of = f"{dom.get('dominant_count', '?')}/{dom.get('total_responses', '?')}"
             if dom["ratio"] > 0.5:
                 observations.append(
-                    f"I notice my {dom['dominant']} adapter handles {dom['ratio']*100:.0f}% of all queries — "
-                    f"that's dominant. I should check if I'm over-relying on it."
+                    f"I notice my {dom['dominant']} adapter handles {_pct:.0f}% of the queries "
+                    f"counted ({_of}). That is a measurement; it does not say whether that share is right."
                 )
             elif dom["ratio"] > 0.3:
                 observations.append(
-                    f"My {dom['dominant']} adapter is my most-used at {dom['dominant_count']}/{dom['total_responses']} queries, "
-                    f"but other adapters are getting fair use too."
+                    f"My {dom['dominant']} adapter is my most-used at {_of} queries ({_pct:.0f}%)."
                 )
             else:
                 observations.append(
-                    f"My adapter usage is well-balanced — {dom['dominant']} leads slightly "
-                    f"at {dom['ratio']*100:.0f}%, but no single adapter dominates."
+                    f"My most-used adapter is {dom['dominant']} at {_pct:.0f}% ({_of})."
                 )
 
         # 2. Response length trend

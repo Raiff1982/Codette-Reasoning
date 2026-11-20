@@ -62,3 +62,21 @@ Jonathan asked whether timing adapter switches would bring back "the watchers fo
 
 Suite: 1,543 passed, 1 failed (NLTK, environmental), her real stores unchanged by the run.
 
+## Later: her introspection reports numbers, not verdicts (START_HERE section 4)
+
+House rule: words we author in her report reach her as her own. Three places still handed her a
+judgement in her voice:
+
+| Where | Was | Now |
+|---|---|---|
+| `inference/cocoon_introspection.py` `self_observations` (her chat report) | "that's dominant. I should check if I'm over-relying on it." / "other adapters are getting fair use too." / "My adapter usage is well-balanced ... no single adapter dominates." | the adapter, its count of the total and its share; above 50% it adds "That is a measurement; it does not say whether that share is right." |
+| `reasoning_forge/unified_memory.py` `full_introspection` (`/api/introspection`, the second implementation) | "that's dominant. I should diversify." / "My adapter usage is balanced (...)" | the same, numbers only |
+| `inference/codette_server.py` self-diagnostic (sent as her reply) | "Balanced: ... No — may be over-relying" | "Above the 40% line: yes / no" (the ratio is printed on the line above) |
+
+The old wording is kept in a comment at each spot. The `balanced` data flag in the API is unchanged.
+A scan of both reports for other judgement words found none, only the 10-22 disclaimer.
+`tests/test_introspection_no_verdicts.py` (5) checks both implementations on a dominant and a spread mix
+plus the diagnostic line, and **all 5 fail on the old code**.
+
+Suite: 1,548 passed, 1 failed (NLTK, environmental, as on `main`).
+

@@ -1340,7 +1340,10 @@ def _worker_thread():
                         lines.append(f"    Reasoning cocoons: {sys_data.get('reasoning_cocoons', 0)}")
                         lines.append(f"    Dominant adapter: {sys_data.get('dominant_adapter', 'none')}")
                         lines.append(f"    Dominance ratio: {sys_data.get('dominance_ratio', 0):.1%}")
-                        lines.append(f"    Balanced: {'Yes' if sys_data.get('balanced', True) else 'No — may be over-relying'}")
+                        # Amended 2026-11-20: was "Balanced: Yes / No — may be over-relying",
+                        # a verdict sent as her reply. The ratio above is the measurement;
+                        # this states only which side of the 40% line it falls.
+                        lines.append(f"    Above the 40% line: {'no' if sys_data.get('balanced', True) else 'yes'}")
 
                 if health.get("warnings"):
                     lines.append(f"\nWarnings: {', '.join(health['warnings'])}")
