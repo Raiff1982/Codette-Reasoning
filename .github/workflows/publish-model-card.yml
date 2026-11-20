@@ -1,0 +1,66 @@
+name: Publish model card to the Hub
+
+# Manual only. Sends ONE reviewed README to the Hugging Face Hub, with the secret HF_TOKEN.
+# What it can send is fixed in tools/publish_model_card.py (an allowlist); nothing typed
+# into this form can choose another file or another repository.
+#
+# One-time setup (yours; the token is never pasted into a chat):
+#   1. huggingface.co > Settings > Access Tokens: a fine-grained token with WRITE access to
+#      the model repository Raiff1982/codette-adapters-v4 and nothing else.
+#   2. GitHub: this repository > Settings > Secrets and variables > Actions >
+#      New repository secret, named HF_TOKEN.
+#   3. Actions > "Publish model card to the Hub" > Run workflow, branch main.
+#      Tick dry_run first if you want to see what would be sent.
+# Afterwards you can delete the secret and revoke the token.
+
+on:
+  workflow_dispatch:
+    inputs:
+      card:
+        description: Which card to publish (the list is in tools/publish_model_card.py)
+        type: choice
+        options:
+          - empathy_v4
+        default: empathy_v4
+      dry_run:
+        description: Check and print what would be sent, and send nothing
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-model-card
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    # main only, so a changed copy of this file on another branch can never reach the secret.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Install the Hub client
+        run: python3 -m pip install --quiet "huggingface_hub>=0.24"
+
+      - name: Dry run (nothing is sent)
+        if: ${{ inputs.dry_run }}
+        env:
+          CARD: ${{ inputs.card }}
+        run: python3 tools/publish_model_card.py "$CARD" --dry-run
+
+      - name: Publish
+        if: ${{ !inputs.dry_run }}
+        # The secret is visible to this one step only, not the job.
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          CARD: ${{ inputs.card }}
+          PROVENANCE: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} at ${{ github.sha }}
+        run: python3 tools/publish_model_card.py "$CARD" --provenance "$PROVENANCE"
