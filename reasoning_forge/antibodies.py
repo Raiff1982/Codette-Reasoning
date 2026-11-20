@@ -197,13 +197,30 @@ def detect_used_before_bound(sources: List[Source]) -> List[Lead]:
 # 2026-10-01: AEGIS healing_rate was 0.0 whether Layer 5 never ran or ran and
 # healed nothing; psi_r, the complexity keys and the Encryption row did the same.
 # The instrument could not say "not measured", so absence looked like a result.
+#
+# 2026-11-20, a new form of the same class: `sum(xs) / max(len(xs), 1)`. The
+# integer floor turns an empty denominator into 1, so an empty case reads 0 with
+# no `else 0` anywhere to see. Taught by a pasted GUARD gate whose mean Υ over no
+# checks at all read 0.0. Float floors such as max(x, 0.01) or 1e-10 guard a tiny
+# denominator, not an empty one, and are not flagged. Means are included for this
+# form only (the missed name was mean_upsilon); widening the name filter for the
+# older forms as well was measured at 26 more leads and not done.
 
 _RATE_NAME = re.compile(r"(rate|ratio|fraction|percent|pct|coverage|efficacy|share|healing)", re.I)
+_MEAN_NAME = re.compile(r"(mean|avg|average)", re.I)
 
 
 def _is_zero(node) -> bool:
     return isinstance(node, ast.Constant) and not isinstance(node.value, bool) \
         and node.value in (0, 0.0)
+
+
+def _is_int_one_floor(node) -> bool:
+    """max(n, 1) or max(1, n), with the integer 1."""
+    return (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+            and node.func.id == "max" and len(node.args) == 2 and not node.keywords
+            and any(isinstance(a, ast.Constant) and type(a.value) is int and a.value == 1
+                    for a in node.args))
 
 
 def _targets(node) -> List[str]:
@@ -251,6 +268,14 @@ def detect_zero_for_unmeasured(sources: List[Source]) -> List[Lead]:
                     out.append(Lead(s.rel, node.lineno,
                                     f"{fn_name}() returns 0 on an empty case; "
                                     "None would say it did not look"))
+            # `sum(xs) / max(len(xs), 1)` under a rate or mean name
+            if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Div) \
+                    and _is_int_one_floor(node.right):
+                label = " ".join([fn_name or ""] + list(tgt_names or []))
+                if _RATE_NAME.search(label) or _MEAN_NAME.search(label):
+                    out.append(Lead(s.rel, node.lineno,
+                                    "max(n, 1) as a denominator makes an empty case read 0; "
+                                    "'did not run' and 'ran, found none' read the same"))
             if isinstance(node, ast.Dict):
                 # {"healing_rate": a / b if b else 0.0}: the key names the value
                 for k, v in zip(node.keys, node.values):
@@ -524,7 +549,9 @@ ANTIBODIES: List[Antibody] = [
         "A rate or share falls back to 0 on an empty denominator, so 'did not run' "
         "and 'ran and found nothing' read identically.",
         ["23b173f: AEGIS healing_rate was 0.0 whether Layer 5 ran or not",
-         "3c09d2b: eta_score / psi_r never reached disk and read as 0"],
+         "3c09d2b: eta_score / psi_r never reached disk and read as 0",
+         "2026-11-20: a pasted GUARD gate set mean_upsilon = sum(s) / max(len(s), 1), "
+         "which read 0.0 with no checks at all; the detector knew only the `if b else 0` forms"],
         detect_zero_for_unmeasured),
     Antibody(
         "unguarded_cocoon_glob",

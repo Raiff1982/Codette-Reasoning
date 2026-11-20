@@ -93,6 +93,18 @@ her memory, so it's his call, and possibly hers: ask her once, bare, as the hous
 
 ## 3. Jonathan's decisions waiting
 
+**Added 2026-11-20, the harness ledger** (shadow-only; [HARNESS_LEDGER_2026-11-20.md](HARNESS_LEDGER_2026-11-20.md)).
+Its defaults are placeholders, not measurements:
+- Gate rule: strict (default), or GUARD's soft form, and if soft, what `lam`?
+- Breaker budgets: 3 failures / 3 patches came from the pasted design.
+- Υ band: should come from `tools/epsilon_profile.py` on her machine (section 2, item 3).
+- Wiring: whether anything should ever feed it automatically, and from where (never from live turns).
+- ~~Hub check: may the empathy v4 copy on `Raiff1982/codette-training-data` be read through the
+  Hugging Face connector to compare it with the local file? Read-only.~~ **Done 2026-11-20**
+  with his yes. Same content, Windows line endings on the Hub (`CHANGELOG_2026-07-17.md`).
+- Antibody leads: `zero_for_unmeasured` went from 40 to 67 leads with the new `max(n, 1)` form
+  (27 new, listed in PR #61). Leads, not findings; review them by clone family, as for the 40.
+
 From [APPROVALS_2026-11-18.md](APPROVALS_2026-11-18.md):
 - **Item 3, Layer 5:** what it is for (recommendation: forecasting *reasoning* strain over a
   conversation; *machine* strain is the substrate monitor's job), then (a) leave it out, (b) build the

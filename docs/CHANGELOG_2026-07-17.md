@@ -18,6 +18,21 @@ that LOCK 6 suppressed at runtime). Replaced end-to-end:
   newton (55), davinci (54), empathy (53, from v2), philosophy (48),
   quantum (50), consciousness (50), multi_perspective (57),
   systems_architecture (52). Zero duplicates, zero template filler.
+  *Amended 2026-11-20:* empathy's file is `dataset_engine/empathy_reasoning.jsonl`, one
+  folder above `v4/`, by design: `training/upload_v4_datasets.py` reads it from there and
+  uploads it as `empathy_v4.jsonl`. `dataset_engine/v4/` holds the other seven (366
+  records); 366 + 53 = 419. The 53 records are identical, in order, to `build_records()` in
+  `dataset_engine/empathy_dataset_v2.py`. Not checked: the copy on the Hub (blocked from the
+  container). The text above is left as written.
+  *Amended again 2026-11-20, with Jonathan's permission, read-only through the Hugging Face
+  connector:* `Raiff1982/codette-training-data/empathy_v4.jsonl` is 70,978 bytes against
+  70,925 locally. The 53 extra bytes are its line endings: every line on the Hub ends `\r\n`
+  (a Windows checkout), locally `\n`, and 70,925 + 53 = 70,978. The text matches at the
+  start, at the end of the first record and in the last record. This is a sampled comparison,
+  not a full byte-for-byte check. JSON lines read the same either way. The adapter
+  `Raiff1982/codette-adapters-v4/empathy` exists: LoRA r=16, α=32 on q/k/v/o, base
+  `Raiff1982/codette-llama-3.1-8b-merged`, matching the training settings above. Its
+  README is PEFT's blank auto-generated card and says nothing about the training data.
 - **Training:** `training/kaggle_train_all_adapters_v4.py` — Kaggle T4
   one-shot, 5 epochs, lr=1e-4, r=16/α=32, crash-safe per-adapter upload
   to `Raiff1982/codette-adapters-v4`.

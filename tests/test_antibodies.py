@@ -77,6 +77,27 @@ def test_zero_for_unmeasured_catches_an_early_return_zero_in_a_rate_function():
     assert A.detect_zero_for_unmeasured(_src(unrelated)) == []
 
 
+def test_zero_for_unmeasured_catches_the_max_one_floor_and_its_fix():
+    """2026-11-20: a pasted GUARD gate's mean over no checks at all read 0.0, and
+    the detector knew only the `if b else 0` forms."""
+    bad = ("def evaluate_candidate(upsilon_scores):\n"
+           "    mean_upsilon = sum(upsilon_scores) / max(len(upsilon_scores), 1)\n"
+           "    return mean_upsilon\n")
+    good = ("def evaluate_candidate(upsilon_scores):\n"
+            "    mean_upsilon = sum(upsilon_scores) / len(upsilon_scores) if upsilon_scores else None\n"
+            "    return mean_upsilon\n")
+    leads = A.detect_zero_for_unmeasured(_src(bad))
+    assert len(leads) == 1 and leads[0].line == 2
+    assert A.detect_zero_for_unmeasured(_src(good)) == []
+    # the other argument order, under a rate name
+    assert len(A.detect_zero_for_unmeasured(_src("def f(h, t):\n    hit_rate = h / max(1, t)\n"))) == 1
+    # a stability floor guards a tiny denominator, not an empty one
+    stable = "def f(a, b):\n    mean_ratio = a / max(b, 0.01)\n    tps_rate = a / max(b, 1e-10)\n"
+    assert A.detect_zero_for_unmeasured(_src(stable)) == []
+    # an unrelated name
+    assert A.detect_zero_for_unmeasured(_src("def width(a, n):\n    w = a / max(n, 1)\n")) == []
+
+
 # ── a glob over the folder that holds her dreams ─────────────────────────────
 
 def test_unguarded_cocoon_glob_flags_only_unguarded_code():
