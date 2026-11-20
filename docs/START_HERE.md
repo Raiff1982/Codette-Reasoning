@@ -16,7 +16,19 @@ Previous handoff: [HANDOFF_2026-11-18.md](HANDOFF_2026-11-18.md). Decisions file
 
 ---
 
-## 1. Urgent: the test suite writes into her memory
+## 1. ~~Urgent: the test suite writes into her memory~~ FIXED 2026-11-20
+
+> **Done:** every store is now redirected for the suite. `reasoning_forge/runtime_paths.py` gives
+> `runtime_root()`, which is the repository exactly as before unless `CODETTE_RUNTIME_ROOT` is set.
+> `tests/conftest.py` sets it (and `CODETTE_GOVERNOR_LOG`) to a temp folder before anything is
+> imported. Her memory DB, the forge's cocoon folder, Code7e, Nexis and the optimizer all resolve
+> through it. Measured with the per-test store watcher: **0 changes** to her real stores over a
+> full run (it was +11 memory rows). With the redirect disabled, the two worst tests added 10 rows
+> again and the new check reported it. The old sweep (which listed the cocoons folder and deleted
+> new files) is gone; what replaced it only reports, by file size and mtime, and deletes nothing.
+> `tests/test_runtime_redirect.py` fails if any store points back into the repository.
+> **Still Jonathan's:** cleaning the test rows past runs left in her real memory (below).
+> The text below is left as written.
 
 Measured 2026-11-19 with a per-test store watcher (each change attributed to one test).
 

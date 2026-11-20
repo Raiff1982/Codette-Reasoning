@@ -79,7 +79,13 @@ try:
 except Exception:  # pragma: no cover - import-order fallback only
     _CONTINUITY_WINDOW = 900.0
 
-DB_DIR = Path(__file__).parent.parent / "data"
+# Through runtime_root() (2026-11-19): the repository, as before, unless
+# CODETTE_RUNTIME_ROOT is set -- which only the test suite does.
+try:
+    from reasoning_forge.runtime_paths import runtime_root as _runtime_root
+except ImportError:                     # imported as a bare module
+    from runtime_paths import runtime_root as _runtime_root
+DB_DIR = _runtime_root() / "data"
 DB_PATH = DB_DIR / "codette_memory.db"
 LEGACY_COCOON_DIR = Path(__file__).parent.parent / "cocoons"
 
