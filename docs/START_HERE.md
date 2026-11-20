@@ -81,6 +81,11 @@ her memory, so it's his call, and possibly hers: ask her once, bare, as the hous
 5. **Telemetry checklist** (`TELEMETRY_RUNTIME_CHECKLIST.md`): item 1 (Υ vs Γ spread) and item 3
    (amygdala state drift) need her live telemetry; neither has started. Item 3 stays within the
    guardrails there.
+5b. **Adapter-switch stopwatch (added 2026-11-20):** after a few days of real turns, read
+   `data/adapter_switch_timing.jsonl` (milliseconds per switch, both backends). If OpenVINO's
+   per-request `Adapter(path)` build is near 0 ms, adapter caching / prefetch ideas are not needed on
+   the live path. Observe only: **nothing may act on it** without Jonathan's decision
+   (`reasoning_forge/adapter_switch_timing.py`; a test fails if live code reads the log).
 6. **Nexis memory size:** check `reasoning_forge/.logs/nexis_signal_memory.db`. It is never pruned
    (approval 4).
 7. **Memory files** (`memory/*.md`, mentioned in HANDOFF_2026-08-04) are on his machine and have

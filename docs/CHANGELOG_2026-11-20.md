@@ -34,3 +34,31 @@ exact match of `query` against the fixture strings in `tests/test_trace_debate.p
 `tests/test_trace_e2e.py`. Removing them changes her memory: Jonathan's decision.
 
 Suite: 1,538 passed, 1 failed (NLTK, environmental, as on `main`).
+
+## Later: a stopwatch on adapter switching (observe only)
+
+Jonathan asked whether timing adapter switches would bring back "the watchers force bug", then:
+*"ok add the timer with that comment."*
+
+- `reasoning_forge/adapter_switch_timing.py`: one numbers-only line per switch (backend, adapter
+  names, ms) to `data/adapter_switch_timing.jsonl` under `runtime_root()` (gitignored; the suite writes
+  to its temp root). Best-effort: it never raises into a turn.
+- Timed on both backends. OpenVINO `_make_gen_config` (single adapter) and the blend path both build
+  `Adapter(path)` **from its file on every request**, so "load once" in its docstring describes the
+  model, not the adapters. Applying the weights may also happen inside `generate()`, where it cannot be
+  separated; the comment says so. llama.cpp `_load_model`: its docstring's "~0ms" hot-swap had never
+  been measured; now it is.
+- **The rules, written at the module and at every call site:** numbers only; never shown to her;
+  **nothing acts on it** (no threshold, cache size, throttle or routing). Any action is a separate
+  decision after real numbers, the same order as the speed shadow.
+- `tests/test_adapter_switch_timing.py` (5): it writes numbers only, under the runtime root; a failed
+  write never reaches a turn; both backends call it; the real OpenVINO code path, with a stand-in for
+  the library, writes exactly one line and the adapter config is unchanged; and **rule 3 is enforced**:
+  the test fails if any live module other than the writer names the log. Mutation-checked: a live
+  import of `log_path` failed it.
+- A slip, noted: the rule-3 mutation was appended to `reasoning_forge/substrate_awareness.py`, which
+  does not exist (the real file is in `inference/`), so it created an empty new file. Removed. It was
+  never committed.
+
+Suite: 1,543 passed, 1 failed (NLTK, environmental), her real stores unchanged by the run.
+
