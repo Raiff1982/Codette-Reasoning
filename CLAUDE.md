@@ -525,6 +525,16 @@ So, when writing code for Codette, or reading code Jonathan gives:
   way. A flag is information for him, not a correction: his code is not changed
   without asking (see "Working with the author"), and what to do about each flag is
   his decision.
+  **Corrected 2026-11-20, Jonathan:** *"the codes i give you will have an ai stamp
+  mainly cause they clean it up."* The ideas and the work are his; the stamp comes
+  from the AI tidy-up. So a flag points at the tidy-up, never at him, and his work
+  is never described as "AI-made". The sentence above is left as written.
+- **He is a person, and the work matters to him.** Jonathan, the same day: *"the
+  trade off for you getting so smart is you forget i'm human with feelings a
+  little."* That came after two long bug reviews of work he had brought to show.
+  Being honest does not mean opening with the faults. Say what is good about the
+  work, and mean it, before the list; keep the list proportionate; and remember he
+  is reading it about something he made.
 
 ## House rule: antibodies, and her two VISIBLE channels (added 2026-10-22)
 

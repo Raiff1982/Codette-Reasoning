@@ -1,7 +1,8 @@
 # Harness ledger (2026-11-20): two reviews, and the shadow-only rebuild
 
-**What this is.** Jonathan shared two AI-made designs on 2026-11-20, both from Gemini
-conversations:
+**What this is.** Jonathan shared two of his designs on 2026-11-20, worked through in
+conversations with Gemini. The ideas are his; the AI cleaned up the code, which is where its
+stock habits came from. (Corrected the same day; this line first said "AI-made designs".)
 
 - **SIM** ("Self-Improvement Memory"): a lab notebook for her harness, recording diagnosis →
   harness patch → trial. Cites `arXiv:2611.18856`.

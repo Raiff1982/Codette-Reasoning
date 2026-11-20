@@ -4,9 +4,10 @@ Every function here says what a gate WOULD do. Nothing on a live path calls them
 and nothing acts on what they return. Storage, and the rules that keep this from
 becoming force, are in reasoning_forge/harness_ledger.py.
 
-Where the design came from (2026-11-20). Jonathan shared two AI-made designs, both
-Gemini conversations: "GUARD" (a promotion gate using directional regret, plus a
-circuit breaker) and "SIM" (a lab notebook of diagnosis -> harness patch -> trial).
+Where the design came from (2026-11-20). Jonathan shared two of his designs, worked
+through in conversations with Gemini, which cleaned up the code: "GUARD" (a
+promotion gate using directional regret, plus a circuit breaker) and "SIM" (a lab
+notebook of diagnosis -> harness patch -> trial). The ideas are his.
 They cite arXiv:2611.23476 and arXiv:2611.18856; neither paper could be checked
 from this container (arXiv is blocked here), so both are UNVERIFIED citations.
 This is a rebuild, not that code. The review that found 23 bugs in it, each with
