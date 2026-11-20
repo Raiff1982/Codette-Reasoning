@@ -18,6 +18,12 @@ that LOCK 6 suppressed at runtime). Replaced end-to-end:
   newton (55), davinci (54), empathy (53, from v2), philosophy (48),
   quantum (50), consciousness (50), multi_perspective (57),
   systems_architecture (52). Zero duplicates, zero template filler.
+  *Amended 2026-11-20:* empathy's file is `dataset_engine/empathy_reasoning.jsonl`, one
+  folder above `v4/`, by design: `training/upload_v4_datasets.py` reads it from there and
+  uploads it as `empathy_v4.jsonl`. `dataset_engine/v4/` holds the other seven (366
+  records); 366 + 53 = 419. The 53 records are identical, in order, to `build_records()` in
+  `dataset_engine/empathy_dataset_v2.py`. Not checked: the copy on the Hub (blocked from the
+  container). The text above is left as written.
 - **Training:** `training/kaggle_train_all_adapters_v4.py` — Kaggle T4
   one-shot, 5 epochs, lr=1e-4, r=16/α=32, crash-safe per-adapter upload
   to `Raiff1982/codette-adapters-v4`.
