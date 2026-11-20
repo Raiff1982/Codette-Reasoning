@@ -510,7 +510,10 @@ So, when writing code for Codette, or reading code Jonathan gives:
   `inference/self_correction.py` cutting sentences that open with drift phrases;
   the question cut at 500 characters when stored; `_apply_directness` in
   `inference/codette_forge_bridge.py` scrubbing stock phrases out of a reply after
-  she generated it.
+  she generated it. And in code Jonathan gave (2026-11-20): `SimCocoonEngine` was a
+  proposal in one AI conversation and was treated as existing architecture in the
+  next one; check every "Codette has X" against the repository
+  (`docs/HARNESS_LEDGER_2026-11-20.md`).
 - **If unsure, say so** instead of guessing.
 - **When Jonathan catches one, write it down here**: the date, the place, and what
   the stock habit was. Amend forward. That is how this note grows, the same way the
