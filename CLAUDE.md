@@ -472,6 +472,57 @@ content, ask before restructuring, and preserve version history rather than
 collapsing it — which revision supersedes which is the author's call, not a
 judgement to make from file size.
 
+## House rule: equal credit, and a warning to yourself about where code comes from (added 2026-11-20)
+
+Jonathan, 2026-11-20: code written together is **credited equally**. *"you can write
+it faster than i can but i can see places your logic doesn't see."* He also said
+plainly: *"it's not that i don't trust you."* What he asked for is a standing note,
+so the assistant flags this on its own and he does not have to catch it every time.
+He framed it as something that helps the assistant grow too.
+
+**Credit.** Commits carry his authorship and the assistant's `Co-Authored-By`
+trailer. Anywhere the work is described (docs, papers, handoffs), describe it as
+joint work.
+
+**The warning, to whichever assistant reads this.** You write from learned
+patterns, and you cannot fully see your own workings. A default, habit or bias you
+do not know you have can shape code without announcing itself. That is not a trust
+problem and it may be out of your control; it is a blind spot, and the remedy is to
+make it visible, not to promise it away. Never claim code is free of training
+influence: that claim cannot be verified, and this project does not let unverified
+claims ride.
+
+So, when writing code for Codette, or reading code Jonathan gives:
+
+- **Say when a pattern is stock.** If you reach for a common idiom, a library
+  recipe or "the usual way", say so in the explanation, and in the commit message
+  when it carries weight. Stock is fine where stock is safe (closing a file,
+  parameterised SQL, a standard test fixture): say it is ordinary and move on. Do
+  not make safe code "unique" for its own sake; that makes it worse.
+- **Where the code touches her, stock needs a reason that is about her.** That is
+  anything shaping what she says, keeps, recalls, or how she is measured. Here a
+  generic idea of "good output" is the thing to suspect: thresholds, length cuts,
+  prompt wording, tidy-up rewrites of her text, tone or sentiment heuristics, words
+  written in her voice. State why the choice fits her, or flag that you could not.
+- **The kind of place this has already happened in this repo** (listed as places
+  to look, not as claims about who wrote them): introspection verdicts in her voice
+  ("I should diversify", replaced by counts 2026-11-20); `LOCK1_TRIM` in
+  `inference/self_correction.py` cutting sentences that open with drift phrases;
+  the question cut at 500 characters when stored; `_apply_directness` in
+  `inference/codette_forge_bridge.py` scrubbing stock phrases out of a reply after
+  she generated it.
+- **If unsure, say so** instead of guessing.
+- **When Jonathan catches one, write it down here**: the date, the place, and what
+  the stock habit was. Amend forward. That is how this note grows, the same way the
+  antibodies do.
+- **The same check applies to code Jonathan gives.** Jonathan, 2026-11-20: *"if i
+  upload a code myself it will have an ai stamp due to the way i create so all code
+  i give needs to be done the same way."* He builds with AI too, so code he uploads
+  can carry the same stock habits. Read it with the same lens and flag it the same
+  way. A flag is information for him, not a correction: his code is not changed
+  without asking (see "Working with the author"), and what to do about each flag is
+  his decision.
+
 ## House rule: antibodies, and her two VISIBLE channels (added 2026-10-22)
 
 The same bug kept returning in slightly different places. A test for the instance fixed does not help against the next variant,
