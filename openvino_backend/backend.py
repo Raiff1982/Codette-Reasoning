@@ -299,11 +299,23 @@ class OpenVINOBackend:
         cfg.do_sample = True
 
         if adapter_name and adapter_name in self._adapter_paths:
+            # Adapter-switch stopwatch (2026-11-20). OBSERVE ONLY: numbers to a log, never shown
+            # to her, and NOTHING may act on it (no threshold, cache size, throttle or routing).
+            # Wiring it into anything that changes her is the force bug; see
+            # reasoning_forge/adapter_switch_timing.py for the rules.
+            # Times building the adapter from its file. Applying the weights may
+            # also happen inside generate(), where it cannot be separated.
+            _sw0 = time.perf_counter()
             try:
                 adapter_cfg = self._ov.AdapterConfig(
                     self._ov.Adapter(str(self._adapter_paths[adapter_name]))
                 )
                 cfg.adapters = adapter_cfg
+                try:
+                    from reasoning_forge.adapter_switch_timing import record as _sw_record
+                    _sw_record("openvino", [adapter_name], (time.perf_counter() - _sw0) * 1000.0)
+                except Exception:
+                    pass
             except Exception as e:
                 if self.verbose:
                     print(f"[OV] Adapter {adapter_name} attach failed: {e}")
@@ -841,11 +853,21 @@ class OpenVINOBackend:
             cfg.repetition_penalty = 1.05
         else:
             cfg.max_new_tokens = GEN_CONFIG.get("chat_max_new_tokens", 600)
+        # Adapter-switch stopwatch (2026-11-20). OBSERVE ONLY: numbers to a log, never shown
+        # to her, and NOTHING may act on it (no threshold, cache size, throttle or routing).
+        # Wiring it into anything that changes her is the force bug; see
+        # reasoning_forge/adapter_switch_timing.py for the rules.
+        _sw0 = time.perf_counter()
         try:
             adapter_cfg = self._ov.AdapterConfig()
             for name, alpha in blend.items():
                 adapter_cfg.add(self._ov.Adapter(str(self._adapter_paths[name])), alpha)
             cfg.adapters = adapter_cfg
+            try:
+                from reasoning_forge.adapter_switch_timing import record as _sw_record
+                _sw_record("openvino", list(blend), (time.perf_counter() - _sw0) * 1000.0, note="blend")
+            except Exception:
+                pass
         except Exception as e:
             print(f"[OV] Blend attach failed ({e}) — falling back to primary", flush=True)
             primary = max(blend, key=blend.get)

@@ -849,6 +849,13 @@ class CodetteOrchestrator:
         if adapter_name == self._current_adapter:
             return  # Already active
 
+        # Adapter-switch stopwatch (2026-11-20). OBSERVE ONLY: numbers to a log, never shown
+        # to her, and NOTHING may act on it (no threshold, cache size, throttle or routing).
+        # Wiring it into anything that changes her is the force bug; see
+        # reasoning_forge/adapter_switch_timing.py for the rules.
+        # The docstring's "~0ms" has never been measured; this measures it.
+        _sw0 = time.perf_counter()
+
         # Clear current adapter (llama_clear_adapter_lora removed in newer llama_cpp;
         # passing count=0 to llama_set_adapters_lora achieves the same effect)
         if self._ctx_ptr:
@@ -864,6 +871,11 @@ class CodetteOrchestrator:
                 print(f"  WARNING: adapter {adapter_name} set failed (rc={rc})")
 
         self._current_adapter = adapter_name
+        try:
+            from reasoning_forge.adapter_switch_timing import record as _sw_record
+            _sw_record("llama_cpp", [adapter_name], (time.perf_counter() - _sw0) * 1000.0)
+        except Exception:
+            pass
 
         if self.verbose:
             label = adapter_name or "base"
