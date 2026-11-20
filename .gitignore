@@ -251,3 +251,8 @@ data/self_train_shadow.jsonl
 data/substrate_speed_shadow.jsonl
 # 2026-11-20: adapter-switch stopwatch (reasoning_forge/adapter_switch_timing.py), runtime state.
 data/adapter_switch_timing.jsonl
+# 2026-11-20: shadow-only harness ledger (reasoning_forge/harness_ledger.py), runtime state.
+data/harness_ledger.db
+data/harness_ledger.db-wal
+data/harness_ledger.db-shm
+data/harness_ledger.db-journal
