@@ -123,6 +123,10 @@ class CognitionCocooner:
     """
 
     def __init__(self, storage_path: str = "cocoons", encryption_key: bytes = None):
+        # The relative default resolves under runtime_root() when it is set
+        # (the test suite only, 2026-11-19); otherwise exactly as before.
+        if storage_path == "cocoons" and os.environ.get("CODETTE_RUNTIME_ROOT", "").strip():
+            storage_path = str(Path(os.environ["CODETTE_RUNTIME_ROOT"].strip()) / "cocoons")
         self.storage_path = Path(storage_path)
         self.storage_path.mkdir(parents=True, exist_ok=True)
 

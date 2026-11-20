@@ -43,7 +43,13 @@ import time
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-_REPO = Path(__file__).resolve().parent.parent
+# Through runtime_root() (2026-11-19): the repository unless CODETTE_RUNTIME_ROOT
+# is set, which only the test suite does.
+try:
+    from reasoning_forge.runtime_paths import runtime_root as _runtime_root
+except ImportError:
+    from runtime_paths import runtime_root as _runtime_root
+_REPO = _runtime_root()
 _STATE_PATH = _REPO / "data" / "optimizer_state.json"
 _LOG_PATH = _REPO / "data" / "optimizer_shadow.jsonl"
 _TELEMETRY_DB = _REPO / "data" / "manifold_telemetry.db"

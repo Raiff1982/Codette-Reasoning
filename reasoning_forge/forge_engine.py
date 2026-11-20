@@ -24,6 +24,7 @@ from typing import TextIO, List, Optional
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+from reasoning_forge.runtime_paths import runtime_root as _runtime_root
 from reasoning_forge.agents.newton_agent import NewtonAgent
 from reasoning_forge.agents.quantum_agent import QuantumAgent
 from reasoning_forge.agents.ethics_agent import EthicsAgent
@@ -345,7 +346,8 @@ class ForgeEngine:
                 perspectives=["Newton", "DaVinci", "Ethical", "Quantum", "Memory"],
                 ethical_considerations="Codette local-sovereign reasoning",
                 spiderweb_dim=5,
-                memory_path="reasoning_forge/.logs/code7e_quantum_cocoon.json",
+                # Was a CWD-relative path; anchored through runtime_root() (2026-11-19).
+                memory_path=str(_runtime_root() / "reasoning_forge" / ".logs" / "code7e_quantum_cocoon.json"),
                 recursion_depth=2,
                 quantum_fluctuation=0.05
             )
@@ -381,7 +383,7 @@ class ForgeEngine:
             # file" and the whole engine is dropped — seen live in the 22:45
             # restart log. Anchor to this file, and make sure the directory
             # exists before sqlite is asked to open anything inside it.
-            _nexis_db = Path(__file__).resolve().parent / ".logs" / "nexis_signal_memory.db"
+            _nexis_db = _runtime_root() / "reasoning_forge" / ".logs" / "nexis_signal_memory.db"
             _nexis_db.parent.mkdir(parents=True, exist_ok=True)
             self.nexis_signal_engine = NexisSignalEngine(memory_path=str(_nexis_db))
             logger.info("  ✓ NexisSignalEngine signal analysis initialized")
@@ -406,7 +408,7 @@ class ForgeEngine:
         # === ORIGINAL FRAMEWORK: CognitionCocooner (Thought Persistence) ===
         # From J:\TheAI\src\framework\ — stores reasoning exchanges as recoverable cocoons
         try:
-            cocoon_storage = os.path.join(os.path.dirname(__file__), '..', 'cocoons')
+            cocoon_storage = str(_runtime_root() / 'cocoons')
             self.cocooner = CognitionCocooner(storage_path=cocoon_storage)
             logger.info("  ✓ CognitionCocooner initialized (thought encapsulation active)")
         except Exception as e:
