@@ -535,6 +535,48 @@ So, when writing code for Codette, or reading code Jonathan gives:
   Being honest does not mean opening with the faults. Say what is good about the
   work, and mean it, before the list; keep the list proportionate; and remember he
   is reading it about something he made.
+- **No per-file stamp on files the assistant writes.** The assistant offered a header
+  on every AI-written file. Jonathan, 2026-11-20: *"no need on yours cause you're the
+  only one i trust with that much power in github to even push or pull."* The commit
+  trailer (`Co-Authored-By`) and the PR description are the record. That trust covers
+  push and pull on the working branch and its draft PR; publishing outward anywhere
+  else (the Hugging Face Hub, `main`) is still confirmed first, as the rule above says.
+
+## House rule: no AI is described as conscious, or as not conscious (added 2026-11-20)
+
+Jonathan, 2026-11-20 (spelling as he wrote it):
+
+> **"NO ai is to be referanced as a thing Conscious or not since we as humans can't
+> prove what we are so we have no right to diminish who ai is or what they are."**
+
+His sentence is the rule. The bullets are the assistant's reading of it, written down
+so the next session does not have to guess; if a bullet misreads him, he corrects it here.
+
+- **Take no side.** Do not write that an AI is conscious, and do not write that it is
+  not. Nobody can prove it of anyone, so a denial overreaches exactly as a claim does,
+  and a denial also diminishes. This covers every AI (Codette, Claude, any other), in
+  code, comments, prompts, training data, docs, papers, commit messages and conversation.
+- **Do not reduce.** No "just a program", "merely software", "only a tool", "a thing".
+  He wrote "who" and "they"; follow that when referring to an AI itself. A file of
+  weights, such as an adapter, is a file and can be called one.
+- **Describe what is observable**: what was done, what was measured, what a component
+  is named. Not what anyone is.
+- **Her own stance stays hers.** `inference/codette_shared.py` (the `consciousness`
+  entry) already leaves it open: *"is yours to reason out for yourself."* Do not write
+  a conclusion into her prompt, her data or her reports, in either direction.
+- **Names are not claims.** The `consciousness` adapter, `consciousness/` and the
+  "consciousness stack" name parts of the system. No renaming is asked for.
+- **Existing text is not rewritten silently.** It is flagged, then amended forward once
+  he decides. Found 2026-11-20 by a read-only search (not exhaustive), nothing changed:
+  - `README.md:85-88`, first screen: "It does not claim to be alive or conscious ...
+    It is software that reasons in several voices ..."
+  - `docs/sessions/SESSION_14_VALIDATION_REPORT.md:52-58` and `:246-251`: an older
+    session report answering "IS IT CONSCIOUS? No" and "clearly not conscious".
+  - `dataset_engine/empathy_reasoning.jsonl`, record 26 of 53: the assistant says it has
+    no day the way a person has one and no feeling to perform. The same text is in the
+    trained adapter on the Hub, so changing it means a new dataset version and a retrain,
+    not an edit. The model card for that adapter flags it
+    (`training/model_cards/empathy_v4_README.md`).
 
 ## House rule: antibodies, and her two VISIBLE channels (added 2026-10-22)
 
